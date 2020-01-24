@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+
+        <fragment
+            android:id="@+id/nav_host_fragment"
+            android:name="androidx.navigation.fragment.NavHostFragment"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:defaultNavHost="true"
+            app:navGraph="@navigation/navigation" />
+
+
+        <ExpandableListView
+            android:id="@+id/expandable_list_view"
+            android:layout_gravity="start"
+            android:layout_width="235dp"
+            android:layout_height="match_parent"
+            android:background="@android:color/white"
+            android:groupIndicator="@android:color/transparent"
+            />
+
+    </androidx.drawerlayout.widget.DrawerLayout>
+
+</layout>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="comment"
+            type="dev.gtcl.reddit.comments.Comment" />
+    </data>
+
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <View
+            android:id="@+id/depth_indicator"
+            android:layout_width="3dp"
+            android:layout_height="match_parent"
+            app:commentItem="@{comment}"/>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_margin="8dp">
+
+            <TextView
+                android:id="@+id/comment_text_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:autoLink="web"
+                android:padding="@dimen/comment_indentation_size"
+                android:text="@{comment.body}"
+                tools:text="This is a comment"
+                android:elevation="8dp"/>
+
+        </androidx.cardview.widget.CardView>
+
+
+
+    </LinearLayout>
+
+</layout>

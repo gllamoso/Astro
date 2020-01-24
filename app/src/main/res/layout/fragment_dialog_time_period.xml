@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/posts_from"/>
+
+        <RadioGroup
+            android:id="@+id/radio_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/hour_radio_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/past_hour"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/day_radio_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/past_24_hours"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/week_radio_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/past_week"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/month_radio_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/past_month"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/year_radio_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/past_year"
+                android:padding="8dp"/>
+
+            <RadioButton
+                android:id="@+id/all_radio_button"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/all_time"
+                android:padding="8dp"/>
+
+        </RadioGroup>
+
+    </LinearLayout>
+
+</layout>

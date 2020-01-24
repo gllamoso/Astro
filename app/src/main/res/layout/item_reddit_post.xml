@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="post"
+            type="dev.gtcl.reddit.posts.RedditPost" />
+    </data>
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/score"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:text="@{String.valueOf(post != null ? post.score : 0)}"
+            tools:text="55"/>
+
+        <ImageView
+            android:id="@+id/thumbnail"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="8dp"
+            app:imageUrl="@{post.thumbnail}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/title"
+            app:layout_constraintTop_toTopOf="parent"
+            app:srcCompat="@android:drawable/ic_menu_gallery" />
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginTop="8dp"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            app:layout_constraintEnd_toStartOf="@+id/thumbnail"
+            app:layout_constraintHorizontal_bias="0.5"
+            app:layout_constraintStart_toEndOf="@+id/score"
+            app:layout_constraintTop_toTopOf="parent"
+            android:text="@{post.title}"
+            tools:text="this is a post title\n and might be multiple lines" />
+<!--        @{post != null ? post.title : &quot;loading&quot;}-->
+        <TextView
+            android:id="@+id/subtitle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
+            app:layout_constraintEnd_toStartOf="@+id/thumbnail"
+            app:layout_constraintStart_toEndOf="@+id/score"
+            app:layout_constraintTop_toBottomOf="@id/title"
+            android:text="@{String.format(@string/post_subtitle, post.subreddit, post.author)}"
+            tools:text="Submitted to r/androiddev by foo"/>
+<!--        @{String.format(@string/post_subtitle, post != null ? post.author : &quot;foo&quot;)}-->
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>

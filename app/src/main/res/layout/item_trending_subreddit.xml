@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="trendingSubredditPost"
+            type="dev.gtcl.reddit.posts.TrendingSubredditPost" />
+    </data>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:padding="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+            android:text="@{trendingSubredditPost.trendingSubreddit}"
+            tools:text="Trending Subreddits of {date}"/>
+
+        <TextView
+            android:id="@+id/sub1"
+            android:padding="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{trendingSubredditPost.titles[0]}"
+            tools:text="r/sub1"/>
+
+        <TextView
+            android:id="@+id/sub2"
+            android:padding="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{trendingSubredditPost.titles[1]}"
+            tools:text="r/sub2"/>
+
+        <TextView
+            android:id="@+id/sub3"
+            android:padding="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{trendingSubredditPost.titles[2]}"
+            tools:text="r/sub3"/>
+
+        <TextView
+            android:id="@+id/sub4"
+            android:padding="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{trendingSubredditPost.titles[3]}"
+            tools:text="r/sub4"/>
+
+        <TextView
+            android:id="@+id/sub5"
+            android:padding="16dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{trendingSubredditPost.titles[4]}"
+            tools:text="r/sub5"/>
+
+    </LinearLayout>
+
+</layout>

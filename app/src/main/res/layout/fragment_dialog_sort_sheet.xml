@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sort_posts_by"/>
+
+        <RadioGroup
+            android:id="@+id/radio_group"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <RadioButton
+                android:id="@+id/hot_radiobutton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/order_hot"
+                android:padding="8dp"
+                android:drawableStart="@drawable/ic_whatshot_black_24dp"
+                android:drawablePadding="8dp"
+                android:drawableEnd="@drawable/radio_button_custom"
+                android:button="@null"
+                android:background="?android:attr/selectableItemBackground"
+                tools:checked="true"/>
+
+            <RadioButton
+                android:id="@+id/new_radiobutton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/order_new"
+                android:drawableStart="@drawable/ic_new_black_24dp"
+                android:drawablePadding="8dp"
+                android:padding="8dp"
+                android:drawableEnd="@drawable/radio_button_custom"
+                android:button="@null"
+                android:background="?android:attr/selectableItemBackground"/>
+
+            <RadioButton
+                android:id="@+id/top_radiobutton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/order_top"
+                android:drawableStart="@drawable/ic_top_black_24dp"
+                android:drawablePadding="8dp"
+                android:padding="8dp"
+                android:drawableEnd="@drawable/radio_button_custom"
+                android:button="@null"
+                android:background="?android:attr/selectableItemBackground"/>
+
+            <RadioButton
+                android:id="@+id/controversial_radiobutton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/order_controversial"
+                android:drawableStart="@drawable/ic_controversial_black_24dp"
+                android:drawablePadding="8dp"
+                android:padding="8dp"
+                android:drawableEnd="@drawable/radio_button_custom"
+                android:button="@null"
+                android:background="?android:attr/selectableItemBackground"/>
+
+            <RadioButton
+                android:id="@+id/rising_radiobutton"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/order_rising"
+                android:drawableStart="@drawable/ic_trending_up_black_24dp"
+                android:drawablePadding="8dp"
+                android:padding="8dp"
+                android:drawableEnd="@drawable/radio_button_custom"
+                android:button="@null"
+                android:background="?android:attr/selectableItemBackground"/>
+
+        </RadioGroup>
+
+    </LinearLayout>
+
+</layout>

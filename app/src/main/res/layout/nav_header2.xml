@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="user"
+            type="dev.gtcl.reddit.users.User" />
+    </data>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/main_header_selector">
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:weightSum="1"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp">
+
+            <ImageView
+                android:id="@+id/avatar"
+                android:src="@drawable/ic_user_24dp"
+                android:layout_width="70dp"
+                android:layout_height="70dp"
+                app:imageUrl="@{user.iconImg}"
+                app:setVisibility="@{user != null}"/>
+
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/name"
+            android:layout_weight="1"
+            android:paddingLeft="10dp"
+            android:paddingStart="10dp"
+            android:paddingRight="10dp"
+            android:paddingEnd="10dp"
+            android:layout_marginBottom="10dp"
+            android:gravity="start"
+            android:text="@{String.valueOf(user != null ? user.name : @string/not_logged_in)}"
+            android:textColor="@android:color/white"
+            android:textSize="16sp"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            tools:text="User Name"
+            />
+
+    </LinearLayout>
+
+</layout>
