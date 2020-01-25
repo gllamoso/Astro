@@ -1,6 +1,5 @@
-package dev.gtcl.reddit.ui.posts
+package dev.gtcl.reddit.ui.main.fragments.posts
 
-import android.util.Log
 import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil

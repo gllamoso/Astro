@@ -1,6 +1,5 @@
-package dev.gtcl.reddit.ui.posts
+package dev.gtcl.reddit.ui.main.fragments.posts
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
@@ -8,9 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.ItemRedditPostBinding
 import dev.gtcl.reddit.posts.RedditPost
-import kotlinx.coroutines.*
-import okhttp3.internal.lockAndWaitNanos
-import okhttp3.internal.wait
 
 //class RedditPostViewHolder(view: View, private val glide: GlideRequests)
 //class RedditPostViewHolder(view: View)

@@ -5,15 +5,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.databinding.FragmentSubredditsBinding
-import dev.gtcl.reddit.ui.MainActivity
-import dev.gtcl.reddit.ui.MainActivityViewModel
-import java.util.concurrent.Executors
+import dev.gtcl.reddit.ui.main.MainActivity
+import dev.gtcl.reddit.ui.main.MainActivityViewModel
 
 class SubredditSelectorFragment: Fragment() {
 
@@ -43,13 +40,13 @@ class SubredditSelectorFragment: Fragment() {
         binding.tabLayout.getTabAt(2)!!.text = getText(R.string.popular_tab_label)
         binding.tabLayout.getTabAt(3)!!.text = getText(R.string.search_tab_label)
 
-        model.subredditSelection.observe(this, Observer {
-            if(it != null){
-                (activity as MainActivity).selectSubreddit(it)
-                findNavController().navigateUp()
-                model.subredditSelected()
-            }
-        })
+//        model.subredditSelection.observe(this, Observer {
+//            if(it != null){
+//                (activity as MainActivity).selectSubreddit(it)
+//                findNavController().navigateUp()
+//                model.subredditSelected()
+//            }
+//        })
 
         return binding.root
     }

@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.posts.sort_sheet
+package dev.gtcl.reddit.ui.main.fragments.posts.sort_sheet
 
 import android.os.Bundle
 import android.view.LayoutInflater

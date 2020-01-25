@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.posts
+package dev.gtcl.reddit.ui.main.fragments.posts
 
 import android.view.LayoutInflater
 import android.view.ViewGroup

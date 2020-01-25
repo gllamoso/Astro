@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui
+package dev.gtcl.reddit.ui.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
@@ -9,7 +9,9 @@ class MainActivityViewModelFactory(private val application: RedditApplication): 
     @Suppress("unchecked_cast")
     override fun <T: ViewModel?> create(modelClass: Class<T>): T {
         if(modelClass.isAssignableFrom(MainActivityViewModel::class.java)){
-            return MainActivityViewModel(application) as T
+            return MainActivityViewModel(
+                application
+            ) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

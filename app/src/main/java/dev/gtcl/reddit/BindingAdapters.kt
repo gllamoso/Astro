@@ -15,7 +15,7 @@ import dev.gtcl.reddit.comments.CommentItem
 import dev.gtcl.reddit.comments.More
 import dev.gtcl.reddit.posts.RedditPost
 import dev.gtcl.reddit.subs.Subreddit
-import dev.gtcl.reddit.ui.posts.PostListAdapter
+import dev.gtcl.reddit.ui.main.fragments.posts.PostListAdapter
 import dev.gtcl.reddit.ui.subreddits.tabs.mine.SubredditsListAdapter
 import dev.gtcl.reddit.ui.subreddits.tabs.popular.SubredditsPageListAdapter
 import dev.gtcl.reddit.ui.subreddits.tabs.trending.TrendingAdapter
@@ -46,8 +46,10 @@ fun setVisibility(view: View, constraint: Boolean) {
 
 @BindingAdapter("redditPosts")
 fun setRedditPosts(recyclerView: RecyclerView, posts: PagedList<RedditPost>?){
-    val adapter = recyclerView.adapter as PostListAdapter
-    adapter.submitList(posts)
+    recyclerView.adapter?.let {
+        val adapter = it as PostListAdapter
+        adapter.submitList(posts)
+    }
 }
 
 @BindingAdapter("subredditsAsList")

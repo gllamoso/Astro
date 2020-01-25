@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.posts.time_period_sheet
+package dev.gtcl.reddit.ui.main.fragments.posts.time_period_sheet
 
 import android.os.Bundle
 import android.view.LayoutInflater
