@@ -1,14 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <data>
-        <variable
-            name="viewModel"
-            type="dev.gtcl.reddit.ui.fragments.MainFragmentViewModel" />
-    </data>
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -22,7 +16,6 @@
             android:scrollbars="vertical"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             app:spanCount="1"
-            app:subredditsAsList="@{viewModel.defaultSubreddits}"
             tools:itemCount="20"
             tools:listitem="@layout/item_subreddit" />
 

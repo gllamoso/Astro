@@ -38,6 +38,7 @@
     <string name="settings">Settings</string>
     <string name="logout">Logout</string>
     <string name="add_account">Add account</string>
+    <string name="not_logged_in">Not logged in</string>
 
     <!--Reddit API-->
     <string name="auth_url">https://www.reddit.com/api/v1/authorize.compact?client_id=%s&amp;response_type=code&amp;state=%s&amp;redirect_uri=%s&amp;duration=permanent&amp;scope=identity edit flair history modconfig modflair modlog modposts modwiki mysubreddits privatemessages read report save submit subscribe vote wikiedit wikiread</string>

@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.posts.subreddit_selector.popular
+package dev.gtcl.reddit.ui.fragments.posts.subreddits.popular
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -6,7 +6,7 @@ import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import dev.gtcl.reddit.databinding.ItemSubredditBinding
 import dev.gtcl.reddit.subs.Subreddit
-import dev.gtcl.reddit.ui.fragments.posts.subreddit_selector.mine.SubredditsListAdapter
+import dev.gtcl.reddit.ui.fragments.posts.subreddits.mine.SubredditsListAdapter
 
 class SubredditsPageListAdapter(private val onClickListener: OnClickListener, private val retryCallback: () -> Unit): PagedListAdapter<Subreddit, SubredditsListAdapter.SubredditViewHolder>(
     SUBREDDIT_COMPARATOR

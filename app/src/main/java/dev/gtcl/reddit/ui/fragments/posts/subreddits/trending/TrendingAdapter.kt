@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.subreddits.tabs.trending
+package dev.gtcl.reddit.ui.fragments.posts.subreddits.trending
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -10,7 +10,9 @@ import dev.gtcl.reddit.posts.RedditPost
 import dev.gtcl.reddit.subs.Subreddit
 import dev.gtcl.reddit.posts.TrendingSubredditPost
 
-class TrendingAdapter(private val onClickListener: OnClickListener) : PagedListAdapter<RedditPost, TrendingAdapter.TrendingSubredditViewHolder>(POST_COMPARATOR) {
+class TrendingAdapter(private val onClickListener: OnClickListener) : PagedListAdapter<RedditPost, TrendingAdapter.TrendingSubredditViewHolder>(
+    POST_COMPARATOR
+) {
     override fun onBindViewHolder(holder: TrendingSubredditViewHolder, position: Int) {
         holder.bind(getItem(position))
     }

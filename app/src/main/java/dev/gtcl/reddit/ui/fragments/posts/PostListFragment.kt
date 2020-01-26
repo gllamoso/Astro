@@ -14,7 +14,7 @@ import dev.gtcl.reddit.posts.asReadPost
 import dev.gtcl.reddit.ui.fragments.MainFragment
 import dev.gtcl.reddit.ui.fragments.MainFragmentViewModel
 import dev.gtcl.reddit.ui.fragments.posts.sort_sheet.SortSheetDialogFragment
-import dev.gtcl.reddit.ui.main.fragments.posts.subreddit_selector.SubredditSelectorDialogFragment
+import dev.gtcl.reddit.ui.fragments.posts.subreddits.SubredditSelectorDialogFragment
 import dev.gtcl.reddit.ui.fragments.posts.time_period_sheet.TimePeriodSheetDialogFragment
 
 class PostListFragment : Fragment() {

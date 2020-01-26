@@ -1,19 +1,30 @@
-package dev.gtcl.reddit.ui.main.fragments.posts.subreddit_selector
+package dev.gtcl.reddit.ui.fragments.posts.subreddits
 
+import android.annotation.SuppressLint
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.FrameLayout
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.FragmentDialogSubredditsBinding
-import dev.gtcl.reddit.ui.fragments.posts.subreddit_selector.SubredditStateAdapter
+import dev.gtcl.reddit.ui.fragments.posts.subreddits.SubredditStateAdapter
 
 class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
 
+    lateinit var binding: FragmentDialogSubredditsBinding
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = FragmentDialogSubredditsBinding.inflate(inflater)
+        binding = FragmentDialogSubredditsBinding.inflate(inflater)
+        setupTabLayout()
+        setEditTextListener()
+        return binding.root
+    }
+
+    private fun setupTabLayout(){
         val tabLayout = binding.tabLayout
         val viewPager = binding.viewPager
         viewPager.adapter = SubredditStateAdapter(this)
@@ -26,6 +37,15 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
                 else -> throw NoSuchElementException("No such tab in the following position: $position")
             })
         }.attach()
-        return binding.root
+    }
+
+    private fun setEditTextListener(){
+        binding.searchText.setOnFocusChangeListener { _, hasFocus ->
+            if(hasFocus){
+                val bottomSheet = dialog!!.findViewById<View>(R.id.design_bottom_sheet) as FrameLayout
+                val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
+                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+            }
+        }
     }
 }

@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.subreddits.tabs.mine
+package dev.gtcl.reddit.ui.fragments.posts.subreddits.mine
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
