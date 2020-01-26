@@ -10,4 +10,7 @@ data class AccessToken(
     @Json(name="expires_in")
     val expiresIn: Int,
     @Json(name="refresh_token")
-    val refreshToken: String?)
+    val refreshToken: String?){
+
+    val timeStamp = System.currentTimeMillis()
+}

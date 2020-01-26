@@ -51,27 +51,6 @@ fun setPosts(recyclerView: RecyclerView, posts: PagedList<RedditPost>?){
     }
 }
 
-@BindingAdapter("subredditsAsList")
-fun setSubredditPosts(recyclerView: RecyclerView, subs: List<Subreddit>?){
-    recyclerView.adapter?.let {
-        (it as SubredditsListAdapter).submitList(subs)
-    }
-}
-
-@BindingAdapter("subredditsAsPagedList")
-fun setSubredditPagedList(recyclerView: RecyclerView, subs: PagedList<Subreddit>?){
-    recyclerView.adapter?.let {
-        (it as SubredditsPageListAdapter).submitList(subs)
-    }
-}
-
-@BindingAdapter("trendingSubreddits")
-fun setTrendingSubreddits(recyclerView: RecyclerView, posts: PagedList<RedditPost>?){
-    recyclerView.adapter?.let {
-        (it as TrendingAdapter).submitList(posts)
-    }
-}
-
 @BindingAdapter("commentItem")
 fun setIndentation(view: View, listItem: CommentItem?){
     listItem?.let {

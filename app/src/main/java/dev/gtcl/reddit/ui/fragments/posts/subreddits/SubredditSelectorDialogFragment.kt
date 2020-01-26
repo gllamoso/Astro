@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.fragments.posts.subreddits
 
-import android.annotation.SuppressLint
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -11,7 +10,6 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.FragmentDialogSubredditsBinding
-import dev.gtcl.reddit.ui.fragments.posts.subreddits.SubredditStateAdapter
 
 class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
 
