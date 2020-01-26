@@ -8,13 +8,13 @@
     <data>
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.main.fragments.MainFragmentViewModel" />
+            type="dev.gtcl.reddit.ui.fragments.MainFragmentViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.main.fragments.comments.CommentsFragment">
+        tools:context=".ui.fragments.comments.CommentsFragment">
 <!--            app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
 
         <androidx.constraintlayout.widget.ConstraintLayout

@@ -13,7 +13,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.ActivityWebviewBinding
-import dev.gtcl.reddit.ui.main.URL_KEY
+import dev.gtcl.reddit.ui.URL_KEY
 
 class WebviewActivity : AppCompatActivity(){
 

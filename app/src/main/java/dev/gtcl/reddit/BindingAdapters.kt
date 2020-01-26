@@ -15,10 +15,10 @@ import dev.gtcl.reddit.comments.CommentItem
 import dev.gtcl.reddit.comments.More
 import dev.gtcl.reddit.posts.RedditPost
 import dev.gtcl.reddit.subs.Subreddit
-import dev.gtcl.reddit.ui.main.fragments.posts.PostListAdapter
-import dev.gtcl.reddit.ui.subreddits.tabs.mine.SubredditsListAdapter
-import dev.gtcl.reddit.ui.subreddits.tabs.popular.SubredditsPageListAdapter
-import dev.gtcl.reddit.ui.subreddits.tabs.trending.TrendingAdapter
+import dev.gtcl.reddit.ui.fragments.posts.PostListAdapter
+import dev.gtcl.reddit.ui.fragments.posts.subreddit_selector.mine.SubredditsListAdapter
+import dev.gtcl.reddit.ui.fragments.posts.subreddit_selector.popular.SubredditsPageListAdapter
+import dev.gtcl.reddit.ui.fragments.posts.subreddit_selector.trending.TrendingAdapter
 
 @BindingAdapter("imageUrl")
 fun bindImage(imgView: ImageView, imgUrl: String?){

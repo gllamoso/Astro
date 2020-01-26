@@ -4,10 +4,7 @@
     <string name="current_user_key">Current User</string>
 
     <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="retry">Retry</string>
-    <string name="search_hint">Subreddit</string>
-    <string name="default_subreddit">androiddev</string>
     <string name="post_subtitle">Submitted to r/%s by %s</string>
 
     <!--Sort Fragment-->
@@ -41,9 +38,6 @@
     <string name="settings">Settings</string>
     <string name="logout">Logout</string>
     <string name="add_account">Add account</string>
-    <string name="not_logged_in">Not logged in</string>
-    <string name="open">Open</string>
-    <string name="close">Close</string>
 
     <!--Reddit API-->
     <string name="auth_url">https://www.reddit.com/api/v1/authorize.compact?client_id=%s&amp;response_type=code&amp;state=%s&amp;redirect_uri=%s&amp;duration=permanent&amp;scope=identity edit flair history modconfig modflair modlog modposts modwiki mysubreddits privatemessages read report save submit subscribe vote wikiedit wikiread</string>

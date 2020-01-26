@@ -8,7 +8,7 @@
     <data>
         <variable
             name="viewModel"
-            type="dev.gtcl.reddit.ui.main.fragments.MainFragmentViewModel" />
+            type="dev.gtcl.reddit.ui.fragments.MainFragmentViewModel" />
     </data>
 
     <androidx.drawerlayout.widget.DrawerLayout
