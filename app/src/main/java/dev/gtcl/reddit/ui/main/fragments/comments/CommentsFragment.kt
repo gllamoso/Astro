@@ -1,30 +1,29 @@
 package dev.gtcl.reddit.ui.main.fragments.comments
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
+import androidx.lifecycle.Observer
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dev.gtcl.reddit.comments.More
-import dev.gtcl.reddit.databinding.FragmentPostDetailsBinding
+import dev.gtcl.reddit.databinding.FragmentCommentsBinding
 import dev.gtcl.reddit.ui.main.fragments.MainFragment
 import dev.gtcl.reddit.ui.main.fragments.MainFragmentViewModel
 
-class PostDetailsFragment : Fragment() {
+class CommentsFragment : Fragment() {
 
     private val parentViewModel: MainFragmentViewModel by lazy {
         (parentFragment as MainFragment).model
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = FragmentPostDetailsBinding.inflate(inflater)
+        val binding = FragmentCommentsBinding.inflate(inflater)
         binding.lifecycleOwner = this
-
-//        val post = PostDetailsFragmentArgs.fromBundle(arguments!!).post
-//        binding.model = model
-//        model.setPost(post)
-//        model.getPostAndComments()
-//
+        binding.model = parentViewModel
         val adapter = CommentsAdapter(object : CommentsAdapter.CommentItemClickListener{
             override fun onMoreCommentsClicked(position: Int, more: More) {
                 parentViewModel.getMoreComments(position, more)
@@ -36,26 +35,40 @@ class PostDetailsFragment : Fragment() {
             }
         })
         binding.commentList.adapter = adapter
-//        model.comments.observe(this, Observer {
-//            if(it != null){
-//                adapter.submitList(it)
-//                model.clearComments()
-//            }
-//        })
-//
-//        model.moreComments.observe(this, Observer {
-//            if(it != null)
-//                adapter.addItems(it.position, it.comments)
-//        })
-//
-//        binding.toolbar.setNavigationOnClickListener {
-//            if(activity is MainActivity)
-//                (activity as MainActivity).navigateUp()
-//        }
-//
-//        binding.upvoteButton.setOnClickListener{
-//            Toast.makeText(context, "Upvoted!", Toast.LENGTH_LONG).show()
-//        }
+        parentViewModel.comments.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                adapter.submitList(it)
+                parentViewModel.clearComments()
+            }
+        })
+
+        parentViewModel.moreComments.observe(viewLifecycleOwner, Observer {
+            if(it != null)
+                adapter.addItems(it.position, it.comments)
+        })
+
+        binding.toolbar.setNavigationOnClickListener {
+            parentViewModel.scrollToPage(0)
+        }
+
+        binding.upvoteButton.setOnClickListener{
+            Toast.makeText(context, "Upvoted!", Toast.LENGTH_LONG).show()
+        }
+
+        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+        bottomSheetBehavior.addBottomSheetCallback(object: BottomSheetBehavior.BottomSheetCallback(){
+            override fun onSlide(p0: View, p1: Float) {
+                parentViewModel.setScrollable(false)
+            }
+
+            override fun onStateChanged(p0: View, newState: Int) {
+                when(newState){
+                    BottomSheetBehavior.STATE_HIDDEN, BottomSheetBehavior.STATE_COLLAPSED ->  parentViewModel.setScrollable(true)
+                    else ->  parentViewModel.setScrollable(false)
+                }
+            }
+
+        })
 //
 //        model.redditPost.observe(this, Observer{
 //            binding.contentPlaceholder.removeAllViews()

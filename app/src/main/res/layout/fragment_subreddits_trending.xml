@@ -7,7 +7,7 @@
     <data>
         <variable
             name="viewModel"
-            type="dev.gtcl.reddit.ui.subreddits.SubredditSelectorViewModel" />
+            type="dev.gtcl.reddit.ui.main.fragments.MainFragmentViewModel" />
     </data>
 
     <LinearLayout

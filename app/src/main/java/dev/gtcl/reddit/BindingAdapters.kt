@@ -44,34 +44,36 @@ fun setVisibility(view: View, constraint: Boolean) {
     view.visibility = if(constraint) View.VISIBLE else View.GONE
 }
 
-@BindingAdapter("redditPosts")
-fun setRedditPosts(recyclerView: RecyclerView, posts: PagedList<RedditPost>?){
+@BindingAdapter("posts")
+fun setPosts(recyclerView: RecyclerView, posts: PagedList<RedditPost>?){
     recyclerView.adapter?.let {
-        val adapter = it as PostListAdapter
-        adapter.submitList(posts)
+        (it as PostListAdapter).submitList(posts)
     }
 }
 
 @BindingAdapter("subredditsAsList")
 fun setSubredditPosts(recyclerView: RecyclerView, subs: List<Subreddit>?){
-    val adapter = recyclerView.adapter as SubredditsListAdapter
-    adapter.submitList(subs)
+    recyclerView.adapter?.let {
+        (it as SubredditsListAdapter).submitList(subs)
+    }
 }
 
 @BindingAdapter("subredditsAsPagedList")
 fun setSubredditPagedList(recyclerView: RecyclerView, subs: PagedList<Subreddit>?){
-    val adapter = recyclerView.adapter as SubredditsPageListAdapter
-    adapter.submitList(subs)
+    recyclerView.adapter?.let {
+        (it as SubredditsPageListAdapter).submitList(subs)
+    }
 }
 
 @BindingAdapter("trendingSubreddits")
 fun setTrendingSubreddits(recyclerView: RecyclerView, posts: PagedList<RedditPost>?){
-    val adapter = recyclerView.adapter as TrendingAdapter
-    adapter.submitList(posts)
+    recyclerView.adapter?.let {
+        (it as TrendingAdapter).submitList(posts)
+    }
 }
 
 @BindingAdapter("commentItem")
-fun setCommentIndentation(view: View, listItem: CommentItem?){
+fun setIndentation(view: View, listItem: CommentItem?){
     listItem?.let {
         if(listItem.depth == 0) {
             view.visibility = View.GONE
@@ -96,7 +98,7 @@ fun setCommentIndentation(view: View, listItem: CommentItem?){
 }
 
 @BindingAdapter("moreComment")
-fun setMoreCommentText(textView: TextView, more: More){
+fun setMoreCommentTextView(textView: TextView, more: More){
     if(more.isContinueThreadLink())
         textView.text = textView.resources.getString(R.string.continue_to_thread)
     else
@@ -104,7 +106,7 @@ fun setMoreCommentText(textView: TextView, more: More){
 }
 
 @BindingAdapter("authorAndTimestamp")
-fun setAuthorAndTimestampText(textView: TextView, post: RedditPost?){
+fun setAuthorAndTimestampTextView(textView: TextView, post: RedditPost?){
     post?.let {
         val authorAndTimestamp = textView.resources.getString(R.string.author_and_timestamp)
         val time = timeSince(textView.context, it.created)

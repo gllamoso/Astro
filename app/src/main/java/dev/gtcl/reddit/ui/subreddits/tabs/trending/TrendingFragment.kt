@@ -6,18 +6,19 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import dev.gtcl.reddit.databinding.FragmentSubredditsTrendingBinding
+import dev.gtcl.reddit.ui.main.fragments.MainFragment
 import dev.gtcl.reddit.ui.subreddits.SubredditSelectorFragment
 
 class TrendingFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = FragmentSubredditsTrendingBinding.inflate(inflater)
 
-        val model = (parentFragment as SubredditSelectorFragment).model
+        val model = (parentFragment!!.parentFragment as MainFragment).model
         binding.viewModel = model
         binding.lifecycleOwner = this
 
         val adapter = TrendingAdapter(TrendingAdapter.OnClickListener {
-            model.selectSubreddit(it)
+            model.getPosts(it)
         })
 
         binding.list.adapter = adapter

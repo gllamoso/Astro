@@ -21,25 +21,16 @@
             android:layout_height="match_parent"
             app:commentItem="@{comment}"/>
 
-        <androidx.cardview.widget.CardView
+        <TextView
+            android:id="@+id/comment_text_view"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:layout_margin="8dp">
-
-            <TextView
-                android:id="@+id/comment_text_view"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:autoLink="web"
-                android:padding="@dimen/comment_indentation_size"
-                android:text="@{comment.body}"
-                tools:text="This is a comment"
-                android:elevation="8dp"/>
-
-        </androidx.cardview.widget.CardView>
-
-
+            android:autoLink="web"
+            android:padding="@dimen/comment_indentation_size"
+            android:text="@{comment.body}"
+            tools:text="This is a comment"
+            android:elevation="8dp"/>
 
     </LinearLayout>
 

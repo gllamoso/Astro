@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui.main.fragments
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -9,15 +10,18 @@ import dev.gtcl.reddit.comments.*
 import dev.gtcl.reddit.database.ReadPost
 import dev.gtcl.reddit.posts.RedditPost
 import dev.gtcl.reddit.subs.Subreddit
+import dev.gtcl.reddit.subs.SubredditListingResponse
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.util.*
 
 class MainFragmentViewModel(val application: RedditApplication): ViewModel(){
 
     private val postRepository = application.postRepository
     private val commentRepository = application.commentRepository
+    private val subredditRepository = application.subredditRepository
 
     // Scopes
     private var viewModelJob = Job()
@@ -61,6 +65,10 @@ class MainFragmentViewModel(val application: RedditApplication): ViewModel(){
     private val _currentPage = MutableLiveData<Int?>()
     val currentPage: LiveData<Int?>
         get() = _currentPage
+
+    private val _scrollable = MutableLiveData<Boolean?>()
+    val scrollable: LiveData<Boolean?>
+        get() = _scrollable
 
     fun selectPost(post: RedditPost){
         _selectedPost.value = post
@@ -133,5 +141,57 @@ class MainFragmentViewModel(val application: RedditApplication): ViewModel(){
 
     fun scrollToPage(position: Int?){
         _currentPage.value = position
+    }
+
+    fun setScrollable(scrollable: Boolean?){
+        _scrollable.value = scrollable
+    }
+
+    //-----------------SUBREDDIT SELECTOR-----------------------------
+    // Mine
+    private val _defaultSubsResult = MutableLiveData<SubredditListingResponse>()
+    val defaultSubreddits: LiveData<List<Subreddit>> = Transformations.map(_defaultSubsResult) {
+        it.data.children.map { child -> child.data }.sortedBy { sub -> sub.displayName.toUpperCase(
+            Locale.US) }
+    }
+
+    fun getDefaultSubreddits(){
+        coroutineScope.launch {
+//            var results = if(accessToken != null) {
+//                val accessTokenVal = accessToken
+//                subredditRepository.getSubsOfMine("subscriber", accessTokenVal!!)
+//            } else
+            val results = subredditRepository.getSubs("default")
+            try {
+                _defaultSubsResult.postValue(results.await())
+            } catch(e: Exception) {
+                //TODO: Handle exception
+                Log.d("TAE", "Exception: $e")
+            }
+        }
+    }
+
+    // Trending
+    private val _repoResultsOfTrendingSubreddits = MutableLiveData<Listing<RedditPost>>()
+    val trendingSubredditPosts = Transformations.switchMap(_repoResultsOfTrendingSubreddits) { it.pagedList }
+
+    fun getTrendingPosts() {
+        _repoResultsOfTrendingSubreddits.value = postRepository.getPostsOfSubreddit(
+            Subreddit(
+                displayName = "trendingsubreddits"
+            ), PostSort.HOT, pageSize = 5)
+    }
+
+    // Popular
+    private val repoResultsOfPopularSubreddits = MutableLiveData<Listing<Subreddit>>()
+    val popularSubreddits = Transformations.switchMap(repoResultsOfPopularSubreddits) { it.pagedList }
+
+    fun getPopularPosts(){
+        repoResultsOfPopularSubreddits.value = subredditRepository.getSubs("popular", 30)
+    }
+
+    fun retryPopular(){
+        val listing = repoResultsOfPopularSubreddits.value
+        listing?.retry?.invoke()
     }
 }

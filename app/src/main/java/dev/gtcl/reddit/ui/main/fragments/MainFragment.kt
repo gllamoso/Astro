@@ -2,6 +2,7 @@ package dev.gtcl.reddit.ui.main.fragments
 
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -46,7 +47,18 @@ class MainFragment : Fragment() {
             }
         })
 
-        model.getPosts(Subreddit(displayName = "funny")) // TODO: Update
+        model.scrollable.observe(viewLifecycleOwner, Observer {
+            it?.let{
+                binding.viewPager.isUserInputEnabled = it
+                model.setScrollable(null)
+            }
+        })
+
+        // TODO: Update
+        model.getPosts(Subreddit(displayName = "funny"))
+        model.getDefaultSubreddits()
+        model.getTrendingPosts()
+        model.getPopularPosts()
         return binding.root
     }
 

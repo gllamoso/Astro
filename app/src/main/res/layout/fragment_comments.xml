@@ -5,10 +5,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable
+            name="model"
+            type="dev.gtcl.reddit.ui.main.fragments.MainFragmentViewModel" />
+    </data>
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.main.fragments.comments.PostDetailsFragment">
+        tools:context=".ui.main.fragments.comments.CommentsFragment">
 <!--            app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -33,6 +39,7 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
                     android:textColor="@android:color/white"
+                    android:text="@{model.redditPost.subreddit}"
                     tools:text="wholesome" />
 
             </androidx.appcompat.widget.Toolbar>
@@ -76,6 +83,7 @@
                                     android:layout_marginStart="8dp"
                                     android:layout_marginTop="8dp"
                                     android:layout_marginEnd="8dp"
+                                    app:authorAndTimestamp="@{model.redditPost}"
                                     tools:text="Posted by JohnDoe • 9 hours ago" />
 
                                 <TextView
@@ -84,6 +92,7 @@
                                     android:layout_marginStart="8dp"
                                     android:layout_marginTop="8dp"
                                     android:layout_marginEnd="8dp"
+                                    android:text="@{model.redditPost.title}"
                                     android:textAppearance="@style/TextAppearance.AppCompat.Headline"
                                     tools:text="This is a post title\nand might be multiple lines" />
 
@@ -94,6 +103,7 @@
                                     android:layout_marginTop="8dp"
                                     android:layout_marginEnd="8dp"
                                     android:layout_marginBottom="8dp"
+                                    android:text="@{String.format(@string/num_comments_and_score, model.redditPost.numComments, model.redditPost.score, (double)100*model.redditPost.upvoteRatio)}"
                                     tools:text="99 comments • 12345 points (98% upvote)" />
 
                             </LinearLayout>
@@ -123,6 +133,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <LinearLayout
+            android:id="@+id/bottom_sheet"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:layout_behavior="@string/bottom_sheet_behavior"

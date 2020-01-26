@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.databinding.FragmentPostListBinding
 import dev.gtcl.reddit.network.NetworkState
@@ -14,6 +15,7 @@ import dev.gtcl.reddit.posts.asReadPost
 import dev.gtcl.reddit.ui.main.fragments.MainFragment
 import dev.gtcl.reddit.ui.main.fragments.MainFragmentViewModel
 import dev.gtcl.reddit.ui.main.fragments.posts.sort_sheet.SortSheetDialogFragment
+import dev.gtcl.reddit.ui.main.fragments.posts.subreddit_selector.SubredditSelectorDialogFragment
 import dev.gtcl.reddit.ui.main.fragments.posts.time_period_sheet.TimePeriodSheetDialogFragment
 
 class PostListFragment : Fragment() {
@@ -62,8 +64,15 @@ class PostListFragment : Fragment() {
             }.show(parentFragmentManager, "test")
         }
 
-        binding.subredditButton.setOnClickListener {
-            // TODO: Show bottom sheet fragment
+
+        // TODO: Edit
+//        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
+//        bottomSheetBehavior.state = BottomSheetBehavior.STATE_HIDDEN
+//        binding.subredditButton.setOnClickListener {
+//            bottomSheetBehavior.state = BottomSheetBehavior.STATE_HALF_EXPANDED
+//        }
+        binding.subredditButton.setOnClickListener{
+            SubredditSelectorDialogFragment().show(parentFragmentManager, "test3")
         }
 
     }
@@ -79,6 +88,8 @@ class PostListFragment : Fragment() {
                 parentViewModel.addReadPost(redditPost.asReadPost())
                 parentViewModel.selectPost(it)
                 parentViewModel.scrollToPage(1)
+                parentViewModel.setPost(it)
+                parentViewModel.getPostAndComments()
             }
         }
 
