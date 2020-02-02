@@ -17,11 +17,13 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.*
 
-class MainFragmentViewModel(val application: RedditApplication): ViewModel(){
+class MainFragmentViewModel(val application: RedditApplication, private val refreshAccessTokenIfNecessary: suspend () -> Unit): ViewModel(){
 
+    // Repositories
     private val postRepository = application.postRepository
     private val commentRepository = application.commentRepository
     private val subredditRepository = application.subredditRepository
+    private val userRepository = application.userRepository
 
     // Scopes
     private var viewModelJob = Job()
@@ -46,21 +48,9 @@ class MainFragmentViewModel(val application: RedditApplication): ViewModel(){
     val networkState = Transformations.switchMap(postListingsOfSubreddit) { it.networkState }
     val refreshState = Transformations.switchMap(postListingsOfSubreddit) { it.refreshState }
 
-    private val _dismissDialog = MutableLiveData<Boolean>()
-    val dismissDialog: LiveData<Boolean>
-        get() = _dismissDialog
-
-    private val _navigateToSubredditSelection = MutableLiveData<Any>()
-    val navigateToSubredditSelection: LiveData<Any>
-        get() = _navigateToSubredditSelection
-
     private val _selectedPost = MutableLiveData<RedditPost>()
     val selectedPost: LiveData<RedditPost>
         get() = _selectedPost
-
-    private val _commentListing = MutableLiveData<List<Comment>>()
-    val commentListing: LiveData<List<Comment>>
-        get() = _commentListing
 
     private val _currentPage = MutableLiveData<Int?>()
     val currentPage: LiveData<Int?>
@@ -69,6 +59,8 @@ class MainFragmentViewModel(val application: RedditApplication): ViewModel(){
     private val _scrollable = MutableLiveData<Boolean?>()
     val scrollable: LiveData<Boolean?>
         get() = _scrollable
+
+    val allUsers = userRepository.getUsersFromDatabase()
 
     fun selectPost(post: RedditPost){
         _selectedPost.value = post
@@ -87,7 +79,7 @@ class MainFragmentViewModel(val application: RedditApplication): ViewModel(){
         listing?.retry?.invoke()
     }
 
-    fun getPosts(subreddit: Subreddit?, sortBy: PostSort = PostSort.HOT, timePeriod: Time? = null): Boolean{
+    fun fetchPosts(subreddit: Subreddit?, sortBy: PostSort = PostSort.HOT, timePeriod: Time? = null): Boolean{
         if(subredditSelected.value?.displayName == subreddit?.displayName && sortSelected.value == sortBy && timeSelected.value == timePeriod)
             return false
 
@@ -116,16 +108,18 @@ class MainFragmentViewModel(val application: RedditApplication): ViewModel(){
         _redditPost.value = redditPost
     }
 
-    fun getPostAndComments(permalink: String = redditPost.value!!.permalink){
+    fun fetchPostAndComments(permalink: String = redditPost.value!!.permalink){
         coroutineScope.launch {
+            refreshAccessTokenIfNecessary.invoke()
             val commentPage = commentRepository.getPostAndComments(permalink, CommentSort.BEST).await()
             _redditPost.value = commentPage.post
             _comments.value = commentPage.comments
         }
     }
 
-    fun getMoreComments(position: Int, more: More){
+    fun fetchMoreComments(position: Int, more: More){
         coroutineScope.launch {
+            refreshAccessTokenIfNecessary.invoke()
             val children = commentRepository.getMoreComments(more.getChildrenAsValidString(), redditPost.value!!.name, CommentSort.BEST).await()
             _moreComments.value = MoreComments(position, more.depth, children.convertChildrenToCommentItems(more.depth))
         }
@@ -155,12 +149,15 @@ class MainFragmentViewModel(val application: RedditApplication): ViewModel(){
             Locale.US) }
     }
 
-    fun getDefaultSubreddits(){
+    fun fetchDefaultSubreddits(){
         coroutineScope.launch {
-//            var results = if(accessToken != null) {
-//                val accessTokenVal = accessToken
-//                subredditRepository.getSubsOfMine("subscriber", accessTokenVal!!)
-//            } else
+//            user?.let {
+//                if(accessToken == null)
+//                    accessToken = userRepository.fetchNewAccessToken(authorization = "Basic ${getEncodedAuthString(application.baseContext)}", refreshToken = it.refreshToken!!).await()
+//            }
+//            val results = if(accessToken != null) {
+//                subredditRepository.getSubsOfMine("subscriber", accessToken!!.value)
+//            } else subredditRepository.getSubs("default")
             val results = subredditRepository.getSubs("default")
             try {
                 _defaultSubsResult.postValue(results.await())
@@ -175,7 +172,7 @@ class MainFragmentViewModel(val application: RedditApplication): ViewModel(){
     private val _repoResultsOfTrendingSubreddits = MutableLiveData<Listing<RedditPost>>()
     val trendingSubredditPosts = Transformations.switchMap(_repoResultsOfTrendingSubreddits) { it.pagedList }
 
-    fun getTrendingPosts() {
+    fun fetchTrendingPosts() {
         _repoResultsOfTrendingSubreddits.value = postRepository.getPostsOfSubreddit(
             Subreddit(
                 displayName = "trendingsubreddits"
@@ -186,11 +183,11 @@ class MainFragmentViewModel(val application: RedditApplication): ViewModel(){
     private val repoResultsOfPopularSubreddits = MutableLiveData<Listing<Subreddit>>()
     val popularSubreddits = Transformations.switchMap(repoResultsOfPopularSubreddits) { it.pagedList }
 
-    fun getPopularPosts(){
+    fun fetchPopularPosts(){
         repoResultsOfPopularSubreddits.value = subredditRepository.getSubs("popular", 30)
     }
 
-    fun retryPopular(){
+    fun retryFetchPopularPosts(){
         val listing = repoResultsOfPopularSubreddits.value
         listing?.retry?.invoke()
     }

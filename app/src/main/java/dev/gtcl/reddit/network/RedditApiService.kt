@@ -4,7 +4,7 @@ import android.util.Log
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import dev.gtcl.reddit.access_token.AccessToken
+import dev.gtcl.reddit.users.AccessToken
 import dev.gtcl.reddit.comments.CommentAdapter
 import dev.gtcl.reddit.comments.Child
 import dev.gtcl.reddit.comments.CommentItem

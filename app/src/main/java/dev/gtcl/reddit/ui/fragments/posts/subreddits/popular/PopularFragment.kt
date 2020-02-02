@@ -25,10 +25,10 @@ class PopularFragment : Fragment() {
 
         val adapter = SubredditsPageListAdapter(
             SubredditsPageListAdapter.OnClickListener {
-                model.getPosts(it)
+                model.fetchPosts(it)
                 (parentFragment!! as SubredditSelectorDialogFragment).dismiss()
             })
-        {model.retryPopular()}
+        {model.retryFetchPopularPosts()}
 
         binding.list.adapter = adapter
 

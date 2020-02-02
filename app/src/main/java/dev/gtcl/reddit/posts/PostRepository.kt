@@ -6,6 +6,7 @@ import androidx.lifecycle.Transformations
 import androidx.paging.toLiveData
 import dev.gtcl.reddit.Listing
 import dev.gtcl.reddit.PostSort
+import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.Time
 import dev.gtcl.reddit.database.ReadPost
 import dev.gtcl.reddit.database.redditDatabase
@@ -14,8 +15,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executor
 
-class PostRepository internal constructor(application: Application, private val networkExecutor: Executor){
+class PostRepository internal constructor(application: RedditApplication, private val networkExecutor: Executor){
     private val database = redditDatabase(application)
+
+    // --- NETWORK
 
     @MainThread
     fun getPostsOfSubreddit(subReddit: Subreddit, sort: PostSort, t: Time? = null, pageSize: Int) : Listing<RedditPost> {
@@ -52,6 +55,8 @@ class PostRepository internal constructor(application: Application, private val 
         )
     }
 
+    // --- DATABASE
+
     @MainThread
     fun getReadPostsFromDatabase() = database.readPostDao.getAll()
 
@@ -64,7 +69,7 @@ class PostRepository internal constructor(application: Application, private val 
 }
 
 private lateinit var INSTANCE: PostRepository
-fun getPostRepository(application: Application, networkExecutor: Executor): PostRepository{
+fun getPostRepository(application: RedditApplication, networkExecutor: Executor): PostRepository{
     synchronized(PostRepository::class.java){
         if(!::INSTANCE.isInitialized)
             INSTANCE = PostRepository(application, networkExecutor)

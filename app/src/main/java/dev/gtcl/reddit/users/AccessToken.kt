@@ -1,10 +1,11 @@
-package dev.gtcl.reddit.access_token
+package dev.gtcl.reddit.users
 
+import android.util.Log
 import com.squareup.moshi.Json
 
 data class AccessToken(
     @Json(name="access_token")
-    val accessToken: String,
+    val value: String,
     @Json(name="token_type")
     val tokenType: String,
     @Json(name="expires_in")
@@ -13,4 +14,6 @@ data class AccessToken(
     val refreshToken: String?){
 
     val timeStamp = System.currentTimeMillis()
+
+    fun isExpired() = (System.currentTimeMillis() - timeStamp)/1000 > expiresIn
 }

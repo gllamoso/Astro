@@ -22,7 +22,7 @@ class TrendingFragment : Fragment() {
     private fun setRecyclerViewAdapter(){
         val model = (parentFragment!!.parentFragment as MainFragment).model
         val adapter = TrendingAdapter(TrendingAdapter.OnClickListener {
-            model.getPosts(it)
+            model.fetchPosts(it)
             (parentFragment!! as SubredditSelectorDialogFragment).dismiss()
         })
 

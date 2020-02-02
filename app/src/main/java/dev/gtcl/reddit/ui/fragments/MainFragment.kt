@@ -13,6 +13,8 @@ import androidx.viewpager2.widget.ViewPager2
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.databinding.FragmentMainBinding
 import dev.gtcl.reddit.subs.Subreddit
+import dev.gtcl.reddit.ui.MainActivity
+import dev.gtcl.reddit.ui.MainActivityViewModel
 
 /**
  * A simple [Fragment] subclass.
@@ -20,16 +22,30 @@ import dev.gtcl.reddit.subs.Subreddit
 class MainFragment : Fragment() {
 
     private lateinit var binding: FragmentMainBinding
+
+    private val parentModel: MainActivityViewModel by lazy {
+        (activity as MainActivity).model
+    }
     val model: MainFragmentViewModel by lazy {
         val viewModelFactory =
-            MainFragmentViewModelFactory(
-                activity!!.application as RedditApplication
-            )
+            MainFragmentViewModelFactory(activity!!.application as RedditApplication, parentModel.fetchAccessTokenIfNecessary)
         ViewModelProvider(this, viewModelFactory).get(MainFragmentViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentMainBinding.inflate(inflater)
+
+        setViewPagerAdapter()
+
+        // TODO: Update
+        model.fetchPosts(Subreddit(displayName = "funny"))
+        model.fetchDefaultSubreddits()
+        model.fetchTrendingPosts()
+        model.fetchPopularPosts()
+        return binding.root
+    }
+
+    private fun setViewPagerAdapter(){
         binding.viewPager.adapter =
             MainFragmentStateAdapter(this)
         binding.viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
@@ -52,14 +68,5 @@ class MainFragment : Fragment() {
                 model.setScrollable(null)
             }
         })
-
-        // TODO: Update
-        model.getPosts(Subreddit(displayName = "funny"))
-        model.getDefaultSubreddits()
-        model.getTrendingPosts()
-        model.getPopularPosts()
-        return binding.root
     }
-
-
 }

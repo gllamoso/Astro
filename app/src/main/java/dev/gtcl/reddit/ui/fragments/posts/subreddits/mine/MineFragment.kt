@@ -25,7 +25,7 @@ class MineFragment : Fragment() {
 
         // Set adapter
         val adapter = SubredditsListAdapter(SubredditsListAdapter.OnClickListener {
-            model.getPosts(it)
+            model.fetchPosts(it)
             (parentFragment!! as SubredditSelectorDialogFragment).dismiss()
         })
         binding.list.adapter = adapter

@@ -25,12 +25,12 @@ class CommentsFragment : Fragment() {
         binding.model = parentViewModel
         val adapter = CommentsAdapter(object : CommentsAdapter.CommentItemClickListener{
             override fun onMoreCommentsClicked(position: Int, more: More) {
-                parentViewModel.getMoreComments(position, more)
+                parentViewModel.fetchMoreComments(position, more)
                 parentViewModel.clearMoreComments()
             }
 
             override fun onContinueThreadClicked(more: More) {
-                parentViewModel.getPostAndComments("${parentViewModel.selectedPost.value?.permalink}${more.parentId.replace("t1_","")}")
+                parentViewModel.fetchPostAndComments("${parentViewModel.selectedPost.value?.permalink}${more.parentId.replace("t1_","")}")
             }
         })
         binding.commentList.adapter = adapter

@@ -1,9 +1,11 @@
 package dev.gtcl.reddit
 
 import android.content.Context
+import android.util.Base64
+import androidx.annotation.MainThread
+import dev.gtcl.reddit.network.RedditApi
 import java.util.*
 
-// TODO: Enums for post sorting
 enum class PostSort(val stringValue: String){
     HOT("hot"),
     NEW("new"),
@@ -79,4 +81,10 @@ fun timeSince(context: Context, seconds: Long): String{
         }
         else -> context.getString(R.string.a_moment_ago)
     }
+}
+
+fun getEncodedAuthString(context: Context): String{
+    val clientID = context.getText(R.string.client_id)
+    val authString = "$clientID:"
+    return Base64.encodeToString(authString.toByteArray(), Base64.NO_WRAP)
 }
