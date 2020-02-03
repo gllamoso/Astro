@@ -65,18 +65,13 @@ class PostListFragment : Fragment() {
         override fun onPostClick(redditPost: RedditPost?, position: Int) {
             redditPost?.let {
                 model.addReadPost(redditPost.asReadPost())
-                model.selectPost(it)
+                model.setPost(it)
                 model.scrollToPage(1)
                 model.setPost(it)
                 model.fetchPostAndComments()
             }
         }
 
-    }
-
-    override fun onResume() {
-        super.onResume()
-//        parentViewModel.renewAccessToken()
     }
 
     private fun setListAdapter() {
@@ -168,6 +163,7 @@ class PostListFragment : Fragment() {
 
         // TODO: Edit
         binding.subredditButton.setOnClickListener{
+            model.fetchDefaultSubreddits()
             SubredditSelectorDialogFragment().show(parentFragmentManager, "test3")
         }
     }

@@ -2,10 +2,12 @@ package dev.gtcl.reddit.ui.fragments
 
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.MediaController
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
@@ -32,13 +34,15 @@ class MainFragment : Fragment() {
         ViewModelProvider(this, viewModelFactory).get(MainFragmentViewModel::class.java)
     }
 
+    val mediaController: MediaController by lazy { MediaController(context!!) }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentMainBinding.inflate(inflater)
 
         setViewPagerAdapter()
 
         // TODO: Update
-        model.fetchPosts(Subreddit(displayName = "funny"))
+        model.fetchPosts(Subreddit(displayName = "AskMen"))
         model.fetchDefaultSubreddits()
         model.fetchTrendingPosts()
         model.fetchPopularPosts()
@@ -49,9 +53,17 @@ class MainFragment : Fragment() {
         binding.viewPager.adapter =
             MainFragmentStateAdapter(this)
         binding.viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
+
+            override fun onPageScrollStateChanged(state: Int) {
+                super.onPageScrollStateChanged(state)
+                if(state == ViewPager2.SCROLL_STATE_DRAGGING)
+                    mediaController.hide()
+            }
+
             override fun onPageSelected(position: Int) {
                 super.onPageSelected(position)
                 binding.viewPager.isUserInputEnabled = (position != 0)
+                if(position == 0) model.postGenerated(false)
             }
         })
 

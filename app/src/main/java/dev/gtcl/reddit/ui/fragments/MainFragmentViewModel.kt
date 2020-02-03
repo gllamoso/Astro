@@ -48,9 +48,6 @@ class MainFragmentViewModel(val application: RedditApplication, private val refr
     val networkState = Transformations.switchMap(postListingsOfSubreddit) { it.networkState }
     val refreshState = Transformations.switchMap(postListingsOfSubreddit) { it.refreshState }
 
-    private val _selectedPost = MutableLiveData<RedditPost>()
-    val selectedPost: LiveData<RedditPost>
-        get() = _selectedPost
 
     private val _currentPage = MutableLiveData<Int?>()
     val currentPage: LiveData<Int?>
@@ -62,9 +59,9 @@ class MainFragmentViewModel(val application: RedditApplication, private val refr
 
     val allUsers = userRepository.getUsersFromDatabase()
 
-    fun selectPost(post: RedditPost){
-        _selectedPost.value = post
-    }
+    private val _postContentCreated = MutableLiveData<Boolean>()
+    val postContentCreated: LiveData<Boolean>
+        get() = _postContentCreated
 
     fun addReadPost(readPost: ReadPost) {
         coroutineScope.launch {
@@ -92,9 +89,9 @@ class MainFragmentViewModel(val application: RedditApplication, private val refr
 
     //-----------------COMMENTS-----------------------------
 
-    private val _redditPost = MutableLiveData<RedditPost>()
-    val redditPost: LiveData<RedditPost>
-        get() = _redditPost
+    private val _post = MutableLiveData<RedditPost>()
+    val post: LiveData<RedditPost>
+        get() = _post
 
     private val _comments = MutableLiveData<List<CommentItem>>()
     val comments: LiveData<List<CommentItem>>
@@ -105,14 +102,14 @@ class MainFragmentViewModel(val application: RedditApplication, private val refr
         get() = _moreComments
 
     fun setPost(redditPost: RedditPost){
-        _redditPost.value = redditPost
+        _post.value = redditPost
     }
 
-    fun fetchPostAndComments(permalink: String = redditPost.value!!.permalink){
+    fun fetchPostAndComments(permalink: String = post.value!!.permalink){
         coroutineScope.launch {
             refreshAccessTokenIfNecessary.invoke()
             val commentPage = commentRepository.getPostAndComments(permalink, CommentSort.BEST).await()
-            _redditPost.value = commentPage.post
+            _post.value = commentPage.post
             _comments.value = commentPage.comments
         }
     }
@@ -120,7 +117,7 @@ class MainFragmentViewModel(val application: RedditApplication, private val refr
     fun fetchMoreComments(position: Int, more: More){
         coroutineScope.launch {
             refreshAccessTokenIfNecessary.invoke()
-            val children = commentRepository.getMoreComments(more.getChildrenAsValidString(), redditPost.value!!.name, CommentSort.BEST).await()
+            val children = commentRepository.getMoreComments(more.getChildrenAsValidString(), post.value!!.name, CommentSort.BEST).await()
             _moreComments.value = MoreComments(position, more.depth, children.convertChildrenToCommentItems(more.depth))
         }
     }
@@ -141,6 +138,10 @@ class MainFragmentViewModel(val application: RedditApplication, private val refr
         _scrollable.value = scrollable
     }
 
+    fun postGenerated(created: Boolean){
+        _postContentCreated.value = created
+    }
+
     //-----------------SUBREDDIT SELECTOR-----------------------------
     // Mine
     private val _defaultSubsResult = MutableLiveData<SubredditListingResponse>()
@@ -151,16 +152,9 @@ class MainFragmentViewModel(val application: RedditApplication, private val refr
 
     fun fetchDefaultSubreddits(){
         coroutineScope.launch {
-//            user?.let {
-//                if(accessToken == null)
-//                    accessToken = userRepository.fetchNewAccessToken(authorization = "Basic ${getEncodedAuthString(application.baseContext)}", refreshToken = it.refreshToken!!).await()
-//            }
-//            val results = if(accessToken != null) {
-//                subredditRepository.getSubsOfMine("subscriber", accessToken!!.value)
-//            } else subredditRepository.getSubs("default")
-            val results = subredditRepository.getSubs("default")
+            refreshAccessTokenIfNecessary.invoke()
             try {
-                _defaultSubsResult.postValue(results.await())
+                _defaultSubsResult.value = subredditRepository.getSubs("default").await()
             } catch(e: Exception) {
                 //TODO: Handle exception
                 Log.d("TAE", "Exception: $e")

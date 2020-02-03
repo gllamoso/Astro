@@ -13,7 +13,7 @@ data class AccessToken(
     @Json(name="refresh_token")
     val refreshToken: String?){
 
-    val timeStamp = System.currentTimeMillis()
+    private val timeStamp = System.currentTimeMillis()
 
     fun isExpired() = (System.currentTimeMillis() - timeStamp)/1000 > expiresIn
 }

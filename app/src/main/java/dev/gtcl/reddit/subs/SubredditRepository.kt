@@ -5,18 +5,19 @@ import androidx.lifecycle.Transformations
 import androidx.paging.toLiveData
 import dev.gtcl.reddit.Listing
 import dev.gtcl.reddit.network.RedditApi
-import dev.gtcl.reddit.network.RedditApiService
+import dev.gtcl.reddit.users.AccessToken
 import kotlinx.coroutines.Deferred
 import java.util.concurrent.Executor
 
 class SubredditRepository internal constructor(private val networkExecutor: Executor){
-    @MainThread
-    fun getSubs(where: String): Deferred<SubredditListingResponse> =
-        RedditApi.retrofitServiceWithNoAuth.getSubreddits(where)
 
     @MainThread
-    fun getSubsOfMine(where: String, authorization: String): Deferred<SubredditListingResponse> =
-        RedditApi.retrofitServiceWithAuth.getSubredditsOfMine(where, "bearer $authorization")
+    fun getSubs(where: String, accessToken: AccessToken? = null): Deferred<SubredditListingResponse> {
+        return if(accessToken == null)
+            RedditApi.retrofitServiceWithNoAuth.getSubreddits(where)
+        else
+            RedditApi.retrofitServiceWithAuth.getSubredditsOfMine(where, "bearer ${accessToken.value}")
+    }
 
     @MainThread
     fun getSubs(where: String, pageSize: Int) : Listing<Subreddit> {

@@ -92,3 +92,14 @@ fun setAuthorAndTimestampTextView(textView: TextView, post: RedditPost?){
         textView.text = String.format(authorAndTimestamp, it.author, time)
     }
 }
+
+@BindingAdapter("commentsAndPoints")
+fun setCommentsAndPoints(textView: TextView, post: RedditPost?){
+    post?.let {
+        val text = if(post.upvoteRatio != null)
+            String.format(textView.context.getString(R.string.num_comments_score_and_upvote_ratio), post.numComments, post.score, post.upvoteRatio * 100)
+        else
+            String.format(textView.context.getString(R.string.num_comments_and_score), post.numComments, post.score)
+        textView.text = text
+    }
+}

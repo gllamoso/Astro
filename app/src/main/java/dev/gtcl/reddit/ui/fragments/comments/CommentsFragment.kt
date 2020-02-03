@@ -1,13 +1,16 @@
 package dev.gtcl.reddit.ui.fragments.comments
 
+import android.os.Build
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import dev.gtcl.reddit.R
 import dev.gtcl.reddit.comments.More
 import dev.gtcl.reddit.databinding.FragmentCommentsBinding
 import dev.gtcl.reddit.ui.fragments.MainFragment
@@ -19,8 +22,14 @@ class CommentsFragment : Fragment() {
         (parentFragment as MainFragment).model
     }
 
+    private val mediaController: MediaController by lazy {
+        (parentFragment as MainFragment).mediaController
+    }
+
+    private lateinit var binding: FragmentCommentsBinding
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        val binding = FragmentCommentsBinding.inflate(inflater)
+        binding = FragmentCommentsBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.model = parentViewModel
         val adapter = CommentsAdapter(object : CommentsAdapter.CommentItemClickListener{
@@ -30,7 +39,7 @@ class CommentsFragment : Fragment() {
             }
 
             override fun onContinueThreadClicked(more: More) {
-                parentViewModel.fetchPostAndComments("${parentViewModel.selectedPost.value?.permalink}${more.parentId.replace("t1_","")}")
+                parentViewModel.fetchPostAndComments("${parentViewModel.post.value?.permalink}${more.parentId.replace("t1_","")}")
             }
         })
         binding.commentList.adapter = adapter
@@ -48,6 +57,7 @@ class CommentsFragment : Fragment() {
 
         binding.toolbar.setNavigationOnClickListener {
             parentViewModel.scrollToPage(0)
+            mediaController.hide()
         }
 
         binding.upvoteButton.setOnClickListener{
@@ -58,9 +68,11 @@ class CommentsFragment : Fragment() {
         bottomSheetBehavior.addBottomSheetCallback(object: BottomSheetBehavior.BottomSheetCallback(){
             override fun onSlide(p0: View, p1: Float) {
                 parentViewModel.setScrollable(false)
+                mediaController.hide()
             }
 
             override fun onStateChanged(p0: View, newState: Int) {
+                mediaController.hide()
                 when(newState){
                     BottomSheetBehavior.STATE_HIDDEN, BottomSheetBehavior.STATE_COLLAPSED ->  parentViewModel.setScrollable(true)
                     else ->  parentViewModel.setScrollable(false)
@@ -68,55 +80,67 @@ class CommentsFragment : Fragment() {
             }
 
         })
-//
-//        model.redditPost.observe(this, Observer{
-//            binding.contentPlaceholder.removeAllViews()
-//            val displayMetrics = resources.displayMetrics
-//            val padding = (16 * displayMetrics.density).toInt()
-//            if(it.isSelf){
-//                val nestedScrollView = NestedScrollView(context!!)
-//                val textView = TextView(context)
-//                textView.setPaddingRelative(padding, padding, padding, padding)
-//                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-//                    textView.setTextColor(ContextCompat.getColor(context!!, R.color.black))
-//                else
-//                    textView.setTextColor(resources.getColor(R.color.black))
-////                if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.N)
-////                    textView.text = Html.fromHtml(it.selftext, Html.FROM_HTML_MODE_COMPACT)
-////                else
-////                    textView.text = Html.fromHtml(it.selftext)
-//                textView.text = it.selftext
-//                nestedScrollView.addView(textView)
-//                binding.contentPlaceholder.addView(nestedScrollView)
-//            } else {
-//                binding.contentPlaceholder.alpha = 0.toFloat()
-//                val videoView = VideoView(context).apply {
-//                    alpha = 0.toFloat()
-////                    setVideoPath("https://v.redd.it/tw3w92jk7kb41/HLSPlaylist.m3u8")
-//                    setVideoPath("https://archive.org/download/Popeye_forPresident/Popeye_forPresident_512kb.mp4")
-//                    val params = LinearLayout.LayoutParams(
-//                        (displayMetrics.widthPixels * 1.00).toInt(),
-//                        (displayMetrics.heightPixels * 1.00).toInt()
-//                    ).apply {
-//                        gravity = Gravity.CENTER
-//                    }
-//                    layoutParams = params
-//                    val mediaController = MediaController(context)
-//                    mediaController.setAnchorView(this)
-//                    setMediaController(mediaController)
-//                    setPadding(padding)
-//                    setOnPreparedListener {
-//                        mp -> mp.isLooping = true
-//                        binding.contentPlaceholder.animate().alpha(1.toFloat())
-//                        animate().alpha(1.toFloat())
-//                        seekTo(0)
-//                        start()
-//                    }
-//                }
-//                binding.contentPlaceholder.addView(videoView)
-//            }
-//        })
+
+        parentViewModel.postContentCreated.observe(this, Observer {
+            if(it)
+                binding.nestedScrollView.scrollTo(0,0)
+        })
+
+        parentViewModel.post.observe(this, Observer{
+            if(!parentViewModel.postContentCreated.value!!){
+                binding.contentPlaceholder.removeAllViews()
+                if(it.isSelf)
+                    createTextView(it.selftext)
+                else
+                    createVideoView("https://v.redd.it/tw3w92jk7kb41/HLSPlaylist.m3u8")
+                //"https://archive.org/download/Popeye_forPresident/Popeye_forPresident_512kb.mp4"
+                parentViewModel.postGenerated(true)
+            }
+        })
 
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        binding.nestedScrollView.scrollTo(0,0)
+        binding.commentList.scrollToPosition(0)
+    }
+
+    private fun createTextView(text: String){
+        val textView = TextView(context)
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            textView.setTextColor(ContextCompat.getColor(context!!, R.color.black))
+        else
+            textView.setTextColor(resources.getColor(R.color.black))
+        textView.text = text
+        binding.contentPlaceholder.addView(textView)
+    }
+
+    private fun createVideoView(videoPath: String){
+        val displayMetrics = resources.displayMetrics
+
+        val videoView = VideoView(context).apply {
+            alpha = 0.toFloat()
+            setVideoPath(videoPath)
+            val params = FrameLayout.LayoutParams(
+                displayMetrics.widthPixels,
+                (displayMetrics.heightPixels * 0.75).toInt()
+            )
+            layoutParams = params
+//            mediaController.setAnchorView(bin)
+            setMediaController(mediaController)
+            setOnPreparedListener { mp ->
+                mp.isLooping = true
+                animate().alpha(1.toFloat())
+                seekTo(0)
+                start()
+                /*
+                mp.setOnVideoSizeChangedListener{ mediaplayer, width, height ->
+
+                }*/
+            }
+        }
+        binding.contentPlaceholder.addView(videoView)
     }
 }
