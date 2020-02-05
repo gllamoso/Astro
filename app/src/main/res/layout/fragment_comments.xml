@@ -113,12 +113,25 @@
                         </androidx.cardview.widget.CardView>
 
                         <FrameLayout
-                            android:id="@+id/content_placeholder"
+                            android:id="@+id/content_layout"
                             android:layout_width="match_parent"
-                            android:layout_height="0dp"
-                            android:layout_weight="1"
-                            android:layout_marginTop="8dp"
-                            android:padding="16dp"/>
+                            android:layout_height="wrap_content"
+                            android:padding="16dp"
+                            android:layout_marginTop="16dp"
+                            android:background="@color/black">
+
+                            <TextView
+                                android:id="@+id/content_text"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:textColor="@color/black"/>
+
+                            <com.google.android.exoplayer2.ui.PlayerView
+                                android:id="@+id/player_view"
+                                android:layout_width="match_parent"
+                                android:layout_height="450dp" />
+
+                        </FrameLayout>
 
                     </LinearLayout>
 

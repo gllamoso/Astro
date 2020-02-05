@@ -1,7 +1,9 @@
 package dev.gtcl.reddit.ui.fragments.comments
 
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -9,6 +11,18 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.Observer
+import com.google.android.exoplayer2.ExoPlayerFactory
+import com.google.android.exoplayer2.Player
+import com.google.android.exoplayer2.SimpleExoPlayer
+import com.google.android.exoplayer2.source.ExtractorMediaSource
+import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.dash.DashMediaSource
+import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource
+import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
+import com.google.android.exoplayer2.util.Util
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.comments.More
@@ -27,6 +41,11 @@ class CommentsFragment : Fragment() {
     }
 
     private lateinit var binding: FragmentCommentsBinding
+
+    private var mPlayer: SimpleExoPlayer? = null
+    private var mPlayWhenReady = true
+    private var mCurrentWindow = 0
+    private var mPlaybackPosition = 0.toLong()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentCommentsBinding.inflate(inflater)
@@ -78,7 +97,6 @@ class CommentsFragment : Fragment() {
                     else ->  parentViewModel.setScrollable(false)
                 }
             }
-
         })
 
         parentViewModel.postContentCreated.observe(this, Observer {
@@ -88,11 +106,10 @@ class CommentsFragment : Fragment() {
 
         parentViewModel.post.observe(this, Observer{
             if(!parentViewModel.postContentCreated.value!!){
-                binding.contentPlaceholder.removeAllViews()
                 if(it.isSelf)
-                    createTextView(it.selftext)
+                    setTextView(it.selftext)
                 else
-                    createVideoView("https://v.redd.it/tw3w92jk7kb41/HLSPlaylist.m3u8")
+                    setPlayerView("https://v.redd.it/tw3w92jk7kb41/HLSPlaylist.m3u8")
                 //"https://archive.org/download/Popeye_forPresident/Popeye_forPresident_512kb.mp4"
                 parentViewModel.postGenerated(true)
             }
@@ -105,42 +122,81 @@ class CommentsFragment : Fragment() {
         super.onResume()
         binding.nestedScrollView.scrollTo(0,0)
         binding.commentList.scrollToPosition(0)
-    }
-
-    private fun createTextView(text: String){
-        val textView = TextView(context)
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            textView.setTextColor(ContextCompat.getColor(context!!, R.color.black))
-        else
-            textView.setTextColor(resources.getColor(R.color.black))
-        textView.text = text
-        binding.contentPlaceholder.addView(textView)
-    }
-
-    private fun createVideoView(videoPath: String){
-        val displayMetrics = resources.displayMetrics
-
-        val videoView = VideoView(context).apply {
-            alpha = 0.toFloat()
-            setVideoPath(videoPath)
-            val params = FrameLayout.LayoutParams(
-                displayMetrics.widthPixels,
-                (displayMetrics.heightPixels * 0.75).toInt()
-            )
-            layoutParams = params
-//            mediaController.setAnchorView(bin)
-            setMediaController(mediaController)
-            setOnPreparedListener { mp ->
-                mp.isLooping = true
-                animate().alpha(1.toFloat())
-                seekTo(0)
-                start()
-                /*
-                mp.setOnVideoSizeChangedListener{ mediaplayer, width, height ->
-
-                }*/
-            }
+        if((Util.SDK_INT < 24 || mPlayer == null)){
+//            initializePlayer()
         }
-        binding.contentPlaceholder.addView(videoView)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        releasePlayer()
+    }
+
+    private fun setTextView(text: String){
+        releasePlayer()
+        binding.contentText.text = text
+        binding.contentText.visibility = View.VISIBLE
+        binding.playerView.visibility = View.GONE
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            binding.contentLayout.setBackgroundColor(ContextCompat.getColor(context!!, R.color.white))
+        else
+            binding.contentLayout.setBackgroundColor(resources.getColor(R.color.white))
+    }
+
+    private fun setPlayerView(videoPath: String){
+        initializePlayer()
+        binding.playerView.visibility = View.VISIBLE
+        binding.contentText.visibility = View.GONE
+        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
+            binding.contentLayout.setBackgroundColor(ContextCompat.getColor(context!!, R.color.black))
+        else
+            binding.contentLayout.setBackgroundColor(resources.getColor(R.color.black))
+    }
+
+    private fun releasePlayer() {
+        if(mPlayer != null){
+            mPlayWhenReady = mPlayer!!.playWhenReady
+            mPlaybackPosition = mPlayer!!.currentPosition
+            mCurrentWindow = mPlayer!!.currentWindowIndex
+            mPlayer!!.release()
+            mPlayer = null
+        }
+    }
+
+
+    private fun buildMediaSource(uri: Uri): MediaSource {
+        val userAgent = "exoplayer-codelab"
+
+        return if (uri.lastPathSegment!!.contains("mp3") || uri.lastPathSegment!!.contains("mp4")) {
+            ExtractorMediaSource.Factory(DefaultHttpDataSourceFactory(userAgent))
+                .createMediaSource(uri)
+        } else if (uri.lastPathSegment!!.contains("m3u8")) {
+            HlsMediaSource.Factory(DefaultHttpDataSourceFactory(userAgent))
+                .createMediaSource(uri)
+        } else {
+            val dataSourceFactory = DefaultDataSourceFactory(context, "exoplayer-codelab")
+            val mediaSourceFactor = DashMediaSource.Factory(dataSourceFactory)
+            mediaSourceFactor.createMediaSource(uri)
+        }
+    }
+
+    private fun initializePlayer(){
+        if(mPlayer == null){
+            val trackSelector = DefaultTrackSelector()
+            trackSelector.setParameters(trackSelector.buildUponParameters().setMaxVideoSizeSd())
+            mPlayer = ExoPlayerFactory.newSimpleInstance(context, trackSelector)
+            mPlayer!!.repeatMode = Player.REPEAT_MODE_ONE
+        }
+
+        binding.playerView.player = mPlayer
+//        val uri = Uri.parse("https://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=51AF5F39AB0CEC3E5497CD9C900EBFEAECCCB5C7.8506521BFC350652163895D4C26DEE124209AA9E&key=ik0")
+        val uri = Uri.parse("https://v.redd.it/tw3w92jk7kb41/HLSPlaylist.m3u8")
+//        val uri = Uri.parse("https://archive.org/download/Popeye_forPresident/Popeye_forPresident_512kb.mp4")
+        val mediaSource = buildMediaSource(uri)
+        mPlayer!!.apply {
+            playWhenReady = mPlayWhenReady
+            seekTo(mCurrentWindow, mPlaybackPosition)
+            prepare(mediaSource, false, false)
+        }
     }
 }
