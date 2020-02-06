@@ -11,10 +11,7 @@ import dev.gtcl.reddit.database.ReadPost
 import dev.gtcl.reddit.posts.RedditPost
 import dev.gtcl.reddit.subs.Subreddit
 import dev.gtcl.reddit.subs.SubredditListingResponse
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.util.*
 
 class MainFragmentViewModel(val application: RedditApplication, private val refreshAccessTokenIfNecessary: suspend () -> Unit): ViewModel(){

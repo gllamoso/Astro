@@ -2,7 +2,9 @@ package dev.gtcl.reddit.comments
 
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonReader
+import dev.gtcl.reddit.posts.Preview
 import dev.gtcl.reddit.posts.RedditPost
+import dev.gtcl.reddit.posts.RedditVideoPreview
 import java.lang.RuntimeException
 import java.lang.StringBuilder
 import java.util.*
@@ -149,6 +151,7 @@ class CommentAdapter {
                 var selftext: String? = null
                 var isSelf: Boolean? = null
                 var upvoteRatio: Double? = null
+                var preview: Preview? = null
                 while(jsonReader.hasNext()){
                     when(jsonReader.nextName()){
                         "name" -> name = jsonReader.nextString()
@@ -170,10 +173,27 @@ class CommentAdapter {
                         "selftext" -> selftext = jsonReader.nextString()
                         "is_self" -> isSelf = jsonReader.nextBoolean()
                         "upvote_ratio" -> upvoteRatio = jsonReader.nextDouble()
+                        "preview" -> {
+                            jsonReader.beginObject()
+                            while(jsonReader.hasNext()){
+                                if(jsonReader.nextName() == "reddit_video_preview"){
+                                    jsonReader.beginObject()
+                                    while(jsonReader.hasNext()){
+                                        if(jsonReader.nextName() == "hls_url"){
+                                            val hlsUrl = jsonReader.nextString()
+                                            val videoPreview = RedditVideoPreview(hlsUrl)
+                                            preview = Preview(videoPreview)
+                                        } else jsonReader.skipValue()
+                                    }
+                                    jsonReader.endObject()
+                                } else jsonReader.skipValue()
+                            }
+                            jsonReader.endObject()
+                        }
                         else -> jsonReader.skipValue()
                     }
                 }
-                post = RedditPost(name!!, title!!, score!!, author!!, subreddit!!, numComments!!, created!!, thumbnail, url, likes, permalink!!, selftext!!, isSelf!!, upvoteRatio)
+                post = RedditPost(name!!, title!!, score!!, author!!, subreddit!!, numComments!!, created!!, thumbnail, url, likes, permalink!!, selftext!!, isSelf!!, upvoteRatio, preview)
                 jsonReader.endObject() // end "data"
                 jsonReader.endObject() // end child
                 jsonReader.endArray()

@@ -116,7 +116,6 @@
                             android:id="@+id/content_layout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:padding="16dp"
                             android:layout_marginTop="16dp"
                             android:background="@color/black">
 
@@ -124,12 +123,16 @@
                                 android:id="@+id/content_text"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/black"/>
+                                android:textColor="@color/black"
+                                android:paddingStart="16dp"
+                                android:paddingEnd="16dp"
+                                android:paddingBottom="16dp"/>
 
                             <com.google.android.exoplayer2.ui.PlayerView
                                 android:id="@+id/player_view"
                                 android:layout_width="match_parent"
-                                android:layout_height="450dp" />
+                                android:layout_height="450dp"
+                                android:padding="16dp"/>
 
                         </FrameLayout>
 

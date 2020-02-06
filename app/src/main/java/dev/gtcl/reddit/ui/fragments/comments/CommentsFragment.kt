@@ -16,6 +16,7 @@ import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.dash.DashMediaSource
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
@@ -105,12 +106,11 @@ class CommentsFragment : Fragment() {
         })
 
         parentViewModel.post.observe(this, Observer{
-            if(!parentViewModel.postContentCreated.value!!){
+            if(parentViewModel.postContentCreated.value != true){
                 if(it.isSelf)
                     setTextView(it.selftext)
-                else
-                    setPlayerView("https://v.redd.it/tw3w92jk7kb41/HLSPlaylist.m3u8")
-                //"https://archive.org/download/Popeye_forPresident/Popeye_forPresident_512kb.mp4"
+                else if(it.preview?.redditVideoPreview != null)
+                    setPlayerView(it.preview.redditVideoPreview.hlsUrl)
                 parentViewModel.postGenerated(true)
             }
         })
@@ -144,7 +144,7 @@ class CommentsFragment : Fragment() {
     }
 
     private fun setPlayerView(videoPath: String){
-        initializePlayer()
+        initializePlayer(videoPath)
         binding.playerView.visibility = View.VISIBLE
         binding.contentText.visibility = View.GONE
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
@@ -168,7 +168,7 @@ class CommentsFragment : Fragment() {
         val userAgent = "exoplayer-codelab"
 
         return if (uri.lastPathSegment!!.contains("mp3") || uri.lastPathSegment!!.contains("mp4")) {
-            ExtractorMediaSource.Factory(DefaultHttpDataSourceFactory(userAgent))
+            ProgressiveMediaSource.Factory(DefaultHttpDataSourceFactory(userAgent))
                 .createMediaSource(uri)
         } else if (uri.lastPathSegment!!.contains("m3u8")) {
             HlsMediaSource.Factory(DefaultHttpDataSourceFactory(userAgent))
@@ -180,7 +180,7 @@ class CommentsFragment : Fragment() {
         }
     }
 
-    private fun initializePlayer(){
+    private fun initializePlayer(url: String){
         if(mPlayer == null){
             val trackSelector = DefaultTrackSelector()
             trackSelector.setParameters(trackSelector.buildUponParameters().setMaxVideoSizeSd())
@@ -189,9 +189,7 @@ class CommentsFragment : Fragment() {
         }
 
         binding.playerView.player = mPlayer
-//        val uri = Uri.parse("https://www.youtube.com/api/manifest/dash/id/bf5bb2419360daf1/source/youtube?as=fmp4_audio_clear,fmp4_sd_hd_clear&sparams=ip,ipbits,expire,source,id,as&ip=0.0.0.0&ipbits=0&expire=19000000000&signature=51AF5F39AB0CEC3E5497CD9C900EBFEAECCCB5C7.8506521BFC350652163895D4C26DEE124209AA9E&key=ik0")
-        val uri = Uri.parse("https://v.redd.it/tw3w92jk7kb41/HLSPlaylist.m3u8")
-//        val uri = Uri.parse("https://archive.org/download/Popeye_forPresident/Popeye_forPresident_512kb.mp4")
+        val uri = Uri.parse(url)
         val mediaSource = buildMediaSource(uri)
         mPlayer!!.apply {
             playWhenReady = mPlayWhenReady

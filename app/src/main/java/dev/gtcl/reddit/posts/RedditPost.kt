@@ -24,12 +24,24 @@ data class RedditPost(
         @Json(name = "is_self")
         val isSelf: Boolean, // if true, post is a text
         @Json(name = "upvote_ratio")
-        val upvoteRatio: Double?
+        val upvoteRatio: Double?,
+        val preview: Preview?
     ) : Parcelable
 
 fun RedditPost.asReadPost() = ReadPost(this.name)
 
 // Reddit API Response
+@Parcelize
+data class Preview(
+        @Json(name = "reddit_video_preview")
+        val redditVideoPreview: RedditVideoPreview?
+) : Parcelable
+
+@Parcelize
+data class RedditVideoPreview(
+        @Json(name = "hls_url")
+        val hlsUrl: String
+) : Parcelable
 
 class PostListingResponse(val data: PostListingData)
 
