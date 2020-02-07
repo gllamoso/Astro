@@ -3,22 +3,22 @@ package dev.gtcl.reddit.ui.fragments.comments
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.ContextCompat
+import androidx.core.net.toUri
 import androidx.lifecycle.Observer
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.source.ExtractorMediaSource
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.dash.DashMediaSource
-import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
@@ -107,10 +107,14 @@ class CommentsFragment : Fragment() {
 
         parentViewModel.post.observe(this, Observer{
             if(parentViewModel.postContentCreated.value != true){
-                if(it.isSelf)
-                    setTextView(it.selftext)
-                else if(it.preview?.redditVideoPreview != null)
-                    setPlayerView(it.preview.redditVideoPreview.hlsUrl)
+                when {
+                    it.isSelf -> setTextView(it.selftext)
+                    it.preview?.redditVideo != null -> setPlayerView(it.preview.redditVideo.hlsUrl)
+                    it.secureMedia?.redditVideo != null -> setPlayerView(it.secureMedia.redditVideo.hlsUrl)
+                    it.media?.redditVideo != null -> setPlayerView(it.media.redditVideo.hlsUrl)
+                    it.isPicture() -> setImageView(it.url!!)
+                    else -> setTextView(it.url)
+                }
                 parentViewModel.postGenerated(true)
             }
         })
@@ -132,25 +136,35 @@ class CommentsFragment : Fragment() {
         releasePlayer()
     }
 
-    private fun setTextView(text: String){
+    private fun setTextView(text: String?){
         releasePlayer()
         binding.contentText.text = text
         binding.contentText.visibility = View.VISIBLE
         binding.playerView.visibility = View.GONE
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            binding.contentLayout.setBackgroundColor(ContextCompat.getColor(context!!, R.color.white))
-        else
-            binding.contentLayout.setBackgroundColor(resources.getColor(R.color.white))
+        binding.urlImageView.visibility = View.GONE
     }
 
-    private fun setPlayerView(videoPath: String){
-        initializePlayer(videoPath)
+    private fun setPlayerView(videoUrl: String){
+        initializePlayer(videoUrl)
         binding.playerView.visibility = View.VISIBLE
         binding.contentText.visibility = View.GONE
-        if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            binding.contentLayout.setBackgroundColor(ContextCompat.getColor(context!!, R.color.black))
-        else
-            binding.contentLayout.setBackgroundColor(resources.getColor(R.color.black))
+        binding.urlImageView.visibility = View.GONE
+    }
+
+    private fun setImageView(url: String){
+        releasePlayer()
+        binding.playerView.visibility = View.GONE
+        binding.contentText.visibility = View.GONE
+        binding.urlImageView.visibility = View.VISIBLE
+
+        val imgUri = url.toUri().buildUpon().scheme("https").build()
+        Glide.with(context!!)
+            .load(imgUri)
+            .apply(
+                RequestOptions()
+                    .placeholder(R.drawable.anim_loading)
+                    .error(R.drawable.ic_broken_image))
+            .into(binding.urlImageView)
     }
 
     private fun releasePlayer() {

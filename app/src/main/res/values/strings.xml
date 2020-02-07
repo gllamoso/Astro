@@ -50,9 +50,11 @@
     <string name="continue_to_thread">Continue to thread</string>
 
     <!--Post Details-->
-    <string name="num_comments_and_score">%d comments • %d points</string>
-    <string name="num_comments_score_and_upvote_ratio">%d comments • %d points (%.0f%% upvote)</string>
-    <string name="author_and_timestamp">Posted by %s • %s</string>
+    <string name="num_comments">%d comments</string>
+    <string name="num_points">%d points</string>
+    <string name="upvote_ratio">(%.0f%% upvote)</string>
+
+    <!--Times-->
     <string name="years_ago">%d years ago</string>
     <string name="year_ago">1 year ago</string>
     <string name="months_ago">%d months ago</string>

@@ -15,7 +15,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         tools:context=".ui.fragments.comments.CommentsFragment">
-<!--            app:layout_behavior="@string/appbar_scrolling_view_behavior"-->
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
@@ -60,6 +59,7 @@
                     android:scrollbars="vertical">
 
                     <LinearLayout
+                        android:id="@+id/content_background"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
@@ -77,46 +77,90 @@
                             <LinearLayout
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:orientation="vertical">
+                                android:orientation="vertical"
+                                android:padding="8dp">
+
+                                <LinearLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content"
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@{model.post.author}"
+                                        tools:text="JohnDoe"
+                                        android:textSize="12sp"
+                                        android:textStyle="bold"/>
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text=" • "
+                                        tools:ignore="HardcodedText"
+                                        android:textSize="12sp"/>
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        app:timestamp="@{model.post.created}"
+                                        tools:text="9 hours ago"
+                                        android:textSize="12sp"/>
+
+                                </LinearLayout>
 
                                 <TextView
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="8dp"
-                                    android:layout_marginTop="8dp"
-                                    android:layout_marginEnd="8dp"
-                                    app:authorAndTimestamp="@{model.post}"
-                                    tools:text="Posted by JohnDoe • 9 hours ago" />
-
-                                <TextView
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:layout_marginStart="8dp"
-                                    android:layout_marginTop="8dp"
-                                    android:layout_marginEnd="8dp"
                                     android:text="@{model.post.title}"
-                                    android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-                                    tools:text="This is a post title\nand might be multiple lines" />
+                                    tools:text="This is a post title and might be multiple lines"
+                                    android:textColor="@color/black"/>
 
-                                <TextView
+                                <LinearLayout
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
-                                    android:layout_marginStart="8dp"
-                                    android:layout_marginTop="8dp"
-                                    android:layout_marginEnd="8dp"
-                                    android:layout_marginBottom="8dp"
-                                    app:commentsAndPoints="@{model.post}"
-                                    tools:text="99 comments • 12345 points (98% upvote)" />
+                                    android:orientation="horizontal">
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@{String.format(@string/num_comments, model.post.numComments)}"
+                                        tools:text="99 comments"
+                                        android:textSize="12sp"/>
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text=" • "
+                                        tools:ignore="HardcodedText"
+                                        android:textSize="12sp"/>
+
+                                    <TextView
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        android:text="@{String.format(@string/num_points, model.post.score)}"
+                                        tools:text="12345 points"
+                                        android:textSize="12sp"/>
+
+                                    <TextView
+                                        android:layout_marginLeft="4dp"
+                                        android:layout_width="wrap_content"
+                                        android:layout_height="wrap_content"
+                                        app:upvoteRatio="@{model.post.upvoteRatio}"
+                                        tools:text="(98% upvote)"
+                                        tools:ignore="RtlHardcoded"
+                                        android:textSize="12sp"/>
+
+                                </LinearLayout>
 
                             </LinearLayout>
 
                         </androidx.cardview.widget.CardView>
 
                         <FrameLayout
-                            android:id="@+id/content_layout"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
+                            android:layout_margin="16dp"
                             android:background="@color/black">
 
                             <TextView
@@ -124,15 +168,20 @@
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
                                 android:textColor="@color/black"
-                                android:paddingStart="16dp"
-                                android:paddingEnd="16dp"
-                                android:paddingBottom="16dp"/>
+                                android:background="@color/white"
+                                android:visibility="gone"/>
 
                             <com.google.android.exoplayer2.ui.PlayerView
                                 android:id="@+id/player_view"
                                 android:layout_width="match_parent"
-                                android:layout_height="450dp"
-                                android:padding="16dp"/>
+                                android:layout_height="525dp"
+                                android:padding="8dp"/>
+
+                            <ImageView
+                                android:id="@+id/url_image_view"
+                                android:layout_width="match_parent"
+                                android:layout_height="525dp"
+                                android:padding="8dp"/>
 
                         </FrameLayout>
 

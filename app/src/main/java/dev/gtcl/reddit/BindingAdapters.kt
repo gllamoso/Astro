@@ -84,22 +84,17 @@ fun setMoreCommentTextView(textView: TextView, more: More){
         textView.text = String.format(textView.resources.getText(R.string.more_replies).toString(), more.count)
 }
 
-@BindingAdapter("authorAndTimestamp")
-fun setAuthorAndTimestampTextView(textView: TextView, post: RedditPost?){
-    post?.let {
-        val authorAndTimestamp = textView.resources.getString(R.string.author_and_timestamp)
-        val time = timeSince(textView.context, it.created)
-        textView.text = String.format(authorAndTimestamp, it.author, time)
-    }
+@BindingAdapter("timestamp")
+fun setTimestamp(textView: TextView, time: Long?){
+    if(time != null){
+        val timestamp = timeSince(textView.context, time)
+        textView.text = timestamp
+    } else textView.text = ""
 }
 
-@BindingAdapter("commentsAndPoints")
-fun setCommentsAndPoints(textView: TextView, post: RedditPost?){
-    post?.let {
-        val text = if(post.upvoteRatio != null)
-            String.format(textView.context.getString(R.string.num_comments_score_and_upvote_ratio), post.numComments, post.score, post.upvoteRatio * 100)
-        else
-            String.format(textView.context.getString(R.string.num_comments_and_score), post.numComments, post.score)
-        textView.text = text
-    }
+@BindingAdapter("upvoteRatio")
+fun setUpvoteRatio(textView: TextView, upvoteRatio: Double?){
+    if(upvoteRatio != null){
+        textView.text = String.format(textView.context.getString(R.string.upvote_ratio), upvoteRatio * 100)
+    } else textView.text = ""
 }

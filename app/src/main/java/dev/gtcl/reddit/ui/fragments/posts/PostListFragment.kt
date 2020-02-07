@@ -3,7 +3,6 @@ package dev.gtcl.reddit.ui.fragments.posts
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -12,14 +11,12 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.R
-import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.STATE
 import dev.gtcl.reddit.database.asDomainModel
 import dev.gtcl.reddit.databinding.FragmentPostListBinding
 import dev.gtcl.reddit.databinding.NavHeaderBinding
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.posts.RedditPost
-import dev.gtcl.reddit.posts.asReadPost
 import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.ui.fragments.MainFragment
 import dev.gtcl.reddit.ui.fragments.MainFragmentViewModel

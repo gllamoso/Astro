@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.posts
 
+import android.net.Uri
 import android.os.Parcelable
 import com.squareup.moshi.Json
 import dev.gtcl.reddit.database.ReadPost
@@ -25,20 +26,46 @@ data class RedditPost(
         val isSelf: Boolean, // if true, post is a text
         @Json(name = "upvote_ratio")
         val upvoteRatio: Double?,
-        val preview: Preview?
-    ) : Parcelable
+        val secureMedia: SecureMedia?,
+        val preview: Preview?,
+        val media: Media?
+    ) : Parcelable {
 
-fun RedditPost.asReadPost() = ReadPost(this.name)
+        fun asReadPost() = ReadPost(this.name)
+
+        fun isPicture(): Boolean{
+                url?.let {
+                        val uri = Uri.parse(it)
+                        uri.lastPathSegment?.let { lastPathSegment ->
+                                return lastPathSegment.contains("(.jpg|.png|.gif|.svg)".toRegex())
+                        }
+                }
+                return false
+        }
+}
+
 
 // Reddit API Response
 @Parcelize
 data class Preview(
         @Json(name = "reddit_video_preview")
-        val redditVideoPreview: RedditVideoPreview?
+        val redditVideo: RedditVideo?
 ) : Parcelable
 
 @Parcelize
-data class RedditVideoPreview(
+data class SecureMedia(
+        @Json(name = "reddit_video")
+        val redditVideo: RedditVideo?
+) : Parcelable
+
+@Parcelize
+data class Media(
+        @Json(name = "reddit_video")
+        val redditVideo: RedditVideo?
+): Parcelable
+
+@Parcelize
+data class RedditVideo(
         @Json(name = "hls_url")
         val hlsUrl: String
 ) : Parcelable
