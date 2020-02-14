@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <item
         android:id="@+id/postListFragment"
-        android:icon="@drawable/ic_posts_black_24dp"
+        android:icon="@drawable/ic_posts_24dp"
         android:title="@string/posts"
         />
     <item
@@ -12,7 +12,7 @@
         />
     <item
         android:id="@+id/settings"
-        android:icon="@drawable/ic_settings_black_24dp"
+        android:icon="@drawable/ic_settings_24dp"
         android:title="@string/settings"
         />
 </menu>

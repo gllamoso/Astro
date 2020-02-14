@@ -37,15 +37,15 @@ class CustomExpandableListAdapter(val context: Context, private val adapterOnCli
 
         when(groupPosition){
             0 -> {
-                convertViewVar.findViewById<ImageView>(R.id.icon).setImageResource(R.drawable.ic_account_circle_black_24dp)
+                convertViewVar.findViewById<ImageView>(R.id.icon).setImageResource(R.drawable.ic_account_circle_24dp)
                 if (isExpanded)
                     convertViewVar.findViewById<ImageView>(R.id.indicator).setImageResource(R.drawable.ic_up_no_stem_24dp)
                 else
                     convertViewVar.findViewById<ImageView>(R.id.indicator).setImageResource(R.drawable.ic_down_no_stem_24dp)
             }
-            1 -> convertViewVar.findViewById<ImageView>(R.id.icon).setImageResource(R.drawable.ic_posts_black_24dp)
+            1 -> convertViewVar.findViewById<ImageView>(R.id.icon).setImageResource(R.drawable.ic_posts_24dp)
             2 -> convertViewVar.findViewById<ImageView>(R.id.icon).setImageResource(R.drawable.ic_user_24dp)
-            3 -> convertViewVar.findViewById<ImageView>(R.id.icon).setImageResource(R.drawable.ic_settings_black_24dp)
+            3 -> convertViewVar.findViewById<ImageView>(R.id.icon).setImageResource(R.drawable.ic_settings_24dp)
         }
         return convertViewVar
     }
@@ -80,7 +80,7 @@ class CustomExpandableListAdapter(val context: Context, private val adapterOnCli
                 }
                 removeButton.visibility = View.GONE
                 icon.visibility = View.VISIBLE
-                icon.setImageResource(R.drawable.ic_add_black_24dp)
+                icon.setImageResource(R.drawable.ic_add_24dp)
             }
             accountOptions.size - 1 -> {
                 convertViewVar.setOnClickListener{
@@ -88,7 +88,7 @@ class CustomExpandableListAdapter(val context: Context, private val adapterOnCli
                 }
                 removeButton.visibility = View.GONE
                 icon.visibility = View.VISIBLE
-                icon.setImageResource(R.drawable.ic_logout_black_24dp)
+                icon.setImageResource(R.drawable.ic_logout_24dp)
             }
             else -> {
                 convertViewVar.setOnClickListener{

@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
@@ -14,55 +12,155 @@
     <LinearLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?android:attr/colorBackground">
 
         <TextView
-            android:padding="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:textAppearance="@style/TextAppearance.AppCompat.Headline"
-            android:text="@{trendingSubredditPost.trendingSubreddit}"
-            tools:text="Trending Subreddits of {date}"/>
+            android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+            android:text="@{trendingSubredditPost.dateString}"
+            android:textColor="?android:attr/textColorPrimary"
+            tools:text="12-12-1999"
+            android:paddingTop="16dp"
+            android:paddingStart="16dp"
+            android:paddingEnd="16dp"
+            android:paddingBottom="8dp"/>
 
-        <TextView
+        <LinearLayout
             android:id="@+id/sub1"
-            android:padding="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{trendingSubredditPost.titles[0]}"
-            tools:text="r/sub1"/>
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:background="?android:attr/selectableItemBackground">
 
-        <TextView
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_reddit_circle"
+                android:layout_gravity="center"
+                android:tint="@android:color/holo_red_light"/>
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{trendingSubredditPost.titles[0]}"
+                android:textColor="?android:attr/textColorPrimary"
+                tools:text="r/sub1"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/sub2"
-            android:padding="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{trendingSubredditPost.titles[1]}"
-            tools:text="r/sub2"/>
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:background="?android:attr/selectableItemBackground">
 
-        <TextView
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_reddit_circle"
+                android:layout_gravity="center"
+                android:tint="@android:color/holo_blue_light"/>
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{trendingSubredditPost.titles[1]}"
+                android:textColor="?android:attr/textColorPrimary"
+                tools:text="r/sub2"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/sub3"
-            android:padding="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{trendingSubredditPost.titles[2]}"
-            tools:text="r/sub3"/>
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:background="?android:attr/selectableItemBackground">
 
-        <TextView
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_reddit_circle"
+                android:layout_gravity="center"
+                android:tint="@android:color/holo_green_light"/>
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{trendingSubredditPost.titles[2]}"
+                android:textColor="?android:attr/textColorPrimary"
+                tools:text="r/sub3"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/sub4"
-            android:padding="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{trendingSubredditPost.titles[3]}"
-            tools:text="r/sub4"/>
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:background="?android:attr/selectableItemBackground">
 
-        <TextView
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_reddit_circle"
+                android:layout_gravity="center"
+                android:tint="@android:color/holo_purple"/>
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{trendingSubredditPost.titles[3]}"
+                android:textColor="?android:attr/textColorPrimary"
+                tools:text="r/sub4"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"/>
+
+        </LinearLayout>
+
+        <LinearLayout
             android:id="@+id/sub5"
-            android:padding="16dp"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{trendingSubredditPost.titles[4]}"
-            tools:text="r/sub5"/>
+            android:orientation="horizontal"
+            android:padding="16dp"
+            android:background="?android:attr/selectableItemBackground">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:src="@drawable/ic_reddit_circle"
+                android:layout_gravity="center"
+                android:tint="@android:color/holo_green_dark"/>
+
+            <TextView
+                android:layout_weight="1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="@{trendingSubredditPost.titles[4]}"
+                android:textColor="?android:attr/textColorPrimary"
+                tools:text="r/sub5"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"/>
+
+        </LinearLayout>
 
     </LinearLayout>
 

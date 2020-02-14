@@ -72,7 +72,7 @@ class RedditPostViewHolder private constructor(private val binding:ItemRedditPos
     }
 
     private fun setIfRead(isRead: Boolean){
-        binding.title.setTextColor(ContextCompat.getColor(binding.root.context, if(isRead) R.color.grey else R.color.black))
+        binding.title.setTextColor(ContextCompat.getColor(binding.root.context, if(isRead) android.R.color.darker_gray else R.color.textColor))
     }
 
 

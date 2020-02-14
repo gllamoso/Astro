@@ -55,7 +55,7 @@ class PostListFragment : Fragment() {
         setListAdapter()
         setSwipeToRefresh()
         setDrawer(inflater)
-        setDialogFragments()
+        setBottomAppbarClickListeners()
     }
 
     private val postClickListener = object : PostClickListener {
@@ -135,7 +135,7 @@ class PostListFragment : Fragment() {
         }
     }
 
-    private fun setDialogFragments(){
+    private fun setBottomAppbarClickListeners(){
         //TODO: Delete
         binding.sortButton.setOnClickListener{
             SortSheetDialogFragment(model.sortSelected.value!!) { sort ->
@@ -162,6 +162,10 @@ class PostListFragment : Fragment() {
         binding.subredditButton.setOnClickListener{
             model.fetchDefaultSubreddits()
             SubredditSelectorDialogFragment().show(parentFragmentManager, "test3")
+        }
+
+        binding.refreshButton.setOnClickListener{
+            model.refresh()
         }
     }
 

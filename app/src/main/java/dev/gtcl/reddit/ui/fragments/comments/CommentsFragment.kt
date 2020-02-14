@@ -3,6 +3,8 @@ package dev.gtcl.reddit.ui.fragments.comments
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.util.DisplayMetrics
+import android.util.TypedValue
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -142,6 +144,7 @@ class CommentsFragment : Fragment() {
         binding.contentText.visibility = View.VISIBLE
         binding.playerView.visibility = View.GONE
         binding.urlImageView.visibility = View.GONE
+        binding.contentBackground.setBackgroundColor(ContextCompat.getColor(binding.root.context, android.R.color.transparent))
     }
 
     private fun setPlayerView(videoUrl: String){
@@ -149,6 +152,7 @@ class CommentsFragment : Fragment() {
         binding.playerView.visibility = View.VISIBLE
         binding.contentText.visibility = View.GONE
         binding.urlImageView.visibility = View.GONE
+        binding.contentBackground.setBackgroundColor(ContextCompat.getColor(binding.root.context, android.R.color.black))
     }
 
     private fun setImageView(url: String){
@@ -156,6 +160,7 @@ class CommentsFragment : Fragment() {
         binding.playerView.visibility = View.GONE
         binding.contentText.visibility = View.GONE
         binding.urlImageView.visibility = View.VISIBLE
+        binding.contentBackground.setBackgroundColor(ContextCompat.getColor(binding.root.context, android.R.color.black))
 
         val imgUri = url.toUri().buildUpon().scheme("https").build()
         Glide.with(context!!)

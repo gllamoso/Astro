@@ -45,5 +45,9 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
                 bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
         }
+
+        binding.toolbar.setNavigationOnClickListener {
+            dismiss()
+        }
     }
 }

@@ -13,7 +13,8 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/sort_posts_by"/>
+            android:text="@string/sort_posts_by"
+            android:textColor="@android:color/darker_gray"/>
 
         <RadioGroup
             android:id="@+id/radio_group"
@@ -26,11 +27,13 @@
                 android:layout_height="wrap_content"
                 android:text="@string/order_hot"
                 android:padding="8dp"
-                android:drawableStart="@drawable/ic_whatshot_black_24dp"
+                android:drawableStart="@drawable/ic_whatshot_24dp"
                 android:drawablePadding="8dp"
                 android:drawableEnd="@drawable/radio_button_custom"
                 android:button="@null"
                 android:background="?android:attr/selectableItemBackground"
+                android:textColor="@color/textColor"
+                android:drawableTint="@color/textColor"
                 tools:checked="true"/>
 
             <RadioButton
@@ -38,48 +41,56 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/order_new"
-                android:drawableStart="@drawable/ic_new_black_24dp"
+                android:drawableStart="@drawable/ic_new_24dp"
                 android:drawablePadding="8dp"
                 android:padding="8dp"
                 android:drawableEnd="@drawable/radio_button_custom"
                 android:button="@null"
-                android:background="?android:attr/selectableItemBackground"/>
+                android:background="?android:attr/selectableItemBackground"
+                android:textColor="@color/textColor"
+                android:drawableTint="@color/textColor"/>
 
             <RadioButton
                 android:id="@+id/top_radiobutton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/order_top"
-                android:drawableStart="@drawable/ic_top_black_24dp"
+                android:drawableStart="@drawable/ic_top_24dp"
                 android:drawablePadding="8dp"
                 android:padding="8dp"
                 android:drawableEnd="@drawable/radio_button_custom"
                 android:button="@null"
-                android:background="?android:attr/selectableItemBackground"/>
+                android:background="?android:attr/selectableItemBackground"
+                android:textColor="@color/textColor"
+                android:drawableTint="@color/textColor"/>
 
             <RadioButton
                 android:id="@+id/controversial_radiobutton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/order_controversial"
-                android:drawableStart="@drawable/ic_controversial_black_24dp"
+                android:drawableStart="@drawable/ic_controversial_24dp"
                 android:drawablePadding="8dp"
                 android:padding="8dp"
                 android:drawableEnd="@drawable/radio_button_custom"
                 android:button="@null"
-                android:background="?android:attr/selectableItemBackground"/>
+                android:background="?android:attr/selectableItemBackground"
+                android:textColor="@color/textColor"
+                android:drawableTint="@color/textColor"/>
 
             <RadioButton
                 android:id="@+id/rising_radiobutton"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/order_rising"
-                android:drawableStart="@drawable/ic_trending_up_black_24dp"
+                android:drawableStart="@drawable/ic_trending_up_24dp"
                 android:drawablePadding="8dp"
                 android:padding="8dp"
                 android:drawableEnd="@drawable/radio_button_custom"
                 android:button="@null"
-                android:background="?android:attr/selectableItemBackground"/>
+                android:background="?android:attr/selectableItemBackground"
+                android:textColor="@color/textColor"
+                android:drawableTint="@color/textColor"/>
 
         </RadioGroup>
 

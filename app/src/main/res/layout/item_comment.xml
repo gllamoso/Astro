@@ -13,7 +13,8 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?android:attr/colorBackground">
 
         <View
             android:id="@+id/depth_indicator"
@@ -77,8 +78,9 @@
                 android:layout_height="wrap_content"
                 android:autoLink="web"
                 android:text="@{comment.body}"
+                android:textColor="?android:attr/textColorPrimary"
                 tools:text="This is a comment"
-                android:textColor="@color/black"/>
+                tools:textColor="@android:color/black"/>
 
         </LinearLayout>
 

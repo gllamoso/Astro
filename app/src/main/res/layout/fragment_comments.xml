@@ -37,8 +37,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
-                    android:textColor="@android:color/white"
                     android:text="@{model.post.subreddit}"
+                    android:textColor="@android:color/white"
                     tools:text="wholesome" />
 
             </androidx.appcompat.widget.Toolbar>
@@ -59,7 +59,6 @@
                     android:scrollbars="vertical">
 
                     <LinearLayout
-                        android:id="@+id/content_background"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="vertical">
@@ -110,11 +109,13 @@
                                 </LinearLayout>
 
                                 <TextView
+                                    android:id="@+id/post_title"
                                     android:layout_width="match_parent"
                                     android:layout_height="wrap_content"
                                     android:text="@{model.post.title}"
                                     tools:text="This is a post title and might be multiple lines"
-                                    android:textColor="@color/black"/>
+                                    android:textColor="?android:attr/colorForeground"
+                                    android:textSize="18sp"/>
 
                                 <LinearLayout
                                     android:layout_width="match_parent"
@@ -122,6 +123,7 @@
                                     android:orientation="horizontal">
 
                                     <TextView
+                                        android:id="@+id/num_comments"
                                         android:layout_width="wrap_content"
                                         android:layout_height="wrap_content"
                                         android:text="@{String.format(@string/num_comments, model.post.numComments)}"
@@ -158,29 +160,30 @@
                         </androidx.cardview.widget.CardView>
 
                         <FrameLayout
+                            android:id="@+id/content_background"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_margin="16dp"
-                            android:background="@color/black">
+                            android:layout_marginTop="16dp"
+                            android:background="@android:color/black">
 
                             <TextView
                                 android:id="@+id/content_text"
                                 android:layout_width="match_parent"
                                 android:layout_height="wrap_content"
-                                android:textColor="@color/black"
-                                android:background="@color/white"
-                                android:visibility="gone"/>
+                                android:padding="16dp"/>
 
                             <com.google.android.exoplayer2.ui.PlayerView
                                 android:id="@+id/player_view"
                                 android:layout_width="match_parent"
                                 android:layout_height="525dp"
+                                app:setViewSize="@{60}"
                                 android:padding="8dp"/>
 
                             <ImageView
                                 android:id="@+id/url_image_view"
                                 android:layout_width="match_parent"
                                 android:layout_height="525dp"
+                                app:setViewSize="@{60}"
                                 android:padding="8dp"/>
 
                         </FrameLayout>
@@ -209,7 +212,7 @@
             app:behavior_hideable="false"
             app:behavior_peekHeight="?attr/actionBarSize"
             android:orientation="vertical"
-            android:background="@android:color/white"
+            android:background="?android:attr/colorBackground"
             android:elevation="100dp">
 
             <RelativeLayout
@@ -221,7 +224,7 @@
                     android:layout_marginTop="4dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_scrollable_indicator"
+                    android:src="@drawable/ic_expandable_indicator"
                     android:layout_alignParentTop="true"
                     android:layout_centerInParent="true"/>
 
@@ -230,34 +233,65 @@
                     android:layout_height="match_parent"
                     android:orientation="horizontal">
 
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
+
                     <ImageView
                         android:id="@+id/upvote_button"
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_up_no_stem_24dp"
-                        android:layout_gravity="center"/>
+                        android:src="@drawable/ic_upvote_24dp"
+                        android:layout_gravity="center"
+                        android:tint="@android:color/white"
+                        android:scaleX="0.90"
+                        android:scaleY="0.90"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"/>
 
                     <ImageView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_down_no_stem_24dp"
-                        android:layout_gravity="center"/>
+                        android:src="@drawable/ic_upvote_24dp"
+                        android:layout_gravity="center"
+                        android:tint="@android:color/white"
+                        android:scaleX="0.90"
+                        android:scaleY="-0.90"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"/>
 
                     <ImageView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_star_border_black_24dp"
-                        android:layout_gravity="center"/>
+                        android:src="@drawable/ic_bookmark_thin_24dp"
+                        android:layout_gravity="center"
+                        android:tint="@android:color/white"
+                        android:scaleX="0.90"
+                        android:scaleY="0.90"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"/>
 
                     <ImageView
-                        android:layout_width="0dp"
-                        android:layout_weight="1"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_more_vert_black_24dp"
-                        android:layout_gravity="center"/>
+                        android:src="@drawable/ic_more_vert_24dp"
+                        android:layout_gravity="center"
+                        android:tint="@android:color/white"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
 
 
                 </LinearLayout>

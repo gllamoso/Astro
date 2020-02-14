@@ -29,8 +29,9 @@
                     android:id="@+id/toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
+                    android:background="@color/colorPrimary"
                     app:layout_scrollFlags="scroll|enterAlways"
-                    app:navigationIcon="@drawable/ic_hamburger_icon_black_24dp">
+                    app:navigationIcon="@drawable/ic_hamburger_icon_white_24dp">
 
                     <TextView
                         android:id="@+id/title"
@@ -69,43 +70,71 @@
                 android:layout_width="match_parent"
                 android:layout_height="?actionBarSize"
                 android:layout_gravity="bottom"
-                android:background="@color/colorPrimary"
                 app:contentInsetStart="0dp"
-                app:layout_behavior="dev.gtcl.reddit.BottomNavigationBehavior"
-                style="@style/Widget.MaterialComponents.BottomAppBar">
+                app:layout_behavior="dev.gtcl.reddit.BottomNavigationBehavior">
 
                 <LinearLayout
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal">
+                    android:layout_height="match_parent"
+                    android:orientation="horizontal"
+                    android:background="@color/colorPrimary">
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
 
                     <ImageView
                         android:id="@+id/sort_button"
-                        android:layout_weight="1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_sort_black_24dp"
-                        android:layout_gravity="center"/>
+                        android:src="@drawable/ic_sort_24dp"
+                        android:layout_gravity="center"
+                        android:tint="@android:color/white"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"/>
 
                     <ImageView
-                        android:layout_weight="1"
+                        android:id="@+id/refresh_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_refresh_black_24dp" />
+                        android:src="@drawable/ic_refresh_24dp"
+                        android:layout_gravity="center"
+                        android:tint="@android:color/white"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"/>
 
                     <ImageView
                         android:id="@+id/subreddit_button"
-                        android:layout_weight="1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_sort_black_24dp" />
+                        android:src="@drawable/ic_reddit"
+                        android:layout_gravity="center"
+                        android:tint="@android:color/white"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="2"/>
 
                     <ImageView
-                        android:id="@+id/more_button"
-                        android:layout_weight="1"
+                        android:id="@+id/more_options_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_more_vert_black_24dp"/>
+                        android:src="@drawable/ic_more_vert_24dp"
+                        android:layout_gravity="center"
+                        android:tint="@android:color/white"/>
+
+                    <View
+                        android:layout_width="0dp"
+                        android:layout_height="0dp"
+                        android:layout_weight="1"/>
 
                 </LinearLayout>
 
@@ -118,7 +147,7 @@
             android:layout_gravity="start"
             android:layout_width="235dp"
             android:layout_height="match_parent"
-            android:background="@android:color/white"
+            android:background="?android:attr/colorForegroundInverse"
             android:groupIndicator="@android:color/transparent"
             />
 

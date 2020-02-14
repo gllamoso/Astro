@@ -14,27 +14,24 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="16dp">
+        android:padding="16dp"
+        android:background="?android:attr/colorBackground">
 
         <ImageView
             android:id="@+id/icon"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:imageUrl="@{sub.iconImg}"
-            tools:srcCompat="@drawable/ic_sort_black_24dp"/>
+            app:redditIcon="@{sub.iconImg}"
+            tools:srcCompat="@drawable/ic_reddit_circle"/>
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="20"
+            android:layout_weight="1"
             android:text="@{sub.displayName}"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toEndOf="@+id/icon"
+            android:textColor="?android:attr/textColorPrimary"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             tools:text="androiddev"/>
