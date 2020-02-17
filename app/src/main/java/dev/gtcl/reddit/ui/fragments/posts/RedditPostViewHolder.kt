@@ -67,7 +67,11 @@ class RedditPostViewHolder private constructor(private val binding:ItemRedditPos
         setIfRead(isRead)
         binding.root.setOnClickListener {
             setIfRead(true)
-            postClickListener.onPostClick(post, position)
+            postClickListener.onPostClicked(post, position)
+        }
+
+        binding.thumbnail.setOnClickListener{
+            postClickListener.onThumbnailClicked(post!!)
         }
     }
 
@@ -99,5 +103,6 @@ class RedditPostViewHolder private constructor(private val binding:ItemRedditPos
 }
 
 interface PostClickListener {
-    fun onPostClick(redditPost: RedditPost?, position: Int)
+    fun onPostClicked(post: RedditPost?, position: Int)
+    fun onThumbnailClicked(post: RedditPost)
 }

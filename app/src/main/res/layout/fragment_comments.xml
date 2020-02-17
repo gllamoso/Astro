@@ -270,11 +270,9 @@
                     <ImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_bookmark_thin_24dp"
+                        android:src="@drawable/ic_bookmark_24dp"
                         android:layout_gravity="center"
-                        android:tint="@android:color/white"
-                        android:scaleX="0.90"
-                        android:scaleY="0.90"/>
+                        android:tint="@android:color/white"/>
 
                     <View
                         android:layout_width="0dp"

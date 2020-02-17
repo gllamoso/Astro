@@ -18,6 +18,7 @@ import dev.gtcl.reddit.databinding.NavHeaderBinding
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.posts.RedditPost
 import dev.gtcl.reddit.ui.*
+import dev.gtcl.reddit.ui.fragments.ImageVideoViewerDialogFragment
 import dev.gtcl.reddit.ui.fragments.MainFragment
 import dev.gtcl.reddit.ui.fragments.MainFragmentViewModel
 import dev.gtcl.reddit.ui.fragments.posts.sort_sheet.SortSheetDialogFragment
@@ -52,14 +53,14 @@ class PostListFragment : Fragment() {
 //        val subredditSelected = savedInstanceState?.getString(KEY_SUBREDDIT) ?: DEFAULT_SUBREDDIT
 //        model.getPosts(Subreddit(displayName = subredditSelected))
 
-        setListAdapter()
+        setRecyclerView()
         setSwipeToRefresh()
         setDrawer(inflater)
         setBottomAppbarClickListeners()
     }
 
     private val postClickListener = object : PostClickListener {
-        override fun onPostClick(redditPost: RedditPost?, position: Int) {
+        override fun onPostClicked(redditPost: RedditPost?, position: Int) {
             redditPost?.let {
                 model.addReadPost(redditPost.asReadPost())
                 model.setPost(it)
@@ -69,9 +70,15 @@ class PostListFragment : Fragment() {
             }
         }
 
+        override fun onThumbnailClicked(post: RedditPost) {
+            val dialogFragment = ImageVideoViewerDialogFragment()
+            dialogFragment.setPost(post)
+            dialogFragment.show(parentFragmentManager, "test")
+        }
+
     }
 
-    private fun setListAdapter() {
+    private fun setRecyclerView() {
         val adapter = PostListAdapter({model.retry()}, postClickListener)
 
         binding.list.adapter = adapter
@@ -101,32 +108,26 @@ class PostListFragment : Fragment() {
         binding.expandableListView.addHeaderView(header.root)
 
         val adapter = CustomExpandableListAdapter(context!!, object: AdapterOnClickListeners{
-            override fun onAddAccountClicked() {
-                signInUser()
-            }
+            override fun onAddAccountClicked() { signInUser() }
 
-            override fun onRemoveAccountClicked(username: String) {
-                parentModel.deleteUserFromDatabase(username)
-            }
+            override fun onRemoveAccountClicked(username: String) { parentModel.deleteUserFromDatabase(username) }
 
             override fun onAccountClicked(user: User) {
                 parentModel.setCurrentUser(user, true)
                 drawerLayout.closeDrawers()
             }
 
-            override fun onLogoutClicked() {
-                parentModel.setCurrentUser(null, true)
-            }
+            override fun onLogoutClicked() { parentModel.setCurrentUser(null, true) }
 
         })
 
         binding.expandableListView.setAdapter(adapter)
 
-        model.allUsers.observe(this, Observer {
+        model.allUsers.observe(viewLifecycleOwner, Observer {
             adapter.setUsers(it.asDomainModel())
         })
 
-        parentModel.currentUser.observe(this, Observer {
+        parentModel.currentUser.observe(viewLifecycleOwner, Observer {
             header.user = it
         })
 

@@ -3,9 +3,7 @@
     <string name="preferences_file_key">Reddit Preference File Key</string>
     <string name="current_user_key">Current User</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="retry">Retry</string>
-    <string name="post_subtitle">Submitted to r/%s by %s</string>
 
     <!--Sort Fragment-->
     <string name="order_hot">Hot</string>
@@ -54,7 +52,7 @@
     <string name="num_points">%d points</string>
     <string name="upvote_ratio">(%.0f%% upvote)</string>
 
-    <!--Times-->
+    <!--Time-->
     <string name="years_ago">%d years ago</string>
     <string name="year_ago">1 year ago</string>
     <string name="months_ago">%d months ago</string>

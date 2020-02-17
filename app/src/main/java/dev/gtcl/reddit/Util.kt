@@ -1,8 +1,15 @@
 package dev.gtcl.reddit
 
 import android.content.Context
+import android.net.Uri
 import android.util.Base64
 import androidx.annotation.MainThread
+import com.google.android.exoplayer2.source.MediaSource
+import com.google.android.exoplayer2.source.ProgressiveMediaSource
+import com.google.android.exoplayer2.source.dash.DashMediaSource
+import com.google.android.exoplayer2.source.hls.HlsMediaSource
+import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
+import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import dev.gtcl.reddit.network.RedditApi
 import java.util.*
 
@@ -87,4 +94,20 @@ fun getEncodedAuthString(context: Context): String{
     val clientID = context.getText(R.string.client_id)
     val authString = "$clientID:"
     return Base64.encodeToString(authString.toByteArray(), Base64.NO_WRAP)
+}
+
+fun buildMediaSource(context: Context, uri: Uri): MediaSource {
+    val userAgent = "exoplayer-codelab"
+
+    return if (uri.lastPathSegment!!.contains("mp3") || uri.lastPathSegment!!.contains("mp4")) {
+        ProgressiveMediaSource.Factory(DefaultHttpDataSourceFactory(userAgent))
+            .createMediaSource(uri)
+    } else if (uri.lastPathSegment!!.contains("m3u8")) {
+        HlsMediaSource.Factory(DefaultHttpDataSourceFactory(userAgent))
+            .createMediaSource(uri)
+    } else {
+        val dataSourceFactory = DefaultDataSourceFactory(context, "exoplayer-codelab")
+        val mediaSourceFactor = DashMediaSource.Factory(dataSourceFactory)
+        mediaSourceFactor.createMediaSource(uri)
+    }
 }

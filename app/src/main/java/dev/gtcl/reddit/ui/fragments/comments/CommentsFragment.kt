@@ -28,6 +28,7 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dev.gtcl.reddit.R
+import dev.gtcl.reddit.buildMediaSource
 import dev.gtcl.reddit.comments.More
 import dev.gtcl.reddit.databinding.FragmentCommentsBinding
 import dev.gtcl.reddit.ui.fragments.MainFragment
@@ -102,12 +103,12 @@ class CommentsFragment : Fragment() {
             }
         })
 
-        parentViewModel.postContentCreated.observe(this, Observer {
+        parentViewModel.postContentCreated.observe(viewLifecycleOwner, Observer {
             if(it)
                 binding.nestedScrollView.scrollTo(0,0)
         })
 
-        parentViewModel.post.observe(this, Observer{
+        parentViewModel.post.observe(viewLifecycleOwner, Observer{
             if(parentViewModel.postContentCreated.value != true){
                 when {
                     it.isSelf -> setTextView(it.selftext)
@@ -182,23 +183,6 @@ class CommentsFragment : Fragment() {
         }
     }
 
-
-    private fun buildMediaSource(uri: Uri): MediaSource {
-        val userAgent = "exoplayer-codelab"
-
-        return if (uri.lastPathSegment!!.contains("mp3") || uri.lastPathSegment!!.contains("mp4")) {
-            ProgressiveMediaSource.Factory(DefaultHttpDataSourceFactory(userAgent))
-                .createMediaSource(uri)
-        } else if (uri.lastPathSegment!!.contains("m3u8")) {
-            HlsMediaSource.Factory(DefaultHttpDataSourceFactory(userAgent))
-                .createMediaSource(uri)
-        } else {
-            val dataSourceFactory = DefaultDataSourceFactory(context, "exoplayer-codelab")
-            val mediaSourceFactor = DashMediaSource.Factory(dataSourceFactory)
-            mediaSourceFactor.createMediaSource(uri)
-        }
-    }
-
     private fun initializePlayer(url: String){
         if(mPlayer == null){
             val trackSelector = DefaultTrackSelector()
@@ -209,7 +193,7 @@ class CommentsFragment : Fragment() {
 
         binding.playerView.player = mPlayer
         val uri = Uri.parse(url)
-        val mediaSource = buildMediaSource(uri)
+        val mediaSource = buildMediaSource(context!!, uri)
         mPlayer!!.apply {
             playWhenReady = mPlayWhenReady
             seekTo(mCurrentWindow, mPlaybackPosition)

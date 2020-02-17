@@ -148,7 +148,7 @@
                 android:layout_height="match_parent"
                 android:src="@drawable/ic_reddit_circle"
                 android:layout_gravity="center"
-                android:tint="@android:color/holo_green_dark"/>
+                android:tint="@android:color/holo_orange_light"/>
 
             <TextView
                 android:layout_weight="1"

@@ -9,6 +9,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.databinding.FragmentDialogSortSheetBinding
 
+// TODO: Remove arguments from constructor
 class SortSheetDialogFragment(private val selectedValue: PostSort, private val onItemSelected: (PostSort) -> Unit): BottomSheetDialogFragment(){
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

@@ -9,109 +9,94 @@
             type="dev.gtcl.reddit.posts.RedditPost" />
     </data>
 
-    <androidx.cardview.widget.CardView
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        app:cardUseCompatPadding="true">
+        android:background="?android:attr/selectableItemBackground">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:background="?android:attr/selectableItemBackground">
+            android:text="@{post.title}"
+            android:textColor="?android:attr/textColorPrimary"
+            android:textSize="20sp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/frameLayout"
+            app:layout_constraintTop_toTopOf="@+id/frameLayout"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="8dp"
+            tools:text="Title"
+            tools:textColor="@android:color/black" />
 
-            <ImageView
-                android:id="@+id/upvote_button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:src="@drawable/ic_upvote_24dp"
-                app:layout_constraintEnd_toEndOf="@+id/score"
-                app:layout_constraintStart_toStartOf="@+id/score"
-                app:layout_constraintTop_toTopOf="parent"
-                android:scaleX=".75"
-                android:scaleY=".75"
-                android:tint="@android:color/darker_gray"/>
-
-            <TextView
-                android:id="@+id/score"
-                android:layout_width="36dp"
-                android:layout_height="wrap_content"
-                android:textAlignment="center"
-                android:textSize="10sp"
-                android:lines="1"
-                tools:ignore="SmallSp"
-                tools:text="999.9K"
-                app:score="@{post != null ? post.score : null}"
-                app:layout_constraintTop_toBottomOf="@id/upvote_button"
-                app:layout_constraintStart_toStartOf="parent"/>
-
-            <ImageView
-                android:id="@+id/downvote_button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintVertical_bias="0.0"
-                android:layout_marginBottom="8dp"
-                android:scaleX=".75"
-                android:scaleY="-0.75"
-                android:src="@drawable/ic_upvote_24dp"
-                android:tint="@android:color/darker_gray"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/score"
-                app:layout_constraintStart_toStartOf="@+id/score"
-                app:layout_constraintTop_toBottomOf="@id/score"/>
+        <LinearLayout
+            android:id="@+id/more_info"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintVertical_bias="100"
+            app:layout_constraintBottom_toTopOf="@id/divider"
+            app:layout_constraintEnd_toEndOf="@id/title"
+            app:layout_constraintStart_toStartOf="@id/title"
+            app:layout_constraintTop_toBottomOf="@id/title">
 
             <TextView
-                android:id="@+id/title"
-                android:layout_width="0dp"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_above="@+id/subtitle"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                android:text="@{post.title}"
-                android:textColor="?android:attr/textColorPrimary"
-                android:textSize="20sp"
-                app:layout_constraintEnd_toStartOf="@+id/frameLayout"
-                app:layout_constraintStart_toEndOf="@+id/score"
-                app:layout_constraintTop_toTopOf="@+id/upvote_button"
-                tools:text="this is a post title and might be multiple lines y g"
-                tools:textColor="@android:color/black"/>
-
-            <TextView
-                android:id="@+id/subtitle"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintVertical_bias="100"
-                android:layout_alignParentBottom="true"
-                android:layout_marginBottom="8dp"
-                android:text="@{String.format(@string/post_subtitle, post.subreddit, post.author)}"
+                tools:text="r/funny • John Doe"
                 android:textSize="12sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/title"
-                app:layout_constraintStart_toStartOf="@+id/title"
-                app:layout_constraintTop_toBottomOf="@+id/title"
-                tools:text="Submitted to r/androiddev by foo" />
+                android:text="@{String.format(&quot;%s • %s&quot;, post.subreddit, post.author)}"/>
 
-            <FrameLayout
-                android:id="@+id/frameLayout"
-                android:layout_width="wrap_content"
+            <TextView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:background="@android:color/black"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                android:textSize="12sp"
+                tools:text="99999 score • 99999 comments"
+                android:text="@{String.format(&quot;%s • %s&quot;, String.format(@string/num_points, post.score), String.format(@string/num_comments, post.numComments))}"/>
 
-                <ImageView
-                    android:id="@+id/thumbnail"
-                    android:layout_width="64dp"
-                    android:layout_height="64dp"
-                    app:imageUrl="@{post.thumbnail}"
-                    app:srcCompat="@android:drawable/ic_menu_gallery" />
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                tools:text="3 hours ago"
+                android:textSize="12sp"
+                app:timestamp="@{post.created}"/>
 
-            </FrameLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
+        <FrameLayout
+            android:id="@+id/frameLayout"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginEnd="16dp"
+            android:layout_marginBottom="8dp"
+            android:background="@android:color/black"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/divider"
+            app:layout_constraintVertical_bias="0">
+
+            <ImageView
+                android:id="@+id/thumbnail"
+                android:layout_width="80dp"
+                android:layout_height="80dp"
+                app:imageUrl="@{post.thumbnail}"
+                app:srcCompat="@android:drawable/ic_menu_gallery"
+                android:background="?android:attr/selectableItemBackground"/>
+
+        </FrameLayout>
+
+        <View
+            android:id="@+id/divider"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:background="@android:color/darker_gray"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>
