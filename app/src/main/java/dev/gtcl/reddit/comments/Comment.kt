@@ -1,10 +1,16 @@
 package dev.gtcl.reddit.comments
 
+import android.annotation.SuppressLint
+import android.os.Build
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonReader
 import dev.gtcl.reddit.posts.*
 import java.lang.RuntimeException
 import java.lang.StringBuilder
+import java.text.SimpleDateFormat
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -60,6 +66,8 @@ val AUTHOR_REGEX = "data-author=\"[A-Za-z0-9_\\-]+\"".toRegex()
 val AUTHOR_FULLNAME_REGEX = "data-author-fullname=\"[A-Za-z0-9_\\-]+\"".toRegex()
 val SCORE_LIKES_REGEX = "\"score likes\" title=\"[0-9\\-]+\"".toRegex()
 val MORE_CHILDREN_REGEX = "morechildren\\([A-Za-z0-9,_' ]+\\)".toRegex()
+val TIME_REGEX = "time title=\"[A-Za-z0-9: ]+ UTC\"".toRegex()
+const val DATE_PATTERN = "EEE MMM dd HH:mm:ss yyyy"
 
 data class Child(
     val kind: String,
@@ -71,6 +79,7 @@ data class Child(
     val id: String
     ) {
 
+    @SuppressLint("SimpleDateFormat")
     fun convertToComment(depth: Int): Comment{
         if(contentText == "[deleted]")
             return Comment(id, depth, "[deleted]", null, contentText, 0, 0)
@@ -78,12 +87,22 @@ data class Child(
         val authorResult = AUTHOR_REGEX.find(content)
         val authorFullNameResult = AUTHOR_FULLNAME_REGEX.find(content)
         val scoreResult = SCORE_LIKES_REGEX.find(content)
+        val time = TIME_REGEX.find(content)
+        val timeString = time!!.value.replace("time title=\"", "").replace("  ", " 0").replace(" UTC\"", "")
 
-        if(authorResult == null) throw RuntimeException("Could not find 'author'. Comment id: $id")
-        if(authorFullNameResult == null) throw RuntimeException("Could not find 'authorFullNameResult'. Comment id: $id")
-        if(scoreResult == null) throw RuntimeException("Could not find 'scoreResult'. Comment id: $id")
+        val created = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
+            val formatter = DateTimeFormatter.ofPattern(DATE_PATTERN)
+            val dateTime = LocalDateTime.parse(timeString, formatter)
+            val zdt = dateTime.atZone(ZoneId.of("UTC"))
+            zdt.toInstant().toEpochMilli() / 1000
+        } else {
+            val formatter = SimpleDateFormat(DATE_PATTERN)
+            formatter.timeZone = TimeZone.getTimeZone("UTC")
+            val date = formatter.parse(timeString)
+            date!!.time / 1000
+        }
 
-        return Comment(id.replace("t1_", ""), depth, authorResult.value.split("\"")[1], authorFullNameResult.value.split("\"")[1], contentText, scoreResult.value.split("\"")[3].toInt(), 99)
+        return Comment(id.replace("t1_", ""), depth, authorResult!!.value.split("\"")[1], authorFullNameResult!!.value.split("\"")[1], contentText, scoreResult!!.value.split("\"")[3].toInt(), created)
     }
 
     fun convertToMore(depth: Int): More {
@@ -302,12 +321,7 @@ class CommentAdapter {
                                                         else -> jsonReader.skipValue()
                                                     }
                                                 }
-                                                if(id == null) throw RuntimeException("Exception in 'getComments'. Did not find 'id'.")
-                                                if(author == null) throw RuntimeException("Exception in 'getComments'. Did not find 'author'.")
-                                                if(body == null) throw RuntimeException("Exception in 'getComments'. Did not find 'body'.")
-                                                if(score == null) throw RuntimeException("Exception in 'getComments'. Did not find 'score'.")
-                                                if(created == null) throw RuntimeException("Exception in 'getComments'. Did not find 'created'.")
-                                                val comment = Comment(id, depth, author, authorFullName, body, score, created)
+                                                val comment = Comment(id!!, depth, author!!, authorFullName, body!!, score!!, created!!)
                                                 items.add(comment)
                                                 replies?.let {
                                                     items.addAll(it)
@@ -355,12 +369,7 @@ class CommentAdapter {
             }
         }
 
-        if(id == null) throw RuntimeException("Exception in 'getMoreInfo'. Did not find 'id'.")
-        if(depth == null) throw RuntimeException("Exception in 'getMoreInfo'. Did not find 'depth'.")
-        if(parentId == null) throw RuntimeException("Exception in 'getMoreInfo'. Did not find 'parentId'.")
-        if(count == null) throw RuntimeException("Exception in 'getMoreInfo'. Did not find 'count'.")
-
-        return More(id, depth, parentId, children, count)
+        return More(id!!, depth!!, parentId!!, children, count!!)
     }
 
     @FromJson
@@ -413,14 +422,7 @@ class CommentAdapter {
         jsonReader.endObject()
         jsonReader.endObject()
 
-        if(parent == null) throw RuntimeException("Exception in 'getCommentChild'. Did not find 'parent'.")
-        if(content == null) throw RuntimeException("Exception in 'getCommentChild'. Did not find 'content'.")
-        if(contentText == null) throw RuntimeException("Exception in 'getCommentChild'. Did not find 'contentText'.")
-        if(link == null) throw RuntimeException("Exception in 'getCommentChild'. Did not find 'link'.")
-        if(contentHTML == null) throw RuntimeException("Exception in 'getCommentChild'. Did not find 'contentHTML'.")
-        if(id == null) throw RuntimeException("Exception in 'getCommentChild'. Did not find 'id'.")
-
-        return Child(kind, parent, content, contentText, link, contentHTML, id)
+        return Child(kind, parent!!, content!!, contentText!!, link!!, contentHTML!!, id!!)
     }
 
 }

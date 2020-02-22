@@ -41,7 +41,7 @@ class MainFragment : Fragment() {
         setViewPagerAdapter()
 
         // TODO: Update
-        model.fetchPosts(Subreddit(displayName = "Showerthoughts"))
+        model.fetchPosts(Subreddit(displayName = "funny"))
         model.fetchDefaultSubreddits()
         model.fetchTrendingPosts()
         model.fetchPopularPosts()
