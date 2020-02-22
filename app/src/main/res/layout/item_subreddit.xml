@@ -15,14 +15,12 @@
         android:layout_height="wrap_content"
         android:orientation="horizontal"
         android:padding="16dp"
-        android:background="?android:attr/colorBackground">
+        android:background="?attr/selectableItemBackground">
 
         <ImageView
             android:id="@+id/icon"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:redditIcon="@{sub.iconImg}"
             tools:srcCompat="@drawable/ic_reddit_circle"/>
 

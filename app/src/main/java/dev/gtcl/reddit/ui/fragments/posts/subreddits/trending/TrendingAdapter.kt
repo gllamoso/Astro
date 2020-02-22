@@ -6,11 +6,11 @@ import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemTrendingSubredditBinding
-import dev.gtcl.reddit.posts.RedditPost
+import dev.gtcl.reddit.posts.Post
 import dev.gtcl.reddit.subs.Subreddit
 import dev.gtcl.reddit.posts.TrendingSubredditPost
 
-class TrendingAdapter(private val onClickListener: OnClickListener) : PagedListAdapter<RedditPost, TrendingAdapter.TrendingSubredditViewHolder>(
+class TrendingAdapter(private val onClickListener: OnClickListener) : PagedListAdapter<Post, TrendingAdapter.TrendingSubredditViewHolder>(
     POST_COMPARATOR
 ) {
     override fun onBindViewHolder(holder: TrendingSubredditViewHolder, position: Int) {
@@ -22,7 +22,7 @@ class TrendingAdapter(private val onClickListener: OnClickListener) : PagedListA
     }
 
     class TrendingSubredditViewHolder private constructor(private val binding: ItemTrendingSubredditBinding, val onSubredditClickListener: OnClickListener): RecyclerView.ViewHolder(binding.root) {
-        fun bind(redditPost: RedditPost?) {
+        fun bind(redditPost: Post?) {
             val trendingSubredditPost =
                 TrendingSubredditPost(redditPost)
             binding.trendingSubredditPost = trendingSubredditPost
@@ -52,12 +52,12 @@ class TrendingAdapter(private val onClickListener: OnClickListener) : PagedListA
     }
 
     companion object {
-        val POST_COMPARATOR = object : DiffUtil.ItemCallback<RedditPost>() {
-            override fun areItemsTheSame(oldItem: RedditPost, newItem: RedditPost): Boolean {
+        val POST_COMPARATOR = object : DiffUtil.ItemCallback<Post>() {
+            override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean {
                 return oldItem.title == newItem.title
             }
 
-            override fun areContentsTheSame(oldItem: RedditPost, newItem: RedditPost): Boolean {
+            override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
                 return oldItem.title == newItem.title
             }
 

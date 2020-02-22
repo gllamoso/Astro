@@ -12,8 +12,7 @@
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="?android:attr/colorBackground">
+        android:layout_height="wrap_content">
 
         <View
             android:id="@+id/depth_indicator"
@@ -23,12 +22,13 @@
 
         <TextView
             android:id="@+id/comment_text_view"
+            android:layout_weight="1"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:padding="@dimen/comment_indentation_size"
             app:moreComment="@{more}"
-            tools:text="99 more replies" />
+            tools:text="99 more replies"
+            android:background="?attr/selectableItemBackground"/>
 
     </LinearLayout>
 

@@ -14,7 +14,7 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.concurrent.Executor
 
-class PageKeyedPostDataSource(private val subredditName: String, private val sort: PostSort, private val t: Time?, private val retryExecutor: Executor) : PageKeyedDataSource<String, RedditPost>() {
+class PageKeyedPostDataSource(private val subredditName: String, private val sort: PostSort, private val t: Time?, private val retryExecutor: Executor) : PageKeyedDataSource<String, Post>() {
 
     private val dataSourceJob = Job()
     private val dataSourceScope = CoroutineScope(
@@ -45,12 +45,12 @@ class PageKeyedPostDataSource(private val subredditName: String, private val sor
         }
     }
 
-    override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<String, RedditPost>) {
+    override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<String, Post>) {
         // ignored, since we only ever append to our initial load
     }
 
 
-    override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String, RedditPost>) {
+    override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String, Post>) {
         dataSourceScope.launch {
             _networkState.postValue(NetworkState.LOADING)
             val resultsFromRepo = RedditApi.retrofitServiceWithNoAuth.getPostsFromSubreddit(
@@ -73,7 +73,7 @@ class PageKeyedPostDataSource(private val subredditName: String, private val sor
 
     }
 
-    override fun loadInitial(params: LoadInitialParams<String>, callback: LoadInitialCallback<String, RedditPost>) {
+    override fun loadInitial(params: LoadInitialParams<String>, callback: LoadInitialCallback<String, Post>) {
         dataSourceScope.launch {
             _networkState.postValue(NetworkState.LOADING)
             _initialLoad.postValue(NetworkState.LOADING)

@@ -2,11 +2,12 @@ package dev.gtcl.reddit.ui.fragments.posts
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
-import dev.gtcl.reddit.databinding.ItemRedditPostBinding
-import dev.gtcl.reddit.posts.RedditPost
+import dev.gtcl.reddit.databinding.ItemPostBinding
+import dev.gtcl.reddit.posts.Post
 
 //class RedditPostViewHolder(view: View, private val glide: GlideRequests)
 //class RedditPostViewHolder(view: View)
@@ -47,7 +48,7 @@ import dev.gtcl.reddit.posts.RedditPost
 ////        fun create(parent: ViewGroup, glide: GlideRequests): RedditPostViewHolder {
 //            fun create(parent: ViewGroup): RedditPostViewHolder {
 //            val view = LayoutInflater.from(parent.context)
-//                .inflate(R.layout.item_reddit_post, parent, false)
+//                .inflate(R.layout.item_post, parent, false)
 ////            return RedditPostViewHolder(view, glide)
 //            return RedditPostViewHolder(view)
 //        }
@@ -59,9 +60,9 @@ import dev.gtcl.reddit.posts.RedditPost
 //    }
 //}
 
-class RedditPostViewHolder private constructor(private val binding:ItemRedditPostBinding)
+class RedditPostViewHolder private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
-    fun bind(post: RedditPost?, postClickListener: PostClickListener, isRead: Boolean, position: Int){
+    fun bind(post: Post?, postClickListener: PostClickListener, isRead: Boolean, position: Int){
         binding.post = post
         binding.executePendingBindings()
         setIfRead(isRead)
@@ -73,6 +74,8 @@ class RedditPostViewHolder private constructor(private val binding:ItemRedditPos
         binding.thumbnail.setOnClickListener{
             postClickListener.onThumbnailClicked(post!!)
         }
+
+        binding.moreOptions.adapter = PostOptionsAdapter(binding.root.context)
     }
 
     private fun setIfRead(isRead: Boolean){
@@ -92,7 +95,7 @@ class RedditPostViewHolder private constructor(private val binding:ItemRedditPos
 
     companion object {
         fun create(parent: ViewGroup): RedditPostViewHolder {
-            return RedditPostViewHolder(ItemRedditPostBinding.inflate(LayoutInflater.from(parent.context)))
+            return RedditPostViewHolder(ItemPostBinding.inflate(LayoutInflater.from(parent.context)))
         }
     }
 
@@ -103,6 +106,6 @@ class RedditPostViewHolder private constructor(private val binding:ItemRedditPos
 }
 
 interface PostClickListener {
-    fun onPostClicked(post: RedditPost?, position: Int)
-    fun onThumbnailClicked(post: RedditPost)
+    fun onPostClicked(post: Post?, position: Int)
+    fun onThumbnailClicked(post: Post)
 }

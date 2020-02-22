@@ -14,7 +14,8 @@
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="?android:attr/colorBackground">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
@@ -31,7 +32,7 @@
                     android:layout_height="?attr/actionBarSize"
                     android:background="@color/colorPrimary"
                     app:layout_scrollFlags="scroll|enterAlways"
-                    app:navigationIcon="@drawable/ic_hamburger_icon_white_24dp">
+                    app:navigationIcon="@drawable/ic_menu_24dp">
 
                     <TextView
                         android:id="@+id/title"
@@ -60,7 +61,7 @@
                     app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                     app:spanCount="1"
                     tools:itemCount="16"
-                    tools:listitem="@layout/item_reddit_post"
+                    tools:listitem="@layout/item_post"
                     app:posts="@{viewModel.posts}" />
 
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>

@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.comments.*
 import dev.gtcl.reddit.database.ReadPost
-import dev.gtcl.reddit.posts.RedditPost
+import dev.gtcl.reddit.posts.Post
 import dev.gtcl.reddit.subs.Subreddit
 import dev.gtcl.reddit.subs.SubredditListingResponse
 import kotlinx.coroutines.*
@@ -40,7 +40,7 @@ class MainFragmentViewModel(val application: RedditApplication, private val refr
     val timeSelected: LiveData<Time>
         get() = _timeSelected
 
-    private val postListingsOfSubreddit = MutableLiveData<Listing<RedditPost>>()
+    private val postListingsOfSubreddit = MutableLiveData<Listing<Post>>()
     val posts = Transformations.switchMap(postListingsOfSubreddit) { it.pagedList }
     val networkState = Transformations.switchMap(postListingsOfSubreddit) { it.networkState }
     val refreshState = Transformations.switchMap(postListingsOfSubreddit) { it.refreshState }
@@ -86,8 +86,8 @@ class MainFragmentViewModel(val application: RedditApplication, private val refr
 
     //-----------------COMMENTS-----------------------------
 
-    private val _post = MutableLiveData<RedditPost>()
-    val post: LiveData<RedditPost>
+    private val _post = MutableLiveData<Post>()
+    val post: LiveData<Post>
         get() = _post
 
     private val _comments = MutableLiveData<List<CommentItem>>()
@@ -98,7 +98,7 @@ class MainFragmentViewModel(val application: RedditApplication, private val refr
     val moreComments: LiveData<MoreComments>
         get() = _moreComments
 
-    fun setPost(redditPost: RedditPost){
+    fun setPost(redditPost: Post){
         _post.value = redditPost
     }
 
@@ -160,7 +160,7 @@ class MainFragmentViewModel(val application: RedditApplication, private val refr
     }
 
     // Trending
-    private val _repoResultsOfTrendingSubreddits = MutableLiveData<Listing<RedditPost>>()
+    private val _repoResultsOfTrendingSubreddits = MutableLiveData<Listing<Post>>()
     val trendingSubredditPosts = Transformations.switchMap(_repoResultsOfTrendingSubreddits) { it.pagedList }
 
     fun fetchTrendingPosts() {

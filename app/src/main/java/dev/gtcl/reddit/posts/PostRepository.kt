@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.posts
 
-import android.app.Application
 import androidx.annotation.MainThread
 import androidx.lifecycle.Transformations
 import androidx.paging.toLiveData
@@ -21,7 +20,7 @@ class PostRepository internal constructor(application: RedditApplication, privat
     // --- NETWORK
 
     @MainThread
-    fun getPostsOfSubreddit(subReddit: Subreddit, sort: PostSort, t: Time? = null, pageSize: Int) : Listing<RedditPost> {
+    fun getPostsOfSubreddit(subReddit: Subreddit, sort: PostSort, t: Time? = null, pageSize: Int) : Listing<Post> {
 
         val sourceFactory = PostsDataSourceFactory(
             subReddit.displayName,

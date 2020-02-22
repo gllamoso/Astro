@@ -21,12 +21,12 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.buildMediaSource
 import dev.gtcl.reddit.databinding.FragmentDialogImageVideoViewerBinding
-import dev.gtcl.reddit.posts.RedditPost
+import dev.gtcl.reddit.posts.Post
 
 class ImageVideoViewerDialogFragment : BottomSheetDialogFragment(){
 
     private lateinit var binding: FragmentDialogImageVideoViewerBinding
-    private lateinit var post: RedditPost
+    private lateinit var post: Post
 
     private var mPlayer: SimpleExoPlayer? = null
     private var mPlayWhenReady = true
@@ -64,7 +64,7 @@ class ImageVideoViewerDialogFragment : BottomSheetDialogFragment(){
         }
     }
 
-    fun setPost(post: RedditPost){
+    fun setPost(post: Post){
         this.post = post
     }
 

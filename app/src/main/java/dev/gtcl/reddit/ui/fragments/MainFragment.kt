@@ -29,8 +29,7 @@ class MainFragment : Fragment() {
         (activity as MainActivity).model
     }
     val model: MainFragmentViewModel by lazy {
-        val viewModelFactory =
-            MainFragmentViewModelFactory(activity!!.application as RedditApplication, parentModel.fetchAccessTokenIfNecessary)
+        val viewModelFactory = MainFragmentViewModelFactory(activity!!.application as RedditApplication, parentModel.fetchAccessTokenIfNecessary)
         ViewModelProvider(this, viewModelFactory).get(MainFragmentViewModel::class.java)
     }
 
@@ -50,8 +49,7 @@ class MainFragment : Fragment() {
     }
 
     private fun setViewPagerAdapter(){
-        binding.viewPager.adapter =
-            MainFragmentStateAdapter(this)
+        binding.viewPager.adapter = MainFragmentStateAdapter(this)
         binding.viewPager.registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
 
             override fun onPageScrollStateChanged(state: Int) {
@@ -66,6 +64,8 @@ class MainFragment : Fragment() {
                 if(position == 0) model.postGenerated(false)
             }
         })
+
+        binding.viewPager.setPageTransformer(DepthPageTransformer())
 
         model.currentPage.observe(viewLifecycleOwner, Observer {
             it?.let {

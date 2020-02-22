@@ -5,7 +5,7 @@ val TITLE_REGEX = "## \\*\\*/r/\\w+\\*\\*".toRegex()
 val AGE_AND_SUBS_REGEX = "A community for (.)+ subscribers\\.".toRegex()
 val SUBS_AND_DESC_REGEX = "A community for (.)+ subscribers\\.(.)+---".toRegex(RegexOption.DOT_MATCHES_ALL)
 
-class TrendingSubredditPost(post: RedditPost?){
+class TrendingSubredditPost(post: Post?){
     var dateString = "NOT FOUND"
     val titles = arrayOf("","","","","")
     val subAgeAndCount = arrayOf("","","","","")

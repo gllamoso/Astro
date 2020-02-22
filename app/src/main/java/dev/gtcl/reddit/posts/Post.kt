@@ -7,7 +7,7 @@ import dev.gtcl.reddit.database.ReadPost
 import kotlinx.android.parcel.Parcelize
 
 @Parcelize
-data class RedditPost(
+data class Post(
         val name: String,
         val title: String,
         val score: Int,
@@ -78,4 +78,4 @@ class PostListingData(
         val before: String?
 )
 
-data class PostChildrenResponse(val data: RedditPost)
+data class PostChildrenResponse(val data: Post)

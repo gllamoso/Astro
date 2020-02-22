@@ -9,7 +9,7 @@ import java.util.*
 import kotlin.collections.HashMap
 
 data class CommentPage(
-    val post: RedditPost,
+    val post: Post,
     val comments: List<CommentItem>
 )
 
@@ -122,8 +122,8 @@ class CommentAdapter {
         return CommentPage(post, comments)
     }
 
-    private fun getRedditPost(jsonReader: JsonReader): RedditPost { // TODO: Finish
-        var post: RedditPost? = null
+    private fun getRedditPost(jsonReader: JsonReader): Post { // TODO: Finish
+        var post: Post? = null
         jsonReader.beginObject()
         if(jsonReader.nextName() != "kind") throw RuntimeException("Did not find 'kind' key.")
         jsonReader.skipValue()
@@ -232,7 +232,7 @@ class CommentAdapter {
                         else -> jsonReader.skipValue()
                     }
                 }
-                post = RedditPost(name!!, title!!, score!!, author!!, subreddit!!, numComments!!, created!!, thumbnail, url, likes, permalink!!, selftext!!, isSelf!!, upvoteRatio, secureMedia, preview, media)
+                post = Post(name!!, title!!, score!!, author!!, subreddit!!, numComments!!, created!!, thumbnail, url, likes, permalink!!, selftext!!, isSelf!!, upvoteRatio, secureMedia, preview, media)
                 jsonReader.endObject() // end "data"
                 jsonReader.endObject() // end child
                 jsonReader.endArray()

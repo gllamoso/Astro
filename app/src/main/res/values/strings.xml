@@ -5,6 +5,16 @@
 
     <string name="retry">Retry</string>
 
+    <!--Post Options-->
+    <string name="upvote">Upvote</string>
+    <string name="downvote">Downvote</string>
+    <string name="comments">Comments</string>
+    <string name="share">Share</string>
+    <string name="award">Award</string>
+    <string name="save">Save</string>
+    <string name="hide">Hide</string>
+    <string name="report">Report</string>
+
     <!--Sort Fragment-->
     <string name="order_hot">Hot</string>
     <string name="order_new">New</string>

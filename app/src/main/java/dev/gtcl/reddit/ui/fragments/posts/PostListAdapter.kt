@@ -6,10 +6,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.database.ReadPost
-import dev.gtcl.reddit.posts.RedditPost
+import dev.gtcl.reddit.posts.Post
 import dev.gtcl.reddit.network.NetworkState
 
-class PostListAdapter(private val retryCallback: () -> Unit, private val postClickListener: PostClickListener): PagedListAdapter<RedditPost, RecyclerView.ViewHolder>(
+class PostListAdapter(private val retryCallback: () -> Unit, private val postClickListener: PostClickListener): PagedListAdapter<Post, RecyclerView.ViewHolder>(
     POST_COMPARATOR
 ){
 
@@ -22,7 +22,7 @@ class PostListAdapter(private val retryCallback: () -> Unit, private val postCli
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
-            R.layout.item_reddit_post -> {
+            R.layout.item_post -> {
                 val item = getItem(position)
                 (holder as RedditPostViewHolder).bind(item, postClickListener, allReadSubs.contains(item?.name), position)
             }
@@ -41,7 +41,7 @@ class PostListAdapter(private val retryCallback: () -> Unit, private val postCli
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            R.layout.item_reddit_post -> RedditPostViewHolder.create(parent)
+            R.layout.item_post -> RedditPostViewHolder.create(parent)
             R.layout.item_network_state -> NetworkStateItemViewHolder.create(parent, retryCallback)
             else -> throw IllegalArgumentException("unknown view type $viewType")
         }
@@ -54,7 +54,7 @@ class PostListAdapter(private val retryCallback: () -> Unit, private val postCli
         return if (hasExtraRow() && position == itemCount - 1)
             R.layout.item_network_state
         else
-            R.layout.item_reddit_post
+            R.layout.item_post
     }
 
     override fun getItemCount(): Int {
@@ -76,14 +76,14 @@ class PostListAdapter(private val retryCallback: () -> Unit, private val postCli
 
     companion object {
         private val PAYLOAD_SCORE = Any()
-        val POST_COMPARATOR = object : DiffUtil.ItemCallback<RedditPost>() {
-            override fun areContentsTheSame(oldItem: RedditPost, newItem: RedditPost): Boolean =
+        val POST_COMPARATOR = object : DiffUtil.ItemCallback<Post>() {
+            override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean =
                 oldItem == newItem
 
-            override fun areItemsTheSame(oldItem: RedditPost, newItem: RedditPost): Boolean =
+            override fun areItemsTheSame(oldItem: Post, newItem: Post): Boolean =
                 oldItem.name == newItem.name
 
-            override fun getChangePayload(oldItem: RedditPost, newItem: RedditPost): Any? {
+            override fun getChangePayload(oldItem: Post, newItem: Post): Any? {
                 return if (sameExceptScore(oldItem, newItem)) {
                     PAYLOAD_SCORE
                 } else {
@@ -92,7 +92,7 @@ class PostListAdapter(private val retryCallback: () -> Unit, private val postCli
             }
         }
 
-        private fun sameExceptScore(oldItem: RedditPost, newItem: RedditPost): Boolean {
+        private fun sameExceptScore(oldItem: Post, newItem: Post): Boolean {
             // DON'T do this copy in a real app, it is just convenient here for the demo :)
             // because reddit randomizes scores, we want to pass it as a payload to minimize
             // UI updates between refreshes

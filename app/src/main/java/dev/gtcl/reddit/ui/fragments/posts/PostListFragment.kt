@@ -16,7 +16,7 @@ import dev.gtcl.reddit.database.asDomainModel
 import dev.gtcl.reddit.databinding.FragmentPostListBinding
 import dev.gtcl.reddit.databinding.NavHeaderBinding
 import dev.gtcl.reddit.network.NetworkState
-import dev.gtcl.reddit.posts.RedditPost
+import dev.gtcl.reddit.posts.Post
 import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.ui.fragments.ImageVideoViewerDialogFragment
 import dev.gtcl.reddit.ui.fragments.MainFragment
@@ -60,9 +60,9 @@ class PostListFragment : Fragment() {
     }
 
     private val postClickListener = object : PostClickListener {
-        override fun onPostClicked(redditPost: RedditPost?, position: Int) {
-            redditPost?.let {
-                model.addReadPost(redditPost.asReadPost())
+        override fun onPostClicked(post: Post?, position: Int) {
+            post?.let {
+                model.addReadPost(it.asReadPost())
                 model.setPost(it)
                 model.scrollToPage(1)
                 model.setPost(it)
@@ -70,7 +70,7 @@ class PostListFragment : Fragment() {
             }
         }
 
-        override fun onThumbnailClicked(post: RedditPost) {
+        override fun onThumbnailClicked(post: Post) {
             val dialogFragment = ImageVideoViewerDialogFragment()
             dialogFragment.setPost(post)
             dialogFragment.show(parentFragmentManager, "test")

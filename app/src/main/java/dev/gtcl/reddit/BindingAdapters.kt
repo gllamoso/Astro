@@ -5,7 +5,6 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Point
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -18,12 +17,8 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import dev.gtcl.reddit.comments.CommentItem
 import dev.gtcl.reddit.comments.More
-import dev.gtcl.reddit.posts.RedditPost
-import dev.gtcl.reddit.subs.Subreddit
+import dev.gtcl.reddit.posts.Post
 import dev.gtcl.reddit.ui.fragments.posts.PostListAdapter
-import dev.gtcl.reddit.ui.fragments.posts.subreddits.mine.SubredditsListAdapter
-import dev.gtcl.reddit.ui.fragments.posts.subreddits.popular.SubredditsPageListAdapter
-import dev.gtcl.reddit.ui.fragments.posts.subreddits.trending.TrendingAdapter
 import java.math.BigDecimal
 import java.math.RoundingMode
 
@@ -68,7 +63,7 @@ fun setVisibility(view: View, constraint: Boolean) {
 }
 
 @BindingAdapter("posts")
-fun setPosts(recyclerView: RecyclerView, posts: PagedList<RedditPost>?){
+fun setPosts(recyclerView: RecyclerView, posts: PagedList<Post>?){
     recyclerView.adapter?.let {
         (it as PostListAdapter).submitList(posts)
     }

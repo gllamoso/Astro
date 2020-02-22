@@ -6,7 +6,7 @@
     <data>
         <variable
             name="post"
-            type="dev.gtcl.reddit.posts.RedditPost" />
+            type="dev.gtcl.reddit.posts.Post" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -14,32 +14,30 @@
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground">
 
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@{post.title}"
-            android:textColor="?android:attr/textColorPrimary"
-            android:textSize="20sp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@+id/frameLayout"
-            app:layout_constraintTop_toTopOf="@+id/frameLayout"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="8dp"
-            tools:text="Title"
-            tools:textColor="@android:color/black" />
-
         <LinearLayout
-            android:id="@+id/more_info"
+            android:id="@+id/text"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:background="@android:color/transparent"
             android:layout_marginBottom="8dp"
-            app:layout_constraintVertical_bias="100"
+            android:layout_marginStart="16dp"
+            android:layout_marginEnd="4dp"
             app:layout_constraintBottom_toTopOf="@id/divider"
-            app:layout_constraintEnd_toEndOf="@id/title"
-            app:layout_constraintStart_toStartOf="@id/title"
-            app:layout_constraintTop_toBottomOf="@id/title">
+            app:layout_constraintTop_toTopOf="@id/more_options"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/frame_layout"
+            app:layout_constraintVertical_bias="0">
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{post.title}"
+                android:textColor="?android:attr/textColorPrimary"
+                android:textSize="16sp"
+                tools:text="Title"
+                tools:textColor="@android:color/black" />
 
             <TextView
                 android:layout_width="match_parent"
@@ -66,36 +64,45 @@
         </LinearLayout>
 
         <FrameLayout
-            android:id="@+id/frameLayout"
+            android:id="@+id/frame_layout"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginEnd="16dp"
+            android:layout_marginEnd="4dp"
             android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
             android:background="@android:color/black"
-            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/more_options"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toTopOf="@id/divider"
             app:layout_constraintVertical_bias="0">
 
             <ImageView
                 android:id="@+id/thumbnail"
-                android:layout_width="80dp"
-                android:layout_height="80dp"
+                android:layout_width="72dp"
+                android:layout_height="72dp"
                 app:imageUrl="@{post.thumbnail}"
                 app:srcCompat="@android:drawable/ic_menu_gallery"
                 android:background="?android:attr/selectableItemBackground"/>
 
         </FrameLayout>
 
+        <Spinner
+            android:id="@+id/more_options"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginEnd="16dp"
+            android:layout_marginTop="8dp"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            tools:background="@drawable/ic_more_vert_24dp"/>
+
         <View
             android:id="@+id/divider"
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:background="@android:color/darker_gray"
-            android:layout_marginStart="8dp"
-            android:layout_marginEnd="8dp"/>
+            android:background="@android:color/darker_gray"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

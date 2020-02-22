@@ -74,7 +74,7 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
     class MoreViewHolder private constructor(private var binding: ItemMoreCommentBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(more: More, onMoreClicked: () -> Unit){
             binding.more = more
-            binding.root.setOnClickListener { onMoreClicked() }
+            binding.commentTextView.setOnClickListener { onMoreClicked() }
             binding.executePendingBindings()
         }
 
