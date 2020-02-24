@@ -9,20 +9,22 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.R
+import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.STATE
 import dev.gtcl.reddit.database.asDomainModel
 import dev.gtcl.reddit.databinding.FragmentPostListBinding
 import dev.gtcl.reddit.databinding.NavHeaderBinding
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.posts.Post
+import dev.gtcl.reddit.subs.Subreddit
 import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.ui.fragments.ImageVideoViewerDialogFragment
-import dev.gtcl.reddit.ui.fragments.MainFragment
-import dev.gtcl.reddit.ui.fragments.MainFragmentViewModel
 import dev.gtcl.reddit.ui.fragments.posts.sort_sheet.SortSheetDialogFragment
-import dev.gtcl.reddit.ui.fragments.posts.subreddits.SubredditSelectorDialogFragment
+import dev.gtcl.reddit.ui.fragments.subreddits.SubredditOnClickListener
+import dev.gtcl.reddit.ui.fragments.subreddits.SubredditSelectorDialogFragment
 import dev.gtcl.reddit.ui.fragments.posts.time_period_sheet.TimePeriodSheetDialogFragment
 import dev.gtcl.reddit.ui.webview.WebviewActivity
 import dev.gtcl.reddit.users.User
@@ -34,8 +36,9 @@ class PostListFragment : Fragment() {
     private val parentModel: MainActivityViewModel by lazy {
         (activity as MainActivity).model
     }
-    private val model: MainFragmentViewModel by lazy {
-        (parentFragment as MainFragment).model
+    val model: PostListViewModel by lazy {
+        val viewModelFactory = PostListViewModelFactory(activity!!.application as RedditApplication)
+        ViewModelProvider(this, viewModelFactory).get(PostListViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -47,11 +50,14 @@ class PostListFragment : Fragment() {
     private fun setupFragment(inflater: LayoutInflater){
         binding = FragmentPostListBinding.inflate(inflater)
         binding.lifecycleOwner = this
-        binding.viewModel = model
+        binding.model = model
 
         //TODO: Add
 //        val subredditSelected = savedInstanceState?.getString(KEY_SUBREDDIT) ?: DEFAULT_SUBREDDIT
 //        model.getPosts(Subreddit(displayName = subredditSelected))
+
+        // TODO: Update. Wrap with observer, observing a refresh live data
+        model.fetchPosts(Subreddit(displayName = "funny"))
 
         setRecyclerView()
         setSwipeToRefresh()
@@ -59,14 +65,17 @@ class PostListFragment : Fragment() {
         setBottomAppbarClickListeners()
     }
 
-    private val postClickListener = object : PostClickListener {
+    private lateinit var postClickListener: (Post) -> (Unit)
+
+    fun setPostSelectionListener(postClickListener: (Post) -> (Unit)){
+        this.postClickListener = postClickListener
+    }
+
+    private val postViewClickListener = object : PostViewClickListener {
         override fun onPostClicked(post: Post?, position: Int) {
             post?.let {
                 model.addReadPost(it.asReadPost())
-                model.setPost(it)
-                model.scrollToPage(1)
-                model.setPost(it)
-                model.fetchPostAndComments()
+                postClickListener(it)
             }
         }
 
@@ -79,7 +88,7 @@ class PostListFragment : Fragment() {
     }
 
     private fun setRecyclerView() {
-        val adapter = PostListAdapter({model.retry()}, postClickListener)
+        val adapter = PostListAdapter({model.retry()}, postViewClickListener)
 
         binding.list.adapter = adapter
         model.networkState.observe(viewLifecycleOwner, Observer {
@@ -159,10 +168,17 @@ class PostListFragment : Fragment() {
         }
 
 
-        // TODO: Edit
         binding.subredditButton.setOnClickListener{
-            model.fetchDefaultSubreddits()
-            SubredditSelectorDialogFragment().show(parentFragmentManager, "test3")
+            val subredditSelector =
+                SubredditSelectorDialogFragment()
+            subredditSelector.setSubredditOnClickListener(object :
+                SubredditOnClickListener {
+                override fun onClick(sub: Subreddit) {
+                    model.fetchPosts(sub)
+                    subredditSelector.dismiss()
+                }
+            })
+            subredditSelector.show(parentFragmentManager, "SubredditSelector")
         }
 
         binding.refreshButton.setOnClickListener{
@@ -176,4 +192,5 @@ class PostListFragment : Fragment() {
         intent.putExtra(URL_KEY, url)
         activity?.startActivityForResult(intent, REDIRECT_URL_REQUEST_CODE)
     }
+
 }

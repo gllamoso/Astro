@@ -2,7 +2,6 @@ package dev.gtcl.reddit.ui.fragments.posts
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
@@ -62,7 +61,7 @@ import dev.gtcl.reddit.posts.Post
 
 class RedditPostViewHolder private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
-    fun bind(post: Post?, postClickListener: PostClickListener, isRead: Boolean, position: Int){
+    fun bind(post: Post?, postClickListener: PostViewClickListener, isRead: Boolean, position: Int){
         binding.post = post
         binding.executePendingBindings()
         setIfRead(isRead)
@@ -103,9 +102,4 @@ class RedditPostViewHolder private constructor(private val binding:ItemPostBindi
 //        post = item
 //        score.text = "${item?.score ?: 0}"
 //    }
-}
-
-interface PostClickListener {
-    fun onPostClicked(post: Post?, position: Int)
-    fun onThumbnailClicked(post: Post)
 }

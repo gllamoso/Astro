@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.comments.Comment
 import dev.gtcl.reddit.comments.CommentItem
+import dev.gtcl.reddit.comments.ContinueThread
 import dev.gtcl.reddit.comments.More
 import dev.gtcl.reddit.databinding.ItemCommentBinding
 import dev.gtcl.reddit.databinding.ItemMoreCommentBinding
@@ -47,10 +48,14 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
                 else
                     commentItemClickListener.onMoreCommentsClicked(position, commentItem)
             }
+        if(commentItem is ContinueThread)
+            (holder as MoreViewHolder).bind(commentItem){
+                commentItemClickListener.onContinueThreadClicked(commentItem)
+            }
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if(mCommentItems[position] is More)
+        return if(mCommentItems[position] is More || mCommentItems[position] is ContinueThread)
                 R.layout.item_more_comment
             else
                 R.layout.item_comment
@@ -72,8 +77,8 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
     }
 
     class MoreViewHolder private constructor(private var binding: ItemMoreCommentBinding): RecyclerView.ViewHolder(binding.root) {
-        fun bind(more: More, onMoreClicked: () -> Unit){
-            binding.more = more
+        fun bind(commentItem: CommentItem, onMoreClicked: () -> Unit){
+            binding.more = commentItem
             binding.commentTextView.setOnClickListener { onMoreClicked() }
             binding.executePendingBindings()
         }
@@ -87,7 +92,7 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
 
     interface CommentItemClickListener{
         fun onMoreCommentsClicked(position: Int, more: More)
-        fun onContinueThreadClicked(more: More)
+        fun onContinueThreadClicked(commentItem: CommentItem)
     }
 
 }

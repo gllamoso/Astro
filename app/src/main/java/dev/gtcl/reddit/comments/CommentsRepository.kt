@@ -11,19 +11,16 @@ class CommentRepository internal constructor(application: Application) {
     private val database = redditDatabase(application)
 
     @MainThread
-    fun getPostAndComments(permalink: String, sort: CommentSort): Deferred<CommentPage> =
+    fun getPostAndComments(permalink: String, sort: CommentSort = CommentSort.BEST): Deferred<CommentPage> =
         RedditApi.retrofitServiceWithNoAuth.getPostAndComments(permalink = "$permalink.json", sort = sort.stringValue)
 
     @MainThread
-    fun getComments(permalink: String, sort: CommentSort): Deferred<List<CommentItem>> =
-        RedditApi.retrofitServiceWithNoAuth.getComments(permalink = "$permalink.json", sort = sort.stringValue)
-
-    @MainThread
-    fun getMoreComments(children: String, linkId: String, sort: CommentSort): Deferred<List<Child>> =
+    fun getMoreComments(children: String, linkId: String, sort: CommentSort = CommentSort.BEST): Deferred<List<Child>> =
         RedditApi.retrofitServiceWithNoAuth.getMoreComments(children = children, linkId = linkId, sort = sort.stringValue)
 
 }
 
+// TODO: Redo singleton
 private lateinit var INSTANCE: CommentRepository
 fun getCommentRepository(application: Application): CommentRepository {
     synchronized(CommentRepository::class.java){

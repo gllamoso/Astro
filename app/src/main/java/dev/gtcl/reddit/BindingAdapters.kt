@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Point
+import android.graphics.Typeface
+import android.util.TypedValue
 import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
@@ -15,7 +17,9 @@ import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import dev.gtcl.reddit.comments.Comment
 import dev.gtcl.reddit.comments.CommentItem
+import dev.gtcl.reddit.comments.ContinueThread
 import dev.gtcl.reddit.comments.More
 import dev.gtcl.reddit.posts.Post
 import dev.gtcl.reddit.ui.fragments.posts.PostListAdapter
@@ -94,12 +98,35 @@ fun setIndentation(view: View, listItem: CommentItem?){
     }
 }
 
+@SuppressLint("SetTextI18n")
+@BindingAdapter("comment")
+fun setCommentInfo(view: LinearLayout, comment: Comment){
+    view.removeAllViews()
+    val authorTextView = TextView(view.context)
+    authorTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.toFloat())
+    authorTextView.setTypeface(Typeface.DEFAULT_BOLD, Typeface.BOLD)
+    authorTextView.text = comment.author
+    view.addView(authorTextView)
+    if(comment.score != Int.MIN_VALUE && comment.author != "[deleted]"){
+        val scoreTextView = TextView(view.context)
+        scoreTextView.text = " • ${String.format(view.resources.getString(R.string.num_points), comment.score)}"
+        scoreTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.toFloat())
+        view.addView(scoreTextView)
+    }
+    if(comment.author != "[deleted]"){
+        val timeTextView = TextView(view.context)
+        timeTextView.text = " • ${timeSince(view.context, comment.created)}"
+        timeTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.toFloat())
+        view.addView(timeTextView)
+    }
+}
+
 @BindingAdapter("moreComment")
-fun setMoreCommentTextView(textView: TextView, more: More){
-    if(more.isContinueThreadLink())
+fun setMoreCommentText(textView: TextView, item: CommentItem){
+    if(item is ContinueThread || (item is More && item.isContinueThreadLink()))
         textView.text = textView.resources.getString(R.string.continue_to_thread)
     else
-        textView.text = String.format(textView.resources.getText(R.string.more_replies).toString(), more.count)
+        textView.text = String.format(textView.resources.getText(R.string.more_replies).toString(), (item as More).count)
 }
 
 @BindingAdapter("timestamp")
@@ -115,19 +142,6 @@ fun setUpvoteRatio(textView: TextView, upvoteRatio: Double?){
     if(upvoteRatio != null){
         textView.text = String.format(textView.context.getString(R.string.upvote_ratio), upvoteRatio * 100)
     } else textView.text = ""
-}
-
-@SuppressLint("SetTextI18n")
-@BindingAdapter("score")
-fun setScore(textView: TextView, score: Int?){
-    if(score != null){
-        if(score >= 1000)
-            textView.text = "${BigDecimal(score.toDouble()/1000).setScale(1, RoundingMode.HALF_EVEN)}K"
-        else
-            textView.text = score.toString()
-    }
-    else
-        textView.text = "•"
 }
 
 @BindingAdapter("setViewSize")

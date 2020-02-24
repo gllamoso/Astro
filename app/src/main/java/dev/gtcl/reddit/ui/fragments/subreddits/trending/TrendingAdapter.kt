@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.posts.subreddits.trending
+package dev.gtcl.reddit.ui.fragments.subreddits.trending
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -9,8 +9,9 @@ import dev.gtcl.reddit.databinding.ItemTrendingSubredditBinding
 import dev.gtcl.reddit.posts.Post
 import dev.gtcl.reddit.subs.Subreddit
 import dev.gtcl.reddit.posts.TrendingSubredditPost
+import dev.gtcl.reddit.ui.fragments.subreddits.SubredditOnClickListener
 
-class TrendingAdapter(private val onClickListener: OnClickListener) : PagedListAdapter<Post, TrendingAdapter.TrendingSubredditViewHolder>(
+class TrendingAdapter(private val onClickListener: SubredditOnClickListener) : PagedListAdapter<Post, TrendingAdapter.TrendingSubredditViewHolder>(
     POST_COMPARATOR
 ) {
     override fun onBindViewHolder(holder: TrendingSubredditViewHolder, position: Int) {
@@ -21,7 +22,7 @@ class TrendingAdapter(private val onClickListener: OnClickListener) : PagedListA
         return TrendingSubredditViewHolder.create(parent, onClickListener)
     }
 
-    class TrendingSubredditViewHolder private constructor(private val binding: ItemTrendingSubredditBinding, val onSubredditClickListener: OnClickListener): RecyclerView.ViewHolder(binding.root) {
+    class TrendingSubredditViewHolder private constructor(private val binding: ItemTrendingSubredditBinding, private val onSubredditClickListener: SubredditOnClickListener): RecyclerView.ViewHolder(binding.root) {
         fun bind(redditPost: Post?) {
             val trendingSubredditPost =
                 TrendingSubredditPost(redditPost)
@@ -45,7 +46,7 @@ class TrendingAdapter(private val onClickListener: OnClickListener) : PagedListA
         }
 
         companion object{
-            fun create(parent: ViewGroup, onSubredditClickListener: OnClickListener): TrendingSubredditViewHolder {
+            fun create(parent: ViewGroup, onSubredditClickListener: SubredditOnClickListener): TrendingSubredditViewHolder {
                 return TrendingSubredditViewHolder(ItemTrendingSubredditBinding.inflate(LayoutInflater.from(parent.context)), onSubredditClickListener)
             }
         }
@@ -62,9 +63,5 @@ class TrendingAdapter(private val onClickListener: OnClickListener) : PagedListA
             }
 
         }
-    }
-
-    class OnClickListener(val clickListener: (subreddit: Subreddit) -> Unit) {
-        fun onClick(subreddit: Subreddit) = clickListener(subreddit)
     }
 }

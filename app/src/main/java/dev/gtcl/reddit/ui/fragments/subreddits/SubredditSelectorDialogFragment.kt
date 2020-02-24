@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.posts.subreddits
+package dev.gtcl.reddit.ui.fragments.subreddits
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.os.Bundle
@@ -10,10 +10,17 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.FragmentDialogSubredditsBinding
+import dev.gtcl.reddit.ui.fragments.subreddits.SubredditOnClickListener
+import dev.gtcl.reddit.ui.fragments.subreddits.SubredditStateAdapter
 
 class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
 
-    lateinit var binding: FragmentDialogSubredditsBinding
+    private lateinit var binding: FragmentDialogSubredditsBinding
+    private lateinit var subClickListener: SubredditOnClickListener
+
+    fun setSubredditOnClickListener(listener: SubredditOnClickListener){
+        this.subClickListener = listener
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentDialogSubredditsBinding.inflate(inflater)
@@ -25,7 +32,10 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
     private fun setupTabLayout(){
         val tabLayout = binding.tabLayout
         val viewPager = binding.viewPager
-        viewPager.adapter = SubredditStateAdapter(this)
+        val adapter =
+            SubredditStateAdapter(this)
+        adapter.setSubredditOnClickListener(subClickListener)
+        viewPager.adapter = adapter
         TabLayoutMediator(tabLayout, viewPager){ tab, position ->
             tab.text = getText(when(position){
                 0 -> R.string.mine_tab_label

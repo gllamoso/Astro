@@ -57,7 +57,7 @@ fun timeSince(context: Context, seconds: Long): String{
 
     return when{
         secondsAgo > SECONDS_IN_YEAR -> {
-            val years = seconds/SECONDS_IN_YEAR
+            val years = secondsAgo/SECONDS_IN_YEAR
             if(years > 1) String.format(context.getString(R.string.years_ago), years)
             else context.getString(R.string.year_ago)
         }

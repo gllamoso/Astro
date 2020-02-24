@@ -21,7 +21,7 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
     private val userRepository = application.userRepository
 
     // Scopes
-    private var viewModelJob = Job()
+    private val viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     private val _currentUser = MutableLiveData<User>()

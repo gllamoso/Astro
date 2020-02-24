@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.posts.subreddits.mine
+package dev.gtcl.reddit.ui.fragments.subreddits.mine
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -7,8 +7,9 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemSubredditBinding
 import dev.gtcl.reddit.subs.Subreddit
+import dev.gtcl.reddit.ui.fragments.subreddits.SubredditOnClickListener
 
-class SubredditsListAdapter(private val onClickListener: OnClickListener): ListAdapter<Subreddit, SubredditsListAdapter.SubredditViewHolder>(
+class SubredditsListAdapter(private val subredditOnClickListener: SubredditOnClickListener): ListAdapter<Subreddit, SubredditsListAdapter.SubredditViewHolder>(
     DiffCallback
 ) {
 
@@ -20,7 +21,7 @@ class SubredditsListAdapter(private val onClickListener: OnClickListener): ListA
 
     override fun onBindViewHolder(holder: SubredditViewHolder, position: Int) {
         val subreddit = getItem(position)
-        holder.itemView.setOnClickListener { onClickListener.onClick(subreddit)}
+        holder.itemView.setOnClickListener { subredditOnClickListener.onClick(subreddit)}
         holder.bind(subreddit)
     }
 
@@ -40,9 +41,5 @@ class SubredditsListAdapter(private val onClickListener: OnClickListener): ListA
         override fun areContentsTheSame(oldItem: Subreddit, newItem: Subreddit): Boolean {
             return oldItem == newItem
         }
-    }
-
-    class OnClickListener(val clickListener: (subreddit: Subreddit) -> Unit) {
-        fun onClick(subreddit: Subreddit) = clickListener(subreddit)
     }
 }

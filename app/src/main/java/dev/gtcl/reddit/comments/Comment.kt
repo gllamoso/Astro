@@ -2,8 +2,11 @@ package dev.gtcl.reddit.comments
 
 import android.annotation.SuppressLint
 import android.os.Build
+import android.os.Parcel
+import android.os.Parcelable
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonReader
+import dev.gtcl.reddit.CommentSort
 import dev.gtcl.reddit.posts.*
 import java.lang.RuntimeException
 import java.lang.StringBuilder
@@ -62,12 +65,45 @@ data class MoreComments(
     val comments: List<CommentItem>
 )
 
+data class ContinueThread(
+    override val id: String,
+    override var depth: Int,
+    val url: String
+): CommentItem(id, depth)
+
+data class CommentUrl(
+    val url: String,
+    var sort: CommentSort = CommentSort.BEST): Parcelable {
+    constructor(parcel: Parcel) : this(
+        parcel.readString()!!,
+        CommentSort.valueOf(parcel.readString()!!)
+    )
+
+    override fun writeToParcel(parcel: Parcel, flags: Int) {
+        parcel.writeString(url)
+        parcel.writeString(sort.stringValue)
+    }
+
+    override fun describeContents() = 0
+
+    companion object CREATOR : Parcelable.Creator<CommentUrl> {
+        override fun createFromParcel(parcel: Parcel): CommentUrl {
+            return CommentUrl(parcel)
+        }
+
+        override fun newArray(size: Int): Array<CommentUrl?> {
+            return arrayOfNulls(size)
+        }
+    }
+}
+
 val AUTHOR_REGEX = "data-author=\"[A-Za-z0-9_\\-]+\"".toRegex()
 val AUTHOR_FULLNAME_REGEX = "data-author-fullname=\"[A-Za-z0-9_\\-]+\"".toRegex()
 val SCORE_LIKES_REGEX = "\"score likes\" title=\"[0-9\\-]+\"".toRegex()
 val MORE_CHILDREN_REGEX = "morechildren\\([A-Za-z0-9,_' ]+\\)".toRegex()
 val TIME_REGEX = "time title=\"[A-Za-z0-9: ]+ UTC\"".toRegex()
-const val DATE_PATTERN = "EEE MMM dd HH:mm:ss yyyy"
+const val DATE_TIME_PATTERN = "EEE MMM dd HH:mm:ss yyyy"
+val URL_REGEX = "href=\"[a-z/_0-9]+\"".toRegex()
 
 data class Child(
     val kind: String,
@@ -79,8 +115,12 @@ data class Child(
     val id: String
     ) {
 
+    fun isComment() = kind == "t1"
+    fun isMore() = kind == "more" && !content.contains("&gt;continue this thread&lt;")
+    fun isContinueThread() = kind == "more" && content.contains("&gt;continue this thread&lt;")
+
     @SuppressLint("SimpleDateFormat")
-    fun convertToComment(depth: Int): Comment{
+    fun toComment(depth: Int): Comment{
         if(contentText == "[deleted]")
             return Comment(id, depth, "[deleted]", null, contentText, 0, 0)
 
@@ -91,26 +131,38 @@ data class Child(
         val timeString = time!!.value.replace("time title=\"", "").replace("  ", " 0").replace(" UTC\"", "")
 
         val created = if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            val formatter = DateTimeFormatter.ofPattern(DATE_PATTERN)
+            val formatter = DateTimeFormatter.ofPattern(DATE_TIME_PATTERN)
             val dateTime = LocalDateTime.parse(timeString, formatter)
             val zdt = dateTime.atZone(ZoneId.of("UTC"))
             zdt.toInstant().toEpochMilli() / 1000
         } else {
-            val formatter = SimpleDateFormat(DATE_PATTERN)
+            val formatter = SimpleDateFormat(DATE_TIME_PATTERN)
             formatter.timeZone = TimeZone.getTimeZone("UTC")
             val date = formatter.parse(timeString)
             date!!.time / 1000
         }
 
-        return Comment(id.replace("t1_", ""), depth, authorResult!!.value.split("\"")[1], authorFullNameResult!!.value.split("\"")[1], contentText, scoreResult!!.value.split("\"")[3].toInt(), created)
+        return Comment(
+            id = id.replace("t1_", ""),
+            depth = depth,
+            author = if (authorResult != null) authorResult.value.split("\"")[1] else "[removed]",
+            authorFullName = if (authorFullNameResult != null) authorFullNameResult.value.split("\"")[1] else "[removed]",
+            body = contentText,
+            score = if(scoreResult != null) scoreResult.value.split("\"")[3].toInt() else Integer.MIN_VALUE,
+            created = created)
     }
 
-    fun convertToMore(depth: Int): More {
+    fun toMore(depth: Int): More {
         val childrenResult = MORE_CHILDREN_REGEX.find(content)
             ?: throw RuntimeException("Exception in 'convertToMore'. Could not find 'children'. Comment id: $id")
 
         val children = childrenResult.value.split("',")[2].trim().removePrefix("'").split(",")
         return More(id.replace("t1_", ""), depth, parent, children, children.size)
+    }
+
+    fun toContinueThread(depth: Int): ContinueThread {
+        val url = URL_REGEX.find(content)!!.value.replace("href=\"/", "").replace("\"", "")
+        return ContinueThread(id, depth, url)
     }
 }
 
@@ -121,10 +173,11 @@ fun List<Child>.convertChildrenToCommentItems(startingDepth: Int): List<CommentI
         val parentDepth = depthMap.getOrElse(child.parent){null}
         val newDepth = if(parentDepth == null) startingDepth else parentDepth + 1
         depthMap[child.id] = newDepth
-        if(child.kind == "t1")
-            results.add(child.convertToComment(newDepth))
-        else if(child.kind == "more")
-            results.add(child.convertToMore(newDepth))
+        when {
+            child.isComment() -> results.add(child.toComment(newDepth))
+            child.isMore() -> results.add(child.toMore(newDepth))
+            child.isContinueThread() -> results.add(child.toContinueThread(newDepth))
+        }
     }
 
     return results

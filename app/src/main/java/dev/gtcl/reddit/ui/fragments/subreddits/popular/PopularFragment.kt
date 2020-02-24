@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.posts.subreddits.popular
+package dev.gtcl.reddit.ui.fragments.subreddits.popular
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -8,11 +8,16 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import dev.gtcl.reddit.databinding.FragmentSimpleRecyclerViewBinding
 import dev.gtcl.reddit.ui.fragments.MainFragment
-import dev.gtcl.reddit.ui.fragments.posts.subreddits.SubredditSelectorDialogFragment
+import dev.gtcl.reddit.ui.fragments.subreddits.SubredditOnClickListener
 
 class PopularFragment : Fragment() {
 
     private lateinit var binding: FragmentSimpleRecyclerViewBinding
+    private lateinit var subClickListener: SubredditOnClickListener
+
+    fun setSubredditOnClickListener(listener: SubredditOnClickListener){
+        this.subClickListener = listener
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentSimpleRecyclerViewBinding.inflate(inflater)
@@ -23,16 +28,10 @@ class PopularFragment : Fragment() {
     private fun setRecyclerViewAdapter(){
         val model = (parentFragment!!.parentFragment as MainFragment).model
 
-        val adapter = SubredditsPageListAdapter(
-            SubredditsPageListAdapter.OnClickListener {
-                model.fetchPosts(it)
-                (parentFragment!! as SubredditSelectorDialogFragment).dismiss()
-            })
-        {model.retryFetchPopularPosts()}
-
+        val adapter = SubredditsPageListAdapter(subClickListener)
         binding.list.adapter = adapter
 
-        model.popularSubreddits.observe(this, Observer {
+        model.popularSubreddits.observe(viewLifecycleOwner, Observer {
             adapter.submitList(it)
         })
     }

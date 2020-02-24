@@ -9,7 +9,7 @@ import dev.gtcl.reddit.database.ReadPost
 import dev.gtcl.reddit.posts.Post
 import dev.gtcl.reddit.network.NetworkState
 
-class PostListAdapter(private val retryCallback: () -> Unit, private val postClickListener: PostClickListener): PagedListAdapter<Post, RecyclerView.ViewHolder>(
+class PostListAdapter(private val retryCallback: () -> Unit, private val postClickListener: PostViewClickListener): PagedListAdapter<Post, RecyclerView.ViewHolder>(
     POST_COMPARATOR
 ){
 

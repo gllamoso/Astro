@@ -1,10 +1,8 @@
 package dev.gtcl.reddit.ui.fragments.comments
 
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.util.DisplayMetrics
-import android.util.TypedValue
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,73 +11,100 @@ import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
-import com.google.android.exoplayer2.source.MediaSource
-import com.google.android.exoplayer2.source.ProgressiveMediaSource
-import com.google.android.exoplayer2.source.dash.DashMediaSource
-import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.android.exoplayer2.util.Util
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dev.gtcl.reddit.R
+import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.buildMediaSource
+import dev.gtcl.reddit.comments.CommentItem
+import dev.gtcl.reddit.comments.CommentUrl
+import dev.gtcl.reddit.comments.ContinueThread
 import dev.gtcl.reddit.comments.More
 import dev.gtcl.reddit.databinding.FragmentCommentsBinding
+import dev.gtcl.reddit.posts.Post
 import dev.gtcl.reddit.ui.fragments.MainFragment
-import dev.gtcl.reddit.ui.fragments.MainFragmentViewModel
+import dev.gtcl.reddit.ui.fragments.MainFragmentDirections
+import dev.gtcl.reddit.ui.fragments.MainFragmentViewPagerListener
+import dev.gtcl.reddit.ui.fragments.comments.CommentsFragmentArgs.fromBundle
 
 class CommentsFragment : Fragment() {
 
-    private val parentViewModel: MainFragmentViewModel by lazy {
-        (parentFragment as MainFragment).model
+    private val model: CommentsViewModel by lazy {
+        val viewModelFactory = CommentsViewModelFactory(activity!!.application as RedditApplication)
+        ViewModelProvider(this, viewModelFactory).get(CommentsViewModel::class.java)
     }
 
-    private val mediaController: MediaController by lazy {
-        (parentFragment as MainFragment).mediaController
+    private val args by lazy {
+        fromBundle(arguments!!).commentUrl
     }
 
-    private lateinit var binding: FragmentCommentsBinding
+    private val mediaController: MediaController by lazy { MediaController(context!!) }
 
     private var mPlayer: SimpleExoPlayer? = null
     private var mPlayWhenReady = true
     private var mCurrentWindow = 0
     private var mPlaybackPosition = 0.toLong()
 
+    private lateinit var binding: FragmentCommentsBinding
+    private var post: Post? = null // When viewModel hasn't been initialized yet
+    private lateinit var adapter: CommentsAdapter
+
+    private lateinit var mainFragmentListener: MainFragmentViewPagerListener
+
+    fun setMainFragmentListener(listener: MainFragmentViewPagerListener){
+        this.mainFragmentListener = listener
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentCommentsBinding.inflate(inflater)
         binding.lifecycleOwner = this
-        binding.model = parentViewModel
-        val adapter = CommentsAdapter(object : CommentsAdapter.CommentItemClickListener{
+        binding.model = model
+        model.attachedToMainFragment = parentFragment is MainFragment
+
+        if(post != null)
+            model.setPost(post!!)
+        else if(!model.attachedToMainFragment)
+            model.fetchPostAndComments(args.url)
+
+        adapter = CommentsAdapter(object : CommentsAdapter.CommentItemClickListener{
             override fun onMoreCommentsClicked(position: Int, more: More) {
-                parentViewModel.fetchMoreComments(position, more)
-                parentViewModel.clearMoreComments()
+                model.fetchMoreComments(position, more)
+                model.clearMoreComments()
             }
 
-            override fun onContinueThreadClicked(more: More) {
-                parentViewModel.fetchPostAndComments("${parentViewModel.post.value?.permalink}${more.parentId.replace("t1_","")}")
+            override fun onContinueThreadClicked(commentItem: CommentItem) {
+                val url = if(commentItem is More) "${model.post.value?.permalink}${commentItem.parentId.replace("t1_","")}"
+                    else (commentItem as ContinueThread).url
+                findNavController().navigate(MainFragmentDirections.actionMainFragmentToCommentsFragment(CommentUrl(url)))
             }
         })
         binding.commentList.adapter = adapter
-        parentViewModel.comments.observe(viewLifecycleOwner, Observer {
+        model.comments.observe(viewLifecycleOwner, Observer {
             if(it != null){
                 adapter.submitList(it)
-                parentViewModel.clearComments()
+                binding.nestedScrollView.scrollTo(0,0)
+                model.clearComments()
+            }
+
+        })
+
+        model.moreComments.observe(viewLifecycleOwner, Observer {
+            if(it != null) {
+                adapter.addItems(it.position, it.comments)
+                model.clearMoreComments()
             }
         })
 
-        parentViewModel.moreComments.observe(viewLifecycleOwner, Observer {
-            if(it != null)
-                adapter.addItems(it.position, it.comments)
-        })
-
         binding.toolbar.setNavigationOnClickListener {
-            parentViewModel.scrollToPage(0)
+            mainFragmentListener.navigateToPostList()
             mediaController.hide()
         }
 
@@ -90,26 +115,23 @@ class CommentsFragment : Fragment() {
         val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
         bottomSheetBehavior.addBottomSheetCallback(object: BottomSheetBehavior.BottomSheetCallback(){
             override fun onSlide(p0: View, p1: Float) {
-                parentViewModel.setScrollable(false)
+                if(!model.attachedToMainFragment) return
+                mainFragmentListener.enablePagerSwiping(false)
                 mediaController.hide()
             }
 
             override fun onStateChanged(p0: View, newState: Int) {
+                if(!model.attachedToMainFragment) return
                 mediaController.hide()
                 when(newState){
-                    BottomSheetBehavior.STATE_HIDDEN, BottomSheetBehavior.STATE_COLLAPSED ->  parentViewModel.setScrollable(true)
-                    else ->  parentViewModel.setScrollable(false)
+                    BottomSheetBehavior.STATE_HIDDEN, BottomSheetBehavior.STATE_COLLAPSED ->  mainFragmentListener.enablePagerSwiping(true)
+                    else ->  mainFragmentListener.enablePagerSwiping(false)
                 }
             }
         })
 
-        parentViewModel.postContentCreated.observe(viewLifecycleOwner, Observer {
-            if(it)
-                binding.nestedScrollView.scrollTo(0,0)
-        })
-
-        parentViewModel.post.observe(viewLifecycleOwner, Observer{
-            if(parentViewModel.postContentCreated.value != true){
+        model.post.observe(viewLifecycleOwner, Observer{
+            if(it != null && !model.commentsFetched) {
                 when {
                     it.isSelf -> setTextView(it.selftext)
                     it.preview?.redditVideo != null -> setPlayerView(it.preview.redditVideo.hlsUrl)
@@ -118,7 +140,8 @@ class CommentsFragment : Fragment() {
                     it.isPicture() -> setImageView(it.url!!)
                     else -> setTextView(it.url)
                 }
-                parentViewModel.postGenerated(true)
+                model.fetchPostAndComments(it.permalink)
+                model.commentsFetched = true
             }
         })
 
@@ -132,6 +155,23 @@ class CommentsFragment : Fragment() {
         if((Util.SDK_INT < 24 || mPlayer == null)){
 //            initializePlayer()
         }
+    }
+
+    fun setPost(post: Post){
+        if(activity == null) this.post = post
+        else model.setPost(post)
+    }
+
+    fun reset(){
+        if(activity != null){
+            model.stopJob()
+            model.clearComments()
+            model.clearPost()
+            model.clearMoreComments()
+            model.commentsFetched = false
+            adapter.submitList(listOf())
+        }
+        post = null
     }
 
     override fun onPause() {

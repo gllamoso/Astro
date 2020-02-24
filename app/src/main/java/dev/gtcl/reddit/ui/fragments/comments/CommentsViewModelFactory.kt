@@ -1,16 +1,16 @@
-package dev.gtcl.reddit.ui.fragments
+package dev.gtcl.reddit.ui.fragments.comments
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.RedditApplication
 import java.lang.IllegalArgumentException
 
-
-class MainFragmentViewModelFactory(private val application: RedditApplication) : ViewModelProvider.Factory{
+class CommentsViewModelFactory(private val application: RedditApplication): ViewModelProvider.Factory{
     @Suppress("UNCHECKED_CAST")
     override fun <T : ViewModel?> create(modelClass: Class<T>): T {
-        if(modelClass.isAssignableFrom(MainFragmentViewModel::class.java))
-            return MainFragmentViewModel(application) as T
+        if(modelClass.isAssignableFrom(CommentsViewModel::class.java))
+            return CommentsViewModel(application) as T
         throw IllegalArgumentException("Unknown ViewModel class")
     }
+
 }
