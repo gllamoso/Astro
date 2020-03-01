@@ -2,7 +2,6 @@ package dev.gtcl.reddit.ui.fragments.comments
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +12,7 @@ import androidx.core.net.toUri
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.DividerItemDecoration
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.exoplayer2.ExoPlayerFactory
@@ -38,15 +38,15 @@ import dev.gtcl.reddit.ui.fragments.comments.CommentsFragmentArgs.fromBundle
 class CommentsFragment : Fragment() {
 
     private val model: CommentsViewModel by lazy {
-        val viewModelFactory = CommentsViewModelFactory(activity!!.application as RedditApplication)
+        val viewModelFactory = CommentsViewModelFactory(requireActivity().application as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(CommentsViewModel::class.java)
     }
 
     private val args by lazy {
-        fromBundle(arguments!!).commentUrl
+        fromBundle(requireArguments()).commentUrl // TODO: Handle error when navigate back
     }
 
-    private val mediaController: MediaController by lazy { MediaController(context!!) }
+    private val mediaController: MediaController by lazy { MediaController(requireContext()) }
 
     private var mPlayer: SimpleExoPlayer? = null
     private var mPlayWhenReady = true
@@ -204,7 +204,7 @@ class CommentsFragment : Fragment() {
         binding.contentBackground.setBackgroundColor(ContextCompat.getColor(binding.root.context, android.R.color.black))
 
         val imgUri = url.toUri().buildUpon().scheme("https").build()
-        Glide.with(context!!)
+        Glide.with(requireContext())
             .load(imgUri)
             .apply(
                 RequestOptions()
@@ -233,7 +233,7 @@ class CommentsFragment : Fragment() {
 
         binding.playerView.player = mPlayer
         val uri = Uri.parse(url)
-        val mediaSource = buildMediaSource(context!!, uri)
+        val mediaSource = buildMediaSource(requireContext(), uri)
         mPlayer!!.apply {
             playWhenReady = mPlayWhenReady
             seekTo(mCurrentWindow, mPlaybackPosition)

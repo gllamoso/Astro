@@ -1,6 +1,8 @@
 package dev.gtcl.reddit.ui.fragments.comments
 
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
@@ -15,6 +17,18 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
 
     private var mCommentItems = mutableListOf<CommentItem>()
 
+    private val collapseComments: (Int) -> Unit = { // TODO: Interface? Add method to CommentItemClickListener?
+        val collapse = !(mCommentItems[it] as Comment).isPartiallyCollapsed
+        (mCommentItems[it] as Comment).isPartiallyCollapsed = collapse
+        val pDepth = mCommentItems[it].depth
+        var cIndex = it
+        while(++cIndex < itemCount - 1 && mCommentItems[cIndex].depth > pDepth){
+            mCommentItems[cIndex].hiddenPoints += if(collapse) 1 else -1
+        }
+        notifyItemRangeChanged(it, cIndex - it)
+    }
+
+
     fun submitList(items: List<CommentItem>){
         mCommentItems = items.toMutableList()
         notifyDataSetChanged()
@@ -26,7 +40,6 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
         mCommentItems.addAll(position, items)
         notifyItemRangeInserted(position, items.size)
         notifyItemRangeChanged(position + items.size, mCommentItems.size - (position + items.size + 1))
-
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -38,20 +51,18 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val commentItem = mCommentItems[position]
-        if(commentItem is Comment)
-            (holder as CommentViewHolder).bind(commentItem)
-        if(commentItem is More)
-            (holder as MoreViewHolder).bind(commentItem) {
+        when(val commentItem = mCommentItems[position]){
+            is Comment -> (holder as CommentViewHolder).bind(commentItem, collapseComments)
+            is More -> (holder as MoreViewHolder).bind(commentItem) {
                 if(commentItem.isContinueThreadLink())
                     commentItemClickListener.onContinueThreadClicked(commentItem)
                 else
                     commentItemClickListener.onMoreCommentsClicked(position, commentItem)
             }
-        if(commentItem is ContinueThread)
-            (holder as MoreViewHolder).bind(commentItem){
+            is ContinueThread -> (holder as MoreViewHolder).bind(commentItem){
                 commentItemClickListener.onContinueThreadClicked(commentItem)
             }
+        }
     }
 
     override fun getItemViewType(position: Int): Int {
@@ -63,9 +74,19 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
 
     override fun getItemCount(): Int = mCommentItems.size
 
-    class CommentViewHolder private constructor(private var binding: ItemCommentBinding): RecyclerView.ViewHolder(binding.root) {
-        fun bind(comment: Comment){
+    class CommentViewHolder private constructor(private val binding: ItemCommentBinding): RecyclerView.ViewHolder(binding.root) {
+        fun bind(comment: Comment, collapseComments: (Int) -> Unit){
             binding.comment = comment
+            itemView.setOnClickListener { collapseComments(adapterPosition)}
+            if(comment.hiddenPoints > 0){
+                itemView.visibility = View.GONE
+                itemView.layoutParams = RecyclerView.LayoutParams(0,0)
+            }
+            else {
+                itemView.visibility = View.VISIBLE
+                itemView.layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+            }
+            binding.commentTextView.visibility = if(comment.isPartiallyCollapsed) View.GONE else View.VISIBLE
             binding.executePendingBindings()
         }
 
@@ -76,9 +97,17 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
         }
     }
 
-    class MoreViewHolder private constructor(private var binding: ItemMoreCommentBinding): RecyclerView.ViewHolder(binding.root) {
+    class MoreViewHolder private constructor(private val binding: ItemMoreCommentBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(commentItem: CommentItem, onMoreClicked: () -> Unit){
             binding.more = commentItem
+            if(commentItem.hiddenPoints > 0){
+                itemView.visibility = View.GONE
+                itemView.layoutParams = RecyclerView.LayoutParams(0,0)
+            }
+            else {
+                itemView.visibility = View.VISIBLE
+                itemView.layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
+            }
             binding.commentTextView.setOnClickListener { onMoreClicked() }
             binding.executePendingBindings()
         }

@@ -22,9 +22,10 @@ data class CommentPage(
     val comments: List<CommentItem>
 )
 
-open class CommentItem(
+sealed class CommentItem(
     open val id: String,
-    open var depth: Int
+    open var depth: Int,
+    var hiddenPoints: Int = 0
 )
 
 data class Comment( // TODO: Add more properties: saved, liked, all_awardings
@@ -35,7 +36,6 @@ data class Comment( // TODO: Add more properties: saved, liked, all_awardings
     val body: String,
     val score: Int,
     val created: Long,
-    var isTotallyCollapsed: Boolean = false,
     var isPartiallyCollapsed: Boolean = false
 ): CommentItem(id, depth)
 

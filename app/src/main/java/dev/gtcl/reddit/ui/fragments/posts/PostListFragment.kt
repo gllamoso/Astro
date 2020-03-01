@@ -37,7 +37,7 @@ class PostListFragment : Fragment() {
         (activity as MainActivity).model
     }
     val model: PostListViewModel by lazy {
-        val viewModelFactory = PostListViewModelFactory(activity!!.application as RedditApplication)
+        val viewModelFactory = PostListViewModelFactory(requireActivity().application as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(PostListViewModel::class.java)
     }
 
@@ -116,7 +116,7 @@ class PostListFragment : Fragment() {
 
         binding.expandableListView.addHeaderView(header.root)
 
-        val adapter = CustomExpandableListAdapter(context!!, object: AdapterOnClickListeners{
+        val adapter = CustomExpandableListAdapter(requireContext(), object: AdapterOnClickListeners{
             override fun onAddAccountClicked() { signInUser() }
 
             override fun onRemoveAccountClicked(username: String) { parentModel.deleteUserFromDatabase(username) }
@@ -149,7 +149,7 @@ class PostListFragment : Fragment() {
         //TODO: Delete
         binding.sortButton.setOnClickListener{
             SortSheetDialogFragment(model.sortSelected.value!!) { sort ->
-                // TODO: Move logic in ViewModel
+                // TODO: Move logic in ViewModel?
                 if (sort == PostSort.TOP || sort == PostSort.CONTROVERSIAL) {
                     TimePeriodSheetDialogFragment { time ->
                         if (model.fetchPosts(model.subredditSelected.value, sort, time)) {
