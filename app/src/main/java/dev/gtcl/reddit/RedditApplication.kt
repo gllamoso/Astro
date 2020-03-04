@@ -1,6 +1,7 @@
 package dev.gtcl.reddit
 
 import android.app.Application
+import android.util.Log
 import dev.gtcl.reddit.comments.CommentRepository
 import dev.gtcl.reddit.comments.getCommentRepository
 import dev.gtcl.reddit.posts.PostRepository

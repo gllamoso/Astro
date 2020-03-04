@@ -50,7 +50,8 @@ interface RedditApiService {
 //    (__)   \__/ (____/ (__) (____/
 
     @GET("/.json")
-    fun getFrontPage(): Deferred<PostListingResponse>
+    fun getFrontPage(
+        @Header("Authorization") authorization: String?): Deferred<PostListingResponse>
 
     @GET("/r/{subreddit}/{sort}.json")
     fun getPostsFromSubreddit(
@@ -73,9 +74,17 @@ interface RedditApiService {
 
     @GET("/subreddits/mine/{where}.json")
     fun getSubredditsOfMine(
+        @Header("Authorization") authorization: String? = null,
         @Path("where") where: String,
-        @Header("Authorization") authorization: String,
-        @Query("limit") limit: Int? = 500): Deferred<SubredditListingResponse>
+        @Query("after") after: String? = null,
+        @Query("limit") limit: Int? = 100,
+        @Query("show") show: String? = "all"): Deferred<SubredditListingResponse>
+
+    @GET("/subreddits/search.json")
+    fun getSubredditsSearch(
+        @Query("q") q: String,
+        @Query("include_over_18") nsfw: String
+    ): Deferred<SubredditListingResponse>
 
 //     ___  __   _  _  _  _  ____  __ _  ____  ____
 //    / __)/  \ ( \/ )( \/ )(  __)(  ( \(_  _)/ ___)
@@ -86,7 +95,8 @@ interface RedditApiService {
     fun getPostAndComments(
         @Header("Authorization") authorization: String? = null,
         @Url permalink: String,
-        @Query("sort") sort: String
+        @Query("sort") sort: String,
+        @Query("limit") limit: Int
     ): Deferred<CommentPage>
 
     @GET

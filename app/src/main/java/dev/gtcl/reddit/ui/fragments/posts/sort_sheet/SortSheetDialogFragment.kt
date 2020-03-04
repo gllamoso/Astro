@@ -36,4 +36,8 @@ class SortSheetDialogFragment(private val selectedValue: PostSort, private val o
 
         return binding.root
     }
+
+    companion object {
+        val TAG = SortSheetDialogFragment::class.qualifiedName
+    }
 }

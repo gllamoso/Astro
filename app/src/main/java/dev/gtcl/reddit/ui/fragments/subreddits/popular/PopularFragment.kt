@@ -26,7 +26,7 @@ class PopularFragment : Fragment() {
     }
 
     private fun setRecyclerViewAdapter(){
-        val model = (parentFragment!!.parentFragment as MainFragment).model
+        val model = (requireParentFragment().parentFragment as MainFragment).model
 
         val adapter = SubredditsPageListAdapter(subClickListener)
         binding.list.adapter = adapter

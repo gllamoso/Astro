@@ -3,6 +3,7 @@ package dev.gtcl.reddit.database
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import kotlinx.coroutines.Deferred
 
 @Dao
 interface UserDao{

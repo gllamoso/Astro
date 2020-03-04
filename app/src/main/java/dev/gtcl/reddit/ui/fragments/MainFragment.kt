@@ -6,11 +6,14 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.databinding.FragmentMainBinding
+import dev.gtcl.reddit.ui.MainActivity
+import dev.gtcl.reddit.ui.MainActivityViewModel
 
 /**
  * A simple [Fragment] subclass.
@@ -21,17 +24,25 @@ class MainFragment : Fragment() {
     private lateinit var adapter: MainFragmentStateAdapter
 
     val model: MainFragmentViewModel by lazy {
-        val viewModelFactory = MainFragmentViewModelFactory(activity!!.application as RedditApplication)
+        val viewModelFactory = MainFragmentViewModelFactory(requireActivity().application as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(MainFragmentViewModel::class.java)
+    }
+
+    private val parentModel: MainActivityViewModel by lazy {
+        (activity as MainActivity).model
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentMainBinding.inflate(inflater)
 
         // TODO: Listener for refresh token
-        model.fetchDefaultSubreddits()
-        model.fetchPopularPosts()
-        model.fetchTrendingPosts()
+        parentModel.fetchData.observe(viewLifecycleOwner, Observer {
+            if(it){
+                model.fetchDefaultSubreddits()
+                model.fetchPopularPosts()
+                model.fetchTrendingPosts()
+            }
+        })
         setViewPagerAdapter()
         return binding.root
     }

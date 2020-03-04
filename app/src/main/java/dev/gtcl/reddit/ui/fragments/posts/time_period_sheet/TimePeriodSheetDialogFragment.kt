@@ -26,4 +26,8 @@ class TimePeriodSheetDialogFragment(private val onItemSelectedCallback: (Time) -
         }
         return binding.root
     }
+
+    companion object {
+        val TAG = TimePeriodSheetDialogFragment::class.qualifiedName
+    }
 }

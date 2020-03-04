@@ -1,17 +1,22 @@
 package dev.gtcl.reddit.ui.fragments.subreddits
 
+import android.content.DialogInterface
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.text.Editable
+import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.FrameLayout
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.FragmentDialogSubredditsBinding
-import dev.gtcl.reddit.ui.fragments.subreddits.SubredditOnClickListener
-import dev.gtcl.reddit.ui.fragments.subreddits.SubredditStateAdapter
+import dev.gtcl.reddit.ui.fragments.MainFragment
+import kotlin.NoSuchElementException
 
 class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
 
@@ -20,6 +25,28 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
 
     fun setSubredditOnClickListener(listener: SubredditOnClickListener){
         this.subClickListener = listener
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        if(dialog != null){
+            val bottomSheet = dialog!!.findViewById<View>(R.id.design_bottom_sheet)
+            bottomSheet.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+        }
+
+        view?.post {
+            val parent = requireView().parent as View
+            val params = parent.layoutParams as CoordinatorLayout.LayoutParams
+            val behavior = params.behavior
+            val bottomSheetBehavior = behavior as BottomSheetBehavior
+            bottomSheetBehavior.peekHeight = requireView().measuredHeight
+        }
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        (requireParentFragment() as MainFragment).model.clearSearchResults()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -32,8 +59,7 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
     private fun setupTabLayout(){
         val tabLayout = binding.tabLayout
         val viewPager = binding.viewPager
-        val adapter =
-            SubredditStateAdapter(this)
+        val adapter = SubredditStateAdapter(this)
         adapter.setSubredditOnClickListener(subClickListener)
         viewPager.adapter = adapter
         TabLayoutMediator(tabLayout, viewPager){ tab, position ->
@@ -47,17 +73,36 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
         }.attach()
     }
 
+    @Suppress("UNREACHABLE_CODE")
     private fun setEditTextListener(){
-        binding.searchText.setOnFocusChangeListener { _, hasFocus ->
-            if(hasFocus){
-                val bottomSheet = dialog!!.findViewById<View>(R.id.design_bottom_sheet) as FrameLayout
-                val bottomSheetBehavior = BottomSheetBehavior.from(bottomSheet)
-                bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+        binding.searchText.addTextChangedListener(object: TextWatcher{
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+
+            private val handler = Handler(Looper.getMainLooper())
+            private var workRunnable: Runnable? = null
+            private val DELAY = 500L
+
+            override fun afterTextChanged(s: Editable?) {
+                workRunnable?.let { handler.removeCallbacks(it) }
+                workRunnable = Runnable {
+                    if(!s.isNullOrBlank()){
+                        binding.viewPager.currentItem = 3
+                        (requireParentFragment() as MainFragment).model.searchForSubs(s.toString(), "on")
+                    }
+                }
+               handler.postDelayed(workRunnable!!, DELAY)
             }
-        }
+
+        })
 
         binding.toolbar.setNavigationOnClickListener {
             dismiss()
         }
     }
+
+    companion object {
+        val TAG = SubredditSelectorDialogFragment::class.qualifiedName
+    }
+
 }

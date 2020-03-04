@@ -91,7 +91,9 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_sort_24dp"
                         android:layout_gravity="center"
-                        android:tint="@android:color/white"/>
+                        android:tint="@android:color/white"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:padding="8dp"/>
 
                     <View
                         android:layout_width="0dp"
@@ -104,7 +106,9 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_refresh_24dp"
                         android:layout_gravity="center"
-                        android:tint="@android:color/white"/>
+                        android:tint="@android:color/white"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:padding="8dp"/>
 
                     <View
                         android:layout_width="0dp"
@@ -117,7 +121,9 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_reddit"
                         android:layout_gravity="center"
-                        android:tint="@android:color/white"/>
+                        android:tint="@android:color/white"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:padding="8dp"/>
 
                     <View
                         android:layout_width="0dp"
@@ -130,7 +136,9 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_more_vert_24dp"
                         android:layout_gravity="center"
-                        android:tint="@android:color/white"/>
+                        android:tint="@android:color/white"
+                        android:background="?attr/selectableItemBackgroundBorderless"
+                        android:padding="8dp"/>
 
                     <View
                         android:layout_width="0dp"

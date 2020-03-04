@@ -57,7 +57,9 @@ class PostListFragment : Fragment() {
 //        model.getPosts(Subreddit(displayName = subredditSelected))
 
         // TODO: Update. Wrap with observer, observing a refresh live data
-        model.fetchPosts(Subreddit(displayName = "funny"))
+        parentModel.fetchData.observe(viewLifecycleOwner, Observer{
+            if(it) model.fetchPosts(Subreddit(displayName = "funny"))
+        })
 
         setRecyclerView()
         setSwipeToRefresh()
@@ -116,23 +118,32 @@ class PostListFragment : Fragment() {
 
         binding.expandableListView.addHeaderView(header.root)
 
-        val adapter = CustomExpandableListAdapter(requireContext(), object: AdapterOnClickListeners{
-            override fun onAddAccountClicked() { signInUser() }
+        val adapter =
+            CustomExpandableListAdapter(
+                requireContext(),
+                object :
+                    AdapterOnClickListeners {
+                    override fun onAddAccountClicked() {
+                        signInUser()
+                    }
 
-            override fun onRemoveAccountClicked(username: String) { parentModel.deleteUserFromDatabase(username) }
+                    override fun onRemoveAccountClicked(username: String) {
+                        parentModel.deleteUserFromDatabase(username)
+                    }
 
-            override fun onAccountClicked(user: User) {
-                parentModel.setCurrentUser(user, true)
-                drawerLayout.closeDrawers()
-            }
+                    override fun onAccountClicked(user: User) {
+                        parentModel.setCurrentUser(user, true)
+                    }
 
-            override fun onLogoutClicked() { parentModel.setCurrentUser(null, true) }
+                    override fun onLogoutClicked() {
+                        parentModel.setCurrentUser(null, true)
+                    }
 
-        })
+                })
 
         binding.expandableListView.setAdapter(adapter)
 
-        model.allUsers.observe(viewLifecycleOwner, Observer {
+        parentModel.allUsers.observe(viewLifecycleOwner, Observer {
             adapter.setUsers(it.asDomainModel())
         })
 
@@ -152,33 +163,29 @@ class PostListFragment : Fragment() {
                 // TODO: Move logic in ViewModel?
                 if (sort == PostSort.TOP || sort == PostSort.CONTROVERSIAL) {
                     TimePeriodSheetDialogFragment { time ->
-                        if (model.fetchPosts(model.subredditSelected.value, sort, time)) {
-                            binding.list.scrollToPosition(0)
-                            (binding.list.adapter as? PostListAdapter)?.submitList(null)
-                        }
-                    }.show(parentFragmentManager, "test2")
-                } else {
-                    if (model.fetchPosts(model.subredditSelected.value, sort)) {
+                        model.fetchPosts(model.subredditSelected.value, sort, time)
                         binding.list.scrollToPosition(0)
                         (binding.list.adapter as? PostListAdapter)?.submitList(null)
-                    }
+                    }.show(parentFragmentManager, TimePeriodSheetDialogFragment.TAG)
+                } else {
+                    model.fetchPosts(model.subredditSelected.value, sort)
+                    binding.list.scrollToPosition(0)
+                    (binding.list.adapter as? PostListAdapter)?.submitList(null)
                 }
 
-            }.show(parentFragmentManager, "test")
+            }.show(parentFragmentManager, SortSheetDialogFragment.TAG)
         }
 
 
         binding.subredditButton.setOnClickListener{
-            val subredditSelector =
-                SubredditSelectorDialogFragment()
-            subredditSelector.setSubredditOnClickListener(object :
-                SubredditOnClickListener {
+            val subredditSelector = SubredditSelectorDialogFragment()
+            subredditSelector.setSubredditOnClickListener(object : SubredditOnClickListener {
                 override fun onClick(sub: Subreddit) {
                     model.fetchPosts(sub)
                     subredditSelector.dismiss()
                 }
             })
-            subredditSelector.show(parentFragmentManager, "SubredditSelector")
+            subredditSelector.show(parentFragmentManager, SubredditSelectorDialogFragment.TAG)
         }
 
         binding.refreshButton.setOnClickListener{

@@ -45,9 +45,7 @@ class PageKeyedPostDataSource(private val subredditName: String, private val sor
         }
     }
 
-    override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<String, Post>) {
-        // ignored, since we only ever append to our initial load
-    }
+    override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<String, Post>) {}
 
 
     override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String, Post>) {

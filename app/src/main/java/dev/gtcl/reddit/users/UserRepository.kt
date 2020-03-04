@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.annotation.MainThread
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
+import dev.gtcl.reddit.database.DatabaseUser
 import dev.gtcl.reddit.network.RedditApi
 import dev.gtcl.reddit.database.redditDatabase
 import kotlinx.coroutines.Deferred

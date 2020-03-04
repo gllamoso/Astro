@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui
+package dev.gtcl.reddit.ui.fragments.posts
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -20,7 +20,7 @@ class CustomExpandableListAdapter(val context: Context, private val adapterOnCli
 
     override fun getGroup(groupPosition: Int): Any = groups[groupPosition]
 
-    override fun isChildSelectable(groupPosition: Int, childPosition: Int): Boolean = groupPosition == 0
+    override fun isChildSelectable(groupPosition: Int, childPosition: Int): Boolean = true
 
     override fun hasStableIds(): Boolean = false
 

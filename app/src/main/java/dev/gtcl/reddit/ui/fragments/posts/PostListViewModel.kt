@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui.fragments.posts
 
+import android.provider.ContactsContract
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -20,7 +21,6 @@ class PostListViewModel(val application: RedditApplication): ViewModel() {
 
     // Repos
     private val postRepository = application.postRepository
-    private val userRepository = application.userRepository
 
     // Scopes
     private var viewModelJob = Job()
@@ -45,8 +45,6 @@ class PostListViewModel(val application: RedditApplication): ViewModel() {
     val networkState = Transformations.switchMap(postListingsOfSubreddit) { it.networkState }
     val refreshState = Transformations.switchMap(postListingsOfSubreddit) { it.refreshState }
 
-    val allUsers = userRepository.getUsersFromDatabase()
-
     fun addReadPost(readPost: ReadPost) {
         coroutineScope.launch {
             postRepository.insertReadPostToDatabase(readPost)
@@ -60,14 +58,22 @@ class PostListViewModel(val application: RedditApplication): ViewModel() {
         listing?.retry?.invoke()
     }
 
-    fun fetchPosts(subreddit: Subreddit?, sortBy: PostSort = PostSort.HOT, timePeriod: Time? = null): Boolean{
-        if(subredditSelected.value?.displayName == subreddit?.displayName && sortSelected.value == sortBy && timeSelected.value == timePeriod)
-            return false
+//    fun fetchPosts(subreddit: Subreddit?, sortBy: PostSort = PostSort.HOT, timePeriod: Time? = null): Boolean{
+//        if(subredditSelected.value?.displayName == subreddit?.displayName && sortSelected.value == sortBy && timeSelected.value == timePeriod)
+//            return false
+//
+//        _subredditSelected.value = subreddit
+//        _sortSelected.value = sortBy
+//        _timeSelected.value = timePeriod
+//        postListingsOfSubreddit.value = postRepository.getPostsOfSubreddit(subreddit!!, sortBy, timePeriod, 10)
+//        return true
+//    }
 
+    fun fetchPosts(subreddit: Subreddit?, sortBy: PostSort = PostSort.HOT, timePeriod: Time? = null){
         _subredditSelected.value = subreddit
         _sortSelected.value = sortBy
         _timeSelected.value = timePeriod
         postListingsOfSubreddit.value = postRepository.getPostsOfSubreddit(subreddit!!, sortBy, timePeriod, 10)
-        return true
     }
+
 }

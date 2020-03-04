@@ -49,7 +49,7 @@
                 android:text="@{trendingSubredditPost.titles[0]}"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:text="r/sub1"
-                android:paddingStart="16dp"
+                android:paddingStart="8dp"
                 android:paddingEnd="16dp"/>
 
         </LinearLayout>
@@ -76,7 +76,7 @@
                 android:text="@{trendingSubredditPost.titles[1]}"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:text="r/sub2"
-                android:paddingStart="16dp"
+                android:paddingStart="8dp"
                 android:paddingEnd="16dp"/>
 
         </LinearLayout>
@@ -103,7 +103,7 @@
                 android:text="@{trendingSubredditPost.titles[2]}"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:text="r/sub3"
-                android:paddingStart="16dp"
+                android:paddingStart="8dp"
                 android:paddingEnd="16dp"/>
 
         </LinearLayout>
@@ -130,7 +130,7 @@
                 android:text="@{trendingSubredditPost.titles[3]}"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:text="r/sub4"
-                android:paddingStart="16dp"
+                android:paddingStart="8dp"
                 android:paddingEnd="16dp"/>
 
         </LinearLayout>
@@ -157,7 +157,7 @@
                 android:text="@{trendingSubredditPost.titles[4]}"
                 android:textColor="?android:attr/textColorPrimary"
                 tools:text="r/sub5"
-                android:paddingStart="16dp"
+                android:paddingStart="8dp"
                 android:paddingEnd="16dp"/>
 
         </LinearLayout>

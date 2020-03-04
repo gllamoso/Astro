@@ -8,6 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import dev.gtcl.reddit.*
+import dev.gtcl.reddit.database.DatabaseUser
 import dev.gtcl.reddit.users.AccessToken
 import dev.gtcl.reddit.users.User
 import kotlinx.coroutines.CoroutineScope
@@ -28,6 +29,12 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
     val currentUser: LiveData<User>
         get() = _currentUser
 
+    lateinit var allUsers :LiveData<List<DatabaseUser>>
+
+    private val _fetchData = MutableLiveData<Boolean>()
+    val fetchData: LiveData<Boolean>
+        get() = _fetchData
+
     fun setCurrentUser(user: User?, saveToPreferences: Boolean){
         _currentUser.value = user
 
@@ -40,7 +47,10 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
             }
         }
 
-        if(user == null) application.accessToken = null
+        if(user == null) {
+            application.accessToken = null
+            _fetchData.value = true
+        }
         else fetchAccessToken()
     }
 
@@ -52,6 +62,14 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
                     setCurrentUser(null, true)
             }
         }
+    }
+
+    fun fetchUsers(){
+        allUsers  = userRepository.getUsersFromDatabase()
+    }
+
+    fun dataFetchComplete(){
+        _fetchData.value = null
     }
 
     // --- Flow for adding a new user --- //
@@ -75,6 +93,7 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
         coroutineScope.launch {
             currentUser.value?.let {
                 application.accessToken = userRepository.getNewAccessToken(authorization = "Basic ${getEncodedAuthString(application.baseContext)}", refreshToken = it.refreshToken!!).await()
+                _fetchData.value = true
             }
         }
     }

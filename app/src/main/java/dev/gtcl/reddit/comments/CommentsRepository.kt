@@ -11,8 +11,8 @@ class CommentRepository internal constructor(application: Application) {
     private val database = redditDatabase(application)
 
     @MainThread
-    fun getPostAndComments(permalink: String, sort: CommentSort = CommentSort.BEST): Deferred<CommentPage> =
-        RedditApi.retrofitServiceWithNoAuth.getPostAndComments(permalink = "$permalink.json", sort = sort.stringValue)
+    fun getPostAndComments(permalink: String, sort: CommentSort = CommentSort.BEST, limit: Int = 15): Deferred<CommentPage> =
+        RedditApi.retrofitServiceWithNoAuth.getPostAndComments(permalink = "$permalink.json", sort = sort.stringValue, limit = limit)
 
     @MainThread
     fun getMoreComments(children: String, linkId: String, sort: CommentSort = CommentSort.BEST): Deferred<List<Child>> =

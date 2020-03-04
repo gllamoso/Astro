@@ -25,13 +25,16 @@ class SubredditsListAdapter(private val subredditOnClickListener: SubredditOnCli
         holder.bind(subreddit)
     }
 
+    fun clear(){
+
+    }
+
     class SubredditViewHolder(private var binding: ItemSubredditBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(subreddit: Subreddit?){
             binding.sub = subreddit
             binding.executePendingBindings()
         }
     }
-
 
     companion object DiffCallback : DiffUtil.ItemCallback<Subreddit>() {
         override fun areItemsTheSame(oldItem: Subreddit, newItem: Subreddit): Boolean {
