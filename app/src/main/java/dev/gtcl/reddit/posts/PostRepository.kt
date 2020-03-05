@@ -10,6 +10,7 @@ import dev.gtcl.reddit.Time
 import dev.gtcl.reddit.database.ReadPost
 import dev.gtcl.reddit.database.redditDatabase
 import dev.gtcl.reddit.subs.Subreddit
+import dev.gtcl.reddit.users.AccessToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.util.concurrent.Executor
@@ -20,14 +21,9 @@ class PostRepository internal constructor(application: RedditApplication, privat
     // --- NETWORK
 
     @MainThread
-    fun getPostsOfSubreddit(subReddit: Subreddit, sort: PostSort, t: Time? = null, pageSize: Int) : Listing<Post> {
+    fun getPostsOfSubreddit(accessToken: AccessToken?, listingType: ListingType, sort: PostSort, t: Time? = null, pageSize: Int) : Listing<Post> {
 
-        val sourceFactory = PostsDataSourceFactory(
-            subReddit.displayName,
-            sort,
-            t,
-            networkExecutor
-        )
+        val sourceFactory = PostsDataSourceFactory(accessToken, listingType, sort, t, networkExecutor)
 
         // We use toLiveData Kotlin extension function here, you could also use LivePagedListBuilder
         val livePagedList = sourceFactory.toLiveData(

@@ -7,6 +7,7 @@ import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.Time
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.network.RedditApi
+import dev.gtcl.reddit.users.AccessToken
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -14,7 +15,7 @@ import kotlinx.coroutines.launch
 import java.io.IOException
 import java.util.concurrent.Executor
 
-class PageKeyedPostDataSource(private val subredditName: String, private val sort: PostSort, private val t: Time?, private val retryExecutor: Executor) : PageKeyedDataSource<String, Post>() {
+class PageKeyedPostDataSource(private val accessToken: AccessToken?, private val listingType: ListingType, private val sort: PostSort, private val t: Time?, private val retryExecutor: Executor) : PageKeyedDataSource<String, Post>() {
 
     private val dataSourceJob = Job()
     private val dataSourceScope = CoroutineScope(
@@ -51,12 +52,17 @@ class PageKeyedPostDataSource(private val subredditName: String, private val sor
     override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String, Post>) {
         dataSourceScope.launch {
             _networkState.postValue(NetworkState.LOADING)
-            val resultsFromRepo = RedditApi.retrofitServiceWithNoAuth.getPostsFromSubreddit(
-                subreddit = subredditName,
-                sort = sort.stringValue,
-                t = t?.stringValue,
-                after = params.key,
-                limit = params.requestedLoadSize)
+            val resultsFromRepo = when(listingType){
+                FrontPage -> TODO()
+                is SubredditListing -> RedditApi.base.getPostsFromSubreddit(
+                    authorization = accessToken?.value,
+                    subreddit = listingType.sub.displayName,
+                    sort = sort.stringValue,
+                    t = t?.stringValue,
+                    after = params.key,
+                    limit = params.requestedLoadSize)
+                is MultiReddit -> TODO()
+            }
             try {
                 val data = resultsFromRepo.await().data
                 val items = data.children.map { it.data }
@@ -75,7 +81,11 @@ class PageKeyedPostDataSource(private val subredditName: String, private val sor
         dataSourceScope.launch {
             _networkState.postValue(NetworkState.LOADING)
             _initialLoad.postValue(NetworkState.LOADING)
-            val request = RedditApi.retrofitServiceWithNoAuth.getPostsFromSubreddit(subreddit = subredditName, sort = sort.stringValue, t = t?.stringValue, limit = params.requestedLoadSize)
+            val request = when(listingType){
+                FrontPage -> TODO()
+                is SubredditListing -> RedditApi.base.getPostsFromSubreddit(authorization = accessToken?.value, subreddit = listingType.sub.displayName, sort = sort.stringValue, t = t?.stringValue, limit = params.requestedLoadSize)
+                is MultiReddit -> TODO()
+            }
 
             // triggered by a refresh, we better execute sync
             try {

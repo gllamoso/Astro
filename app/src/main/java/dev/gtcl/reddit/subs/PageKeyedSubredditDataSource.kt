@@ -51,7 +51,7 @@ class PageKeyedSubredditDataSource(private val where: String, private val retryE
     override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String, Subreddit>) {
         dataSourceScope.launch {
             _networkState.postValue(NetworkState.LOADING)
-            val resultsFromRepo = RedditApi.retrofitServiceWithNoAuth.getSubreddits(
+            val resultsFromRepo = RedditApi.base.getSubreddits(
                 where = where,
                 after = params.key,
                 limit = params.requestedLoadSize)
@@ -73,7 +73,7 @@ class PageKeyedSubredditDataSource(private val where: String, private val retryE
         dataSourceScope.launch {
             _networkState.postValue(NetworkState.LOADING)
             _initialLoad.postValue(NetworkState.LOADING)
-            val request = RedditApi.retrofitServiceWithNoAuth.getSubreddits(
+            val request = RedditApi.base.getSubreddits(
                 where = where,
                 limit = params.requestedLoadSize)
 

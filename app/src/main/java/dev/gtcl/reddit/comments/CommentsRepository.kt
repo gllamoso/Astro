@@ -12,11 +12,11 @@ class CommentRepository internal constructor(application: Application) {
 
     @MainThread
     fun getPostAndComments(permalink: String, sort: CommentSort = CommentSort.BEST, limit: Int = 15): Deferred<CommentPage> =
-        RedditApi.retrofitServiceWithNoAuth.getPostAndComments(permalink = "$permalink.json", sort = sort.stringValue, limit = limit)
+        RedditApi.base.getPostAndComments(permalink = "$permalink.json", sort = sort.stringValue, limit = limit)
 
     @MainThread
     fun getMoreComments(children: String, linkId: String, sort: CommentSort = CommentSort.BEST): Deferred<List<Child>> =
-        RedditApi.retrofitServiceWithNoAuth.getMoreComments(children = children, linkId = linkId, sort = sort.stringValue)
+        RedditApi.base.getMoreComments(children = children, linkId = linkId, sort = sort.stringValue)
 
 }
 

@@ -7,7 +7,9 @@ import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.posts.Post
+import dev.gtcl.reddit.posts.SubredditListing
 import dev.gtcl.reddit.subs.Subreddit
+import dev.gtcl.reddit.subs.SubredditListingData
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -54,9 +56,9 @@ class MainFragmentViewModel(val application: RedditApplication): ViewModel(){
 
     fun fetchTrendingPosts() {
         _repoResultsOfTrendingSubreddits.value = postRepository.getPostsOfSubreddit(
-            Subreddit(
-                displayName = "trendingsubreddits"
-            ), PostSort.HOT, pageSize = 5)
+            application.accessToken,
+            SubredditListing(Subreddit(displayName = "trendingsubreddits")),
+            PostSort.HOT, pageSize = 5)
     }
 
     // Popular

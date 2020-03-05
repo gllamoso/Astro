@@ -3,6 +3,7 @@ package dev.gtcl.reddit.ui.fragments.posts
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -58,7 +59,7 @@ class PostListFragment : Fragment() {
 
         // TODO: Update. Wrap with observer, observing a refresh live data
         parentModel.fetchData.observe(viewLifecycleOwner, Observer{
-            if(it) model.fetchPosts(Subreddit(displayName = "funny"))
+            if(it) { model.fetchPosts(Subreddit(displayName = "funny")) }
         })
 
         setRecyclerView()
@@ -163,12 +164,12 @@ class PostListFragment : Fragment() {
                 // TODO: Move logic in ViewModel?
                 if (sort == PostSort.TOP || sort == PostSort.CONTROVERSIAL) {
                     TimePeriodSheetDialogFragment { time ->
-                        model.fetchPosts(model.subredditSelected.value, sort, time)
+                        model.fetchPosts(model.subredditSelected.value!!, sort, time)
                         binding.list.scrollToPosition(0)
                         (binding.list.adapter as? PostListAdapter)?.submitList(null)
                     }.show(parentFragmentManager, TimePeriodSheetDialogFragment.TAG)
                 } else {
-                    model.fetchPosts(model.subredditSelected.value, sort)
+                    model.fetchPosts(model.subredditSelected.value!!, sort)
                     binding.list.scrollToPosition(0)
                     (binding.list.adapter as? PostListAdapter)?.submitList(null)
                 }

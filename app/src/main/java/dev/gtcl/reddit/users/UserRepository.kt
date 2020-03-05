@@ -1,12 +1,8 @@
 package dev.gtcl.reddit.users
 
-import android.app.Application
-import android.content.Context
-import android.util.Log
 import androidx.annotation.MainThread
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.database.DatabaseUser
 import dev.gtcl.reddit.network.RedditApi
 import dev.gtcl.reddit.database.redditDatabase
 import kotlinx.coroutines.Deferred
@@ -21,18 +17,18 @@ class UserRepository internal constructor(val application: RedditApplication) {
 
     @MainThread
     fun postCode(authorization: String, code: String, redirectUri: String) =
-        RedditApi.retrofitServiceWithNoAuth.postCode(authorization = authorization, code = code, redirectUri = redirectUri)
+        RedditApi.base.postCode(authorization = authorization, code = code, redirectUri = redirectUri)
 
     @MainThread
     fun getNewAccessToken(authorization: String, refreshToken: String) =
-        RedditApi.retrofitServiceWithNoAuth.getAccessToken(
+        RedditApi.base.getAccessToken(
             authorization = authorization,
             refreshToken = refreshToken
         )
 
     @MainThread
     fun getUserInfo(authorization: String): Deferred<User> =
-        RedditApi.retrofitServiceWithAuth.getCurrentUserInfo("bearer $authorization")
+        RedditApi.oauth.getCurrentUserInfo("bearer $authorization")
 
     // --- DATABASE
 

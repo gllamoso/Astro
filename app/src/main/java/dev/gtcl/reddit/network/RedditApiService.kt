@@ -49,12 +49,28 @@ interface RedditApiService {
 //     ) __/(  O )\___ \  )(  \___ \
 //    (__)   \__/ (____/ (__) (____/
 
-    @GET("/.json")
-    fun getFrontPage(
-        @Header("Authorization") authorization: String?): Deferred<PostListingResponse>
+    @GET("/{sort}/.json")
+    fun getPostFromFrontPage(
+        @Header("Authorization") authorization: String?,
+        @Path("sort") sort: String,
+        @Query("t") t: String?,
+        @Query("after") after: String? = null,
+        @Query("limit") limit: Int): Deferred<PostListingResponse>
+
+    @GET("/user/{user}/m/{multi}/{sort}.json")
+    fun getPostFromMutliReddit(
+        @Header("Authorization") authorization: String?,
+        @Path("user") user: String,
+        @Path("multi") multi: String,
+        @Path("sort") sort: String,
+        @Query("t") t: String?,
+        @Query("after") after: String? = null,
+        @Query("limit") limit: Int
+    ): Deferred<PostListingResponse>
 
     @GET("/r/{subreddit}/{sort}.json")
     fun getPostsFromSubreddit(
+        @Header("Authorization") authorization: String?,
         @Path("subreddit") subreddit: String,
         @Path("sort") sort: String,
         @Query("t") t: String?,
@@ -152,11 +168,11 @@ interface RedditApiService {
 }
 
 object RedditApi {
-    val retrofitServiceWithNoAuth : RedditApiService by lazy {
+    val base : RedditApiService by lazy {
         RedditApiService.createWithNoAuth()
     }
 
-    val retrofitServiceWithAuth : RedditApiService by lazy {
+    val oauth : RedditApiService by lazy {
         RedditApiService.createWithAuth()
     }
 }

@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.subs
 
-import android.util.Log
 import androidx.annotation.MainThread
 import androidx.lifecycle.Transformations
 import androidx.paging.toLiveData
@@ -15,14 +14,14 @@ class SubredditRepository internal constructor(private val networkExecutor: Exec
     @MainThread
     fun getSubs(where: String, accessToken: AccessToken? = null, limit: Int = 100, after: String? = null): Deferred<SubredditListingResponse> {
         return if(accessToken == null)
-            RedditApi.retrofitServiceWithNoAuth.getSubreddits(where = where, limit = limit)
+            RedditApi.base.getSubreddits(where = where, limit = limit)
         else
-            RedditApi.retrofitServiceWithAuth.getSubredditsOfMine(authorization = "bearer ${accessToken.value}", where = where, after = after, limit = limit)
+            RedditApi.oauth.getSubredditsOfMine(authorization = "bearer ${accessToken.value}", where = where, after = after, limit = limit)
     }
 
     @MainThread
     fun getSubsSearch(q: String, nsfw: String): Deferred<SubredditListingResponse>{
-        return RedditApi.retrofitServiceWithNoAuth.getSubredditsSearch(q, nsfw)
+        return RedditApi.base.getSubredditsSearch(q, nsfw)
     }
 
     @MainThread

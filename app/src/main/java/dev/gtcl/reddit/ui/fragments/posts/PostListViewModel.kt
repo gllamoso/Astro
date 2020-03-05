@@ -11,6 +11,7 @@ import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.Time
 import dev.gtcl.reddit.database.ReadPost
 import dev.gtcl.reddit.posts.Post
+import dev.gtcl.reddit.posts.SubredditListing
 import dev.gtcl.reddit.subs.Subreddit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -58,22 +59,11 @@ class PostListViewModel(val application: RedditApplication): ViewModel() {
         listing?.retry?.invoke()
     }
 
-//    fun fetchPosts(subreddit: Subreddit?, sortBy: PostSort = PostSort.HOT, timePeriod: Time? = null): Boolean{
-//        if(subredditSelected.value?.displayName == subreddit?.displayName && sortSelected.value == sortBy && timeSelected.value == timePeriod)
-//            return false
-//
-//        _subredditSelected.value = subreddit
-//        _sortSelected.value = sortBy
-//        _timeSelected.value = timePeriod
-//        postListingsOfSubreddit.value = postRepository.getPostsOfSubreddit(subreddit!!, sortBy, timePeriod, 10)
-//        return true
-//    }
-
-    fun fetchPosts(subreddit: Subreddit?, sortBy: PostSort = PostSort.HOT, timePeriod: Time? = null){
+    fun fetchPosts(subreddit: Subreddit, sortBy: PostSort = PostSort.HOT, timePeriod: Time? = null){
         _subredditSelected.value = subreddit
         _sortSelected.value = sortBy
         _timeSelected.value = timePeriod
-        postListingsOfSubreddit.value = postRepository.getPostsOfSubreddit(subreddit!!, sortBy, timePeriod, 10)
+        postListingsOfSubreddit.value = postRepository.getPostsOfSubreddit(application.accessToken, SubredditListing(subreddit), sortBy, timePeriod, 10)
     }
 
 }
