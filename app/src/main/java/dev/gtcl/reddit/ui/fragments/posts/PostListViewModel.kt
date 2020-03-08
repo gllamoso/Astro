@@ -60,7 +60,7 @@ class PostListViewModel(val application: RedditApplication): ViewModel() {
         listing?.retry?.invoke()
     }
 
-    fun fetchPosts(listingType: ListingType, sortBy: PostSort = PostSort.HOT, timePeriod: Time? = null){
+    fun fetchPosts(listingType: ListingType, sortBy: PostSort = PostSort.BEST, timePeriod: Time? = null){
         _listingSelected.value = listingType
         _sortSelected.value = sortBy
         _timeSelected.value = timePeriod

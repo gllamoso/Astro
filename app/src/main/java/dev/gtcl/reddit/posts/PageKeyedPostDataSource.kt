@@ -79,7 +79,7 @@ class PageKeyedPostDataSource(private val accessToken: AccessToken?, private val
             _networkState.postValue(NetworkState.LOADING)
             _initialLoad.postValue(NetworkState.LOADING)
             val request = when(listingType){
-                FrontPage -> if(accessToken != null) RedditApi.oauth.getPostFromFrontPage("bearer " + accessToken?.value, sort.stringValue, t?.stringValue, limit = params.requestedLoadSize)
+                FrontPage -> if(accessToken != null) RedditApi.oauth.getPostFromFrontPage("bearer " + accessToken.value, sort.stringValue, t?.stringValue, limit = params.requestedLoadSize)
                             else RedditApi.base.getPostFromFrontPage(null, sort.stringValue, t?.stringValue, limit = params.requestedLoadSize)
                 All -> TODO()
                 Popular -> TODO()

@@ -15,6 +15,7 @@ class SortSheetDialogFragment(private val selectedValue: PostSort, private val o
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = FragmentDialogSortSheetBinding.inflate(inflater)
         binding.radioGroup.check(when(selectedValue){
+            PostSort.BEST -> binding.bestRadiobutton.id
             PostSort.HOT -> binding.hotRadiobutton.id
             PostSort.NEW -> binding.newRadiobutton.id
             PostSort.TOP -> binding.topRadiobutton.id
@@ -24,6 +25,7 @@ class SortSheetDialogFragment(private val selectedValue: PostSort, private val o
 
         binding.radioGroup.setOnCheckedChangeListener { _, checkedId ->
             onItemSelected(when(checkedId){
+                binding.bestRadiobutton.id -> PostSort.BEST
                 binding.hotRadiobutton.id -> PostSort.HOT
                 binding.newRadiobutton.id -> PostSort.NEW
                 binding.topRadiobutton.id -> PostSort.TOP

@@ -14,6 +14,7 @@ import dev.gtcl.reddit.network.RedditApi
 import java.util.*
 
 enum class PostSort(val stringValue: String){
+    BEST("best"),
     HOT("hot"),
     NEW("new"),
     TOP("top"),

@@ -16,6 +16,7 @@
     <string name="report">Report</string>
 
     <!--Sort Fragment-->
+    <string name="order_best">Best</string>
     <string name="order_hot">Hot</string>
     <string name="order_new">New</string>
     <string name="order_top">Top</string>
