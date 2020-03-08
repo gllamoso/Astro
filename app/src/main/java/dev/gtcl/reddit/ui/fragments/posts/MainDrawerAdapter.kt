@@ -10,7 +10,7 @@ import android.widget.TextView
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.users.User
 
-class CustomExpandableListAdapter(val context: Context, private val adapterOnClickListeners: AdapterOnClickListeners) : BaseExpandableListAdapter(){
+class MainDrawerAdapter(val context: Context, private val adapterOnClickListeners: AdapterOnClickListeners) : BaseExpandableListAdapter(){
     private val addAccountString = context.getString(R.string.add_account)
     private val logoutString = context.getString(R.string.logout)
 

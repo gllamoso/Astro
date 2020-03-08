@@ -8,6 +8,8 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -15,12 +17,14 @@ import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.STATE
+import dev.gtcl.reddit.database.DatabaseUser
 import dev.gtcl.reddit.database.asDomainModel
 import dev.gtcl.reddit.databinding.FragmentPostListBinding
 import dev.gtcl.reddit.databinding.NavHeaderBinding
 import dev.gtcl.reddit.network.NetworkState
+import dev.gtcl.reddit.posts.FrontPage
+import dev.gtcl.reddit.posts.ListingType
 import dev.gtcl.reddit.posts.Post
-import dev.gtcl.reddit.subs.Subreddit
 import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.ui.fragments.ImageVideoViewerDialogFragment
 import dev.gtcl.reddit.ui.fragments.posts.sort_sheet.SortSheetDialogFragment
@@ -59,7 +63,7 @@ class PostListFragment : Fragment() {
 
         // TODO: Update. Wrap with observer, observing a refresh live data
         parentModel.fetchData.observe(viewLifecycleOwner, Observer{
-            if(it) { model.fetchPosts(Subreddit(displayName = "funny")) }
+            if(it) { model.fetchPosts(FrontPage) }
         })
 
         setRecyclerView()
@@ -120,12 +124,12 @@ class PostListFragment : Fragment() {
         binding.expandableListView.addHeaderView(header.root)
 
         val adapter =
-            CustomExpandableListAdapter(
+            MainDrawerAdapter(
                 requireContext(),
                 object :
                     AdapterOnClickListeners {
                     override fun onAddAccountClicked() {
-                        signInUser()
+                        startSignInActivity()
                     }
 
                     override fun onRemoveAccountClicked(username: String) {
@@ -134,10 +138,12 @@ class PostListFragment : Fragment() {
 
                     override fun onAccountClicked(user: User) {
                         parentModel.setCurrentUser(user, true)
+                        drawerLayout.closeDrawer(Gravity.START)
                     }
 
                     override fun onLogoutClicked() {
                         parentModel.setCurrentUser(null, true)
+                        drawerLayout.closeDrawer(Gravity.START)
                     }
 
                 })
@@ -155,6 +161,19 @@ class PostListFragment : Fragment() {
         binding.toolbar.setNavigationOnClickListener {
             drawerLayout.openDrawer(Gravity.START)
         }
+
+        drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener{
+            override fun onDrawerStateChanged(newState: Int) {}
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
+            override fun onDrawerClosed(drawerView: View) {
+                binding.expandableListView.collapseGroup(0)
+            }
+
+            override fun onDrawerOpened(drawerView: View) {
+                adapter.notifyDataSetInvalidated()
+            }
+
+        })
     }
 
     private fun setBottomAppbarClickListeners(){
@@ -164,12 +183,12 @@ class PostListFragment : Fragment() {
                 // TODO: Move logic in ViewModel?
                 if (sort == PostSort.TOP || sort == PostSort.CONTROVERSIAL) {
                     TimePeriodSheetDialogFragment { time ->
-                        model.fetchPosts(model.subredditSelected.value!!, sort, time)
+                        model.fetchPosts(model.listingSelected.value!!, sort, time)
                         binding.list.scrollToPosition(0)
                         (binding.list.adapter as? PostListAdapter)?.submitList(null)
                     }.show(parentFragmentManager, TimePeriodSheetDialogFragment.TAG)
                 } else {
-                    model.fetchPosts(model.subredditSelected.value!!, sort)
+                    model.fetchPosts(model.listingSelected.value!!, sort)
                     binding.list.scrollToPosition(0)
                     (binding.list.adapter as? PostListAdapter)?.submitList(null)
                 }
@@ -181,8 +200,8 @@ class PostListFragment : Fragment() {
         binding.subredditButton.setOnClickListener{
             val subredditSelector = SubredditSelectorDialogFragment()
             subredditSelector.setSubredditOnClickListener(object : SubredditOnClickListener {
-                override fun onClick(sub: Subreddit) {
-                    model.fetchPosts(sub)
+                override fun onClick(listing: ListingType) {
+                    model.fetchPosts(listing)
                     subredditSelector.dismiss()
                 }
             })
@@ -194,7 +213,7 @@ class PostListFragment : Fragment() {
         }
     }
 
-    private fun signInUser() {
+    private fun startSignInActivity() {
         val url = String.format(getString(R.string.auth_url), getString(R.string.client_id), STATE, getString(R.string.redirect_uri))
         val intent = Intent(context, WebviewActivity::class.java)
         intent.putExtra(URL_KEY, url)

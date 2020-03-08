@@ -10,6 +10,7 @@ import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.Time
 import dev.gtcl.reddit.database.ReadPost
+import dev.gtcl.reddit.posts.ListingType
 import dev.gtcl.reddit.posts.Post
 import dev.gtcl.reddit.posts.SubredditListing
 import dev.gtcl.reddit.subs.Subreddit
@@ -29,13 +30,13 @@ class PostListViewModel(val application: RedditApplication): ViewModel() {
 
     val allReadPosts = postRepository.getReadPostsFromDatabase()
 
-    private val _subredditSelected = MutableLiveData<Subreddit>()
-    val subredditSelected: LiveData<Subreddit>
-        get() = _subredditSelected
-
     private val _sortSelected = MutableLiveData<PostSort>()
     val sortSelected: LiveData<PostSort>
         get() = _sortSelected
+
+    private val _listingSelected = MutableLiveData<ListingType>()
+    val listingSelected: LiveData<ListingType>
+        get() = _listingSelected
 
     private val _timeSelected = MutableLiveData<Time>()
     val timeSelected: LiveData<Time>
@@ -59,11 +60,11 @@ class PostListViewModel(val application: RedditApplication): ViewModel() {
         listing?.retry?.invoke()
     }
 
-    fun fetchPosts(subreddit: Subreddit, sortBy: PostSort = PostSort.HOT, timePeriod: Time? = null){
-        _subredditSelected.value = subreddit
+    fun fetchPosts(listingType: ListingType, sortBy: PostSort = PostSort.HOT, timePeriod: Time? = null){
+        _listingSelected.value = listingType
         _sortSelected.value = sortBy
         _timeSelected.value = timePeriod
-        postListingsOfSubreddit.value = postRepository.getPostsOfSubreddit(application.accessToken, SubredditListing(subreddit), sortBy, timePeriod, 10)
+        postListingsOfSubreddit.value = postRepository.getPostsOfSubreddit(application.accessToken, listingType, sortBy, timePeriod, 10)
     }
 
 }

@@ -12,7 +12,7 @@ import dev.gtcl.reddit.ui.fragments.subreddits.SubredditOnClickListener
 
 class TrendingFragment : Fragment() {
     private lateinit var binding: FragmentSimpleRecyclerViewBinding
-    lateinit var subClickListener: SubredditOnClickListener
+    private lateinit var subClickListener: SubredditOnClickListener
 
     fun setSubredditOnClickListener(listener: SubredditOnClickListener){
         this.subClickListener = listener

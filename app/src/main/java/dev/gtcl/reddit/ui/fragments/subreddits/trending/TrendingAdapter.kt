@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemTrendingSubredditBinding
 import dev.gtcl.reddit.posts.Post
+import dev.gtcl.reddit.posts.SubredditListing
 import dev.gtcl.reddit.subs.Subreddit
 import dev.gtcl.reddit.posts.TrendingSubredditPost
 import dev.gtcl.reddit.ui.fragments.subreddits.SubredditOnClickListener
@@ -28,19 +29,19 @@ class TrendingAdapter(private val onClickListener: SubredditOnClickListener) : P
                 TrendingSubredditPost(redditPost)
             binding.trendingSubredditPost = trendingSubredditPost
             binding.sub1.setOnClickListener{ onSubredditClickListener.onClick(
-                Subreddit(displayName = trendingSubredditPost.titles[0])
+                SubredditListing(Subreddit(displayName = trendingSubredditPost.titles[0]))
             ) }
             binding.sub2.setOnClickListener{ onSubredditClickListener.onClick(
-                Subreddit(displayName = trendingSubredditPost.titles[1])
+                SubredditListing(Subreddit(displayName = trendingSubredditPost.titles[1]))
             ) }
             binding.sub3.setOnClickListener{ onSubredditClickListener.onClick(
-                Subreddit(displayName = trendingSubredditPost.titles[2])
+                SubredditListing(Subreddit(displayName = trendingSubredditPost.titles[2]))
             ) }
             binding.sub4.setOnClickListener{ onSubredditClickListener.onClick(
-                Subreddit(displayName = trendingSubredditPost.titles[3])
+                SubredditListing(Subreddit(displayName = trendingSubredditPost.titles[3]))
             ) }
             binding.sub5.setOnClickListener{ onSubredditClickListener.onClick(
-                Subreddit(displayName = trendingSubredditPost.titles[4])
+                SubredditListing(Subreddit(displayName = trendingSubredditPost.titles[4]))
             ) }
             binding.executePendingBindings()
         }

@@ -10,7 +10,6 @@ import dev.gtcl.reddit.databinding.FragmentSimpleRecyclerViewBinding
 import dev.gtcl.reddit.subs.Subreddit
 import dev.gtcl.reddit.ui.fragments.MainFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.SubredditOnClickListener
-import dev.gtcl.reddit.ui.fragments.subreddits.mine.SubredditsListAdapter
 
 class SearchFragment : Fragment() {
     private lateinit var binding: FragmentSimpleRecyclerViewBinding
@@ -34,7 +33,7 @@ class SearchFragment : Fragment() {
         binding.list.adapter = adapter
 
         model.searchSubreddits.observe(viewLifecycleOwner, Observer {
-            adapter.submitList(it ?: listOf<Subreddit>())
+            adapter.submitList(it ?: listOf())
         })
     }
 }

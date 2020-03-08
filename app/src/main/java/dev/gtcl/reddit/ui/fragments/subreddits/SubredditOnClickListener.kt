@@ -1,7 +1,7 @@
 package dev.gtcl.reddit.ui.fragments.subreddits
 
-import dev.gtcl.reddit.subs.Subreddit
+import dev.gtcl.reddit.posts.ListingType
 
 interface SubredditOnClickListener{
-    fun onClick(sub: Subreddit)
+    fun onClick(listing: ListingType)
 }

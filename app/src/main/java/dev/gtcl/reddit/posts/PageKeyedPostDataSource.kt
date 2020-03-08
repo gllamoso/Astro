@@ -53,14 +53,11 @@ class PageKeyedPostDataSource(private val accessToken: AccessToken?, private val
         dataSourceScope.launch {
             _networkState.postValue(NetworkState.LOADING)
             val resultsFromRepo = when(listingType){
-                FrontPage -> TODO()
-                is SubredditListing -> RedditApi.base.getPostsFromSubreddit(
-                    authorization = accessToken?.value,
-                    subreddit = listingType.sub.displayName,
-                    sort = sort.stringValue,
-                    t = t?.stringValue,
-                    after = params.key,
-                    limit = params.requestedLoadSize)
+                FrontPage -> if(accessToken != null ) RedditApi.oauth.getPostFromFrontPage("bearer " + accessToken.value, sort.stringValue, t?.stringValue, params.key, params.requestedLoadSize)
+                            else RedditApi.base.getPostFromFrontPage(null, sort.stringValue, t?.stringValue, params.key, params.requestedLoadSize)
+                All -> TODO()
+                Popular -> TODO()
+                is SubredditListing -> RedditApi.base.getPostsFromSubreddit(authorization = accessToken?.value, subreddit = listingType.sub.displayName, sort = sort.stringValue, t = t?.stringValue, after = params.key, limit = params.requestedLoadSize)
                 is MultiReddit -> TODO()
             }
             try {
@@ -82,9 +79,12 @@ class PageKeyedPostDataSource(private val accessToken: AccessToken?, private val
             _networkState.postValue(NetworkState.LOADING)
             _initialLoad.postValue(NetworkState.LOADING)
             val request = when(listingType){
-                FrontPage -> TODO()
-                is SubredditListing -> RedditApi.base.getPostsFromSubreddit(authorization = accessToken?.value, subreddit = listingType.sub.displayName, sort = sort.stringValue, t = t?.stringValue, limit = params.requestedLoadSize)
+                FrontPage -> if(accessToken != null) RedditApi.oauth.getPostFromFrontPage("bearer " + accessToken?.value, sort.stringValue, t?.stringValue, limit = params.requestedLoadSize)
+                            else RedditApi.base.getPostFromFrontPage(null, sort.stringValue, t?.stringValue, limit = params.requestedLoadSize)
+                All -> TODO()
+                Popular -> TODO()
                 is MultiReddit -> TODO()
+                is SubredditListing -> RedditApi.base.getPostsFromSubreddit(authorization = accessToken?.value, subreddit = listingType.sub.displayName, sort = sort.stringValue, t = t?.stringValue, limit = params.requestedLoadSize)
             }
 
             // triggered by a refresh, we better execute sync

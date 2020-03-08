@@ -38,6 +38,12 @@
     <string name="popular_tab_label">Popular</string>
     <string name="search_tab_label">Search</string>
     <string name="search">Search…</string>
+    <string name="subreddits">Subreddits</string>
+
+    <!--Multi Reddits-->
+    <string name="multireddits">Multireddits</string>
+    <string name="frontpage">Front Page</string>
+    <string name="all">All</string>
 
     <!--Nav Drawer Items-->
     <string name="accounts">Accounts</string>
@@ -75,4 +81,5 @@
     <string name="hour_ago">1 hour ago</string>
     <string name="minutes_ago">%d minutes ago</string>
     <string name="a_moment_ago">A moment ago</string>
+
 </resources>

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
@@ -28,7 +29,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        model.fetchUsers()
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         navController = findNavController(R.id.nav_host_fragment)
         getUserFromSharedPreferences()
@@ -54,7 +54,7 @@ class MainActivity : AppCompatActivity() {
         val sharedPref = this.getSharedPreferences(getString(R.string.preferences_file_key), Context.MODE_PRIVATE)
         val userString = sharedPref.getString(getString(R.string.current_user_key), null)
         userString?.let {
-            val user = Gson().fromJson<User>(it, User::class.java)
+            val user = Gson().fromJson(it, User::class.java)
             model.setCurrentUser(user, false)
         }
     }

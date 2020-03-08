@@ -6,8 +6,8 @@
 
     <data>
         <variable
-            name="sub"
-            type="dev.gtcl.reddit.subs.Subreddit" />
+            name="listing"
+            type="dev.gtcl.reddit.posts.ListingType" />
     </data>
 
     <LinearLayout
@@ -21,17 +21,17 @@
             android:id="@+id/icon"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
-            app:redditIcon="@{sub.iconImg}"
+            app:listingType="@{listing}"
             tools:srcCompat="@drawable/ic_reddit_circle"/>
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="@{sub.displayName}"
             android:textColor="?android:attr/textColorPrimary"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
+            app:listingType="@{listing}"
             tools:text="androiddev"/>
 
     </LinearLayout>

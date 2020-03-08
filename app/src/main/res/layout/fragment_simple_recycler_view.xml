@@ -17,7 +17,7 @@
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             app:spanCount="1"
             tools:itemCount="20"
-            tools:listitem="@layout/item_subreddit" />
+            tools:listitem="@layout/item_listing" />
 
     </LinearLayout>
 

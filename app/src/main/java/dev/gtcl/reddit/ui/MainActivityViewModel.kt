@@ -29,7 +29,7 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
     val currentUser: LiveData<User>
         get() = _currentUser
 
-    lateinit var allUsers :LiveData<List<DatabaseUser>>
+    val allUsers = userRepository.getUsersFromDatabase()
 
     private val _fetchData = MutableLiveData<Boolean>()
     val fetchData: LiveData<Boolean>
@@ -64,10 +64,6 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
         }
     }
 
-    fun fetchUsers(){
-        allUsers  = userRepository.getUsersFromDatabase()
-    }
-
     fun dataFetchComplete(){
         _fetchData.value = null
     }
@@ -92,16 +88,10 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
     private fun fetchAccessToken(){
         coroutineScope.launch {
             currentUser.value?.let {
-                application.accessToken = userRepository.getNewAccessToken(authorization = "Basic ${getEncodedAuthString(application.baseContext)}", refreshToken = it.refreshToken!!).await()
+                val accessToken = userRepository.getNewAccessToken(authorization = "Basic ${getEncodedAuthString(application.baseContext)}", refreshToken = it.refreshToken!!).await()
+                application.accessToken = accessToken
                 _fetchData.value = true
             }
-        }
-    }
-
-    val fetchAccessTokenIfNecessary: suspend () -> Unit = {
-        currentUser.value?.let {
-            if(application.accessToken == null || application.accessToken!!.isExpired())
-                application.accessToken = userRepository.getNewAccessToken(authorization = "Basic ${getEncodedAuthString(application.baseContext)}", refreshToken = it.refreshToken!!).await()
         }
     }
 

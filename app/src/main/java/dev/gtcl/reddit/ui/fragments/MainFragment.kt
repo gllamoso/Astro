@@ -43,6 +43,9 @@ class MainFragment : Fragment() {
                 model.fetchTrendingPosts()
             }
         })
+        parentModel.currentUser.observe(viewLifecycleOwner, Observer {
+            model.fetchDefaultSubreddits()
+        })
         setViewPagerAdapter()
         return binding.root
     }
