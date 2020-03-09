@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.fragments.posts
 
-import android.provider.ContactsContract
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -12,8 +11,6 @@ import dev.gtcl.reddit.Time
 import dev.gtcl.reddit.database.ReadPost
 import dev.gtcl.reddit.posts.ListingType
 import dev.gtcl.reddit.posts.Post
-import dev.gtcl.reddit.posts.SubredditListing
-import dev.gtcl.reddit.subs.Subreddit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -64,7 +61,7 @@ class PostListViewModel(val application: RedditApplication): ViewModel() {
         _listingSelected.value = listingType
         _sortSelected.value = sortBy
         _timeSelected.value = timePeriod
-        postListingsOfSubreddit.value = postRepository.getPostsOfSubreddit(application.accessToken, listingType, sortBy, timePeriod, 10)
+        postListingsOfSubreddit.value = postRepository.getPostsFromNetwork(listingType, sortBy, timePeriod, 10)
     }
 
 }

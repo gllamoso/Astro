@@ -79,6 +79,5 @@ class MainFragment : Fragment() {
         })
 
         binding.viewPager.setPageTransformer(DepthPageTransformer())
-
     }
 }

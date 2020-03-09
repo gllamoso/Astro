@@ -45,6 +45,7 @@
     <string name="multireddits">Multireddits</string>
     <string name="frontpage">Front Page</string>
     <string name="all">All</string>
+    <string name="saved">Saved</string>
 
     <!--Nav Drawer Items-->
     <string name="accounts">Accounts</string>
@@ -82,5 +83,6 @@
     <string name="hour_ago">1 hour ago</string>
     <string name="minutes_ago">%d minutes ago</string>
     <string name="a_moment_ago">A moment ago</string>
+    <string name="no_results">No results</string>
 
 </resources>

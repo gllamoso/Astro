@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui.fragments.subreddits
 
+import android.app.Dialog
 import android.content.DialogInterface
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.os.Bundle
@@ -7,15 +8,18 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.FragmentDialogSubredditsBinding
 import dev.gtcl.reddit.ui.fragments.MainFragment
+import kotlinx.android.synthetic.main.fragment_comments.view.*
 import kotlin.NoSuchElementException
 
 class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
@@ -26,6 +30,16 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
     fun setSubredditOnClickListener(listener: SubredditOnClickListener){
         this.subClickListener = listener
     }
+
+//    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+//        val d = super.onCreateDialog(savedInstanceState)
+//        //view hierarchy is inflated after dialog is shown
+//        d.setOnShowListener {
+//            //this prevents dragging behavior
+//            (d.window!!.findViewById<View>(R.id.design_bottom_sheet).layoutParams as CoordinatorLayout.LayoutParams).behavior = LockableBottomSheetBehavior<View>()
+//        }
+//        return d
+//    }
 
     override fun onStart() {
         super.onStart()
@@ -40,7 +54,7 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
             val params = parent.layoutParams as CoordinatorLayout.LayoutParams
             val behavior = params.behavior
             val bottomSheetBehavior = behavior as BottomSheetBehavior
-            bottomSheetBehavior.peekHeight = requireView().measuredHeight
+            bottomSheetBehavior.peekHeight = (0.75 * requireView().measuredHeight).toInt()
         }
     }
 

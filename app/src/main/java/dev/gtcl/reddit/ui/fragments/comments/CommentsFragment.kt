@@ -112,8 +112,7 @@ class CommentsFragment : Fragment() {
             Toast.makeText(context, "Upvoted!", Toast.LENGTH_LONG).show()
         }
 
-        val bottomSheetBehavior = BottomSheetBehavior.from(binding.bottomSheet)
-        bottomSheetBehavior.addBottomSheetCallback(object: BottomSheetBehavior.BottomSheetCallback(){
+        BottomSheetBehavior.from(binding.bottomSheet).addBottomSheetCallback(object: BottomSheetBehavior.BottomSheetCallback(){
             override fun onSlide(p0: View, p1: Float) {
                 if(!model.attachedToMainFragment) return
                 mainFragmentListener.enablePagerSwiping(false)
@@ -144,6 +143,10 @@ class CommentsFragment : Fragment() {
                 model.commentsFetched = true
             }
         })
+
+        binding.bottomBar.setOnClickListener {
+            BottomSheetBehavior.from(binding.bottomSheet).state = BottomSheetBehavior.STATE_EXPANDED
+        }
 
         return binding.root
     }

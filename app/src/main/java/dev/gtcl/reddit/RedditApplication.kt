@@ -9,6 +9,7 @@ import dev.gtcl.reddit.posts.getPostRepository
 import dev.gtcl.reddit.subs.SubredditRepository
 import dev.gtcl.reddit.subs.getSubredditRepository
 import dev.gtcl.reddit.users.AccessToken
+import dev.gtcl.reddit.users.User
 import dev.gtcl.reddit.users.UserRepository
 import dev.gtcl.reddit.users.getUserRepository
 import java.util.concurrent.Executors
@@ -32,5 +33,9 @@ class RedditApplication : Application() {
     }
 
     var accessToken: AccessToken? = null
-
+        set(value){
+            field = value
+            Log.d("TAE", "Access Token: ${value!!.value}")
+        }
+    var currentUser: User? = null
 }

@@ -1,12 +1,15 @@
 package dev.gtcl.reddit.ui.fragments.posts
 
+import android.app.ActionBar
 import android.content.Context
+import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.BaseExpandableListAdapter
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.users.User
 
@@ -64,39 +67,35 @@ class MainDrawerAdapter(val context: Context, private val adapterOnClickListener
 
     override fun getChildView(groupPosition: Int, childPosition: Int, isLastChild: Boolean, convertView: View?, parent: ViewGroup?): View {
         var convertViewVar = convertView
-        val childTitle = getChild(0, childPosition) as String
+        val child = getChild(0, childPosition)
         if(convertViewVar == null) {
             val layoutInflater = this.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
             convertViewVar = layoutInflater.inflate(R.layout.item_child_expandable, null)
         }
         val titleTextView = convertViewVar!!.findViewById<TextView>(R.id.title)
-        titleTextView.text = childTitle
-        val removeButton = convertViewVar.findViewById<ImageView>(R.id.remove_button)
-        val icon = convertViewVar.findViewById<ImageView>(R.id.icon)
+        val icon = convertViewVar.findViewById<ImageView>(R.id.right_icon)
         when(childPosition){
             accountOptions.size - 2 -> {
                 convertViewVar.setOnClickListener{
                     adapterOnClickListeners.onAddAccountClicked()
                 }
-                removeButton.visibility = View.GONE
-                icon.visibility = View.VISIBLE
                 icon.setImageResource(R.drawable.ic_add_24dp)
+                titleTextView.text = child as String
             }
             accountOptions.size - 1 -> {
                 convertViewVar.setOnClickListener{
                     adapterOnClickListeners.onLogoutClicked()
                 }
-                removeButton.visibility = View.GONE
-                icon.visibility = View.VISIBLE
                 icon.setImageResource(R.drawable.ic_logout_24dp)
+                titleTextView.text = child as String
             }
             else -> {
+                val user = users[childPosition]
+                titleTextView.text = user.name
                 convertViewVar.setOnClickListener{
-                    adapterOnClickListeners.onAccountClicked(users[childPosition])
+                    adapterOnClickListeners.onAccountClicked(user)
                 }
-                icon.visibility = View.GONE
-                removeButton.visibility = View.VISIBLE
-                removeButton.setOnClickListener {
+                icon.setOnClickListener {
                     adapterOnClickListeners.onRemoveAccountClicked(getChild(0, childPosition) as String)
                 }
             }

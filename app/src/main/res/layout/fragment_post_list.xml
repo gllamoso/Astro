@@ -156,7 +156,7 @@
             android:layout_gravity="start"
             android:layout_width="235dp"
             android:layout_height="match_parent"
-            android:background="?android:attr/colorForegroundInverse"
+            android:background="?android:attr/colorBackgroundFloating"
             android:groupIndicator="@android:color/transparent"
             />
 

@@ -211,13 +211,14 @@
             app:behavior_hideable="false"
             app:behavior_peekHeight="?attr/actionBarSize"
             android:orientation="vertical"
-            android:background="?android:attr/colorBackground"
-            android:elevation="100dp">
+            android:elevation="100dp"
+            android:backgroundTint="@color/colorPrimary"
+            android:background="@drawable/top_rounded_corners">
 
             <RelativeLayout
+                android:id="@+id/bottom_bar"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="@color/colorPrimary">
+                android:layout_height="?attr/actionBarSize">
 
                 <ImageView
                     android:layout_marginTop="4dp"
@@ -298,6 +299,7 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                android:background="?android:attr/colorBackground"
                 app:spanCount="1"
                 tools:itemCount="10"
                 />

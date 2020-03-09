@@ -37,6 +37,7 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
 
     fun setCurrentUser(user: User?, saveToPreferences: Boolean){
         _currentUser.value = user
+        application.currentUser = user
 
         if(saveToPreferences){
             val sharedPrefs = application.getSharedPreferences(application.getString(R.string.preferences_file_key), Context.MODE_PRIVATE)

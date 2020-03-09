@@ -68,6 +68,18 @@ interface RedditApiService {
         @Query("limit") limit: Int
     ): Deferred<PostListingResponse>
 
+    /**
+     * categories: posts, saved, hidden, upvoted, downvoted, awards received, awards given
+     */
+    @GET("/user/{user}/{category}/.json")
+    fun getPostsFromUser(
+        @Header("Authorization") authorization: String?,
+        @Path("user") user: String,
+        @Path("category") category: String,
+        @Query("after") after: String? = null,
+        @Query("limit") limit: Int
+    ): Deferred<PostListingResponse> // TODO: Handle comments from listing
+
     @GET("/r/{subreddit}/{sort}.json")
     fun getPostsFromSubreddit(
         @Header("Authorization") authorization: String?,

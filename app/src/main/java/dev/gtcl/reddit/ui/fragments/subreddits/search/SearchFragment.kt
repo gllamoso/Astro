@@ -1,6 +1,7 @@
 package dev.gtcl.reddit.ui.fragments.subreddits.search
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,6 +22,8 @@ class SearchFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentSimpleRecyclerViewBinding.inflate(inflater)
+        binding.list.visibility = View.GONE
+        binding.noResultsText.visibility = View.VISIBLE
         setRecyclerViewAdapter()
         return binding.root
     }
@@ -34,6 +37,15 @@ class SearchFragment : Fragment() {
 
         model.searchSubreddits.observe(viewLifecycleOwner, Observer {
             adapter.submitList(it ?: listOf())
+            binding.list.smoothScrollToPosition(0)
+            if(it.isNullOrEmpty()) {
+                binding.list.visibility = View.GONE
+                binding.noResultsText.visibility = View.VISIBLE
+            }
+            else{
+                binding.list.visibility = View.VISIBLE
+                binding.noResultsText.visibility = View.GONE
+            }
         })
     }
 }
