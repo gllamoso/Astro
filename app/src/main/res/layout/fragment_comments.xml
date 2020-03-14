@@ -14,7 +14,8 @@
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.fragments.comments.CommentsFragment">
+        tools:context=".ui.fragments.comments.CommentsFragment"
+        android:background="?android:attr/colorBackground">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

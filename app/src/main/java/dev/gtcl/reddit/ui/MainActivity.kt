@@ -1,18 +1,29 @@
 package dev.gtcl.reddit.ui
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
 import androidx.appcompat.app.AppCompatActivity
 import androidx.databinding.DataBindingUtil
+import androidx.drawerlayout.widget.DrawerLayout
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.google.gson.Gson
 import dev.gtcl.reddit.*
+import dev.gtcl.reddit.database.asDomainModel
 import dev.gtcl.reddit.databinding.ActivityMainBinding
+import dev.gtcl.reddit.databinding.NavHeaderBinding
+import dev.gtcl.reddit.ui.fragments.posts.AdapterOnClickListeners
+import dev.gtcl.reddit.ui.fragments.posts.MainDrawerAdapter
+import dev.gtcl.reddit.ui.webview.WebviewActivity
 import dev.gtcl.reddit.users.User
 
 const val URL_KEY = "URL"
@@ -32,6 +43,7 @@ class MainActivity : AppCompatActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         navController = findNavController(R.id.nav_host_fragment)
         getUserFromSharedPreferences()
+        setDrawer(LayoutInflater.from(this))
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -57,6 +69,77 @@ class MainActivity : AppCompatActivity() {
             val user = Gson().fromJson(it, User::class.java)
             model.setCurrentUser(user, false)
         }
+    }
+
+    @SuppressLint("WrongConstant")
+    private fun setDrawer(inflater: LayoutInflater){
+        val drawerLayout = binding.drawerLayout
+        val header = NavHeaderBinding.inflate(inflater)
+
+        binding.expandableListView.addHeaderView(header.root)
+
+        val adapter =
+            MainDrawerAdapter(
+                this,
+                object :
+                    AdapterOnClickListeners {
+                    override fun onAddAccountClicked() {
+                        startSignInActivity()
+                    }
+
+                    override fun onRemoveAccountClicked(username: String) {
+                        model.deleteUserFromDatabase(username)
+                    }
+
+                    override fun onAccountClicked(user: User) {
+                        model.setCurrentUser(user, true)
+                        drawerLayout.closeDrawer(Gravity.START)
+                    }
+
+                    override fun onLogoutClicked() {
+                        model.setCurrentUser(null, true)
+                        drawerLayout.closeDrawer(Gravity.START)
+                    }
+
+                })
+
+        binding.expandableListView.setAdapter(adapter)
+
+        model.allUsers.observe(this, Observer {
+            adapter.setUsers(it.asDomainModel())
+        })
+
+        model.currentUser.observe(this, Observer {
+            header.user = it
+        })
+
+        model.openDrawer.observe(this, Observer {
+            if(it == true) {
+                drawerLayout.openDrawer(Gravity.START)
+                model.openDrawerComplete()
+            }
+        })
+
+        drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener{
+            override fun onDrawerStateChanged(newState: Int) {}
+            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
+            override fun onDrawerClosed(drawerView: View) {
+                binding.expandableListView.collapseGroup(0)
+            }
+
+            override fun onDrawerOpened(drawerView: View) {
+                adapter.notifyDataSetInvalidated()
+            }
+
+        })
+    }
+
+    private fun startSignInActivity() {
+        val url = String.format(getString(R.string.auth_url), getString(R.string.client_id), STATE, getString(R.string.redirect_uri))
+        val intent = Intent(this, WebviewActivity::class.java)
+        intent.putExtra(URL_KEY, url)
+        startActivityForResult(intent, REDIRECT_URL_REQUEST_CODE)
     }
 
     fun navigateUp(){

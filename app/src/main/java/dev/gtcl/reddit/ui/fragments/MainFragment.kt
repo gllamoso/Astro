@@ -78,6 +78,6 @@ class MainFragment : Fragment() {
             }
         })
 
-        binding.viewPager.setPageTransformer(DepthPageTransformer())
+        binding.viewPager.setPageTransformer(SlidePageTransformer())
     }
 }

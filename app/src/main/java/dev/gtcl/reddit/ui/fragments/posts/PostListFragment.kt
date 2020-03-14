@@ -63,9 +63,12 @@ class PostListFragment : Fragment() {
             if(it) { model.fetchPosts(FrontPage) }
         })
 
+        binding.toolbar.setNavigationOnClickListener {
+            parentModel.openDrawer()
+        }
+
         setRecyclerView()
         setSwipeToRefresh()
-        setDrawer(inflater)
         setBottomAppbarClickListeners()
     }
 
@@ -113,66 +116,6 @@ class PostListFragment : Fragment() {
         }
     }
 
-    @SuppressLint("WrongConstant")
-    private fun setDrawer(inflater: LayoutInflater){
-        val drawerLayout = binding.drawerLayout
-        val header = NavHeaderBinding.inflate(inflater)
-
-        binding.expandableListView.addHeaderView(header.root)
-
-        val adapter =
-            MainDrawerAdapter(
-                requireContext(),
-                object :
-                    AdapterOnClickListeners {
-                    override fun onAddAccountClicked() {
-                        startSignInActivity()
-                    }
-
-                    override fun onRemoveAccountClicked(username: String) {
-                        parentModel.deleteUserFromDatabase(username)
-                    }
-
-                    override fun onAccountClicked(user: User) {
-                        parentModel.setCurrentUser(user, true)
-                        drawerLayout.closeDrawer(Gravity.START)
-                    }
-
-                    override fun onLogoutClicked() {
-                        parentModel.setCurrentUser(null, true)
-                        drawerLayout.closeDrawer(Gravity.START)
-                    }
-
-                })
-
-        binding.expandableListView.setAdapter(adapter)
-
-        parentModel.allUsers.observe(viewLifecycleOwner, Observer {
-            adapter.setUsers(it.asDomainModel())
-        })
-
-        parentModel.currentUser.observe(viewLifecycleOwner, Observer {
-            header.user = it
-        })
-
-        binding.toolbar.setNavigationOnClickListener {
-            drawerLayout.openDrawer(Gravity.START)
-        }
-
-        drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener{
-            override fun onDrawerStateChanged(newState: Int) {}
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
-            override fun onDrawerClosed(drawerView: View) {
-                binding.expandableListView.collapseGroup(0)
-            }
-
-            override fun onDrawerOpened(drawerView: View) {
-                adapter.notifyDataSetInvalidated()
-            }
-
-        })
-    }
-
     private fun setBottomAppbarClickListeners(){
         //TODO: Delete
         binding.sortButton.setOnClickListener{
@@ -208,13 +151,6 @@ class PostListFragment : Fragment() {
         binding.refreshButton.setOnClickListener{
             model.refresh()
         }
-    }
-
-    private fun startSignInActivity() {
-        val url = String.format(getString(R.string.auth_url), getString(R.string.client_id), STATE, getString(R.string.redirect_uri))
-        val intent = Intent(context, WebviewActivity::class.java)
-        intent.putExtra(URL_KEY, url)
-        activity?.startActivityForResult(intent, REDIRECT_URL_REQUEST_CODE)
     }
 
 }

@@ -3,18 +3,34 @@
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-    <LinearLayout
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <fragment
-            android:id="@+id/nav_host_fragment"
-            android:name="androidx.navigation.fragment.NavHostFragment"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:defaultNavHost="true"
-            app:navGraph="@navigation/navigation" />
+            android:layout_height="match_parent">
 
-    </LinearLayout>
+            <fragment
+                android:id="@+id/nav_host_fragment"
+                android:name="androidx.navigation.fragment.NavHostFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:defaultNavHost="true"
+                app:navGraph="@navigation/navigation" />
+
+        </LinearLayout>
+
+        <ExpandableListView
+            android:id="@+id/expandable_list_view"
+            android:layout_gravity="start"
+            android:layout_width="235dp"
+            android:layout_height="match_parent"
+            android:background="?android:attr/colorBackgroundFloating"
+            android:groupIndicator="@android:color/transparent"
+            />
+
+    </androidx.drawerlayout.widget.DrawerLayout>
 
 </layout>

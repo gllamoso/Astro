@@ -111,4 +111,15 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
             }
         }
     }
+
+    private val _openDrawer = MutableLiveData<Boolean>()
+    val openDrawer: LiveData<Boolean>
+        get() = _openDrawer
+    fun openDrawer(){
+        _openDrawer.value = true
+    }
+
+    fun openDrawerComplete(){
+        _openDrawer.value = null
+    }
 }
