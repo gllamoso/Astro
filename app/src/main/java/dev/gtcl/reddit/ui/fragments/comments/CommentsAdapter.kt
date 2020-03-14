@@ -6,16 +6,15 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
-import dev.gtcl.reddit.comments.Comment
-import dev.gtcl.reddit.comments.CommentItem
-import dev.gtcl.reddit.comments.ContinueThread
-import dev.gtcl.reddit.comments.More
 import dev.gtcl.reddit.databinding.ItemCommentBinding
 import dev.gtcl.reddit.databinding.ItemMoreCommentBinding
+import dev.gtcl.reddit.network.Comment
+import dev.gtcl.reddit.network.ListingItem
+import dev.gtcl.reddit.network.More
 
 class CommentsAdapter(private val commentItemClickListener: CommentItemClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
-    private var mCommentItems = mutableListOf<CommentItem>()
+    private var mCommentItems = mutableListOf<ListingItem>()
 
     private val collapseComments: (Int) -> Unit = { // TODO: Interface? Add method to CommentItemClickListener?
         val collapse = !(mCommentItems[it] as Comment).isPartiallyCollapsed
@@ -29,12 +28,12 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
     }
 
 
-    fun submitList(items: List<CommentItem>){
+    fun submitList(items: List<ListingItem>){
         mCommentItems = items.toMutableList()
         notifyDataSetChanged()
     }
 
-    fun addItems(position: Int, items: List<CommentItem>){
+    fun addItems(position: Int, items: List<ListingItem>){
         mCommentItems.removeAt(position)
         notifyItemRemoved(position)
         mCommentItems.addAll(position, items)
@@ -59,14 +58,11 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
                 else
                     commentItemClickListener.onMoreCommentsClicked(position, commentItem)
             }
-            is ContinueThread -> (holder as MoreViewHolder).bind(commentItem){
-                commentItemClickListener.onContinueThreadClicked(commentItem)
-            }
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if(mCommentItems[position] is More || mCommentItems[position] is ContinueThread)
+        return if(mCommentItems[position] is More)
                 R.layout.item_more_comment
             else
                 R.layout.item_comment
@@ -98,9 +94,9 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
     }
 
     class MoreViewHolder private constructor(private val binding: ItemMoreCommentBinding): RecyclerView.ViewHolder(binding.root) {
-        fun bind(commentItem: CommentItem, onMoreClicked: () -> Unit){
-            binding.more = commentItem
-            if(commentItem.hiddenPoints > 0){
+        fun bind(item: More, onMoreClicked: () -> Unit){
+            binding.more = item
+            if(item.hiddenPoints > 0){
                 itemView.visibility = View.GONE
                 itemView.layoutParams = RecyclerView.LayoutParams(0,0)
             }
@@ -121,7 +117,7 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
 
     interface CommentItemClickListener{
         fun onMoreCommentsClicked(position: Int, more: More)
-        fun onContinueThreadClicked(commentItem: CommentItem)
+        fun onContinueThreadClicked(more: More)
     }
 
 }

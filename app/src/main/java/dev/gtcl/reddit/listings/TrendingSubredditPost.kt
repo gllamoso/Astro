@@ -1,4 +1,6 @@
-package dev.gtcl.reddit.posts
+package dev.gtcl.reddit.listings
+
+import dev.gtcl.reddit.network.Post
 
 val TRENDING_SUB_REGEX = "Trending Subreddits for \\d{4}-\\d{2}-\\d{2}".toRegex()
 val TITLE_REGEX = "## \\*\\*/r/\\w+\\*\\*".toRegex()

@@ -3,7 +3,7 @@ package dev.gtcl.reddit.ui.fragments.subreddits.popular
 import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
-import dev.gtcl.reddit.posts.SubredditListing
+import dev.gtcl.reddit.listings.SubredditListing
 import dev.gtcl.reddit.subs.Subreddit
 import dev.gtcl.reddit.ui.fragments.subreddits.SubredditOnClickListener
 import dev.gtcl.reddit.ui.fragments.subreddits.mine.MultiAndSubsListAdapter

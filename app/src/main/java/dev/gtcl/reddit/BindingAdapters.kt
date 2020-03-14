@@ -17,14 +17,11 @@ import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
-import dev.gtcl.reddit.comments.Comment
-import dev.gtcl.reddit.comments.CommentItem
-import dev.gtcl.reddit.comments.ContinueThread
-import dev.gtcl.reddit.comments.More
-import dev.gtcl.reddit.posts.*
+import dev.gtcl.reddit.network.Comment
+import dev.gtcl.reddit.network.ListingItem
+import dev.gtcl.reddit.network.More
+import dev.gtcl.reddit.listings.*
 import dev.gtcl.reddit.ui.fragments.posts.PostListAdapter
-import java.math.BigDecimal
-import java.math.RoundingMode
 
 @BindingAdapter("imageUrl")
 fun bindImage(imgView: ImageView, imgUrl: String?){
@@ -92,16 +89,16 @@ fun setVisibility(view: View, constraint: Boolean) {
 }
 
 @BindingAdapter("posts")
-fun setPosts(recyclerView: RecyclerView, posts: PagedList<Post>?){
+fun setPosts(recyclerView: RecyclerView, posts: PagedList<ListingItem>?){
     recyclerView.adapter?.let {
         (it as PostListAdapter).submitList(posts)
     }
 }
 
 @BindingAdapter("commentItem")
-fun setIndentation(view: View, listItem: CommentItem?){
+fun setIndentation(view: View, listItem: ListingItem?){
     listItem?.let {
-        if(listItem.depth == 0) {
+        if (it.depth == 0) {
             view.visibility = View.GONE
             return
         }
@@ -147,11 +144,11 @@ fun setCommentInfo(view: LinearLayout, comment: Comment){
 }
 
 @BindingAdapter("moreComment")
-fun setMoreCommentText(textView: TextView, item: CommentItem){
-    if(item is ContinueThread || (item is More && item.isContinueThreadLink()))
+fun setMoreCommentText(textView: TextView, item: More){
+    if(item.isContinueThreadLink())
         textView.text = textView.resources.getString(R.string.continue_to_thread)
     else
-        textView.text = String.format(textView.resources.getText(R.string.more_replies).toString(), (item as More).count)
+        textView.text = String.format(textView.resources.getText(R.string.more_replies).toString(), item.count)
 }
 
 @BindingAdapter("timestamp")

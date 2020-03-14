@@ -5,11 +5,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dev.gtcl.reddit.CommentSort
 import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.comments.CommentItem
-import dev.gtcl.reddit.comments.More
 import dev.gtcl.reddit.comments.MoreComments
 import dev.gtcl.reddit.comments.convertChildrenToCommentItems
-import dev.gtcl.reddit.posts.Post
+import dev.gtcl.reddit.network.ListingItem
+import dev.gtcl.reddit.network.More
+import dev.gtcl.reddit.network.Post
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -30,8 +30,8 @@ class CommentsViewModel(val application: RedditApplication): ViewModel() {
     val post: LiveData<Post>
         get() = _post
 
-    private val _comments = MutableLiveData<List<CommentItem>>()
-    val comments: LiveData<List<CommentItem>>
+    private val _comments = MutableLiveData<List<ListingItem>>()
+    val comments: LiveData<List<ListingItem>>
         get() = _comments
 
     fun setPost(redditPost: Post){
@@ -46,7 +46,7 @@ class CommentsViewModel(val application: RedditApplication): ViewModel() {
 
     fun fetchPostAndComments(permalink: String = post.value!!.permalink){
         coroutineScope.launch {
-            val commentPage = commentRepo.getPostAndComments(permalink, CommentSort.BEST).await()
+            val commentPage = commentRepo.getPostAndComments(permalink, CommentSort.best).await()
             _post.value = commentPage.post
             _comments.value = commentPage.comments
         }
@@ -62,7 +62,7 @@ class CommentsViewModel(val application: RedditApplication): ViewModel() {
 
     fun fetchMoreComments(position: Int, more: More){
         coroutineScope.launch {
-            val children = commentRepo.getMoreComments(more.getChildrenAsValidString(), post.value!!.name, CommentSort.BEST).await()
+            val children = commentRepo.getMoreComments(more.getChildrenAsValidString(), post.value!!.name, CommentSort.best).await()
             _moreComments.value = MoreComments(position, more.depth, children.convertChildrenToCommentItems(more.depth))
         }
     }

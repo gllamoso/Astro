@@ -5,26 +5,34 @@ import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
-import dev.gtcl.reddit.database.ReadPost
-import dev.gtcl.reddit.posts.Post
+import dev.gtcl.reddit.database.ReadListing
+import dev.gtcl.reddit.network.Comment
+import dev.gtcl.reddit.network.ListingItem
 import dev.gtcl.reddit.network.NetworkState
+import dev.gtcl.reddit.network.Post
+import dev.gtcl.reddit.ui.fragments.comments.CommentsAdapter
+import java.io.InvalidObjectException
 
-class PostListAdapter(private val retryCallback: () -> Unit, private val postClickListener: PostViewClickListener): PagedListAdapter<Post, RecyclerView.ViewHolder>(
-    POST_COMPARATOR
+class PostListAdapter(private val retryCallback: () -> Unit, private val postClickListener: PostViewClickListener): PagedListAdapter<ListingItem, RecyclerView.ViewHolder>(
+    LISTING_COMPARATOR
 ){
 
     private var networkState: NetworkState? = null
     private var allReadSubs: HashSet<String> = HashSet()
 
-    fun setReadSubs(list: List<ReadPost>){
+    fun setReadSubs(list: List<ReadListing>){
         allReadSubs = list.map { it.name }.toHashSet()
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             R.layout.item_post -> {
-                val item = getItem(position)
-                (holder as RedditPostViewHolder).bind(item, postClickListener, allReadSubs.contains(item?.name), position)
+                val post = getItem(position) as Post
+                (holder as PostViewHolder).bind(post, postClickListener, allReadSubs.contains(post.name), position)
+            }
+            R.layout.item_comment -> {
+                val comment = getItem(position) as Comment
+                (holder as CommentsAdapter.CommentViewHolder).bind(comment) {} // TODO
             }
             R.layout.item_network_state -> (holder as NetworkStateItemViewHolder).bindTo(networkState)
         }
@@ -32,8 +40,10 @@ class PostListAdapter(private val retryCallback: () -> Unit, private val postCli
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
         if (payloads.isNotEmpty()) {
-            val item = getItem(position)
-            (holder as RedditPostViewHolder).bind(item, postClickListener, if(payloads[0] == true) true else allReadSubs.contains(item?.name), position)
+            when(val item = getItem(position)){
+                is Post -> (holder as PostViewHolder).bind(item, postClickListener, if(payloads[0] == true) true else allReadSubs.contains(item.name), position)
+                is Comment -> (holder as CommentsAdapter.CommentViewHolder).bind(item) {} // TODO
+            }
         } else {
             onBindViewHolder(holder, position)
         }
@@ -41,7 +51,8 @@ class PostListAdapter(private val retryCallback: () -> Unit, private val postCli
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            R.layout.item_post -> RedditPostViewHolder.create(parent)
+            R.layout.item_post -> PostViewHolder.create(parent)
+            R.layout.item_comment -> CommentsAdapter.CommentViewHolder.create(parent)
             R.layout.item_network_state -> NetworkStateItemViewHolder.create(parent, retryCallback)
             else -> throw IllegalArgumentException("unknown view type $viewType")
         }
@@ -51,10 +62,12 @@ class PostListAdapter(private val retryCallback: () -> Unit, private val postCli
     private fun hasExtraRow() = networkState != null && networkState != NetworkState.LOADED
 
     override fun getItemViewType(position: Int): Int {
-        return if (hasExtraRow() && position == itemCount - 1)
-            R.layout.item_network_state
-        else
-            R.layout.item_post
+        if((hasExtraRow() && position == itemCount - 1) ) return  R.layout.item_network_state
+        return when (val item = getItem(position)) {
+            is Post -> R.layout.item_post
+            is Comment -> R.layout.item_comment
+            else -> throw InvalidObjectException("Expected items to be a Post or Comment. Found ${item?.javaClass?.simpleName} in position $position" )
+        }
     }
 
     override fun getItemCount(): Int {
@@ -97,6 +110,20 @@ class PostListAdapter(private val retryCallback: () -> Unit, private val postCli
             // because reddit randomizes scores, we want to pass it as a payload to minimize
             // UI updates between refreshes
             return oldItem.copy(score = newItem.score) == newItem
+        }
+
+        val LISTING_COMPARATOR = object : DiffUtil.ItemCallback<ListingItem>() {
+            override fun areItemsTheSame(oldItem: ListingItem, newItem: ListingItem): Boolean  =
+                oldItem == newItem
+
+            override fun areContentsTheSame(oldItem: ListingItem, newItem: ListingItem): Boolean =
+                oldItem.name == newItem.name
+
+            override fun getChangePayload(oldItem: ListingItem, newItem: ListingItem): Any? {
+                if(oldItem is Post && newItem is Post)
+                    return sameExceptScore(oldItem, newItem)
+                return false
+            }
         }
     }
 }

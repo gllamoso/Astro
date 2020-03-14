@@ -6,7 +6,7 @@
     <data>
         <variable
             name="post"
-            type="dev.gtcl.reddit.posts.Post" />
+            type="dev.gtcl.reddit.network.Post" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

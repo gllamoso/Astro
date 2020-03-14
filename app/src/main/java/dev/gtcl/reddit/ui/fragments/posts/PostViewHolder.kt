@@ -6,7 +6,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.ItemPostBinding
-import dev.gtcl.reddit.posts.Post
+import dev.gtcl.reddit.network.Post
 
 //class RedditPostViewHolder(view: View, private val glide: GlideRequests)
 //class RedditPostViewHolder(view: View)
@@ -59,7 +59,7 @@ import dev.gtcl.reddit.posts.Post
 //    }
 //}
 
-class RedditPostViewHolder private constructor(private val binding:ItemPostBinding)
+class PostViewHolder private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
     fun bind(post: Post?, postClickListener: PostViewClickListener, isRead: Boolean, position: Int){
         binding.post = post
@@ -93,8 +93,8 @@ class RedditPostViewHolder private constructor(private val binding:ItemPostBindi
 //    }
 
     companion object {
-        fun create(parent: ViewGroup): RedditPostViewHolder {
-            return RedditPostViewHolder(ItemPostBinding.inflate(LayoutInflater.from(parent.context)))
+        fun create(parent: ViewGroup): PostViewHolder {
+            return PostViewHolder(ItemPostBinding.inflate(LayoutInflater.from(parent.context)))
         }
     }
 

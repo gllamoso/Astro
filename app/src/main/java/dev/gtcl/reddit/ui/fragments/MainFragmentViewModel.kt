@@ -6,8 +6,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.posts.Post
-import dev.gtcl.reddit.posts.SubredditListing
+import dev.gtcl.reddit.network.ListingItem
+import dev.gtcl.reddit.listings.SubredditListing
 import dev.gtcl.reddit.subs.Subreddit
 import kotlinx.coroutines.*
 import java.util.*
@@ -50,13 +50,13 @@ class MainFragmentViewModel(val application: RedditApplication): ViewModel(){
     }
 
     // Trending
-    private val _repoResultsOfTrendingSubreddits = MutableLiveData<Listing<Post>>()
+    private val _repoResultsOfTrendingSubreddits = MutableLiveData<Listing<ListingItem>>()
     val trendingSubredditPosts = Transformations.switchMap(_repoResultsOfTrendingSubreddits) { it.pagedList }
 
     fun fetchTrendingPosts() {
         _repoResultsOfTrendingSubreddits.value = postRepository.getPostsFromNetwork(
             SubredditListing(Subreddit(displayName = "trendingsubreddits")),
-            PostSort.HOT, pageSize = 5)
+            PostSort.hot, pageSize = 5)
     }
 
     // Popular

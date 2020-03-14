@@ -14,13 +14,13 @@ class TimePeriodSheetDialogFragment(private val onItemSelectedCallback: (Time) -
         val binding = FragmentDialogTimePeriodBinding.inflate(inflater)
         binding.radioGroup.setOnCheckedChangeListener { _, checkedId ->
             onItemSelectedCallback(when(checkedId){
-                binding.hourRadioButton.id -> Time.HOUR
-                binding.dayRadioButton.id -> Time.DAY
-                binding.weekRadioButton.id -> Time.WEEK
-                binding.monthRadioButton.id -> Time.MONTH
-                binding.yearRadioButton.id -> Time.YEAR
-                binding.allRadioButton.id -> Time.ALL
-                else -> Time.DAY
+                binding.hourRadioButton.id -> Time.hour
+                binding.dayRadioButton.id -> Time.day
+                binding.weekRadioButton.id -> Time.week
+                binding.monthRadioButton.id -> Time.month
+                binding.yearRadioButton.id -> Time.year
+                binding.allRadioButton.id -> Time.all
+                else -> Time.week
             })
             dismiss()
         }

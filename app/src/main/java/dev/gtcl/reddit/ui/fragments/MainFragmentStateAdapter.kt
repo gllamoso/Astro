@@ -2,7 +2,7 @@ package dev.gtcl.reddit.ui.fragments
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import dev.gtcl.reddit.posts.Post
+import dev.gtcl.reddit.network.Post
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
 import dev.gtcl.reddit.ui.fragments.posts.PostListFragment
 

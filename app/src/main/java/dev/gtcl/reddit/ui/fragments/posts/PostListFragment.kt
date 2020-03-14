@@ -3,12 +3,10 @@ package dev.gtcl.reddit.ui.fragments.posts
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -17,14 +15,13 @@ import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.STATE
-import dev.gtcl.reddit.database.DatabaseUser
 import dev.gtcl.reddit.database.asDomainModel
 import dev.gtcl.reddit.databinding.FragmentPostListBinding
 import dev.gtcl.reddit.databinding.NavHeaderBinding
 import dev.gtcl.reddit.network.NetworkState
-import dev.gtcl.reddit.posts.FrontPage
-import dev.gtcl.reddit.posts.ListingType
-import dev.gtcl.reddit.posts.Post
+import dev.gtcl.reddit.network.Post
+import dev.gtcl.reddit.listings.FrontPage
+import dev.gtcl.reddit.listings.ListingType
 import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.ui.fragments.ImageVideoViewerDialogFragment
 import dev.gtcl.reddit.ui.fragments.posts.sort_sheet.SortSheetDialogFragment
@@ -81,7 +78,7 @@ class PostListFragment : Fragment() {
     private val postViewClickListener = object : PostViewClickListener {
         override fun onPostClicked(post: Post?, position: Int) {
             post?.let {
-                model.addReadPost(it.asReadPost())
+                model.addReadPost(it.asReadListing())
                 postClickListener(it)
             }
         }
@@ -181,7 +178,7 @@ class PostListFragment : Fragment() {
         binding.sortButton.setOnClickListener{
             SortSheetDialogFragment(model.sortSelected.value!!) { sort ->
                 // TODO: Move logic in ViewModel?
-                if (sort == PostSort.TOP || sort == PostSort.CONTROVERSIAL) {
+                if (sort == PostSort.top || sort == PostSort.controversial) {
                     TimePeriodSheetDialogFragment { time ->
                         model.fetchPosts(model.listingSelected.value!!, sort, time)
                         binding.list.scrollToPosition(0)

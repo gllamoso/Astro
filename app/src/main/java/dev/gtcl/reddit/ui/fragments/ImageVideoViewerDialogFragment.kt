@@ -21,7 +21,7 @@ import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.buildMediaSource
 import dev.gtcl.reddit.databinding.FragmentDialogImageVideoViewerBinding
-import dev.gtcl.reddit.posts.Post
+import dev.gtcl.reddit.network.Post
 
 class ImageVideoViewerDialogFragment : BottomSheetDialogFragment(){
 
@@ -53,8 +53,8 @@ class ImageVideoViewerDialogFragment : BottomSheetDialogFragment(){
             dialog.window!!.setLayout(width, height)
         }
 
-        val view = view
-        view!!.post {
+        val view = requireView()
+        view.post {
             val parent = view.parent as View
             val params = parent.layoutParams as CoordinatorLayout.LayoutParams
             val behavior = params.behavior
@@ -87,7 +87,7 @@ class ImageVideoViewerDialogFragment : BottomSheetDialogFragment(){
         binding.contentBackground.setBackgroundColor(ContextCompat.getColor(binding.root.context, android.R.color.black))
 
         val imgUri = url.toUri().buildUpon().scheme("https").build()
-        Glide.with(context!!)
+        Glide.with(requireContext())
             .load(imgUri)
             .apply(
                 RequestOptions()
@@ -116,7 +116,7 @@ class ImageVideoViewerDialogFragment : BottomSheetDialogFragment(){
 
         binding.playerView.player = mPlayer
         val uri = Uri.parse(url)
-        val mediaSource = buildMediaSource(context!!, uri)
+        val mediaSource = buildMediaSource(requireContext(), uri)
         mPlayer!!.apply {
             playWhenReady = mPlayWhenReady
             seekTo(mCurrentWindow, mPlaybackPosition)

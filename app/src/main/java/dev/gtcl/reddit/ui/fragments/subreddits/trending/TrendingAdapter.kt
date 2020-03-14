@@ -6,17 +6,16 @@ import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemTrendingSubredditBinding
-import dev.gtcl.reddit.posts.Post
-import dev.gtcl.reddit.posts.SubredditListing
+import dev.gtcl.reddit.network.ListingItem
+import dev.gtcl.reddit.network.Post
+import dev.gtcl.reddit.listings.SubredditListing
 import dev.gtcl.reddit.subs.Subreddit
-import dev.gtcl.reddit.posts.TrendingSubredditPost
+import dev.gtcl.reddit.listings.TrendingSubredditPost
 import dev.gtcl.reddit.ui.fragments.subreddits.SubredditOnClickListener
 
-class TrendingAdapter(private val onClickListener: SubredditOnClickListener) : PagedListAdapter<Post, TrendingAdapter.TrendingSubredditViewHolder>(
-    POST_COMPARATOR
-) {
+class TrendingAdapter(private val onClickListener: SubredditOnClickListener) : PagedListAdapter<ListingItem, TrendingAdapter.TrendingSubredditViewHolder>(LISTING_COMPARATOR) {
     override fun onBindViewHolder(holder: TrendingSubredditViewHolder, position: Int) {
-        holder.bind(getItem(position))
+        holder.bind(getItem(position) as Post)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): TrendingSubredditViewHolder {
@@ -62,6 +61,15 @@ class TrendingAdapter(private val onClickListener: SubredditOnClickListener) : P
             override fun areContentsTheSame(oldItem: Post, newItem: Post): Boolean {
                 return oldItem.title == newItem.title
             }
+
+        }
+
+        val LISTING_COMPARATOR = object : DiffUtil.ItemCallback<ListingItem>() {
+            override fun areItemsTheSame(oldItem: ListingItem, newItem: ListingItem): Boolean  =
+                (oldItem as Post).name == (newItem as Post).name
+
+            override fun areContentsTheSame(oldItem: ListingItem, newItem: ListingItem): Boolean =
+                (oldItem as Post).title == (newItem as Post).title
 
         }
     }

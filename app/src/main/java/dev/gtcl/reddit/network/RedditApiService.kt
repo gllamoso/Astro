@@ -3,13 +3,12 @@ package dev.gtcl.reddit.network
 import android.util.Log
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
+import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dev.gtcl.reddit.users.AccessToken
 import dev.gtcl.reddit.comments.CommentAdapter
 import dev.gtcl.reddit.comments.Child
-import dev.gtcl.reddit.comments.CommentItem
 import dev.gtcl.reddit.comments.CommentPage
-import dev.gtcl.reddit.posts.PostListingResponse
 import dev.gtcl.reddit.subs.SubredditListingResponse
 import dev.gtcl.reddit.users.User
 import kotlinx.coroutines.Deferred
@@ -55,7 +54,7 @@ interface RedditApiService {
         @Path("sort") sort: String,
         @Query("t") t: String?,
         @Query("after") after: String? = null,
-        @Query("limit") limit: Int): Deferred<PostListingResponse>
+        @Query("limit") limit: Int): Deferred<ListingResponse>
 
     @GET("/user/{user}/m/{multi}/{sort}.json")
     fun getPostFromMutliReddit(
@@ -66,7 +65,7 @@ interface RedditApiService {
         @Query("t") t: String?,
         @Query("after") after: String? = null,
         @Query("limit") limit: Int
-    ): Deferred<PostListingResponse>
+    ): Deferred<ListingResponse>
 
     /**
      * categories: posts, saved, hidden, upvoted, downvoted, awards received, awards given
@@ -78,7 +77,7 @@ interface RedditApiService {
         @Path("category") category: String,
         @Query("after") after: String? = null,
         @Query("limit") limit: Int
-    ): Deferred<PostListingResponse> // TODO: Handle comments from listing
+    ): Deferred<ListingResponse> // TODO: Handle comments from listing
 
     @GET("/r/{subreddit}/{sort}.json")
     fun getPostsFromSubreddit(
@@ -87,7 +86,7 @@ interface RedditApiService {
         @Path("sort") sort: String,
         @Query("t") t: String?,
         @Query("after") after: String? = null,
-        @Query("limit") limit: Int): Deferred<PostListingResponse>
+        @Query("limit") limit: Int): Deferred<ListingResponse>
 
 //     ____  _  _  ____  ____
 //    / ___)/ )( \(  _ \/ ___)
@@ -132,7 +131,7 @@ interface RedditApiService {
         @Header("Authorization") authorization: String? = null,
         @Url permalink: String,
         @Query("sort") sort: String
-    ): Deferred<List<CommentItem>>
+    ): Deferred<List<ListingItem>>
 
     @GET("/api/morechildren/")
     fun getMoreComments(
@@ -164,8 +163,13 @@ interface RedditApiService {
 
             val moshi = Moshi.Builder()
                 .add(CommentAdapter())
+                .add(PolymorphicJsonAdapterFactory.of(ListingChild::class.java, "kind")
+                    .withSubtype(PostListing::class.java, "t3")
+                    .withSubtype(CommentListing::class.java, "t1")
+                    .withSubtype(MoreListing::class.java, "more"))
                 .add(KotlinJsonAdapterFactory())
                 .build()
+
 
             return Retrofit.Builder()
                 .baseUrl(httpUrl)

@@ -7,9 +7,8 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.ItemListingBinding
 import dev.gtcl.reddit.databinding.ItemSectionHeaderBinding
-import dev.gtcl.reddit.posts.ListingType
-import dev.gtcl.reddit.posts.MultiReddit
-import dev.gtcl.reddit.posts.SubredditListing
+import dev.gtcl.reddit.listings.ListingType
+import dev.gtcl.reddit.listings.SubredditListing
 import dev.gtcl.reddit.subs.Subreddit
 import dev.gtcl.reddit.ui.fragments.subreddits.SubredditOnClickListener
 

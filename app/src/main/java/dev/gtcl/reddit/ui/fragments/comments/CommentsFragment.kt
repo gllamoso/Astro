@@ -12,7 +12,6 @@ import androidx.core.net.toUri
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.DividerItemDecoration
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.exoplayer2.ExoPlayerFactory
@@ -24,12 +23,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.buildMediaSource
-import dev.gtcl.reddit.comments.CommentItem
 import dev.gtcl.reddit.comments.CommentUrl
-import dev.gtcl.reddit.comments.ContinueThread
-import dev.gtcl.reddit.comments.More
 import dev.gtcl.reddit.databinding.FragmentCommentsBinding
-import dev.gtcl.reddit.posts.Post
+import dev.gtcl.reddit.network.More
+import dev.gtcl.reddit.network.Post
 import dev.gtcl.reddit.ui.fragments.MainFragment
 import dev.gtcl.reddit.ui.fragments.MainFragmentDirections
 import dev.gtcl.reddit.ui.fragments.MainFragmentViewPagerListener
@@ -54,7 +51,7 @@ class CommentsFragment : Fragment() {
     private var mPlaybackPosition = 0.toLong()
 
     private lateinit var binding: FragmentCommentsBinding
-    private var post: Post? = null // When viewModel hasn't been initialized yet
+    private var post: Post? = null // When viewModel hasn't been initialized yet // TODO: Remove. Maybe place in ViewModel
     private lateinit var adapter: CommentsAdapter
 
     private lateinit var mainFragmentListener: MainFragmentViewPagerListener
@@ -80,9 +77,8 @@ class CommentsFragment : Fragment() {
                 model.clearMoreComments()
             }
 
-            override fun onContinueThreadClicked(commentItem: CommentItem) {
-                val url = if(commentItem is More) "${model.post.value?.permalink}${commentItem.parentId.replace("t1_","")}"
-                    else (commentItem as ContinueThread).url
+            override fun onContinueThreadClicked(more: More) {
+                val url = "${model.post.value?.permalink}${more.parentId.replace("t1_","")}"
                 findNavController().navigate(MainFragmentDirections.actionMainFragmentToCommentsFragment(CommentUrl(url)))
             }
         })

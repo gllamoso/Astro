@@ -13,32 +13,32 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import dev.gtcl.reddit.network.RedditApi
 import java.util.*
 
-enum class PostSort(val stringValue: String){
-    BEST("best"),
-    HOT("hot"),
-    NEW("new"),
-    TOP("top"),
-    CONTROVERSIAL("controversial"),
-    RISING("rising")
+enum class PostSort{
+    best,
+    hot,
+    new,
+    top,
+    controversial,
+    rising
 }
 
-enum class CommentSort(val stringValue: String){
-    BEST("best"),
-    TOP("top"),
-    NEW("new"),
-    CONTROVERSIAL("controversial"),
-    OLD("old"),
-    RANDOM("random"),
-    QA("qa")
+enum class CommentSort{
+    best,
+    top,
+    new,
+    controversial,
+    old,
+    random,
+    qa
 }
 
-enum class Time(val stringValue: String){
-    HOUR("hour"),
-    DAY("day"),
-    WEEK("week"),
-    MONTH("month"),
-    YEAR("year"),
-    ALL("all")
+enum class Time{
+    hour,
+    day,
+    week,
+    month,
+    year,
+    all
 }
 
 val STATE by lazy {

@@ -3,7 +3,6 @@ package dev.gtcl.reddit.database
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import kotlinx.coroutines.Deferred
 
 @Dao
 interface UserDao{
@@ -23,13 +22,13 @@ interface UserDao{
 @Dao
 interface ReadPostDao{
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(readPost: ReadPost)
+    fun insert(readListing: ReadListing)
 
-    @Query("select * from read_posts")
-    fun getAll(): LiveData<List<ReadPost>>
+    @Query("select * from read_listing")
+    fun getAll(): LiveData<List<ReadListing>>
 }
 
-@Database(entities = [DatabaseUser::class, ReadPost::class], version = 1)
+@Database(entities = [DatabaseUser::class, ReadListing::class], version = 1, exportSchema = false)
 abstract class RedditDatabase: RoomDatabase(){
     abstract val userDao: UserDao
     abstract val readPostDao: ReadPostDao
@@ -41,7 +40,7 @@ fun redditDatabase(context: Context): RedditDatabase {
         if(!::INSTANCE.isInitialized){
             INSTANCE = Room.databaseBuilder(context.applicationContext,
                 RedditDatabase::class.java,
-                "users").build()
+                "local").build()
         }
     }
     return INSTANCE

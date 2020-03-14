@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.posts
+package dev.gtcl.reddit.listings
 
 import dev.gtcl.reddit.subs.Subreddit
 

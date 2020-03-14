@@ -7,9 +7,8 @@ import android.os.Parcelable
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonReader
 import dev.gtcl.reddit.CommentSort
-import dev.gtcl.reddit.posts.*
+import dev.gtcl.reddit.network.*
 import java.lang.RuntimeException
-import java.lang.StringBuilder
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -19,61 +18,18 @@ import kotlin.collections.HashMap
 
 data class CommentPage(
     val post: Post,
-    val comments: List<CommentItem>
+    val comments: List<ListingItem>
 )
-
-sealed class CommentItem(
-    open val id: String,
-    open var depth: Int,
-    var hiddenPoints: Int = 0
-)
-
-data class Comment( // TODO: Add more properties: saved, liked, all_awardings
-    override val id: String,
-    override var depth: Int,
-    val author: String,
-    val authorFullName: String?,
-    val body: String,
-    val score: Int,
-    val created: Long,
-    var isPartiallyCollapsed: Boolean = false
-): CommentItem(id, depth)
-
-data class More(
-    override val id: String,
-    override var depth: Int,
-    val parentId: String,
-    val children: List<String>,
-    var count: Int
-    ): CommentItem(id, depth) {
-
-    fun getChildrenAsValidString(): String {
-        if(this.children.isEmpty()) return ""
-        val sb = StringBuilder()
-        for(item in this.children)
-            sb.append("$item,")
-        sb.deleteCharAt(sb.length - 1)
-        return sb.toString()
-    }
-
-    fun isContinueThreadLink() = id == "_"
-}
 
 data class MoreComments(
     val position: Int,
     val depth: Int,
-    val comments: List<CommentItem>
+    val comments: List<ListingItem>
 )
-
-data class ContinueThread(
-    override val id: String,
-    override var depth: Int,
-    val url: String
-): CommentItem(id, depth)
 
 data class CommentUrl(
     val url: String,
-    var sort: CommentSort = CommentSort.BEST): Parcelable {
+    var sort: CommentSort = CommentSort.best): Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString()!!,
         CommentSort.valueOf(parcel.readString()!!)
@@ -81,7 +37,7 @@ data class CommentUrl(
 
     override fun writeToParcel(parcel: Parcel, flags: Int) {
         parcel.writeString(url)
-        parcel.writeString(sort.stringValue)
+        parcel.writeString(sort.name)
     }
 
     override fun describeContents() = 0
@@ -120,9 +76,9 @@ data class Child(
     fun isContinueThread() = kind == "more" && content.contains("&gt;continue this thread&lt;")
 
     @SuppressLint("SimpleDateFormat")
-    fun toComment(depth: Int): Comment{
+    fun toComment(depth: Int): Comment {
         if(contentText == "[deleted]")
-            return Comment(id, depth, "[deleted]", null, contentText, 0, 0)
+            return Comment(id, "[deleted]", depth, "[deleted]", null, contentText, 0, 0)
 
         val authorResult = AUTHOR_REGEX.find(content)
         val authorFullNameResult = AUTHOR_FULLNAME_REGEX.find(content)
@@ -144,6 +100,7 @@ data class Child(
 
         return Comment(
             id = id.replace("t1_", ""),
+            name = id,
             depth = depth,
             author = if (authorResult != null) authorResult.value.split("\"")[1] else "[removed]",
             authorFullName = if (authorFullNameResult != null) authorFullNameResult.value.split("\"")[1] else "[removed]",
@@ -157,17 +114,17 @@ data class Child(
             ?: throw RuntimeException("Exception in 'convertToMore'. Could not find 'children'. Comment id: $id")
 
         val children = childrenResult.value.split("',")[2].trim().removePrefix("'").split(",")
-        return More(id.replace("t1_", ""), depth, parent, children, children.size)
+        return More(id.replace("t1_", ""), id, depth, parent, children, children.size)
     }
 
-    fun toContinueThread(depth: Int): ContinueThread {
-        val url = URL_REGEX.find(content)!!.value.replace("href=\"/", "").replace("\"", "")
-        return ContinueThread(id, depth, url)
-    }
+//    fun toContinueThread(depth: Int): ContinueThread {
+//        val url = URL_REGEX.find(content)!!.value.replace("href=\"/", "").replace("\"", "")
+//        return ContinueThread(id, depth, url)
+//    }
 }
 
-fun List<Child>.convertChildrenToCommentItems(startingDepth: Int): List<CommentItem> {
-    val results = mutableListOf<CommentItem>()
+fun List<Child>.convertChildrenToCommentItems(startingDepth: Int): List<ListingItem> {
+    val results = mutableListOf<ListingItem>()
     val depthMap = HashMap<String, Int>()
     for(child in this){
         val parentDepth = depthMap.getOrElse(child.parent){null}
@@ -176,7 +133,7 @@ fun List<Child>.convertChildrenToCommentItems(startingDepth: Int): List<CommentI
         when {
             child.isComment() -> results.add(child.toComment(newDepth))
             child.isMore() -> results.add(child.toMore(newDepth))
-            child.isContinueThread() -> results.add(child.toContinueThread(newDepth))
+//            child.isContinueThread() -> results.add(child.toContinueThread(newDepth))
         }
     }
 
@@ -209,6 +166,7 @@ class CommentAdapter {
                 if(jsonReader.nextName() != "data") throw RuntimeException("Did not find 'kind' key.")
                 jsonReader.beginObject()
                 var name: String? = null
+                var saved: Boolean? = null
                 var title: String? = null
                 var score: Int? = null
                 var author: String? = null
@@ -228,6 +186,7 @@ class CommentAdapter {
                 while(jsonReader.hasNext()){
                     when(jsonReader.nextName()){
                         "name" -> name = jsonReader.nextString()
+                        "saved" -> saved = jsonReader.nextBoolean()
                         "title" -> title = jsonReader.nextString()
                         "score" -> score = jsonReader.nextInt()
                         "author" -> author = jsonReader.nextString()
@@ -304,7 +263,26 @@ class CommentAdapter {
                         else -> jsonReader.skipValue()
                     }
                 }
-                post = Post(name!!, title!!, score!!, author!!, subreddit!!, numComments!!, created!!, thumbnail, url, likes, permalink!!, selftext!!, isSelf!!, upvoteRatio, secureMedia, preview, media)
+                post = Post(
+                    name = name!!,
+                    saved = saved!!,
+                    title = title!!,
+                    score = score!!,
+                    author = author!!,
+                    subreddit = subreddit!!,
+                    numComments = numComments!!,
+                    created = created!!,
+                    thumbnail = thumbnail,
+                    url = url,
+                    likes = likes,
+                    permalink = permalink!!,
+                    selftext = selftext!!,
+                    isSelf = isSelf!!,
+                    upvoteRatio = upvoteRatio,
+                    secureMedia = secureMedia,
+                    preview = preview,
+                    media = media)
+
                 jsonReader.endObject() // end "data"
                 jsonReader.endObject() // end child
                 jsonReader.endArray()
@@ -318,7 +296,7 @@ class CommentAdapter {
     }
 
     @FromJson
-    fun getComments(jsonReader: JsonReader): List<CommentItem> {
+    fun getComments(jsonReader: JsonReader): List<ListingItem> {
         jsonReader.beginArray()
         jsonReader.skipValue() // skip Post details
         val comments = getComments(jsonReader, 0)
@@ -326,9 +304,9 @@ class CommentAdapter {
         return comments
     }
 
-    private fun getComments(jsonReader: JsonReader, depth: Int): List<CommentItem> {
+    private fun getComments(jsonReader: JsonReader, depth: Int): List<ListingItem> {
         jsonReader.beginObject()
-        val items = mutableListOf<CommentItem>()
+        val items = mutableListOf<ListingItem>()
 
         while (jsonReader.hasNext()) {
             if (jsonReader.nextName() == "data") {
@@ -351,16 +329,16 @@ class CommentAdapter {
                                             if(isMore)
                                                 items.add(getMoreInfo(jsonReader))
                                             else {
-                                                var id: String? = null
+                                                var name: String? = null
                                                 var authorFullName: String? = null
                                                 var author: String? = null
                                                 var body: String? = null
                                                 var score: Int? = null
                                                 var created: Long? = null
-                                                var replies: List<CommentItem>? = null
+                                                var replies: List<ListingItem>? = null
                                                 while (jsonReader.hasNext()) {
                                                     when (jsonReader.nextName()) {
-                                                        "id" -> id = jsonReader.nextString()
+                                                        "name" -> name = jsonReader.nextString()
                                                         "author" -> author = jsonReader.nextString()
                                                         "author_fullname" -> authorFullName = jsonReader.nextString()
                                                         "body" -> body = jsonReader.nextString()
@@ -374,7 +352,13 @@ class CommentAdapter {
                                                         else -> jsonReader.skipValue()
                                                     }
                                                 }
-                                                val comment = Comment(id!!, depth, author!!, authorFullName, body!!, score!!, created!!)
+                                                val comment = Comment(name = name!!,
+                                                    depth = depth,
+                                                    author = author!!,
+                                                    authorFullName = authorFullName,
+                                                    body = body!!,
+                                                    score = score!!,
+                                                    created = created!!)
                                                 items.add(comment)
                                                 replies?.let {
                                                     items.addAll(it)
@@ -401,7 +385,7 @@ class CommentAdapter {
     }
 
     private fun getMoreInfo(jsonReader: JsonReader): More{
-        var id: String? = null
+        var name: String? = null
         var depth: Int? = null
         var parentId: String? = null
         val children = LinkedList<String>()
@@ -409,7 +393,7 @@ class CommentAdapter {
 
         while(jsonReader.hasNext()){
             when(jsonReader.nextName()){
-                "id" -> id = jsonReader.nextString()
+                "name" -> name = jsonReader.nextString()
                 "count" -> count = jsonReader.nextInt()
                 "depth" -> depth = jsonReader.nextInt()
                 "parent_id" -> parentId = jsonReader.nextString()
@@ -422,7 +406,11 @@ class CommentAdapter {
             }
         }
 
-        return More(id!!, depth!!, parentId!!, children, count!!)
+        return More(name = name!!,
+            depth = depth!!,
+            parentId = parentId!!,
+            children = children,
+            count = count!!)
     }
 
     @FromJson

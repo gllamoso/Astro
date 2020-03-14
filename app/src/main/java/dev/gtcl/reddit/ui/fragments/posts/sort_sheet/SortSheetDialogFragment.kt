@@ -15,23 +15,23 @@ class SortSheetDialogFragment(private val selectedValue: PostSort, private val o
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val binding = FragmentDialogSortSheetBinding.inflate(inflater)
         binding.radioGroup.check(when(selectedValue){
-            PostSort.BEST -> binding.bestRadiobutton.id
-            PostSort.HOT -> binding.hotRadiobutton.id
-            PostSort.NEW -> binding.newRadiobutton.id
-            PostSort.TOP -> binding.topRadiobutton.id
-            PostSort.CONTROVERSIAL -> binding.controversialRadiobutton.id
-            PostSort.RISING -> binding.risingRadiobutton.id
+            PostSort.best -> binding.bestRadiobutton.id
+            PostSort.hot -> binding.hotRadiobutton.id
+            PostSort.new -> binding.newRadiobutton.id
+            PostSort.top -> binding.topRadiobutton.id
+            PostSort.controversial -> binding.controversialRadiobutton.id
+            PostSort.rising -> binding.risingRadiobutton.id
         })
 
         binding.radioGroup.setOnCheckedChangeListener { _, checkedId ->
             onItemSelected(when(checkedId){
-                binding.bestRadiobutton.id -> PostSort.BEST
-                binding.hotRadiobutton.id -> PostSort.HOT
-                binding.newRadiobutton.id -> PostSort.NEW
-                binding.topRadiobutton.id -> PostSort.TOP
-                binding.controversialRadiobutton.id -> PostSort.CONTROVERSIAL
-                binding.risingRadiobutton.id -> PostSort.RISING
-                else -> PostSort.HOT
+                binding.bestRadiobutton.id -> PostSort.best
+                binding.hotRadiobutton.id -> PostSort.hot
+                binding.newRadiobutton.id -> PostSort.new
+                binding.topRadiobutton.id -> PostSort.top
+                binding.controversialRadiobutton.id -> PostSort.controversial
+                binding.risingRadiobutton.id -> PostSort.rising
+                else -> PostSort.hot
             })
             dismiss()
         }

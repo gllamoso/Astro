@@ -6,7 +6,7 @@
     <data>
         <variable
             name="more"
-            type="dev.gtcl.reddit.comments.CommentItem" />
+            type="dev.gtcl.reddit.network.More" />
     </data>
 
     <LinearLayout

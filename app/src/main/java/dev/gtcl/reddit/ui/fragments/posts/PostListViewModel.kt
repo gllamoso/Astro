@@ -8,9 +8,9 @@ import dev.gtcl.reddit.Listing
 import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.Time
-import dev.gtcl.reddit.database.ReadPost
-import dev.gtcl.reddit.posts.ListingType
-import dev.gtcl.reddit.posts.Post
+import dev.gtcl.reddit.database.ReadListing
+import dev.gtcl.reddit.network.ListingItem
+import dev.gtcl.reddit.listings.ListingType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -39,14 +39,14 @@ class PostListViewModel(val application: RedditApplication): ViewModel() {
     val timeSelected: LiveData<Time>
         get() = _timeSelected
 
-    private val postListingsOfSubreddit = MutableLiveData<Listing<Post>>()
+    private val postListingsOfSubreddit = MutableLiveData<Listing<ListingItem>>()
     val posts = Transformations.switchMap(postListingsOfSubreddit) { it.pagedList }
     val networkState = Transformations.switchMap(postListingsOfSubreddit) { it.networkState }
     val refreshState = Transformations.switchMap(postListingsOfSubreddit) { it.refreshState }
 
-    fun addReadPost(readPost: ReadPost) {
+    fun addReadPost(readListing: ReadListing) {
         coroutineScope.launch {
-            postRepository.insertReadPostToDatabase(readPost)
+            postRepository.insertReadPostToDatabase(readListing)
         }
     }
 
@@ -57,7 +57,7 @@ class PostListViewModel(val application: RedditApplication): ViewModel() {
         listing?.retry?.invoke()
     }
 
-    fun fetchPosts(listingType: ListingType, sortBy: PostSort = PostSort.BEST, timePeriod: Time? = null){
+    fun fetchPosts(listingType: ListingType, sortBy: PostSort = PostSort.best, timePeriod: Time? = null){
         _listingSelected.value = listingType
         _sortSelected.value = sortBy
         _timeSelected.value = timePeriod
