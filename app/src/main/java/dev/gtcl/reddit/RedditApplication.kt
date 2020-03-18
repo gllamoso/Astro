@@ -37,5 +37,8 @@ class RedditApplication : Application() {
             field = value
             Log.d("TAE", "Access Token: ${value?.value}") // TODO: Remove
         }
+
     var currentUser: User? = null
+
+
 }

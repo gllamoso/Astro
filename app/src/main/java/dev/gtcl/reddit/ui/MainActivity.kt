@@ -5,11 +5,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.lifecycle.Observer
@@ -21,8 +22,6 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.asDomainModel
 import dev.gtcl.reddit.databinding.ActivityMainBinding
 import dev.gtcl.reddit.databinding.NavHeaderBinding
-import dev.gtcl.reddit.ui.fragments.posts.AdapterOnClickListeners
-import dev.gtcl.reddit.ui.fragments.posts.MainDrawerAdapter
 import dev.gtcl.reddit.ui.webview.WebviewActivity
 import dev.gtcl.reddit.users.User
 
@@ -34,7 +33,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var navController: NavController
 
     val model: MainActivityViewModel by lazy {
-        val viewModelFactory = MainActivityViewModelFactory(application as RedditApplication)
+        val viewModelFactory = ViewModelFactory(application as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(MainActivityViewModel::class.java)
     }
 
@@ -82,7 +81,7 @@ class MainActivity : AppCompatActivity() {
             MainDrawerAdapter(
                 this,
                 object :
-                    AdapterOnClickListeners {
+                    DrawerOnClickListeners {
                     override fun onAddAccountClicked() {
                         startSignInActivity()
                     }
@@ -98,6 +97,22 @@ class MainActivity : AppCompatActivity() {
 
                     override fun onLogoutClicked() {
                         model.setCurrentUser(null, true)
+                        drawerLayout.closeDrawer(Gravity.START)
+                    }
+
+                    override fun onPostsClicked() {
+                        Toast.makeText(baseContext, "Posts", Toast.LENGTH_LONG).show()
+                        drawerLayout.closeDrawer(Gravity.START)
+                    }
+
+                    override fun onMyAccountClicked() {
+                        val bundle = bundleOf("user" to model.currentUser.value?.name)
+                        navController.navigate(R.id.userFragment, bundle)
+                        drawerLayout.closeDrawer(Gravity.START)
+                    }
+
+                    override fun onSettingsClicked() {
+                        Toast.makeText(baseContext, "Settings", Toast.LENGTH_LONG).show()
                         drawerLayout.closeDrawer(Gravity.START)
                     }
 

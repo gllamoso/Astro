@@ -5,6 +5,10 @@ import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterF
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
+import dev.gtcl.reddit.CommentSort
+import dev.gtcl.reddit.PostSort
+import dev.gtcl.reddit.Time
+import dev.gtcl.reddit.ProfileInfo
 import dev.gtcl.reddit.users.AccessToken
 import dev.gtcl.reddit.comments.CommentAdapter
 import dev.gtcl.reddit.comments.Child
@@ -51,18 +55,18 @@ interface RedditApiService {
     @GET("/{sort}/.json")
     fun getPostFromFrontPage(
         @Header("Authorization") authorization: String?,
-        @Path("sort") sort: String,
-        @Query("t") t: String?,
+        @Path("sort") sort: PostSort,
+        @Query("t") t: Time?,
         @Query("after") after: String? = null,
         @Query("limit") limit: Int): Deferred<ListingResponse>
 
     @GET("/user/{user}/m/{multi}/{sort}.json")
-    fun getPostFromMutliReddit(
+    fun getPostFromMultiReddit(
         @Header("Authorization") authorization: String?,
         @Path("user") user: String,
         @Path("multi") multi: String,
-        @Path("sort") sort: String,
-        @Query("t") t: String?,
+        @Path("sort") sort: PostSort,
+        @Query("t") t: Time?,
         @Query("after") after: String? = null,
         @Query("limit") limit: Int
     ): Deferred<ListingResponse>
@@ -70,21 +74,29 @@ interface RedditApiService {
     /**
      * categories: posts, saved, hidden, upvoted, downvoted, awards received, awards given
      */
-    @GET("/user/{user}/{category}/.json")
+    @GET("/user/{user}/{where}/.json")
     fun getPostsFromUser(
         @Header("Authorization") authorization: String?,
         @Path("user") user: String,
-        @Path("category") category: String,
+        @Path("where") where: ProfileInfo,
         @Query("after") after: String? = null,
         @Query("limit") limit: Int
-    ): Deferred<ListingResponse> // TODO: Handle comments from listing
+    ): Deferred<ListingResponse>
+
+    @GET("/user/{user}/.json")
+    fun getUserOverview(
+        @Header("Authorization") authorization: String?,
+        @Path("user") user: String,
+        @Query("after") after: String? = null,
+        @Query("limit") limit: Int
+    ): Deferred<ListingResponse>
 
     @GET("/r/{subreddit}/{sort}.json")
     fun getPostsFromSubreddit(
         @Header("Authorization") authorization: String?,
         @Path("subreddit") subreddit: String,
-        @Path("sort") sort: String,
-        @Query("t") t: String?,
+        @Path("sort") sort: PostSort,
+        @Query("t") t: Time?,
         @Query("after") after: String? = null,
         @Query("limit") limit: Int): Deferred<ListingResponse>
 
@@ -122,7 +134,7 @@ interface RedditApiService {
     fun getPostAndComments(
         @Header("Authorization") authorization: String? = null,
         @Url permalink: String,
-        @Query("sort") sort: String,
+        @Query("sort") sort: CommentSort,
         @Query("limit") limit: Int
     ): Deferred<CommentPage>
 
@@ -130,7 +142,7 @@ interface RedditApiService {
     fun getComments(
         @Header("Authorization") authorization: String? = null,
         @Url permalink: String,
-        @Query("sort") sort: String
+        @Query("sort") sort: CommentSort
     ): Deferred<List<ListingItem>>
 
     @GET("/api/morechildren/")
@@ -140,7 +152,7 @@ interface RedditApiService {
         @Query("link_id") linkId: String,
         @Query("api_type") apiType: String = "json",
         @Query("limit_children") limitChildren: Boolean = false,
-        @Query("sort") sort: String
+        @Query("sort") sort: CommentSort
     ): Deferred<List<Child>>
 
 
@@ -174,6 +186,7 @@ interface RedditApiService {
             return Retrofit.Builder()
                 .baseUrl(httpUrl)
                 .client(client)
+                .addConverterFactory(EnumConverterFactory())
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .build()

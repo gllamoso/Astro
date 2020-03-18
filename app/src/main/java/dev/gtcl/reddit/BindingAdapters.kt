@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Point
 import android.graphics.Typeface
+import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.WindowManager
@@ -21,10 +22,10 @@ import dev.gtcl.reddit.network.Comment
 import dev.gtcl.reddit.network.ListingItem
 import dev.gtcl.reddit.network.More
 import dev.gtcl.reddit.listings.*
-import dev.gtcl.reddit.ui.fragments.posts.PostListAdapter
+import dev.gtcl.reddit.ui.fragments.posts.listing.ListingAdapter
 
-@BindingAdapter("imageUrl")
-fun bindImage(imgView: ImageView, imgUrl: String?){
+@BindingAdapter("imageUrlAndHideIfNull")
+fun bindImageAndHideIfNull(imgView: ImageView, imgUrl: String?){
     imgUrl?.let {
         if(it.startsWith("http")){
             imgView.visibility = View.VISIBLE
@@ -41,15 +42,32 @@ fun bindImage(imgView: ImageView, imgUrl: String?){
     }
 }
 
+@BindingAdapter("imageUrl")
+fun bindImage(imgView: ImageView, imgUrl: String?){
+    imgUrl?.let {
+        if(it.startsWith("http")){
+            imgView.visibility = View.VISIBLE
+            val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
+            Glide.with(imgView.context)
+                .load(imgUri)
+                .apply(
+                    RequestOptions()
+                        .placeholder(R.drawable.anim_loading)
+                        .error(R.drawable.ic_broken_image))
+                .into(imgView)
+        }
+    }
+}
+
 @BindingAdapter("listingType")
 fun loadMultiIcon(imgView: ImageView, listingType: ListingType){
     when(listingType){
         FrontPage -> imgView.setImageResource(R.drawable.ic_front_page_24dp)
         All -> imgView.setImageResource(R.drawable.ic_all_24dp)
         Popular -> imgView.setImageResource(R.drawable.ic_trending_up_24dp)
-        Saved -> imgView.setImageResource(R.drawable.ic_bookmark_24dp)
         is MultiReddit -> imgView.setImageResource(R.drawable.ic_collection_24dp)
         is SubredditListing -> loadSubIcon(imgView, listingType.sub.iconImg)
+        else -> imgView.setImageResource(R.drawable.ic_bookmark_24dp)
     }
 }
 
@@ -76,9 +94,18 @@ fun loadListingText(txtView: TextView, listingType: ListingType?){
             FrontPage -> txtView.context.getText(R.string.frontpage)
             All -> txtView.context.getText(R.string.all)
             Popular -> txtView.context.getText(R.string.popular_tab_label)
-            Saved -> txtView.context.getText(R.string.saved)
             is MultiReddit -> it.name
             is SubredditListing -> it.sub.displayName
+            is ProfileListing -> when(it.info){
+                ProfileInfo.OVERVIEW -> txtView.context.getText(R.string.overview)
+                ProfileInfo.SUBMITTED -> txtView.context.getText(R.string.submitted)
+                ProfileInfo.COMMENTS -> txtView.context.getText(R.string.comments)
+                ProfileInfo.UPVOTED -> txtView.context.getText(R.string.upvoted)
+                ProfileInfo.DOWNVOTED -> txtView.context.getText(R.string.downvoted)
+                ProfileInfo.HIDDEN -> txtView.context.getText(R.string.hidden)
+                ProfileInfo.SAVED -> txtView.context.getText(R.string.saved)
+                ProfileInfo.GILDED -> txtView.context.getText(R.string.gilded)
+            }
         }
     }
 }
@@ -91,7 +118,7 @@ fun setVisibility(view: View, constraint: Boolean) {
 @BindingAdapter("posts")
 fun setPosts(recyclerView: RecyclerView, posts: PagedList<ListingItem>?){
     recyclerView.adapter?.let {
-        (it as PostListAdapter).submitList(posts)
+        (it as ListingAdapter).submitList(posts)
     }
 }
 

@@ -11,12 +11,12 @@ class CommentRepository internal constructor(application: Application) {
     private val database = redditDatabase(application)
 
     @MainThread
-    fun getPostAndComments(permalink: String, sort: CommentSort = CommentSort.best, limit: Int = 15): Deferred<CommentPage> =
-        RedditApi.base.getPostAndComments(permalink = "$permalink.json", sort = sort.name, limit = limit)
+    fun getPostAndComments(permalink: String, sort: CommentSort = CommentSort.BEST, limit: Int = 15): Deferred<CommentPage> =
+        RedditApi.base.getPostAndComments(permalink = "$permalink.json", sort = sort, limit = limit)
 
     @MainThread
-    fun getMoreComments(children: String, linkId: String, sort: CommentSort = CommentSort.best): Deferred<List<Child>> =
-        RedditApi.base.getMoreComments(children = children, linkId = linkId, sort = sort.name)
+    fun getMoreComments(children: String, linkId: String, sort: CommentSort = CommentSort.BEST): Deferred<List<Child>> =
+        RedditApi.base.getMoreComments(children = children, linkId = linkId, sort = sort)
 
 }
 

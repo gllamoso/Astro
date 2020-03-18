@@ -10,46 +10,51 @@
             type="dev.gtcl.reddit.users.User" />
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:orientation="vertical"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/colorPrimaryDark">
+        android:background="@color/colorPrimary">
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:weightSum="1"
+        <ImageView
+            android:id="@+id/background"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="10dp">
+            android:layout_height="200dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:scaleType="centerCrop"
+            app:imageUrlAndHideIfNull="@{user.validBannerImg}"/>
 
-            <ImageView
-                android:id="@+id/avatar"
-                android:src="@drawable/ic_user_24dp"
-                android:layout_width="70dp"
-                android:layout_height="70dp"
-                app:imageUrl="@{user.iconImg}"
-                app:setVisibility="@{user != null}"/>
-
-        </LinearLayout>
+        <ImageView
+            android:id="@+id/avatar"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginStart="16dp"
+            android:layout_marginTop="16dp"
+            android:elevation="10dp"
+            app:layout_constraintVertical_bias="100"
+            android:src="@drawable/ic_user_24dp"
+            app:imageUrlAndHideIfNull="@{user.validProfileImg}"
+            app:layout_constraintBottom_toTopOf="@id/name"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:setVisibility="@{user != null}" />
 
         <TextView
             android:id="@+id/name"
-            android:layout_weight="1"
-            android:paddingLeft="10dp"
-            android:paddingStart="10dp"
-            android:paddingRight="10dp"
-            android:paddingEnd="10dp"
-            android:layout_marginBottom="10dp"
-            android:gravity="start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
             android:text="@{String.valueOf(user != null ? user.name : @string/not_logged_in)}"
             android:textColor="@android:color/white"
             android:textSize="16sp"
-            android:layout_width="wrap_content"
-            android:layout_height="0dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginStart="16dp"
+            android:layout_marginBottom="16dp"
+            android:elevation="10dp"
             tools:text="User Name"
             />
 
-    </LinearLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

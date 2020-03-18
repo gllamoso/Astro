@@ -10,35 +10,74 @@ import com.google.android.exoplayer2.source.dash.DashMediaSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
+import com.google.gson.annotations.SerializedName
 import dev.gtcl.reddit.network.RedditApi
 import java.util.*
 
 enum class PostSort{
-    best,
-    hot,
-    new,
-    top,
-    controversial,
-    rising
+    @SerializedName("best")
+    BEST,
+    @SerializedName("hot")
+    HOT,
+    @SerializedName("new")
+    NEW,
+    @SerializedName("top")
+    TOP,
+    @SerializedName("controversial")
+    CONTROVERSIAL,
+    @SerializedName("rising")
+    RISING
 }
 
 enum class CommentSort{
-    best,
-    top,
-    new,
-    controversial,
-    old,
-    random,
-    qa
+    @SerializedName("best")
+    BEST,
+    @SerializedName("top")
+    TOP,
+    @SerializedName("new")
+    NEW,
+    @SerializedName("controversial")
+    CONTROVERSIAL,
+    @SerializedName("old")
+    OLD,
+    @SerializedName("random")
+    RANDOM,
+    @SerializedName("qa")
+    QA
 }
 
 enum class Time{
-    hour,
-    day,
-    week,
-    month,
-    year,
-    all
+    @SerializedName("hour")
+    HOUR,
+    @SerializedName("day")
+    DAY,
+    @SerializedName("week")
+    WEEK,
+    @SerializedName("month")
+    MONTH,
+    @SerializedName("year")
+    YEAR,
+    @SerializedName("all")
+    ALL
+}
+
+enum class ProfileInfo {
+    @SerializedName("overview")
+    OVERVIEW,
+    @SerializedName("submitted")
+    SUBMITTED,
+    @SerializedName("comments")
+    COMMENTS,
+    @SerializedName("upvoted")
+    UPVOTED,
+    @SerializedName("downvoted")
+    DOWNVOTED,
+    @SerializedName("hidden")
+    HIDDEN,
+    @SerializedName("saved")
+    SAVED,
+    @SerializedName("gilded")
+    GILDED
 }
 
 val STATE by lazy {

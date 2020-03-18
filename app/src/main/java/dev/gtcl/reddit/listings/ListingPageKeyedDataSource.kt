@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.paging.PageKeyedDataSource
 import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.Time
+import dev.gtcl.reddit.ProfileInfo
 import dev.gtcl.reddit.network.*
 import dev.gtcl.reddit.users.AccessToken
 import dev.gtcl.reddit.users.User
@@ -53,17 +54,17 @@ class ListingPageKeyedDataSource(private val accessToken: AccessToken?, private 
             _networkState.postValue(NetworkState.LOADING)
             _initialLoad.postValue(NetworkState.LOADING)
             val request = when(listingType){
-                FrontPage -> if(accessToken != null) RedditApi.oauth.getPostFromFrontPage("bearer " + accessToken.value, sort.name, t?.name, limit = params.requestedLoadSize)
-                    else RedditApi.base.getPostFromFrontPage(null, sort.name, t?.name, limit = params.requestedLoadSize)
-                All -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit(authorization = "bearer " + accessToken.value, subreddit = "all", sort = sort.name, t = t?.name, limit = params.requestedLoadSize)
-                    else RedditApi.base.getPostsFromSubreddit(null, subreddit = "all", sort = sort.name, t = t?.name, limit = params.requestedLoadSize)
-                Popular -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit(authorization = "bearer " + accessToken.value, subreddit = "popular", sort = sort.name, t = t?.name, limit = params.requestedLoadSize)
-                    else RedditApi.base.getPostsFromSubreddit(null, subreddit = "popular", sort = sort.name, t = t?.name, limit = params.requestedLoadSize)
-                Saved -> if(accessToken != null && user != null) RedditApi.oauth.getPostsFromUser("bearer "  + accessToken.value, user.name, "saved", null, params.requestedLoadSize)
-                    else throw Exception("Please login to access")
+                FrontPage -> if(accessToken != null) RedditApi.oauth.getPostFromFrontPage("bearer " + accessToken.value, sort, t, limit = params.requestedLoadSize)
+                    else RedditApi.base.getPostFromFrontPage(null, sort, t, limit = params.requestedLoadSize)
+                All -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit(authorization = "bearer " + accessToken.value, subreddit = "all", sort = sort, t = t, limit = params.requestedLoadSize)
+                    else RedditApi.base.getPostsFromSubreddit(null, subreddit = "all", sort = sort, t = t, limit = params.requestedLoadSize)
+                Popular -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit(authorization = "bearer " + accessToken.value, subreddit = "popular", sort = sort, t = t, limit = params.requestedLoadSize)
+                    else RedditApi.base.getPostsFromSubreddit(null, subreddit = "popular", sort = sort, t = t, limit = params.requestedLoadSize)
                 is MultiReddit -> TODO()
-                is SubredditListing -> if (accessToken != null) RedditApi.oauth.getPostsFromSubreddit(authorization = "bearer " + accessToken.value, subreddit = listingType.sub.displayName, sort = sort.name, t = t?.name, limit = params.requestedLoadSize)
-                    else RedditApi.base.getPostsFromSubreddit(null, subreddit = listingType.sub.displayName, sort = sort.name, t = t?.name, limit = params.requestedLoadSize)
+                is SubredditListing -> if (accessToken != null) RedditApi.oauth.getPostsFromSubreddit(authorization = "bearer " + accessToken.value, subreddit = listingType.sub.displayName, sort = sort, t = t, limit = params.requestedLoadSize)
+                    else RedditApi.base.getPostsFromSubreddit(null, subreddit = listingType.sub.displayName, sort = sort, t = t, limit = params.requestedLoadSize)
+                is ProfileListing -> if(accessToken != null && user != null) RedditApi.oauth.getPostsFromUser("bearer "  + accessToken.value, user.name, listingType.info, null, params.requestedLoadSize)
+                    else RedditApi.base.getPostsFromUser(null, user!!.name, listingType.info, null, params.requestedLoadSize)
             }
 
             // triggered by a refresh, we better execute sync
@@ -94,17 +95,17 @@ class ListingPageKeyedDataSource(private val accessToken: AccessToken?, private 
         dataSourceScope.launch {
             _networkState.postValue(NetworkState.LOADING)
             val resultsFromRepo = when(listingType){
-                FrontPage -> if(accessToken != null ) RedditApi.oauth.getPostFromFrontPage("bearer " + accessToken.value, sort.name, t?.name, params.key, params.requestedLoadSize)
-                    else RedditApi.base.getPostFromFrontPage(null, sort.name, t?.name, params.key, params.requestedLoadSize)
-                All -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit(authorization = "bearer " + accessToken.value, subreddit = "all", sort = sort.name, t = t?.name, after = params.key, limit = params.requestedLoadSize)
-                    else RedditApi.base.getPostsFromSubreddit(null, subreddit = "all", sort = sort.name, t = t?.name, after = params.key, limit = params.requestedLoadSize)
-                Popular -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit(authorization = "bearer " + accessToken.value, subreddit = "popular", sort = sort.name, t = t?.name, after = params.key, limit = params.requestedLoadSize)
-                    else RedditApi.base.getPostsFromSubreddit(null, subreddit = "popular", sort = sort.name, t = t?.name, after = params.key, limit = params.requestedLoadSize)
-                Saved -> if(accessToken != null && user != null) RedditApi.oauth.getPostsFromUser("bearer "  + accessToken.value, user.name, "saved", params.key, params.requestedLoadSize)
-                    else throw Exception("Please login to access")
+                FrontPage -> if(accessToken != null ) RedditApi.oauth.getPostFromFrontPage("bearer " + accessToken.value, sort, t, params.key, params.requestedLoadSize)
+                    else RedditApi.base.getPostFromFrontPage(null, sort, t, params.key, params.requestedLoadSize)
+                All -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit(authorization = "bearer " + accessToken.value, subreddit = "all", sort = sort, t = t, after = params.key, limit = params.requestedLoadSize)
+                    else RedditApi.base.getPostsFromSubreddit(null, subreddit = "all", sort = sort, t = t, after = params.key, limit = params.requestedLoadSize)
+                Popular -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit(authorization = "bearer " + accessToken.value, subreddit = "popular", sort = sort, t = t, after = params.key, limit = params.requestedLoadSize)
+                    else RedditApi.base.getPostsFromSubreddit(null, subreddit = "popular", sort = sort, t = t, after = params.key, limit = params.requestedLoadSize)
                 is MultiReddit -> TODO()
-                is SubredditListing -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit(authorization = "bearer" + accessToken.value, subreddit = listingType.sub.displayName, sort = sort.name, t = t?.name, after = params.key, limit = params.requestedLoadSize)
-                    else RedditApi.base.getPostsFromSubreddit(null, subreddit = listingType.sub.displayName, sort = sort.name, t = t?.name, after = params.key, limit = params.requestedLoadSize)
+                is SubredditListing -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit(authorization = "bearer" + accessToken.value, subreddit = listingType.sub.displayName, sort = sort, t = t, after = params.key, limit = params.requestedLoadSize)
+                    else RedditApi.base.getPostsFromSubreddit(null, subreddit = listingType.sub.displayName, sort = sort, t = t, after = params.key, limit = params.requestedLoadSize)
+                is ProfileListing -> if(accessToken != null && user != null) RedditApi.oauth.getPostsFromUser("bearer "  + accessToken.value, user.name, listingType.info, params.key, params.requestedLoadSize)
+                    else RedditApi.base.getPostsFromUser(null, user!!.name, listingType.info, params.key, params.requestedLoadSize)
             }
             try {
                 val data = resultsFromRepo.await().data

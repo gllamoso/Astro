@@ -74,7 +74,7 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
     fun fetchUserFromUri(uri: Uri){
         if (uri.getQueryParameter("error") != null) {
             val error = uri.getQueryParameter("error")
-            Log.d("TAE", "An error has occurred : $error") // TODO: Handle error
+            Log.d("TAE", "An error has occurred : $error") // TODO: Handle error: Have String live data error
         } else {
             val state = uri.getQueryParameter("state")
             if(state == STATE) {
@@ -103,7 +103,7 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
                 code = code,
                 redirectUri = application.getString(R.string.redirect_uri)).await()
             application.accessToken = result
-            val user = userRepository.getUserInfo(result.value).await()
+            val user = userRepository.getUserInfo().await()
             result.refreshToken?.let{
                 user.refreshToken = it
                 userRepository.insertUserToDatabase(user)

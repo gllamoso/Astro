@@ -29,7 +29,7 @@ data class MoreComments(
 
 data class CommentUrl(
     val url: String,
-    var sort: CommentSort = CommentSort.best): Parcelable {
+    var sort: CommentSort = CommentSort.BEST): Parcelable {
     constructor(parcel: Parcel) : this(
         parcel.readString()!!,
         CommentSort.valueOf(parcel.readString()!!)

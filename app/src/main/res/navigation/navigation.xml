@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="dev.gtcl.reddit.ui.fragments.MainFragment"
+        android:name="dev.gtcl.reddit.ui.fragments.posts.MainFragment"
         android:label="MainFragment" >
         <action
             android:id="@+id/action_mainFragment_to_commentsFragment"
@@ -15,10 +15,18 @@
     </fragment>
     <fragment
         android:id="@+id/commentsFragment"
-        android:name="dev.gtcl.reddit.ui.fragments.comments.CommentsFragment"
+        android:name="dev.gtcl.reddit.ui.fragments.posts.comments.CommentsFragment"
         android:label="CommentsFragment" >
         <argument
             android:name="commentUrl"
             app:argType="dev.gtcl.reddit.comments.CommentUrl"/>
+    </fragment>
+    <fragment
+        android:id="@+id/userFragment"
+        android:name="dev.gtcl.reddit.ui.fragments.account.UserFragment"
+        android:label="UserFragment" >
+        <argument
+            android:name="user"
+            app:argType="string"/>
     </fragment>
 </navigation>

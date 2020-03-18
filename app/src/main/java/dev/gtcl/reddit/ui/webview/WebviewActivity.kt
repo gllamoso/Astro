@@ -12,13 +12,15 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.R
+import dev.gtcl.reddit.RedditApplication
+import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.ActivityWebviewBinding
 import dev.gtcl.reddit.ui.URL_KEY
 
 class WebviewActivity : AppCompatActivity(){
 
     val model: WebviewActivityViewModel by lazy {
-        val viewModelFactory = WebviewActivityViewModelFactory()
+        val viewModelFactory = ViewModelFactory(application as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(WebviewActivityViewModel::class.java)
     }
 
@@ -42,18 +44,8 @@ class WebviewActivity : AppCompatActivity(){
 
     @Suppress("DEPRECATION")
     private fun clearCookies(){
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP_MR1) {
-            CookieManager.getInstance().removeAllCookies(null)
-            CookieManager.getInstance().flush()
-        } else {
-            val cookieSyncMngr = CookieSyncManager.createInstance(this)
-            cookieSyncMngr.startSync()
-            val cookieManager = CookieManager.getInstance()
-            cookieManager.removeAllCookie()
-            cookieManager.removeSessionCookie()
-            cookieSyncMngr.stopSync()
-            cookieSyncMngr.sync()
-        }
+        CookieManager.getInstance().removeAllCookies(null)
+        CookieManager.getInstance().flush()
     }
 
     private class NewAccountWebViewClient(val redirectUri: String, private val onRedirectUrlFound: (String) -> Unit) : WebViewClient() {

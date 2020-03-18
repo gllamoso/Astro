@@ -80,7 +80,7 @@
                 android:id="@+id/thumbnail"
                 android:layout_width="72dp"
                 android:layout_height="72dp"
-                app:imageUrl="@{post.thumbnail}"
+                app:imageUrlAndHideIfNull="@{post.thumbnail}"
                 app:srcCompat="@android:drawable/ic_menu_gallery"
                 android:background="?android:attr/selectableItemBackground"/>
 

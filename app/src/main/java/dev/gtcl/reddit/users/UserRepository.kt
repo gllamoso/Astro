@@ -27,8 +27,8 @@ class UserRepository internal constructor(val application: RedditApplication) {
         )
 
     @MainThread
-    fun getUserInfo(authorization: String): Deferred<User> =
-        RedditApi.oauth.getCurrentUserInfo("bearer $authorization")
+    fun getUserInfo(): Deferred<User> =
+        RedditApi.oauth.getCurrentUserInfo("bearer ${application.accessToken!!.value}")
 
     // --- DATABASE
 
