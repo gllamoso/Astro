@@ -31,5 +31,6 @@ fun User.asDatabaseModel() = DatabaseUser(
     name = this.name,
     iconImg = this.iconImg,
     linkKarma = this.linkKarma,
+    bannerImg = this.subreddit?.bannerImg,
     refreshToken = this.refreshToken
 )

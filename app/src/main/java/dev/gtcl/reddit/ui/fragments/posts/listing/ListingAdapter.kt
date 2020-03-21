@@ -10,12 +10,11 @@ import dev.gtcl.reddit.network.Comment
 import dev.gtcl.reddit.network.ListingItem
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.network.Post
-import dev.gtcl.reddit.ui.fragments.posts.comments.CommentsAdapter
+import dev.gtcl.reddit.ui.ViewPagerActions
+import dev.gtcl.reddit.ui.fragments.comments.CommentsAdapter
 import java.io.InvalidObjectException
 
-class ListingAdapter(private val retryCallback: () -> Unit, private val postClickListener: PostViewClickListener): PagedListAdapter<ListingItem, RecyclerView.ViewHolder>(
-    LISTING_COMPARATOR
-){
+class ListingAdapter(private val retryCallback: () -> Unit, private val actions: ViewPagerActions): PagedListAdapter<ListingItem, RecyclerView.ViewHolder>(LISTING_COMPARATOR){
 
     private var networkState: NetworkState? = null
     private var allReadSubs: HashSet<String> = HashSet()
@@ -28,11 +27,11 @@ class ListingAdapter(private val retryCallback: () -> Unit, private val postClic
         when (getItemViewType(position)) {
             R.layout.item_post -> {
                 val post = getItem(position) as Post
-                (holder as PostViewHolder).bind(post, postClickListener, allReadSubs.contains(post.name), position)
+                (holder as PostViewHolder).bind(post, {actions.viewComments(it)}, {actions.viewThumbnail(it)}, allReadSubs.contains(post.name))
             }
             R.layout.item_comment -> {
                 val comment = getItem(position) as Comment
-                (holder as CommentsAdapter.CommentViewHolder).bind(comment) {} // TODO
+                (holder as CommentsAdapter.CommentViewHolder).bind(comment) { _, c -> actions.viewComments(c) }
             }
             R.layout.item_network_state -> (holder as NetworkStateItemViewHolder).bindTo(networkState)
         }
@@ -41,12 +40,11 @@ class ListingAdapter(private val retryCallback: () -> Unit, private val postClic
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
         if (payloads.isNotEmpty()) {
             when(val item = getItem(position)){
-                is Post -> (holder as PostViewHolder).bind(item, postClickListener, if(payloads[0] == true) true else allReadSubs.contains(item.name), position)
-                is Comment -> (holder as CommentsAdapter.CommentViewHolder).bind(item) {} // TODO
+                is Post -> (holder as PostViewHolder).bind(item, {actions.viewComments(it)}, {actions.viewThumbnail(it)}, if(payloads[0] == true) true else allReadSubs.contains(item.name))
+                is Comment -> (holder as CommentsAdapter.CommentViewHolder).bind(item) { _, comment -> actions.viewComments(comment) }
             }
-        } else {
-            onBindViewHolder(holder, position)
         }
+        else onBindViewHolder(holder, position)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -58,7 +56,7 @@ class ListingAdapter(private val retryCallback: () -> Unit, private val postClic
         }
     }
 
-//  If network hasn't been loaded yet
+//  If network hasn't loaded yet
     private fun hasExtraRow() = networkState != null && networkState != NetworkState.LOADED
 
     override fun getItemViewType(position: Int): Int {
@@ -66,7 +64,7 @@ class ListingAdapter(private val retryCallback: () -> Unit, private val postClic
         return when (val item = getItem(position)) {
             is Post -> R.layout.item_post
             is Comment -> R.layout.item_comment
-            else -> throw InvalidObjectException("Expected items to be a Post or Comment. Found ${item?.javaClass?.simpleName} in position $position" )
+            else -> throw InvalidObjectException("Unexpected item found: ${item?.javaClass?.simpleName} in position $position" )
         }
     }
 

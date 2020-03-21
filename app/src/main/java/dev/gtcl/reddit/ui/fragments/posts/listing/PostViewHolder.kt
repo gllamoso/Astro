@@ -61,17 +61,19 @@ import dev.gtcl.reddit.network.Post
 
 class PostViewHolder private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
-    fun bind(post: Post?, postClickListener: PostViewClickListener, isRead: Boolean, position: Int){
+    fun bind(post: Post?, postClick: (Post) -> Unit, thumbnailClick: (String) -> Unit, isRead: Boolean){
         binding.post = post
         binding.executePendingBindings()
         setIfRead(isRead)
         binding.root.setOnClickListener {
             setIfRead(true)
-            postClickListener.onPostClicked(post, position)
+//            postClickListener.onPostClicked(post, position)
+            postClick(post!!)
         }
 
         binding.thumbnail.setOnClickListener{
-            postClickListener.onThumbnailClicked(post!!)
+//            postClickListener.onThumbnailClicked(post!!)
+            thumbnailClick(post!!.thumbnail!!)
         }
 
         binding.moreOptions.adapter = PostOptionsAdapter(binding.root.context)

@@ -24,6 +24,11 @@ import dev.gtcl.reddit.ui.fragments.posts.listing.time_period_sheet.TimePeriodSh
 
 class ListingFragment : Fragment() {
 
+    private lateinit var viewPagerActions: ViewPagerActions
+    fun setViewPagerActions(viewPagerActions: ViewPagerActions){
+        this.viewPagerActions = viewPagerActions
+    }
+
     private lateinit var binding: FragmentPostListBinding
 
     private val parentModel: MainActivityViewModel by lazy {
@@ -63,37 +68,32 @@ class ListingFragment : Fragment() {
         setBottomAppbarClickListeners()
     }
 
-    private lateinit var postClickListener: (Post) -> (Unit)
-
-    fun setPostSelectionListener(postClickListener: (Post) -> (Unit)){
-        this.postClickListener = postClickListener
-    }
-
-    private val postViewClickListener = object : PostViewClickListener {
-        override fun onPostClicked(post: Post?, position: Int) {
-            post?.let {
-                model.addReadPost(it.asReadListing())
-                postClickListener(it)
-            }
-        }
-
-        override fun onThumbnailClicked(post: Post) {
-            val dialogFragment = ImageVideoViewerDialogFragment()
-            dialogFragment.setPost(post)
-            dialogFragment.show(parentFragmentManager, "test")
-        }
-
-    }
+//    private val postViewClickListener = object :
+//        ListingItemClickListener {
+//        override fun onPostClicked(post: Post?, position: Int) {
+//            post?.let {
+//                model.addReadPost(it.asReadListing())
+//                postClickListener(it)
+//            }
+//        }
+//
+//        override fun onThumbnailClicked(post: Post) {
+//            val dialogFragment = ImageVideoViewerDialogFragment()
+//            dialogFragment.setPost(post)
+//            dialogFragment.show(parentFragmentManager, "test")
+//        }
+//
+//    }
 
     private fun setRecyclerView() {
-        val adapter = ListingAdapter({model.retry()}, postViewClickListener)
+        val adapter = ListingAdapter({model.retry()}, viewPagerActions)
 
         binding.list.adapter = adapter
         model.networkState.observe(viewLifecycleOwner, Observer {
             adapter.setNetworkState(it)
         })
 
-        model.allReadPosts.observe(viewLifecycleOwner, Observer {
+        parentModel.allReadPosts.observe(viewLifecycleOwner, Observer {
             adapter.setReadSubs(it)
         })
     }

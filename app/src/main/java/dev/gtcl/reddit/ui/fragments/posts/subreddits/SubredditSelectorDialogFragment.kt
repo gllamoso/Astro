@@ -15,7 +15,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.FragmentDialogSubredditsBinding
-import dev.gtcl.reddit.ui.fragments.posts.MainFragment
+import dev.gtcl.reddit.ui.fragments.posts.ListingViewPagerFragment
 import kotlin.NoSuchElementException
 
 class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
@@ -56,7 +56,7 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        (requireParentFragment() as MainFragment).model.clearSearchResults()
+        (requireParentFragment() as ListingViewPagerFragment).model.clearSearchResults()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -98,7 +98,7 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
                 workRunnable = Runnable {
                     if(!s.isNullOrBlank()){
                         binding.viewPager.currentItem = 3
-                        (requireParentFragment() as MainFragment).model.searchForSubs(s.toString(), "on")
+                        (requireParentFragment() as ListingViewPagerFragment).model.searchForSubs(s.toString(), "on")
                     }
                 }
                handler.postDelayed(workRunnable!!, DELAY)

@@ -4,6 +4,7 @@
       <w>coroutine</w>
       <w>coroutines</w>
       <w>downvote</w>
+      <w>downvoted</w>
       <w>gtcl</w>
       <w>moshi</w>
       <w>recyclerview</w>
@@ -13,6 +14,7 @@
       <w>subreddit</w>
       <w>subreddits</w>
       <w>upvote</w>
+      <w>upvoted</w>
       <w>webview</w>
     </words>
   </dictionary>

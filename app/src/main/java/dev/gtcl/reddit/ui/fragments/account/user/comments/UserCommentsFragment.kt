@@ -1,0 +1,41 @@
+package dev.gtcl.reddit.ui.fragments.account.user.comments
+
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
+import dev.gtcl.reddit.databinding.FragmentSimpleRecyclerViewBinding
+import dev.gtcl.reddit.network.Post
+import dev.gtcl.reddit.ui.ViewPagerActions
+import dev.gtcl.reddit.ui.fragments.account.user.UserFragment
+import dev.gtcl.reddit.ui.fragments.posts.listing.ListingAdapter
+
+class UserCommentsFragment : Fragment() {
+    private lateinit var binding: FragmentSimpleRecyclerViewBinding
+
+    private lateinit var viewPagerActions: ViewPagerActions
+    fun setViewPagerActions(viewPagerActions: ViewPagerActions){
+        this.viewPagerActions = viewPagerActions
+    }
+
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentSimpleRecyclerViewBinding.inflate(inflater)
+        setRecyclerViewAdapter()
+        return binding.root
+    }
+
+    private fun setRecyclerViewAdapter(){
+        val model = (requireParentFragment() as UserFragment).model
+
+        val adapter = ListingAdapter({ model.retryCommentsListing() }, viewPagerActions)
+        binding.list.adapter = adapter
+
+        model.commentsPosts.observe(viewLifecycleOwner, Observer {
+            adapter.submitList(it)
+        })
+
+    }
+}

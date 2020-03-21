@@ -25,8 +25,6 @@ class ListingViewModel(val application: RedditApplication): ViewModel() {
     private var viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    val allReadPosts = postRepository.getReadPostsFromDatabase()
-
     private val _sortSelected = MutableLiveData<PostSort>()
     val sortSelected: LiveData<PostSort>
         get() = _sortSelected
@@ -43,12 +41,6 @@ class ListingViewModel(val application: RedditApplication): ViewModel() {
     val posts = Transformations.switchMap(postListingsOfSubreddit) { it.pagedList }
     val networkState = Transformations.switchMap(postListingsOfSubreddit) { it.networkState }
     val refreshState = Transformations.switchMap(postListingsOfSubreddit) { it.refreshState }
-
-    fun addReadPost(readListing: ReadListing) {
-        coroutineScope.launch {
-            postRepository.insertReadPostToDatabase(readListing)
-        }
-    }
 
     fun refresh() = postListingsOfSubreddit.value?.refresh?.invoke()
 

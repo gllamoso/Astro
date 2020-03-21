@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.DatabaseUser
+import dev.gtcl.reddit.database.ReadListing
 import dev.gtcl.reddit.users.AccessToken
 import dev.gtcl.reddit.users.User
 import kotlinx.coroutines.CoroutineScope
@@ -20,6 +21,7 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
 
     // Repos
     private val userRepository = application.userRepository
+    private val postRepository = application.postRepository
 
     // Scopes
     private val viewModelJob = Job()
@@ -121,5 +123,14 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
 
     fun openDrawerComplete(){
         _openDrawer.value = null
+    }
+
+    // Read posts
+    val allReadPosts = postRepository.getReadPostsFromDatabase()
+
+    fun addReadPost(readListing: ReadListing) {
+        coroutineScope.launch {
+            postRepository.insertReadPostToDatabase(readListing)
+        }
     }
 }

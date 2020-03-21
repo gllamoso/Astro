@@ -10,7 +10,7 @@ import dev.gtcl.reddit.ProfileInfo
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.databinding.FragmentSimpleRecyclerViewBinding
 import dev.gtcl.reddit.listings.*
-import dev.gtcl.reddit.ui.fragments.posts.MainFragment
+import dev.gtcl.reddit.ui.fragments.posts.ListingViewPagerFragment
 import dev.gtcl.reddit.ui.fragments.posts.subreddits.SubredditOnClickListener
 
 class MineFragment : Fragment() {
@@ -29,7 +29,7 @@ class MineFragment : Fragment() {
     }
 
     private fun setRecyclerViewAdapter(){
-        val model = (requireParentFragment().parentFragment as MainFragment).model
+        val model = (requireParentFragment().parentFragment as ListingViewPagerFragment).model
 
         val adapter = MultiAndSubsListAdapter(requireContext(), subClickListener)
         binding.list.adapter = adapter

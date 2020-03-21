@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import dev.gtcl.reddit.databinding.FragmentSimpleRecyclerViewBinding
-import dev.gtcl.reddit.ui.fragments.posts.MainFragment
+import dev.gtcl.reddit.ui.fragments.posts.ListingViewPagerFragment
 import dev.gtcl.reddit.ui.fragments.posts.subreddits.SubredditOnClickListener
 
 class PopularFragment : Fragment() {
@@ -26,7 +26,7 @@ class PopularFragment : Fragment() {
     }
 
     private fun setRecyclerViewAdapter(){
-        val model = (requireParentFragment().parentFragment as MainFragment).model
+        val model = (requireParentFragment().parentFragment as ListingViewPagerFragment).model
 
         val adapter = SubredditsPageListAdapter(subClickListener)
         binding.list.adapter = adapter

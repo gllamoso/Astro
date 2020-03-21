@@ -1,21 +1,26 @@
-package dev.gtcl.reddit.ui.fragments.posts.subreddits.trending
+package dev.gtcl.reddit.ui.fragments.account.user.overview
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import dev.gtcl.reddit.databinding.FragmentSimpleRecyclerViewBinding
-import dev.gtcl.reddit.ui.fragments.posts.ListingViewPagerFragment
-import dev.gtcl.reddit.ui.fragments.posts.subreddits.SubredditOnClickListener
+import dev.gtcl.reddit.network.Post
+import dev.gtcl.reddit.ui.ViewPagerActions
+import dev.gtcl.reddit.ui.fragments.account.user.UserFragment
+import dev.gtcl.reddit.ui.fragments.posts.listing.ListingAdapter
 
-class TrendingFragment : Fragment() {
+
+class UserOverviewFragment : Fragment() {
+
     private lateinit var binding: FragmentSimpleRecyclerViewBinding
-    private lateinit var subClickListener: SubredditOnClickListener
 
-    fun setSubredditOnClickListener(listener: SubredditOnClickListener){
-        this.subClickListener = listener
+    private lateinit var viewPagerActions: ViewPagerActions
+    fun setViewPagerActions(viewPagerActions: ViewPagerActions){
+        this.viewPagerActions = viewPagerActions
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -25,13 +30,14 @@ class TrendingFragment : Fragment() {
     }
 
     private fun setRecyclerViewAdapter(){
-        val model = (requireParentFragment().parentFragment as ListingViewPagerFragment).model
-        val adapter = TrendingAdapter(subClickListener)
+        val model = (requireParentFragment() as UserFragment).model
 
+        val adapter = ListingAdapter({ model.retryOverview() }, viewPagerActions)
         binding.list.adapter = adapter
 
-        model.trendingSubredditPosts.observe(viewLifecycleOwner, Observer {
+        model.overviewPosts.observe(viewLifecycleOwner, Observer {
             adapter.submitList(it)
         })
+
     }
 }

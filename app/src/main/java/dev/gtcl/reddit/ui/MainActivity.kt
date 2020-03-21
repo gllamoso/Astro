@@ -5,6 +5,8 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.os.PersistableBundle
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -13,6 +15,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
@@ -28,7 +32,7 @@ import dev.gtcl.reddit.users.User
 const val URL_KEY = "URL"
 const val REDIRECT_URL_REQUEST_CODE = 1
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : FragmentActivity() {
     lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
 
@@ -106,8 +110,9 @@ class MainActivity : AppCompatActivity() {
                     }
 
                     override fun onMyAccountClicked() {
-                        val bundle = bundleOf("user" to model.currentUser.value?.name)
-                        navController.navigate(R.id.userFragment, bundle)
+//                        val bundle = bundleOf("user" to model.currentUser.value?.name)
+//                        navController.navigate(R.id.userFragment, bundle)
+                        navController.navigate(R.id.testFragment)
                         drawerLayout.closeDrawer(Gravity.START)
                     }
 
@@ -141,10 +146,12 @@ class MainActivity : AppCompatActivity() {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
             override fun onDrawerClosed(drawerView: View) {
                 binding.expandableListView.collapseGroup(0)
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             }
 
             override fun onDrawerOpened(drawerView: View) {
                 adapter.notifyDataSetInvalidated()
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             }
 
         })
