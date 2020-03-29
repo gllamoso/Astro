@@ -8,5 +8,4 @@ interface ViewPagerActions{
     fun navigatePrevious()
     fun viewComments(post: Post)
     fun viewComments(comment: Comment)
-    fun viewThumbnail(url: String)
 }

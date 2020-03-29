@@ -1,10 +1,10 @@
-package dev.gtcl.reddit.ui.webview
+package dev.gtcl.reddit.ui.signin
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class WebviewActivityViewModel : ViewModel() {
+class SignInViewModel : ViewModel() {
 
     private val _redirectUrl = MutableLiveData<String>()
     val redirectUrl: LiveData<String>

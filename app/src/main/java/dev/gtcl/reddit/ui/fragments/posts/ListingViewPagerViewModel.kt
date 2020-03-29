@@ -91,6 +91,14 @@ class ListingViewPagerViewModel(val application: RedditApplication): ViewModel()
         _searchSubreddits.value = null
     }
 
+    private var _currentPage = 0
+    val currentPage: Int
+        get() = _currentPage
+
+    fun setCurrentPage(page: Int){
+        _currentPage = page
+    }
+
     companion object {
         private val TAG = ListingViewPagerViewModel::class.qualifiedName
     }

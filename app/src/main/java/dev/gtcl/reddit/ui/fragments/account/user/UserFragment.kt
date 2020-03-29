@@ -1,34 +1,41 @@
 package dev.gtcl.reddit.ui.fragments.account.user
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
+import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.databinding.FragmentUserBinding
+import dev.gtcl.reddit.network.Award
+import dev.gtcl.reddit.network.Post
 import dev.gtcl.reddit.ui.MainActivity
 import dev.gtcl.reddit.ui.MainActivityViewModel
+import dev.gtcl.reddit.ui.PostActions
 import dev.gtcl.reddit.ui.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.account.user.comments.UserCommentsFragment
 import dev.gtcl.reddit.ui.fragments.account.user.downvoted.UserDownvotedFragment
 import dev.gtcl.reddit.ui.fragments.account.user.hidden.UserHiddenFragment
 import dev.gtcl.reddit.ui.fragments.account.user.overview.UserOverviewFragment
+import dev.gtcl.reddit.ui.fragments.account.user.posts.UserPostsFragment
 import dev.gtcl.reddit.ui.fragments.account.user.saved.UserSavedFragment
 import dev.gtcl.reddit.ui.fragments.account.user.upvoted.UserUpvotedFragment
 
-class UserFragment() : Fragment() {
+class UserFragment : Fragment(), PostActions {
+
+    private lateinit var binding: FragmentUserBinding
 
     private lateinit var viewPagerActions: ViewPagerActions
     fun setViewPagerActions(viewPagerActions: ViewPagerActions){
         this.viewPagerActions = viewPagerActions
     }
-
-    private lateinit var binding: FragmentUserBinding
 
     val model: UserFragmentViewModel by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
@@ -42,12 +49,13 @@ class UserFragment() : Fragment() {
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
         when(childFragment){
-            is UserCommentsFragment -> childFragment.setViewPagerActions(viewPagerActions)
-            is UserSavedFragment -> childFragment.setViewPagerActions(viewPagerActions)
-            is UserUpvotedFragment -> childFragment.setViewPagerActions(viewPagerActions)
-            is UserDownvotedFragment -> childFragment.setViewPagerActions(viewPagerActions)
-            is UserHiddenFragment -> childFragment.setViewPagerActions(viewPagerActions)
-            is UserOverviewFragment -> childFragment.setViewPagerActions(viewPagerActions)
+            is UserCommentsFragment -> childFragment.setPostActions(this)
+            is UserPostsFragment -> childFragment.setPostActions(this)
+            is UserSavedFragment -> childFragment.setPostActions(this)
+            is UserUpvotedFragment -> childFragment.setPostActions(this)
+            is UserDownvotedFragment -> childFragment.setPostActions(this)
+            is UserHiddenFragment -> childFragment.setPostActions(this)
+            is UserOverviewFragment -> childFragment.setPostActions(this)
         }
     }
 
@@ -55,7 +63,9 @@ class UserFragment() : Fragment() {
         binding = FragmentUserBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.model = model
-        val user = "Midoy192" // TODO: Update
+        val user = (requireActivity().application as RedditApplication).currentUser!!.name // TODO: Update
+        model.fetchUserInfo(user)
+        model.fetchAwards(user)
         setupViewPagerAdapter(user == parentModel.currentUser.value?.name)
         model.fetchCurrentUser()
         model.fetchListings()
@@ -96,5 +106,38 @@ class UserFragment() : Fragment() {
                 })
             }.attach()
         }
+    }
+
+    // Post Actions
+    override fun vote(post: Post, vote: Vote) {
+        TODO("Not yet implemented")
+    }
+
+    override fun share(post: Post) {
+        TODO("Not yet implemented")
+    }
+
+    override fun award(post: Post) {
+        TODO("Not yet implemented")
+    }
+
+    override fun save(post: Post) {
+        TODO("Not yet implemented")
+    }
+
+    override fun hide(post: Post) {
+        TODO("Not yet implemented")
+    }
+
+    override fun report(post: Post) {
+        TODO("Not yet implemented")
+    }
+
+    override fun postClicked(post: Post) {
+        viewPagerActions.viewComments(post)
+    }
+
+    override fun thumbnailClicked(post: Post) {
+        TODO("Not yet implemented")
     }
 }

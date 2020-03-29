@@ -1,6 +1,7 @@
 package dev.gtcl.reddit.ui.fragments
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import dev.gtcl.reddit.network.Post
@@ -37,7 +38,7 @@ class ViewPagerAdapter(fragment: Fragment, startingFragment: StartingViewPagerFr
 
     fun popFragment(){
         fragments.removeAt(fragments.size - 1)
-        notifyItemRemoved(fragments.size)
+        notifyItemRemoved(fragments.size) // TODO: Cannot call this method in a scroll callback. Scroll callbacks mightbe run during a measure & layout pass where you cannot change theRecyclerView data. Any method call that might change the structureof the RecyclerView or the adapter contents should be postponed tothe next frame.
     }
 }
 

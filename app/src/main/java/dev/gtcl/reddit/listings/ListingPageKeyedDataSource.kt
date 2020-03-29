@@ -14,9 +14,18 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.IOException
+import java.io.InvalidClassException
+import java.io.InvalidObjectException
 import java.util.concurrent.Executor
 
-class ListingPageKeyedDataSource(private val accessToken: AccessToken?, private  val user: User?, private val listingType: ListingType, private val sort: PostSort, private val t: Time?, private val retryExecutor: Executor) : PageKeyedDataSource<String, ListingItem>() {
+class ListingPageKeyedDataSource(
+    private val accessToken: AccessToken?,
+    private  val user: User?,
+    private val listingType: ListingType,
+    private val sort: PostSort,
+    private val t: Time?,
+    private val retryExecutor: Executor) : PageKeyedDataSource<String, ListingItem>()
+{
 
     private val dataSourceJob = Job()
     private val dataSourceScope = CoroutineScope(
@@ -75,6 +84,7 @@ class ListingPageKeyedDataSource(private val accessToken: AccessToken?, private 
                         is PostListing -> it.data
                         is CommentListing -> it.data
                         is MoreListing -> it.data
+                        else -> throw InvalidObjectException("Did not object in listing: ${it.kind}")
                     }
                 }
                 retry = null
@@ -83,7 +93,7 @@ class ListingPageKeyedDataSource(private val accessToken: AccessToken?, private 
                 callback.onResult(items, data.before, data.after)
             } catch (ioException: IOException) {
                 retry = { loadInitial(params, callback) }
-                val error = NetworkState.error(ioException.message ?: "unknown error")
+                val error = NetworkState.error(ioException.message ?: "Unknown error")
                 _networkState.postValue(error)
                 _initialLoad.postValue(error)
             }
@@ -114,6 +124,7 @@ class ListingPageKeyedDataSource(private val accessToken: AccessToken?, private 
                         is PostListing -> it.data
                         is CommentListing -> it.data
                         is MoreListing -> it.data
+                        else -> throw InvalidObjectException("Did not object in listing: ${it.kind}")
                     }
                 }
                 retry = null

@@ -7,21 +7,28 @@ import android.graphics.Point
 import android.graphics.Typeface
 import android.util.Log
 import android.util.TypedValue
+import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
+import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.view.marginStart
 import androidx.databinding.BindingAdapter
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
+import dev.gtcl.reddit.databinding.ItemAwardBinding
+import dev.gtcl.reddit.listings.*
+import dev.gtcl.reddit.network.Award
 import dev.gtcl.reddit.network.Comment
 import dev.gtcl.reddit.network.ListingItem
 import dev.gtcl.reddit.network.More
-import dev.gtcl.reddit.listings.*
 import dev.gtcl.reddit.ui.fragments.posts.listing.ListingAdapter
 
 @BindingAdapter("imageUrlAndHideIfNull")
@@ -204,4 +211,23 @@ fun setViewSize(view: View, percentOfDeviceHeight: Int){
     val layoutParams = view.layoutParams
     layoutParams.height = height
     view.layoutParams = layoutParams
+}
+
+@BindingAdapter("awards")
+fun setAwardImages(layout: GridLayout, awards: List<Award>?){
+    if(awards.isNullOrEmpty()) return
+    for(award: Award in awards){
+        val binding = ItemAwardBinding.inflate(LayoutInflater.from(layout.context))
+        binding.award = award
+        layout.addView(binding.root)
+    }
+}
+
+@BindingAdapter("likes")
+fun setViewColor(view: View, likes: Boolean?){
+    when(likes){
+        null -> view.setBackgroundColor(Color.TRANSPARENT)
+        true -> view.setBackgroundColor(ContextCompat.getColor(view.context, android.R.color.holo_orange_dark))
+        false -> view.setBackgroundColor(ContextCompat.getColor(view.context, android.R.color.holo_blue_dark))
+    }
 }

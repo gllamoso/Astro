@@ -1,13 +1,11 @@
 package dev.gtcl.reddit.ui.fragments.posts.listing
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import androidx.lifecycle.ViewModel
-import dev.gtcl.reddit.Listing
-import dev.gtcl.reddit.PostSort
-import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.Time
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.ReadListing
 import dev.gtcl.reddit.network.ListingItem
 import dev.gtcl.reddit.listings.ListingType
@@ -15,6 +13,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 
 class ListingViewModel(val application: RedditApplication): ViewModel() {
 
@@ -54,6 +55,43 @@ class ListingViewModel(val application: RedditApplication): ViewModel() {
         _sortSelected.value = sortBy
         _timeSelected.value = timePeriod
         postListingsOfSubreddit.value = postRepository.getPostsFromNetwork(listingType, sortBy, timePeriod, 10)
+    }
+
+    fun vote(fullname: String, vote: Vote){
+        postRepository.vote(fullname, vote).enqueue(object: Callback<Void>{
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.d("TAE", "Failed") // TODO: Handle
+            }
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                Log.d("TAE", "Success!") // TODO: Handle
+            }
+        })
+    }
+
+    fun save(id: String){
+        postRepository.save(id).enqueue(object: Callback<Void>{
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.d("TAE", "Failed") // TODO: Handle
+            }
+
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                Log.d("TAE", "Success!") // TODO: Handle
+            }
+
+        })
+    }
+
+    fun unsave(id: String){
+        postRepository.unsave(id).enqueue(object: Callback<Void>{
+            override fun onFailure(call: Call<Void>, t: Throwable) {
+                Log.d("TAE", "Failed") // TODO: Handle
+            }
+
+            override fun onResponse(call: Call<Void>, response: Response<Void>) {
+                Log.d("TAE", "Success!") // TODO: Handle
+            }
+
+        })
     }
 
 }

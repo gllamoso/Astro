@@ -24,10 +24,9 @@ enum class ListingItemType {
     More
 }
 
-sealed class ListingItem(
-    val kind: ListingItemType){
+sealed class ListingItem(val kind: ListingItemType){
     abstract val depth: Int
-    abstract val id: String
+    abstract val id: String?
     abstract val name: String
     var hiddenPoints = 0 // Hide if > 0
 }
@@ -42,8 +41,8 @@ class ListingData(
 
 sealed class ListingChild(@Json(name="kind") val kind: ListingItemType)
 
-data class PostListing(val data: Post) : ListingChild(ListingItemType.Post) // t3
 data class CommentListing(val data: Comment): ListingChild(ListingItemType.Comment) // t1
+data class PostListing(val data: Post) : ListingChild(ListingItemType.Post) // t3
 data class MoreListing(val data: More): ListingChild(ListingItemType.More) // more
 
 // http://patorjk.com/software/taag/#p=display&f=Ivrit&t=t1%20-%20Comment
@@ -79,7 +78,7 @@ data class Comment( // TODO: Add more properties: saved, liked, all_awardings
 data class Post(
     override val name: String,
     override val id: String = name.replace("t3_", ""),
-    val saved: Boolean,
+    var saved: Boolean,
     val title: String,
     val score: Int,
     val author: String,
@@ -90,7 +89,7 @@ data class Post(
     val created: Long,
     val thumbnail: String?,
     val url: String?,
-    val likes: Boolean?,
+    var likes: Boolean?,
     val permalink: String,
     val selftext: String,
     @Json(name = "is_self")
@@ -142,6 +141,28 @@ data class RedditVideo(
     @Json(name = "hls_url")
     val hlsUrl: String
 ) : Parcelable
+
+//   _    __                _                        _
+//  | |_ / /_              / \__      ____ _ _ __ __| |
+//  | __| '_ \   _____    / _ \ \ /\ / / _` | '__/ _` |
+//  | |_| (_) | |_____|  / ___ \ V  V / (_| | | | (_| |
+//   \__|\___/          /_/   \_\_/\_/ \__,_|_|  \__,_|
+
+
+class TrophyListingResponse(val data: TrophyListingData)
+class TrophyListingData(val trophies: List<TrophyListing>)
+data class TrophyListing(val data: Award): ListingChild(ListingItemType.Award)
+
+@Parcelize
+data class Award(
+    override val name: String,
+    override val id: String?,
+    @Json(name = "icon_70") val icon70: String,
+    @Json(name = "icon_40") val icon40: String
+) : Parcelable, ListingItem(ListingItemType.Award){
+    @IgnoredOnParcel
+    override val depth = 0
+}
 
 //                                        __  __
 //     _ __ ___   ___  _ __ ___          |  \/  | ___  _ __ ___

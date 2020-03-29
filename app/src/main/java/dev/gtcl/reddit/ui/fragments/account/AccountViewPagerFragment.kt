@@ -46,9 +46,8 @@ class AccountViewPagerFragment: Fragment(), ViewPagerActions {
                 var previousPage = 0
                 override fun onPageScrollStateChanged(state: Int) {
                     super.onPageScrollStateChanged(state)
-                    if(state == ViewPager2.SCROLL_STATE_IDLE){
-                        if(previousPage > currentItem)
-                            viewpagerAdapter.popFragment()
+                    if(state == ViewPager2.SCROLL_STATE_IDLE && previousPage > currentItem){
+                        viewpagerAdapter.popFragment()
                     }
                     previousPage = currentItem
                     binding.viewPager.isUserInputEnabled = currentItem != 0
@@ -57,6 +56,7 @@ class AccountViewPagerFragment: Fragment(), ViewPagerActions {
         }
     }
 
+    // View Pager Actions
     override fun enablePagerSwiping(enable: Boolean) {
         binding.viewPager.isUserInputEnabled = enable
     }
@@ -72,12 +72,8 @@ class AccountViewPagerFragment: Fragment(), ViewPagerActions {
     }
 
     override fun viewComments(comment: Comment) {
-//        viewpagerAdapter.addCommentsPage(comment)
-//        navigateToNextPage()
-    }
-
-    override fun viewThumbnail(url: String) {
         TODO("Not yet implemented")
+        navigateToNextPage()
     }
 
     private fun navigateToNextPage(){

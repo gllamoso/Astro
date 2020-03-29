@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui.fragments.posts.listing
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.paging.PagedListAdapter
 import androidx.recyclerview.widget.DiffUtil
@@ -10,11 +11,12 @@ import dev.gtcl.reddit.network.Comment
 import dev.gtcl.reddit.network.ListingItem
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.network.Post
+import dev.gtcl.reddit.ui.PostActions
 import dev.gtcl.reddit.ui.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.comments.CommentsAdapter
 import java.io.InvalidObjectException
 
-class ListingAdapter(private val retryCallback: () -> Unit, private val actions: ViewPagerActions): PagedListAdapter<ListingItem, RecyclerView.ViewHolder>(LISTING_COMPARATOR){
+class ListingAdapter(private val retryCallback: () -> Unit, private val postActions: PostActions): PagedListAdapter<ListingItem, RecyclerView.ViewHolder>(LISTING_COMPARATOR){
 
     private var networkState: NetworkState? = null
     private var allReadSubs: HashSet<String> = HashSet()
@@ -27,11 +29,15 @@ class ListingAdapter(private val retryCallback: () -> Unit, private val actions:
         when (getItemViewType(position)) {
             R.layout.item_post -> {
                 val post = getItem(position) as Post
-                (holder as PostViewHolder).bind(post, {actions.viewComments(it)}, {actions.viewThumbnail(it)}, allReadSubs.contains(post.name))
+                (holder as PostViewHolder).bind(post, postActions, allReadSubs.contains(post.name)) {
+//                    currentList?.removeAt(position) // TODO: Remove
+//                    notifyItemRemoved(position)
+                    Log.d("TAE", "Current list data source class: ${currentList?.dataSource?.javaClass?.simpleName}")
+                }
             }
             R.layout.item_comment -> {
                 val comment = getItem(position) as Comment
-                (holder as CommentsAdapter.CommentViewHolder).bind(comment) { _, c -> actions.viewComments(c) }
+                (holder as CommentsAdapter.CommentViewHolder).bind(comment) { _, c ->  }
             }
             R.layout.item_network_state -> (holder as NetworkStateItemViewHolder).bindTo(networkState)
         }
@@ -40,8 +46,11 @@ class ListingAdapter(private val retryCallback: () -> Unit, private val actions:
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int, payloads: MutableList<Any>) {
         if (payloads.isNotEmpty()) {
             when(val item = getItem(position)){
-                is Post -> (holder as PostViewHolder).bind(item, {actions.viewComments(it)}, {actions.viewThumbnail(it)}, if(payloads[0] == true) true else allReadSubs.contains(item.name))
-                is Comment -> (holder as CommentsAdapter.CommentViewHolder).bind(item) { _, comment -> actions.viewComments(comment) }
+                is Post -> (holder as PostViewHolder).bind(item, postActions, if(payloads[0] == true) true else allReadSubs.contains(item.name)) {
+//                    currentList?.removeAt(position) // TODO: Remove
+//                    notifyItemRemoved(position)
+                }
+                is Comment -> (holder as CommentsAdapter.CommentViewHolder).bind(item) { _, comment ->  }
             }
         }
         else onBindViewHolder(holder, position)

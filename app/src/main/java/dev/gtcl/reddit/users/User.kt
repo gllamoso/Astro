@@ -7,6 +7,8 @@ data class User(
     val name: String,
     @Json(name = "icon_img") val iconImg: String?,
     @Json(name = "link_karma") val linkKarma: Int,
+    @Json(name = "comment_karma") val commentKarma: Int,
+    @Json(name = "created_utc") val created: Long,
     val subreddit: UserSubreddit? =  null,
     // Additional field
     var refreshToken: String?) {
@@ -30,7 +32,6 @@ data class UserSubreddit(
 fun User.asDatabaseModel() = DatabaseUser(
     name = this.name,
     iconImg = this.iconImg,
-    linkKarma = this.linkKarma,
     bannerImg = this.subreddit?.bannerImg,
     refreshToken = this.refreshToken
 )

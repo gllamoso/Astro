@@ -12,6 +12,7 @@
     <string name="share">Share</string>
     <string name="award">Award</string>
     <string name="save">Save</string>
+    <string name="unsave">Unsave</string>
     <string name="hide">Hide</string>
     <string name="report">Report</string>
 
@@ -96,5 +97,7 @@
     <string name="gilded">Gilded</string>
     <string name="friends">Friends</string>
     <string name="blocked">Blocked</string>
+    <string name="karma">Karma</string>
+    <string name="reddit_age">Reddit Age</string>
 
 </resources>

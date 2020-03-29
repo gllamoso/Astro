@@ -1,6 +1,7 @@
 package dev.gtcl.reddit.ui.fragments.posts.listing
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,26 +11,25 @@ import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
+import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.databinding.FragmentPostListBinding
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.network.Post
 import dev.gtcl.reddit.listings.FrontPage
 import dev.gtcl.reddit.listings.ListingType
 import dev.gtcl.reddit.ui.*
-import dev.gtcl.reddit.ui.fragments.posts.ImageVideoViewerDialogFragment
 import dev.gtcl.reddit.ui.fragments.posts.listing.sort_sheet.SortSheetDialogFragment
 import dev.gtcl.reddit.ui.fragments.posts.subreddits.SubredditOnClickListener
 import dev.gtcl.reddit.ui.fragments.posts.subreddits.SubredditSelectorDialogFragment
 import dev.gtcl.reddit.ui.fragments.posts.listing.time_period_sheet.TimePeriodSheetDialogFragment
 
-class ListingFragment : Fragment() {
+class ListingFragment : Fragment(), PostActions {
 
+    private lateinit var binding: FragmentPostListBinding
     private lateinit var viewPagerActions: ViewPagerActions
     fun setViewPagerActions(viewPagerActions: ViewPagerActions){
         this.viewPagerActions = viewPagerActions
     }
-
-    private lateinit var binding: FragmentPostListBinding
 
     private val parentModel: MainActivityViewModel by lazy {
         (activity as MainActivity).model
@@ -86,7 +86,7 @@ class ListingFragment : Fragment() {
 //    }
 
     private fun setRecyclerView() {
-        val adapter = ListingAdapter({model.retry()}, viewPagerActions)
+        val adapter = ListingAdapter({model.retry()}, this)
 
         binding.list.adapter = adapter
         model.networkState.observe(viewLifecycleOwner, Observer {
@@ -142,6 +142,40 @@ class ListingFragment : Fragment() {
         binding.refreshButton.setOnClickListener{
             model.refresh()
         }
+    }
+
+    // Post Actions
+    override fun vote(post: Post, vote: Vote) {
+        model.vote(post.name, vote)
+    }
+
+    override fun share(post: Post) {
+        TODO("Not yet implemented")
+    }
+
+    override fun award(post: Post) {
+        TODO("Not yet implemented")
+    }
+
+    override fun save(post: Post) {
+        if(post.saved) model.unsave(post.name)
+        else model.save(post.name)
+    }
+
+    override fun hide(post: Post) {
+        TODO("Not yet implemented")
+    }
+
+    override fun report(post: Post) {
+        TODO("Not yet implemented")
+    }
+
+    override fun postClicked(post: Post) {
+        viewPagerActions.viewComments(post)
+    }
+
+    override fun thumbnailClicked(post: Post) {
+        TODO("Not yet implemented")
     }
 
 }

@@ -5,17 +5,12 @@ import android.app.Activity
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.os.PersistableBundle
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
-import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -26,7 +21,7 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.asDomainModel
 import dev.gtcl.reddit.databinding.ActivityMainBinding
 import dev.gtcl.reddit.databinding.NavHeaderBinding
-import dev.gtcl.reddit.ui.webview.WebviewActivity
+import dev.gtcl.reddit.ui.signin.SignInActivity
 import dev.gtcl.reddit.users.User
 
 const val URL_KEY = "URL"
@@ -81,9 +76,7 @@ class MainActivity : FragmentActivity() {
 
         binding.expandableListView.addHeaderView(header.root)
 
-        val adapter =
-            MainDrawerAdapter(
-                this,
+        val adapter = MainDrawerAdapter(this,
                 object :
                     DrawerOnClickListeners {
                     override fun onAddAccountClicked() {
@@ -146,20 +139,26 @@ class MainActivity : FragmentActivity() {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
             override fun onDrawerClosed(drawerView: View) {
                 binding.expandableListView.collapseGroup(0)
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+//                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             }
 
             override fun onDrawerOpened(drawerView: View) {
                 adapter.notifyDataSetInvalidated()
-                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+//                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             }
+        })
 
+        model.allowDrawerSwipe.observe(this, Observer {
+            if(it == true)
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+            else if(it == false)
+                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         })
     }
 
     private fun startSignInActivity() {
         val url = String.format(getString(R.string.auth_url), getString(R.string.client_id), STATE, getString(R.string.redirect_uri))
-        val intent = Intent(this, WebviewActivity::class.java)
+        val intent = Intent(this, SignInActivity::class.java)
         intent.putExtra(URL_KEY, url)
         startActivityForResult(intent, REDIRECT_URL_REQUEST_CODE)
     }

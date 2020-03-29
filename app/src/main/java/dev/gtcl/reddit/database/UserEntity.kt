@@ -11,7 +11,6 @@ data class DatabaseUser constructor(
     val name: String,
     val iconImg: String?,
     val bannerImg: String?,
-    val linkKarma: Int,
     val refreshToken: String?)
 
 fun List<DatabaseUser>.asDomainModel() = map {it.asDomainModel()}
@@ -19,7 +18,9 @@ fun List<DatabaseUser>.asDomainModel() = map {it.asDomainModel()}
 fun DatabaseUser.asDomainModel() = User(
     name = this.name,
     iconImg = this.iconImg,
-    linkKarma = this.linkKarma,
+    linkKarma = 0,
+    commentKarma = 0,
+    created = 0L,
     subreddit = UserSubreddit(bannerImg),
     refreshToken = this.refreshToken
 )

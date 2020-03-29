@@ -20,9 +20,7 @@ class SubredditRepository internal constructor(private val networkExecutor: Exec
     }
 
     @MainThread
-    fun getSubsSearch(q: String, nsfw: String): Deferred<SubredditListingResponse>{
-        return RedditApi.base.getSubredditsSearch(q, nsfw)
-    }
+    fun getSubsSearch(q: String, nsfw: String): Deferred<SubredditListingResponse> = RedditApi.base.getSubredditsSearch(q, nsfw)
 
     @MainThread
     fun getSubsListing(where: String, pageSize: Int) : Listing<Subreddit> {

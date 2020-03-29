@@ -7,22 +7,29 @@ import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dev.gtcl.reddit.CommentSort
 import dev.gtcl.reddit.PostSort
-import dev.gtcl.reddit.Time
 import dev.gtcl.reddit.ProfileInfo
-import dev.gtcl.reddit.users.AccessToken
-import dev.gtcl.reddit.comments.CommentAdapter
+import dev.gtcl.reddit.Time
 import dev.gtcl.reddit.comments.Child
+import dev.gtcl.reddit.comments.CommentAdapter
 import dev.gtcl.reddit.comments.CommentPage
 import dev.gtcl.reddit.subs.SubredditListingResponse
+import dev.gtcl.reddit.subs.SubredditNamesResponse
+import dev.gtcl.reddit.users.AccessToken
 import dev.gtcl.reddit.users.User
 import kotlinx.coroutines.Deferred
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
+import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
+import retrofit2.Call
+import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
+import java.lang.reflect.Type
+import java.util.*
+
 
 interface RedditApiService {
 
@@ -46,6 +53,22 @@ interface RedditApiService {
     @GET("/api/v1/me")
     fun getCurrentUserInfo(
         @Header("Authorization") authorization: String): Deferred<User>
+
+    @POST("/api/vote/")
+    fun vote(
+        @Header("Authorization") authorization: String,
+        @Query("id") id: String,
+        @Query("dir") dir: Int): Call<Void>
+
+    @POST("/api/save/")
+    fun save(
+        @Header("Authorization") authorization: String,
+        @Query("id") id: String): Call<Void>
+
+    @POST("/api/unsave/")
+    fun unsave(
+        @Header("Authorization") authorization: String,
+        @Query("id") id: String): Call<Void>
 
 //     ____   __   ____  ____  ____
 //    (  _ \ /  \ / ___)(_  _)/ ___)
@@ -125,6 +148,13 @@ interface RedditApiService {
         @Query("include_over_18") nsfw: String
     ): Deferred<SubredditListingResponse>
 
+    @GET("/api/search_reddit_names.json")
+    fun getSubredditNameSearch(
+        @Query("exact") exact: Boolean = false,
+        @Query("include_over_18") nsfw: Boolean = true,
+        @Query("include_unadvertisable") includeUnadvertisable: Boolean = true, // If set to False, subs that have "hide_ads" set to True or are on on the "anti_ads_subreddits" list will be filtered
+        @Query("query") query: String): Deferred<SubredditNamesResponse>
+
 //     ___  __   _  _  _  _  ____  __ _  ____  ____
 //    / __)/  \ ( \/ )( \/ )(  __)(  ( \(_  _)/ ___)
 //   ( (__(  O )/ \/ \/ \/ \ ) _) /    /  )(  \___ \
@@ -155,6 +185,12 @@ interface RedditApiService {
         @Query("sort") sort: CommentSort
     ): Deferred<List<Child>>
 
+    // Awards
+    @GET("/api/v1/user/{user}/trophies/.json")
+    fun getAwards(
+        @Header("Authorization") authorization: String? = null,
+        @Path("user") user: String
+    ): Deferred<TrophyListingResponse>
 
     companion object {
         private const val BASE_URL = "https://www.reddit.com/"

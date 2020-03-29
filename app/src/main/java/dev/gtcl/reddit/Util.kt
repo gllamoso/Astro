@@ -151,3 +151,9 @@ fun buildMediaSource(context: Context, uri: Uri): MediaSource {
         mediaSourceFactor.createMediaSource(uri)
     }
 }
+
+enum class Vote(val value: Int){
+    UPVOTE(1),
+    DOWNVOTE(-1),
+    UNVOTE(-0)
+}

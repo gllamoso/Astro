@@ -20,6 +20,7 @@ import dev.gtcl.reddit.network.Comment
 import dev.gtcl.reddit.network.Post
 import dev.gtcl.reddit.ui.MainActivity
 import dev.gtcl.reddit.ui.MainActivityViewModel
+import dev.gtcl.reddit.ui.PostActions
 import dev.gtcl.reddit.ui.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
@@ -46,7 +47,7 @@ class ListingViewPagerFragment : Fragment(), ViewPagerActions {
         super.onAttachFragment(childFragment)
         when(childFragment){
             is ListingFragment -> childFragment.setViewPagerActions(this)
-            is CommentsFragment -> childFragment.setViewPagerActions(this)
+            is CommentsFragment -> childFragment.setViewPagerActions(this) // TODO: Use Implement CommentActions
         }
     }
 
@@ -74,15 +75,14 @@ class ListingViewPagerFragment : Fragment(), ViewPagerActions {
         binding.viewPager.apply {
             adapter = pageAdapter
             registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
-                var previousPage = 0
                 override fun onPageScrollStateChanged(state: Int) {
                     super.onPageScrollStateChanged(state)
                     if(state == ViewPager2.SCROLL_STATE_IDLE){
-                        if(previousPage > currentItem)
+                        if(model.currentPage > currentItem)
                             pageAdapter.popFragment()
+                        model.setCurrentPage(currentItem)
+                        parentModel.allowDrawerSwipe(currentItem == 0)
                     }
-                    previousPage = currentItem
-
                 }
             })
             setPageTransformer(SlidePageTransformer())
@@ -102,14 +102,11 @@ class ListingViewPagerFragment : Fragment(), ViewPagerActions {
 
     override fun viewComments(post: Post) {
         pageAdapter.addCommentsPage(post)
+        parentModel.addReadPost(post.asReadListing())
         navigateNext()
     }
 
     override fun viewComments(comment: Comment) {
-//        navigateNext()
-    }
-
-    override fun viewThumbnail(url: String) {
 //        navigateNext()
     }
 

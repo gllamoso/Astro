@@ -125,6 +125,14 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
         _openDrawer.value = null
     }
 
+    private val _allowDrawerSwipe = MutableLiveData<Boolean>()
+    val allowDrawerSwipe: LiveData<Boolean>
+        get() = _allowDrawerSwipe
+
+    fun allowDrawerSwipe(allow: Boolean){
+        _allowDrawerSwipe.value = allow
+    }
+
     // Read posts
     val allReadPosts = postRepository.getReadPostsFromDatabase()
 

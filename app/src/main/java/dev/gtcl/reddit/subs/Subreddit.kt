@@ -27,3 +27,5 @@ class SubredditListingData(
 )
 
 data class SubredditChildrenResponse(val data: Subreddit)
+
+data class SubredditNamesResponse(val names: List<String>)

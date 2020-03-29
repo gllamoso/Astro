@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="user"
+            type="dev.gtcl.reddit.users.User" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <!--Karma-->
+        <TextView
+            android:id="@+id/karmaLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/karma"
+            app:layout_constraintEnd_toStartOf="@id/centerLine"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/totalKarma"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/karmaLabel"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/centerLine"
+            android:text="@{Integer.toString(user.commentKarma + user.linkKarma)}"
+            android:textSize="20sp"
+            tools:text="9999"/>
+
+        <TextView
+            android:id="@+id/linkKarmaCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@id/commentKarmaCount"
+            app:layout_constraintTop_toBottomOf="@id/totalKarma"
+            android:drawableStart="@drawable/ic_link_24dp"
+            tools:text="99"
+            android:text="@{Integer.toString(user.linkKarma)}"/>
+
+        <TextView
+            android:id="@+id/commentKarmaCount"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toEndOf="@id/linkKarmaCount"
+            app:layout_constraintEnd_toStartOf="@id/centerLine"
+            app:layout_constraintTop_toBottomOf="@id/totalKarma"
+            android:drawableStart="@drawable/ic_comment_24dp"
+            tools:text="99"
+            android:text="@{Integer.toString(user.commentKarma)}"/>
+
+        <View
+            android:id="@+id/centerLine"
+            android:layout_width="0.01dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"/>
+
+        <!--Age-->
+        <TextView
+            android:id="@+id/ageLabel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/reddit_age"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/centerLine"
+            app:layout_constraintTop_toTopOf="parent"
+            android:layout_marginTop="8dp"/>
+
+        <TextView
+            android:id="@+id/ageText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintTop_toBottomOf="@id/ageLabel"
+            app:layout_constraintStart_toEndOf="@id/centerLine"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:timestamp="@{user.created}"
+            android:drawableStart="@drawable/ic_cake_24dp"
+            android:textSize="20sp"
+            tools:text="12 year 6 days"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</layout>

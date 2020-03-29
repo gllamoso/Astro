@@ -1,9 +1,8 @@
-package dev.gtcl.reddit.ui.webview
+package dev.gtcl.reddit.ui.signin
 
 import android.app.Activity
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.webkit.*
 import androidx.appcompat.app.AppCompatActivity
@@ -17,11 +16,11 @@ import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.ActivityWebviewBinding
 import dev.gtcl.reddit.ui.URL_KEY
 
-class WebviewActivity : AppCompatActivity(){
+class SignInActivity : AppCompatActivity(){
 
-    val model: WebviewActivityViewModel by lazy {
+    val model: SignInViewModel by lazy {
         val viewModelFactory = ViewModelFactory(application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(WebviewActivityViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(SignInViewModel::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

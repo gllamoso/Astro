@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import dev.gtcl.reddit.databinding.FragmentSimpleRecyclerViewBinding
+import dev.gtcl.reddit.ui.PostActions
 import dev.gtcl.reddit.ui.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.account.user.UserFragment
 import dev.gtcl.reddit.ui.fragments.posts.listing.ListingAdapter
@@ -15,9 +16,9 @@ import dev.gtcl.reddit.ui.fragments.posts.listing.ListingAdapter
 class UserSavedFragment : Fragment() {
     private lateinit var binding: FragmentSimpleRecyclerViewBinding
 
-    private lateinit var viewPagerActions: ViewPagerActions
-    fun setViewPagerActions(viewPagerActions: ViewPagerActions){
-        this.viewPagerActions = viewPagerActions
+    private lateinit var postActions: PostActions
+    fun setPostActions(postActions: PostActions){
+        this.postActions = postActions
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -29,7 +30,7 @@ class UserSavedFragment : Fragment() {
     private fun setRecyclerViewAdapter(){
         val model = (requireParentFragment() as UserFragment).model
 
-        val adapter2 = ListingAdapter({ model.retrySaved() }, viewPagerActions)
+        val adapter2 = ListingAdapter({ model.retrySaved() }, postActions)
         binding.list.adapter = adapter2
 
         model.savedPosts.observe(viewLifecycleOwner, Observer {

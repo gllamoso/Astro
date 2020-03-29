@@ -1,107 +1,89 @@
 package dev.gtcl.reddit.ui.fragments.posts.listing
 
+import android.util.Log
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
+import android.widget.AdapterView
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
+import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.databinding.ItemPostBinding
 import dev.gtcl.reddit.network.Post
-
-//class RedditPostViewHolder(view: View, private val glide: GlideRequests)
-//class RedditPostViewHolder(view: View)
-//    : RecyclerView.ViewHolder(view) {
-//    private val title: TextView = view.findViewById(R.id.title)
-//    private val subtitle: TextView = view.findViewById(R.id.subtitle)
-//    private val score: TextView = view.findViewById(R.id.score)
-//    private val thumbnail : ImageView = view.findViewById(R.id.thumbnail)
-//    private var post : RedditPost? = null
-//    init {
-//        view.setOnClickListener {
-//            post?.url?.let { url ->
-//                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-//                view.context.startActivity(intent)
-//            }
-//        }
-//    }
-//
-//    fun bind(post: RedditPost?) {
-//        this.post = post
-//        title.text = post?.title ?: "loading"
-//        subtitle.text = itemView.context.resources.getString(R.string.post_subtitle,
-//            post?.author ?: "unknown")
-//        score.text = "${post?.score ?: 0}"
-//        if (post?.thumbnail?.startsWith("http") == true) {
-//            thumbnail.visibility = View.VISIBLE
-////            glide.load(post.thumbnail)
-////                .centerCrop()
-////                .placeholder(R.drawable.ic_insert_photo_black_48dp)
-////                .into(thumbnail)
-//        } else {
-//            thumbnail.visibility = View.GONE
-////            glide.clear(thumbnail)
-//        }
-//    }
-//
-//    companion object {
-////        fun create(parent: ViewGroup, glide: GlideRequests): RedditPostViewHolder {
-//            fun create(parent: ViewGroup): RedditPostViewHolder {
-//            val view = LayoutInflater.from(parent.context)
-//                .inflate(R.layout.item_post, parent, false)
-////            return RedditPostViewHolder(view, glide)
-//            return RedditPostViewHolder(view)
-//        }
-//    }
-//
-//    fun updateScore(item: RedditPost?) {
-//        post = item
-//        score.text = "${item?.score ?: 0}"
-//    }
-//}
+import dev.gtcl.reddit.ui.PostActions
 
 class PostViewHolder private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
-    fun bind(post: Post?, postClick: (Post) -> Unit, thumbnailClick: (String) -> Unit, isRead: Boolean){
+    fun bind(post: Post?, postActions: PostActions, isRead: Boolean, hide: () -> Unit){
         binding.post = post
         binding.executePendingBindings()
         setIfRead(isRead)
-        binding.root.setOnClickListener {
+        binding.rootLayout.setOnClickListener {
             setIfRead(true)
-//            postClickListener.onPostClicked(post, position)
-            postClick(post!!)
+            postActions.postClicked(post!!)
         }
 
         binding.thumbnail.setOnClickListener{
-//            postClickListener.onThumbnailClicked(post!!)
-            thumbnailClick(post!!.thumbnail!!)
+            postActions.thumbnailClicked(post!!)
         }
 
-        binding.moreOptions.adapter = PostOptionsAdapter(binding.root.context)
+
+        binding.moreOptions.apply {
+            val optionsAdapter = PostOptionsAdapter(binding.root.context, post?.likes, post!!.saved)
+            adapter = optionsAdapter
+            setSelection(OPTIONS_SIZE - 1)
+            onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
+                override fun onNothingSelected(parent: AdapterView<*>?) {}
+
+                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                    when(position){
+                        MenuItem.UPVOTE.position -> {
+                            binding.post?.let {
+                                postActions.vote(it, if(it.likes == true) Vote.UNVOTE else Vote.UPVOTE)
+                                it.likes = if(it.likes == true) null else true
+                                binding.invalidateAll()
+                                optionsAdapter.voted = it.likes
+                            }
+                        }
+                        MenuItem.DOWNVOTE.position -> {
+                            binding.post?.let {
+                                postActions.vote(it, if(it.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
+                                it.likes = if(it.likes == false) null else false
+                                binding.invalidateAll()
+                                optionsAdapter.voted = it.likes
+                            }
+                        }
+                        MenuItem.SHARE.position -> postActions.share(post)
+                        MenuItem.AWARD.position -> postActions.award(post)
+                        MenuItem.SAVE.position -> {
+                            binding.post?.let {
+                                postActions.save(it)
+                                it.saved = !it.saved
+                                binding.invalidateAll()
+                                optionsAdapter.saved = it.saved
+                            }
+                        }
+                        MenuItem.HIDE.position -> {
+//                            postActions.hide(post)
+                            hide()
+                        }
+                        MenuItem.REPORT.position -> postActions.report(post)
+                    }
+                    this@apply.setSelection(OPTIONS_SIZE - 1)
+                }
+
+            }
+        }
     }
 
     private fun setIfRead(isRead: Boolean){
         binding.title.setTextColor(ContextCompat.getColor(binding.root.context, if(isRead) android.R.color.darker_gray else R.color.textColor))
     }
 
-
-
-//    init {
-//        view.setOnClickListener {
-//            post?.url?.let { url ->
-//                val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url))
-//                view.context.startActivity(intent)
-//            }
-//        }
-//    }
-
     companion object {
         fun create(parent: ViewGroup): PostViewHolder {
             return PostViewHolder(ItemPostBinding.inflate(LayoutInflater.from(parent.context)))
         }
     }
-
-//    fun updateScore(item: RedditPost?) {
-//        post = item
-//        score.text = "${item?.score ?: 0}"
-//    }
 }
