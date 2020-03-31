@@ -8,10 +8,9 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import dev.gtcl.reddit.PostSort
-import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.ViewModelFactory
-import dev.gtcl.reddit.Vote
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.SimpleItemAnimator
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentPostListBinding
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.network.Post
@@ -26,6 +25,8 @@ import dev.gtcl.reddit.ui.fragments.posts.listing.time_period_sheet.TimePeriodSh
 class ListingFragment : Fragment(), PostActions {
 
     private lateinit var binding: FragmentPostListBinding
+    private lateinit var adapter: dev.gtcl.reddit.ListingAdapter
+
     private lateinit var viewPagerActions: ViewPagerActions
     fun setViewPagerActions(viewPagerActions: ViewPagerActions){
         this.viewPagerActions = viewPagerActions
@@ -56,7 +57,9 @@ class ListingFragment : Fragment(), PostActions {
 
         // TODO: Update. Wrap with observer, observing a refresh live data
         parentModel.fetchData.observe(viewLifecycleOwner, Observer{
-            if(it) { model.fetchPosts(FrontPage) }
+            if(it) {
+                model.loadInitial(FrontPage)
+            }
         })
 
         binding.toolbar.setNavigationOnClickListener {
@@ -68,25 +71,10 @@ class ListingFragment : Fragment(), PostActions {
         setBottomAppbarClickListeners()
     }
 
-//    private val postViewClickListener = object :
-//        ListingItemClickListener {
-//        override fun onPostClicked(post: Post?, position: Int) {
-//            post?.let {
-//                model.addReadPost(it.asReadListing())
-//                postClickListener(it)
-//            }
-//        }
-//
-//        override fun onThumbnailClicked(post: Post) {
-//            val dialogFragment = ImageVideoViewerDialogFragment()
-//            dialogFragment.setPost(post)
-//            dialogFragment.show(parentFragmentManager, "test")
-//        }
-//
-//    }
-
     private fun setRecyclerView() {
-        val adapter = ListingAdapter({model.retry()}, this)
+//        val adapter = ListingAdapter({model.retry()}, this)
+        adapter = dev.gtcl.reddit.ListingAdapter({model.retry()}, this)
+
 
         binding.list.adapter = adapter
         model.networkState.observe(viewLifecycleOwner, Observer {
@@ -96,6 +84,32 @@ class ListingFragment : Fragment(), PostActions {
         parentModel.allReadPosts.observe(viewLifecycleOwner, Observer {
             adapter.setReadSubs(it)
         })
+
+        model.initialListing.observe(viewLifecycleOwner, Observer {
+            if(it != null) {
+//                adapter.loadInitial(test)
+                adapter.loadInitial(it)
+                model.loadInitialFinished()
+            }
+        })
+
+        val loadMoreScrollListener = LoadMoreScrollListener(binding.list.layoutManager as GridLayoutManager, object : OnLoadMoreListener{
+            override fun loadMore() {
+                model.loadAfter()
+            }
+        })
+
+        binding.list.addOnScrollListener(loadMoreScrollListener)
+
+        model.additionalListing.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                adapter.loadMore(it)
+                model.loadAfterFinished()
+                loadMoreScrollListener.finishedLoading()
+            }
+        })
+
+        (binding.list.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
     }
 
     private fun setSwipeToRefresh() {
@@ -103,6 +117,7 @@ class ListingFragment : Fragment(), PostActions {
             binding.swipeRefresh.isRefreshing = it == NetworkState.LOADING
         })
         binding.swipeRefresh.setOnRefreshListener {
+            adapter.loadInitial(emptyList())
             model.refresh()
         }
     }
@@ -114,12 +129,12 @@ class ListingFragment : Fragment(), PostActions {
                 // TODO: Move logic in ViewModel?
                 if (sort == PostSort.TOP || sort == PostSort.CONTROVERSIAL) {
                     TimePeriodSheetDialogFragment { time ->
-                        model.fetchPosts(model.listingSelected.value!!, sort, time)
+                        model.loadInitial(model.listingSelected.value!!, sort, time)
                         binding.list.scrollToPosition(0)
                         (binding.list.adapter as? ListingAdapter)?.submitList(null)
                     }.show(parentFragmentManager, TimePeriodSheetDialogFragment.TAG)
                 } else {
-                    model.fetchPosts(model.listingSelected.value!!, sort)
+                    model.loadInitial(model.listingSelected.value!!, sort)
                     binding.list.scrollToPosition(0)
                     (binding.list.adapter as? ListingAdapter)?.submitList(null)
                 }
@@ -132,7 +147,7 @@ class ListingFragment : Fragment(), PostActions {
             val subredditSelector = SubredditSelectorDialogFragment()
             subredditSelector.setSubredditOnClickListener(object : SubredditOnClickListener {
                 override fun onClick(listing: ListingType) {
-                    model.fetchPosts(listing)
+                    model.loadInitial(listing)
                     subredditSelector.dismiss()
                 }
             })
@@ -140,6 +155,7 @@ class ListingFragment : Fragment(), PostActions {
         }
 
         binding.refreshButton.setOnClickListener{
+            adapter.loadInitial(emptyList())
             model.refresh()
         }
     }
@@ -163,7 +179,8 @@ class ListingFragment : Fragment(), PostActions {
     }
 
     override fun hide(post: Post) {
-        TODO("Not yet implemented")
+        if(!post.hidden) model.hide(post.name)
+        else model.unhide(post.name)
     }
 
     override fun report(post: Post) {
@@ -171,6 +188,7 @@ class ListingFragment : Fragment(), PostActions {
     }
 
     override fun postClicked(post: Post) {
+        parentModel.addReadPost(post.asReadListing())
         viewPagerActions.viewComments(post)
     }
 

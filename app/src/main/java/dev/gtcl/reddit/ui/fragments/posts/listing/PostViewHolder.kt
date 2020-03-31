@@ -65,7 +65,7 @@ class PostViewHolder private constructor(private val binding:ItemPostBinding)
                             }
                         }
                         MenuItem.HIDE.position -> {
-//                            postActions.hide(post)
+                            postActions.hide(post)
                             hide()
                         }
                         MenuItem.REPORT.position -> postActions.report(post)

@@ -52,12 +52,10 @@
                 android:id="@+id/list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:scrollbars="vertical"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="1"
                 tools:itemCount="16"
-                tools:listitem="@layout/item_post"
-                app:posts="@{model.posts}" />
+                tools:listitem="@layout/item_post" />
 
         </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

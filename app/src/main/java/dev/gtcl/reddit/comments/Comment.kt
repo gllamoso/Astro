@@ -167,6 +167,7 @@ class CommentAdapter {
                 jsonReader.beginObject()
                 var name: String? = null
                 var saved: Boolean? = null
+                var hidden: Boolean? = null
                 var title: String? = null
                 var score: Int? = null
                 var author: String? = null
@@ -187,6 +188,7 @@ class CommentAdapter {
                     when(jsonReader.nextName()){
                         "name" -> name = jsonReader.nextString()
                         "saved" -> saved = jsonReader.nextBoolean()
+                        "hidden" -> hidden = jsonReader.nextBoolean()
                         "title" -> title = jsonReader.nextString()
                         "score" -> score = jsonReader.nextInt()
                         "author" -> author = jsonReader.nextString()
@@ -275,6 +277,7 @@ class CommentAdapter {
                     thumbnail = thumbnail,
                     url = url,
                     likes = likes,
+                    hidden = hidden!!,
                     permalink = permalink!!,
                     selftext = selftext!!,
                     isSelf = isSelf!!,

@@ -39,11 +39,13 @@ class ListingData(
     val before: String?
 )
 
-sealed class ListingChild(@Json(name="kind") val kind: ListingItemType)
+sealed class ListingChild(@Json(name="kind") val kind: ListingItemType){
+    abstract val data: ListingItem
+}
 
-data class CommentListing(val data: Comment): ListingChild(ListingItemType.Comment) // t1
-data class PostListing(val data: Post) : ListingChild(ListingItemType.Post) // t3
-data class MoreListing(val data: More): ListingChild(ListingItemType.More) // more
+data class CommentListing(override val data: Comment): ListingChild(ListingItemType.Comment) // t1
+data class PostListing(override val data: Post) : ListingChild(ListingItemType.Post) // t3
+data class MoreListing(override val data: More): ListingChild(ListingItemType.More) // more
 
 // http://patorjk.com/software/taag/#p=display&f=Ivrit&t=t1%20-%20Comment
 
@@ -90,6 +92,7 @@ data class Post(
     val thumbnail: String?,
     val url: String?,
     var likes: Boolean?,
+    var hidden: Boolean,
     val permalink: String,
     val selftext: String,
     @Json(name = "is_self")
@@ -151,7 +154,7 @@ data class RedditVideo(
 
 class TrophyListingResponse(val data: TrophyListingData)
 class TrophyListingData(val trophies: List<TrophyListing>)
-data class TrophyListing(val data: Award): ListingChild(ListingItemType.Award)
+data class TrophyListing(override val data: Award): ListingChild(ListingItemType.Award)
 
 @Parcelize
 data class Award(
@@ -178,6 +181,8 @@ data class More(
     val children: List<String>,
     var count: Int
 ): ListingItem(ListingItemType.More) {
+
+
 
     fun getChildrenAsValidString(): String {
         if(this.children.isEmpty()) return ""

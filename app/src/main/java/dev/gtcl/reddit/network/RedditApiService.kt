@@ -70,6 +70,16 @@ interface RedditApiService {
         @Header("Authorization") authorization: String,
         @Query("id") id: String): Call<Void>
 
+    @POST("/api/hide")
+    fun hide(
+        @Header("Authorization") authorization: String,
+        @Query("id") id: String): Call<Void>
+
+    @POST("/api/unhide")
+    fun unhide(
+        @Header("Authorization") authorization: String,
+        @Query("id") id: String): Call<Void>
+
 //     ____   __   ____  ____  ____
 //    (  _ \ /  \ / ___)(_  _)/ ___)
 //     ) __/(  O )\___ \  )(  \___ \
