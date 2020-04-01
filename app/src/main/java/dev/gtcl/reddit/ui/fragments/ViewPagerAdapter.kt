@@ -1,15 +1,14 @@
 package dev.gtcl.reddit.ui.fragments
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import dev.gtcl.reddit.network.Post
+import dev.gtcl.reddit.listings.Post
 import dev.gtcl.reddit.ui.fragments.account.user.UserFragment
 import dev.gtcl.reddit.ui.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
 import dev.gtcl.reddit.ui.fragments.comments.PRELOADED_POST_KEY
-import dev.gtcl.reddit.ui.fragments.posts.listing.ListingFragment
+import dev.gtcl.reddit.ui.fragments.home.listing.ListingFragment
 
 class ViewPagerAdapter(fragment: Fragment, startingFragment: StartingViewPagerFragments, private val actions: ViewPagerActions): FragmentStateAdapter(fragment){
     val fragments = ArrayList<Fragment>()

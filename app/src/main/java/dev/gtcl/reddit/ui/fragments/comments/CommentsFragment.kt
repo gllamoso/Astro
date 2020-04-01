@@ -2,7 +2,6 @@ package dev.gtcl.reddit.ui.fragments.comments
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -25,7 +24,8 @@ import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.buildMediaSource
 import dev.gtcl.reddit.databinding.FragmentCommentsBinding
-import dev.gtcl.reddit.network.*
+import dev.gtcl.reddit.listings.More
+import dev.gtcl.reddit.listings.Post
 import dev.gtcl.reddit.ui.ViewPagerActions
 
 const val PRELOADED_POST_KEY = "POST"

@@ -5,11 +5,9 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Point
 import android.graphics.Typeface
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.GridLayout
 import android.widget.ImageView
@@ -17,7 +15,6 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.core.view.marginStart
 import androidx.databinding.BindingAdapter
 import androidx.paging.PagedList
 import androidx.recyclerview.widget.RecyclerView
@@ -25,11 +22,11 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import dev.gtcl.reddit.databinding.ItemAwardBinding
 import dev.gtcl.reddit.listings.*
-import dev.gtcl.reddit.network.Award
-import dev.gtcl.reddit.network.Comment
-import dev.gtcl.reddit.network.ListingItem
-import dev.gtcl.reddit.network.More
-import dev.gtcl.reddit.ui.fragments.posts.listing.ListingAdapter
+import dev.gtcl.reddit.listings.Award
+import dev.gtcl.reddit.listings.Comment
+import dev.gtcl.reddit.listings.ListingItem
+import dev.gtcl.reddit.listings.More
+import dev.gtcl.reddit.ui.fragments.home.listing.ListingAdapter
 
 @BindingAdapter("imageUrlAndHideIfNull")
 fun bindImageAndHideIfNull(imgView: ImageView, imgUrl: String?){

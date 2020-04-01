@@ -1,7 +1,7 @@
 package dev.gtcl.reddit.ui
 
 import dev.gtcl.reddit.Vote
-import dev.gtcl.reddit.network.Post
+import dev.gtcl.reddit.listings.Post
 
 interface PostActions {
     fun vote(post: Post, vote: Vote)

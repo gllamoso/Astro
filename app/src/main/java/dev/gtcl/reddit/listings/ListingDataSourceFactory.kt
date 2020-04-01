@@ -5,9 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.paging.DataSource
 import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.Time
-import dev.gtcl.reddit.network.ListingItem
-import dev.gtcl.reddit.users.AccessToken
-import dev.gtcl.reddit.users.User
+import dev.gtcl.reddit.listings.users.AccessToken
+import dev.gtcl.reddit.listings.users.User
 import java.util.concurrent.Executor
 
 class ListingDataSourceFactory(private val accessToken: AccessToken?, private val user: User?, private val listingType: ListingType, private val sort: PostSort, private val t: Time?, private val retryExecutor: Executor) : DataSource.Factory<String, ListingItem>() {

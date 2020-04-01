@@ -2,8 +2,8 @@ package dev.gtcl.reddit.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import dev.gtcl.reddit.users.User
-import dev.gtcl.reddit.users.UserSubreddit
+import dev.gtcl.reddit.listings.users.User
+import dev.gtcl.reddit.listings.users.UserSubreddit
 
 @Entity(tableName = "user_table")
 data class DatabaseUser constructor(

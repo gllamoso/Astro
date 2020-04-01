@@ -1,12 +1,10 @@
 package dev.gtcl.reddit.ui.fragments.account.user
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.R
@@ -14,8 +12,7 @@ import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.databinding.FragmentUserBinding
-import dev.gtcl.reddit.network.Award
-import dev.gtcl.reddit.network.Post
+import dev.gtcl.reddit.listings.Post
 import dev.gtcl.reddit.ui.MainActivity
 import dev.gtcl.reddit.ui.MainActivityViewModel
 import dev.gtcl.reddit.ui.PostActions

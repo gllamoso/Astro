@@ -7,9 +7,8 @@ import android.view.ViewGroup
 import android.widget.BaseExpandableListAdapter
 import android.widget.ImageView
 import android.widget.TextView
-import android.widget.Toast
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.users.User
+import dev.gtcl.reddit.listings.users.User
 
 class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners: DrawerOnClickListeners) : BaseExpandableListAdapter(){
     private val addAccountString = context.getString(R.string.add_account)

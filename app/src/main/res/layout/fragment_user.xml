@@ -63,7 +63,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     app:layout_collapseMode="pin"
-                    app:navigationIcon="?homeAsUpIndicator" />
+                    app:navigationIcon="@drawable/ic_menu_24dp" />
 
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 

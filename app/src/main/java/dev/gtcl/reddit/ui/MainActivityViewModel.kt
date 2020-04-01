@@ -8,10 +8,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.database.DatabaseUser
 import dev.gtcl.reddit.database.ReadListing
-import dev.gtcl.reddit.users.AccessToken
-import dev.gtcl.reddit.users.User
+import dev.gtcl.reddit.listings.users.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -21,7 +19,7 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
 
     // Repos
     private val userRepository = application.userRepository
-    private val postRepository = application.postRepository
+    private val postRepository = application.listingRepository
 
     // Scopes
     private val viewModelJob = Job()

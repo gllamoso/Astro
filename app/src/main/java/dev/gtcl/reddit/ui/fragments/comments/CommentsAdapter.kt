@@ -7,9 +7,9 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.ItemCommentBinding
 import dev.gtcl.reddit.databinding.ItemMoreCommentBinding
-import dev.gtcl.reddit.network.Comment
-import dev.gtcl.reddit.network.ListingItem
-import dev.gtcl.reddit.network.More
+import dev.gtcl.reddit.listings.Comment
+import dev.gtcl.reddit.listings.ListingItem
+import dev.gtcl.reddit.listings.More
 
 class CommentsAdapter(private val commentItemClickListener: CommentItemClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 

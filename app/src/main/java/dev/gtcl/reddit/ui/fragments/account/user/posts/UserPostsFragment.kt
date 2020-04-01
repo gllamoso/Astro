@@ -9,7 +9,7 @@ import androidx.lifecycle.Observer
 import dev.gtcl.reddit.databinding.FragmentSimpleRecyclerViewBinding
 import dev.gtcl.reddit.ui.PostActions
 import dev.gtcl.reddit.ui.fragments.account.user.UserFragment
-import dev.gtcl.reddit.ui.fragments.posts.listing.ListingAdapter
+import dev.gtcl.reddit.ui.fragments.home.listing.ListingAdapter
 
 class UserPostsFragment : Fragment() {
     private lateinit var binding: FragmentSimpleRecyclerViewBinding

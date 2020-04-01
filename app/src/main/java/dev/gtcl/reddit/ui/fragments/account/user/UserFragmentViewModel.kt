@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.fragments.account.user
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -10,9 +9,9 @@ import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.ProfileInfo
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.listings.ProfileListing
-import dev.gtcl.reddit.network.ListingItem
-import dev.gtcl.reddit.network.TrophyListingResponse
-import dev.gtcl.reddit.users.User
+import dev.gtcl.reddit.listings.ListingItem
+import dev.gtcl.reddit.listings.TrophyListingResponse
+import dev.gtcl.reddit.listings.users.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -22,7 +21,7 @@ class UserFragmentViewModel(val application: RedditApplication): ViewModel() {
 
     // Repos
     private val userRepository = application.userRepository
-    private val postRepository = application.postRepository
+    private val postRepository = application.listingRepository
 
     // Scopes
     private val viewModelJob = Job()

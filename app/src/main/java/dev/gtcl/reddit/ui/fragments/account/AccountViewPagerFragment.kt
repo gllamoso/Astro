@@ -8,8 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import dev.gtcl.reddit.databinding.FragmentMainBinding
-import dev.gtcl.reddit.network.Comment
-import dev.gtcl.reddit.network.Post
+import dev.gtcl.reddit.listings.Comment
+import dev.gtcl.reddit.listings.Post
 import dev.gtcl.reddit.ui.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.StartingViewPagerFragments
 import dev.gtcl.reddit.ui.fragments.SlidePageTransformer

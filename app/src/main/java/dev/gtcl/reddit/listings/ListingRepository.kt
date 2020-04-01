@@ -6,10 +6,9 @@ import androidx.paging.toLiveData
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.ReadListing
 import dev.gtcl.reddit.database.redditDatabase
-import dev.gtcl.reddit.network.ListingItem
-import dev.gtcl.reddit.network.ListingResponse
+import dev.gtcl.reddit.listings.comments.Child
+import dev.gtcl.reddit.listings.comments.CommentPage
 import dev.gtcl.reddit.network.RedditApi
-import dev.gtcl.reddit.network.TrophyListingResponse
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -17,7 +16,7 @@ import retrofit2.Call
 import java.lang.IllegalStateException
 import java.util.concurrent.Executor
 
-class PostRepository internal constructor(val application: RedditApplication, private val networkExecutor: Executor){
+class ListingRepository internal constructor(val application: RedditApplication, private val networkExecutor: Executor){
     private val database = redditDatabase(application)
 
     // --- NETWORK
@@ -119,13 +118,22 @@ class PostRepository internal constructor(val application: RedditApplication, pr
             database.readPostDao.insert(readListing)
         }
     }
+
+    // --- COMMENTS
+    @MainThread
+    fun getPostAndComments(permalink: String, sort: CommentSort = CommentSort.BEST, limit: Int = 15): Deferred<CommentPage> =
+        RedditApi.base.getPostAndComments(permalink = "$permalink.json", sort = sort, limit = limit)
+
+    @MainThread
+    fun getMoreComments(children: String, linkId: String, sort: CommentSort = CommentSort.BEST): Deferred<List<Child>> =
+        RedditApi.base.getMoreComments(children = children, linkId = linkId, sort = sort)
 }
 
-private lateinit var INSTANCE: PostRepository
-fun getPostRepository(application: RedditApplication, networkExecutor: Executor): PostRepository{
-    synchronized(PostRepository::class.java){
+private lateinit var INSTANCE: ListingRepository
+fun getPostRepository(application: RedditApplication, networkExecutor: Executor): ListingRepository{
+    synchronized(ListingRepository::class.java){
         if(!::INSTANCE.isInitialized)
-            INSTANCE = PostRepository(application, networkExecutor)
+            INSTANCE = ListingRepository(application, networkExecutor)
     }
     return INSTANCE
 }

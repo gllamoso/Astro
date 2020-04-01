@@ -5,16 +5,14 @@ import androidx.lifecycle.MutableLiveData
 import androidx.paging.PageKeyedDataSource
 import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.Time
-import dev.gtcl.reddit.ProfileInfo
 import dev.gtcl.reddit.network.*
-import dev.gtcl.reddit.users.AccessToken
-import dev.gtcl.reddit.users.User
+import dev.gtcl.reddit.listings.users.AccessToken
+import dev.gtcl.reddit.listings.users.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.io.IOException
-import java.io.InvalidClassException
 import java.io.InvalidObjectException
 import java.util.concurrent.Executor
 

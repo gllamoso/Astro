@@ -6,7 +6,7 @@
 
     <fragment
         android:id="@+id/mainFragment"
-        android:name="dev.gtcl.reddit.ui.fragments.posts.ListingViewPagerFragment"
+        android:name="dev.gtcl.reddit.ui.fragments.home.HomeViewPagerFragment"
         android:label="MainFragment" />
     <fragment
         android:id="@+id/testFragment"

@@ -22,7 +22,7 @@ import dev.gtcl.reddit.database.asDomainModel
 import dev.gtcl.reddit.databinding.ActivityMainBinding
 import dev.gtcl.reddit.databinding.NavHeaderBinding
 import dev.gtcl.reddit.ui.signin.SignInActivity
-import dev.gtcl.reddit.users.User
+import dev.gtcl.reddit.listings.users.User
 
 const val URL_KEY = "URL"
 const val REDIRECT_URL_REQUEST_CODE = 1

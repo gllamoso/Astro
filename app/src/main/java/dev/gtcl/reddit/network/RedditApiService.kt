@@ -9,26 +9,23 @@ import dev.gtcl.reddit.CommentSort
 import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.ProfileInfo
 import dev.gtcl.reddit.Time
-import dev.gtcl.reddit.comments.Child
-import dev.gtcl.reddit.comments.CommentAdapter
-import dev.gtcl.reddit.comments.CommentPage
-import dev.gtcl.reddit.subs.SubredditListingResponse
-import dev.gtcl.reddit.subs.SubredditNamesResponse
-import dev.gtcl.reddit.users.AccessToken
-import dev.gtcl.reddit.users.User
+import dev.gtcl.reddit.listings.*
+import dev.gtcl.reddit.listings.comments.Child
+import dev.gtcl.reddit.listings.comments.CommentAdapter
+import dev.gtcl.reddit.listings.comments.CommentPage
+import dev.gtcl.reddit.listings.subs.SubredditListingResponse
+import dev.gtcl.reddit.listings.subs.SubredditNamesResponse
+import dev.gtcl.reddit.listings.users.AccessToken
+import dev.gtcl.reddit.listings.users.User
 import kotlinx.coroutines.Deferred
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
-import okhttp3.ResponseBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Call
-import retrofit2.Converter
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
-import java.lang.reflect.Type
-import java.util.*
 
 
 interface RedditApiService {

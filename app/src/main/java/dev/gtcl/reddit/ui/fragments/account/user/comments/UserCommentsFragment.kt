@@ -1,18 +1,15 @@
 package dev.gtcl.reddit.ui.fragments.account.user.comments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import dev.gtcl.reddit.databinding.FragmentSimpleRecyclerViewBinding
-import dev.gtcl.reddit.network.Post
 import dev.gtcl.reddit.ui.PostActions
-import dev.gtcl.reddit.ui.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.account.user.UserFragment
-import dev.gtcl.reddit.ui.fragments.posts.listing.ListingAdapter
+import dev.gtcl.reddit.ui.fragments.home.listing.ListingAdapter
 
 class UserCommentsFragment : Fragment() {
     private lateinit var binding: FragmentSimpleRecyclerViewBinding
