@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui
+package dev.gtcl.reddit.ui.activities
 
 import android.content.Context
 import android.view.LayoutInflater

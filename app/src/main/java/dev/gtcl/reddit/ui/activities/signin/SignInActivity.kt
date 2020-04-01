@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.signin
+package dev.gtcl.reddit.ui.activities.signin
 
 import android.app.Activity
 import android.content.Intent
@@ -14,7 +14,7 @@ import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.ActivityWebviewBinding
-import dev.gtcl.reddit.ui.URL_KEY
+import dev.gtcl.reddit.ui.activities.URL_KEY
 
 class SignInActivity : AppCompatActivity(){
 

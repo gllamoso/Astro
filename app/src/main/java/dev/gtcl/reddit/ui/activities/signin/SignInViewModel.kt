@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.signin
+package dev.gtcl.reddit.ui.activities.signin
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData

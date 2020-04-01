@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui
+package dev.gtcl.reddit.ui.activities
 
 import android.annotation.SuppressLint
 import android.app.Activity
@@ -21,7 +21,7 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.asDomainModel
 import dev.gtcl.reddit.databinding.ActivityMainBinding
 import dev.gtcl.reddit.databinding.NavHeaderBinding
-import dev.gtcl.reddit.ui.signin.SignInActivity
+import dev.gtcl.reddit.ui.activities.signin.SignInActivity
 import dev.gtcl.reddit.listings.users.User
 
 const val URL_KEY = "URL"
@@ -77,44 +77,44 @@ class MainActivity : FragmentActivity() {
         binding.expandableListView.addHeaderView(header.root)
 
         val adapter = MainDrawerAdapter(this,
-                object :
-                    DrawerOnClickListeners {
-                    override fun onAddAccountClicked() {
-                        startSignInActivity()
-                    }
+            object :
+                DrawerOnClickListeners {
+                override fun onAddAccountClicked() {
+                    startSignInActivity()
+                }
 
-                    override fun onRemoveAccountClicked(username: String) {
-                        model.deleteUserFromDatabase(username)
-                    }
+                override fun onRemoveAccountClicked(username: String) {
+                    model.deleteUserFromDatabase(username)
+                }
 
-                    override fun onAccountClicked(user: User) {
-                        model.setCurrentUser(user, true)
-                        drawerLayout.closeDrawer(Gravity.START)
-                    }
+                override fun onAccountClicked(user: User) {
+                    model.setCurrentUser(user, true)
+                    drawerLayout.closeDrawer(Gravity.START)
+                }
 
-                    override fun onLogoutClicked() {
-                        model.setCurrentUser(null, true)
-                        drawerLayout.closeDrawer(Gravity.START)
-                    }
+                override fun onLogoutClicked() {
+                    model.setCurrentUser(null, true)
+                    drawerLayout.closeDrawer(Gravity.START)
+                }
 
-                    override fun onPostsClicked() {
-                        Toast.makeText(baseContext, "Posts", Toast.LENGTH_LONG).show()
-                        drawerLayout.closeDrawer(Gravity.START)
-                    }
+                override fun onPostsClicked() {
+                    Toast.makeText(baseContext, "Posts", Toast.LENGTH_LONG).show()
+                    drawerLayout.closeDrawer(Gravity.START)
+                }
 
-                    override fun onMyAccountClicked() {
+                override fun onMyAccountClicked() {
 //                        val bundle = bundleOf("user" to model.currentUser.value?.name)
 //                        navController.navigate(R.id.userFragment, bundle)
-                        navController.navigate(R.id.testFragment)
-                        drawerLayout.closeDrawer(Gravity.START)
-                    }
+                    navController.navigate(R.id.testFragment)
+                    drawerLayout.closeDrawer(Gravity.START)
+                }
 
-                    override fun onSettingsClicked() {
-                        Toast.makeText(baseContext, "Settings", Toast.LENGTH_LONG).show()
-                        drawerLayout.closeDrawer(Gravity.START)
-                    }
+                override fun onSettingsClicked() {
+                    Toast.makeText(baseContext, "Settings", Toast.LENGTH_LONG).show()
+                    drawerLayout.closeDrawer(Gravity.START)
+                }
 
-                })
+            })
 
         binding.expandableListView.setAdapter(adapter)
 
@@ -160,7 +160,9 @@ class MainActivity : FragmentActivity() {
         val url = String.format(getString(R.string.auth_url), getString(R.string.client_id), STATE, getString(R.string.redirect_uri))
         val intent = Intent(this, SignInActivity::class.java)
         intent.putExtra(URL_KEY, url)
-        startActivityForResult(intent, REDIRECT_URL_REQUEST_CODE)
+        startActivityForResult(intent,
+            REDIRECT_URL_REQUEST_CODE
+        )
     }
 
     fun navigateUp(){

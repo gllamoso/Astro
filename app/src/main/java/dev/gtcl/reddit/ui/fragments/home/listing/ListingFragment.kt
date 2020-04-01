@@ -16,6 +16,8 @@ import dev.gtcl.reddit.listings.Post
 import dev.gtcl.reddit.listings.FrontPage
 import dev.gtcl.reddit.listings.ListingType
 import dev.gtcl.reddit.ui.*
+import dev.gtcl.reddit.ui.activities.MainActivity
+import dev.gtcl.reddit.ui.activities.MainActivityViewModel
 import dev.gtcl.reddit.ui.fragments.home.listing.sort_sheet.SortSheetDialogFragment
 import dev.gtcl.reddit.ui.fragments.home.subreddits.SubredditOnClickListener
 import dev.gtcl.reddit.ui.fragments.home.subreddits.SubredditSelectorDialogFragment

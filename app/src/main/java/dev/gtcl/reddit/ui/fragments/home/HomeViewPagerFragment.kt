@@ -16,8 +16,8 @@ import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentMainBinding
 import dev.gtcl.reddit.listings.Comment
 import dev.gtcl.reddit.listings.Post
-import dev.gtcl.reddit.ui.MainActivity
-import dev.gtcl.reddit.ui.MainActivityViewModel
+import dev.gtcl.reddit.ui.activities.MainActivity
+import dev.gtcl.reddit.ui.activities.MainActivityViewModel
 import dev.gtcl.reddit.ui.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
