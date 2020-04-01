@@ -25,8 +25,7 @@ import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.buildMediaSource
 import dev.gtcl.reddit.databinding.FragmentCommentsBinding
-import dev.gtcl.reddit.network.More
-import dev.gtcl.reddit.network.Post
+import dev.gtcl.reddit.network.*
 import dev.gtcl.reddit.ui.ViewPagerActions
 
 const val PRELOADED_POST_KEY = "POST"

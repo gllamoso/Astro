@@ -4,6 +4,7 @@ import android.app.Application
 import androidx.annotation.MainThread
 import dev.gtcl.reddit.CommentSort
 import dev.gtcl.reddit.database.redditDatabase
+import dev.gtcl.reddit.network.ListingResponse
 import dev.gtcl.reddit.network.RedditApi
 import kotlinx.coroutines.Deferred
 

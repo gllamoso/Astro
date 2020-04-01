@@ -2,11 +2,8 @@ package dev.gtcl.reddit.comments
 
 import android.annotation.SuppressLint
 import android.os.Build
-import android.os.Parcel
-import android.os.Parcelable
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonReader
-import dev.gtcl.reddit.CommentSort
 import dev.gtcl.reddit.network.*
 import java.lang.RuntimeException
 import java.text.SimpleDateFormat
@@ -26,32 +23,6 @@ data class MoreComments(
     val depth: Int,
     val comments: List<ListingItem>
 )
-
-data class CommentUrl(
-    val url: String,
-    var sort: CommentSort = CommentSort.BEST): Parcelable {
-    constructor(parcel: Parcel) : this(
-        parcel.readString()!!,
-        CommentSort.valueOf(parcel.readString()!!)
-    )
-
-    override fun writeToParcel(parcel: Parcel, flags: Int) {
-        parcel.writeString(url)
-        parcel.writeString(sort.name)
-    }
-
-    override fun describeContents() = 0
-
-    companion object CREATOR : Parcelable.Creator<CommentUrl> {
-        override fun createFromParcel(parcel: Parcel): CommentUrl {
-            return CommentUrl(parcel)
-        }
-
-        override fun newArray(size: Int): Array<CommentUrl?> {
-            return arrayOfNulls(size)
-        }
-    }
-}
 
 val AUTHOR_REGEX = "data-author=\"[A-Za-z0-9_\\-]+\"".toRegex()
 val AUTHOR_FULLNAME_REGEX = "data-author-fullname=\"[A-Za-z0-9_\\-]+\"".toRegex()
@@ -145,13 +116,15 @@ class CommentAdapter {
     @FromJson
     fun getCommentsPageInfo(jsonReader: JsonReader): CommentPage { // TODO: Finish
         jsonReader.beginArray()
-        val post = getRedditPost(jsonReader)
-        val comments = getComments(jsonReader, 0)
+        val post = getPostFromListing(jsonReader)
+        val comments = getCommentsFromListing(jsonReader, 0)
         jsonReader.endArray()
         return CommentPage(post, comments)
     }
 
-    private fun getRedditPost(jsonReader: JsonReader): Post { // TODO: Finish
+    // POST
+
+    private fun getPostFromListing(jsonReader: JsonReader): Post { // TODO: Finish
         var post: Post? = null
         jsonReader.beginObject()
         if(jsonReader.nextName() != "kind") throw RuntimeException("Did not find 'kind' key.")
@@ -164,129 +137,7 @@ class CommentAdapter {
                 jsonReader.beginObject()
                 if(jsonReader.nextName() != "kind" || jsonReader.nextString() != "t3") throw RuntimeException("Unable to find posted. Expected to find 'kind' = 't3'")
                 if(jsonReader.nextName() != "data") throw RuntimeException("Did not find 'kind' key.")
-                jsonReader.beginObject()
-                var name: String? = null
-                var saved: Boolean? = null
-                var hidden: Boolean? = null
-                var title: String? = null
-                var score: Int? = null
-                var author: String? = null
-                var subreddit: String? = null
-                var numComments: Int? = null
-                var created: Long? = null
-                var thumbnail: String? = null
-                var url: String? = null
-                var likes: Boolean? = null
-                var permalink: String? = null
-                var selftext: String? = null
-                var isSelf: Boolean? = null
-                var upvoteRatio: Double? = null
-                var secureMedia: SecureMedia? = null
-                var preview: Preview? = null
-                var media: Media? = null
-                while(jsonReader.hasNext()){
-                    when(jsonReader.nextName()){
-                        "name" -> name = jsonReader.nextString()
-                        "saved" -> saved = jsonReader.nextBoolean()
-                        "hidden" -> hidden = jsonReader.nextBoolean()
-                        "title" -> title = jsonReader.nextString()
-                        "score" -> score = jsonReader.nextInt()
-                        "author" -> author = jsonReader.nextString()
-                        "subreddit" -> subreddit = jsonReader.nextString()
-                        "num_comments" -> numComments = jsonReader.nextInt()
-                        "created_utc" -> created = jsonReader.nextLong()
-                        "thumbnail" -> thumbnail = jsonReader.nextString()
-                        "url" -> url = jsonReader.nextString()
-                        "likes" -> {
-                            if(jsonReader.peek() == JsonReader.Token.BOOLEAN)
-                                likes = jsonReader.nextBoolean()
-                            else
-                                jsonReader.skipValue()
-                        }
-                        "permalink" -> permalink = jsonReader.nextString()
-                        "selftext" -> selftext = jsonReader.nextString()
-                        "is_self" -> isSelf = jsonReader.nextBoolean()
-                        "upvote_ratio" -> upvoteRatio = jsonReader.nextDouble()
-                        "secure_media" -> {
-                            if(jsonReader.peek() != JsonReader.Token.NULL) {
-                                jsonReader.beginObject()
-                                while (jsonReader.hasNext()) {
-                                    if (jsonReader.nextName() == "reddit_video") {
-                                        jsonReader.beginObject()
-                                        while (jsonReader.hasNext()) {
-                                            if (jsonReader.nextName() == "hls_url") {
-                                                val hlsUrl = jsonReader.nextString()
-                                                val video = RedditVideo(hlsUrl)
-                                                secureMedia = SecureMedia(video)
-                                            } else jsonReader.skipValue()
-                                        }
-                                        jsonReader.endObject()
-                                    } else jsonReader.skipValue()
-                                }
-                                jsonReader.endObject()
-                            } else jsonReader.skipValue()
-                        }
-                        "media" -> {
-                            if(jsonReader.peek() != JsonReader.Token.NULL) {
-                                jsonReader.beginObject()
-                                while (jsonReader.hasNext()) {
-                                    if (jsonReader.nextName() == "reddit_video") {
-                                        jsonReader.beginObject()
-                                        while (jsonReader.hasNext()) {
-                                            if (jsonReader.nextName() == "hls_url") {
-                                                val hlsUrl = jsonReader.nextString()
-                                                val video = RedditVideo(hlsUrl)
-                                                media = Media(video)
-                                            } else jsonReader.skipValue()
-                                        }
-                                        jsonReader.endObject()
-                                    } else jsonReader.skipValue()
-                                }
-                                jsonReader.endObject()
-                            } else jsonReader.skipValue()
-                        }
-                        "preview" -> {
-                            jsonReader.beginObject()
-                            while(jsonReader.hasNext()){
-                                if(jsonReader.nextName() == "reddit_video_preview"){
-                                    jsonReader.beginObject()
-                                    while(jsonReader.hasNext()){
-                                        if(jsonReader.nextName() == "hls_url"){
-                                            val hlsUrl = jsonReader.nextString()
-                                            val videoPreview = RedditVideo(hlsUrl)
-                                            preview = Preview(videoPreview)
-                                        } else jsonReader.skipValue()
-                                    }
-                                    jsonReader.endObject()
-                                } else jsonReader.skipValue()
-                            }
-                            jsonReader.endObject()
-                        }
-                        else -> jsonReader.skipValue()
-                    }
-                }
-                post = Post(
-                    name = name!!,
-                    saved = saved!!,
-                    title = title!!,
-                    score = score!!,
-                    author = author!!,
-                    subreddit = subreddit!!,
-                    numComments = numComments!!,
-                    created = created!!,
-                    thumbnail = thumbnail,
-                    url = url,
-                    likes = likes,
-                    hidden = hidden!!,
-                    permalink = permalink!!,
-                    selftext = selftext!!,
-                    isSelf = isSelf!!,
-                    upvoteRatio = upvoteRatio,
-                    secureMedia = secureMedia,
-                    preview = preview,
-                    media = media)
-
-                jsonReader.endObject() // end "data"
+                post = getPostFromData(jsonReader)
                 jsonReader.endObject() // end child
                 jsonReader.endArray()
             }
@@ -298,16 +149,156 @@ class CommentAdapter {
         return post!!
     }
 
-    @FromJson
-    fun getComments(jsonReader: JsonReader): List<ListingItem> {
-        jsonReader.beginArray()
-        jsonReader.skipValue() // skip Post details
-        val comments = getComments(jsonReader, 0)
-        jsonReader.endArray()
-        return comments
+    private fun getPostFromData(jsonReader: JsonReader) : Post{
+        jsonReader.beginObject()
+        var name: String? = null
+        var saved: Boolean? = null
+        var hidden: Boolean? = null
+        var title: String? = null
+        var score: Int? = null
+        var author: String? = null
+        var subreddit: String? = null
+        var numComments: Int? = null
+        var created: Long? = null
+        var thumbnail: String? = null
+        var url: String? = null
+        var likes: Boolean? = null
+        var permalink: String? = null
+        var selftext: String? = null
+        var isSelf: Boolean? = null
+        var upvoteRatio: Double? = null
+        var secureMedia: SecureMedia? = null
+        var preview: Preview? = null
+        var media: Media? = null
+        while(jsonReader.hasNext()){
+            when(jsonReader.nextName()){
+                "name" -> name = jsonReader.nextString()
+                "saved" -> saved = jsonReader.nextBoolean()
+                "hidden" -> hidden = jsonReader.nextBoolean()
+                "title" -> title = jsonReader.nextString()
+                "score" -> score = jsonReader.nextInt()
+                "author" -> author = jsonReader.nextString()
+                "subreddit" -> subreddit = jsonReader.nextString()
+                "num_comments" -> numComments = jsonReader.nextInt()
+                "created_utc" -> created = jsonReader.nextLong()
+                "thumbnail" -> thumbnail = jsonReader.nextString()
+                "url" -> url = jsonReader.nextString()
+                "likes" -> {
+                    if(jsonReader.peek() == JsonReader.Token.BOOLEAN)
+                        likes = jsonReader.nextBoolean()
+                    else
+                        jsonReader.skipValue()
+                }
+                "permalink" -> permalink = jsonReader.nextString()
+                "selftext" -> selftext = jsonReader.nextString()
+                "is_self" -> isSelf = jsonReader.nextBoolean()
+                "upvote_ratio" -> upvoteRatio = jsonReader.nextDouble()
+                "secure_media" -> {
+                    if(jsonReader.peek() != JsonReader.Token.NULL) {
+                        secureMedia = getSecureMedia(jsonReader)
+                    } else jsonReader.skipValue()
+                }
+                "media" -> {
+                    if(jsonReader.peek() != JsonReader.Token.NULL) {
+                        media = getMedia(jsonReader)
+                    } else jsonReader.skipValue()
+                }
+                "preview" -> {
+                    preview = getPreview(jsonReader)
+                }
+                else -> jsonReader.skipValue()
+            }
+        }
+        jsonReader.endObject() // end "data"
+
+        return Post(
+            name = name!!,
+            saved = saved!!,
+            title = title!!,
+            score = score!!,
+            author = author!!,
+            subreddit = subreddit!!,
+            numComments = numComments!!,
+            created = created!!,
+            thumbnail = thumbnail,
+            url = url,
+            likes = likes,
+            hidden = hidden!!,
+            permalink = permalink!!,
+            selftext = selftext!!,
+            isSelf = isSelf!!,
+            upvoteRatio = upvoteRatio,
+            secureMedia = secureMedia,
+            preview = preview,
+            media = media)
     }
 
-    private fun getComments(jsonReader: JsonReader, depth: Int): List<ListingItem> {
+    private fun getSecureMedia(jsonReader: JsonReader): SecureMedia{
+        var hlsUrl: String? = null
+        var video: RedditVideo? = null
+        jsonReader.beginObject()
+        while (jsonReader.hasNext()) {
+            if (jsonReader.nextName() == "reddit_video") {
+                jsonReader.beginObject()
+                while (jsonReader.hasNext()) {
+                    if (jsonReader.nextName() == "hls_url") {
+                        hlsUrl = jsonReader.nextString()
+                        video = RedditVideo(hlsUrl)
+                    } else jsonReader.skipValue()
+                }
+                jsonReader.endObject()
+            } else jsonReader.skipValue()
+        }
+        jsonReader.endObject()
+
+        return SecureMedia(video)
+    }
+
+    private fun getMedia(jsonReader: JsonReader): Media{
+        var hlsUrl: String? = null
+        var video: RedditVideo? = null
+        jsonReader.beginObject()
+        while (jsonReader.hasNext()) {
+            if (jsonReader.nextName() == "reddit_video") {
+                jsonReader.beginObject()
+                while (jsonReader.hasNext()) {
+                    if (jsonReader.nextName() == "hls_url") {
+                        hlsUrl = jsonReader.nextString()
+                        video = RedditVideo(hlsUrl)
+                    } else jsonReader.skipValue()
+                }
+                jsonReader.endObject()
+            } else jsonReader.skipValue()
+        }
+        jsonReader.endObject()
+
+        return Media(video)
+    }
+
+    private fun getPreview(jsonReader: JsonReader): Preview{
+        var hlsUrl: String? = null
+        var videoPreview: RedditVideo? = null
+        jsonReader.beginObject()
+        while(jsonReader.hasNext()){
+            if(jsonReader.nextName() == "reddit_video_preview"){
+                jsonReader.beginObject()
+                while(jsonReader.hasNext()){
+                    if(jsonReader.nextName() == "hls_url"){
+                        hlsUrl = jsonReader.nextString()
+                        videoPreview = RedditVideo(hlsUrl)
+                    } else jsonReader.skipValue()
+                }
+                jsonReader.endObject()
+            } else jsonReader.skipValue()
+        }
+        jsonReader.endObject()
+
+        return Preview(videoPreview)
+    }
+
+    // COMMENTS
+
+    private fun getCommentsFromListing(jsonReader: JsonReader, depth: Int): List<ListingItem> {
         jsonReader.beginObject()
         val items = mutableListOf<ListingItem>()
 
@@ -329,44 +320,8 @@ class CommentAdapter {
                                         }
                                         "data" -> {
                                             jsonReader.beginObject()
-                                            if(isMore)
-                                                items.add(getMoreInfo(jsonReader))
-                                            else {
-                                                var name: String? = null
-                                                var authorFullName: String? = null
-                                                var author: String? = null
-                                                var body: String? = null
-                                                var score: Int? = null
-                                                var created: Long? = null
-                                                var replies: List<ListingItem>? = null
-                                                while (jsonReader.hasNext()) {
-                                                    when (jsonReader.nextName()) {
-                                                        "name" -> name = jsonReader.nextString()
-                                                        "author" -> author = jsonReader.nextString()
-                                                        "author_fullname" -> authorFullName = jsonReader.nextString()
-                                                        "body" -> body = jsonReader.nextString()
-                                                        "score" -> score = jsonReader.nextInt()
-                                                        "created_utc" -> created = jsonReader.nextLong()
-                                                        "replies" -> {
-                                                            if (jsonReader.peek() == JsonReader.Token.BEGIN_OBJECT)
-                                                                replies = getComments(jsonReader, depth + 1)
-                                                            else jsonReader.skipValue()
-                                                        }
-                                                        else -> jsonReader.skipValue()
-                                                    }
-                                                }
-                                                val comment = Comment(name = name!!,
-                                                    depth = depth,
-                                                    author = author!!,
-                                                    authorFullName = authorFullName,
-                                                    body = body!!,
-                                                    score = score!!,
-                                                    created = created!!)
-                                                items.add(comment)
-                                                replies?.let {
-                                                    items.addAll(it)
-                                                }
-                                            }
+                                            if(isMore) items.add(getMore(jsonReader))
+                                            else addCommentsToList(jsonReader, depth, items)
                                             jsonReader.endObject()
                                         }
                                         else -> jsonReader.skipValue()
@@ -387,7 +342,40 @@ class CommentAdapter {
         return items
     }
 
-    private fun getMoreInfo(jsonReader: JsonReader): More{
+    private fun addCommentsToList(jsonReader: JsonReader, depth: Int, comments: MutableList<ListingItem>){
+        var name: String? = null
+        var authorFullName: String? = null
+        var author: String? = null
+        var body: String? = null
+        var score: Int? = null
+        var created: Long? = null
+        var replies: List<ListingItem>? = null
+        while (jsonReader.hasNext()) {
+            when (jsonReader.nextName()) {
+                "name" -> name = jsonReader.nextString()
+                "author" -> author = jsonReader.nextString()
+                "author_fullname" -> authorFullName = jsonReader.nextString()
+                "body" -> body = jsonReader.nextString()
+                "score" -> score = jsonReader.nextInt()
+                "created_utc" -> created = jsonReader.nextLong()
+                "replies" -> {
+                    if (jsonReader.peek() == JsonReader.Token.BEGIN_OBJECT)
+                        replies = getCommentsFromListing(jsonReader, depth + 1)
+                    else jsonReader.skipValue()
+                }
+                else -> jsonReader.skipValue()
+            }
+        }
+
+        val comment =  Comment(name = name!!, depth = depth, author = author!!, authorFullName = authorFullName, body = body!!, score = score!!, created = created!!)
+
+        comments.add(comment)
+        replies?.let {
+            comments.addAll(it)
+        }
+    }
+
+    private fun getMore(jsonReader: JsonReader): More{
         var name: String? = null
         var depth: Int? = null
         var parentId: String? = null
@@ -409,11 +397,7 @@ class CommentAdapter {
             }
         }
 
-        return More(name = name!!,
-            depth = depth!!,
-            parentId = parentId!!,
-            children = children,
-            count = count!!)
+        return More(name = name!!, depth = depth!!, parentId = parentId!!, children = children, count = count!!)
     }
 
     @FromJson

@@ -2,6 +2,8 @@ package dev.gtcl.reddit.network
 
 import android.net.Uri
 import android.os.Parcelable
+import android.util.Log
+import com.google.gson.internal.LinkedHashTreeMap
 import com.squareup.moshi.Json
 import dev.gtcl.reddit.database.ReadListing
 import kotlinx.android.parcel.IgnoredOnParcel
@@ -55,7 +57,6 @@ data class MoreListing(override val data: More): ListingChild(ListingItemType.Mo
 //    | |_| | |_____| | |__| (_) | | | | | | | | | | |  __/ | | | |_
 //     \__|_|          \____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__|
 
-@Parcelize
 data class Comment( // TODO: Add more properties: saved, liked, all_awardings
     override val name: String,
     override val id: String = name.replace("t1_", ""),
@@ -68,7 +69,7 @@ data class Comment( // TODO: Add more properties: saved, liked, all_awardings
     @Json(name="created_utc")
     val created: Long,
     var isPartiallyCollapsed: Boolean = false
-): Parcelable,  ListingItem(ListingItemType.Comment)
+): ListingItem(ListingItemType.Comment)
 
 //     _   _____           ____           _
 //    | |_|___ /          |  _ \ ___  ___| |_
