@@ -15,13 +15,13 @@ import kotlin.collections.HashMap
 
 data class CommentPage(
     val post: Post,
-    val comments: List<ListingItem>
+    val comments: List<Item>
 )
 
 data class MoreComments(
     val position: Int,
     val depth: Int,
-    val comments: List<ListingItem>
+    val comments: List<Item>
 )
 
 val AUTHOR_REGEX = "data-author=\"[A-Za-z0-9_\\-]+\"".toRegex()
@@ -111,8 +111,8 @@ data class Child(
 //    }
 }
 
-fun List<Child>.convertChildrenToCommentItems(startingDepth: Int): List<ListingItem> {
-    val results = mutableListOf<ListingItem>()
+fun List<Child>.convertChildrenToCommentItems(startingDepth: Int): List<Item> {
+    val results = mutableListOf<Item>()
     val depthMap = HashMap<String, Int>()
     for(child in this){
         val parentDepth = depthMap.getOrElse(child.parent){null}
@@ -313,9 +313,9 @@ class CommentAdapter {
 
     // COMMENTS
 
-    private fun getCommentsFromListing(jsonReader: JsonReader, depth: Int): List<ListingItem> { // TODO: Make cleaner
+    private fun getCommentsFromListing(jsonReader: JsonReader, depth: Int): List<Item> { // TODO: Make cleaner
         jsonReader.beginObject()
-        val comments = mutableListOf<ListingItem>()
+        val comments = mutableListOf<Item>()
 
         while (jsonReader.hasNext()) {
             if (jsonReader.nextName() == "data") {
@@ -339,7 +339,7 @@ class CommentAdapter {
         return comments
     }
 
-    private fun addChildren(jsonReader: JsonReader, depth: Int, comments: MutableList<ListingItem>){
+    private fun addChildren(jsonReader: JsonReader, depth: Int, comments: MutableList<Item>){
         while (jsonReader.hasNext()) {
             jsonReader.beginObject()
             var isMore = false
@@ -360,7 +360,7 @@ class CommentAdapter {
         }
     }
 
-    private fun addCommentToList(jsonReader: JsonReader, depth: Int, comments: MutableList<ListingItem>){
+    private fun addCommentToList(jsonReader: JsonReader, depth: Int, comments: MutableList<Item>){
         jsonReader.beginObject()
         var name: String? = null
         var authorFullName: String? = null
@@ -368,7 +368,7 @@ class CommentAdapter {
         var body: String? = null
         var score: Int? = null
         var created: Long? = null
-        var replies: List<ListingItem>? = null
+        var replies: List<Item>? = null
         while (jsonReader.hasNext()) {
             when (jsonReader.nextName()) {
                 "name" -> name = jsonReader.nextString()

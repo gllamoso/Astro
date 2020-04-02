@@ -9,6 +9,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
+import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.FragmentActivity
@@ -21,10 +22,11 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.asDomainModel
 import dev.gtcl.reddit.databinding.ActivityMainBinding
 import dev.gtcl.reddit.databinding.NavHeaderBinding
+import dev.gtcl.reddit.listings.Account
 import dev.gtcl.reddit.ui.activities.signin.SignInActivity
-import dev.gtcl.reddit.listings.users.User
 
 const val URL_KEY = "URL"
+const val USER_KEY = "User"
 const val REDIRECT_URL_REQUEST_CODE = 1
 
 class MainActivity : FragmentActivity() {
@@ -64,7 +66,7 @@ class MainActivity : FragmentActivity() {
         val sharedPref = this.getSharedPreferences(getString(R.string.preferences_file_key), Context.MODE_PRIVATE)
         val userString = sharedPref.getString(getString(R.string.current_user_key), null)
         userString?.let {
-            val user = Gson().fromJson(it, User::class.java)
+            val user = Gson().fromJson(it, Account::class.java)
             model.setCurrentUser(user, false)
         }
     }
@@ -87,8 +89,8 @@ class MainActivity : FragmentActivity() {
                     model.deleteUserFromDatabase(username)
                 }
 
-                override fun onAccountClicked(user: User) {
-                    model.setCurrentUser(user, true)
+                override fun onAccountClicked(account: Account) {
+                    model.setCurrentUser(account, true)
                     drawerLayout.closeDrawer(Gravity.START)
                 }
 
@@ -103,9 +105,9 @@ class MainActivity : FragmentActivity() {
                 }
 
                 override fun onMyAccountClicked() {
-//                        val bundle = bundleOf("user" to model.currentUser.value?.name)
-//                        navController.navigate(R.id.userFragment, bundle)
-                    navController.navigate(R.id.testFragment)
+//                    val bundle = bundleOf(USER_KEY to "tiddydropdan")
+//                    navController.navigate(R.id.account_fragment, bundle)
+                    navController.navigate(R.id.account_fragment)
                     drawerLayout.closeDrawer(Gravity.START)
                 }
 
@@ -122,8 +124,8 @@ class MainActivity : FragmentActivity() {
             adapter.setUsers(it.asDomainModel())
         })
 
-        model.currentUser.observe(this, Observer {
-            header.user = it
+        model.currentAccount.observe(this, Observer {
+            header.account = it
         })
 
         model.openDrawer.observe(this, Observer {

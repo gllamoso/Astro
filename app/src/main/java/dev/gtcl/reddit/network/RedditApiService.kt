@@ -16,7 +16,6 @@ import dev.gtcl.reddit.listings.comments.CommentPage
 import dev.gtcl.reddit.listings.subs.SubredditListingResponse
 import dev.gtcl.reddit.listings.subs.SubredditNamesResponse
 import dev.gtcl.reddit.listings.users.AccessToken
-import dev.gtcl.reddit.listings.users.User
 import kotlinx.coroutines.Deferred
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -48,8 +47,13 @@ interface RedditApiService {
         @Field("refresh_token") refreshToken: String): Deferred<AccessToken>
 
     @GET("/api/v1/me")
-    fun getCurrentUserInfo(
-        @Header("Authorization") authorization: String): Deferred<User>
+    fun getCurrentAccountInfo(
+        @Header("Authorization") authorization: String): Deferred<Account>
+
+    @GET("/user/{user}/about/.json")
+    fun getUserInfo(
+        @Header("Authorization") authorization: String?,
+        @Path("user") user: String) : Deferred<AccountChild>
 
     @POST("/api/vote/")
     fun vote(
@@ -180,7 +184,7 @@ interface RedditApiService {
         @Header("Authorization") authorization: String? = null,
         @Url permalink: String,
         @Query("sort") sort: CommentSort
-    ): Deferred<List<ListingItem>>
+    ): Deferred<List<Item>>
 
     @GET("/api/morechildren/")
     fun getMoreComments(
@@ -219,9 +223,9 @@ interface RedditApiService {
             val moshi = Moshi.Builder()
                 .add(CommentAdapter())
                 .add(PolymorphicJsonAdapterFactory.of(ListingChild::class.java, "kind")
-                    .withSubtype(PostListing::class.java, "t3")
-                    .withSubtype(CommentListing::class.java, "t1")
-                    .withSubtype(MoreListing::class.java, "more"))
+                    .withSubtype(PostChild::class.java, "t3")
+                    .withSubtype(CommentChild::class.java, "t1")
+                    .withSubtype(MoreChild::class.java, "more"))
                 .add(KotlinJsonAdapterFactory())
                 .build()
 

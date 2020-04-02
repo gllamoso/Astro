@@ -2,8 +2,8 @@ package dev.gtcl.reddit
 
 import android.app.Application
 import android.util.Log
+import dev.gtcl.reddit.listings.Account
 import dev.gtcl.reddit.listings.users.AccessToken
-import dev.gtcl.reddit.listings.users.User
 
 class RedditApplication : Application() {
 
@@ -13,7 +13,7 @@ class RedditApplication : Application() {
             Log.d("TAE", "Access Token: ${value?.value}") // TODO: Remove
         }
 
-    var currentUser: User? = null
+    var currentAccount: Account? = null
 
     companion object{
         var accessToken2: AccessToken? = null

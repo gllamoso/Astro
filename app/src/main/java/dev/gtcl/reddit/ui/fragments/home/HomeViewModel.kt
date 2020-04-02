@@ -3,7 +3,7 @@ package dev.gtcl.reddit.ui.fragments.home
 import android.util.Log
 import androidx.lifecycle.*
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.listings.ListingItem
+import dev.gtcl.reddit.listings.Item
 import dev.gtcl.reddit.listings.ListingRepository
 import dev.gtcl.reddit.listings.SubredditListing
 import dev.gtcl.reddit.listings.subs.Subreddit
@@ -12,7 +12,7 @@ import kotlinx.coroutines.*
 import java.util.*
 import java.util.concurrent.Executors
 
-class HomeViewPagerViewModel(val application: RedditApplication): AndroidViewModel(application){
+class HomeViewModel(val application: RedditApplication): AndroidViewModel(application){
 
     // Repositories
     private val postRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
@@ -50,7 +50,7 @@ class HomeViewPagerViewModel(val application: RedditApplication): AndroidViewMod
     }
 
     // Trending
-    private val _repoResultsOfTrendingSubreddits = MutableLiveData<Listing<ListingItem>>()
+    private val _repoResultsOfTrendingSubreddits = MutableLiveData<Listing<Item>>()
     val trendingSubredditPosts = Transformations.switchMap(_repoResultsOfTrendingSubreddits) { it.pagedList }
 
     fun fetchTrendingPosts() {
@@ -91,15 +91,7 @@ class HomeViewPagerViewModel(val application: RedditApplication): AndroidViewMod
         _searchSubreddits.value = null
     }
 
-    private var _currentPage = 0
-    val currentPage: Int
-        get() = _currentPage
-
-    fun setCurrentPage(page: Int){
-        _currentPage = page
-    }
-
     companion object {
-        private val TAG = HomeViewPagerViewModel::class.qualifiedName
+        private val TAG = HomeViewModel::class.qualifiedName
     }
 }

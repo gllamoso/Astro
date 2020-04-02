@@ -8,14 +8,14 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.database.ReadListing
 import dev.gtcl.reddit.listings.Comment
-import dev.gtcl.reddit.listings.ListingItem
+import dev.gtcl.reddit.listings.Item
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.listings.Post
 import dev.gtcl.reddit.ui.PostActions
 import dev.gtcl.reddit.ui.fragments.comments.CommentsAdapter
 import java.io.InvalidObjectException
 
-class ListingAdapter(private val retryCallback: () -> Unit, private val postActions: PostActions): PagedListAdapter<ListingItem, RecyclerView.ViewHolder>(LISTING_COMPARATOR){
+class ListingAdapter(private val retryCallback: () -> Unit, private val postActions: PostActions): PagedListAdapter<Item, RecyclerView.ViewHolder>(LISTING_COMPARATOR){
 
     private var networkState: NetworkState? = null
     private var allReadSubs: HashSet<String> = HashSet()
@@ -118,14 +118,14 @@ class ListingAdapter(private val retryCallback: () -> Unit, private val postActi
             return oldItem.copy(score = newItem.score) == newItem
         }
 
-        val LISTING_COMPARATOR = object : DiffUtil.ItemCallback<ListingItem>() {
-            override fun areItemsTheSame(oldItem: ListingItem, newItem: ListingItem): Boolean  =
+        val LISTING_COMPARATOR = object : DiffUtil.ItemCallback<Item>() {
+            override fun areItemsTheSame(oldItem: Item, newItem: Item): Boolean  =
                 oldItem == newItem
 
-            override fun areContentsTheSame(oldItem: ListingItem, newItem: ListingItem): Boolean =
+            override fun areContentsTheSame(oldItem: Item, newItem: Item): Boolean =
                 oldItem.name == newItem.name
 
-            override fun getChangePayload(oldItem: ListingItem, newItem: ListingItem): Any? {
+            override fun getChangePayload(oldItem: Item, newItem: Item): Any? {
                 if(oldItem is Post && newItem is Post)
                     return sameExceptScore(oldItem, newItem)
                 return false

@@ -6,8 +6,8 @@
 
     <data>
         <variable
-            name="user"
-            type="dev.gtcl.reddit.listings.users.User" />
+            name="account"
+            type="dev.gtcl.reddit.listings.Account" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -23,7 +23,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:scaleType="centerCrop"
-            app:imageUrlAndHideIfNull="@{user.validBannerImg}"/>
+            app:imageUrlAndHideIfNull="@{account.validBannerImg}"/>
 
         <ImageView
             android:id="@+id/avatar"
@@ -34,17 +34,17 @@
             android:elevation="10dp"
             app:layout_constraintVertical_bias="100"
             android:src="@drawable/ic_user_24dp"
-            app:imageUrlAndHideIfNull="@{user.validProfileImg}"
+            app:imageUrlAndHideIfNull="@{account.validProfileImg}"
             app:layout_constraintBottom_toTopOf="@id/name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:setVisibility="@{user != null}" />
+            app:setVisibility="@{account != null}" />
 
         <TextView
             android:id="@+id/name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{String.valueOf(user != null ? user.name : @string/not_logged_in)}"
+            android:text="@{String.valueOf(account != null ? account.name : @string/not_logged_in)}"
             android:textColor="@android:color/white"
             android:textSize="16sp"
             app:layout_constraintStart_toStartOf="parent"

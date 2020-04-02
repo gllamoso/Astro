@@ -2,14 +2,14 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/navigation"
-    app:startDestination="@+id/mainFragment">
+    app:startDestination="@+id/home_fragment">
 
     <fragment
-        android:id="@+id/mainFragment"
-        android:name="dev.gtcl.reddit.ui.fragments.home.HomeViewPagerFragment"
-        android:label="MainFragment" />
+        android:id="@+id/home_fragment"
+        android:name="dev.gtcl.reddit.ui.fragments.home.HomeFragment"
+        android:label="Home Fragment" />
     <fragment
-        android:id="@+id/testFragment"
+        android:id="@+id/account_fragment"
         android:name="dev.gtcl.reddit.ui.fragments.account.AccountViewPagerFragment"
-        android:label="TestFragment" />
+        android:label="Account Fragment" />
 </navigation>

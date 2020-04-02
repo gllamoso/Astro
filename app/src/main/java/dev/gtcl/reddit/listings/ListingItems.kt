@@ -3,11 +3,12 @@ package dev.gtcl.reddit.listings
 import android.net.Uri
 import android.os.Parcelable
 import com.squareup.moshi.Json
+import dev.gtcl.reddit.database.DbAccount
 import dev.gtcl.reddit.database.ReadListing
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 
-enum class ListingItemType {
+enum class ItemType {
     @Json(name="t1")
     Comment,
     @Json(name="t2")
@@ -24,7 +25,7 @@ enum class ListingItemType {
     More
 }
 
-sealed class ListingItem(val kind: ListingItemType){
+sealed class Item(val kind: ItemType){
     abstract val depth: Int
     abstract val id: String?
     abstract val name: String
@@ -39,19 +40,22 @@ class ListingData(
     val before: String?
 )
 
-sealed class ListingChild(@Json(name="kind") val kind: ListingItemType){
-    abstract val data: ListingItem
+sealed class ListingChild(@Json(name="kind") val kind: ItemType){
+    abstract val data: Item
 }
 
-data class CommentListing(override val data: Comment): ListingChild(
-    ListingItemType.Comment
-) // t1
-data class PostListing(override val data: Post) : ListingChild(
-    ListingItemType.Post
-) // t3
-data class MoreListing(override val data: More): ListingChild(
-    ListingItemType.More
-) // more
+data class CommentChild(override val data: Comment): ListingChild(
+    ItemType.Comment // t1
+)
+data class AccountChild(override val data: Account): ListingChild(
+    ItemType.Account // t2
+)
+data class PostChild(override val data: Post) : ListingChild(
+    ItemType.Post // t3
+)
+data class MoreChild(override val data: More): ListingChild(
+    ItemType.More // more
+)
 
 // http://patorjk.com/software/taag/#p=display&f=Ivrit&t=t1%20-%20Comment
 
@@ -73,7 +77,53 @@ data class Comment( // TODO: Add more properties: saved, liked, all_awardings
     @Json(name="created_utc")
     val created: Long,
     var isPartiallyCollapsed: Boolean = false
-): ListingItem(ListingItemType.Comment)
+): Item(ItemType.Comment)
+
+
+//     _   ____               _                             _
+//    | |_|___ \             / \   ___ ___ ___  _   _ _ __ | |_
+//    | __| __) |  _____    / _ \ / __/ __/ _ \| | | | '_ \| __|
+//    | |_ / __/  |_____|  / ___ \ (_| (_| (_) | |_| | | | | |_
+//     \__|_____|         /_/   \_\___\___\___/ \__,_|_| |_|\__|
+
+data class Account(
+    override val id: String,
+    override val name: String,
+    @Json(name = "icon_img") val iconImg: String?,
+    @Json(name = "link_karma") val linkKarma: Int,
+    @Json(name = "comment_karma") val commentKarma: Int,
+    @Json(name = "created_utc") val created: Long,
+    val subreddit: AccountSubreddit? =  null,
+    // Additional field
+    var refreshToken: String?
+) : Item(ItemType.Account) {
+
+    override val depth: Int = 0
+
+    fun getValidProfileImg(): String {
+        val imgRegex = "http.+\\.(png|jpg|gif)".toRegex()
+        return imgRegex.find(iconImg!!)!!.value
+    }
+
+    fun getValidBannerImg(): String {
+        val imgRegex = "http.+\\.(png|jpg|gif)".toRegex()
+        return imgRegex.find(subreddit?.bannerImg ?: "")?.value ?: ""
+    }
+}
+
+data class AccountSubreddit(
+    @Json(name = "banner_img") val bannerImg: String?
+)
+
+
+fun Account.asDatabaseModel() = DbAccount(
+    id = this.id,
+    name = this.name,
+    iconImg = this.iconImg,
+    bannerImg = this.subreddit?.bannerImg,
+    refreshToken = this.refreshToken
+)
+
 
 //     _   _____           ____           _
 //    | |_|___ /          |  _ \ ___  ___| |_
@@ -107,7 +157,7 @@ data class Post(
     val secureMedia: SecureMedia?,
     val preview: Preview?,
     val media: Media?
-) : Parcelable, ListingItem(ListingItemType.Post) {
+) : Parcelable, Item(ItemType.Post) {
 
     @IgnoredOnParcel
     override val depth = 0
@@ -160,7 +210,7 @@ data class RedditVideo(
 class TrophyListingResponse(val data: TrophyListingData)
 class TrophyListingData(val trophies: List<TrophyListing>)
 data class TrophyListing(override val data: Award): ListingChild(
-    ListingItemType.Award
+    ItemType.Award
 )
 
 @Parcelize
@@ -169,7 +219,7 @@ data class Award(
     override val id: String?,
     @Json(name = "icon_70") val icon70: String,
     @Json(name = "icon_40") val icon40: String
-) : Parcelable, ListingItem(ListingItemType.Award){
+) : Parcelable, Item(ItemType.Award){
     @IgnoredOnParcel
     override val depth = 0
 }
@@ -187,7 +237,7 @@ data class More(
     val parentId: String,
     val children: List<String>,
     var count: Int
-): ListingItem(ListingItemType.More) {
+): Item(ItemType.More) {
 
 
 

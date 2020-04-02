@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.account.user
+package dev.gtcl.reddit.ui.fragments.account
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -17,26 +17,28 @@ import dev.gtcl.reddit.ui.activities.MainActivity
 import dev.gtcl.reddit.ui.activities.MainActivityViewModel
 import dev.gtcl.reddit.ui.PostActions
 import dev.gtcl.reddit.ui.ViewPagerActions
-import dev.gtcl.reddit.ui.fragments.account.user.comments.UserCommentsFragment
-import dev.gtcl.reddit.ui.fragments.account.user.downvoted.UserDownvotedFragment
-import dev.gtcl.reddit.ui.fragments.account.user.hidden.UserHiddenFragment
-import dev.gtcl.reddit.ui.fragments.account.user.overview.UserOverviewFragment
-import dev.gtcl.reddit.ui.fragments.account.user.posts.UserPostsFragment
-import dev.gtcl.reddit.ui.fragments.account.user.saved.UserSavedFragment
-import dev.gtcl.reddit.ui.fragments.account.user.upvoted.UserUpvotedFragment
+import dev.gtcl.reddit.ui.fragments.account.pages.UserAboutFragment
+import dev.gtcl.reddit.ui.fragments.account.pages.UserCommentsFragment
+import dev.gtcl.reddit.ui.fragments.account.pages.UserDownvotedFragment
+import dev.gtcl.reddit.ui.fragments.account.pages.UserHiddenFragment
+import dev.gtcl.reddit.ui.fragments.account.pages.UserOverviewFragment
+import dev.gtcl.reddit.ui.fragments.account.pages.UserPostsFragment
+import dev.gtcl.reddit.ui.fragments.account.pages.UserSavedFragment
+import dev.gtcl.reddit.ui.fragments.account.pages.UserUpvotedFragment
 
-class UserFragment : Fragment(), PostActions {
+class AccountFragment : Fragment(), PostActions {
 
     private lateinit var binding: FragmentUserBinding
 
     private lateinit var viewPagerActions: ViewPagerActions
-    fun setViewPagerActions(viewPagerActions: ViewPagerActions){
+    fun setFragment(viewPagerActions: ViewPagerActions, user: String?){
         this.viewPagerActions = viewPagerActions
+        model.fetchAccount(user)
     }
 
-    val model: UserFragmentViewModel by lazy {
+    val model: AccountFragmentViewModel by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(UserFragmentViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(AccountFragmentViewModel::class.java)
     }
 
     private val parentModel: MainActivityViewModel by lazy {
@@ -46,13 +48,14 @@ class UserFragment : Fragment(), PostActions {
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
         when(childFragment){
-            is UserCommentsFragment -> childFragment.setPostActions(this)
-            is UserPostsFragment -> childFragment.setPostActions(this)
-            is UserSavedFragment -> childFragment.setPostActions(this)
-            is UserUpvotedFragment -> childFragment.setPostActions(this)
-            is UserDownvotedFragment -> childFragment.setPostActions(this)
-            is UserHiddenFragment -> childFragment.setPostActions(this)
-            is UserOverviewFragment -> childFragment.setPostActions(this)
+            is UserAboutFragment -> childFragment.setUser(model.username)
+            is UserCommentsFragment -> childFragment.setFragment(this, model.username)
+            is UserPostsFragment -> childFragment.setFragment(this, model.username)
+            is UserSavedFragment -> childFragment.setFragment(this)
+            is UserUpvotedFragment -> childFragment.setFragment(this)
+            is UserDownvotedFragment -> childFragment.setFragment(this)
+            is UserHiddenFragment -> childFragment.setFragment(this)
+            is UserOverviewFragment -> childFragment.setFragment(this, model.username)
         }
     }
 
@@ -60,11 +63,7 @@ class UserFragment : Fragment(), PostActions {
         binding = FragmentUserBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.model = model
-        val user = (requireActivity().application as RedditApplication).currentUser!!.name // TODO: Update
-        model.fetchUserInfo(user)
-        model.fetchAwards(user)
-        setupViewPagerAdapter(user == parentModel.currentUser.value?.name)
-        model.fetchCurrentUser()
+        setupViewPagerAdapter(model.username == null)
         model.fetchListings()
         return binding.root
     }
@@ -72,7 +71,11 @@ class UserFragment : Fragment(), PostActions {
     private fun setupViewPagerAdapter(isCurrentUser: Boolean){
         val viewPager = binding.viewPager
         val tabLayout = binding.tabLayout
-        val adapter = UserStateAdapter(this)
+        val adapter =
+            AccountStateAdapter(
+                this,
+                isCurrentUser
+            )
         viewPager.adapter = adapter
         if(isCurrentUser){
             TabLayoutMediator(tabLayout, viewPager){ tab, position ->

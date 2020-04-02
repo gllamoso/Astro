@@ -13,7 +13,7 @@ import androidx.viewpager2.widget.ViewPager2
 
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
-import dev.gtcl.reddit.databinding.FragmentMainBinding
+import dev.gtcl.reddit.databinding.FragmentViewPagerBinding
 import dev.gtcl.reddit.listings.Comment
 import dev.gtcl.reddit.listings.Post
 import dev.gtcl.reddit.ui.activities.MainActivity
@@ -26,14 +26,14 @@ import dev.gtcl.reddit.ui.fragments.home.listing.ListingFragment
 /**
  * A simple [Fragment] subclass.
  */
-class HomeViewPagerFragment : Fragment(), ViewPagerActions {
+class HomeFragment : Fragment(), ViewPagerActions {
 
-    private lateinit var binding: FragmentMainBinding
+    private lateinit var binding: FragmentViewPagerBinding
     private lateinit var pageAdapter: ViewPagerAdapter
 
-    val model: HomeViewPagerViewModel by lazy {
+    val model: HomeViewModel by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(HomeViewPagerViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(HomeViewModel::class.java)
     }
 
     private val parentModel: MainActivityViewModel by lazy {
@@ -49,7 +49,7 @@ class HomeViewPagerFragment : Fragment(), ViewPagerActions {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentMainBinding.inflate(inflater)
+        binding = FragmentViewPagerBinding.inflate(inflater)
 
         // TODO: Listener for refresh token
         parentModel.fetchData.observe(viewLifecycleOwner, Observer {
@@ -59,7 +59,7 @@ class HomeViewPagerFragment : Fragment(), ViewPagerActions {
                 model.fetchTrendingPosts()
             }
         })
-        parentModel.currentUser.observe(viewLifecycleOwner, Observer {
+        parentModel.currentAccount.observe(viewLifecycleOwner, Observer {
             model.fetchDefaultSubreddits()
         })
         setViewPagerAdapter()
@@ -75,9 +75,7 @@ class HomeViewPagerFragment : Fragment(), ViewPagerActions {
                 override fun onPageScrollStateChanged(state: Int) {
                     super.onPageScrollStateChanged(state)
                     if(state == ViewPager2.SCROLL_STATE_IDLE){
-                        if(model.currentPage > currentItem)
-                            pageAdapter.popFragment()
-                        model.setCurrentPage(currentItem)
+                        pageAdapter.popFragment(currentItem)
                         parentModel.allowDrawerSwipe(currentItem == 0)
                     }
                 }

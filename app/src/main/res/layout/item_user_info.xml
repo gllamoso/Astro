@@ -7,8 +7,8 @@
 
     <data>
         <variable
-            name="user"
-            type="dev.gtcl.reddit.listings.users.User" />
+            name="account"
+            type="dev.gtcl.reddit.listings.Account" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -33,7 +33,7 @@
             app:layout_constraintTop_toBottomOf="@id/karmaLabel"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/centerLine"
-            android:text="@{Integer.toString(user.commentKarma + user.linkKarma)}"
+            android:text="@{Integer.toString(account.commentKarma + account.linkKarma)}"
             android:textSize="20sp"
             tools:text="9999"/>
 
@@ -46,7 +46,7 @@
             app:layout_constraintTop_toBottomOf="@id/totalKarma"
             android:drawableStart="@drawable/ic_link_24dp"
             tools:text="99"
-            android:text="@{Integer.toString(user.linkKarma)}"/>
+            android:text="@{Integer.toString(account.linkKarma)}"/>
 
         <TextView
             android:id="@+id/commentKarmaCount"
@@ -57,7 +57,7 @@
             app:layout_constraintTop_toBottomOf="@id/totalKarma"
             android:drawableStart="@drawable/ic_comment_24dp"
             tools:text="99"
-            android:text="@{Integer.toString(user.commentKarma)}"/>
+            android:text="@{Integer.toString(account.commentKarma)}"/>
 
         <View
             android:id="@+id/centerLine"
@@ -86,7 +86,7 @@
             app:layout_constraintTop_toBottomOf="@id/ageLabel"
             app:layout_constraintStart_toEndOf="@id/centerLine"
             app:layout_constraintEnd_toEndOf="parent"
-            app:timestamp="@{user.created}"
+            app:timestamp="@{account.created}"
             android:drawableStart="@drawable/ic_cake_24dp"
             android:textSize="20sp"
             tools:text="12 year 6 days"/>

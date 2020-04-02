@@ -4,9 +4,8 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.listings.ListingItem
+import dev.gtcl.reddit.listings.Item
 import dev.gtcl.reddit.listings.ListingRepository
 import dev.gtcl.reddit.listings.ListingType
 import dev.gtcl.reddit.network.NetworkState
@@ -22,7 +21,7 @@ import java.util.concurrent.Executors
 class ListingViewModel(val application: RedditApplication): AndroidViewModel(application) {
 
     // Repos
-    private val postRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
+    private val listingRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
 
     // Scopes
     private var viewModelJob = Job()
@@ -63,8 +62,8 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     val networkState: LiveData<NetworkState>
         get() = _networkState
 
-    private val _initialListing = MutableLiveData<List<ListingItem>>()
-    val initialListing: LiveData<List<ListingItem>>
+    private val _initialListing = MutableLiveData<List<Item>>()
+    val initialListing: LiveData<List<Item>>
         get() = _initialListing
     private var after: String? = null
 
@@ -74,7 +73,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
             _listingSelected.value = listingType
             _sortSelected.value = sortBy
             _timeSelected.value = timePeriod
-            val response = postRepository.getListing(listingType, sortBy, timePeriod, null, 20).await()
+            val response = listingRepository.getListing(listingType, sortBy, timePeriod, null, 20).await()
             _initialListing.value = response.data.children.map { it.data }
             after = response.data.after
             _networkState.value = NetworkState.LOADED
@@ -92,21 +91,21 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     fun refresh(){
         coroutineScope.launch {
             _refreshState.value = NetworkState.LOADING
-            val response = postRepository.getListing(listingSelected.value!!, sortSelected.value!!, timeSelected.value, null, 40).await()
+            val response = listingRepository.getListing(listingSelected.value!!, sortSelected.value!!, timeSelected.value, null, 40).await()
             _initialListing.value = response.data.children.map { it.data }
             after = response.data.after
             _refreshState.value = NetworkState.LOADED
         }
     }
 
-    private val _additionalListing = MutableLiveData<List<ListingItem>>()
-    val additionalListing: LiveData<List<ListingItem>>
+    private val _additionalListing = MutableLiveData<List<Item>>()
+    val additionalListing: LiveData<List<Item>>
         get() = _additionalListing
 
     fun loadAfter(){
         coroutineScope.launch {
             _networkState.value = NetworkState.LOADING
-            val response = postRepository.getListing(listingSelected.value!!, sortSelected.value!!, timeSelected.value, after, 20).await()
+            val response = listingRepository.getListing(listingSelected.value!!, sortSelected.value!!, timeSelected.value, after, 20).await()
             _additionalListing.value = response.data.children.map { it.data }
             after = response.data.after
             _networkState.value = NetworkState.LOADED
@@ -118,7 +117,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     }
 
     fun vote(fullname: String, vote: Vote){
-        postRepository.vote(fullname, vote).enqueue(object: Callback<Void>{
+        listingRepository.vote(fullname, vote).enqueue(object: Callback<Void>{
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 Log.d("TAE", "Failed") // TODO: Handle
             }
@@ -127,7 +126,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     }
 
     fun save(id: String){
-        postRepository.save(id).enqueue(object: Callback<Void>{
+        listingRepository.save(id).enqueue(object: Callback<Void>{
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 Log.d("TAE", "Failed") // TODO: Handle
             }
@@ -138,7 +137,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     }
 
     fun unsave(id: String){
-        postRepository.unsave(id).enqueue(object: Callback<Void>{
+        listingRepository.unsave(id).enqueue(object: Callback<Void>{
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 Log.d("TAE", "Failed") // TODO: Handle
             }
@@ -148,7 +147,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     }
 
     fun hide(id: String){
-        postRepository.hide(id).enqueue(object: Callback<Void>{
+        listingRepository.hide(id).enqueue(object: Callback<Void>{
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 Log.d("TAE", "Failed") // TODO: Handle
             }
@@ -158,7 +157,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     }
 
     fun unhide(id: String){
-        postRepository.unhide(id).enqueue(object: Callback<Void>{
+        listingRepository.unhide(id).enqueue(object: Callback<Void>{
             override fun onFailure(call: Call<Void>, t: Throwable) {
                 Log.d("TAE", "Failed") // TODO: Handle
             }

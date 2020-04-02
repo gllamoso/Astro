@@ -4,19 +4,20 @@ import android.os.Bundle
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import dev.gtcl.reddit.listings.Post
-import dev.gtcl.reddit.ui.fragments.account.user.UserFragment
+import dev.gtcl.reddit.ui.fragments.account.AccountFragment
 import dev.gtcl.reddit.ui.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
 import dev.gtcl.reddit.ui.fragments.comments.PRELOADED_POST_KEY
 import dev.gtcl.reddit.ui.fragments.home.listing.ListingFragment
+import java.util.*
 
 class ViewPagerAdapter(fragment: Fragment, startingFragment: StartingViewPagerFragments, private val actions: ViewPagerActions): FragmentStateAdapter(fragment){
-    val fragments = ArrayList<Fragment>()
+    val fragments = Stack<Fragment>()
 
     init {
         when(startingFragment){
             StartingViewPagerFragments.LISTING -> fragments.add(ListingFragment())
-            StartingViewPagerFragments.USER -> fragments.add(UserFragment())
+            StartingViewPagerFragments.USER -> fragments.add(AccountFragment())
         }
     }
 
@@ -35,9 +36,13 @@ class ViewPagerAdapter(fragment: Fragment, startingFragment: StartingViewPagerFr
         notifyItemInserted(fragments.size - 1)
     }
 
-    fun popFragment(){
-        fragments.removeAt(fragments.size - 1)
-        notifyItemRemoved(fragments.size) // TODO: Cannot call this method in a scroll callback. Scroll callbacks mightbe run during a measure & layout pass where you cannot change theRecyclerView data. Any method call that might change the structureof the RecyclerView or the adapter contents should be postponed tothe next frame.
+    fun popFragment(currentPage: Int){
+        var itemsRemoved = 0
+        while(currentPage < fragments.size - 1) {
+            fragments.pop()
+            itemsRemoved++
+        }
+        notifyItemRangeRemoved(fragments.size - 1, itemsRemoved)
     }
 }
 

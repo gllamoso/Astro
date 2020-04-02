@@ -7,16 +7,16 @@ import androidx.room.*
 @Dao
 interface UserDao{
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(databaseUser: DatabaseUser)
+    fun insert(dbAccount: DbAccount)
 
     @Delete
-    fun deleteUser(databaseUser: DatabaseUser)
+    fun deleteUser(dbAccount: DbAccount)
 
     @Query("delete from user_table where name = :username")
     fun deleteUser(username: String)
 
     @Query("select * from user_table")
-    fun getUsers(): LiveData<List<DatabaseUser>>
+    fun getUsers(): LiveData<List<DbAccount>>
 }
 
 @Dao
@@ -28,7 +28,7 @@ interface ReadPostDao{
     fun getAll(): LiveData<List<ReadListing>>
 }
 
-@Database(entities = [DatabaseUser::class, ReadListing::class], version = 1, exportSchema = false)
+@Database(entities = [DbAccount::class, ReadListing::class], version = 1, exportSchema = false)
 abstract class RedditDatabase: RoomDatabase(){
     abstract val userDao: UserDao
     abstract val readPostDao: ReadPostDao
@@ -38,7 +38,7 @@ private lateinit var INSTANCE: RedditDatabase
 fun redditDatabase(context: Context): RedditDatabase {
     synchronized(RedditDatabase::class.java){
         if(!::INSTANCE.isInitialized){
-            INSTANCE = Room.databaseBuilder(context.applicationContext, RedditDatabase::class.java, "local").build()
+            INSTANCE = Room.databaseBuilder(context.applicationContext, RedditDatabase::class.java, "local").build() // TODO: Rename
         }
     }
     return INSTANCE

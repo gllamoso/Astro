@@ -22,9 +22,9 @@ class ListingRepository private constructor(val application: RedditApplication, 
     // --- NETWORK
 
     @MainThread
-    fun getPostsFromNetwork(listingType: ListingType, sort: PostSort, t: Time? = null, pageSize: Int) : Listing<ListingItem> {
+    fun getPostsFromNetwork(listingType: ListingType, sort: PostSort, t: Time? = null, pageSize: Int) : Listing<Item> {
 
-        val sourceFactory = ListingDataSourceFactory(application.accessToken, application.currentUser, listingType, sort, t, networkExecutor)
+        val sourceFactory = ListingDataSourceFactory(application.accessToken, application.currentAccount, listingType, sort, t, networkExecutor)
 
         // We use toLiveData Kotlin extension function here, you could also use LivePagedListBuilder
         val livePagedList = sourceFactory.toLiveData(
@@ -52,21 +52,21 @@ class ListingRepository private constructor(val application: RedditApplication, 
     }
 
     @MainThread
-    fun getListing(listingType: ListingType, sort: PostSort, t: Time? = null, after: String?, pageSize: Int): Deferred<ListingResponse>{
-        val accessToken = application.accessToken
-        val user = application.currentUser
+    fun getListing(listingType: ListingType, sort: PostSort, t: Time? = null, after: String?, pageSize: Int, user: String? = null): Deferred<ListingResponse>{
+        val accessToken = application.accessToken?.value
+        val userName = user ?: application.currentAccount!!.name
         return when(listingType){
-            FrontPage -> if(accessToken != null) RedditApi.oauth.getPostFromFrontPage("bearer " + accessToken.value, sort, t, after, pageSize)
+            FrontPage -> if(accessToken != null) RedditApi.oauth.getPostFromFrontPage("bearer $accessToken", sort, t, after, pageSize)
                 else RedditApi.base.getPostFromFrontPage(null, sort, t, after, pageSize)
-            All -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit("bearer " + accessToken.value, "all", sort, t, after, pageSize)
+            All -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit("bearer $accessToken", "all", sort, t, after, pageSize)
                 else RedditApi.base.getPostsFromSubreddit(null, "all", sort, t, after, pageSize)
-            Popular -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit("bearer " + accessToken.value, "popular", sort, t, after, pageSize)
+            Popular -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit("bearer $accessToken", "popular", sort, t, after, pageSize)
                 else RedditApi.base.getPostsFromSubreddit(null, "popular", sort, t, after, pageSize)
             is MultiReddit -> TODO()
-            is SubredditListing -> if (accessToken != null) RedditApi.oauth.getPostsFromSubreddit("bearer " + accessToken.value, listingType.sub.displayName, sort, t, after, pageSize)
+            is SubredditListing -> if (accessToken != null) RedditApi.oauth.getPostsFromSubreddit("bearer $accessToken", listingType.sub.displayName, sort, t, after, pageSize)
                 else RedditApi.base.getPostsFromSubreddit(null, listingType.sub.displayName, sort, t, after, pageSize)
-            is ProfileListing -> if(accessToken != null && user != null) RedditApi.oauth.getPostsFromUser("bearer "  + accessToken.value, user.name, listingType.info, after, pageSize)
-                else RedditApi.base.getPostsFromUser(null, user!!.name, listingType.info, after, pageSize)
+            is ProfileListing -> if(accessToken != null) RedditApi.oauth.getPostsFromUser("bearer $accessToken", userName, listingType.info, after, pageSize)
+                else RedditApi.base.getPostsFromUser(null, userName, listingType.info, after, pageSize)
         }
     }
 

@@ -6,12 +6,12 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import dev.gtcl.reddit.databinding.FragmentSimpleRecyclerViewBinding
-import dev.gtcl.reddit.ui.fragments.home.HomeViewPagerFragment
+import dev.gtcl.reddit.databinding.FragmentRecyclerViewBinding
+import dev.gtcl.reddit.ui.fragments.home.HomeFragment
 import dev.gtcl.reddit.ui.fragments.home.subreddits.SubredditOnClickListener
 
 class TrendingFragment : Fragment() {
-    private lateinit var binding: FragmentSimpleRecyclerViewBinding
+    private lateinit var binding: FragmentRecyclerViewBinding
     private lateinit var subClickListener: SubredditOnClickListener
 
     fun setSubredditOnClickListener(listener: SubredditOnClickListener){
@@ -19,13 +19,13 @@ class TrendingFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentSimpleRecyclerViewBinding.inflate(inflater)
+        binding = FragmentRecyclerViewBinding.inflate(inflater)
         setRecyclerViewAdapter()
         return binding.root
     }
 
     private fun setRecyclerViewAdapter(){
-        val model = (requireParentFragment().parentFragment as HomeViewPagerFragment).model
+        val model = (requireParentFragment().parentFragment as HomeFragment).model
         val adapter = TrendingAdapter(subClickListener)
 
         binding.list.adapter = adapter

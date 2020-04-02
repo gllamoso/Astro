@@ -24,7 +24,7 @@ import dev.gtcl.reddit.databinding.ItemAwardBinding
 import dev.gtcl.reddit.listings.*
 import dev.gtcl.reddit.listings.Award
 import dev.gtcl.reddit.listings.Comment
-import dev.gtcl.reddit.listings.ListingItem
+import dev.gtcl.reddit.listings.Item
 import dev.gtcl.reddit.listings.More
 import dev.gtcl.reddit.ui.fragments.home.listing.ListingAdapter
 
@@ -120,14 +120,14 @@ fun setVisibility(view: View, constraint: Boolean) {
 }
 
 @BindingAdapter("posts")
-fun setPosts(recyclerView: RecyclerView, posts: PagedList<ListingItem>?){
+fun setPosts(recyclerView: RecyclerView, posts: PagedList<Item>?){
     recyclerView.adapter?.let {
         (it as ListingAdapter).submitList(posts)
     }
 }
 
 @BindingAdapter("commentItem")
-fun setIndentation(view: View, listItem: ListingItem?){
+fun setIndentation(view: View, listItem: Item?){
     listItem?.let {
         if (it.depth == 0) {
             view.visibility = View.GONE

@@ -8,7 +8,7 @@ import android.widget.BaseExpandableListAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.listings.users.User
+import dev.gtcl.reddit.listings.Account
 
 class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners: DrawerOnClickListeners) : BaseExpandableListAdapter(){
     private val addAccountString = context.getString(R.string.add_account)
@@ -16,7 +16,7 @@ class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners
 
     private val groups = listOf(context.getString(R.string.accounts), context.getString(R.string.posts), context.getString(R.string.my_account), context.getString(R.string.settings))
     private lateinit var accountOptions: List<String>
-    private lateinit var users: List<User>
+    private lateinit var accounts: List<Account>
 
     override fun getGroup(groupPosition: Int): Any = groups[groupPosition]
 
@@ -102,7 +102,7 @@ class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners
                 titleTextView.text = child as String
             }
             else -> {
-                val user = users[childPosition]
+                val user = accounts[childPosition]
                 titleTextView.text = user.name
                 convertViewVar.setOnClickListener{
                     drawerOnClickListeners.onAccountClicked(user)
@@ -121,9 +121,9 @@ class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners
 
     override fun getGroupCount(): Int = groups.size
 
-    fun setUsers(listOfUsers: List<User>){
-        users = listOfUsers
-        val options = (listOfUsers.map { it.name } as MutableList)
+    fun setUsers(listOfAccounts: List<Account>){
+        accounts = listOfAccounts
+        val options = (listOfAccounts.map { it.name } as MutableList)
         options.add(addAccountString)
         options.add(logoutString)
         accountOptions = options
@@ -136,7 +136,7 @@ interface DrawerOnClickListeners{
     // Accounts
     fun onAddAccountClicked()
     fun onRemoveAccountClicked(username: String)
-    fun onAccountClicked(user: User)
+    fun onAccountClicked(account: Account)
     fun onLogoutClicked()
 
     // Posts

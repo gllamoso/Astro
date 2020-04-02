@@ -5,6 +5,9 @@ import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.network.RedditApi
 import dev.gtcl.reddit.database.redditDatabase
+import dev.gtcl.reddit.listings.Account
+import dev.gtcl.reddit.listings.AccountChild
+import dev.gtcl.reddit.listings.asDatabaseModel
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -27,15 +30,23 @@ class UserRepository private constructor(val application: RedditApplication) {
         )
 
     @MainThread
-    fun getUserInfo(): Deferred<User> =
-        RedditApi.oauth.getCurrentUserInfo("bearer ${application.accessToken!!.value}")
+    fun getCurrentAccountInfo(): Deferred<Account> =
+        RedditApi.oauth.getCurrentAccountInfo("bearer ${application.accessToken!!.value}")
+
+    @MainThread
+    fun getAccountInfo(username: String): Deferred<AccountChild>{
+        return if(application.accessToken != null)
+            RedditApi.oauth.getUserInfo("bearer ${application.accessToken!!.value}", username)
+        else
+            RedditApi.base.getUserInfo(null, username)
+    }
 
     // --- DATABASE
 
     @MainThread
-    suspend fun insertUserToDatabase(user: User){
+    suspend fun insertUserToDatabase(account: Account){
         withContext(Dispatchers.IO){
-            val databaseUser = user.asDatabaseModel()
+            val databaseUser = account.asDatabaseModel()
             database.userDao.insert(databaseUser)
         }
     }

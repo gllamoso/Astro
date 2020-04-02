@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.account.user.awards.received
+package dev.gtcl.reddit.ui.fragments.account.pages
 
 import androidx.fragment.app.Fragment
 

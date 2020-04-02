@@ -6,7 +6,7 @@
     <data>
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.fragments.account.user.UserFragmentViewModel" />
+            type="dev.gtcl.reddit.ui.fragments.account.AccountFragmentViewModel" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -24,7 +24,7 @@
                 android:layout_height="wrap_content"
                 app:layout_scrollFlags="scroll|snap|exitUntilCollapsed"
                 app:contentScrim="@color/colorPrimaryDark"
-                app:title="@{model.user.name}"
+                app:title="@{model.account.name}"
                 app:expandedTitleGravity="center|bottom"
                 tools:title="User"
                 app:expandedTitleTextAppearance="@style/TextAppearance.AppCompat.Display2">
@@ -41,7 +41,7 @@
                         android:scaleType="centerCrop"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:imageUrl="@{model.user.validBannerImg}"
+                        app:imageUrl="@{model.account.validBannerImg}"
                         tools:src="@android:color/darker_gray" />
 
                     <ImageView
@@ -49,7 +49,7 @@
                         android:layout_width="64dp"
                         android:layout_height="64dp"
                         app:layout_constraintVertical_bias="0.4"
-                        app:imageUrlAndHideIfNull="@{model.user.validProfileImg}"
+                        app:imageUrlAndHideIfNull="@{model.account.validProfileImg}"
                         app:layout_constraintBottom_toBottomOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"

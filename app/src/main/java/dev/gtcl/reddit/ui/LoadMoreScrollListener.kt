@@ -12,9 +12,14 @@ class LoadMoreScrollListener(private val mLayoutManager: GridLayoutManager, priv
         isLoading = false
     }
 
+    private var hasReachedLastItem = false
+    fun lastItemReached(){
+        hasReachedLastItem = true
+    }
+
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
-        if(dy <= 0) return
+        if(dy <= 0 || hasReachedLastItem) return
 
         val totalItemCount = mLayoutManager.itemCount
         val lastVisibleItem = mLayoutManager.findLastVisibleItemPosition()

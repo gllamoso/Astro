@@ -7,7 +7,7 @@ import dev.gtcl.reddit.CommentSort
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.listings.comments.MoreComments
 import dev.gtcl.reddit.listings.comments.convertChildrenToCommentItems
-import dev.gtcl.reddit.listings.ListingItem
+import dev.gtcl.reddit.listings.Item
 import dev.gtcl.reddit.listings.ListingRepository
 import dev.gtcl.reddit.listings.More
 import dev.gtcl.reddit.listings.Post
@@ -32,8 +32,8 @@ class CommentsViewModel(val application: RedditApplication): AndroidViewModel(ap
     val post: LiveData<Post>
         get() = _post
 
-    private val _comments = MutableLiveData<List<ListingItem>>()
-    val comments: LiveData<List<ListingItem>>
+    private val _comments = MutableLiveData<List<Item>>()
+    val comments: LiveData<List<Item>>
         get() = _comments
 
     fun setPost(redditPost: Post){

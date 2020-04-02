@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.databinding.FragmentPostListBinding
+import dev.gtcl.reddit.databinding.FragmentListingBinding
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.listings.Post
 import dev.gtcl.reddit.listings.FrontPage
@@ -25,7 +25,7 @@ import dev.gtcl.reddit.ui.fragments.home.listing.time_period_sheet.TimePeriodShe
 
 class ListingFragment : Fragment(), PostActions {
 
-    private lateinit var binding: FragmentPostListBinding
+    private lateinit var binding: FragmentListingBinding
     private lateinit var adapter: dev.gtcl.reddit.ui.ListingAdapter
 
     private lateinit var viewPagerActions: ViewPagerActions
@@ -48,7 +48,7 @@ class ListingFragment : Fragment(), PostActions {
     }
 
     private fun setupFragment(inflater: LayoutInflater){
-        binding = FragmentPostListBinding.inflate(inflater)
+        binding = FragmentListingBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.model = model
 
@@ -58,9 +58,7 @@ class ListingFragment : Fragment(), PostActions {
 
         // TODO: Update. Wrap with observer, observing a refresh live data
         parentModel.fetchData.observe(viewLifecycleOwner, Observer{
-            if(it) {
-                model.loadInitial(FrontPage)
-            }
+            if(it) { model.loadInitial(FrontPage) }
         })
 
         binding.toolbar.setNavigationOnClickListener {
@@ -73,9 +71,15 @@ class ListingFragment : Fragment(), PostActions {
     }
 
     private fun setRecyclerView() {
-//        val adapter = ListingAdapter({model.retry()}, this)
-        adapter = dev.gtcl.reddit.ui.ListingAdapter({ model.retry() }, this)
+        val loadMoreScrollListener = LoadMoreScrollListener(
+            binding.list.layoutManager as GridLayoutManager,
+            object : OnLoadMoreListener {
+                override fun loadMore() {
+                    model.loadAfter()
+                }
+            })
 
+        adapter = ListingAdapter(this, { model.retry()}, {loadMoreScrollListener.finishedLoading()})
 
         binding.list.adapter = adapter
         model.networkState.observe(viewLifecycleOwner, Observer {
@@ -88,19 +92,10 @@ class ListingFragment : Fragment(), PostActions {
 
         model.initialListing.observe(viewLifecycleOwner, Observer {
             if(it != null) {
-//                adapter.loadInitial(test)
                 adapter.loadInitial(it)
                 model.loadInitialFinished()
             }
         })
-
-        val loadMoreScrollListener = LoadMoreScrollListener(
-            binding.list.layoutManager as GridLayoutManager,
-            object : OnLoadMoreListener {
-                override fun loadMore() {
-                    model.loadAfter()
-                }
-            })
 
         binding.list.addOnScrollListener(loadMoreScrollListener)
 

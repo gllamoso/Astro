@@ -8,12 +8,12 @@ import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.ItemCommentBinding
 import dev.gtcl.reddit.databinding.ItemMoreCommentBinding
 import dev.gtcl.reddit.listings.Comment
-import dev.gtcl.reddit.listings.ListingItem
+import dev.gtcl.reddit.listings.Item
 import dev.gtcl.reddit.listings.More
 
 class CommentsAdapter(private val commentItemClickListener: CommentItemClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
-    private var mCommentItems = mutableListOf<ListingItem>()
+    private var mCommentItems = mutableListOf<Item>()
 
     private val collapseComments: (Int) -> Unit = { // TODO: Interface? Add method to CommentItemClickListener?
         val collapse = !(mCommentItems[it] as Comment).isPartiallyCollapsed
@@ -27,12 +27,12 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
     }
 
 
-    fun submitList(items: List<ListingItem>){
+    fun submitList(items: List<Item>){
         mCommentItems = items.toMutableList()
         notifyDataSetChanged()
     }
 
-    fun addItems(position: Int, items: List<ListingItem>){
+    fun addItems(position: Int, items: List<Item>){
         mCommentItems.removeAt(position)
         notifyItemRemoved(position)
         mCommentItems.addAll(position, items)

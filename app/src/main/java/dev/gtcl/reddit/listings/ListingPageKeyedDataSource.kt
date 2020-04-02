@@ -7,7 +7,6 @@ import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.Time
 import dev.gtcl.reddit.network.*
 import dev.gtcl.reddit.listings.users.AccessToken
-import dev.gtcl.reddit.listings.users.User
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -18,11 +17,11 @@ import java.util.concurrent.Executor
 
 class ListingPageKeyedDataSource(
     private val accessToken: AccessToken?,
-    private  val user: User?,
+    private  val account: Account?,
     private val listingType: ListingType,
     private val sort: PostSort,
     private val t: Time?,
-    private val retryExecutor: Executor) : PageKeyedDataSource<String, ListingItem>()
+    private val retryExecutor: Executor) : PageKeyedDataSource<String, Item>()
 {
 
     private val dataSourceJob = Job()
@@ -54,9 +53,9 @@ class ListingPageKeyedDataSource(
         }
     }
 
-    override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<String, ListingItem>) {}
+    override fun loadBefore(params: LoadParams<String>, callback: LoadCallback<String, Item>) {}
 
-    override fun loadInitial(params: LoadInitialParams<String>, callback: LoadInitialCallback<String, ListingItem>) {
+    override fun loadInitial(params: LoadInitialParams<String>, callback: LoadInitialCallback<String, Item>) {
         dataSourceScope.launch {
             _networkState.postValue(NetworkState.LOADING)
             _initialLoad.postValue(NetworkState.LOADING)
@@ -70,8 +69,8 @@ class ListingPageKeyedDataSource(
                 is MultiReddit -> TODO()
                 is SubredditListing -> if (accessToken != null) RedditApi.oauth.getPostsFromSubreddit(authorization = "bearer " + accessToken.value, subreddit = listingType.sub.displayName, sort = sort, t = t, limit = params.requestedLoadSize)
                     else RedditApi.base.getPostsFromSubreddit(null, subreddit = listingType.sub.displayName, sort = sort, t = t, limit = params.requestedLoadSize)
-                is ProfileListing -> if(accessToken != null && user != null) RedditApi.oauth.getPostsFromUser("bearer "  + accessToken.value, user.name, listingType.info, null, params.requestedLoadSize)
-                    else RedditApi.base.getPostsFromUser(null, user!!.name, listingType.info, null, params.requestedLoadSize)
+                is ProfileListing -> if(accessToken != null && account != null) RedditApi.oauth.getPostsFromUser("bearer "  + accessToken.value, account.name, listingType.info, null, params.requestedLoadSize)
+                    else RedditApi.base.getPostsFromUser(null, account!!.name, listingType.info, null, params.requestedLoadSize)
             }
 
             // triggered by a refresh, we better execute sync
@@ -79,9 +78,9 @@ class ListingPageKeyedDataSource(
                 val data = request.await().data
                 val items = data.children.map {
                     when (it) {
-                        is PostListing -> it.data
-                        is CommentListing -> it.data
-                        is MoreListing -> it.data
+                        is PostChild -> it.data
+                        is CommentChild -> it.data
+                        is MoreChild -> it.data
                         else -> throw InvalidObjectException("Did not object in listing: ${it.kind}")
                     }
                 }
@@ -99,7 +98,7 @@ class ListingPageKeyedDataSource(
     }
 
 
-    override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String, ListingItem>) {
+    override fun loadAfter(params: LoadParams<String>, callback: LoadCallback<String, Item>) {
         dataSourceScope.launch {
             _networkState.postValue(NetworkState.LOADING)
             val resultsFromRepo = when(listingType){
@@ -112,16 +111,16 @@ class ListingPageKeyedDataSource(
                 is MultiReddit -> TODO()
                 is SubredditListing -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit(authorization = "bearer" + accessToken.value, subreddit = listingType.sub.displayName, sort = sort, t = t, after = params.key, limit = params.requestedLoadSize)
                     else RedditApi.base.getPostsFromSubreddit(null, subreddit = listingType.sub.displayName, sort = sort, t = t, after = params.key, limit = params.requestedLoadSize)
-                is ProfileListing -> if(accessToken != null && user != null) RedditApi.oauth.getPostsFromUser("bearer "  + accessToken.value, user.name, listingType.info, params.key, params.requestedLoadSize)
-                    else RedditApi.base.getPostsFromUser(null, user!!.name, listingType.info, params.key, params.requestedLoadSize)
+                is ProfileListing -> if(accessToken != null && account != null) RedditApi.oauth.getPostsFromUser("bearer "  + accessToken.value, account.name, listingType.info, params.key, params.requestedLoadSize)
+                    else RedditApi.base.getPostsFromUser(null, account!!.name, listingType.info, params.key, params.requestedLoadSize)
             }
             try {
                 val data = resultsFromRepo.await().data
                 val items = data.children.map {
                     when (it) {
-                        is PostListing -> it.data
-                        is CommentListing -> it.data
-                        is MoreListing -> it.data
+                        is PostChild -> it.data
+                        is CommentChild -> it.data
+                        is MoreChild -> it.data
                         else -> throw InvalidObjectException("Did not object in listing: ${it.kind}")
                     }
                 }

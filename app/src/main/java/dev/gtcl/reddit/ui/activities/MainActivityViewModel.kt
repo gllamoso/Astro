@@ -9,8 +9,8 @@ import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.ReadListing
+import dev.gtcl.reddit.listings.Account
 import dev.gtcl.reddit.listings.ListingRepository
-import dev.gtcl.reddit.listings.users.User
 import dev.gtcl.reddit.listings.users.UserRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -28,8 +28,8 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
     private val viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    private val _currentUser = MutableLiveData<User>()
-    val currentUser: LiveData<User>
+    private val _currentUser = MutableLiveData<Account>()
+    val currentAccount: LiveData<Account>
         get() = _currentUser
 
     val allUsers = userRepository.getUsersFromDatabase()
@@ -38,20 +38,20 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
     val fetchData: LiveData<Boolean>
         get() = _fetchData
 
-    fun setCurrentUser(user: User?, saveToPreferences: Boolean){
-        _currentUser.value = user
-        application.currentUser = user
+    fun setCurrentUser(account: Account?, saveToPreferences: Boolean){
+        _currentUser.value = account
+        application.currentAccount = account
 
         if(saveToPreferences){
             val sharedPrefs = application.getSharedPreferences(application.getString(R.string.preferences_file_key), Context.MODE_PRIVATE)
             with(sharedPrefs.edit()) {
-                val json = Gson().toJson(user)
+                val json = Gson().toJson(account)
                 putString(application.getString(R.string.current_user_key), json)
                 commit()
             }
         }
 
-        if(user == null) {
+        if(account == null) {
             application.accessToken = null
             _fetchData.value = true
         }
@@ -61,7 +61,7 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
     fun deleteUserFromDatabase(username: String){
         coroutineScope.launch {
             userRepository.deleteUserInDatabase(username)
-            currentUser.value?.let {
+            currentAccount.value?.let {
                 if(it.name == username)
                     setCurrentUser(null, true)
             }
@@ -91,7 +91,7 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
     // TODO: create loading animation?
     private fun fetchAccessToken(){
         coroutineScope.launch {
-            currentUser.value?.let {
+            currentAccount.value?.let {
                 val accessToken = userRepository.getNewAccessToken(authorization = "Basic ${getEncodedAuthString(application.baseContext)}", refreshToken = it.refreshToken!!).await()
                 application.accessToken = accessToken
                 _fetchData.value = true
@@ -106,7 +106,7 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
                 code = code,
                 redirectUri = application.getString(R.string.redirect_uri)).await()
             application.accessToken = result
-            val user = userRepository.getUserInfo().await()
+            val user = userRepository.getCurrentAccountInfo().await()
             result.refreshToken?.let{
                 user.refreshToken = it
                 userRepository.insertUserToDatabase(user)
