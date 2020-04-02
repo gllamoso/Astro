@@ -19,6 +19,11 @@ class ListingAdapter(private val retryCallback: () -> Unit, private val postActi
     private var allReadSubs: HashSet<String> = HashSet()
     private var currentIds: HashSet<String> = HashSet()
 
+    private var networkState = NetworkState.LOADED
+    fun setNetworkState(networkState: NetworkState){
+        this.networkState = networkState
+    }
+
     fun setReadSubs(list: List<ReadListing>){
         allReadSubs = list.map { it.name }.toHashSet()
     }
@@ -41,11 +46,6 @@ class ListingAdapter(private val retryCallback: () -> Unit, private val postActi
             }
         }
         notifyItemRangeChanged(insertionPoint, itemSize)
-    }
-
-    private var networkState = NetworkState.LOADED
-    fun setNetworkState(networkState: NetworkState){
-        this.networkState = networkState
     }
 
     private fun hasNetworkStateView() = (networkState != NetworkState.LOADED)

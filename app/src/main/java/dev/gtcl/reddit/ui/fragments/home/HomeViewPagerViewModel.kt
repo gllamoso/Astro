@@ -1,22 +1,22 @@
 package dev.gtcl.reddit.ui.fragments.home
 
 import android.util.Log
-import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
-import androidx.lifecycle.ViewModel
+import androidx.lifecycle.*
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.listings.ListingItem
+import dev.gtcl.reddit.listings.ListingRepository
 import dev.gtcl.reddit.listings.SubredditListing
 import dev.gtcl.reddit.listings.subs.Subreddit
+import dev.gtcl.reddit.listings.subs.SubredditRepository
 import kotlinx.coroutines.*
 import java.util.*
+import java.util.concurrent.Executors
 
-class HomeViewPagerViewModel(val application: RedditApplication): ViewModel(){
+class HomeViewPagerViewModel(val application: RedditApplication): AndroidViewModel(application){
 
     // Repositories
-    private val postRepository = application.listingRepository
-    private val subredditRepository = application.subredditRepository
+    private val postRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
+    private val subredditRepository = SubredditRepository.getInstance(Executors.newFixedThreadPool(5))
 
     // Scopes
     private var viewModelJob = Job()

@@ -1,11 +1,13 @@
 package dev.gtcl.reddit.ui.fragments.home.listing
 
 import android.util.Log
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.listings.ListingItem
+import dev.gtcl.reddit.listings.ListingRepository
 import dev.gtcl.reddit.listings.ListingType
 import dev.gtcl.reddit.network.NetworkState
 import kotlinx.coroutines.CoroutineScope
@@ -15,11 +17,12 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.concurrent.Executors
 
-class ListingViewModel(val application: RedditApplication): ViewModel() {
+class ListingViewModel(val application: RedditApplication): AndroidViewModel(application) {
 
     // Repos
-    private val postRepository = application.listingRepository
+    private val postRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
 
     // Scopes
     private var viewModelJob = Job()

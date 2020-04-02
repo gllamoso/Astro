@@ -9,17 +9,20 @@ import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.ReadListing
+import dev.gtcl.reddit.listings.ListingRepository
 import dev.gtcl.reddit.listings.users.User
+import dev.gtcl.reddit.listings.users.UserRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.util.concurrent.Executors
 
 class MainActivityViewModel(val application: RedditApplication): ViewModel() {
 
     // Repos
-    private val userRepository = application.userRepository
-    private val postRepository = application.listingRepository
+    private val userRepository = UserRepository.getInstance(application)
+    private val postRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
 
     // Scopes
     private val viewModelJob = Job()

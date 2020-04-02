@@ -1,24 +1,26 @@
 package dev.gtcl.reddit.ui.fragments.comments
 
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import dev.gtcl.reddit.CommentSort
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.listings.comments.MoreComments
 import dev.gtcl.reddit.listings.comments.convertChildrenToCommentItems
 import dev.gtcl.reddit.listings.ListingItem
+import dev.gtcl.reddit.listings.ListingRepository
 import dev.gtcl.reddit.listings.More
 import dev.gtcl.reddit.listings.Post
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.util.concurrent.Executors
 
-class CommentsViewModel(val application: RedditApplication): ViewModel() {
+class CommentsViewModel(val application: RedditApplication): AndroidViewModel(application) {
 
     // Repos
-    private val listingRepository = application.listingRepository
+    private val listingRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
 
     // Scopes
     private var viewModelJob = Job()

@@ -9,7 +9,7 @@ import dev.gtcl.reddit.listings.users.AccessToken
 import kotlinx.coroutines.Deferred
 import java.util.concurrent.Executor
 
-class SubredditRepository internal constructor(private val networkExecutor: Executor){
+class SubredditRepository private constructor(private val networkExecutor: Executor){
 
     @MainThread
     fun getSubs(where: String, accessToken: AccessToken? = null, limit: Int = 100, after: String? = null): Deferred<SubredditListingResponse> {
@@ -54,13 +54,13 @@ class SubredditRepository internal constructor(private val networkExecutor: Exec
             refreshState = refreshState
         )
     }
-}
 
-private lateinit var INSTANCE: SubredditRepository
-fun getSubredditRepository(networkExecutor: Executor): SubredditRepository {
-    synchronized(SubredditRepository::class.java) {
-        if (!::INSTANCE.isInitialized)
-            INSTANCE = SubredditRepository(networkExecutor)
+    companion object{
+        private lateinit var INSTANCE: SubredditRepository
+        fun getInstance(networkExecutor: Executor): SubredditRepository{
+            if(!::INSTANCE.isInitialized)
+                INSTANCE = SubredditRepository(networkExecutor)
+            return INSTANCE
+        }
     }
-    return INSTANCE
 }

@@ -8,7 +8,7 @@
     <data>
         <variable
             name="user"
-            type="dev.gtcl.reddit.users.User" />
+            type="dev.gtcl.reddit.listings.users.User" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

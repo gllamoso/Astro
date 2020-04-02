@@ -38,9 +38,7 @@ private lateinit var INSTANCE: RedditDatabase
 fun redditDatabase(context: Context): RedditDatabase {
     synchronized(RedditDatabase::class.java){
         if(!::INSTANCE.isInitialized){
-            INSTANCE = Room.databaseBuilder(context.applicationContext,
-                RedditDatabase::class.java,
-                "local").build()
+            INSTANCE = Room.databaseBuilder(context.applicationContext, RedditDatabase::class.java, "local").build()
         }
     }
     return INSTANCE

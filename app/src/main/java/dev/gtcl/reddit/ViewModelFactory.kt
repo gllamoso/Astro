@@ -21,9 +21,7 @@ class ViewModelFactory(private val application: RedditApplication): ViewModelPro
                 application
             ) as T
             modelClass.isAssignableFrom(SignInViewModel::class.java) -> SignInViewModel() as T
-            modelClass.isAssignableFrom(UserFragmentViewModel::class.java) -> UserFragmentViewModel(
-                application
-            ) as T
+            modelClass.isAssignableFrom(UserFragmentViewModel::class.java) -> UserFragmentViewModel(application) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         }
     }

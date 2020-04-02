@@ -16,7 +16,7 @@ import retrofit2.Call
 import java.lang.IllegalStateException
 import java.util.concurrent.Executor
 
-class ListingRepository internal constructor(val application: RedditApplication, private val networkExecutor: Executor){
+class ListingRepository private constructor(val application: RedditApplication, private val networkExecutor: Executor){
     private val database = redditDatabase(application)
 
     // --- NETWORK
@@ -127,13 +127,13 @@ class ListingRepository internal constructor(val application: RedditApplication,
     @MainThread
     fun getMoreComments(children: String, linkId: String, sort: CommentSort = CommentSort.BEST): Deferred<List<Child>> =
         RedditApi.base.getMoreComments(children = children, linkId = linkId, sort = sort)
-}
 
-private lateinit var INSTANCE: ListingRepository
-fun getPostRepository(application: RedditApplication, networkExecutor: Executor): ListingRepository{
-    synchronized(ListingRepository::class.java){
-        if(!::INSTANCE.isInitialized)
-            INSTANCE = ListingRepository(application, networkExecutor)
+    companion object{
+        private lateinit var INSTANCE: ListingRepository
+        fun getInstance(application: RedditApplication, networkExecutor: Executor): ListingRepository{
+            if(!::INSTANCE.isInitialized)
+                INSTANCE = ListingRepository(application, networkExecutor)
+            return INSTANCE
+        }
     }
-    return INSTANCE
 }

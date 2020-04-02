@@ -252,7 +252,6 @@ class CommentAdapter {
     }
 
     private fun getSecureMedia(jsonReader: JsonReader): SecureMedia {
-        var hlsUrl: String? = null
         var video: RedditVideo? = null
         jsonReader.beginObject()
         while (jsonReader.hasNext()) {
@@ -260,7 +259,7 @@ class CommentAdapter {
                 jsonReader.beginObject()
                 while (jsonReader.hasNext()) {
                     if (jsonReader.nextName() == "hls_url") {
-                        hlsUrl = jsonReader.nextString()
+                        val hlsUrl = jsonReader.nextString()
                         video = RedditVideo(hlsUrl)
                     } else jsonReader.skipValue()
                 }
@@ -273,7 +272,6 @@ class CommentAdapter {
     }
 
     private fun getMedia(jsonReader: JsonReader): Media {
-        var hlsUrl: String? = null
         var video: RedditVideo? = null
         jsonReader.beginObject()
         while (jsonReader.hasNext()) {
@@ -281,7 +279,7 @@ class CommentAdapter {
                 jsonReader.beginObject()
                 while (jsonReader.hasNext()) {
                     if (jsonReader.nextName() == "hls_url") {
-                        hlsUrl = jsonReader.nextString()
+                        val hlsUrl = jsonReader.nextString()
                         video = RedditVideo(hlsUrl)
                     } else jsonReader.skipValue()
                 }
@@ -294,7 +292,6 @@ class CommentAdapter {
     }
 
     private fun getPreview(jsonReader: JsonReader): Preview {
-        var hlsUrl: String? = null
         var videoPreview: RedditVideo? = null
         jsonReader.beginObject()
         while(jsonReader.hasNext()){
@@ -302,9 +299,8 @@ class CommentAdapter {
                 jsonReader.beginObject()
                 while(jsonReader.hasNext()){
                     if(jsonReader.nextName() == "hls_url"){
-                        hlsUrl = jsonReader.nextString()
-                        videoPreview =
-                            RedditVideo(hlsUrl)
+                        val hlsUrl = jsonReader.nextString()
+                        videoPreview = RedditVideo(hlsUrl)
                     } else jsonReader.skipValue()
                 }
                 jsonReader.endObject()

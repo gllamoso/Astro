@@ -9,7 +9,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class UserRepository internal constructor(val application: RedditApplication) {
+class UserRepository private constructor(val application: RedditApplication) {
     private val database = redditDatabase(application)
     val redirectUri = application.getString(R.string.redirect_uri)
 
@@ -50,14 +50,13 @@ class UserRepository internal constructor(val application: RedditApplication) {
     @MainThread
     fun getUsersFromDatabase() = database.userDao.getUsers()
 
-}
-
-// TODO: implement singleton
-private lateinit var INSTANCE: UserRepository
-fun getUserRepository(application: RedditApplication): UserRepository{
-    synchronized(UserRepository::class.java){
-        if(!::INSTANCE.isInitialized)
-            INSTANCE = UserRepository(application)
+    companion object{
+        private lateinit var INSTANCE: UserRepository
+        fun getInstance(application: RedditApplication): UserRepository{
+            if(!::INSTANCE.isInitialized)
+                INSTANCE = UserRepository(application)
+            return INSTANCE
+        }
     }
-    return INSTANCE
+
 }
