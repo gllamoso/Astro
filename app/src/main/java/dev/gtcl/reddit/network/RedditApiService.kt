@@ -5,16 +5,11 @@ import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterF
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import dev.gtcl.reddit.CommentSort
-import dev.gtcl.reddit.PostSort
-import dev.gtcl.reddit.ProfileInfo
-import dev.gtcl.reddit.Time
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.listings.*
 import dev.gtcl.reddit.listings.comments.Child
 import dev.gtcl.reddit.listings.comments.CommentAdapter
 import dev.gtcl.reddit.listings.comments.CommentPage
-import dev.gtcl.reddit.listings.subs.SubredditListingResponse
-import dev.gtcl.reddit.listings.subs.SubredditNamesResponse
 import dev.gtcl.reddit.listings.users.AccessToken
 import kotlinx.coroutines.Deferred
 import okhttp3.HttpUrl
@@ -141,23 +136,24 @@ interface RedditApiService {
 
     @GET("/subreddits/{where}.json")
     fun getSubreddits(
-        @Path("where") where: String,
+        @Header("Authorization") authorization: String? = null,
+        @Path("where") where: SubredditWhere,
         @Query("after") after: String? = null,
-        @Query("limit") limit: Int? = null): Deferred<SubredditListingResponse>
+        @Query("limit") limit: Int? = null): Deferred<ListingResponse>
 
     @GET("/subreddits/mine/{where}.json")
     fun getSubredditsOfMine(
         @Header("Authorization") authorization: String? = null,
-        @Path("where") where: String,
+        @Path("where") where: SubredditMineWhere,
         @Query("after") after: String? = null,
         @Query("limit") limit: Int? = 100,
-        @Query("show") show: String? = "all"): Deferred<SubredditListingResponse>
+        @Query("show") show: String? = "all"): Deferred<ListingResponse>
 
     @GET("/subreddits/search.json")
     fun getSubredditsSearch(
         @Query("q") q: String,
         @Query("include_over_18") nsfw: String
-    ): Deferred<SubredditListingResponse>
+    ): Deferred<ListingResponse>
 
     @GET("/api/search_reddit_names.json")
     fun getSubredditNameSearch(
@@ -222,9 +218,10 @@ interface RedditApiService {
 
             val moshi = Moshi.Builder()
                 .add(CommentAdapter())
-                .add(PolymorphicJsonAdapterFactory.of(ListingChild::class.java, "kind")
-                    .withSubtype(PostChild::class.java, "t3")
+                .add(PolymorphicJsonAdapterFactory.of(ListingChild::class.java, "kind") // TODO: Finish
                     .withSubtype(CommentChild::class.java, "t1")
+                    .withSubtype(PostChild::class.java, "t3")
+                    .withSubtype(SubredditChild::class.java, "t5")
                     .withSubtype(MoreChild::class.java, "more"))
                 .add(KotlinJsonAdapterFactory())
                 .build()

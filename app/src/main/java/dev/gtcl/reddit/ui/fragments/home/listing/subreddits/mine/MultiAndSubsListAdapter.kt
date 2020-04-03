@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.home.subreddits.mine
+package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.mine
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -8,11 +8,12 @@ import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.ItemListingBinding
 import dev.gtcl.reddit.databinding.ItemSectionHeaderBinding
 import dev.gtcl.reddit.listings.ListingType
+import dev.gtcl.reddit.listings.Subreddit
 import dev.gtcl.reddit.listings.SubredditListing
-import dev.gtcl.reddit.listings.subs.Subreddit
-import dev.gtcl.reddit.ui.fragments.home.subreddits.SubredditOnClickListener
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditActions
+import dev.gtcl.reddit.ui.viewholders.ListingViewHolder
 
-class MultiAndSubsListAdapter(private val context: Context, private val subredditOnClickListener: SubredditOnClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+class MultiAndSubsListAdapter(private val context: Context, private val subredditActions: SubredditActions) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
     private var mItems: MutableList<Any> = mutableListOf()
 
@@ -36,8 +37,8 @@ class MultiAndSubsListAdapter(private val context: Context, private val subreddi
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when(val item = mItems[position]) {
             is String -> (holder as SectionTitleViewHolder).bind(item)
-            is ListingType -> (holder as ListingViewHolder).bind(item, subredditOnClickListener)
-            is Subreddit -> (holder as ListingViewHolder).bind(SubredditListing(item), subredditOnClickListener)
+            is ListingType -> (holder as ListingViewHolder).bind(item, subredditActions)
+            is Subreddit -> (holder as ListingViewHolder).bind(SubredditListing(item), subredditActions)
         }
     }
 
@@ -51,22 +52,6 @@ class MultiAndSubsListAdapter(private val context: Context, private val subreddi
     }
 
     override fun getItemCount(): Int = mItems.size
-
-    class ListingViewHolder(private val binding: ItemListingBinding): RecyclerView.ViewHolder(binding.root) {
-        fun bind(listingType: ListingType, subredditOnClickListener: SubredditOnClickListener){
-            binding.listing = listingType
-            binding.root.setOnClickListener {
-                subredditOnClickListener.onClick(listingType)
-            }
-            binding.executePendingBindings()
-        }
-
-        companion object{
-            fun create(parent: ViewGroup): ListingViewHolder {
-                return ListingViewHolder(ItemListingBinding.inflate(LayoutInflater.from(parent.context)))
-            }
-        }
-    }
 
     class SectionTitleViewHolder(private val binding: ItemSectionHeaderBinding): RecyclerView.ViewHolder(binding.root){
         fun bind(header: String){

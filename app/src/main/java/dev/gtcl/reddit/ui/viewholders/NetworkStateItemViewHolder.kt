@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.home.listing
+package dev.gtcl.reddit.ui.viewholders
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -52,7 +52,10 @@ class NetworkStateItemViewHolder private constructor(private val binding: ItemNe
 
     companion object {
         fun create(parent: ViewGroup, retryCallback: () -> Unit): NetworkStateItemViewHolder {
-            return NetworkStateItemViewHolder(ItemNetworkStateBinding.inflate(LayoutInflater.from(parent.context)), retryCallback)
+            return NetworkStateItemViewHolder(
+                ItemNetworkStateBinding.inflate(LayoutInflater.from(parent.context)),
+                retryCallback
+            )
         }
     }
 }

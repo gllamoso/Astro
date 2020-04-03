@@ -10,6 +10,7 @@ import dev.gtcl.reddit.databinding.ItemMoreCommentBinding
 import dev.gtcl.reddit.listings.Comment
 import dev.gtcl.reddit.listings.Item
 import dev.gtcl.reddit.listings.More
+import dev.gtcl.reddit.ui.viewholders.CommentViewHolder
 
 class CommentsAdapter(private val commentItemClickListener: CommentItemClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
@@ -68,29 +69,6 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
     }
 
     override fun getItemCount(): Int = mCommentItems.size
-
-    class CommentViewHolder private constructor(private val binding: ItemCommentBinding): RecyclerView.ViewHolder(binding.root) {
-        fun bind(comment: Comment, onCommentClicked: (Int, Comment) -> Unit){
-            binding.comment = comment
-            itemView.setOnClickListener { onCommentClicked(adapterPosition, comment)}
-            if(comment.hiddenPoints > 0){
-                itemView.visibility = View.GONE
-                itemView.layoutParams = RecyclerView.LayoutParams(0,0)
-            }
-            else {
-                itemView.visibility = View.VISIBLE
-                itemView.layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
-            }
-            binding.commentTextView.visibility = if(comment.isPartiallyCollapsed) View.GONE else View.VISIBLE
-            binding.executePendingBindings()
-        }
-
-        companion object{
-            fun create(parent: ViewGroup): CommentViewHolder {
-                return CommentViewHolder(ItemCommentBinding.inflate(LayoutInflater.from(parent.context)))
-            }
-        }
-    }
 
     class MoreViewHolder private constructor(private val binding: ItemMoreCommentBinding): RecyclerView.ViewHolder(binding.root) {
         fun bind(item: More, onMoreClicked: () -> Unit){

@@ -39,24 +39,12 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     val timeSelected: LiveData<Time>
         get() = _timeSelected
 
-//    private val postListingsOfSubreddit = MutableLiveData<Listing<ListingItem>>()
-//    val posts = Transformations.switchMap(postListingsOfSubreddit) { it.pagedList }
-//    val networkState = Transformations.switchMap(postListingsOfSubreddit) { it.networkState }
-//    val refreshState = Transformations.switchMap(postListingsOfSubreddit) { it.refreshState }
-
 //    fun refresh() = postListingsOfSubreddit.value?.refresh?.invoke()
 //
     fun retry() {
 //        val listing = postListingsOfSubreddit.value
 //        listing?.retry?.invoke()
     }
-//
-//    fun fetchPosts(listingType: ListingType, sortBy: PostSort = PostSort.BEST, timePeriod: Time? = null){
-//        _listingSelected.value = listingType
-//        _sortSelected.value = sortBy
-//        _timeSelected.value = timePeriod
-//        postListingsOfSubreddit.value = postRepository.getPostsFromNetwork(listingType, sortBy, timePeriod, 10)
-//    }
 
     private val _networkState = MutableLiveData<NetworkState>()
     val networkState: LiveData<NetworkState>

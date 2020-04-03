@@ -53,6 +53,9 @@ data class AccountChild(override val data: Account): ListingChild(
 data class PostChild(override val data: Post) : ListingChild(
     ItemType.Post // t3
 )
+data class SubredditChild(override val data: Subreddit): ListingChild(
+    ItemType.Subreddit
+)
 data class MoreChild(override val data: More): ListingChild(
     ItemType.More // more
 )
@@ -199,6 +202,28 @@ data class RedditVideo(
     @Json(name = "hls_url")
     val hlsUrl: String
 ) : Parcelable
+
+//     _   ____            ____        _                  _     _ _ _
+//    | |_| ___|          / ___| _   _| |__  _ __ ___  __| | __| (_) |_
+//    | __|___ \   _____  \___ \| | | | '_ \| '__/ _ \/ _` |/ _` | | __|
+//    | |_ ___) | |_____|  ___) | |_| | |_) | | |  __/ (_| | (_| | | |_
+//     \__|____/          |____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__|
+
+data class Subreddit(
+    override val name: String,
+    override val id: String,
+    @Json(name = "display_name")
+    val displayName: String,
+    @Json(name = "icon_img")
+    val iconImg: String? = "Undefined",
+    @Json(name = "display_name_prefixed")
+    val displayNamePrefixed: String = "/r/$displayName",
+    @Json(name = "title")
+    val title: String?
+) : Item(ItemType.Subreddit) {
+    override val depth: Int = 0
+}
+data class SubredditNamesResponse(val names: List<String>)
 
 //   _    __                _                        _
 //  | |_ / /_              / \__      ____ _ _ __ __| |

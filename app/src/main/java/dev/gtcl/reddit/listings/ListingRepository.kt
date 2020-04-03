@@ -1,8 +1,6 @@
 package dev.gtcl.reddit.listings
 
 import androidx.annotation.MainThread
-import androidx.lifecycle.Transformations
-import androidx.paging.toLiveData
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.ReadListing
 import dev.gtcl.reddit.database.redditDatabase
@@ -20,41 +18,10 @@ class ListingRepository private constructor(val application: RedditApplication, 
     private val database = redditDatabase(application)
 
     // --- NETWORK
-
-    @MainThread
-    fun getPostsFromNetwork(listingType: ListingType, sort: PostSort, t: Time? = null, pageSize: Int) : Listing<Item> {
-
-        val sourceFactory = ListingDataSourceFactory(application.accessToken, application.currentAccount, listingType, sort, t, networkExecutor)
-
-        // We use toLiveData Kotlin extension function here, you could also use LivePagedListBuilder
-        val livePagedList = sourceFactory.toLiveData(
-            pageSize = pageSize,
-            // provide custom executor for network requests, otherwise it will default to
-            // Arch Components' IO pool which is also used for disk access
-            fetchExecutor = networkExecutor)
-
-        val refreshState = Transformations.switchMap(sourceFactory.sourceLiveDataListing) {
-            it.initialLoad
-        }
-        return Listing(
-            pagedList = livePagedList,
-            networkState = Transformations.switchMap(sourceFactory.sourceLiveDataListing) {
-                it.networkState
-            },
-            retry = {
-                sourceFactory.sourceLiveDataListing.value?.retryAllFailed()
-            },
-            refresh = {
-                sourceFactory.sourceLiveDataListing.value?.invalidate()
-            },
-            refreshState = refreshState
-        )
-    }
-
     @MainThread
     fun getListing(listingType: ListingType, sort: PostSort, t: Time? = null, after: String?, pageSize: Int, user: String? = null): Deferred<ListingResponse>{
         val accessToken = application.accessToken?.value
-        val userName = user ?: application.currentAccount!!.name
+        val userName = user ?: application.currentAccount?.name
         return when(listingType){
             FrontPage -> if(accessToken != null) RedditApi.oauth.getPostFromFrontPage("bearer $accessToken", sort, t, after, pageSize)
                 else RedditApi.base.getPostFromFrontPage(null, sort, t, after, pageSize)
@@ -65,8 +32,8 @@ class ListingRepository private constructor(val application: RedditApplication, 
             is MultiReddit -> TODO()
             is SubredditListing -> if (accessToken != null) RedditApi.oauth.getPostsFromSubreddit("bearer $accessToken", listingType.sub.displayName, sort, t, after, pageSize)
                 else RedditApi.base.getPostsFromSubreddit(null, listingType.sub.displayName, sort, t, after, pageSize)
-            is ProfileListing -> if(accessToken != null) RedditApi.oauth.getPostsFromUser("bearer $accessToken", userName, listingType.info, after, pageSize)
-                else RedditApi.base.getPostsFromUser(null, userName, listingType.info, after, pageSize)
+            is ProfileListing -> if(accessToken != null) RedditApi.oauth.getPostsFromUser("bearer $accessToken", userName!!, listingType.info, after, pageSize)
+                else RedditApi.base.getPostsFromUser(null, userName!!, listingType.info, after, pageSize)
         }
     }
 
@@ -136,4 +103,30 @@ class ListingRepository private constructor(val application: RedditApplication, 
             return INSTANCE
         }
     }
+
+
+//     ____  _  _  ____  ____
+//    / ___)/ )( \(  _ \/ ___)
+//    \___ \) \/ ( ) _ (\___ \
+//    (____/\____/(____/(____/
+    @MainThread
+    fun getSubreddits(where: SubredditWhere, after: String? = null, limit: Int = 100): Deferred<ListingResponse> {
+        return if(application.accessToken != null)
+            RedditApi.oauth.getSubreddits("bearer ${application.accessToken!!.value}", where, after, limit)
+        else
+            RedditApi.base.getSubreddits(null, where, after, limit)
+    }
+
+    @MainThread
+    fun getSubredditsOfMine(limit: Int = 100, after: String? = null): Deferred<ListingResponse> {
+        return if(application.accessToken != null)
+            RedditApi.oauth.getSubredditsOfMine("bearer ${application.accessToken!!.value}", SubredditMineWhere.SUBSCRIBER, after, limit)
+        else
+            RedditApi.base.getSubreddits(null, SubredditWhere.DEFAULT, after, limit)
+    }
+
+    @MainThread
+    fun getSubsSearch(q: String, nsfw: String): Deferred<ListingResponse> = RedditApi.base.getSubredditsSearch(q, nsfw)
+
+
 }

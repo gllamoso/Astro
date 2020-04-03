@@ -2,6 +2,7 @@ package dev.gtcl.reddit.ui.fragments.home
 
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -54,13 +55,11 @@ class HomeFragment : Fragment(), ViewPagerActions {
         // TODO: Listener for refresh token
         parentModel.fetchData.observe(viewLifecycleOwner, Observer {
             if(it){
-                model.fetchDefaultSubreddits()
-                model.fetchPopularPosts()
-                model.fetchTrendingPosts()
+//                model.fetchDefaultSubreddits()
             }
         })
         parentModel.currentAccount.observe(viewLifecycleOwner, Observer {
-            model.fetchDefaultSubreddits()
+//            model.fetchDefaultSubreddits()
         })
         setViewPagerAdapter()
         return binding.root

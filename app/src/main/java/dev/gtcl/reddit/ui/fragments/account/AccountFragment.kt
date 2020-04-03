@@ -64,7 +64,6 @@ class AccountFragment : Fragment(), PostActions {
         binding.lifecycleOwner = this
         binding.model = model
         setupViewPagerAdapter(model.username == null)
-        model.fetchListings()
         return binding.root
     }
 

@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.home.listing
+package dev.gtcl.reddit.ui.viewholders
 
 import android.view.LayoutInflater
 import android.view.View
@@ -10,7 +10,10 @@ import dev.gtcl.reddit.R
 import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.databinding.ItemPostBinding
 import dev.gtcl.reddit.listings.Post
+import dev.gtcl.reddit.ui.MenuItem
+import dev.gtcl.reddit.ui.OPTIONS_SIZE
 import dev.gtcl.reddit.ui.PostActions
+import dev.gtcl.reddit.ui.PostOptionsAdapter
 
 class PostViewHolder private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
@@ -29,7 +32,11 @@ class PostViewHolder private constructor(private val binding:ItemPostBinding)
 
 
         binding.moreOptions.apply {
-            val optionsAdapter = PostOptionsAdapter(binding.root.context, post?.likes, post!!.saved)
+            val optionsAdapter = PostOptionsAdapter(
+                binding.root.context,
+                post?.likes,
+                post!!.saved
+            )
             adapter = optionsAdapter
             setSelection(OPTIONS_SIZE - 1)
             onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
@@ -82,7 +89,11 @@ class PostViewHolder private constructor(private val binding:ItemPostBinding)
 
     companion object {
         fun create(parent: ViewGroup): PostViewHolder {
-            return PostViewHolder(ItemPostBinding.inflate(LayoutInflater.from(parent.context)))
+            return PostViewHolder(
+                ItemPostBinding.inflate(
+                    LayoutInflater.from(parent.context)
+                )
+            )
         }
     }
 }

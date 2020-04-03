@@ -1,7 +1,6 @@
 package dev.gtcl.reddit.listings
 
 import dev.gtcl.reddit.ProfileInfo
-import dev.gtcl.reddit.listings.subs.Subreddit
 
 sealed class ListingType
 object FrontPage : ListingType()

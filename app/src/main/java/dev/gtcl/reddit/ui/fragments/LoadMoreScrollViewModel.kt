@@ -5,10 +5,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.RedditApplication
+import dev.gtcl.reddit.SubredditWhere
 import dev.gtcl.reddit.Time
-import dev.gtcl.reddit.listings.Item
-import dev.gtcl.reddit.listings.ListingRepository
-import dev.gtcl.reddit.listings.ProfileListing
+import dev.gtcl.reddit.listings.*
 import dev.gtcl.reddit.network.NetworkState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,7 +34,7 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
     private var after: String? = null
     private var user: String? = null
 
-    private lateinit var profileListing: ProfileListing
+    private lateinit var listingType: ListingType
     private lateinit var postSort: PostSort
     private var t: Time? = null
     private var pageSize = 40
@@ -44,10 +43,17 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
         TODO()
     }
 
-    fun setListingInfo(profileListing: ProfileListing, postSort: PostSort, t: Time?, pageSize: Int){
-        this.profileListing = profileListing
+    fun setListingInfo(listingType: ListingType, postSort: PostSort, t: Time?, pageSize: Int){
+        this.listingType = listingType
         this.postSort = postSort
         this.t = t
+        this.pageSize = pageSize
+    }
+
+    private lateinit var subredditWhere: SubredditWhere
+
+    fun setListingInfo(subredditWhere: SubredditWhere, pageSize: Int){
+        this.subredditWhere = subredditWhere
         this.pageSize = pageSize
     }
 
@@ -58,7 +64,10 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
     fun loadInitial(){
         coroutineScope.launch {
             _networkState.value = NetworkState.LOADING
-            val response = listingRepository.getListing(profileListing, postSort, t, null, pageSize, user).await()
+            val response = if(::listingType.isInitialized)
+                listingRepository.getListing(listingType, postSort, t, null, pageSize, user).await()
+            else
+                listingRepository.getSubreddits(subredditWhere, limit = pageSize).await()
             _initialListing.value = response.data.children.map { it.data }
             after = response.data.after
             _networkState.value = NetworkState.LOADED
@@ -76,7 +85,10 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
     fun refresh(){
         coroutineScope.launch {
             _refreshState.value = NetworkState.LOADING
-            val response = listingRepository.getListing(profileListing, postSort, t, null, pageSize, user).await()
+            val response = if(::listingType.isInitialized)
+                listingRepository.getListing(listingType, postSort, t, null, pageSize, user).await()
+            else
+                listingRepository.getSubreddits(subredditWhere, null, pageSize).await()
             _initialListing.value = response.data.children.map { it.data }
             after = response.data.after
             _refreshState.value = NetworkState.LOADED
@@ -90,7 +102,10 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
     fun loadAfter(){
         coroutineScope.launch {
             _networkState.value = NetworkState.LOADING
-            val response = listingRepository.getListing(profileListing, postSort, t, after, pageSize, user).await()
+            val response = if(::listingType.isInitialized)
+                listingRepository.getListing(listingType, postSort, t, after, pageSize, user).await()
+            else
+                listingRepository.getSubreddits(subredditWhere, after, pageSize).await()
             _additionalListing.value = response.data.children.map { it.data }
             after = response.data.after
             _networkState.value = NetworkState.LOADED

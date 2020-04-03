@@ -80,6 +80,28 @@ enum class ProfileInfo {
     GILDED
 }
 
+enum class SubredditWhere{
+    @SerializedName("popular")
+    POPULAR,
+    @SerializedName("new")
+    NEW,
+    @SerializedName("gold")
+    GOLD,
+    @SerializedName("default")
+    DEFAULT
+}
+
+enum class SubredditMineWhere{
+    @SerializedName("contributor")
+    CONTRIBUTOR,
+    @SerializedName("moderator")
+    MODERATOR,
+    @SerializedName("streams")
+    STREAMS,
+    @SerializedName("subscriber")
+    SUBSCRIBER
+}
+
 val STATE by lazy {
     UUID.randomUUID().toString()
 }

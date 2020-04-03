@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.home.subreddits.mine
+package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.mine
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -6,35 +6,40 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
+import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.ProfileInfo
 import dev.gtcl.reddit.RedditApplication
+import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentRecyclerViewBinding
 import dev.gtcl.reddit.listings.*
-import dev.gtcl.reddit.ui.fragments.home.HomeFragment
-import dev.gtcl.reddit.ui.fragments.home.subreddits.SubredditOnClickListener
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditActions
 
 class MineFragment : Fragment() {
 
     private lateinit var binding: FragmentRecyclerViewBinding
-    private lateinit var subClickListener: SubredditOnClickListener
+    private lateinit var subClickListener: SubredditActions
 
-    fun setSubredditOnClickListener(listener: SubredditOnClickListener){
+    fun setFragment(listener: SubredditActions){
         this.subClickListener = listener
+    }
+
+    val model: MineViewModel by lazy {
+        val viewModelFactory = ViewModelFactory(requireActivity(). application as RedditApplication)
+        ViewModelProvider(this, viewModelFactory).get(MineViewModel::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentRecyclerViewBinding.inflate(inflater)
         setRecyclerViewAdapter()
+        model.fetchSubscribedSubs()
         return binding.root
     }
 
     private fun setRecyclerViewAdapter(){
-        val model = (requireParentFragment().parentFragment as HomeFragment).model
-
         val adapter = MultiAndSubsListAdapter(requireContext(), subClickListener)
         binding.list.adapter = adapter
 
-        model.defaultSubreddits.observe(viewLifecycleOwner, Observer {
+        model.subscribedSubs.observe(viewLifecycleOwner, Observer {
             val multis = mutableListOf(FrontPage, All, Popular) // TODO
             if((requireActivity().application as RedditApplication).accessToken != null) multis.add(ProfileListing(ProfileInfo.SAVED))
             adapter.submitLists(multis, it)

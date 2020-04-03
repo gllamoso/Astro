@@ -4,21 +4,40 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.database.ReadListing
-import dev.gtcl.reddit.listings.Comment
-import dev.gtcl.reddit.listings.Item
+import dev.gtcl.reddit.listings.*
 import dev.gtcl.reddit.network.NetworkState
-import dev.gtcl.reddit.listings.Post
 import dev.gtcl.reddit.ui.fragments.comments.CommentsAdapter
-import dev.gtcl.reddit.ui.fragments.home.listing.NetworkStateItemViewHolder
-import dev.gtcl.reddit.ui.fragments.home.listing.PostViewHolder
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditActions
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.mine.MultiAndSubsListAdapter
+import dev.gtcl.reddit.ui.viewholders.CommentViewHolder
+import dev.gtcl.reddit.ui.viewholders.ListingViewHolder
+import dev.gtcl.reddit.ui.viewholders.NetworkStateItemViewHolder
+import dev.gtcl.reddit.ui.viewholders.PostViewHolder
 import java.io.InvalidObjectException
 
-class ListingAdapter(private val postActions: PostActions, private val retry: () -> Unit, private val onLastItemReached: () -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var items = ArrayList<Item>()
     private var allReadSubs: HashSet<String> = HashSet()
     private var currentIds: HashSet<String> = HashSet()
     var lastItemReached = false
+
+    lateinit var postActions: PostActions
+    lateinit var retry: () -> Unit
+    lateinit var onLastItemReached: () -> Unit
+
+    constructor(postActions: PostActions, retry: () -> Unit, onLastItemReached: () -> Unit) : this() {
+        this.postActions = postActions
+        this.retry = retry
+        this.onLastItemReached = onLastItemReached
+    }
+
+    lateinit var subredditActions: SubredditActions
+    constructor(subredditActions: SubredditActions, retry: () -> Unit, onLastItemReached: () -> Unit): this(){
+        this.subredditActions = subredditActions
+        this.retry = retry
+        this.onLastItemReached = onLastItemReached
+    }
 
     private var networkState = NetworkState.LOADED
     fun setNetworkState(networkState: NetworkState){
@@ -64,6 +83,7 @@ class ListingAdapter(private val postActions: PostActions, private val retry: ()
         return when(val item = items[position]){
             is Post -> R.layout.item_post
             is Comment -> R.layout.item_comment
+            is Subreddit -> R.layout.item_listing
             else -> throw InvalidObjectException("Unexpected item found: ${item.javaClass.simpleName} in position $position" )
         }
     }
@@ -71,7 +91,8 @@ class ListingAdapter(private val postActions: PostActions, private val retry: ()
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             R.layout.item_post -> PostViewHolder.create(parent)
-            R.layout.item_comment -> CommentsAdapter.CommentViewHolder.create(parent)
+            R.layout.item_comment -> CommentViewHolder.create(parent)
+            R.layout.item_listing -> ListingViewHolder.create(parent)
             R.layout.item_network_state -> NetworkStateItemViewHolder.create(parent, retry)
             else -> throw IllegalArgumentException("Unknown view type $viewType")
         }
@@ -88,7 +109,11 @@ class ListingAdapter(private val postActions: PostActions, private val retry: ()
             }
             R.layout.item_comment -> {
                 val comment = items[position] as Comment
-                (holder as CommentsAdapter.CommentViewHolder).bind(comment) { _, c ->  }
+                (holder as CommentViewHolder).bind(comment) { _, c ->  }
+            }
+            R.layout.item_listing -> {
+                val subreddit = items[position] as Subreddit
+                (holder as ListingViewHolder).bind(SubredditListing(subreddit), subredditActions)
             }
             R.layout.item_network_state -> (holder as NetworkStateItemViewHolder).bindTo(networkState)
         }

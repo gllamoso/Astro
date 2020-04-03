@@ -12,7 +12,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-class UserRepository private constructor(val application: RedditApplication) {
+class UserRepository private constructor(val application: RedditApplication) { // TODO: Delete
     private val database = redditDatabase(application)
     val redirectUri = application.getString(R.string.redirect_uri)
 

@@ -11,8 +11,11 @@ import dev.gtcl.reddit.listings.Comment
 import dev.gtcl.reddit.listings.Item
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.listings.Post
+import dev.gtcl.reddit.ui.viewholders.NetworkStateItemViewHolder
 import dev.gtcl.reddit.ui.PostActions
+import dev.gtcl.reddit.ui.viewholders.PostViewHolder
 import dev.gtcl.reddit.ui.fragments.comments.CommentsAdapter
+import dev.gtcl.reddit.ui.viewholders.CommentViewHolder
 import java.io.InvalidObjectException
 
 class ListingAdapter(private val retryCallback: () -> Unit, private val postActions: PostActions): PagedListAdapter<Item, RecyclerView.ViewHolder>(LISTING_COMPARATOR){
@@ -36,7 +39,7 @@ class ListingAdapter(private val retryCallback: () -> Unit, private val postActi
             }
             R.layout.item_comment -> {
                 val comment = getItem(position) as Comment
-                (holder as CommentsAdapter.CommentViewHolder).bind(comment) { _, c ->  }
+                (holder as CommentViewHolder).bind(comment) { _, c ->  }
             }
             R.layout.item_network_state -> (holder as NetworkStateItemViewHolder).bindTo(networkState)
         }
@@ -49,7 +52,7 @@ class ListingAdapter(private val retryCallback: () -> Unit, private val postActi
 //                    currentList?.removeAt(position) // TODO: Remove
 //                    notifyItemRemoved(position)
                 }
-                is Comment -> (holder as CommentsAdapter.CommentViewHolder).bind(item) { _, comment ->  }
+                is Comment -> (holder as CommentViewHolder).bind(item) { _, comment ->  }
             }
         }
         else onBindViewHolder(holder, position)
@@ -58,7 +61,7 @@ class ListingAdapter(private val retryCallback: () -> Unit, private val postActi
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             R.layout.item_post -> PostViewHolder.create(parent)
-            R.layout.item_comment -> CommentsAdapter.CommentViewHolder.create(parent)
+            R.layout.item_comment -> CommentViewHolder.create(parent)
             R.layout.item_network_state -> NetworkStateItemViewHolder.create(parent, retryCallback)
             else -> throw IllegalArgumentException("unknown view type $viewType")
         }

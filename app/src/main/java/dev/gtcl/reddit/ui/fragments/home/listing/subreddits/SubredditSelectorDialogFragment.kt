@@ -1,6 +1,5 @@
-package dev.gtcl.reddit.ui.fragments.home.subreddits
+package dev.gtcl.reddit.ui.fragments.home.listing.subreddits
 
-import android.content.DialogInterface
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.os.Bundle
 import android.os.Handler
@@ -11,31 +10,35 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.fragment.app.Fragment
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.FragmentDialogSubredditsBinding
-import dev.gtcl.reddit.ui.fragments.home.HomeFragment
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.mine.MineFragment
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.popular.PopularFragment
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.search.SearchFragment
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending.TrendingFragment
 import kotlin.NoSuchElementException
 
 class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
 
     private lateinit var binding: FragmentDialogSubredditsBinding
-    private lateinit var subClickListener: SubredditOnClickListener
+    private lateinit var subClickListener: SubredditActions
 
-    fun setSubredditOnClickListener(listener: SubredditOnClickListener){
+    fun setSubredditOnClickListener(listener: SubredditActions){
         this.subClickListener = listener
     }
 
-//    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-//        val d = super.onCreateDialog(savedInstanceState)
-//        //view hierarchy is inflated after dialog is shown
-//        d.setOnShowListener {
-//            //this prevents dragging behavior
-//            (d.window!!.findViewById<View>(R.id.design_bottom_sheet).layoutParams as CoordinatorLayout.LayoutParams).behavior = LockableBottomSheetBehavior<View>()
-//        }
-//        return d
-//    }
+    override fun onAttachFragment(childFragment: Fragment) {
+        super.onAttachFragment(childFragment)
+        when(childFragment){
+            is MineFragment -> childFragment.setFragment(subClickListener)
+            is TrendingFragment -> childFragment.setFragment(subClickListener)
+            is PopularFragment -> childFragment.setFragment(subClickListener)
+            is SearchFragment -> childFragment.setFragment(subClickListener)
+        }
+    }
 
     override fun onStart() {
         super.onStart()
@@ -54,11 +57,6 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
         }
     }
 
-    override fun onDismiss(dialog: DialogInterface) {
-        super.onDismiss(dialog)
-        (requireParentFragment() as HomeFragment).model.clearSearchResults()
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentDialogSubredditsBinding.inflate(inflater)
         setupTabLayout()
@@ -70,7 +68,6 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
         val tabLayout = binding.tabLayout
         val viewPager = binding.viewPager
         val adapter = SubredditStateAdapter(this)
-        adapter.setSubredditOnClickListener(subClickListener)
         viewPager.adapter = adapter
         TabLayoutMediator(tabLayout, viewPager){ tab, position ->
             tab.text = getText(when(position){
@@ -98,7 +95,7 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
                 workRunnable = Runnable {
                     if(!s.isNullOrBlank()){
                         binding.viewPager.currentItem = 3
-                        (requireParentFragment() as HomeFragment).model.searchForSubs(s.toString(), "on")
+//                        (requireParentFragment() as HomeFragment).model.searchForSubs(s.toString(), "on")
                     }
                 }
                handler.postDelayed(workRunnable!!, DELAY)

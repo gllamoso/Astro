@@ -6,7 +6,7 @@
     <data>
         <variable
             name="trendingSubredditPost"
-            type="dev.gtcl.reddit.listings.TrendingSubredditPost" />
+            type="dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending.TrendingSubredditPost" />
     </data>
 
     <LinearLayout

@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.home.listing
+package dev.gtcl.reddit.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
@@ -25,7 +25,8 @@ class PostOptionsAdapter(val context: Context, var voted: Boolean?, var saved: B
         val viewHolder: OptionViewHolder
         val resultView: View
         if(convertView == null) {
-            viewHolder = OptionViewHolder.create(context)
+            viewHolder =
+                OptionViewHolder.create(context)
             val view = viewHolder.itemView
             view.tag = viewHolder
             resultView = view
@@ -79,7 +80,10 @@ class OptionViewHolder private constructor(private val binding: ItemMenuBinding)
     }
 
     companion object{
-        fun create(context: Context): OptionViewHolder = OptionViewHolder(ItemMenuBinding.inflate(LayoutInflater.from(context)))
+        fun create(context: Context): OptionViewHolder =
+            OptionViewHolder(
+                ItemMenuBinding.inflate(LayoutInflater.from(context))
+            )
     }
 }
 

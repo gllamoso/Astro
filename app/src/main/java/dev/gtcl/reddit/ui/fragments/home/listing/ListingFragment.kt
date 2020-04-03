@@ -19,8 +19,8 @@ import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.ui.activities.MainActivity
 import dev.gtcl.reddit.ui.activities.MainActivityViewModel
 import dev.gtcl.reddit.ui.fragments.home.listing.sort_sheet.SortSheetDialogFragment
-import dev.gtcl.reddit.ui.fragments.home.subreddits.SubredditOnClickListener
-import dev.gtcl.reddit.ui.fragments.home.subreddits.SubredditSelectorDialogFragment
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditActions
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditSelectorDialogFragment
 import dev.gtcl.reddit.ui.fragments.home.listing.time_period_sheet.TimePeriodSheetDialogFragment
 
 class ListingFragment : Fragment(), PostActions {
@@ -130,26 +130,26 @@ class ListingFragment : Fragment(), PostActions {
                         model.loadInitial(model.listingSelected.value!!, sort, time)
                         binding.list.scrollToPosition(0)
                         (binding.list.adapter as? ListingAdapter)?.submitList(null)
-                    }.show(parentFragmentManager, TimePeriodSheetDialogFragment.TAG)
+                    }.show(childFragmentManager, TimePeriodSheetDialogFragment.TAG)
                 } else {
                     model.loadInitial(model.listingSelected.value!!, sort)
                     binding.list.scrollToPosition(0)
                     (binding.list.adapter as? ListingAdapter)?.submitList(null)
                 }
 
-            }.show(parentFragmentManager, SortSheetDialogFragment.TAG)
+            }.show(childFragmentManager, SortSheetDialogFragment.TAG)
         }
 
 
         binding.subredditButton.setOnClickListener{
             val subredditSelector = SubredditSelectorDialogFragment()
-            subredditSelector.setSubredditOnClickListener(object : SubredditOnClickListener {
+            subredditSelector.setSubredditOnClickListener(object : SubredditActions {
                 override fun onClick(listing: ListingType) {
                     model.loadInitial(listing)
                     subredditSelector.dismiss()
                 }
             })
-            subredditSelector.show(parentFragmentManager, SubredditSelectorDialogFragment.TAG)
+            subredditSelector.show(childFragmentManager, SubredditSelectorDialogFragment.TAG)
         }
 
         binding.refreshButton.setOnClickListener{
