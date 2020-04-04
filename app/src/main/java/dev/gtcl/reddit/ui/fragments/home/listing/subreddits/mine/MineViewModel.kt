@@ -32,14 +32,14 @@ class MineViewModel(private val application: RedditApplication): AndroidViewMode
         coroutineScope.launch {
             try {
                 if(application.accessToken == null)
-                    _subscribedSubs.value = repository.getSubredditsOfMine(100, null).await().data.children.map { it.data as Subreddit}
+                    _subscribedSubs.value = repository.getAccountSubreddit(100, null).await().data.children.map { it.data as Subreddit}
                 else {
                     val allSubs = mutableListOf<Subreddit>()
-                    var subs = repository.getSubredditsOfMine(100, null).await().data.children.map { it.data as Subreddit }
+                    var subs = repository.getAccountSubreddit(100, null).await().data.children.map { it.data as Subreddit }
                     while(subs.isNotEmpty()) {
                         allSubs.addAll(subs)
                         val lastSub = subs.last()
-                        subs = repository.getSubredditsOfMine(100, after = lastSub.name).await().data.children.map { it.data as Subreddit }
+                        subs = repository.getAccountSubreddit(100, after = lastSub.name).await().data.children.map { it.data as Subreddit }
                     }
                     _subscribedSubs.value = allSubs
                 }

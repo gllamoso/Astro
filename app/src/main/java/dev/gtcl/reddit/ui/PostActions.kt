@@ -6,6 +6,7 @@ import dev.gtcl.reddit.listings.Post
 interface PostActions {
     fun vote(post: Post, vote: Vote)
     fun share(post: Post)
+    fun viewProfile(post: Post)
     fun award(post: Post)
     fun save(post: Post)
     fun hide(post: Post)

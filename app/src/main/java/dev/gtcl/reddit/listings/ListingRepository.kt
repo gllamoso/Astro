@@ -57,13 +57,13 @@ class ListingRepository private constructor(val application: RedditApplication, 
 
     @MainThread
     fun hide(id: String): Call<Void>{
-        if(application.accessToken == null) throw IllegalStateException("User must be logged in to unsave")
+        if(application.accessToken == null) throw IllegalStateException("User must be logged in to hide")
         return RedditApi.oauth.hide("bearer ${application.accessToken!!.value}", id)
     }
 
     @MainThread
     fun unhide(id: String): Call<Void>{
-        if(application.accessToken == null) throw IllegalStateException("User must be logged in to unsave")
+        if(application.accessToken == null) throw IllegalStateException("User must be logged in to unhide")
         return RedditApi.oauth.unhide("bearer ${application.accessToken!!.value}", id)
     }
 
@@ -104,11 +104,11 @@ class ListingRepository private constructor(val application: RedditApplication, 
         }
     }
 
-
 //     ____  _  _  ____  ____
 //    / ___)/ )( \(  _ \/ ___)
 //    \___ \) \/ ( ) _ (\___ \
 //    (____/\____/(____/(____/
+
     @MainThread
     fun getSubreddits(where: SubredditWhere, after: String? = null, limit: Int = 100): Deferred<ListingResponse> {
         return if(application.accessToken != null)
@@ -118,7 +118,7 @@ class ListingRepository private constructor(val application: RedditApplication, 
     }
 
     @MainThread
-    fun getSubredditsOfMine(limit: Int = 100, after: String? = null): Deferred<ListingResponse> {
+    fun getAccountSubreddit(limit: Int = 100, after: String? = null): Deferred<ListingResponse> {
         return if(application.accessToken != null)
             RedditApi.oauth.getSubredditsOfMine("bearer ${application.accessToken!!.value}", SubredditMineWhere.SUBSCRIBER, after, limit)
         else

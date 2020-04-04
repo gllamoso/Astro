@@ -32,11 +32,7 @@ class PostViewHolder private constructor(private val binding:ItemPostBinding)
 
 
         binding.moreOptions.apply {
-            val optionsAdapter = PostOptionsAdapter(
-                binding.root.context,
-                post?.likes,
-                post!!.saved
-            )
+            val optionsAdapter = PostOptionsAdapter(binding.root.context, post!!)
             adapter = optionsAdapter
             setSelection(OPTIONS_SIZE - 1)
             onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
@@ -49,7 +45,6 @@ class PostViewHolder private constructor(private val binding:ItemPostBinding)
                                 postActions.vote(it, if(it.likes == true) Vote.UNVOTE else Vote.UPVOTE)
                                 it.likes = if(it.likes == true) null else true
                                 binding.invalidateAll()
-                                optionsAdapter.voted = it.likes
                             }
                         }
                         MenuItem.DOWNVOTE.position -> {
@@ -57,22 +52,24 @@ class PostViewHolder private constructor(private val binding:ItemPostBinding)
                                 postActions.vote(it, if(it.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
                                 it.likes = if(it.likes == false) null else false
                                 binding.invalidateAll()
-                                optionsAdapter.voted = it.likes
                             }
                         }
                         MenuItem.SHARE.position -> postActions.share(post)
+                        MenuItem.PROFILE.position -> postActions.viewProfile(post)
                         MenuItem.AWARD.position -> postActions.award(post)
                         MenuItem.SAVE.position -> {
                             binding.post?.let {
                                 postActions.save(it)
                                 it.saved = !it.saved
                                 binding.invalidateAll()
-                                optionsAdapter.saved = it.saved
                             }
                         }
                         MenuItem.HIDE.position -> {
-                            postActions.hide(post)
-                            hide()
+                            binding.post?.let{
+                                postActions.hide(post)
+                                it.hidden = !it.hidden
+                                hide()
+                            }
                         }
                         MenuItem.REPORT.position -> postActions.report(post)
                     }

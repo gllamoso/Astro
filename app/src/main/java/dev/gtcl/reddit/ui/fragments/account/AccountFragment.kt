@@ -116,6 +116,10 @@ class AccountFragment : Fragment(), PostActions {
         TODO("Not yet implemented")
     }
 
+    override fun viewProfile(post: Post) {
+        TODO("Not yet implemented")
+    }
+
     override fun award(post: Post) {
         TODO("Not yet implemented")
     }

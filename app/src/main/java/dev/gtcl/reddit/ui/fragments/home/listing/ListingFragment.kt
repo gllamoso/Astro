@@ -4,9 +4,11 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import dev.gtcl.reddit.*
@@ -18,6 +20,7 @@ import dev.gtcl.reddit.listings.ListingType
 import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.ui.activities.MainActivity
 import dev.gtcl.reddit.ui.activities.MainActivityViewModel
+import dev.gtcl.reddit.ui.activities.USER_KEY
 import dev.gtcl.reddit.ui.fragments.home.listing.sort_sheet.SortSheetDialogFragment
 import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditActions
 import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditSelectorDialogFragment
@@ -129,12 +132,14 @@ class ListingFragment : Fragment(), PostActions {
                     TimePeriodSheetDialogFragment { time ->
                         model.loadInitial(model.listingSelected.value!!, sort, time)
                         binding.list.scrollToPosition(0)
-                        (binding.list.adapter as? ListingAdapter)?.submitList(null)
+//                        (binding.list.adapter as? ListingAdapter)?.submitList(null)
+                        (binding.list.adapter as? ListingAdapter)?.loadInitial(listOf())
                     }.show(childFragmentManager, TimePeriodSheetDialogFragment.TAG)
                 } else {
                     model.loadInitial(model.listingSelected.value!!, sort)
                     binding.list.scrollToPosition(0)
-                    (binding.list.adapter as? ListingAdapter)?.submitList(null)
+//                    (binding.list.adapter as? ListingAdapter)?.submitList(null)
+                    (binding.list.adapter as? ListingAdapter)?.loadInitial(listOf())
                 }
 
             }.show(childFragmentManager, SortSheetDialogFragment.TAG)
@@ -165,6 +170,11 @@ class ListingFragment : Fragment(), PostActions {
 
     override fun share(post: Post) {
         TODO("Not yet implemented")
+    }
+
+    override fun viewProfile(post: Post) {
+        val bundle = bundleOf(USER_KEY to post.author)
+        findNavController().navigate(R.id.account_fragment, bundle)
     }
 
     override fun award(post: Post) {

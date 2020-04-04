@@ -16,8 +16,6 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
-import androidx.paging.PagedList
-import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
 import dev.gtcl.reddit.databinding.ItemAwardBinding
@@ -26,7 +24,6 @@ import dev.gtcl.reddit.listings.Award
 import dev.gtcl.reddit.listings.Comment
 import dev.gtcl.reddit.listings.Item
 import dev.gtcl.reddit.listings.More
-import dev.gtcl.reddit.ui.fragments.home.listing.ListingAdapter
 
 @BindingAdapter("imageUrlAndHideIfNull")
 fun bindImageAndHideIfNull(imgView: ImageView, imgUrl: String?){
@@ -117,13 +114,6 @@ fun loadListingText(txtView: TextView, listingType: ListingType?){
 @BindingAdapter("setVisibility")
 fun setVisibility(view: View, constraint: Boolean) {
     view.visibility = if(constraint) View.VISIBLE else View.GONE
-}
-
-@BindingAdapter("posts")
-fun setPosts(recyclerView: RecyclerView, posts: PagedList<Item>?){
-    recyclerView.adapter?.let {
-        (it as ListingAdapter).submitList(posts)
-    }
 }
 
 @BindingAdapter("commentItem")

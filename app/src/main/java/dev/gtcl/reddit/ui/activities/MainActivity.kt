@@ -141,12 +141,10 @@ class MainActivity : FragmentActivity() {
             override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
             override fun onDrawerClosed(drawerView: View) {
                 binding.expandableListView.collapseGroup(0)
-//                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
             }
 
             override fun onDrawerOpened(drawerView: View) {
                 adapter.notifyDataSetInvalidated()
-//                drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
             }
         })
 

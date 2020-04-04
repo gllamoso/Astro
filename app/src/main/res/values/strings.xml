@@ -14,6 +14,7 @@
     <string name="save">Save</string>
     <string name="unsave">Unsave</string>
     <string name="hide">Hide</string>
+    <string name="unhide">Unhide</string>
     <string name="report">Report</string>
 
     <!--Sort Fragment-->
@@ -99,5 +100,6 @@
     <string name="blocked">Blocked</string>
     <string name="karma">Karma</string>
     <string name="reddit_age">Reddit Age</string>
+    <string name="profile">Profile</string>
 
 </resources>
