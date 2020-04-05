@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.home.listing.subreddits
+package dev.gtcl.reddit.ui.fragments.dialog.subreddits
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter

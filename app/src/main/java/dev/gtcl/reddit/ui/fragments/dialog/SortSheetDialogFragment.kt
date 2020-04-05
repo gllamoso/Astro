@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.home.listing.sort_sheet
+package dev.gtcl.reddit.ui.fragments.dialog
 
 import android.os.Bundle
 import android.view.LayoutInflater

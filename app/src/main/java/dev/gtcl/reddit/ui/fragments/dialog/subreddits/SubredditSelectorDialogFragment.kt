@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.home.listing.subreddits
+package dev.gtcl.reddit.ui.fragments.dialog.subreddits
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.os.Bundle
@@ -15,6 +15,7 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.FragmentDialogSubredditsBinding
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditActions
 import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.mine.MineFragment
 import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.popular.PopularFragment
 import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.search.SearchFragment
@@ -67,7 +68,10 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
     private fun setupTabLayout(){
         val tabLayout = binding.tabLayout
         val viewPager = binding.viewPager
-        val adapter = SubredditStateAdapter(this)
+        val adapter =
+            SubredditStateAdapter(
+                this
+            )
         viewPager.adapter = adapter
         TabLayoutMediator(tabLayout, viewPager){ tab, position ->
             tab.text = getText(when(position){

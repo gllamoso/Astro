@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="post"
+            type="dev.gtcl.reddit.listings.Post" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <include
+            android:id="@+id/share_link_layout"
+            layout="@layout/item_icon_and_text"
+            app:iconDrawable="@{@drawable/ic_link_24dp}"
+            app:title="@{@string/share_link}"
+            app:subtext="@{post.url}"/>
+
+        <include
+            android:id="@+id/share_comments_layout"
+            layout="@layout/item_icon_and_text"
+            app:iconDrawable="@{@drawable/ic_comment_24dp}"
+            app:title="@{@string/share_comments}"
+            app:subtext="@{post.permalink}"/>
+
+        <include
+            android:id="@+id/cross_post_layout"
+            layout="@layout/item_icon_and_text"
+            app:iconDrawable="@{@drawable/ic_crosspost_24dp}"
+            app:title="@{@string/crosspost}"
+            app:subtext="@{@string/post_to_subreddit}"/>
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@android:color/darker_gray"/>
+
+        <include
+            android:id="@+id/share_title_and_link_layout"
+            layout="@layout/item_icon_and_text"
+            app:iconDrawable="@{@drawable/ic_text_24dp}"
+            app:title="@{@string/share_title_link}"/>
+
+        <include
+            android:id="@+id/share_shortlink_layout"
+            layout="@layout/item_icon_and_text"
+            app:iconDrawable="@{@drawable/ic_link_24dp}"
+            app:title="@{@string/share_shortlink}"
+            app:subtext="@{post.getShortLink()}"/>
+
+    </LinearLayout>
+</layout>

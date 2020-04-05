@@ -25,10 +25,6 @@ import dev.gtcl.reddit.databinding.NavHeaderBinding
 import dev.gtcl.reddit.listings.Account
 import dev.gtcl.reddit.ui.activities.signin.SignInActivity
 
-const val URL_KEY = "URL"
-const val USER_KEY = "User"
-const val REDIRECT_URL_REQUEST_CODE = 1
-
 class MainActivity : FragmentActivity() {
     lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
@@ -99,14 +95,12 @@ class MainActivity : FragmentActivity() {
                     drawerLayout.closeDrawer(Gravity.START)
                 }
 
-                override fun onPostsClicked() {
-                    Toast.makeText(baseContext, "Posts", Toast.LENGTH_LONG).show()
+                override fun onHomeClicked() {
+                    navController.popBackStack(R.id.home_fragment, false)
                     drawerLayout.closeDrawer(Gravity.START)
                 }
 
                 override fun onMyAccountClicked() {
-//                    val bundle = bundleOf(USER_KEY to "tiddydropdan")
-//                    navController.navigate(R.id.account_fragment, bundle)
                     navController.navigate(R.id.account_fragment)
                     drawerLayout.closeDrawer(Gravity.START)
                 }

@@ -102,4 +102,12 @@
     <string name="reddit_age">Reddit Age</string>
     <string name="profile">Profile</string>
 
+    <!--Share-->
+    <string name="share_link">Share link</string>
+    <string name="share_comments">Share comments</string>
+    <string name="crosspost">Crosspost</string>
+    <string name="share_title_link">Share title + link</string>
+    <string name="share_shortlink">Share shortlink</string>
+    <string name="post_to_subreddit">Post to Subreddit</string>
+
 </resources>

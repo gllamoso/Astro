@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.home
+package dev.gtcl.reddit.ui.fragments.dialog
 
 import android.content.DialogInterface
 import android.graphics.Color

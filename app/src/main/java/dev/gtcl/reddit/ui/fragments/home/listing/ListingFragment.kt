@@ -20,11 +20,11 @@ import dev.gtcl.reddit.listings.ListingType
 import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.ui.activities.MainActivity
 import dev.gtcl.reddit.ui.activities.MainActivityViewModel
-import dev.gtcl.reddit.ui.activities.USER_KEY
-import dev.gtcl.reddit.ui.fragments.home.listing.sort_sheet.SortSheetDialogFragment
+import dev.gtcl.reddit.ui.fragments.dialog.ShareOptionsDialogFragment
+import dev.gtcl.reddit.ui.fragments.dialog.SortSheetDialogFragment
 import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditActions
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditSelectorDialogFragment
-import dev.gtcl.reddit.ui.fragments.home.listing.time_period_sheet.TimePeriodSheetDialogFragment
+import dev.gtcl.reddit.ui.fragments.dialog.subreddits.SubredditSelectorDialogFragment
+import dev.gtcl.reddit.ui.fragments.dialog.TimePeriodSheetDialogFragment
 
 class ListingFragment : Fragment(), PostActions {
 
@@ -132,22 +132,23 @@ class ListingFragment : Fragment(), PostActions {
                     TimePeriodSheetDialogFragment { time ->
                         model.loadInitial(model.listingSelected.value!!, sort, time)
                         binding.list.scrollToPosition(0)
-//                        (binding.list.adapter as? ListingAdapter)?.submitList(null)
                         (binding.list.adapter as? ListingAdapter)?.loadInitial(listOf())
-                    }.show(childFragmentManager, TimePeriodSheetDialogFragment.TAG)
+                    }
+                        .show(childFragmentManager, TimePeriodSheetDialogFragment.TAG)
                 } else {
                     model.loadInitial(model.listingSelected.value!!, sort)
                     binding.list.scrollToPosition(0)
-//                    (binding.list.adapter as? ListingAdapter)?.submitList(null)
                     (binding.list.adapter as? ListingAdapter)?.loadInitial(listOf())
                 }
 
-            }.show(childFragmentManager, SortSheetDialogFragment.TAG)
+            }
+                .show(childFragmentManager, SortSheetDialogFragment.TAG)
         }
 
 
         binding.subredditButton.setOnClickListener{
-            val subredditSelector = SubredditSelectorDialogFragment()
+            val subredditSelector =
+                SubredditSelectorDialogFragment()
             subredditSelector.setSubredditOnClickListener(object : SubredditActions {
                 override fun onClick(listing: ListingType) {
                     model.loadInitial(listing)
@@ -169,7 +170,11 @@ class ListingFragment : Fragment(), PostActions {
     }
 
     override fun share(post: Post) {
-        TODO("Not yet implemented")
+        val args = Bundle()
+        args.putParcelable(POST_KEY, post)
+        val shareOptionsFragment = ShareOptionsDialogFragment()
+        shareOptionsFragment.arguments = args
+        shareOptionsFragment.show(childFragmentManager, null)
     }
 
     override fun viewProfile(post: Post) {

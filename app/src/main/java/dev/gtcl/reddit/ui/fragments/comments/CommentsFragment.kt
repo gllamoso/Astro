@@ -19,16 +19,12 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.util.Util
 import com.google.android.material.bottomsheet.BottomSheetBehavior
-import dev.gtcl.reddit.R
-import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.ViewModelFactory
-import dev.gtcl.reddit.buildMediaSource
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentCommentsBinding
 import dev.gtcl.reddit.listings.More
 import dev.gtcl.reddit.listings.Post
 import dev.gtcl.reddit.ui.ViewPagerActions
 
-const val PRELOADED_POST_KEY = "POST"
 class CommentsFragment : Fragment() {
 
     private val model: CommentsViewModel by lazy {
@@ -56,7 +52,7 @@ class CommentsFragment : Fragment() {
         binding.model = model
 
         val bundle = arguments
-        val post = bundle?.get(PRELOADED_POST_KEY)
+        val post = bundle?.get(POST_KEY)
         post?.let { model.setPost(it as Post) }
 
         val adapter1 = CommentsAdapter(object : CommentsAdapter.CommentItemClickListener{
@@ -70,7 +66,7 @@ class CommentsFragment : Fragment() {
 //                findNavController().navigate(MainFragmentDirections.actionMainFragmentToCommentsFragment(CommentUrl(url)))
             }
         })
-        binding.commentList.adapter = adapter1
+        binding.bottomSheet.commentList.adapter = adapter1
         model.comments.observe(viewLifecycleOwner, Observer {
             if(it != null){
                 adapter1.submitList(it)
@@ -92,11 +88,11 @@ class CommentsFragment : Fragment() {
             mediaController.hide()
         }
 
-        binding.upvoteButton.setOnClickListener{
+        binding.bottomSheet.upvoteButton.setOnClickListener{
             Toast.makeText(context, "Upvoted!", Toast.LENGTH_LONG).show()
         }
 
-        BottomSheetBehavior.from(binding.bottomSheet).addBottomSheetCallback(object: BottomSheetBehavior.BottomSheetCallback(){
+        BottomSheetBehavior.from(binding.bottomSheet.bottomSheet).addBottomSheetCallback(object: BottomSheetBehavior.BottomSheetCallback(){
             override fun onSlide(p0: View, p1: Float) {
                 mediaController.hide()
                 if(!::viewPagerActions.isInitialized) return
@@ -128,9 +124,9 @@ class CommentsFragment : Fragment() {
             }
         })
 
-        binding.bottomBar.setOnClickListener {
-            val currentState = BottomSheetBehavior.from(binding.bottomSheet).state
-            BottomSheetBehavior.from(binding.bottomSheet).state =
+        binding.bottomSheet.bottomBar.setOnClickListener {
+            val currentState = BottomSheetBehavior.from(binding.bottomSheet.bottomSheet).state
+            BottomSheetBehavior.from(binding.bottomSheet.bottomSheet).state =
                 if(currentState == BottomSheetBehavior.STATE_EXPANDED) BottomSheetBehavior.STATE_COLLAPSED
                 else BottomSheetBehavior.STATE_EXPANDED
         }
@@ -141,7 +137,7 @@ class CommentsFragment : Fragment() {
     override fun onResume() {
         super.onResume()
         binding.nestedScrollView.scrollTo(0,0)
-        binding.commentList.scrollToPosition(0)
+        binding.bottomSheet.commentList.scrollToPosition(0)
         if((Util.SDK_INT < 24 || mPlayer == null)){
 //            initializePlayer()
         }

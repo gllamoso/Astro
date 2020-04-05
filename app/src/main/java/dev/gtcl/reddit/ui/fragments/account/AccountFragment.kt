@@ -64,6 +64,9 @@ class AccountFragment : Fragment(), PostActions {
         binding.lifecycleOwner = this
         binding.model = model
         setupViewPagerAdapter(model.username == null)
+        binding.toolbar.setNavigationOnClickListener {
+            parentModel.openDrawer()
+        }
         return binding.root
     }
 

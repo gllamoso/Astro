@@ -44,9 +44,9 @@ class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners
                     convertViewVar.findViewById<ImageView>(R.id.indicator).setImageResource(R.drawable.ic_down_no_stem_24dp)
             }
             1 -> {
-                convertViewVar.findViewById<ImageView>(R.id.icon).setImageResource(R.drawable.ic_posts_24dp)
+                convertViewVar.findViewById<ImageView>(R.id.icon).setImageResource(R.drawable.ic_home_24dp)
                 convertViewVar.setOnClickListener {
-                    drawerOnClickListeners.onPostsClicked()
+                    drawerOnClickListeners.onHomeClicked()
                 }
             }
             2 -> {
@@ -140,7 +140,7 @@ interface DrawerOnClickListeners{
     fun onLogoutClicked()
 
     // Posts
-    fun onPostsClicked()
+    fun onHomeClicked()
 
     // My Account
     fun onMyAccountClicked()

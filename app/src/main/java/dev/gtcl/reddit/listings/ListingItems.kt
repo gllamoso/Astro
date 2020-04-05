@@ -176,6 +176,8 @@ data class Post(
         }
         return false
     }
+
+    fun getShortLink(): String = "http://redd.it/$id"
 }
 
 // Reddit API Response

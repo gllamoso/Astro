@@ -12,9 +12,9 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
+import dev.gtcl.reddit.URL_KEY
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.ActivityWebviewBinding
-import dev.gtcl.reddit.ui.activities.URL_KEY
 
 class SignInActivity : AppCompatActivity(){
 
