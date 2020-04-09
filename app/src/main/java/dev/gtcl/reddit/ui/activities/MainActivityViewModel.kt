@@ -8,7 +8,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.database.ReadListing
+import dev.gtcl.reddit.database.ItemsRead
 import dev.gtcl.reddit.listings.Account
 import dev.gtcl.reddit.listings.ListingRepository
 import dev.gtcl.reddit.listings.users.UserRepository
@@ -137,9 +137,9 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
     // Read posts
     val allReadPosts = postRepository.getReadPostsFromDatabase()
 
-    fun addReadPost(readListing: ReadListing) {
+    fun addReadPost(itemsRead: ItemsRead) {
         coroutineScope.launch {
-            postRepository.insertReadPostToDatabase(readListing)
+            postRepository.insertReadPostToDatabase(itemsRead)
         }
     }
 }

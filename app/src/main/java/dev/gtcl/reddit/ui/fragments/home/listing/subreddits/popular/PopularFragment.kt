@@ -9,33 +9,28 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
-import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.SubredditWhere
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentRecyclerViewBinding
-import dev.gtcl.reddit.listings.Subreddit
-import dev.gtcl.reddit.listings.SubredditListing
 import dev.gtcl.reddit.ui.ListingAdapter
 import dev.gtcl.reddit.ui.LoadMoreScrollListener
 import dev.gtcl.reddit.ui.OnLoadMoreListener
 import dev.gtcl.reddit.ui.fragments.LoadMoreScrollViewModel
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditActions
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending.TrendingAdapter
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending.toTrendingPosts
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.ListingOnClickListeners
 
 class PopularFragment : Fragment() {
 
     private lateinit var binding: FragmentRecyclerViewBinding
-    private lateinit var subredditActions: SubredditActions
+    private lateinit var listingOnClickListeners: ListingOnClickListeners
 
     val model: LoadMoreScrollViewModel by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(LoadMoreScrollViewModel::class.java)
     }
 
-    fun setFragment(subredditActions: SubredditActions){
-        this.subredditActions = subredditActions
+    fun setFragment(listingOnClickListeners: ListingOnClickListeners){
+        this.listingOnClickListeners = listingOnClickListeners
         model.setListingInfo(SubredditWhere.POPULAR, 20)
         model.loadInitial()
     }
@@ -56,7 +51,7 @@ class PopularFragment : Fragment() {
             }
         )
 
-        val adapter = ListingAdapter(subredditActions, {model.retry()}, {loadMoreScrollListener.lastItemReached()})
+        val adapter = ListingAdapter(listingOnClickListeners, {model.retry()}, {loadMoreScrollListener.lastItemReached()})
         binding.list.adapter = adapter
 
         model.networkState.observe(viewLifecycleOwner, Observer {

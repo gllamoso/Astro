@@ -1,4 +1,4 @@
-package dev.gtcl.reddit
+package dev.gtcl.reddit.ui.fragments.home.listing
 
 import android.content.Context
 import android.util.AttributeSet

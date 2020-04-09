@@ -31,7 +31,8 @@ interface RedditApiService {
         @Header("Authorization") authorization: String,
         @Field("grant_type") grantType: String = "authorization_code",
         @Field("code") code: String,
-        @Field("redirect_uri") redirectUri: String) : Deferred<AccessToken>
+        @Field("redirect_uri") redirectUri: String
+    ) : Deferred<AccessToken>
 
     @FormUrlEncoded
     @POST("/api/v1/access_token")
@@ -39,42 +40,50 @@ interface RedditApiService {
     fun getAccessToken(
         @Header("Authorization") authorization: String,
         @Field("grant_type") grantType: String = "refresh_token",
-        @Field("refresh_token") refreshToken: String): Deferred<AccessToken>
+        @Field("refresh_token") refreshToken: String
+    ): Deferred<AccessToken>
 
     @GET("/api/v1/me")
     fun getCurrentAccountInfo(
-        @Header("Authorization") authorization: String): Deferred<Account>
+        @Header("Authorization") authorization: String
+    ): Deferred<Account>
 
     @GET("/user/{user}/about/.json")
     fun getUserInfo(
         @Header("Authorization") authorization: String?,
-        @Path("user") user: String) : Deferred<AccountChild>
+        @Path("user") user: String
+    ) : Deferred<AccountChild>
 
     @POST("/api/vote/")
     fun vote(
         @Header("Authorization") authorization: String,
         @Query("id") id: String,
-        @Query("dir") dir: Int): Call<Void>
+        @Query("dir") dir: Int
+    ): Call<Void>
 
     @POST("/api/save/")
     fun save(
         @Header("Authorization") authorization: String,
-        @Query("id") id: String): Call<Void>
+        @Query("id") id: String
+    ): Call<Void>
 
     @POST("/api/unsave/")
     fun unsave(
         @Header("Authorization") authorization: String,
-        @Query("id") id: String): Call<Void>
+        @Query("id") id: String
+    ): Call<Void>
 
     @POST("/api/hide")
     fun hide(
         @Header("Authorization") authorization: String,
-        @Query("id") id: String): Call<Void>
+        @Query("id") id: String
+    ): Call<Void>
 
     @POST("/api/unhide")
     fun unhide(
         @Header("Authorization") authorization: String,
-        @Query("id") id: String): Call<Void>
+        @Query("id") id: String
+    ): Call<Void>
 
 //     ____   __   ____  ____  ____
 //    (  _ \ /  \ / ___)(_  _)/ ___)
@@ -87,7 +96,8 @@ interface RedditApiService {
         @Path("sort") sort: PostSort,
         @Query("t") t: Time?,
         @Query("after") after: String? = null,
-        @Query("limit") limit: Int): Deferred<ListingResponse>
+        @Query("limit") limit: Int
+    ): Deferred<ListingResponse>
 
     @GET("/user/{user}/m/{multi}/{sort}.json")
     fun getPostFromMultiReddit(
@@ -127,7 +137,8 @@ interface RedditApiService {
         @Path("sort") sort: PostSort,
         @Query("t") t: Time?,
         @Query("after") after: String? = null,
-        @Query("limit") limit: Int): Deferred<ListingResponse>
+        @Query("limit") limit: Int
+    ): Deferred<ListingResponse>
 
 //     ____  _  _  ____  ____
 //    / ___)/ )( \(  _ \/ ___)
@@ -139,7 +150,8 @@ interface RedditApiService {
         @Header("Authorization") authorization: String? = null,
         @Path("where") where: SubredditWhere,
         @Query("after") after: String? = null,
-        @Query("limit") limit: Int? = null): Deferred<ListingResponse>
+        @Query("limit") limit: Int? = null
+    ): Deferred<ListingResponse>
 
     @GET("/subreddits/mine/{where}.json")
     fun getSubredditsOfMine(
@@ -147,7 +159,8 @@ interface RedditApiService {
         @Path("where") where: SubredditMineWhere,
         @Query("after") after: String? = null,
         @Query("limit") limit: Int? = 100,
-        @Query("show") show: String? = "all"): Deferred<ListingResponse>
+        @Query("show") show: String? = "all"
+    ): Deferred<ListingResponse>
 
     @GET("/subreddits/search.json")
     fun getSubredditsSearch(
@@ -160,7 +173,23 @@ interface RedditApiService {
         @Query("exact") exact: Boolean = false,
         @Query("include_over_18") nsfw: Boolean = true,
         @Query("include_unadvertisable") includeUnadvertisable: Boolean = true, // If set to False, subs that have "hide_ads" set to True or are on on the "anti_ads_subreddits" list will be filtered
-        @Query("query") query: String): Deferred<SubredditNamesResponse>
+        @Query("query") query: String
+    ): Deferred<SubredditNamesResponse>
+
+    @GET("/api/subreddit_autocomplete_v2.json")
+    fun getSubredditNameSearch(
+        @Query("include_over_18") nsfw: Boolean,
+        @Query("include_profiles") includeProfiles: Boolean,
+        @Query("limit") limit: Int = 5,
+        @Query("query") query: String
+    ): Deferred<ListingResponse>
+
+    @POST("/api/subscribe")
+    fun subscribeToSubreddit(
+        @Header("Authorization") authorization: String? = null,
+        @Query("action") action: String, // sub or unsub
+        @Query("sr_name") srName: String
+    ): Call<Void>
 
 //     ___  __   _  _  _  _  ____  __ _  ____  ____
 //    / __)/  \ ( \/ )( \/ )(  __)(  ( \(_  _)/ ___)

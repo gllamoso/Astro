@@ -4,7 +4,8 @@ import android.net.Uri
 import android.os.Parcelable
 import com.squareup.moshi.Json
 import dev.gtcl.reddit.database.DbAccount
-import dev.gtcl.reddit.database.ReadListing
+import dev.gtcl.reddit.database.DbSubreddit
+import dev.gtcl.reddit.database.ItemsRead
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 
@@ -36,8 +37,7 @@ class ListingResponse(val data: ListingData)
 
 class ListingData(
     val children: List<ListingChild>,
-    val after: String?,
-    val before: String?
+    val after: String?
 )
 
 sealed class ListingChild(@Json(name="kind") val kind: ItemType){
@@ -112,21 +112,19 @@ data class Account(
         val imgRegex = "http.+\\.(png|jpg|gif)".toRegex()
         return imgRegex.find(subreddit?.bannerImg ?: "")?.value ?: ""
     }
+
+    fun asDbModel() = DbAccount(
+        id = this.id,
+        name = this.name,
+        iconImg = this.iconImg,
+        bannerImg = this.subreddit?.bannerImg,
+        refreshToken = this.refreshToken
+    )
 }
 
 data class AccountSubreddit(
     @Json(name = "banner_img") val bannerImg: String?
 )
-
-
-fun Account.asDatabaseModel() = DbAccount(
-    id = this.id,
-    name = this.name,
-    iconImg = this.iconImg,
-    bannerImg = this.subreddit?.bannerImg,
-    refreshToken = this.refreshToken
-)
-
 
 //     _   _____           ____           _
 //    | |_|___ /          |  _ \ ___  ___| |_
@@ -165,7 +163,7 @@ data class Post(
     @IgnoredOnParcel
     override val depth = 0
 
-    fun asReadListing() = ReadListing(this.name)
+    fun asReadListing() = ItemsRead(this.name)
 
     fun isPicture(): Boolean{
         url?.let {
@@ -213,18 +211,29 @@ data class RedditVideo(
 
 data class Subreddit(
     override val name: String,
-    override val id: String,
     @Json(name = "display_name")
     val displayName: String,
     @Json(name = "icon_img")
-    val iconImg: String? = "Undefined",
-    @Json(name = "display_name_prefixed")
-    val displayNamePrefixed: String = "/r/$displayName",
+    val iconImg: String?,
     @Json(name = "title")
-    val title: String?
+    val title: String,
+    @Transient
+    var isFavorite: Boolean = false
 ) : Item(ItemType.Subreddit) {
     override val depth: Int = 0
+    override val id = name.replace("t5_","")
+
+    fun asDbModel(userId: String) = DbSubreddit(
+        "${name}__${userId}",
+        userId,
+        displayName,
+        iconImg,
+        isFavorite
+    )
 }
+
+fun List<Subreddit>.asSubredditDatabaseModels(userId: String) = map { it.asDbModel(userId) }
+
 data class SubredditNamesResponse(val names: List<String>)
 
 //   _    __                _                        _

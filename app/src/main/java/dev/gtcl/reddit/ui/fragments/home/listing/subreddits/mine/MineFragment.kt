@@ -12,14 +12,14 @@ import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentRecyclerViewBinding
 import dev.gtcl.reddit.listings.*
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditActions
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.ListingOnClickListeners
 
 class MineFragment : Fragment() {
 
     private lateinit var binding: FragmentRecyclerViewBinding
-    private lateinit var subClickListener: SubredditActions
+    private lateinit var subClickListener: ListingOnClickListeners
 
-    fun setFragment(listener: SubredditActions){
+    fun setFragment(listener: ListingOnClickListeners){
         this.subClickListener = listener
     }
 
@@ -31,7 +31,6 @@ class MineFragment : Fragment() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentRecyclerViewBinding.inflate(inflater)
         setRecyclerViewAdapter()
-        model.fetchSubscribedSubs()
         return binding.root
     }
 
@@ -44,6 +43,17 @@ class MineFragment : Fragment() {
             if((requireActivity().application as RedditApplication).accessToken != null) multis.add(ProfileListing(ProfileInfo.SAVED))
             adapter.submitLists(multis, it)
         })
+
+        model.favoriteSubs.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                adapter.submitFavorites(it)
+            }
+        })
     }
+
+    fun syncSubscribedSubs(){
+        model.syncSubscribedSubs()
+    }
+
 
 }

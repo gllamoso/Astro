@@ -3,12 +3,10 @@ package dev.gtcl.reddit.ui
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
-import dev.gtcl.reddit.database.ReadListing
+import dev.gtcl.reddit.database.ItemsRead
 import dev.gtcl.reddit.listings.*
 import dev.gtcl.reddit.network.NetworkState
-import dev.gtcl.reddit.ui.fragments.comments.CommentsAdapter
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditActions
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.mine.MultiAndSubsListAdapter
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.ListingOnClickListeners
 import dev.gtcl.reddit.ui.viewholders.CommentViewHolder
 import dev.gtcl.reddit.ui.viewholders.ListingViewHolder
 import dev.gtcl.reddit.ui.viewholders.NetworkStateItemViewHolder
@@ -32,9 +30,9 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         this.onLastItemReached = onLastItemReached
     }
 
-    lateinit var subredditActions: SubredditActions
-    constructor(subredditActions: SubredditActions, retry: () -> Unit, onLastItemReached: () -> Unit): this(){
-        this.subredditActions = subredditActions
+    lateinit var listingOnClickListeners: ListingOnClickListeners
+    constructor(listingOnClickListeners: ListingOnClickListeners, retry: () -> Unit, onLastItemReached: () -> Unit): this(){
+        this.listingOnClickListeners = listingOnClickListeners
         this.retry = retry
         this.onLastItemReached = onLastItemReached
     }
@@ -44,7 +42,7 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         this.networkState = networkState
     }
 
-    fun setReadSubs(list: List<ReadListing>){
+    fun setReadSubs(list: List<ItemsRead>){
         allReadSubs = list.map { it.name }.toHashSet()
     }
 
@@ -113,7 +111,7 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             }
             R.layout.item_listing -> {
                 val subreddit = items[position] as Subreddit
-                (holder as ListingViewHolder).bind(SubredditListing(subreddit), subredditActions)
+                (holder as ListingViewHolder).bind(SubredditListing(subreddit), listingOnClickListeners)
             }
             R.layout.item_network_state -> (holder as NetworkStateItemViewHolder).bindTo(networkState)
         }

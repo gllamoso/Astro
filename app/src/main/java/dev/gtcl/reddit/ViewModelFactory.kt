@@ -10,6 +10,7 @@ import dev.gtcl.reddit.ui.fragments.home.listing.ListingViewModel
 import dev.gtcl.reddit.ui.activities.signin.SignInViewModel
 import dev.gtcl.reddit.ui.fragments.LoadMoreScrollViewModel
 import dev.gtcl.reddit.ui.fragments.account.pages.UserAboutViewModel
+import dev.gtcl.reddit.ui.fragments.dialog.subreddits.SubredditSelectorViewModel
 import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.mine.MineViewModel
 import java.lang.IllegalArgumentException
 
@@ -26,6 +27,7 @@ class ViewModelFactory(private val application: RedditApplication): ViewModelPro
             modelClass.isAssignableFrom(UserAboutViewModel::class.java) -> UserAboutViewModel(application) as T
             modelClass.isAssignableFrom(LoadMoreScrollViewModel::class.java) -> LoadMoreScrollViewModel(application) as T
             modelClass.isAssignableFrom(MineViewModel::class.java) -> MineViewModel(application) as T
+            modelClass.isAssignableFrom(SubredditSelectorViewModel::class.java) -> SubredditSelectorViewModel(application) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         }
     }

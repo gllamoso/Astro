@@ -1,17 +1,14 @@
 package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending
 
-import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
-import dev.gtcl.reddit.databinding.ItemTrendingSubredditBinding
-import dev.gtcl.reddit.listings.Subreddit
-import dev.gtcl.reddit.listings.SubredditListing
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.viewholders.NetworkStateItemViewHolder
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditActions
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.ListingOnClickListeners
+import dev.gtcl.reddit.ui.viewholders.TrendingSubredditViewHolder
 
-class TrendingAdapter(private val actions: SubredditActions, private val retry: () -> Unit, private val onLastItemReached: () -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class TrendingAdapter(private val onClickListeners: ListingOnClickListeners, private val retry: () -> Unit, private val onLastItemReached: () -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var items = ArrayList<TrendingSubredditPost>()
     private var currentIds: HashSet<String> = HashSet()
@@ -67,37 +64,9 @@ class TrendingAdapter(private val actions: SubredditActions, private val retry: 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(viewType){
-            R.layout.item_trending_subreddit -> TrendingSubredditViewHolder.create(parent, actions)
+            R.layout.item_trending_subreddit -> TrendingSubredditViewHolder.create(parent, onClickListeners)
             R.layout.item_network_state -> NetworkStateItemViewHolder.create(parent, retry)
             else -> throw IllegalArgumentException("Unknown view type $viewType")
-        }
-    }
-
-    class TrendingSubredditViewHolder private constructor(private val binding: ItemTrendingSubredditBinding, private val onSubredditClickListener: SubredditActions): RecyclerView.ViewHolder(binding.root) {
-        fun bind(trendingSubredditPost: TrendingSubredditPost) {
-            binding.trendingSubredditPost = trendingSubredditPost
-            binding.sub1.setOnClickListener{ onSubredditClickListener.onClick(
-                SubredditListing(Subreddit( "", "", trendingSubredditPost.titles[0], null, title = null)))
-            }
-            binding.sub2.setOnClickListener{ onSubredditClickListener.onClick(
-                SubredditListing(Subreddit( "", "", trendingSubredditPost.titles[1], null, title = null)))
-            }
-            binding.sub3.setOnClickListener{ onSubredditClickListener.onClick(
-                SubredditListing(Subreddit( "", "", trendingSubredditPost.titles[2], null, title = null)))
-            }
-            binding.sub4.setOnClickListener{ onSubredditClickListener.onClick(
-                SubredditListing(Subreddit( "", "", trendingSubredditPost.titles[3], null, title = null)))
-            }
-            binding.sub5.setOnClickListener{ onSubredditClickListener.onClick(
-                SubredditListing(Subreddit( "", "", trendingSubredditPost.titles[4], null, title = null)))
-            }
-            binding.executePendingBindings()
-        }
-
-        companion object{
-            fun create(parent: ViewGroup, onSubredditClickListener: SubredditActions): TrendingSubredditViewHolder {
-                return TrendingSubredditViewHolder(ItemTrendingSubredditBinding.inflate(LayoutInflater.from(parent.context)), onSubredditClickListener)
-            }
         }
     }
 

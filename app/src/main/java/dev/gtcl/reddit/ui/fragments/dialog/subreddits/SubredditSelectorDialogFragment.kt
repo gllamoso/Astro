@@ -6,15 +6,18 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.R
+import dev.gtcl.reddit.RedditApplication
+import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentDialogSubredditsBinding
+import dev.gtcl.reddit.listings.Subreddit
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.ListingOnClickListeners
 import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditActions
 import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.mine.MineFragment
 import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.popular.PopularFragment
@@ -22,12 +25,18 @@ import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.search.SearchFragmen
 import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending.TrendingFragment
 import kotlin.NoSuchElementException
 
-class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
+class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditActions {
 
     private lateinit var binding: FragmentDialogSubredditsBinding
-    private lateinit var subClickListener: SubredditActions
 
-    fun setSubredditOnClickListener(listener: SubredditActions){
+    val model: SubredditSelectorViewModel by lazy {
+        val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
+        ViewModelProvider(this, viewModelFactory).get(SubredditSelectorViewModel::class.java)
+    }
+
+    private lateinit var subClickListener: ListingOnClickListeners
+
+    fun setSubredditOnClickListener(listener: ListingOnClickListeners){
         this.subClickListener = listener
     }
 
@@ -58,8 +67,20 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
         }
     }
 
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.navdrawer_menu, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentDialogSubredditsBinding.inflate(inflater)
+        binding.refreshButton.setOnClickListener {
+            for(fragment: Fragment in childFragmentManager.fragments){
+                when(fragment){
+                    is MineFragment -> fragment.syncSubscribedSubs()
+                }
+            }
+        }
         setupTabLayout()
         setEditTextListener()
         return binding.root
@@ -114,6 +135,18 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment() {
 
     companion object {
         val TAG = SubredditSelectorDialogFragment::class.qualifiedName
+    }
+
+    override fun addToFavorites(subreddit: Subreddit) {
+        TODO("Not yet implemented")
+    }
+
+    override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
+        TODO("Not yet implemented")
+    }
+
+    override fun fetchSubredditInfoThenSubscribe(srName: String) {
+        TODO("Not yet implemented")
     }
 
 }

@@ -8,6 +8,7 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.listings.Item
 import dev.gtcl.reddit.listings.ListingRepository
 import dev.gtcl.reddit.listings.ListingType
+import dev.gtcl.reddit.listings.Subreddit
 import dev.gtcl.reddit.network.NetworkState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -152,6 +153,16 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
 
             override fun onResponse(call: Call<Void>, response: Response<Void>) {}
         })
+    }
+
+    fun subscribeToSubreddit(){
+//        listingRepository.deleteSubscribedSubs() // TODO: Subreddit subscribed
+    }
+
+    fun addSubredditToFavorites(subreddit: Subreddit, favorite: Boolean){ // TODO: Delete
+        coroutineScope.launch {
+            listingRepository.addToFavorites(subreddit.displayName, favorite)
+        }
     }
 
 }

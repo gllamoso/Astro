@@ -14,7 +14,7 @@ class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners
     private val addAccountString = context.getString(R.string.add_account)
     private val logoutString = context.getString(R.string.logout)
 
-    private val groups = listOf(context.getString(R.string.accounts), context.getString(R.string.posts), context.getString(R.string.my_account), context.getString(R.string.settings))
+    private val groups = listOf(context.getString(R.string.accounts), context.getString(R.string.home), context.getString(R.string.my_account), context.getString(R.string.settings))
     private lateinit var accountOptions: List<String>
     private lateinit var accounts: List<Account>
 

@@ -3,16 +3,16 @@ package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.mine
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import dev.gtcl.reddit.RedditApplication
+import dev.gtcl.reddit.database.DbSubreddit
+import dev.gtcl.reddit.database.asSubredditDomainModel
 import dev.gtcl.reddit.listings.ListingRepository
 import dev.gtcl.reddit.listings.Subreddit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.util.*
 import java.util.concurrent.Executors
 
 class MineViewModel(private val application: RedditApplication): AndroidViewModel(application){
@@ -23,25 +23,41 @@ class MineViewModel(private val application: RedditApplication): AndroidViewMode
     private var viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    private val _subscribedSubs = MutableLiveData<List<Subreddit>>()
-    val subscribedSubs: LiveData<List<Subreddit>> = Transformations.map(_subscribedSubs) {
-        it.sortedBy { sub -> sub.displayName.toUpperCase(Locale.US) }
-    }
+    private val dbSubs: LiveData<List<DbSubreddit>> = repository.getSubscribedSubsLive()
+    val subscribedSubs: LiveData<List<Subreddit>> = Transformations.map(dbSubs) { it.asSubredditDomainModel() }
 
-    fun fetchSubscribedSubs(){
+    private val dbNonFavoriteSubs: LiveData<List<DbSubreddit>> = repository.getNonFavoriteSubsLive()
+    val nonFavoriteSubs: LiveData<List<Subreddit>> = Transformations.map(dbNonFavoriteSubs){ it.asSubredditDomainModel() }
+
+    private val dbFavorites: LiveData<List<DbSubreddit>> = repository.getFavoriteSubsLive()
+    val favoriteSubs: LiveData<List<Subreddit>> = Transformations.map(dbFavorites) { it.asSubredditDomainModel() }
+
+    fun syncSubscribedSubs(){
         coroutineScope.launch {
             try {
-                if(application.accessToken == null)
-                    _subscribedSubs.value = repository.getAccountSubreddit(100, null).await().data.children.map { it.data as Subreddit}
+                val favSubs = repository.getFavoriteSubs().map { it.displayName }.toHashSet()
+                if(application.accessToken == null) {
+                    val subs = repository.getAccountSubreddits(100, null).await().data.children.map { it.data as Subreddit }
+                    for(sub: Subreddit in subs)
+                        if(favSubs.contains(sub.displayName))
+                            sub.isFavorite = true
+                    repository.deleteSubscribedSubs()
+                    repository.insertSubreddits(subs)
+                }
                 else {
                     val allSubs = mutableListOf<Subreddit>()
-                    var subs = repository.getAccountSubreddit(100, null).await().data.children.map { it.data as Subreddit }
+                    var subs = repository.getAccountSubreddits(100, null).await().data.children.map { it.data as Subreddit }
                     while(subs.isNotEmpty()) {
                         allSubs.addAll(subs)
                         val lastSub = subs.last()
-                        subs = repository.getAccountSubreddit(100, after = lastSub.name).await().data.children.map { it.data as Subreddit }
+                        subs = repository.getAccountSubreddits(100, after = lastSub.name).await().data.children.map { it.data as Subreddit }
                     }
-                    _subscribedSubs.value = allSubs
+                    for(sub: Subreddit in allSubs) {
+                        if (favSubs.contains(sub.displayName))
+                            sub.isFavorite = true
+                    }
+                    repository.deleteSubscribedSubs()
+                    repository.insertSubreddits(allSubs)
                 }
             } catch(e: Exception) {
                 Log.d("TAE", "Exception: $e") // TODO: Handle?

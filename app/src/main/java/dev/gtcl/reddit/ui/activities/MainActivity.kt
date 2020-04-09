@@ -9,7 +9,6 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
-import androidx.core.os.bundleOf
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.FragmentActivity
@@ -19,7 +18,7 @@ import androidx.navigation.NavController
 import androidx.navigation.findNavController
 import com.google.gson.Gson
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.database.asDomainModel
+import dev.gtcl.reddit.database.asAccountDomainModel
 import dev.gtcl.reddit.databinding.ActivityMainBinding
 import dev.gtcl.reddit.databinding.NavHeaderBinding
 import dev.gtcl.reddit.listings.Account
@@ -115,7 +114,7 @@ class MainActivity : FragmentActivity() {
         binding.expandableListView.setAdapter(adapter)
 
         model.allUsers.observe(this, Observer {
-            adapter.setUsers(it.asDomainModel())
+            adapter.setUsers(it.asAccountDomainModel())
         })
 
         model.currentAccount.observe(this, Observer {

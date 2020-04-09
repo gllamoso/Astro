@@ -50,7 +50,7 @@
 
     <!--Nav Drawer Items-->
     <string name="accounts">Accounts</string>
-    <string name="posts">Posts</string>
+    <string name="home">Home</string>
     <string name="my_account">My Account</string>
     <string name="users">Users</string>
     <string name="settings">Settings</string>
@@ -91,6 +91,7 @@
     <string name="overview">Overview</string>
     <string name="about">About</string>
     <string name="submitted">Submitted</string>
+    <string name="posts">Posts</string>
     <string name="saved">Saved</string>
     <string name="hidden">Hidden</string>
     <string name="upvoted">Upvoted</string>

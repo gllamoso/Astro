@@ -7,7 +7,6 @@ import dev.gtcl.reddit.network.RedditApi
 import dev.gtcl.reddit.database.redditDatabase
 import dev.gtcl.reddit.listings.Account
 import dev.gtcl.reddit.listings.AccountChild
-import dev.gtcl.reddit.listings.asDatabaseModel
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -46,20 +45,20 @@ class UserRepository private constructor(val application: RedditApplication) { /
     @MainThread
     suspend fun insertUserToDatabase(account: Account){
         withContext(Dispatchers.IO){
-            val databaseUser = account.asDatabaseModel()
-            database.userDao.insert(databaseUser)
+            val databaseUser = account.asDbModel()
+            database.accountDao.insert(databaseUser)
         }
     }
 
     @MainThread
     suspend fun deleteUserInDatabase(username: String){
         withContext(Dispatchers.IO) {
-            database.userDao.deleteUser(username)
+            database.accountDao.deleteUser(username)
         }
     }
 
     @MainThread
-    fun getUsersFromDatabase() = database.userDao.getUsers()
+    fun getUsersFromDatabase() = database.accountDao.getUsers()
 
     companion object{
         private lateinit var INSTANCE: UserRepository

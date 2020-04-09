@@ -18,21 +18,21 @@ import dev.gtcl.reddit.listings.SubredditListing
 import dev.gtcl.reddit.ui.LoadMoreScrollListener
 import dev.gtcl.reddit.ui.OnLoadMoreListener
 import dev.gtcl.reddit.ui.fragments.LoadMoreScrollViewModel
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditActions
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.ListingOnClickListeners
 
 class TrendingFragment : Fragment() {
     private lateinit var binding: FragmentRecyclerViewBinding
-    private lateinit var subredditActions: SubredditActions
+    private lateinit var listingOnClickListeners: ListingOnClickListeners
 
     val model: LoadMoreScrollViewModel by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(LoadMoreScrollViewModel::class.java)
     }
 
-    fun setFragment(subredditActions: SubredditActions){
-        this.subredditActions = subredditActions
+    fun setFragment(listingOnClickListeners: ListingOnClickListeners){
+        this.listingOnClickListeners = listingOnClickListeners
         model.setListingInfo(
-            SubredditListing(Subreddit( "", "", "trendingsubreddits", null, title = null)),
+            SubredditListing(Subreddit( "", "trendingsubreddits", null, "")),
             PostSort.HOT,
             null,
             15)
@@ -55,7 +55,7 @@ class TrendingFragment : Fragment() {
             }
         )
 
-        val adapter = TrendingAdapter(subredditActions, {model.retry()}, {loadMoreScrollListener.lastItemReached()})
+        val adapter = TrendingAdapter(listingOnClickListeners, {model.retry()}, {loadMoreScrollListener.lastItemReached()})
         binding.list.adapter = adapter
 
         model.networkState.observe(viewLifecycleOwner, Observer {

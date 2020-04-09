@@ -27,36 +27,34 @@ import dev.gtcl.reddit.listings.More
 
 @BindingAdapter("imageUrlAndHideIfNull")
 fun bindImageAndHideIfNull(imgView: ImageView, imgUrl: String?){
-    imgUrl?.let {
-        if(it.startsWith("http")){
-            imgView.visibility = View.VISIBLE
-            val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
-            Glide.with(imgView.context)
-                .load(imgUri)
-                .apply(
-                    RequestOptions()
-                        .placeholder(R.drawable.anim_loading)
-                        .error(R.drawable.ic_broken_image))
-                .into(imgView)
-        }
-        else imgView.visibility = View.GONE
+    if(imgUrl == null) return
+    if(imgUrl.startsWith("http")){
+        imgView.visibility = View.VISIBLE
+        val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
+        Glide.with(imgView.context)
+            .load(imgUri)
+//            .apply(
+//                RequestOptions()
+//                    .placeholder(R.drawable.anim_loading)
+//                    .error(R.drawable.ic_broken_image))
+            .into(imgView)
     }
+    else imgView.visibility = View.GONE
 }
 
 @BindingAdapter("imageUrl")
 fun bindImage(imgView: ImageView, imgUrl: String?){
-    imgUrl?.let {
-        if(it.startsWith("http")){
-            imgView.visibility = View.VISIBLE
-            val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
-            Glide.with(imgView.context)
-                .load(imgUri)
-                .apply(
-                    RequestOptions()
-                        .placeholder(R.drawable.anim_loading)
-                        .error(R.drawable.ic_broken_image))
-                .into(imgView)
-        }
+    if(imgUrl == null) return
+    if(imgUrl.startsWith("http")){
+        imgView.visibility = View.VISIBLE
+        val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
+        Glide.with(imgView.context)
+            .load(imgUri)
+//                .apply(
+//                    RequestOptions()
+//                        .placeholder(R.drawable.anim_loading)
+//                        .error(R.drawable.ic_broken_image))
+            .into(imgView)
     }
 }
 
@@ -72,7 +70,8 @@ fun loadMultiIcon(imgView: ImageView, listingType: ListingType){
     }
 }
 
-private fun loadSubIcon(imgView: ImageView, imgUrl: String?){
+@BindingAdapter("subredditIcon")
+fun loadSubIcon(imgView: ImageView, imgUrl: String?){
     if(imgUrl == null || !imgUrl.startsWith("http")){
         imgView.setImageResource(R.drawable.ic_reddit_circle)
     }
@@ -86,6 +85,16 @@ private fun loadSubIcon(imgView: ImageView, imgUrl: String?){
                     .error(R.drawable.ic_broken_image))
             .into(imgView)
     }
+}
+
+@BindingAdapter("favorite")
+fun loadFavoriteIcon(imgView: ImageView, isFavorite: Boolean){
+    imgView.setImageResource(if(isFavorite) R.drawable.ic_favorite_filled_24dp else R.drawable.ic_favorite_unfilled_24dp)
+}
+
+@BindingAdapter("added")
+fun loadAddedIcon(imgView: ImageView, added: Boolean){
+    imgView.setImageResource(if(added) R.drawable.ic_remove_circle_outline_24dp else R.drawable.ic_add_circle_outline_24dp)
 }
 
 @BindingAdapter("listingType")

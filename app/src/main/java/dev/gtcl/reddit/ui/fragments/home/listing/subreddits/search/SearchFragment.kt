@@ -6,13 +6,13 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import dev.gtcl.reddit.databinding.FragmentRecyclerViewBinding
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditActions
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.ListingOnClickListeners
 
 class SearchFragment : Fragment() {
     private lateinit var binding: FragmentRecyclerViewBinding
-    lateinit var subClickListener: SubredditActions
+    lateinit var subClickListener: ListingOnClickListeners
 
-    fun setFragment(listener: SubredditActions){
+    fun setFragment(listener: ListingOnClickListeners){
         this.subClickListener = listener
     }
 

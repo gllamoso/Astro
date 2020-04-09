@@ -2,7 +2,7 @@ package dev.gtcl.reddit.listings
 
 import androidx.annotation.MainThread
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.database.ReadListing
+import dev.gtcl.reddit.database.ItemsRead
 import dev.gtcl.reddit.database.redditDatabase
 import dev.gtcl.reddit.listings.comments.Child
 import dev.gtcl.reddit.listings.comments.CommentPage
@@ -14,7 +14,9 @@ import retrofit2.Call
 import java.lang.IllegalStateException
 import java.util.concurrent.Executor
 
-class ListingRepository private constructor(val application: RedditApplication, private val networkExecutor: Executor){
+const val GUEST_ID = "guest"
+
+class ListingRepository private constructor(private val application: RedditApplication, private val networkExecutor: Executor){
     private val database = redditDatabase(application)
 
     // --- NETWORK
@@ -77,17 +79,16 @@ class ListingRepository private constructor(val application: RedditApplication, 
     // --- DATABASE
 
     @MainThread
-    fun getReadPostsFromDatabase() = database.readPostDao.getAll()
+    fun getReadPostsFromDatabase() = database.readItemDao.getAll()
 
     @MainThread
-    suspend fun insertReadPostToDatabase(readListing: ReadListing) {
+    suspend fun insertReadPostToDatabase(itemsRead: ItemsRead) {
         withContext(Dispatchers.IO){
-            database.readPostDao.insert(readListing)
+            database.readItemDao.insert(itemsRead)
         }
     }
 
     // --- COMMENTS
-    @MainThread
     fun getPostAndComments(permalink: String, sort: CommentSort = CommentSort.BEST, limit: Int = 15): Deferred<CommentPage> =
         RedditApi.base.getPostAndComments(permalink = "$permalink.json", sort = sort, limit = limit)
 
@@ -95,19 +96,10 @@ class ListingRepository private constructor(val application: RedditApplication, 
     fun getMoreComments(children: String, linkId: String, sort: CommentSort = CommentSort.BEST): Deferred<List<Child>> =
         RedditApi.base.getMoreComments(children = children, linkId = linkId, sort = sort)
 
-    companion object{
-        private lateinit var INSTANCE: ListingRepository
-        fun getInstance(application: RedditApplication, networkExecutor: Executor): ListingRepository{
-            if(!::INSTANCE.isInitialized)
-                INSTANCE = ListingRepository(application, networkExecutor)
-            return INSTANCE
-        }
-    }
-
 //     ____  _  _  ____  ____
 //    / ___)/ )( \(  _ \/ ___)
 //    \___ \) \/ ( ) _ (\___ \
-//    (____/\____/(____/(____/
+//    (____/\____/(____/(____/ // TODO: Create new Repo class
 
     @MainThread
     fun getSubreddits(where: SubredditWhere, after: String? = null, limit: Int = 100): Deferred<ListingResponse> {
@@ -118,7 +110,7 @@ class ListingRepository private constructor(val application: RedditApplication, 
     }
 
     @MainThread
-    fun getAccountSubreddit(limit: Int = 100, after: String? = null): Deferred<ListingResponse> {
+    fun getAccountSubreddits(limit: Int = 100, after: String? = null): Deferred<ListingResponse> {
         return if(application.accessToken != null)
             RedditApi.oauth.getSubredditsOfMine("bearer ${application.accessToken!!.value}", SubredditMineWhere.SUBSCRIBER, after, limit)
         else
@@ -128,5 +120,58 @@ class ListingRepository private constructor(val application: RedditApplication, 
     @MainThread
     fun getSubsSearch(q: String, nsfw: String): Deferred<ListingResponse> = RedditApi.base.getSubredditsSearch(q, nsfw)
 
+    suspend fun insertSubreddit(sub: Subreddit){
+        withContext(Dispatchers.IO){
+            database.subredditDao.insert(sub.asDbModel(application.currentAccount?.id ?: GUEST_ID))
+        }
+    }
 
+    suspend fun insertSubreddits(subs: List<Subreddit>){
+        withContext(Dispatchers.IO){
+            database.subredditDao.insert(subs.asSubredditDatabaseModels(
+                application.currentAccount?.id ?: GUEST_ID
+            ))
+        }
+    }
+
+    @MainThread
+    fun getSubscribedSubsLive() = database.subredditDao.getSubscribedSubsLive(application.currentAccount?.id ?: GUEST_ID)
+
+    suspend fun deleteSubscribedSubs() {
+        if (application.currentAccount == null) return
+        withContext(Dispatchers.IO) {
+            database.subredditDao.deleteSubscribedSubs(application.currentAccount!!.id)
+        }
+    }
+
+
+    @MainThread
+    fun getNonFavoriteSubsLive() = database.subredditDao.getNonFavoriteSubsLive(application.currentAccount?.id ?: GUEST_ID)
+
+    @MainThread
+    fun getFavoriteSubsLive() = database.subredditDao.getFavoriteSubsLive(application.currentAccount?.id ?: GUEST_ID)
+
+    suspend fun getFavoriteSubs() = database.subredditDao.getFavoriteSubs(application.currentAccount?.id ?: GUEST_ID)
+
+    suspend fun addToFavorites(displayName: String, favorite: Boolean){
+        if(application.currentAccount == null) return
+        withContext(Dispatchers.IO){
+            database.subredditDao.updateFavoriteSub(application.currentAccount!!.id, displayName, favorite)
+        }
+    }
+
+    @MainThread
+    fun subscribe(srName: String, subscribe: Boolean): Call<Void>{
+        if(application.accessToken == null) throw IllegalStateException("User must be logged in to subscribe")
+        return RedditApi.oauth.subscribeToSubreddit("bearer ${application.accessToken!!.value}", if(subscribe) "sub" else "unsub",  srName)
+    }
+
+    companion object{
+        private lateinit var INSTANCE: ListingRepository
+        fun getInstance(application: RedditApplication, networkExecutor: Executor): ListingRepository{
+            if(!::INSTANCE.isInitialized)
+                INSTANCE = ListingRepository(application, networkExecutor)
+            return INSTANCE
+        }
+    }
 }

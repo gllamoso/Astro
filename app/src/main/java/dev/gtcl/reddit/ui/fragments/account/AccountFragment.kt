@@ -4,13 +4,12 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayoutMediator
-import dev.gtcl.reddit.R
-import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.ViewModelFactory
-import dev.gtcl.reddit.Vote
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentUserBinding
 import dev.gtcl.reddit.listings.Post
 import dev.gtcl.reddit.ui.activities.MainActivity
@@ -120,7 +119,8 @@ class AccountFragment : Fragment(), PostActions {
     }
 
     override fun viewProfile(post: Post) {
-        TODO("Not yet implemented")
+        val bundle = bundleOf(USER_KEY to post.author)
+        findNavController().navigate(R.id.account_fragment, bundle)
     }
 
     override fun award(post: Post) {

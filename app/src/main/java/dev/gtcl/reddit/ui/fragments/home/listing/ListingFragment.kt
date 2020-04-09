@@ -13,16 +13,14 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentListingBinding
+import dev.gtcl.reddit.listings.*
 import dev.gtcl.reddit.network.NetworkState
-import dev.gtcl.reddit.listings.Post
-import dev.gtcl.reddit.listings.FrontPage
-import dev.gtcl.reddit.listings.ListingType
 import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.ui.activities.MainActivity
 import dev.gtcl.reddit.ui.activities.MainActivityViewModel
 import dev.gtcl.reddit.ui.fragments.dialog.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.dialog.SortSheetDialogFragment
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.SubredditActions
+import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.ListingOnClickListeners
 import dev.gtcl.reddit.ui.fragments.dialog.subreddits.SubredditSelectorDialogFragment
 import dev.gtcl.reddit.ui.fragments.dialog.TimePeriodSheetDialogFragment
 
@@ -149,10 +147,23 @@ class ListingFragment : Fragment(), PostActions {
         binding.subredditButton.setOnClickListener{
             val subredditSelector =
                 SubredditSelectorDialogFragment()
-            subredditSelector.setSubredditOnClickListener(object : SubredditActions {
+            subredditSelector.setSubredditOnClickListener(object : ListingOnClickListeners {
                 override fun onClick(listing: ListingType) {
                     model.loadInitial(listing)
                     subredditSelector.dismiss()
+                }
+
+                override fun addToFavorites(listing: ListingType, favorite: Boolean) {
+                    if(listing is SubredditListing)
+                        model.addSubredditToFavorites(listing.sub, favorite)
+                }
+
+                override fun addOrSubscribe(listing: ListingType) {
+                    TODO("Not yet implemented")
+                }
+
+                override fun removedOrUnsubscribed(listing: ListingType) {
+                    TODO("Not yet implemented")
                 }
             })
             subredditSelector.show(childFragmentManager, SubredditSelectorDialogFragment.TAG)
