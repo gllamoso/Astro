@@ -3,28 +3,33 @@ package dev.gtcl.reddit.ui.viewholders
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import dev.gtcl.reddit.SubscribeAction
 import dev.gtcl.reddit.databinding.ItemSubredditBinding
 import dev.gtcl.reddit.listings.Subreddit
-import dev.gtcl.reddit.listings.SubredditListing
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.ListingOnClickListeners
+import dev.gtcl.reddit.actions.SubredditActions
+import dev.gtcl.reddit.actions.SubsAdapterActions
 
 class SubredditViewHolder(private val binding: ItemSubredditBinding): RecyclerView.ViewHolder(binding.root) {
-    private var isAdded = false
-    fun bind(subreddit: Subreddit, listingOnClickListeners: ListingOnClickListeners, added: Boolean){
+    fun bind(subreddit: Subreddit, subredditActions: SubredditActions, subsAdapterActions: SubsAdapterActions?){
         binding.sub = subreddit
-        isAdded = added
-        binding.added = isAdded
         binding.root.setOnClickListener {
-            listingOnClickListeners.onClick(SubredditListing(subreddit))
+            subredditActions.onClick(subreddit)
         }
         binding.addIcon.setOnClickListener{
-            isAdded = !isAdded
-            binding.added = isAdded
+            subreddit.isAdded = !subreddit.isAdded
+            if(!subreddit.isAdded) {
+                subsAdapterActions?.remove(subreddit)
+            }
+            subredditActions.subscribe(subreddit, subreddit.isAdded, subsAdapterActions == null)
             binding.invalidateAll()
         }
         binding.favoriteIcon.setOnClickListener {
-            listingOnClickListeners.addToFavorites(SubredditListing(subreddit), !subreddit.isFavorite)
+            subredditActions.addToFavorites(subreddit, !subreddit.isFavorite, subsAdapterActions == null)
             subreddit.isFavorite = !subreddit.isFavorite
+            if(subreddit.isFavorite)
+                subsAdapterActions?.addToFavorites(subreddit)
+            else
+                subsAdapterActions?.removeFromFavorites(subreddit)
             binding.invalidateAll()
         }
         binding.executePendingBindings()

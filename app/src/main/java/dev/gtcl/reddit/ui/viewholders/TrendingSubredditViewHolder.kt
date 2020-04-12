@@ -4,41 +4,127 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemTrendingSubredditBinding
-import dev.gtcl.reddit.listings.Subreddit
-import dev.gtcl.reddit.listings.SubredditListing
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.ListingOnClickListeners
+import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending.TrendingSubredditPost
 
-class TrendingSubredditViewHolder private constructor(private val binding: ItemTrendingSubredditBinding, private val onListingClickListener: ListingOnClickListeners): RecyclerView.ViewHolder(binding.root) {
-    fun bind(trendingSubredditPost: TrendingSubredditPost) {
-        binding.trendingSubredditPost = trendingSubredditPost
-        binding.sub1.setOnClickListener{ onListingClickListener.onClick(
-            SubredditListing(Subreddit( "",  trendingSubredditPost.titles[0], null, "")))  // TODO: Check if favorite
+class TrendingSubredditViewHolder private constructor(private val binding: ItemTrendingSubredditBinding): RecyclerView.ViewHolder(binding.root) {
+    fun bind(trendingSubredditPost: TrendingSubredditPost, subredditActions: SubredditActions) {
+        binding.trendingPost = trendingSubredditPost
+
+        binding.subLayout0.apply {
+            root.setOnClickListener {
+                subredditActions.onClick(binding.subLayout0.sub!!)
+            }
+            addIcon.setOnClickListener {
+                trendingSubredditPost.subs[0].apply {
+                    isAdded = !isAdded
+                    subredditActions.subscribe(this, isAdded, true)
+                }
+                binding.invalidateAll()
+            }
+            favoriteIcon.setOnClickListener {
+                trendingSubredditPost.subs[0].apply{
+                    isFavorite = !isFavorite
+                    if(isFavorite) this.isAdded = true
+                    subredditActions.addToFavorites(this, isFavorite, true)
+                }
+                binding.invalidateAll()
+            }
         }
-        binding.sub2.setOnClickListener{ onListingClickListener.onClick(
-            SubredditListing(Subreddit( "", "", trendingSubredditPost.titles[1], ""))
-        )
+
+        binding.subLayout1.apply {
+            root.setOnClickListener {
+                subredditActions.onClick(binding.subLayout1.sub!!)
+            }
+            addIcon.setOnClickListener {
+                trendingSubredditPost.subs[1].apply {
+                    isAdded = !isAdded
+                    subredditActions.subscribe(this, isAdded, true)
+                }
+                binding.invalidateAll()
+            }
+            favoriteIcon.setOnClickListener {
+                trendingSubredditPost.subs[1].apply{
+                    isFavorite = !isFavorite
+                    if(isFavorite) this.isAdded = true
+                    subredditActions.addToFavorites(this, isFavorite, true)
+                }
+                binding.invalidateAll()
+            }
         }
-        binding.sub3.setOnClickListener{ onListingClickListener.onClick(
-            SubredditListing(Subreddit( "", "", trendingSubredditPost.titles[2], ""))
-        )
+
+        binding.subLayout2.apply {
+            root.setOnClickListener {
+                subredditActions.onClick(binding.subLayout1.sub!!)
+            }
+            addIcon.setOnClickListener {
+                trendingSubredditPost.subs[2].apply {
+                    isAdded = !isAdded
+                    subredditActions.subscribe(this, isAdded, true)
+                }
+                binding.invalidateAll()
+            }
+            favoriteIcon.setOnClickListener {
+                trendingSubredditPost.subs[2].apply{
+                    isFavorite = !isFavorite
+                    if(isFavorite) this.isAdded = true
+                    subredditActions.addToFavorites(this, isFavorite, true)
+                }
+                binding.invalidateAll()
+            }
         }
-        binding.sub4.setOnClickListener{ onListingClickListener.onClick(
-            SubredditListing(Subreddit( "", "", trendingSubredditPost.titles[3], ""))
-        )
+
+        binding.subLayout3.apply {
+            root.setOnClickListener {
+                subredditActions.onClick(binding.subLayout1.sub!!)
+            }
+            addIcon.setOnClickListener {
+                trendingSubredditPost.subs[3].apply {
+                    isAdded = !isAdded
+                    subredditActions.subscribe(this, isAdded, true)
+                }
+                binding.invalidateAll()
+            }
+            favoriteIcon.setOnClickListener {
+                trendingSubredditPost.subs[3].apply{
+                    isFavorite = !isFavorite
+                    if(isFavorite) this.isAdded = true
+                    subredditActions.addToFavorites(this, isFavorite, true)
+                }
+                binding.invalidateAll()
+            }
         }
-        binding.sub5.setOnClickListener{ onListingClickListener.onClick(
-            SubredditListing(Subreddit( "", "", trendingSubredditPost.titles[4], ""))
-        )
+
+        binding.subLayout4.apply {
+            root.setOnClickListener {
+                subredditActions.onClick(binding.subLayout1.sub!!)
+            }
+            addIcon.setOnClickListener {
+                trendingSubredditPost.subs[4].apply {
+                    isAdded = !isAdded
+                    subredditActions.subscribe(this, isAdded, true)
+                }
+                binding.invalidateAll()
+            }
+            favoriteIcon.setOnClickListener {
+                trendingSubredditPost.subs[4].apply{
+                    isFavorite = !isFavorite
+                    if(isFavorite) this.isAdded = true
+                    subredditActions.addToFavorites(this, isFavorite, true)
+                }
+                binding.invalidateAll()
+            }
         }
+
+
         binding.executePendingBindings()
     }
 
     companion object{
-        fun create(parent: ViewGroup, onListingClickListener: ListingOnClickListeners): TrendingSubredditViewHolder {
+        fun create(parent: ViewGroup): TrendingSubredditViewHolder {
             return TrendingSubredditViewHolder(
                 ItemTrendingSubredditBinding.inflate(
-                    LayoutInflater.from(parent.context)), onListingClickListener)
+                    LayoutInflater.from(parent.context)))
         }
     }
 }

@@ -5,13 +5,13 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemListingBinding
 import dev.gtcl.reddit.listings.ListingType
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.ListingOnClickListeners
+import dev.gtcl.reddit.actions.ListingActions
 
 class ListingViewHolder(private val binding: ItemListingBinding): RecyclerView.ViewHolder(binding.root) {
-    fun bind(listingType: ListingType, listingOnClickListeners: ListingOnClickListeners){
+    fun bind(listingType: ListingType, listingActions: ListingActions){
         binding.listing = listingType
         binding.root.setOnClickListener {
-            listingOnClickListeners.onClick(listingType)
+            listingActions.onClick(listingType)
         }
         binding.executePendingBindings()
     }

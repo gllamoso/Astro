@@ -6,7 +6,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import dev.gtcl.reddit.POST_KEY
 import dev.gtcl.reddit.listings.Post
 import dev.gtcl.reddit.ui.fragments.account.AccountFragment
-import dev.gtcl.reddit.ui.ViewPagerActions
+import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
 import dev.gtcl.reddit.ui.fragments.home.listing.ListingFragment
 import java.util.*

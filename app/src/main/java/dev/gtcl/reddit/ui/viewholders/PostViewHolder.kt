@@ -12,7 +12,7 @@ import dev.gtcl.reddit.databinding.ItemPostBinding
 import dev.gtcl.reddit.listings.Post
 import dev.gtcl.reddit.ui.MenuItem
 import dev.gtcl.reddit.ui.OPTIONS_SIZE
-import dev.gtcl.reddit.ui.PostActions
+import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.ui.PostOptionsAdapter
 
 class PostViewHolder private constructor(private val binding:ItemPostBinding)
@@ -56,7 +56,6 @@ class PostViewHolder private constructor(private val binding:ItemPostBinding)
                         }
                         MenuItem.SHARE.position -> postActions.share(post)
                         MenuItem.PROFILE.position -> postActions.viewProfile(post)
-                        MenuItem.AWARD.position -> postActions.award(post)
                         MenuItem.SAVE.position -> {
                             binding.post?.let {
                                 postActions.save(it)

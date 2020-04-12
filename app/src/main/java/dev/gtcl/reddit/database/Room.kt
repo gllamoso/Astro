@@ -40,15 +40,24 @@ interface SubredditDao{
     fun insert(subreddit: DbSubreddit)
 
     @Query("select * from subs where userId = :userId order by displayName collate nocase asc")
+    suspend fun getSubscribedSubs(userId: String): List<DbSubreddit>
+
+    @Query("select * from subs where userId = :userId and displayName = :displayName order by displayName collate nocase asc")
+    suspend fun getSubscribedSubs(userId: String, displayName: String): List<DbSubreddit>
+
+    @Query("select * from subs where userId = :userId order by displayName collate nocase asc")
     fun getSubscribedSubsLive(userId: String): LiveData<List<DbSubreddit>>
 
     @Query("delete from subs where userId = :userId")
     fun deleteSubscribedSubs(userId: String)
 
-    @Query("select * from subs where userId = :userId and isFavorite = 0")
+    @Query("delete from subs where userId = :userId and displayName = :displayName")
+    fun deleteSubreddit(userId: String, displayName: String)
+
+    @Query("select * from subs where userId = :userId and isFavorite = 0 order by displayName collate nocase asc")
     fun getNonFavoriteSubsLive(userId: String): LiveData<List<DbSubreddit>>
 
-    @Query("select * from subs where userId = :userId and isFavorite = 1")
+    @Query("select * from subs where userId = :userId and isFavorite = 1 order by displayName collate nocase asc")
     fun getFavoriteSubsLive(userId: String): LiveData<List<DbSubreddit>>
 
     @Query("select * from subs where userId = :userId and isFavorite = 1")

@@ -5,4 +5,5 @@
     <color name="colorAccent">#ffea00</color>
     <color name="background">?android:attr/colorBackgroundFloating</color>
     <color name="textColor">@android:color/white</color>
+    <drawable name="transparent">@android:color/transparent</drawable>
 </resources>

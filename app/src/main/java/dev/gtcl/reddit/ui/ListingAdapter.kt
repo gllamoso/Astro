@@ -6,11 +6,10 @@ import dev.gtcl.reddit.R
 import dev.gtcl.reddit.database.ItemsRead
 import dev.gtcl.reddit.listings.*
 import dev.gtcl.reddit.network.NetworkState
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.ListingOnClickListeners
-import dev.gtcl.reddit.ui.viewholders.CommentViewHolder
-import dev.gtcl.reddit.ui.viewholders.ListingViewHolder
-import dev.gtcl.reddit.ui.viewholders.NetworkStateItemViewHolder
-import dev.gtcl.reddit.ui.viewholders.PostViewHolder
+import dev.gtcl.reddit.actions.ListingActions
+import dev.gtcl.reddit.actions.PostActions
+import dev.gtcl.reddit.actions.SubredditActions
+import dev.gtcl.reddit.ui.viewholders.*
 import java.io.InvalidObjectException
 
 class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -19,7 +18,8 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var allReadSubs: HashSet<String> = HashSet()
     private var currentIds: HashSet<String> = HashSet()
     var lastItemReached = false
-
+    private var subscribedSubs: HashSet<String> = HashSet()
+    private var favSubs: HashSet<String> = HashSet()
     lateinit var postActions: PostActions
     lateinit var retry: () -> Unit
     lateinit var onLastItemReached: () -> Unit
@@ -30,11 +30,32 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         this.onLastItemReached = onLastItemReached
     }
 
-    lateinit var listingOnClickListeners: ListingOnClickListeners
-    constructor(listingOnClickListeners: ListingOnClickListeners, retry: () -> Unit, onLastItemReached: () -> Unit): this(){
-        this.listingOnClickListeners = listingOnClickListeners
+//    lateinit var listingActions: ListingActions
+//    constructor(listingActions: ListingActions, retry: () -> Unit, onLastItemReached: () -> Unit): this(){
+//        this.listingActions = listingActions
+//        this.retry = retry
+//        this.onLastItemReached = onLastItemReached
+//    }
+
+    lateinit var subredditActions: SubredditActions
+    constructor(subredditActions: SubredditActions, retry: () -> Unit, onLastItemReached: () -> Unit): this(){
+        this.subredditActions = subredditActions
         this.retry = retry
         this.onLastItemReached = onLastItemReached
+    }
+
+    fun setSubscribedSubs(subs: List<Subreddit>){
+        subscribedSubs = subs.map { it.displayName }.toHashSet()
+        favSubs = subs.filter { it.isFavorite }.map { it.displayName}.toHashSet()
+        for(item: Item in items){
+            if(item is Subreddit) {
+                item.apply {
+                    isAdded = subscribedSubs.contains(displayName)
+                    isFavorite = favSubs.contains(displayName)
+                }
+            }
+        }
+        notifyDataSetChanged()
     }
 
     private var networkState = NetworkState.LOADED
@@ -48,6 +69,14 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     fun loadInitial(items: List<Item>){
         this.items.clear()
+        for(item: Item in items){
+            if(item is Subreddit){
+                item.apply {
+                    isAdded = subscribedSubs.contains(displayName)
+                    isFavorite = favSubs.contains(displayName)
+                }
+            }
+        }
         this.items.addAll(items)
         currentIds = items.map { it.name }.toHashSet()
         notifyDataSetChanged()
@@ -58,6 +87,12 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         var itemSize = 0
         for(item: Item in items){
             if(!currentIds.contains(item.name)){
+                if(item is Subreddit){
+                    item.apply {
+                        isAdded = subscribedSubs.contains(displayName)
+                        isFavorite = favSubs.contains(displayName)
+                    }
+                }
                 this.items.add(item)
                 currentIds.add(item.name)
                 itemSize++
@@ -81,7 +116,7 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return when(val item = items[position]){
             is Post -> R.layout.item_post
             is Comment -> R.layout.item_comment
-            is Subreddit -> R.layout.item_listing
+            is Subreddit -> R.layout.item_subreddit
             else -> throw InvalidObjectException("Unexpected item found: ${item.javaClass.simpleName} in position $position" )
         }
     }
@@ -90,7 +125,7 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         return when (viewType) {
             R.layout.item_post -> PostViewHolder.create(parent)
             R.layout.item_comment -> CommentViewHolder.create(parent)
-            R.layout.item_listing -> ListingViewHolder.create(parent)
+            R.layout.item_subreddit -> SubredditViewHolder.create(parent)
             R.layout.item_network_state -> NetworkStateItemViewHolder.create(parent, retry)
             else -> throw IllegalArgumentException("Unknown view type $viewType")
         }
@@ -109,9 +144,9 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
                 val comment = items[position] as Comment
                 (holder as CommentViewHolder).bind(comment) { _, c ->  }
             }
-            R.layout.item_listing -> {
+            R.layout.item_subreddit -> {
                 val subreddit = items[position] as Subreddit
-                (holder as ListingViewHolder).bind(SubredditListing(subreddit), listingOnClickListeners)
+                (holder as SubredditViewHolder).bind(subreddit, subredditActions, null)
             }
             R.layout.item_network_state -> (holder as NetworkStateItemViewHolder).bindTo(networkState)
         }

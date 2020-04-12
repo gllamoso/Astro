@@ -7,20 +7,22 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import dev.gtcl.reddit.ProfileInfo
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentRecyclerViewBinding
-import dev.gtcl.reddit.listings.*
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.ListingOnClickListeners
+import dev.gtcl.reddit.listings.Subreddit
+import dev.gtcl.reddit.actions.ListingActions
+import dev.gtcl.reddit.actions.SubredditActions
 
 class MineFragment : Fragment() {
 
     private lateinit var binding: FragmentRecyclerViewBinding
-    private lateinit var subClickListener: ListingOnClickListeners
+    private lateinit var listingActions: ListingActions
+    private lateinit var subredditActions: SubredditActions
 
-    fun setFragment(listener: ListingOnClickListeners){
-        this.subClickListener = listener
+    fun setFragment(listingActions: ListingActions, subActions: SubredditActions){
+        this.listingActions = listingActions
+        this.subredditActions = subActions
     }
 
     val model: MineViewModel by lazy {
@@ -30,23 +32,29 @@ class MineFragment : Fragment() {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentRecyclerViewBinding.inflate(inflater)
+        model.loadInitial()
         setRecyclerViewAdapter()
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        if(model.refresh){
+            model.loadInitial()
+            model.refresh = false
+        }
+    }
+
     private fun setRecyclerViewAdapter(){
-        val adapter = MultiAndSubsListAdapter(requireContext(), subClickListener)
+        val adapter = MultiAndSubredditsAdapter(requireContext(), listingActions, subredditActions)
         binding.list.adapter = adapter
 
-        model.subscribedSubs.observe(viewLifecycleOwner, Observer {
-            val multis = mutableListOf(FrontPage, All, Popular) // TODO
-            if((requireActivity().application as RedditApplication).accessToken != null) multis.add(ProfileListing(ProfileInfo.SAVED))
-            adapter.submitLists(multis, it)
-        })
-
-        model.favoriteSubs.observe(viewLifecycleOwner, Observer {
-            if(it != null){
-                adapter.submitFavorites(it)
+        model.initialSubs.observe(viewLifecycleOwner, Observer {
+            if(it != null) {
+                for(sub: Subreddit in it)
+                    sub.isAdded = true
+                adapter.loadInitialSubreddits(it)
+                model.initialLoadFinished()
             }
         })
     }
@@ -55,5 +63,7 @@ class MineFragment : Fragment() {
         model.syncSubscribedSubs()
     }
 
-
+    fun refresh(){
+        model.refresh = true
+    }
 }

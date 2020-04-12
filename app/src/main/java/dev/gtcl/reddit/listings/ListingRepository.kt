@@ -2,6 +2,7 @@ package dev.gtcl.reddit.listings
 
 import androidx.annotation.MainThread
 import dev.gtcl.reddit.*
+import dev.gtcl.reddit.database.DbSubreddit
 import dev.gtcl.reddit.database.ItemsRead
 import dev.gtcl.reddit.database.redditDatabase
 import dev.gtcl.reddit.listings.comments.Child
@@ -102,7 +103,7 @@ class ListingRepository private constructor(private val application: RedditAppli
 //    (____/\____/(____/(____/ // TODO: Create new Repo class
 
     @MainThread
-    fun getSubreddits(where: SubredditWhere, after: String? = null, limit: Int = 100): Deferred<ListingResponse> {
+    fun getNetworkSubreddits(where: SubredditWhere, after: String? = null, limit: Int = 100): Deferred<ListingResponse> {
         return if(application.accessToken != null)
             RedditApi.oauth.getSubreddits("bearer ${application.accessToken!!.value}", where, after, limit)
         else
@@ -110,7 +111,7 @@ class ListingRepository private constructor(private val application: RedditAppli
     }
 
     @MainThread
-    fun getAccountSubreddits(limit: Int = 100, after: String? = null): Deferred<ListingResponse> {
+    fun getNetworkAccountSubreddits(limit: Int = 100, after: String? = null): Deferred<ListingResponse> {
         return if(application.accessToken != null)
             RedditApi.oauth.getSubredditsOfMine("bearer ${application.accessToken!!.value}", SubredditMineWhere.SUBSCRIBER, after, limit)
         else
@@ -134,8 +135,21 @@ class ListingRepository private constructor(private val application: RedditAppli
         }
     }
 
+    suspend fun removeSubreddit(sub: Subreddit){
+        withContext(Dispatchers.IO){
+            database.subredditDao.deleteSubreddit(application.currentAccount?.id ?: GUEST_ID, sub.displayName)
+        }
+    }
+
     @MainThread
     fun getSubscribedSubsLive() = database.subredditDao.getSubscribedSubsLive(application.currentAccount?.id ?: GUEST_ID)
+
+    suspend fun getSubscribedSubs(displayName: String? = null): List<DbSubreddit>{
+        return if(displayName == null)
+            database.subredditDao.getSubscribedSubs(application.currentAccount?.id ?: GUEST_ID)
+        else
+            database.subredditDao.getSubscribedSubs(application.currentAccount?.id ?: GUEST_ID, displayName)
+    }
 
     suspend fun deleteSubscribedSubs() {
         if (application.currentAccount == null) return
@@ -161,9 +175,15 @@ class ListingRepository private constructor(private val application: RedditAppli
     }
 
     @MainThread
-    fun subscribe(srName: String, subscribe: Boolean): Call<Void>{
+    fun subscribe(srName: String, subscribeAction: SubscribeAction): Call<Void>{
         if(application.accessToken == null) throw IllegalStateException("User must be logged in to subscribe")
-        return RedditApi.oauth.subscribeToSubreddit("bearer ${application.accessToken!!.value}", if(subscribe) "sub" else "unsub",  srName)
+        return RedditApi.oauth.subscribeToSubreddit("bearer ${application.accessToken!!.value}", subscribeAction,  srName)
+    }
+
+    @MainThread
+    fun searchSubreddits(nsfw: Boolean, includeProfiles: Boolean, limit: Int, query: String): Deferred<ListingResponse>{
+        return if(application.accessToken == null) RedditApi.base.getSubredditNameSearch(null, nsfw, includeProfiles, limit, query)
+        else RedditApi.oauth.getSubredditNameSearch("bearer ${application.accessToken!!.value}", nsfw, includeProfiles, limit, query)
     }
 
     companion object{

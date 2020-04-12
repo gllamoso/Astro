@@ -178,6 +178,7 @@ interface RedditApiService {
 
     @GET("/api/subreddit_autocomplete_v2.json")
     fun getSubredditNameSearch(
+        @Header("Authorization") authorization: String? = null,
         @Query("include_over_18") nsfw: Boolean,
         @Query("include_profiles") includeProfiles: Boolean,
         @Query("limit") limit: Int = 5,
@@ -187,7 +188,7 @@ interface RedditApiService {
     @POST("/api/subscribe")
     fun subscribeToSubreddit(
         @Header("Authorization") authorization: String? = null,
-        @Query("action") action: String, // sub or unsub
+        @Query("action") action: SubscribeAction,
         @Query("sr_name") srName: String
     ): Call<Void>
 

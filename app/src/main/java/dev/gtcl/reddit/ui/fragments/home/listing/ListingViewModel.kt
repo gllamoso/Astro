@@ -155,14 +155,4 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
         })
     }
 
-    fun subscribeToSubreddit(){
-//        listingRepository.deleteSubscribedSubs() // TODO: Subreddit subscribed
-    }
-
-    fun addSubredditToFavorites(subreddit: Subreddit, favorite: Boolean){ // TODO: Delete
-        coroutineScope.launch {
-            listingRepository.addToFavorites(subreddit.displayName, favorite)
-        }
-    }
-
 }

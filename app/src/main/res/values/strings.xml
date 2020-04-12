@@ -47,6 +47,7 @@
     <string name="multireddits">Multireddits</string>
     <string name="frontpage">Front Page</string>
     <string name="all">All</string>
+    <string name="favorites">Favorites</string>
 
     <!--Nav Drawer Items-->
     <string name="accounts">Accounts</string>

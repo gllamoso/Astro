@@ -16,21 +16,22 @@ import dev.gtcl.reddit.databinding.FragmentRecyclerViewBinding
 import dev.gtcl.reddit.ui.ListingAdapter
 import dev.gtcl.reddit.ui.LoadMoreScrollListener
 import dev.gtcl.reddit.ui.OnLoadMoreListener
-import dev.gtcl.reddit.ui.fragments.LoadMoreScrollViewModel
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.ListingOnClickListeners
+import dev.gtcl.reddit.actions.SubredditActions
+import dev.gtcl.reddit.database.asDomainModel
 
 class PopularFragment : Fragment() {
 
     private lateinit var binding: FragmentRecyclerViewBinding
-    private lateinit var listingOnClickListeners: ListingOnClickListeners
+    private lateinit var listingAdapter: ListingAdapter
+    private lateinit var subredditActions: SubredditActions
 
-    val model: LoadMoreScrollViewModel by lazy {
+    val model: PopularViewModel by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(LoadMoreScrollViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(PopularViewModel::class.java)
     }
 
-    fun setFragment(listingOnClickListeners: ListingOnClickListeners){
-        this.listingOnClickListeners = listingOnClickListeners
+    fun setFragment(subredditActions: SubredditActions){
+        this.subredditActions = subredditActions
         model.setListingInfo(SubredditWhere.POPULAR, 20)
         model.loadInitial()
     }
@@ -39,6 +40,11 @@ class PopularFragment : Fragment() {
         binding = FragmentRecyclerViewBinding.inflate(inflater)
         setRecyclerViewAdapter()
         return binding.root
+    }
+
+    override fun onResume() {
+        super.onResume()
+        listingAdapter.notifyDataSetChanged()
     }
 
     private fun setRecyclerViewAdapter(){
@@ -51,15 +57,20 @@ class PopularFragment : Fragment() {
             }
         )
 
-        val adapter = ListingAdapter(listingOnClickListeners, {model.retry()}, {loadMoreScrollListener.lastItemReached()})
-        binding.list.adapter = adapter
+        listingAdapter = ListingAdapter(subredditActions, {model.retry()}, {loadMoreScrollListener.lastItemReached()})
+        binding.list.adapter = listingAdapter
+
+        model.subscribedSubs.observe(viewLifecycleOwner, Observer {
+            if(it != null)
+                listingAdapter.setSubscribedSubs(it.asDomainModel())
+        })
 
         model.networkState.observe(viewLifecycleOwner, Observer {
-            adapter.setNetworkState(it)
+            listingAdapter.setNetworkState(it)
         })
         model.initialListing.observe(viewLifecycleOwner, Observer {
             if(it != null){
-                adapter.loadInitial(it)
+                listingAdapter.loadInitial(it)
                 model.loadInitialFinished()
             }
         })
@@ -68,7 +79,7 @@ class PopularFragment : Fragment() {
 
         model.additionalListing.observe(viewLifecycleOwner, Observer {
             if(it != null){
-                adapter.loadMore(it)
+                listingAdapter.loadMore(it)
                 model.loadAfterFinished()
                 loadMoreScrollListener.finishedLoading()
             }

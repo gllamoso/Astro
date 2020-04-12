@@ -3,10 +3,9 @@ package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.mine
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.database.DbSubreddit
-import dev.gtcl.reddit.database.asSubredditDomainModel
+import dev.gtcl.reddit.database.asDomainModel
 import dev.gtcl.reddit.listings.ListingRepository
 import dev.gtcl.reddit.listings.Subreddit
 import kotlinx.coroutines.CoroutineScope
@@ -23,21 +22,37 @@ class MineViewModel(private val application: RedditApplication): AndroidViewMode
     private var viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    private val dbSubs: LiveData<List<DbSubreddit>> = repository.getSubscribedSubsLive()
-    val subscribedSubs: LiveData<List<Subreddit>> = Transformations.map(dbSubs) { it.asSubredditDomainModel() }
+    private val _initialSubs = MutableLiveData<List<Subreddit>>()
+    val initialSubs : LiveData<List<Subreddit>>
+        get() = _initialSubs
 
-    private val dbNonFavoriteSubs: LiveData<List<DbSubreddit>> = repository.getNonFavoriteSubsLive()
-    val nonFavoriteSubs: LiveData<List<Subreddit>> = Transformations.map(dbNonFavoriteSubs){ it.asSubredditDomainModel() }
+    private val _errorMessage = MutableLiveData<String>()
+    val errorMessage: LiveData<String>
+        get() = _errorMessage
 
-    private val dbFavorites: LiveData<List<DbSubreddit>> = repository.getFavoriteSubsLive()
-    val favoriteSubs: LiveData<List<Subreddit>> = Transformations.map(dbFavorites) { it.asSubredditDomainModel() }
+    var refresh: Boolean = false
+
+    fun loadInitial(){
+        coroutineScope.launch {
+            try{
+                _initialSubs.value = repository.getSubscribedSubs().asDomainModel()
+            } catch(e: Exception) {
+                _errorMessage.value = "Error in loading initial values"
+                Log.d(TAG, "Exception: $e")
+            }
+        }
+    }
+
+    fun initialLoadFinished(){
+        _initialSubs.value = null
+    }
 
     fun syncSubscribedSubs(){
         coroutineScope.launch {
             try {
                 val favSubs = repository.getFavoriteSubs().map { it.displayName }.toHashSet()
                 if(application.accessToken == null) {
-                    val subs = repository.getAccountSubreddits(100, null).await().data.children.map { it.data as Subreddit }
+                    val subs = repository.getNetworkAccountSubreddits(100, null).await().data.children.map { it.data as Subreddit }
                     for(sub: Subreddit in subs)
                         if(favSubs.contains(sub.displayName))
                             sub.isFavorite = true
@@ -46,11 +61,11 @@ class MineViewModel(private val application: RedditApplication): AndroidViewMode
                 }
                 else {
                     val allSubs = mutableListOf<Subreddit>()
-                    var subs = repository.getAccountSubreddits(100, null).await().data.children.map { it.data as Subreddit }
+                    var subs = repository.getNetworkAccountSubreddits(100, null).await().data.children.map { it.data as Subreddit }
                     while(subs.isNotEmpty()) {
                         allSubs.addAll(subs)
                         val lastSub = subs.last()
-                        subs = repository.getAccountSubreddits(100, after = lastSub.name).await().data.children.map { it.data as Subreddit }
+                        subs = repository.getNetworkAccountSubreddits(100, after = lastSub.name).await().data.children.map { it.data as Subreddit }
                     }
                     for(sub: Subreddit in allSubs) {
                         if (favSubs.contains(sub.displayName))
@@ -59,9 +74,15 @@ class MineViewModel(private val application: RedditApplication): AndroidViewMode
                     repository.deleteSubscribedSubs()
                     repository.insertSubreddits(allSubs)
                 }
+                loadInitial()
             } catch(e: Exception) {
-                Log.d("TAE", "Exception: $e") // TODO: Handle?
+                _errorMessage.value = "Failed to sync subscribed Subreddits"
+                Log.d(TAG, "Exception: $e")
             }
         }
+    }
+
+    companion object{
+        val TAG = ::MineViewModel.javaClass.simpleName
     }
 }

@@ -2,7 +2,6 @@ package dev.gtcl.reddit.ui.fragments.home
 
 
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -19,7 +18,7 @@ import dev.gtcl.reddit.listings.Comment
 import dev.gtcl.reddit.listings.Post
 import dev.gtcl.reddit.ui.activities.MainActivity
 import dev.gtcl.reddit.ui.activities.MainActivityViewModel
-import dev.gtcl.reddit.ui.ViewPagerActions
+import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
 import dev.gtcl.reddit.ui.fragments.home.listing.ListingFragment

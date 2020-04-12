@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui
+package dev.gtcl.reddit.actions
 
 import dev.gtcl.reddit.listings.Comment
 import dev.gtcl.reddit.listings.Post

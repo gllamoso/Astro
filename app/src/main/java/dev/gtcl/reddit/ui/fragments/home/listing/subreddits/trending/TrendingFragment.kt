@@ -17,20 +17,21 @@ import dev.gtcl.reddit.listings.Subreddit
 import dev.gtcl.reddit.listings.SubredditListing
 import dev.gtcl.reddit.ui.LoadMoreScrollListener
 import dev.gtcl.reddit.ui.OnLoadMoreListener
-import dev.gtcl.reddit.ui.fragments.LoadMoreScrollViewModel
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.ListingOnClickListeners
+import dev.gtcl.reddit.actions.SubredditActions
+import dev.gtcl.reddit.database.asDomainModel
 
 class TrendingFragment : Fragment() {
     private lateinit var binding: FragmentRecyclerViewBinding
-    private lateinit var listingOnClickListeners: ListingOnClickListeners
+    private lateinit var subredditActions: SubredditActions
+    private lateinit var trendingAdapter: TrendingAdapter
 
-    val model: LoadMoreScrollViewModel by lazy {
+    val model: TrendingViewModel by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(LoadMoreScrollViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(TrendingViewModel::class.java)
     }
 
-    fun setFragment(listingOnClickListeners: ListingOnClickListeners){
-        this.listingOnClickListeners = listingOnClickListeners
+    fun setFragment(subredditActions: SubredditActions){
+        this.subredditActions = subredditActions
         model.setListingInfo(
             SubredditListing(Subreddit( "", "trendingsubreddits", null, "")),
             PostSort.HOT,
@@ -45,6 +46,11 @@ class TrendingFragment : Fragment() {
         return binding.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        trendingAdapter.notifyDataSetChanged()
+    }
+
     private fun setRecyclerViewAdapter(){
         val loadMoreScrollListener = LoadMoreScrollListener(
             binding.list.layoutManager as GridLayoutManager,
@@ -55,15 +61,20 @@ class TrendingFragment : Fragment() {
             }
         )
 
-        val adapter = TrendingAdapter(listingOnClickListeners, {model.retry()}, {loadMoreScrollListener.lastItemReached()})
-        binding.list.adapter = adapter
+        trendingAdapter = TrendingAdapter(subredditActions, {model.retry()}, {loadMoreScrollListener.lastItemReached()})
+        binding.list.adapter = trendingAdapter
+
+        model.subscribedSubs.observe(viewLifecycleOwner, Observer {
+            if(it != null)
+                trendingAdapter.setSubscribedSubs(it.asDomainModel())
+        })
 
         model.networkState.observe(viewLifecycleOwner, Observer {
-            adapter.setNetworkState(it)
+            trendingAdapter.setNetworkState(it)
         })
         model.initialListing.observe(viewLifecycleOwner, Observer {
             if(it != null){
-                adapter.loadInitial(it.toTrendingPosts())
+                trendingAdapter.loadInitial(it)
                 model.loadInitialFinished()
             }
         })
@@ -72,7 +83,7 @@ class TrendingFragment : Fragment() {
 
         model.additionalListing.observe(viewLifecycleOwner, Observer {
             if(it != null){
-                adapter.loadMore(it.toTrendingPosts())
+                trendingAdapter.loadMore(it)
                 model.loadAfterFinished()
                 loadMoreScrollListener.finishedLoading()
             }

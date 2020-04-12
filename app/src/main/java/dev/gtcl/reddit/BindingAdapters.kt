@@ -5,6 +5,7 @@ import android.content.Context
 import android.graphics.Color
 import android.graphics.Point
 import android.graphics.Typeface
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -81,10 +82,16 @@ fun loadSubIcon(imgView: ImageView, imgUrl: String?){
             .load(imgUri)
             .apply(
                 RequestOptions()
-                    .placeholder(R.drawable.anim_loading)
-                    .error(R.drawable.ic_broken_image))
+                    .placeholder(R.drawable.ic_reddit_circle)
+//                    .error(R.drawable.ic_broken_image))
+            )
             .into(imgView)
     }
+}
+
+@BindingAdapter("tint")
+fun setTint(imgView: ImageView, color: Int){
+    imgView.setColorFilter(color)
 }
 
 @BindingAdapter("favorite")

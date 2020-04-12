@@ -5,6 +5,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -20,11 +21,14 @@ import dev.gtcl.reddit.ui.activities.MainActivity
 import dev.gtcl.reddit.ui.activities.MainActivityViewModel
 import dev.gtcl.reddit.ui.fragments.dialog.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.dialog.SortSheetDialogFragment
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.ListingOnClickListeners
+import dev.gtcl.reddit.actions.ListingActions
+import dev.gtcl.reddit.actions.PostActions
+import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.dialog.subreddits.SubredditSelectorDialogFragment
 import dev.gtcl.reddit.ui.fragments.dialog.TimePeriodSheetDialogFragment
 
-class ListingFragment : Fragment(), PostActions {
+class ListingFragment : Fragment(), PostActions,
+    ListingActions {
 
     private lateinit var binding: FragmentListingBinding
     private lateinit var adapter: dev.gtcl.reddit.ui.ListingAdapter
@@ -40,6 +44,13 @@ class ListingFragment : Fragment(), PostActions {
     val model: ListingViewModel by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(ListingViewModel::class.java)
+    }
+
+    override fun onAttachFragment(childFragment: Fragment) {
+        super.onAttachFragment(childFragment)
+        when(childFragment){
+            is SubredditSelectorDialogFragment -> childFragment.setListingActions(this)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -80,7 +91,7 @@ class ListingFragment : Fragment(), PostActions {
                 }
             })
 
-        adapter = ListingAdapter(this, { model.retry()}, {loadMoreScrollListener.finishedLoading()})
+        adapter = ListingAdapter(this as PostActions, { model.retry()}, {loadMoreScrollListener.finishedLoading()})
 
         binding.list.adapter = adapter
         model.networkState.observe(viewLifecycleOwner, Observer {
@@ -116,7 +127,6 @@ class ListingFragment : Fragment(), PostActions {
             binding.swipeRefresh.isRefreshing = it == NetworkState.LOADING
         })
         binding.swipeRefresh.setOnRefreshListener {
-            adapter.loadInitial(emptyList())
             model.refresh()
         }
     }
@@ -145,27 +155,7 @@ class ListingFragment : Fragment(), PostActions {
 
 
         binding.subredditButton.setOnClickListener{
-            val subredditSelector =
-                SubredditSelectorDialogFragment()
-            subredditSelector.setSubredditOnClickListener(object : ListingOnClickListeners {
-                override fun onClick(listing: ListingType) {
-                    model.loadInitial(listing)
-                    subredditSelector.dismiss()
-                }
-
-                override fun addToFavorites(listing: ListingType, favorite: Boolean) {
-                    if(listing is SubredditListing)
-                        model.addSubredditToFavorites(listing.sub, favorite)
-                }
-
-                override fun addOrSubscribe(listing: ListingType) {
-                    TODO("Not yet implemented")
-                }
-
-                override fun removedOrUnsubscribed(listing: ListingType) {
-                    TODO("Not yet implemented")
-                }
-            })
+            val subredditSelector = SubredditSelectorDialogFragment()
             subredditSelector.show(childFragmentManager, SubredditSelectorDialogFragment.TAG)
         }
 
@@ -193,10 +183,6 @@ class ListingFragment : Fragment(), PostActions {
         findNavController().navigate(R.id.account_fragment, bundle)
     }
 
-    override fun award(post: Post) {
-        TODO("Not yet implemented")
-    }
-
     override fun save(post: Post) {
         if(post.saved) model.unsave(post.name)
         else model.save(post.name)
@@ -218,6 +204,13 @@ class ListingFragment : Fragment(), PostActions {
 
     override fun thumbnailClicked(post: Post) {
         TODO("Not yet implemented")
+    }
+
+    override fun onClick(listing: ListingType) {
+        model.loadInitial(listing)
+        for(fragment: Fragment in childFragmentManager.fragments){
+            if(fragment is DialogFragment) fragment.dismiss()
+        }
     }
 
 }

@@ -51,7 +51,6 @@ class PostOptionsAdapter(val context: Context, var post: Post): BaseAdapter(){
             MenuItem.DOWNVOTE.position -> MenuItem.DOWNVOTE
             MenuItem.SHARE.position -> MenuItem.SHARE
             MenuItem.PROFILE.position -> MenuItem.PROFILE
-            MenuItem.AWARD.position -> MenuItem.AWARD
             MenuItem.SAVE.position -> if(post.saved) MenuItem.UNSAVE else MenuItem.SAVE
             MenuItem.HIDE.position -> if(post.hidden) MenuItem.UNHIDE else MenuItem.HIDE
             MenuItem.REPORT.position -> MenuItem.REPORT
@@ -99,11 +98,10 @@ enum class MenuItem(val labelResId: Int?, val iconResId: Int?, val position: Int
     DOWNVOTE(R.string.downvote, R.drawable.ic_downvote_24dp, 1),
     SHARE(R.string.share, R.drawable.ic_share_24dp, 2),
     PROFILE(R.string.profile, R.drawable.ic_profile_24dp, 3),
-    AWARD(R.string.award, R.drawable.ic_award_24dp, 4),
-    SAVE(R.string.save, R.drawable.ic_bookmark_24dp, 5),
-    UNSAVE(R.string.unsave, R.drawable.ic_remove_circle_outline_24dp, 5),
-    HIDE(R.string.hide, R.drawable.ic_hide_24dp, 6),
-    UNHIDE(R.string.unhide, R.drawable.ic_unhide_24dp, 6),
-    REPORT(R.string.report, R.drawable.ic_flag_24dp, 7),
-    EMPTY(null, null, 8)
+    SAVE(R.string.save, R.drawable.ic_bookmark_24dp, 4),
+    UNSAVE(R.string.unsave, R.drawable.ic_remove_circle_outline_24dp, 4),
+    HIDE(R.string.hide, R.drawable.ic_hide_24dp, 5),
+    UNHIDE(R.string.unhide, R.drawable.ic_unhide_24dp, 5),
+    REPORT(R.string.report, R.drawable.ic_flag_24dp, 6),
+    EMPTY(null, null, 7)
 }

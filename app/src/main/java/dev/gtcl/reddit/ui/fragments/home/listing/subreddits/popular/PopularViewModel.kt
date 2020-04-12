@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments
+package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.popular
 
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -7,7 +7,9 @@ import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.SubredditWhere
 import dev.gtcl.reddit.Time
-import dev.gtcl.reddit.listings.*
+import dev.gtcl.reddit.listings.Item
+import dev.gtcl.reddit.listings.ListingRepository
+import dev.gtcl.reddit.listings.ListingType
 import dev.gtcl.reddit.network.NetworkState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +17,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
-class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(application){
+class PopularViewModel(application: RedditApplication): AndroidViewModel(application){
 
     // Repos
     private val listingRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
@@ -38,6 +40,8 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
     private lateinit var postSort: PostSort
     private var t: Time? = null
     private var pageSize = 40
+
+    val subscribedSubs = listingRepository.getSubscribedSubsLive()
 
     fun retry(){
         TODO()

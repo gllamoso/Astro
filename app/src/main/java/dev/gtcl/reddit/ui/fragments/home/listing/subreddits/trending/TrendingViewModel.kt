@@ -1,13 +1,16 @@
-package dev.gtcl.reddit.ui.fragments
+package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending
 
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.Transformations
 import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.SubredditWhere
 import dev.gtcl.reddit.Time
-import dev.gtcl.reddit.listings.*
+import dev.gtcl.reddit.listings.ListingRepository
+import dev.gtcl.reddit.listings.ListingType
 import dev.gtcl.reddit.network.NetworkState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -15,7 +18,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
-class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(application){
+class TrendingViewModel(application: RedditApplication): AndroidViewModel(application){
 
     // Repos
     private val listingRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
@@ -28,8 +31,8 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
     val networkState: LiveData<NetworkState>
         get() = _networkState
 
-    private val _initialListing = MutableLiveData<List<Item>>()
-    val initialListing: LiveData<List<Item>>
+    private val _initialListing = MutableLiveData<List<TrendingSubredditPost>>()
+    val initialListing: LiveData<List<TrendingSubredditPost>>
         get() = _initialListing
     private var after: String? = null
     private var user: String? = null
@@ -52,23 +55,15 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
 
     private lateinit var subredditWhere: SubredditWhere
 
-    fun setListingInfo(subredditWhere: SubredditWhere, pageSize: Int){
-        this.subredditWhere = subredditWhere
-        this.pageSize = pageSize
-    }
-
-    fun setUser(user: String?){
-        this.user = user
-    }
-
     fun loadInitial(){
         coroutineScope.launch {
+            val subscribedSubs = listingRepository.getSubscribedSubs()
             _networkState.value = NetworkState.LOADING
             val response = if(::listingType.isInitialized)
                 listingRepository.getListing(listingType, postSort, t, null, pageSize, user).await()
             else
                 listingRepository.getNetworkSubreddits(subredditWhere, limit = pageSize).await()
-            _initialListing.value = response.data.children.map { it.data }
+            _initialListing.value = response.data.children.map { it.data }.toTrendingPosts()
             after = response.data.after
             _networkState.value = NetworkState.LOADED
         }
@@ -89,14 +84,14 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
                 listingRepository.getListing(listingType, postSort, t, null, pageSize, user).await()
             else
                 listingRepository.getNetworkSubreddits(subredditWhere, null, pageSize).await()
-            _initialListing.value = response.data.children.map { it.data }
+            _initialListing.value = response.data.children.map { it.data }.toTrendingPosts()
             after = response.data.after
             _refreshState.value = NetworkState.LOADED
         }
     }
 
-    private val _additionalListing = MutableLiveData<List<Item>>()
-    val additionalListing: LiveData<List<Item>>
+    private val _additionalListing = MutableLiveData<List<TrendingSubredditPost>>()
+    val additionalListing: LiveData<List<TrendingSubredditPost>>
         get() = _additionalListing
 
     fun loadAfter(){
@@ -106,7 +101,7 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
                 listingRepository.getListing(listingType, postSort, t, after, pageSize, user).await()
             else
                 listingRepository.getNetworkSubreddits(subredditWhere, after, pageSize).await()
-            _additionalListing.value = response.data.children.map { it.data }
+            _additionalListing.value = response.data.children.map { it.data }.toTrendingPosts()
             after = response.data.after
             _networkState.value = NetworkState.LOADED
         }
@@ -116,4 +111,5 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
         _additionalListing.value = null
     }
 
+    val subscribedSubs = listingRepository.getSubscribedSubsLive()
 }

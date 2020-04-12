@@ -23,7 +23,7 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentCommentsBinding
 import dev.gtcl.reddit.listings.More
 import dev.gtcl.reddit.listings.Post
-import dev.gtcl.reddit.ui.ViewPagerActions
+import dev.gtcl.reddit.actions.ViewPagerActions
 
 class CommentsFragment : Fragment() {
 

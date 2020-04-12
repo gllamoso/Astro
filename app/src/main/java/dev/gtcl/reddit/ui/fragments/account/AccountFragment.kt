@@ -14,8 +14,8 @@ import dev.gtcl.reddit.databinding.FragmentUserBinding
 import dev.gtcl.reddit.listings.Post
 import dev.gtcl.reddit.ui.activities.MainActivity
 import dev.gtcl.reddit.ui.activities.MainActivityViewModel
-import dev.gtcl.reddit.ui.PostActions
-import dev.gtcl.reddit.ui.ViewPagerActions
+import dev.gtcl.reddit.actions.PostActions
+import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.account.pages.UserAboutFragment
 import dev.gtcl.reddit.ui.fragments.account.pages.UserCommentsFragment
 import dev.gtcl.reddit.ui.fragments.account.pages.UserDownvotedFragment
@@ -121,10 +121,6 @@ class AccountFragment : Fragment(), PostActions {
     override fun viewProfile(post: Post) {
         val bundle = bundleOf(USER_KEY to post.author)
         findNavController().navigate(R.id.account_fragment, bundle)
-    }
-
-    override fun award(post: Post) {
-        TODO("Not yet implemented")
     }
 
     override fun save(post: Post) {

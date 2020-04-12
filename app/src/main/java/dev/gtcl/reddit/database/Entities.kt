@@ -70,5 +70,5 @@ data class DbSubreddit(
     )
 }
 
-fun List<DbSubreddit>.asSubredditDomainModel() = map { it.asDomainModel() }
+fun List<DbSubreddit>.asDomainModel() = map { it.asDomainModel() }
 

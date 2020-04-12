@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
         <variable
-            name="trendingSubredditPost"
+            name="trendingPost"
             type="dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending.TrendingSubredditPost" />
     </data>
 
@@ -19,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textAppearance="@style/TextAppearance.AppCompat.Body2"
-            android:text="@{trendingSubredditPost.dateString}"
+            android:text="@{trendingPost.dateString}"
             android:textColor="?android:attr/textColorPrimary"
             tools:text="12-12-1999"
             android:paddingTop="16dp"
@@ -27,140 +28,36 @@
             android:paddingEnd="16dp"
             android:paddingBottom="8dp"/>
 
-        <LinearLayout
-            android:id="@+id/sub1"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:background="?android:attr/selectableItemBackground">
+        <include
+            android:id="@+id/subLayout0"
+            layout="@layout/item_subreddit"
+            app:sub="@{trendingPost.subs[0]}"
+            app:iconTint="@{@android:color/holo_red_light}"/>
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_reddit_circle"
-                android:layout_gravity="center"
-                android:tint="@android:color/holo_red_light"/>
+        <include
+            android:id="@+id/subLayout1"
+            layout="@layout/item_subreddit"
+            app:sub="@{trendingPost.subs[1]}"
+            app:iconTint="@{@android:color/holo_blue_light}"/>
 
-            <TextView
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@{trendingSubredditPost.titles[0]}"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="r/sub1"
-                android:paddingStart="8dp"
-                android:paddingEnd="16dp"/>
+        <include
+            android:id="@+id/subLayout2"
+            layout="@layout/item_subreddit"
+            app:sub="@{trendingPost.subs[2]}"
+            app:iconTint="@{@android:color/holo_green_light}"/>
 
-        </LinearLayout>
+        <include
+            android:id="@+id/subLayout3"
+            layout="@layout/item_subreddit"
+            app:sub="@{trendingPost.subs[3]}"
+            app:iconTint="@{@android:color/holo_purple}"/>
 
-        <LinearLayout
-            android:id="@+id/sub2"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:background="?android:attr/selectableItemBackground">
+        <include
+            android:id="@+id/subLayout4"
+            layout="@layout/item_subreddit"
+            app:sub="@{trendingPost.subs[4]}"
+            app:iconTint="@{@android:color/holo_orange_light}"/>
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_reddit_circle"
-                android:layout_gravity="center"
-                android:tint="@android:color/holo_blue_light"/>
-
-            <TextView
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@{trendingSubredditPost.titles[1]}"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="r/sub2"
-                android:paddingStart="8dp"
-                android:paddingEnd="16dp"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/sub3"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:background="?android:attr/selectableItemBackground">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_reddit_circle"
-                android:layout_gravity="center"
-                android:tint="@android:color/holo_green_light"/>
-
-            <TextView
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@{trendingSubredditPost.titles[2]}"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="r/sub3"
-                android:paddingStart="8dp"
-                android:paddingEnd="16dp"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/sub4"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:background="?android:attr/selectableItemBackground">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_reddit_circle"
-                android:layout_gravity="center"
-                android:tint="@android:color/holo_purple"/>
-
-            <TextView
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@{trendingSubredditPost.titles[3]}"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="r/sub4"
-                android:paddingStart="8dp"
-                android:paddingEnd="16dp"/>
-
-        </LinearLayout>
-
-        <LinearLayout
-            android:id="@+id/sub5"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:padding="16dp"
-            android:background="?android:attr/selectableItemBackground">
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="match_parent"
-                android:src="@drawable/ic_reddit_circle"
-                android:layout_gravity="center"
-                android:tint="@android:color/holo_orange_light"/>
-
-            <TextView
-                android:layout_weight="1"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@{trendingSubredditPost.titles[4]}"
-                android:textColor="?android:attr/textColorPrimary"
-                tools:text="r/sub5"
-                android:paddingStart="8dp"
-                android:paddingEnd="16dp"/>
-
-        </LinearLayout>
 
     </LinearLayout>
 

@@ -17,7 +17,7 @@ import dev.gtcl.reddit.databinding.FragmentRecyclerViewBinding
 import dev.gtcl.reddit.listings.ProfileListing
 import dev.gtcl.reddit.ui.LoadMoreScrollListener
 import dev.gtcl.reddit.ui.OnLoadMoreListener
-import dev.gtcl.reddit.ui.PostActions
+import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.ui.fragments.LoadMoreScrollViewModel
 
 class UserDownvotedFragment : Fragment() {

@@ -11,13 +11,14 @@ import dev.gtcl.reddit.USER_KEY
 import dev.gtcl.reddit.databinding.FragmentViewPagerBinding
 import dev.gtcl.reddit.listings.Comment
 import dev.gtcl.reddit.listings.Post
-import dev.gtcl.reddit.ui.ViewPagerActions
+import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.StartingViewPagerFragments
 import dev.gtcl.reddit.ui.fragments.SlidePageTransformer
 import dev.gtcl.reddit.ui.fragments.ViewPagerAdapter
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
 
-class AccountViewPagerFragment: Fragment(), ViewPagerActions {
+class AccountViewPagerFragment: Fragment(),
+    ViewPagerActions {
 
     private lateinit var binding: FragmentViewPagerBinding
     private lateinit var viewpagerAdapter: ViewPagerAdapter

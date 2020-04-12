@@ -223,6 +223,8 @@ data class Subreddit(
     override val depth: Int = 0
     override val id = name.replace("t5_","")
 
+    var isAdded: Boolean = false
+
     fun asDbModel(userId: String) = DbSubreddit(
         "${name}__${userId}",
         userId,

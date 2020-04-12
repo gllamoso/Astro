@@ -102,6 +102,13 @@ enum class SubredditMineWhere{
     SUBSCRIBER
 }
 
+enum class SubscribeAction{
+    @SerializedName("sub")
+    SUBSCRIBE,
+    @SerializedName("unsub")
+    UNSUBSCRIBE
+}
+
 val STATE by lazy {
     UUID.randomUUID().toString()
 }
