@@ -9,7 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.databinding.ItemPostBinding
-import dev.gtcl.reddit.listings.Post
+import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.ui.MenuItem
 import dev.gtcl.reddit.ui.OPTIONS_SIZE
 import dev.gtcl.reddit.actions.PostActions

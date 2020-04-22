@@ -1,9 +1,12 @@
 package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending
 
-import dev.gtcl.reddit.listings.Item
-import dev.gtcl.reddit.listings.ItemType
-import dev.gtcl.reddit.listings.Post
-import dev.gtcl.reddit.listings.Subreddit
+import dev.gtcl.reddit.models.reddit.Item
+import dev.gtcl.reddit.models.reddit.ItemType
+import dev.gtcl.reddit.models.reddit.Post
+import dev.gtcl.reddit.models.reddit.Subreddit
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 
 val TRENDING_SUB_REGEX = "Trending Subreddits for \\d{4}-\\d{2}-\\d{2}".toRegex()
 val TITLE_REGEX = "## \\*\\*/r/\\w+\\*\\*".toRegex()
@@ -22,8 +25,8 @@ class TrendingSubredditPost(val post: Post){
             val dateStringTemp = TRENDING_SUB_REGEX.find(post.selftext)!!.value.replace("Trending Subreddits for ","").split("-")
             dateString = "${dateStringTemp[1]}/${dateStringTemp[2]}/${dateStringTemp[0]}"
             val titlesSequence = TITLE_REGEX.findAll(post.selftext).map { it.value.replace("##", "").replace("(\\s)*\\*\\*".toRegex(), "").replace("/r/", "") }
-            val ageAndSubsSequence = AGE_AND_SUBS_REGEX.findAll(post.selftext).map { it.value }
-            val subsAndDescSequence = SUBS_AND_DESC_REGEX.findAll(post.selftext).map { it.value } // TODO: update
+//            val ageAndSubsSequence = AGE_AND_SUBS_REGEX.findAll(post.selftext).map { it.value }
+//            val subsAndDescSequence = SUBS_AND_DESC_REGEX.findAll(post.selftext).map { it.value } // TODO: update
 
 //            for(i in titles.indices){
 //                titles[i] = titlesSequence.elementAtOrElse(i) {""}
@@ -40,13 +43,13 @@ class TrendingSubredditPost(val post: Post){
 
     fun setSubscribedTo(subscribedSubs: HashSet<String>){
         for(sub: Subreddit in subs){
-            sub.isAdded = subscribedSubs.contains(sub.displayName)
+            sub.isAdded = subscribedSubs.contains(sub.displayName.toLowerCase(Locale.ROOT))
         }
     }
 
     fun setFavorites(favorites: HashSet<String>){
         for(sub: Subreddit in subs){
-            sub.isFavorite = favorites.contains(sub.displayName)
+            sub.isFavorite = favorites.contains(sub.displayName.toLowerCase(Locale.ROOT))
         }
     }
 }

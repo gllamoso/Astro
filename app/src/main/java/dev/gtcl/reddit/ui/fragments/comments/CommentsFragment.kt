@@ -17,12 +17,13 @@ import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.util.Log
 import com.google.android.exoplayer2.util.Util
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentCommentsBinding
-import dev.gtcl.reddit.listings.More
-import dev.gtcl.reddit.listings.Post
+import dev.gtcl.reddit.models.reddit.More
+import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.actions.ViewPagerActions
 
 class CommentsFragment : Fragment() {
@@ -116,7 +117,7 @@ class CommentsFragment : Fragment() {
                     it.preview?.redditVideo != null -> setPlayerView(it.preview.redditVideo.hlsUrl)
                     it.secureMedia?.redditVideo != null -> setPlayerView(it.secureMedia.redditVideo.hlsUrl)
                     it.media?.redditVideo != null -> setPlayerView(it.media.redditVideo.hlsUrl)
-                    it.isPicture() -> setImageView(it.url!!)
+                    it.isImage -> setImageView(it.url!!)
                     else -> setTextView(it.url)
                 }
                 model.fetchPostAndComments(it.permalink)
@@ -158,6 +159,7 @@ class CommentsFragment : Fragment() {
     }
 
     private fun setPlayerView(videoUrl: String){
+        Log.d("TAE","VideoURL: $videoUrl")
         initializePlayer(videoUrl)
         binding.playerView.visibility = View.VISIBLE
         binding.contentText.visibility = View.GONE
@@ -167,6 +169,7 @@ class CommentsFragment : Fragment() {
 
     private fun setImageView(url: String){
         releasePlayer()
+        Log.d("TAE","ImageView URL: $url")
         binding.playerView.visibility = View.GONE
         binding.contentText.visibility = View.GONE
         binding.urlImageView.visibility = View.VISIBLE

@@ -10,7 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentRecyclerViewBinding
-import dev.gtcl.reddit.listings.Subreddit
+import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.actions.ListingActions
 import dev.gtcl.reddit.actions.SubredditActions
 

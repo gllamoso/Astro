@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.listings
+package dev.gtcl.reddit.models.reddit
 
 import dev.gtcl.reddit.ProfileInfo
 

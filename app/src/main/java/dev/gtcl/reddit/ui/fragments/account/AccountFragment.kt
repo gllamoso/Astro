@@ -11,9 +11,9 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentUserBinding
-import dev.gtcl.reddit.listings.Post
-import dev.gtcl.reddit.ui.activities.MainActivity
-import dev.gtcl.reddit.ui.activities.MainActivityViewModel
+import dev.gtcl.reddit.models.reddit.Post
+import dev.gtcl.reddit.ui.activities.main.MainActivity
+import dev.gtcl.reddit.ui.activities.main.MainActivityViewModel
 import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.account.pages.UserAboutFragment

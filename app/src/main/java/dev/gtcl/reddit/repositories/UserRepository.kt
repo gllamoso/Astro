@@ -1,12 +1,12 @@
-package dev.gtcl.reddit.listings.users
+package dev.gtcl.reddit.repositories
 
 import androidx.annotation.MainThread
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.network.RedditApi
 import dev.gtcl.reddit.database.redditDatabase
-import dev.gtcl.reddit.listings.Account
-import dev.gtcl.reddit.listings.AccountChild
+import dev.gtcl.reddit.models.reddit.Account
+import dev.gtcl.reddit.models.reddit.AccountChild
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -62,9 +62,10 @@ class UserRepository private constructor(val application: RedditApplication) { /
 
     companion object{
         private lateinit var INSTANCE: UserRepository
-        fun getInstance(application: RedditApplication): UserRepository{
-            if(!::INSTANCE.isInitialized)
-                INSTANCE = UserRepository(application)
+        fun getInstance(application: RedditApplication): UserRepository {
+            if(!Companion::INSTANCE.isInitialized)
+                INSTANCE =
+                    UserRepository(application)
             return INSTANCE
         }
     }

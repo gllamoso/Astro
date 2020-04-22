@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.listings
+package dev.gtcl.reddit.models.reddit
 
 import android.net.Uri
 import android.os.Parcelable
@@ -157,25 +157,94 @@ data class Post(
     val upvoteRatio: Double?,
     val secureMedia: SecureMedia?,
     val preview: Preview?,
-    val media: Media?
+    val media: Media?,
+    val domain: String
 ) : Parcelable, Item(ItemType.Post) {
 
     @IgnoredOnParcel
     override val depth = 0
 
-    fun asReadListing() = ItemsRead(this.name)
+    val asReadListing: ItemsRead
+        get() = ItemsRead(this.name)
 
-    fun isPicture(): Boolean{
-        url?.let {
-            val uri = Uri.parse(it)
-            uri.lastPathSegment?.let { lastPathSegment ->
-                return lastPathSegment.contains("(.jpg|.png|.gif|.svg)".toRegex())
+    val isImage: Boolean
+        get(){
+            url?.let {
+                val uri = Uri.parse(it)
+                uri.lastPathSegment?.let { lastPathSegment ->
+                    return lastPathSegment.contains("(.jpg|.png|.svg)".toRegex())
+                }
+            }
+            return false
+        }
+
+    val isGif: Boolean
+        get(){
+            url?.let {
+                val uri = Uri.parse(it)
+                uri.lastPathSegment?.let { lastPathSegment ->
+                    return lastPathSegment.contains(".gif$".toRegex())
+                }
+            }
+            return false
+        }
+
+    val videoUrl: String?
+        get() {
+            return when {
+                secureMedia?.redditVideo != null -> secureMedia.redditVideo.hlsUrl
+                media?.redditVideo != null -> media.redditVideo.hlsUrl
+                preview?.redditVideo != null -> preview.redditVideo.hlsUrl
+                else -> null
             }
         }
-        return false
-    }
 
-    fun getShortLink(): String = "http://redd.it/$id"
+    @IgnoredOnParcel
+    val isGfycat: Boolean = domain == "gfycat.com"
+
+    @IgnoredOnParcel
+    val isRedditVideo = domain == "v.redd.it"
+
+    val isGfv: Boolean
+        get(){
+            url?.let {
+                val uri = Uri.parse(it)
+                uri.lastPathSegment?.let { lastPathSegment ->
+                    return lastPathSegment.contains(".gifv".toRegex())
+                }
+            }
+            return false
+        }
+
+    @IgnoredOnParcel
+    val shortLink = "http://redd.it/$id"
+
+    val postType: PostType
+        get(){
+            return when{
+                isSelf -> PostType.TEXT
+                isImage -> PostType.IMAGE
+                videoUrl != null -> PostType.VIDEO
+                else -> PostType.URL
+            }
+        }
+}
+
+enum class PostType{
+    TEXT,
+    IMAGE,
+    VIDEO,
+    URL
+}
+
+@Parcelize
+enum class UrlType: Parcelable{
+    IMAGE,
+    GIF,
+    GIFV,
+    GFYCAT,
+    M3U8,
+    LINK
 }
 
 // Reddit API Response

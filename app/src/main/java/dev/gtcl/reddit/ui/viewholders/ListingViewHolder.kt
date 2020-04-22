@@ -4,7 +4,7 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemListingBinding
-import dev.gtcl.reddit.listings.ListingType
+import dev.gtcl.reddit.models.reddit.ListingType
 import dev.gtcl.reddit.actions.ListingActions
 
 class ListingViewHolder(private val binding: ItemListingBinding): RecyclerView.ViewHolder(binding.root) {

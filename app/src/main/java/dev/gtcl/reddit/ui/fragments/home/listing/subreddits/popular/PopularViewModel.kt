@@ -7,9 +7,9 @@ import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.SubredditWhere
 import dev.gtcl.reddit.Time
-import dev.gtcl.reddit.listings.Item
-import dev.gtcl.reddit.listings.ListingRepository
-import dev.gtcl.reddit.listings.ListingType
+import dev.gtcl.reddit.models.reddit.Item
+import dev.gtcl.reddit.repositories.ListingRepository
+import dev.gtcl.reddit.models.reddit.ListingType
 import dev.gtcl.reddit.network.NetworkState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -20,7 +20,7 @@ import java.util.concurrent.Executors
 class PopularViewModel(application: RedditApplication): AndroidViewModel(application){
 
     // Repos
-    private val listingRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
+    private val listingRepository = ListingRepository.getInstance(application)
 
     // Scopes
     private var viewModelJob = Job()

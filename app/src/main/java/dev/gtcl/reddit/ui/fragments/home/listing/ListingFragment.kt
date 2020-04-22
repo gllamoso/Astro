@@ -1,6 +1,7 @@
 package dev.gtcl.reddit.ui.fragments.home.listing
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,16 +15,16 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.SimpleItemAnimator
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentListingBinding
-import dev.gtcl.reddit.listings.*
-import dev.gtcl.reddit.network.NetworkState
+import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.ui.*
-import dev.gtcl.reddit.ui.activities.MainActivity
-import dev.gtcl.reddit.ui.activities.MainActivityViewModel
+import dev.gtcl.reddit.ui.activities.main.MainActivity
+import dev.gtcl.reddit.ui.activities.main.MainActivityViewModel
 import dev.gtcl.reddit.ui.fragments.dialog.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.dialog.SortSheetDialogFragment
 import dev.gtcl.reddit.actions.ListingActions
 import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.actions.ViewPagerActions
+import dev.gtcl.reddit.ui.fragments.dialog.imageviewer.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.dialog.subreddits.SubredditSelectorDialogFragment
 import dev.gtcl.reddit.ui.fragments.dialog.TimePeriodSheetDialogFragment
 
@@ -78,7 +79,6 @@ class ListingFragment : Fragment(), PostActions,
         }
 
         setRecyclerView()
-        setSwipeToRefresh()
         setBottomAppbarClickListeners()
     }
 
@@ -120,15 +120,6 @@ class ListingFragment : Fragment(), PostActions,
         })
 
         (binding.list.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-    }
-
-    private fun setSwipeToRefresh() {
-        model.refreshState.observe(viewLifecycleOwner, Observer {
-            binding.swipeRefresh.isRefreshing = it == NetworkState.LOADING
-        })
-        binding.swipeRefresh.setOnRefreshListener {
-            model.refresh()
-        }
     }
 
     private fun setBottomAppbarClickListeners(){
@@ -198,12 +189,27 @@ class ListingFragment : Fragment(), PostActions,
     }
 
     override fun postClicked(post: Post) {
-        parentModel.addReadPost(post.asReadListing())
+        parentModel.addReadPost(post.asReadListing)
         viewPagerActions.viewComments(post)
     }
 
     override fun thumbnailClicked(post: Post) {
-        TODO("Not yet implemented")
+        Log.d("TAE","Post clicked: $post")
+        val urlType = when {
+            post.isImage -> UrlType.IMAGE
+            post.isGif -> UrlType.GIF
+            post.isGfycat -> UrlType.GFYCAT
+            post.isGfv -> UrlType.GIFV
+            post.isRedditVideo -> UrlType.M3U8
+            else -> UrlType.LINK
+        }
+        Log.d("TAE", "UrlType: $urlType")
+        val dialog = MediaDialogFragment.newInstance(
+            if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.videoUrl!! else post.url!!,
+            urlType,
+            post.permalink,
+            if(urlType == UrlType.GFYCAT) post.videoUrl else null)
+        dialog.show(childFragmentManager, null)
     }
 
     override fun onClick(listing: ListingType) {

@@ -15,7 +15,7 @@ import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.databinding.FragmentRecyclerViewBinding
-import dev.gtcl.reddit.listings.ProfileListing
+import dev.gtcl.reddit.models.reddit.ProfileListing
 import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.ui.fragments.LoadMoreScrollViewModel
 

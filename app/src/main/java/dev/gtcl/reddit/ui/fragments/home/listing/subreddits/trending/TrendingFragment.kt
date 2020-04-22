@@ -1,6 +1,7 @@
 package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,8 +14,8 @@ import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentRecyclerViewBinding
-import dev.gtcl.reddit.listings.Subreddit
-import dev.gtcl.reddit.listings.SubredditListing
+import dev.gtcl.reddit.models.reddit.Subreddit
+import dev.gtcl.reddit.models.reddit.SubredditListing
 import dev.gtcl.reddit.ui.LoadMoreScrollListener
 import dev.gtcl.reddit.ui.OnLoadMoreListener
 import dev.gtcl.reddit.actions.SubredditActions

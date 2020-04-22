@@ -2,8 +2,8 @@ package dev.gtcl.reddit
 
 import android.app.Application
 import android.util.Log
-import dev.gtcl.reddit.listings.Account
-import dev.gtcl.reddit.listings.users.AccessToken
+import dev.gtcl.reddit.models.reddit.Account
+import dev.gtcl.reddit.models.reddit.AccessToken
 
 class RedditApplication : Application() {
 
@@ -18,4 +18,5 @@ class RedditApplication : Application() {
     companion object{
         var accessToken2: AccessToken? = null
     }
+
 }

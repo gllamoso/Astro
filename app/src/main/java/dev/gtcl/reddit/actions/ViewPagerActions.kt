@@ -1,7 +1,7 @@
 package dev.gtcl.reddit.actions
 
-import dev.gtcl.reddit.listings.Comment
-import dev.gtcl.reddit.listings.Post
+import dev.gtcl.reddit.models.reddit.Comment
+import dev.gtcl.reddit.models.reddit.Post
 
 interface ViewPagerActions{
     fun enablePagerSwiping(enable: Boolean)

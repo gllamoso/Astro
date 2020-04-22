@@ -1,6 +1,6 @@
 package dev.gtcl.reddit.actions
 
-import dev.gtcl.reddit.listings.Subreddit
+import dev.gtcl.reddit.models.reddit.Subreddit
 
 interface SubsAdapterActions {
     fun addToFavorites(subreddit: Subreddit)

@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.listings.users
+package dev.gtcl.reddit.models.reddit
 
 import com.squareup.moshi.Json
 

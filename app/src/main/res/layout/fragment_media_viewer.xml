@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="dev.gtcl.reddit.models.reddit.UrlType"/>
+        <variable
+            name="model"
+            type="dev.gtcl.reddit.ui.fragments.dialog.imageviewer.MediaViewModel" />
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/transparent">
+
+        <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+            android:id="@+id/scaleImageView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:setVisibility="@{model.urlType == UrlType.IMAGE}"
+            app:tileBackgroundColor="@android:color/transparent"/>
+
+        <ImageView
+            android:id="@+id/image_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:setVisibility="@{model.urlType == UrlType.GIF}" />
+
+        <com.google.android.exoplayer2.ui.PlayerView
+            android:id="@+id/playerView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:setVisibility="@{model.urlType == UrlType.GFYCAT || model.urlType == UrlType.M3U8 || model.urlType == UrlType.GIFV}"
+            android:layout_gravity="center"
+            app:show_buffering="always"
+            app:resize_mode="fit"
+            app:surface_type="texture_view"/> <!-- needed prevent dim screen on older devices-->
+
+        <ProgressBar
+            android:id="@+id/progress_bar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            app:setVisibility="@{model.loading == true}"
+            android:elevation="10dp"/>
+
+    </FrameLayout>
+
+</layout>

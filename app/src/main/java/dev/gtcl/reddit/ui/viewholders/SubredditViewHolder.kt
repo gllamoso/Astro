@@ -3,9 +3,8 @@ package dev.gtcl.reddit.ui.viewholders
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import dev.gtcl.reddit.SubscribeAction
 import dev.gtcl.reddit.databinding.ItemSubredditBinding
-import dev.gtcl.reddit.listings.Subreddit
+import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.actions.SubsAdapterActions
 

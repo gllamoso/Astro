@@ -3,15 +3,14 @@ package dev.gtcl.reddit
 import android.content.Context
 import android.net.Uri
 import android.util.Base64
-import androidx.annotation.MainThread
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.dash.DashMediaSource
+import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.gson.annotations.SerializedName
-import dev.gtcl.reddit.network.RedditApi
 import java.util.*
 
 enum class PostSort{
@@ -166,7 +165,7 @@ fun getEncodedAuthString(context: Context): String{
 }
 
 fun buildMediaSource(context: Context, uri: Uri): MediaSource {
-    val userAgent = "exoplayer-codelab"
+    val userAgent = "exoplayer"
 
     return if (uri.lastPathSegment!!.contains("mp3") || uri.lastPathSegment!!.contains("mp4")) {
         ProgressiveMediaSource.Factory(DefaultHttpDataSourceFactory(userAgent))
@@ -175,14 +174,19 @@ fun buildMediaSource(context: Context, uri: Uri): MediaSource {
         HlsMediaSource.Factory(DefaultHttpDataSourceFactory(userAgent))
             .createMediaSource(uri)
     } else {
-        val dataSourceFactory = DefaultDataSourceFactory(context, "exoplayer-codelab")
-        val mediaSourceFactor = DashMediaSource.Factory(dataSourceFactory)
-        mediaSourceFactor.createMediaSource(uri)
+//        val dataSourceFactory = DefaultDataSourceFactory(context, userAgent)
+//        val mediaSourceFactory = DashMediaSource.Factory(dataSourceFactory)
+//        mediaSourceFactory.createMediaSource(uri)
+        val dataSourceFactory = DefaultDataSourceFactory(context, userAgent)
+        val dashChunkSourceFactory = DefaultDashChunkSource.Factory(dataSourceFactory)
+
+        DashMediaSource.Factory(dashChunkSourceFactory, dataSourceFactory)
+            .createMediaSource(uri)
     }
 }
 
 enum class Vote(val value: Int){
     UPVOTE(1),
     DOWNVOTE(-1),
-    UNVOTE(-0)
+    UNVOTE(0)
 }

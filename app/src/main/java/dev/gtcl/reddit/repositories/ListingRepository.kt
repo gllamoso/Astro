@@ -1,12 +1,14 @@
-package dev.gtcl.reddit.listings
+package dev.gtcl.reddit.repositories
 
 import androidx.annotation.MainThread
+import com.google.android.exoplayer2.util.Log
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.DbSubreddit
 import dev.gtcl.reddit.database.ItemsRead
 import dev.gtcl.reddit.database.redditDatabase
-import dev.gtcl.reddit.listings.comments.Child
-import dev.gtcl.reddit.listings.comments.CommentPage
+import dev.gtcl.reddit.models.reddit.*
+import dev.gtcl.reddit.models.reddit.Child
+import dev.gtcl.reddit.models.reddit.CommentPage
 import dev.gtcl.reddit.network.RedditApi
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -17,7 +19,7 @@ import java.util.concurrent.Executor
 
 const val GUEST_ID = "guest"
 
-class ListingRepository private constructor(private val application: RedditApplication, private val networkExecutor: Executor){
+class ListingRepository private constructor(private val application: RedditApplication){
     private val database = redditDatabase(application)
 
     // --- NETWORK
@@ -123,6 +125,7 @@ class ListingRepository private constructor(private val application: RedditAppli
 
     suspend fun insertSubreddit(sub: Subreddit){
         withContext(Dispatchers.IO){
+            Log.d("TAE","Insert sub: $sub")
             database.subredditDao.insert(sub.asDbModel(application.currentAccount?.id ?: GUEST_ID))
         }
     }
@@ -188,9 +191,9 @@ class ListingRepository private constructor(private val application: RedditAppli
 
     companion object{
         private lateinit var INSTANCE: ListingRepository
-        fun getInstance(application: RedditApplication, networkExecutor: Executor): ListingRepository{
-            if(!::INSTANCE.isInitialized)
-                INSTANCE = ListingRepository(application, networkExecutor)
+        fun getInstance(application: RedditApplication): ListingRepository {
+            if(!Companion::INSTANCE.isInitialized)
+                INSTANCE = ListingRepository(application)
             return INSTANCE
         }
     }

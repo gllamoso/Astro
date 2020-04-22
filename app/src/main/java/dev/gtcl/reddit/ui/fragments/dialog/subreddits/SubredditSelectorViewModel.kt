@@ -4,9 +4,9 @@ import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.SubscribeAction
-import dev.gtcl.reddit.listings.ListingRepository
-import dev.gtcl.reddit.listings.Subreddit
-import dev.gtcl.reddit.listings.SubredditChild
+import dev.gtcl.reddit.repositories.ListingRepository
+import dev.gtcl.reddit.models.reddit.Subreddit
+import dev.gtcl.reddit.models.reddit.SubredditChild
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -18,13 +18,13 @@ import retrofit2.Response
 
 class SubredditSelectorViewModel(application: RedditApplication): AndroidViewModel(application){
     // Repos
-    private val listingRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
+    private val listingRepository = ListingRepository.getInstance(application)
 
     // Scopes
     private var viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    fun subscribe(subreddit: Subreddit, subscribeAction: SubscribeAction){
+    fun subscribe(subreddit: Subreddit, subscribeAction: SubscribeAction, favorite: Boolean){
         coroutineScope.launch {
             listingRepository.subscribe(subreddit.displayName, subscribeAction).enqueue(object: Callback<Void>{
                 override fun onFailure(call: Call<Void>, t: Throwable) {
@@ -33,7 +33,7 @@ class SubredditSelectorViewModel(application: RedditApplication): AndroidViewMod
 
                 override fun onResponse(call: Call<Void>, response: Response<Void>) {
                     coroutineScope.launch {
-                        if(subscribeAction == SubscribeAction.SUBSCRIBE) insertSub(subreddit)
+                        if(subscribeAction == SubscribeAction.SUBSCRIBE) insertSub(subreddit, favorite)
                         else listingRepository.removeSubreddit(subreddit)
                     }
                 }
@@ -43,16 +43,15 @@ class SubredditSelectorViewModel(application: RedditApplication): AndroidViewMod
 
     fun addToFavorites(subreddit: Subreddit, favorite: Boolean){
         coroutineScope.launch {
-            if(favorite){
-                val dbList = listingRepository.getSubscribedSubs(subreddit.displayName)
-                if(dbList.isEmpty())
-                    insertSub(subreddit)
+            if(favorite) {
+                subscribe(subreddit, SubscribeAction.SUBSCRIBE, true)
+            } else {
+                listingRepository.addToFavorites(subreddit.displayName, false)
             }
-            listingRepository.addToFavorites(subreddit.displayName, favorite)
         }
     }
 
-    suspend fun insertSub(subreddit: Subreddit){
+    suspend fun insertSub(subreddit: Subreddit, favorite: Boolean){
         val sub: Subreddit = if(subreddit.name == "")
             (listingRepository.searchSubreddits(
                 nsfw = true,
@@ -61,6 +60,7 @@ class SubredditSelectorViewModel(application: RedditApplication): AndroidViewMod
                 query = subreddit.displayName
             ).await().data.children[0] as SubredditChild).data
         else subreddit
+        sub.isFavorite = favorite
         listingRepository.insertSubreddit(sub)
     }
 }

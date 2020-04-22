@@ -4,8 +4,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.listings.*
-import dev.gtcl.reddit.listings.users.UserRepository
+import dev.gtcl.reddit.models.reddit.*
+import dev.gtcl.reddit.repositories.UserRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

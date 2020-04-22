@@ -5,12 +5,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.CommentSort
 import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.listings.comments.MoreComments
-import dev.gtcl.reddit.listings.comments.convertChildrenToCommentItems
-import dev.gtcl.reddit.listings.Item
-import dev.gtcl.reddit.listings.ListingRepository
-import dev.gtcl.reddit.listings.More
-import dev.gtcl.reddit.listings.Post
+import dev.gtcl.reddit.models.reddit.MoreComments
+import dev.gtcl.reddit.models.reddit.convertChildrenToCommentItems
+import dev.gtcl.reddit.models.reddit.Item
+import dev.gtcl.reddit.repositories.ListingRepository
+import dev.gtcl.reddit.models.reddit.More
+import dev.gtcl.reddit.models.reddit.Post
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,7 +20,7 @@ import java.util.concurrent.Executors
 class CommentsViewModel(val application: RedditApplication): AndroidViewModel(application) {
 
     // Repos
-    private val listingRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
+    private val listingRepository = ListingRepository.getInstance(application)
 
     // Scopes
     private var viewModelJob = Job()
@@ -59,7 +59,11 @@ class CommentsViewModel(val application: RedditApplication): AndroidViewModel(ap
     fun fetchMoreComments(position: Int, more: More){
         coroutineScope.launch {
             val children = listingRepository.getMoreComments(more.getChildrenAsValidString(), post.value!!.name, CommentSort.BEST).await()
-            _moreComments.value = MoreComments(position, more.depth, children.convertChildrenToCommentItems(more.depth))
+            _moreComments.value = MoreComments(
+                position,
+                more.depth,
+                children.convertChildrenToCommentItems(more.depth)
+            )
         }
     }
 

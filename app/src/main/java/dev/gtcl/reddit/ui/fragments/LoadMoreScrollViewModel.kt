@@ -7,8 +7,9 @@ import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.SubredditWhere
 import dev.gtcl.reddit.Time
-import dev.gtcl.reddit.listings.*
+import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.network.NetworkState
+import dev.gtcl.reddit.repositories.ListingRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -18,7 +19,7 @@ import java.util.concurrent.Executors
 class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(application){
 
     // Repos
-    private val listingRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
+    private val listingRepository = ListingRepository.getInstance(application)
 
     // Scopes
     private var viewModelJob = Job()

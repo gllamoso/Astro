@@ -1,5 +1,6 @@
-package dev.gtcl.reddit.ui.activities
+package dev.gtcl.reddit.ui.activities.main
 
+import android.Manifest
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Context
@@ -9,6 +10,7 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.FragmentActivity
@@ -21,7 +23,7 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.asAccountDomainModel
 import dev.gtcl.reddit.databinding.ActivityMainBinding
 import dev.gtcl.reddit.databinding.NavHeaderBinding
-import dev.gtcl.reddit.listings.Account
+import dev.gtcl.reddit.models.reddit.Account
 import dev.gtcl.reddit.ui.activities.signin.SignInActivity
 
 class MainActivity : FragmentActivity() {
@@ -39,6 +41,20 @@ class MainActivity : FragmentActivity() {
         navController = findNavController(R.id.nav_host_fragment)
         getUserFromSharedPreferences()
         setDrawer(LayoutInflater.from(this))
+        ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),1) // TODO: Move somewhere
+
+//        val myUrl = "https://giant.gfycat.com/OffbeatRigidCivet.mp4" // WORKS!!!!
+//        val myUrl = "https://v.redd.it/sd85fiv3vjt41/HLSPlaylist.m3u8"
+//        val request = DownloadManager.Request(Uri.parse(myUrl))
+//        request.apply {
+//            setTitle("Download")
+//            setDescription("Your file is downloading...")
+//            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
+//            setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
+//            setDestinationInExternalFilesDir(this@MainActivity, Environment.DIRECTORY_DOWNLOADS, "HLSPlaylist.m3u8")
+//        }
+//        val manager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+//        manager.enqueue(request)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {

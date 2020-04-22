@@ -14,10 +14,10 @@ import androidx.viewpager2.widget.ViewPager2
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentViewPagerBinding
-import dev.gtcl.reddit.listings.Comment
-import dev.gtcl.reddit.listings.Post
-import dev.gtcl.reddit.ui.activities.MainActivity
-import dev.gtcl.reddit.ui.activities.MainActivityViewModel
+import dev.gtcl.reddit.models.reddit.Comment
+import dev.gtcl.reddit.models.reddit.Post
+import dev.gtcl.reddit.ui.activities.main.MainActivity
+import dev.gtcl.reddit.ui.activities.main.MainActivityViewModel
 import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
@@ -65,7 +65,7 @@ class HomeFragment : Fragment(), ViewPagerActions {
     }
 
     private fun setViewPagerAdapter(){
-        pageAdapter = ViewPagerAdapter(this, StartingViewPagerFragments.LISTING, this)
+        pageAdapter = ViewPagerAdapter(this, StartingViewPagerFragments.LISTING)
 
         binding.viewPager.apply {
             adapter = pageAdapter
@@ -95,7 +95,7 @@ class HomeFragment : Fragment(), ViewPagerActions {
 
     override fun viewComments(post: Post) {
         pageAdapter.addCommentsPage(post)
-        parentModel.addReadPost(post.asReadListing())
+        parentModel.addReadPost(post.asReadListing)
         navigateNext()
     }
 

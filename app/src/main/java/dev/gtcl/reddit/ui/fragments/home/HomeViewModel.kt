@@ -1,18 +1,15 @@
 package dev.gtcl.reddit.ui.fragments.home
 
-import android.util.Log
 import androidx.lifecycle.*
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.listings.ListingRepository
-import dev.gtcl.reddit.listings.Subreddit
+import dev.gtcl.reddit.repositories.ListingRepository
 import kotlinx.coroutines.*
-import java.util.*
 import java.util.concurrent.Executors
 
 class HomeViewModel(val application: RedditApplication): AndroidViewModel(application){
 
     // Repositories
-    private val listingRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
+    private val listingRepository = ListingRepository.getInstance(application)
 
     // Scopes
     private var viewModelJob = Job()

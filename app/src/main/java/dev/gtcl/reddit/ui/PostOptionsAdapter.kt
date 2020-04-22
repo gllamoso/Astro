@@ -10,7 +10,7 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.ItemMenuBinding
-import dev.gtcl.reddit.listings.Post
+import dev.gtcl.reddit.models.reddit.Post
 
 class PostOptionsAdapter(val context: Context, var post: Post): BaseAdapter(){
 
@@ -92,7 +92,7 @@ class OptionViewHolder private constructor(private val binding: ItemMenuBinding)
     }
 }
 
-const val OPTIONS_SIZE = 9
+const val OPTIONS_SIZE = 8
 enum class MenuItem(val labelResId: Int?, val iconResId: Int?, val position: Int) {
     UPVOTE(R.string.upvote, R.drawable.ic_upvote_24dp, 0),
     DOWNVOTE(R.string.downvote, R.drawable.ic_downvote_24dp, 1),

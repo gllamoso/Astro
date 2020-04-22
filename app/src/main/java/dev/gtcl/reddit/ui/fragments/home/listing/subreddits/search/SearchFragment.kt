@@ -29,7 +29,6 @@ class SearchFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        Log.d("TAE", "SearchFragment: onCreateView")
         binding = FragmentRecyclerViewBinding.inflate(inflater)
         binding.list.visibility = View.GONE
         binding.noResultsText.visibility = View.VISIBLE

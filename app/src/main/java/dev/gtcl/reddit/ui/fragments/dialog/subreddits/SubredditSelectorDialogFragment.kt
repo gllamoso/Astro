@@ -6,7 +6,6 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.*
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.fragment.app.Fragment
@@ -18,8 +17,8 @@ import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.SubscribeAction
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentDialogSubredditsBinding
-import dev.gtcl.reddit.listings.Subreddit
-import dev.gtcl.reddit.listings.SubredditListing
+import dev.gtcl.reddit.models.reddit.Subreddit
+import dev.gtcl.reddit.models.reddit.SubredditListing
 import dev.gtcl.reddit.actions.ListingActions
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.mine.MineFragment
@@ -143,7 +142,7 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
     }
 
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean, refresh: Boolean) {
-        model.subscribe(subreddit, if(subscribe) SubscribeAction.SUBSCRIBE else SubscribeAction.UNSUBSCRIBE)
+        model.subscribe(subreddit, if(subscribe) SubscribeAction.SUBSCRIBE else SubscribeAction.UNSUBSCRIBE, false)
         if(refresh) refreshMineFragment()
     }
 

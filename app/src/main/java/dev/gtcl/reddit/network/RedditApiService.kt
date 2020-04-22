@@ -6,11 +6,11 @@ import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.listings.*
-import dev.gtcl.reddit.listings.comments.Child
-import dev.gtcl.reddit.listings.comments.CommentAdapter
-import dev.gtcl.reddit.listings.comments.CommentPage
-import dev.gtcl.reddit.listings.users.AccessToken
+import dev.gtcl.reddit.models.reddit.*
+import dev.gtcl.reddit.models.reddit.Child
+import dev.gtcl.reddit.models.reddit.CommentAdapter
+import dev.gtcl.reddit.models.reddit.CommentPage
+import dev.gtcl.reddit.models.reddit.AccessToken
 import kotlinx.coroutines.Deferred
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -232,8 +232,14 @@ interface RedditApiService {
     companion object {
         private const val BASE_URL = "https://www.reddit.com/"
         private const val OAUTH_URL = "https://oauth.reddit.com/"
-        fun createWithNoAuth(): RedditApiService = create(BASE_URL.toHttpUrl())
-        fun createWithAuth(): RedditApiService = create(OAUTH_URL.toHttpUrl())
+        fun createWithNoAuth(): RedditApiService =
+            create(
+                BASE_URL.toHttpUrl()
+            )
+        fun createWithAuth(): RedditApiService =
+            create(
+                OAUTH_URL.toHttpUrl()
+            )
         fun create(httpUrl: HttpUrl): RedditApiService {
             val logger = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger{
                 override fun log(message: String) {

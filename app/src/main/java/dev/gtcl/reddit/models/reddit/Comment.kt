@@ -1,10 +1,9 @@
-package dev.gtcl.reddit.listings.comments
+package dev.gtcl.reddit.models.reddit
 
 import android.annotation.SuppressLint
 import android.os.Build
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonReader
-import dev.gtcl.reddit.listings.*
 import java.lang.RuntimeException
 import java.text.SimpleDateFormat
 import java.time.LocalDateTime
@@ -187,6 +186,7 @@ class CommentAdapter {
         var secureMedia: SecureMedia? = null
         var preview: Preview? = null
         var media: Media? = null
+        var domain: String? = null
         while(jsonReader.hasNext()){
             when(jsonReader.nextName()){
                 "name" -> name = jsonReader.nextString()
@@ -223,6 +223,9 @@ class CommentAdapter {
                 "preview" -> {
                     preview = getPreview(jsonReader)
                 }
+                "domain" -> {
+                    domain = jsonReader.nextString()
+                }
                 else -> jsonReader.skipValue()
             }
         }
@@ -247,7 +250,8 @@ class CommentAdapter {
             upvoteRatio = upvoteRatio,
             secureMedia = secureMedia,
             preview = preview,
-            media = media
+            media = media,
+            domain = domain!!
         )
     }
 
@@ -487,7 +491,15 @@ class CommentAdapter {
         jsonReader.endObject()
         jsonReader.endObject()
 
-        return Child(kind, parent!!, content!!, contentText!!, link!!, contentHTML!!, id!!)
+        return Child(
+            kind,
+            parent!!,
+            content!!,
+            contentText!!,
+            link!!,
+            contentHTML!!,
+            id!!
+        )
     }
 
 }

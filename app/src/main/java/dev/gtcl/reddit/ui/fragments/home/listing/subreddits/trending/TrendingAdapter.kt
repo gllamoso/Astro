@@ -1,13 +1,17 @@
 package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.viewholders.NetworkStateItemViewHolder
 import dev.gtcl.reddit.actions.SubredditActions
-import dev.gtcl.reddit.listings.Subreddit
+import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.ui.viewholders.TrendingSubredditViewHolder
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 
 class TrendingAdapter(private val subredditActions: SubredditActions, private val retry: () -> Unit, private val onLastItemReached: () -> Unit) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -22,9 +26,9 @@ class TrendingAdapter(private val subredditActions: SubredditActions, private va
         this.networkState = networkState
     }
 
-    fun setSubscribedSubs(subs: List<Subreddit>){
-        subscribedSubs = subs.map { it.displayName }.toHashSet()
-        favoriteSubs = subs.filter { it.isFavorite }.map { it.displayName}.toHashSet()
+    fun setSubscribedSubs(subs: List<Subreddit>) {
+        subscribedSubs = subs.map { it.displayName.toLowerCase(Locale.ROOT) }.toHashSet()
+        favoriteSubs = subs.filter { it.isFavorite }.map { it.displayName.toLowerCase(Locale.ROOT)}.toHashSet()
         for(item: TrendingSubredditPost in items){
             item.setSubscribedTo(subscribedSubs)
             item.setFavorites(favoriteSubs)

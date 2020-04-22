@@ -2,13 +2,15 @@ package dev.gtcl.reddit
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Point
 import android.graphics.Typeface
-import android.util.Log
+import android.graphics.drawable.Drawable
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
+import android.view.ViewGroup
 import android.view.WindowManager
 import android.widget.GridLayout
 import android.widget.ImageView
@@ -18,13 +20,16 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.CustomViewTarget
+import com.bumptech.glide.request.transition.Transition
+import com.davemorrissey.labs.subscaleview.ImageSource
+import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.google.android.exoplayer2.ui.PlayerView
 import dev.gtcl.reddit.databinding.ItemAwardBinding
-import dev.gtcl.reddit.listings.*
-import dev.gtcl.reddit.listings.Award
-import dev.gtcl.reddit.listings.Comment
-import dev.gtcl.reddit.listings.Item
-import dev.gtcl.reddit.listings.More
+import dev.gtcl.reddit.models.reddit.*
+
 
 @BindingAdapter("imageUrlAndHideIfNull")
 fun bindImageAndHideIfNull(imgView: ImageView, imgUrl: String?){
@@ -56,6 +61,44 @@ fun bindImage(imgView: ImageView, imgUrl: String?){
 //                        .placeholder(R.drawable.anim_loading)
 //                        .error(R.drawable.ic_broken_image))
             .into(imgView)
+    }
+}
+
+@BindingAdapter("post")
+fun bindVideo(playerView: PlayerView, post: Post?){
+    if(post == null || post.postType != PostType.VIDEO){
+        playerView.visibility = View.GONE
+        return
+    }
+    playerView.visibility = View.VISIBLE
+}
+
+@BindingAdapter("post")
+fun bindImage(subsamplingScaleImageView: SubsamplingScaleImageView, post: Post?){
+    if(post == null || post.postType != PostType.IMAGE) {
+        subsamplingScaleImageView.visibility = View.GONE
+        return
+    }
+    subsamplingScaleImageView.visibility = View.VISIBLE
+    bindImage(subsamplingScaleImageView, post.url)
+}
+
+@BindingAdapter("subsampleImage")
+fun bindImage(subsamplingScaleImageView: SubsamplingScaleImageView, imgUrl: String?){
+    Glide.with(subsamplingScaleImageView.context)
+        .asBitmap()
+        .load(imgUrl)
+        .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
+        .into(SubsamplingScaleImageViewTarget(subsamplingScaleImageView))
+}
+
+class SubsamplingScaleImageViewTarget(view: SubsamplingScaleImageView): CustomViewTarget<SubsamplingScaleImageView, Bitmap>(view){
+    override fun onLoadFailed(errorDrawable: Drawable?) {}
+
+    override fun onResourceCleared(placeholder: Drawable?) {}
+
+    override fun onResourceReady(resource: Bitmap, transition: Transition<in Bitmap>?) {
+        view.setImage(ImageSource.bitmap(resource))
     }
 }
 
@@ -126,6 +169,13 @@ fun loadListingText(txtView: TextView, listingType: ListingType?){
         }
     }
 }
+
+@BindingAdapter("listingType")
+fun setVisibility(viewGroup: ViewGroup, listingType: ListingType?){
+    if(listingType == null) return
+    viewGroup.visibility = if(listingType is SubredditListing) View.VISIBLE else View.GONE
+}
+
 
 @BindingAdapter("setVisibility")
 fun setVisibility(view: View, constraint: Boolean) {

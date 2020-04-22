@@ -5,10 +5,10 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.listings.Account
-import dev.gtcl.reddit.listings.ListingRepository
-import dev.gtcl.reddit.listings.TrophyListingResponse
-import dev.gtcl.reddit.listings.users.UserRepository
+import dev.gtcl.reddit.models.reddit.Account
+import dev.gtcl.reddit.repositories.ListingRepository
+import dev.gtcl.reddit.models.reddit.TrophyListingResponse
+import dev.gtcl.reddit.repositories.UserRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -18,7 +18,7 @@ import java.util.concurrent.Executors
 class UserAboutViewModel(val application: RedditApplication) : AndroidViewModel(application){
     // Repos
     private val userRepository = UserRepository.getInstance(application)
-    private val listingRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
+    private val listingRepository = ListingRepository.getInstance(application)
 
     // Scopes
     private val viewModelJob = Job()

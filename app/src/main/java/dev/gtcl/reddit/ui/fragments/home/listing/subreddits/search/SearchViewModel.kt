@@ -4,9 +4,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.listings.ListingRepository
-import dev.gtcl.reddit.listings.Subreddit
-import dev.gtcl.reddit.listings.SubredditChild
+import dev.gtcl.reddit.repositories.ListingRepository
+import dev.gtcl.reddit.models.reddit.Subreddit
+import dev.gtcl.reddit.models.reddit.SubredditChild
 import dev.gtcl.reddit.network.NetworkState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -16,7 +16,7 @@ import java.util.concurrent.Executors
 
 class SearchViewModel(application: RedditApplication) : AndroidViewModel(application){
     // Repos
-    private val listingRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
+    private val listingRepository = ListingRepository.getInstance(application)
 
     // Scopes
     private var viewModelJob = Job()

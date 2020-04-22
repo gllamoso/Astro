@@ -11,110 +11,39 @@ class TrendingSubredditViewHolder private constructor(private val binding: ItemT
     fun bind(trendingSubredditPost: TrendingSubredditPost, subredditActions: SubredditActions) {
         binding.trendingPost = trendingSubredditPost
 
-        binding.subLayout0.apply {
-            root.setOnClickListener {
-                subredditActions.onClick(binding.subLayout0.sub!!)
+        for(i in 0 until 5){
+            val binding = when(i){
+                0 -> binding.subLayout0
+                1 -> binding.subLayout1
+                2 -> binding.subLayout2
+                3 -> binding.subLayout3
+                4 -> binding.subLayout4
+                else -> throw IllegalArgumentException("Cannot exceed more than 5 subreddits")
             }
-            addIcon.setOnClickListener {
-                trendingSubredditPost.subs[0].apply {
-                    isAdded = !isAdded
-                    subredditActions.subscribe(this, isAdded, true)
+
+            binding.apply {
+                root.setOnClickListener {
+                    subredditActions.onClick(trendingSubredditPost.subs[i])
                 }
-                binding.invalidateAll()
-            }
-            favoriteIcon.setOnClickListener {
-                trendingSubredditPost.subs[0].apply{
-                    isFavorite = !isFavorite
-                    if(isFavorite) this.isAdded = true
-                    subredditActions.addToFavorites(this, isFavorite, true)
+                addIcon.setOnClickListener {
+                    trendingSubredditPost.subs[i].apply {
+                        isAdded = !isAdded
+                        if(!isAdded) isFavorite = false
+                        subredditActions.subscribe(this, isAdded, true)
+                    }
+                    this.invalidateAll()
                 }
-                binding.invalidateAll()
+                favoriteIcon.setOnClickListener {
+                    trendingSubredditPost.subs[i].apply{
+                        isFavorite = !isFavorite
+                        if(isFavorite) this.isAdded = true
+                        subredditActions.addToFavorites(this, isFavorite, true)
+                    }
+                    this.invalidateAll()
+                }
             }
         }
 
-        binding.subLayout1.apply {
-            root.setOnClickListener {
-                subredditActions.onClick(binding.subLayout1.sub!!)
-            }
-            addIcon.setOnClickListener {
-                trendingSubredditPost.subs[1].apply {
-                    isAdded = !isAdded
-                    subredditActions.subscribe(this, isAdded, true)
-                }
-                binding.invalidateAll()
-            }
-            favoriteIcon.setOnClickListener {
-                trendingSubredditPost.subs[1].apply{
-                    isFavorite = !isFavorite
-                    if(isFavorite) this.isAdded = true
-                    subredditActions.addToFavorites(this, isFavorite, true)
-                }
-                binding.invalidateAll()
-            }
-        }
-
-        binding.subLayout2.apply {
-            root.setOnClickListener {
-                subredditActions.onClick(binding.subLayout1.sub!!)
-            }
-            addIcon.setOnClickListener {
-                trendingSubredditPost.subs[2].apply {
-                    isAdded = !isAdded
-                    subredditActions.subscribe(this, isAdded, true)
-                }
-                binding.invalidateAll()
-            }
-            favoriteIcon.setOnClickListener {
-                trendingSubredditPost.subs[2].apply{
-                    isFavorite = !isFavorite
-                    if(isFavorite) this.isAdded = true
-                    subredditActions.addToFavorites(this, isFavorite, true)
-                }
-                binding.invalidateAll()
-            }
-        }
-
-        binding.subLayout3.apply {
-            root.setOnClickListener {
-                subredditActions.onClick(binding.subLayout1.sub!!)
-            }
-            addIcon.setOnClickListener {
-                trendingSubredditPost.subs[3].apply {
-                    isAdded = !isAdded
-                    subredditActions.subscribe(this, isAdded, true)
-                }
-                binding.invalidateAll()
-            }
-            favoriteIcon.setOnClickListener {
-                trendingSubredditPost.subs[3].apply{
-                    isFavorite = !isFavorite
-                    if(isFavorite) this.isAdded = true
-                    subredditActions.addToFavorites(this, isFavorite, true)
-                }
-                binding.invalidateAll()
-            }
-        }
-
-        binding.subLayout4.apply {
-            root.setOnClickListener {
-                subredditActions.onClick(binding.subLayout1.sub!!)
-            }
-            addIcon.setOnClickListener {
-                trendingSubredditPost.subs[4].apply {
-                    isAdded = !isAdded
-                    subredditActions.subscribe(this, isAdded, true)
-                }
-                binding.invalidateAll()
-            }
-            favoriteIcon.setOnClickListener {
-                trendingSubredditPost.subs[4].apply{
-                    isFavorite = !isFavorite
-                    if(isFavorite) this.isAdded = true
-                    subredditActions.addToFavorites(this, isFavorite, true)
-                }
-                binding.invalidateAll()
-            }
-        }
 
 
         binding.executePendingBindings()

@@ -9,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import dev.gtcl.reddit.USER_KEY
 import dev.gtcl.reddit.databinding.FragmentViewPagerBinding
-import dev.gtcl.reddit.listings.Comment
-import dev.gtcl.reddit.listings.Post
+import dev.gtcl.reddit.models.reddit.Comment
+import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.ui.fragments.StartingViewPagerFragments
 import dev.gtcl.reddit.ui.fragments.SlidePageTransformer
@@ -39,7 +39,7 @@ class AccountViewPagerFragment: Fragment(),
     }
 
     private fun setViewPagerAdapter(){
-        viewpagerAdapter = ViewPagerAdapter(this, StartingViewPagerFragments.USER, this)
+        viewpagerAdapter = ViewPagerAdapter(this, StartingViewPagerFragments.USER)
         binding.viewPager.apply {
             adapter =  viewpagerAdapter
             setPageTransformer(SlidePageTransformer())

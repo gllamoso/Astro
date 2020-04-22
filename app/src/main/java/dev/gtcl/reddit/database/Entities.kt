@@ -2,9 +2,9 @@ package dev.gtcl.reddit.database
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import dev.gtcl.reddit.listings.Account
-import dev.gtcl.reddit.listings.AccountSubreddit
-import dev.gtcl.reddit.listings.Subreddit
+import dev.gtcl.reddit.models.reddit.Account
+import dev.gtcl.reddit.models.reddit.AccountSubreddit
+import dev.gtcl.reddit.models.reddit.Subreddit
 
 //     ____                _   ___ _
 //    |  _ \ ___  __ _  __| | |_ _| |_ ___ _ __ ___

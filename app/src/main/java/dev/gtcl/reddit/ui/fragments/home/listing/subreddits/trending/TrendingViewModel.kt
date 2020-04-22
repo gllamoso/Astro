@@ -1,16 +1,14 @@
 package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending
 
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.SubredditWhere
 import dev.gtcl.reddit.Time
-import dev.gtcl.reddit.listings.ListingRepository
-import dev.gtcl.reddit.listings.ListingType
+import dev.gtcl.reddit.repositories.ListingRepository
+import dev.gtcl.reddit.models.reddit.ListingType
 import dev.gtcl.reddit.network.NetworkState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -21,7 +19,7 @@ import java.util.concurrent.Executors
 class TrendingViewModel(application: RedditApplication): AndroidViewModel(application){
 
     // Repos
-    private val listingRepository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
+    private val listingRepository = ListingRepository.getInstance(application)
 
     // Scopes
     private var viewModelJob = Job()
@@ -42,6 +40,8 @@ class TrendingViewModel(application: RedditApplication): AndroidViewModel(applic
     private var t: Time? = null
     private var pageSize = 40
 
+    val subscribedSubs = listingRepository.getSubscribedSubsLive()
+
     fun retry(){
         TODO()
     }
@@ -57,7 +57,6 @@ class TrendingViewModel(application: RedditApplication): AndroidViewModel(applic
 
     fun loadInitial(){
         coroutineScope.launch {
-            val subscribedSubs = listingRepository.getSubscribedSubs()
             _networkState.value = NetworkState.LOADING
             val response = if(::listingType.isInitialized)
                 listingRepository.getListing(listingType, postSort, t, null, pageSize, user).await()
@@ -110,6 +109,4 @@ class TrendingViewModel(application: RedditApplication): AndroidViewModel(applic
     fun loadAfterFinished(){
         _additionalListing.value = null
     }
-
-    val subscribedSubs = listingRepository.getSubscribedSubsLive()
 }

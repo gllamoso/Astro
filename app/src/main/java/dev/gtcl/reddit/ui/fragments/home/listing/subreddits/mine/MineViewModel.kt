@@ -6,8 +6,8 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.database.asDomainModel
-import dev.gtcl.reddit.listings.ListingRepository
-import dev.gtcl.reddit.listings.Subreddit
+import dev.gtcl.reddit.repositories.ListingRepository
+import dev.gtcl.reddit.models.reddit.Subreddit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -16,7 +16,7 @@ import java.util.concurrent.Executors
 
 class MineViewModel(private val application: RedditApplication): AndroidViewModel(application){
 
-    private val repository = ListingRepository.getInstance(application, Executors.newFixedThreadPool(5))
+    private val repository = ListingRepository.getInstance(application)
 
     // Scopes
     private var viewModelJob = Job()

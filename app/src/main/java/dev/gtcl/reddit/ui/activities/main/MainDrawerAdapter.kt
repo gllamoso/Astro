@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.activities
+package dev.gtcl.reddit.ui.activities.main
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -8,7 +8,7 @@ import android.widget.BaseExpandableListAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.listings.Account
+import dev.gtcl.reddit.models.reddit.Account
 
 class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners: DrawerOnClickListeners) : BaseExpandableListAdapter(){
     private val addAccountString = context.getString(R.string.add_account)

@@ -4,9 +4,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.database.ItemsRead
-import dev.gtcl.reddit.listings.*
+import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.network.NetworkState
-import dev.gtcl.reddit.actions.ListingActions
 import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.ui.viewholders.*
@@ -142,7 +141,7 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             }
             R.layout.item_comment -> {
                 val comment = items[position] as Comment
-                (holder as CommentViewHolder).bind(comment) { _, c ->  }
+                (holder as CommentViewHolder).bind(comment) { _, _ ->  }
             }
             R.layout.item_subreddit -> {
                 val subreddit = items[position] as Subreddit

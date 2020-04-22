@@ -3,7 +3,7 @@ package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.search
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.actions.SubredditActions
-import dev.gtcl.reddit.listings.Subreddit
+import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.ui.viewholders.SubredditViewHolder
 
 class SearchAdapter(private val subredditActions: SubredditActions) : RecyclerView.Adapter<SubredditViewHolder>(){
