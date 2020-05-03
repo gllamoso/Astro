@@ -24,7 +24,7 @@ import dev.gtcl.reddit.ui.fragments.dialog.SortSheetDialogFragment
 import dev.gtcl.reddit.actions.ListingActions
 import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.actions.ViewPagerActions
-import dev.gtcl.reddit.ui.fragments.dialog.imageviewer.MediaDialogFragment
+import dev.gtcl.reddit.ui.fragments.dialog.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.dialog.subreddits.SubredditSelectorDialogFragment
 import dev.gtcl.reddit.ui.fragments.dialog.TimePeriodSheetDialogFragment
 
@@ -32,7 +32,7 @@ class ListingFragment : Fragment(), PostActions,
     ListingActions {
 
     private lateinit var binding: FragmentListingBinding
-    private lateinit var adapter: dev.gtcl.reddit.ui.ListingAdapter
+    private lateinit var adapter: ListingAdapter
 
     private lateinit var viewPagerActions: ViewPagerActions
     fun setViewPagerActions(viewPagerActions: ViewPagerActions){
@@ -50,7 +50,8 @@ class ListingFragment : Fragment(), PostActions,
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
         when(childFragment){
-            is SubredditSelectorDialogFragment -> childFragment.setListingActions(this)
+            is SubredditSelectorDialogFragment -> childFragment.listingActions = this
+            is MediaDialogFragment -> childFragment.postUrlCallback = this::postClicked
         }
     }
 
@@ -194,6 +195,7 @@ class ListingFragment : Fragment(), PostActions,
     }
 
     override fun thumbnailClicked(post: Post) {
+        parentModel.addReadPost(post.asReadListing)
         Log.d("TAE","Post clicked: $post")
         val urlType = when {
             post.isImage -> UrlType.IMAGE
@@ -207,15 +209,16 @@ class ListingFragment : Fragment(), PostActions,
         val dialog = MediaDialogFragment.newInstance(
             if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.videoUrl!! else post.url!!,
             urlType,
-            post.permalink,
-            if(urlType == UrlType.GFYCAT) post.videoUrl else null)
+            post)
         dialog.show(childFragmentManager, null)
     }
 
     override fun onClick(listing: ListingType) {
         model.loadInitial(listing)
         for(fragment: Fragment in childFragmentManager.fragments){
-            if(fragment is DialogFragment) fragment.dismiss()
+            if(fragment is DialogFragment) {
+                fragment.dismiss()
+            }
         }
     }
 

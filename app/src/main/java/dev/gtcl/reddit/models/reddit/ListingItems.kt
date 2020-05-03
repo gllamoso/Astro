@@ -159,6 +159,7 @@ data class Post(
     val preview: Preview?,
     val media: Media?,
     val domain: String
+    // TODO: Add crosspost_parent_list
 ) : Parcelable, Item(ItemType.Post) {
 
     @IgnoredOnParcel

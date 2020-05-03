@@ -1,13 +1,18 @@
-package dev.gtcl.reddit.ui.fragments.dialog.imageviewer
+package dev.gtcl.reddit.ui.fragments.dialog.media
 
+import android.app.DownloadManager
+import android.content.Context
+import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
+import android.widget.*
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -19,14 +24,20 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
+import com.google.android.exoplayer2.ui.PlayerControlView
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentMediaViewerBinding
+import dev.gtcl.reddit.databinding.PopupVideoOptionsBinding
+import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.models.reddit.UrlType
 import kotlinx.android.synthetic.main.exo_playback_control_view.view.*
 import kotlin.IllegalArgumentException
 
 class MediaFragment: Fragment(){
     private lateinit var binding: FragmentMediaViewerBinding
+    lateinit var controllerView: PlayerControlView // TODO: use weak reference
+    lateinit var showUiCallback: () -> Unit
+    lateinit var postUrlCallback: (Post) -> Unit
 
     val model: MediaViewModel by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
@@ -36,25 +47,23 @@ class MediaFragment: Fragment(){
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentMediaViewerBinding.inflate(inflater)
         binding.model = model
-        val url = requireArguments().get(URL_KEY) as String
-        val urlType = requireArguments().get(URL_TYPE_KEY) as UrlType
-        val backupVideoUrl = requireArguments().get(BACKUP_VIDEO_URL) as String?
-        model.url = url
-        model.setUrlType(urlType)
-        model.backupVideoUrl = backupVideoUrl
-
-        binding.playerView.download_button.setOnClickListener {
-            model.download()
-        }
-
-        when(urlType){
-            UrlType.IMAGE -> setSubsamplingImageView()
-            UrlType.GIF -> setGifToImageView()
-            UrlType.GFYCAT, UrlType.M3U8, UrlType.GIFV -> setVideoPlayer()
-            else -> throw IllegalArgumentException("Invalid URL Type: $urlType")
+        if(!model.initialized){
+            val url = requireArguments().get(URL_KEY) as String
+            val urlType = requireArguments().get(URL_TYPE_KEY) as UrlType
+            val post = requireArguments().get(POST_KEY) as Post?
+            model.url = url
+            model.setUrlType(urlType)
+            model.post = post
+            model.initialized = true
         }
 
         model.setLoading(model.player.value == null)
+        when(model.urlType.value){
+            UrlType.IMAGE -> setSubsamplingImageView()
+            UrlType.GIF -> setGifToImageView()
+            UrlType.GFYCAT, UrlType.M3U8, UrlType.GIFV -> setVideoPlayer()
+            else -> throw IllegalArgumentException("Invalid URL Type: ${model.urlType.value}")
+        }
         binding.executePendingBindings()
 
         return binding.root
@@ -103,6 +112,10 @@ class MediaFragment: Fragment(){
             })
             .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
             .into(SubsamplingScaleImageViewTarget(binding.scaleImageView))
+
+        binding.scaleImageView.setOnClickListener {
+            showUiCallback()
+        }
     }
 
     private fun setGifToImageView(){
@@ -134,24 +147,73 @@ class MediaFragment: Fragment(){
 
             })
             .into(binding.imageView)
+
+        binding.imageView.setOnClickListener {
+            showUiCallback()
+        }
     }
 
     private fun setVideoPlayer(){
         model.initializePlayer()
+
         model.player.observe(viewLifecycleOwner, Observer {
             if(it != null) {
                 binding.playerView.player = it
+                if(::controllerView.isInitialized){
+                    controllerView.player = it
+                }
                 model.setLoading(false)
                 binding.invalidateAll()
             }
         })
 
+        binding.root.setOnClickListener {
+            showUiCallback()
+        }
+
+        controllerView.findViewById<ImageButton>(R.id.video_options).setOnClickListener {
+            val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            val popupBinding = PopupVideoOptionsBinding.inflate(inflater)
+            val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
+            popupBinding.apply {
+                if(model.post == null){
+                    commentOption.root.visibility = View.GONE
+                } else {
+                    commentOption.root.apply {
+                        visibility = View.VISIBLE
+                        setOnClickListener {
+                            postUrlCallback(model.post!!)
+                            popupWindow.dismiss()
+                        }
+                    }
+                }
+
+                shareOption.root.setOnClickListener {
+                    popupWindow.dismiss()
+                    val shareIntent = Intent(Intent.ACTION_SEND)
+                    shareIntent.type = "text/plain"
+                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, getText(R.string.share_subject_message))
+                    shareIntent.putExtra(Intent.EXTRA_TEXT, model.shareUrl)
+                    startActivity(Intent.createChooser(shareIntent, null))
+                }
+
+                downloadOption.root.setOnClickListener {
+                    model.download()
+                    popupWindow.dismiss()
+                }
+            }
+            popupBinding.root.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+            popupWindow.showAsDropDown(it, -popupBinding.root.measuredWidth, -(popupBinding.root.measuredHeight * 1.25).toInt())
+        }
     }
 
     companion object{
-        fun newInstance(url: String, urlType: UrlType, backupVideoUrl: String? = null): MediaFragment{
+        fun newInstance(url: String, urlType: UrlType, post: Post? = null): MediaFragment{
             val fragment = MediaFragment()
-            val args = bundleOf(URL_KEY to url, URL_TYPE_KEY to urlType, BACKUP_VIDEO_URL to backupVideoUrl)
+            val args = bundleOf(URL_KEY to url, URL_TYPE_KEY to urlType, POST_KEY to post)
             fragment.arguments = args
             return fragment
         }

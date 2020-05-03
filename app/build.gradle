@@ -5,11 +5,11 @@ apply plugin: 'kotlin-kapt'
 apply plugin: "androidx.navigation.safeargs"
 
 android {
-    compileSdkVersion 29
+    compileSdkVersion 28
     defaultConfig {
         applicationId "dev.gtcl.reddit"
-        minSdkVersion 24
-        targetSdkVersion 29
+        minSdkVersion 26
+        targetSdkVersion 28
         versionCode 1
         versionName "1.0"
         vectorDrawables.useSupportLibrary = true
@@ -104,8 +104,11 @@ dependencies {
 
     // For zooming into images
     implementation 'com.davemorrissey.labs:subsampling-scale-image-view:3.10.0'
-    implementation 'com.zolad:zoominimageview:1.0.0'
 
-    // FFMpeg
+    // FFMpeg - For downloading hls videos
     implementation 'com.arthenica:mobile-ffmpeg-full:4.3.2'
+
+    // WorkManager
+    def work_version = "1.0.1"
+    implementation "android.arch.work:work-runtime-ktx:$work_version"
 }

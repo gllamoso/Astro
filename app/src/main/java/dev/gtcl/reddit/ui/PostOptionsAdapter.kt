@@ -2,6 +2,7 @@ package dev.gtcl.reddit.ui
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +21,7 @@ class PostOptionsAdapter(val context: Context, var post: Post): BaseAdapter(){
         return ImageView(context).apply { setImageResource(R.drawable.ic_more_vert_24dp) }
     }
 
-    override fun isEnabled(position: Int) = position in 0 until OPTIONS_SIZE - 1
+    override fun isEnabled(position: Int) = position in 0 until POST_OPTIONS_SIZE - 1
 
     override fun getDropDownView(position: Int, convertView: View?, parent: ViewGroup?): View {
         val viewHolder: OptionViewHolder
@@ -37,50 +38,54 @@ class PostOptionsAdapter(val context: Context, var post: Post): BaseAdapter(){
             resultView = viewHolder.itemView
         }
         when(val item = getItem(position)){
-            MenuItem.UPVOTE -> viewHolder.bind(item, if(post.likes == true) ContextCompat.getColor(context, android.R.color.holo_orange_dark) else null)
-            MenuItem.DOWNVOTE -> viewHolder.bind(item, if(post.likes == false) ContextCompat.getColor(context, android.R.color.holo_blue_dark) else null)
-            MenuItem.PROFILE -> viewHolder.bind(item, customLabel = post.author)
+            PostMenuItem.UPVOTE -> viewHolder.bind(item, if(post.likes == true) ContextCompat.getColor(context, android.R.color.holo_orange_dark) else null)
+            PostMenuItem.DOWNVOTE -> viewHolder.bind(item, if(post.likes == false) ContextCompat.getColor(context, android.R.color.holo_blue_dark) else null)
+            PostMenuItem.PROFILE -> viewHolder.bind(item, customLabel = post.author)
             else -> viewHolder.bind(item)
         }
         return resultView
     }
 
-    override fun getItem(position: Int): MenuItem {
+    override fun getItem(position: Int): PostMenuItem {
         return when(position){
-            MenuItem.UPVOTE.position -> MenuItem.UPVOTE
-            MenuItem.DOWNVOTE.position -> MenuItem.DOWNVOTE
-            MenuItem.SHARE.position -> MenuItem.SHARE
-            MenuItem.PROFILE.position -> MenuItem.PROFILE
-            MenuItem.SAVE.position -> if(post.saved) MenuItem.UNSAVE else MenuItem.SAVE
-            MenuItem.HIDE.position -> if(post.hidden) MenuItem.UNHIDE else MenuItem.HIDE
-            MenuItem.REPORT.position -> MenuItem.REPORT
-            MenuItem.EMPTY.position -> MenuItem.EMPTY
+            PostMenuItem.UPVOTE.position -> PostMenuItem.UPVOTE
+            PostMenuItem.DOWNVOTE.position -> PostMenuItem.DOWNVOTE
+            PostMenuItem.SHARE.position -> PostMenuItem.SHARE
+            PostMenuItem.PROFILE.position -> PostMenuItem.PROFILE
+            PostMenuItem.SAVE.position -> if(post.saved) PostMenuItem.UNSAVE else PostMenuItem.SAVE
+            PostMenuItem.HIDE.position -> if(post.hidden) PostMenuItem.UNHIDE else PostMenuItem.HIDE
+            PostMenuItem.REPORT.position -> PostMenuItem.REPORT
+            PostMenuItem.EMPTY.position -> PostMenuItem.EMPTY
             else -> throw NoSuchElementException()
         }
     }
 
     override fun getItemId(position: Int): Long = position.toLong()
 
-    override fun getCount() = OPTIONS_SIZE
+    override fun getCount() = POST_OPTIONS_SIZE
 
 }
 
 class OptionViewHolder private constructor(private val binding: ItemMenuBinding): RecyclerView.ViewHolder(binding.root){
 
-    fun bind(menuItem: MenuItem, iconTint: Int? = null, customLabel: String? = null){
-        if(menuItem.labelResId == null || menuItem.iconResId == null) {
+    fun bind(menuItem: PostMenuItem, iconTint: Int? = null, customLabel: String? = null){
+        if(menuItem == PostMenuItem.EMPTY) {
             itemView.layoutParams = AbsListView.LayoutParams(-1, 1)
             return
         }
-        if(customLabel == null)
-            binding.text.setText(menuItem.labelResId)
-        else
+        binding.icon.setImageResource(menuItem.iconResId!!)
+        if(customLabel == null) {
+            binding.text.setText(menuItem.labelResId!!)
+        }
+        else {
             binding.text.text = customLabel
-        binding.icon.setImageResource(menuItem.iconResId)
-        if(iconTint != null)
+        }
+        if(iconTint != null) {
             binding.icon.setColorFilter(iconTint, android.graphics.PorterDuff.Mode.SRC_IN)
-        else
+        }
+        else {
             binding.icon.colorFilter = null
+        }
         binding.executePendingBindings()
     }
 
@@ -92,8 +97,8 @@ class OptionViewHolder private constructor(private val binding: ItemMenuBinding)
     }
 }
 
-const val OPTIONS_SIZE = 8
-enum class MenuItem(val labelResId: Int?, val iconResId: Int?, val position: Int) {
+const val POST_OPTIONS_SIZE = 8
+enum class PostMenuItem(val labelResId: Int?, val iconResId: Int?, val position: Int) {
     UPVOTE(R.string.upvote, R.drawable.ic_upvote_24dp, 0),
     DOWNVOTE(R.string.downvote, R.drawable.ic_downvote_24dp, 1),
     SHARE(R.string.share, R.drawable.ic_share_24dp, 2),

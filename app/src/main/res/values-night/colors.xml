@@ -6,4 +6,5 @@
     <color name="background">?android:attr/colorBackgroundFloating</color>
     <color name="textColor">@android:color/white</color>
     <drawable name="transparent">@android:color/transparent</drawable>
+    <drawable name="dark_transparent">#f0000000</drawable>
 </resources>

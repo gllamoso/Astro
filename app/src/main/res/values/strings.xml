@@ -112,4 +112,12 @@
     <string name="share_shortlink">Share shortlink</string>
     <string name="post_to_subreddit">Post to Subreddit</string>
 
+    <!--Media-->
+    <string name="download_image_description">Downloading image…</string>
+    <string name="share_subject_message">Check this out</string>
+    <string name="downloading">Downloading…</string>
+    <string name="download">Download</string>
+    <string name="download_complete">Download complete</string>
+    <string name="download_status_notification_name">Download Status</string>
+
 </resources>

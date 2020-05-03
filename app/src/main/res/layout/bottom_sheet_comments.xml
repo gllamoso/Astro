@@ -12,7 +12,7 @@
         app:behavior_hideable="false"
         app:behavior_peekHeight="?attr/actionBarSize"
         android:orientation="vertical"
-        android:elevation="100dp"
+        android:elevation="1dp"
         android:backgroundTint="@color/colorPrimary"
         android:background="@drawable/top_rounded_corners">
 
@@ -92,7 +92,6 @@
             </LinearLayout>
 
         </RelativeLayout>
-
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/comment_list"

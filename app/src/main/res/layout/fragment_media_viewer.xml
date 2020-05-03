@@ -6,7 +6,7 @@
         <import type="dev.gtcl.reddit.models.reddit.UrlType"/>
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.fragments.dialog.imageviewer.MediaViewModel" />
+            type="dev.gtcl.reddit.ui.fragments.dialog.media.MediaViewModel" />
     </data>
 
     <FrameLayout
@@ -19,7 +19,8 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             app:setVisibility="@{model.urlType == UrlType.IMAGE}"
-            app:tileBackgroundColor="@android:color/transparent"/>
+            app:tileBackgroundColor="@android:color/transparent"
+            app:zoomEnabled="true"/>
 
         <ImageView
             android:id="@+id/image_view"
@@ -35,7 +36,8 @@
             android:layout_gravity="center"
             app:show_buffering="always"
             app:resize_mode="fit"
-            app:surface_type="texture_view"/> <!-- needed prevent dim screen on older devices-->
+            app:surface_type="texture_view"
+            app:use_controller="false"/>
 
         <ProgressBar
             android:id="@+id/progress_bar"

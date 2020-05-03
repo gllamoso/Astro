@@ -1,21 +1,36 @@
-package dev.gtcl.reddit.ui.fragments.dialog.imageviewer
+package dev.gtcl.reddit.ui.fragments.dialog.media
 
+import android.annotation.SuppressLint
+import android.app.DownloadManager
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
+import android.os.Environment
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.work.Data
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
+//import com.arthenica.mobileffmpeg.Config
+//import com.arthenica.mobileffmpeg.FFmpeg
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
+import dev.gtcl.reddit.URL_KEY
 import dev.gtcl.reddit.buildMediaSource
+import dev.gtcl.reddit.download.DownloadIntentService
+import dev.gtcl.reddit.download.DownloadService
+import dev.gtcl.reddit.download.HlsDownloader
 import dev.gtcl.reddit.models.gfycat.GfyItem
+import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.models.reddit.UrlType
 import dev.gtcl.reddit.repositories.GfycatRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import java.util.*
 
 class MediaViewModel(private val application: RedditApplication): AndroidViewModel(application){
 
@@ -33,8 +48,9 @@ class MediaViewModel(private val application: RedditApplication): AndroidViewMod
         _loading.value = loading
     }
 
+    var initialized = false
     var url: String? = null
-    var backupVideoUrl: String? = null
+    var post: Post? = null
 
     private val _urlType = MutableLiveData<UrlType>()
     val urlType: LiveData<UrlType>
@@ -70,7 +86,11 @@ class MediaViewModel(private val application: RedditApplication): AndroidViewMod
                 }
                 catch (e: Exception){
                     Log.d("TAE", "Exception found: $e")
-                    uri = Uri.parse(backupVideoUrl)
+                    if(post != null) {
+                        uri = Uri.parse(post!!.videoUrl)
+                    } else {
+                        return@launch
+                    }
                 }
             }
             var mediaSource = buildMediaSource(application.baseContext, uri)
@@ -83,8 +103,8 @@ class MediaViewModel(private val application: RedditApplication): AndroidViewMod
                 addListener(object: Player.EventListener{
                     override fun onPlayerError(error: ExoPlaybackException?) {
                         Log.d("TAE", "Error: ${error.toString()}")
-                        if(uri.path != backupVideoUrl) {
-                            mediaSource = buildMediaSource(application.baseContext, Uri.parse(backupVideoUrl))
+                        if(uri.path != post?.videoUrl && post != null) {
+                            mediaSource = buildMediaSource(application.baseContext, Uri.parse(post!!.videoUrl))
                             prepare(mediaSource, false, false)
                         }
                     }
@@ -103,35 +123,34 @@ class MediaViewModel(private val application: RedditApplication): AndroidViewMod
         }
     }
 
+    @SuppressLint("Recycle")
     fun download(){
-        // TODO: Delete
-//        https://v.redd.it/r1m7ibntxjt41/HLS_224_v4.m3u8
+        val downloadUrl: String =
+            if(::gfyItem.isInitialized) {
+                gfyItem.mp4Url
+            } else {
+                url!!
+            }
 
-//            val rc = FFmpeg.execute("-i https://v.redd.it/y0dvr5jj3ft41/HLSPlaylist.m3u8 -acodec copy -bsf:a aac_adtstoasc -vcodec copy /data/user/0/dev.gtcl.reddit/files/FunnyDad1.mp4")
-//            when(rc){
-//                Config.RETURN_CODE_SUCCESS -> Log.d("TAE", "Executed successfully")
-//                Config.RETURN_CODE_CANCEL -> Log.d("TAE", "Cancelled by user.")
-//                else -> Log.d("TAE", "Execution failed. RC = $rc")
-//            }
-
-//        val myUrl = "https://giant.gfycat.com/OffbeatRigidCivet.mp4" // WORKS!!!!
-//        val request = DownloadManager.Request(Uri.parse(myUrl))
-//        request.apply {
-//            setTitle("Download")
-//            setDescription("Your file is downloading...")
-//            request.setAllowedNetworkTypes(DownloadManager.Request.NETWORK_WIFI or DownloadManager.Request.NETWORK_MOBILE)
-//            setNotificationVisibility(DownloadManager.Request.VISIBILITY_VISIBLE_NOTIFY_COMPLETED)
-//            setDestinationInExternalFilesDir(this@MainActivity, Environment.DIRECTORY_DOWNLOADS, "test.mp4")
-//        }
-//        val manager = getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
-//        manager.enqueue(request)
+        val serviceIntent = Intent(application.applicationContext, DownloadIntentService::class.java)
+        serviceIntent.putExtra(URL_KEY, downloadUrl)
+        DownloadIntentService.enqueueWork(application.applicationContext, serviceIntent)
+        Toast.makeText(application, application.getText(R.string.downloading), Toast.LENGTH_SHORT).show()
     }
+
+    val shareUrl: String
+        get() {
+            return when{
+                ::gfyItem.isInitialized -> gfyItem.mp4Url
+                post != null -> post!!.url!!
+                else -> url!!
+            }
+        }
 
     override fun onCleared() {
         super.onCleared()
         _player.value?.let {
             it.release()
-            Log.d("TAE", "Player released")
         }
         _player.value = null
     }

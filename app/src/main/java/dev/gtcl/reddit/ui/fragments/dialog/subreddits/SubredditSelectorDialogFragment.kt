@@ -36,10 +36,7 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
         ViewModelProvider(this, viewModelFactory).get(SubredditSelectorViewModel::class.java)
     }
 
-    private lateinit var listingActions: ListingActions
-    fun setListingActions(listingActions: ListingActions){
-        this.listingActions = listingActions
-    }
+    lateinit var listingActions: ListingActions
 
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)

@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui.viewholders
 
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,8 +11,8 @@ import dev.gtcl.reddit.R
 import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.databinding.ItemPostBinding
 import dev.gtcl.reddit.models.reddit.Post
-import dev.gtcl.reddit.ui.MenuItem
-import dev.gtcl.reddit.ui.OPTIONS_SIZE
+import dev.gtcl.reddit.ui.PostMenuItem
+import dev.gtcl.reddit.ui.POST_OPTIONS_SIZE
 import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.ui.PostOptionsAdapter
 
@@ -27,52 +28,51 @@ class PostViewHolder private constructor(private val binding:ItemPostBinding)
         }
 
         binding.thumbnail.setOnClickListener{
+            setIfRead(true)
             postActions.thumbnailClicked(post!!)
         }
 
-
         binding.moreOptions.apply {
-            val optionsAdapter = PostOptionsAdapter(binding.root.context, post!!)
-            adapter = optionsAdapter
-            setSelection(OPTIONS_SIZE - 1)
+            adapter = PostOptionsAdapter(binding.root.context, post!!)
+            setSelection(POST_OPTIONS_SIZE - 1)
             onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
                 override fun onNothingSelected(parent: AdapterView<*>?) {}
 
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     when(position){
-                        MenuItem.UPVOTE.position -> {
+                        PostMenuItem.UPVOTE.position -> {
                             binding.post?.let {
                                 postActions.vote(it, if(it.likes == true) Vote.UNVOTE else Vote.UPVOTE)
                                 it.likes = if(it.likes == true) null else true
                                 binding.invalidateAll()
                             }
                         }
-                        MenuItem.DOWNVOTE.position -> {
+                        PostMenuItem.DOWNVOTE.position -> {
                             binding.post?.let {
                                 postActions.vote(it, if(it.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
                                 it.likes = if(it.likes == false) null else false
                                 binding.invalidateAll()
                             }
                         }
-                        MenuItem.SHARE.position -> postActions.share(post)
-                        MenuItem.PROFILE.position -> postActions.viewProfile(post)
-                        MenuItem.SAVE.position -> {
+                        PostMenuItem.SHARE.position -> postActions.share(post)
+                        PostMenuItem.PROFILE.position -> postActions.viewProfile(post)
+                        PostMenuItem.SAVE.position -> {
                             binding.post?.let {
                                 postActions.save(it)
                                 it.saved = !it.saved
                                 binding.invalidateAll()
                             }
                         }
-                        MenuItem.HIDE.position -> {
+                        PostMenuItem.HIDE.position -> {
                             binding.post?.let{
                                 postActions.hide(post)
                                 it.hidden = !it.hidden
                                 hide()
                             }
                         }
-                        MenuItem.REPORT.position -> postActions.report(post)
+                        PostMenuItem.REPORT.position -> postActions.report(post)
                     }
-                    this@apply.setSelection(OPTIONS_SIZE - 1)
+                    this@apply.setSelection(POST_OPTIONS_SIZE - 1)
                 }
 
             }

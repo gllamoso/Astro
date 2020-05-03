@@ -6,4 +6,5 @@
     <color name="background">@android:color/white</color>
     <color name="textColor">@android:color/black</color>
     <drawable name="transparent">@android:color/transparent</drawable>
+    <color name="darkTransparent">#a0000000</color>
 </resources>
