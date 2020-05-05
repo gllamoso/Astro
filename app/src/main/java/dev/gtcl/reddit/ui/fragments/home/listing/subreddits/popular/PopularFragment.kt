@@ -49,13 +49,8 @@ class PopularFragment : Fragment() {
 
     private fun setRecyclerViewAdapter(){
         val loadMoreScrollListener = LoadMoreScrollListener(
-            binding.list.layoutManager as GridLayoutManager,
-            object: OnLoadMoreListener {
-                override fun loadMore() {
-                    model.loadAfter()
-                }
-            }
-        )
+            binding.list.layoutManager as GridLayoutManager
+        ) { model.loadAfter() }
 
         listingAdapter = ListingAdapter(subredditActions, {model.retry()}, {loadMoreScrollListener.lastItemReached()})
         binding.list.adapter = listingAdapter

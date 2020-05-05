@@ -1,14 +1,10 @@
 package dev.gtcl.reddit.ui.fragments.dialog.media
 
-import android.app.DownloadManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
-import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,10 +23,9 @@ import com.bumptech.glide.request.target.Target
 import com.google.android.exoplayer2.ui.PlayerControlView
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentMediaViewerBinding
-import dev.gtcl.reddit.databinding.PopupVideoOptionsBinding
+import dev.gtcl.reddit.databinding.LayoutPopupVideoOptionsBinding
 import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.models.reddit.UrlType
-import kotlinx.android.synthetic.main.exo_playback_control_view.view.*
 import kotlin.IllegalArgumentException
 
 class MediaFragment: Fragment(){
@@ -173,7 +168,7 @@ class MediaFragment: Fragment(){
 
         controllerView.findViewById<ImageButton>(R.id.video_options).setOnClickListener {
             val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            val popupBinding = PopupVideoOptionsBinding.inflate(inflater)
+            val popupBinding = LayoutPopupVideoOptionsBinding.inflate(inflater)
             val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
             popupBinding.apply {
                 if(model.post == null){

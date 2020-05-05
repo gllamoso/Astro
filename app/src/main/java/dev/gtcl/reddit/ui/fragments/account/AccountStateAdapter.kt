@@ -2,7 +2,7 @@ package dev.gtcl.reddit.ui.fragments.account
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import dev.gtcl.reddit.ui.fragments.account.pages.UserAboutFragment
+import dev.gtcl.reddit.ui.fragments.account.pages.about.UserAboutFragment
 import dev.gtcl.reddit.ui.fragments.account.pages.UserBlockedFragment
 import dev.gtcl.reddit.ui.fragments.account.pages.UserCommentsFragment
 import dev.gtcl.reddit.ui.fragments.account.pages.UserDownvotedFragment

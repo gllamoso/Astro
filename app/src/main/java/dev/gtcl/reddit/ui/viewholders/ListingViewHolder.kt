@@ -11,7 +11,7 @@ class ListingViewHolder(private val binding: ItemListingBinding): RecyclerView.V
     fun bind(listingType: ListingType, listingActions: ListingActions){
         binding.listing = listingType
         binding.root.setOnClickListener {
-            listingActions.onClick(listingType)
+            listingActions.onListingClicked(listingType)
         }
         binding.executePendingBindings()
     }

@@ -45,6 +45,8 @@
                 android:text="@{sub.displayName}"
                 tools:text="Subreddit Name"/>
 
+            <!--        TODO: drawableStart?-->
+
         </LinearLayout>
 
         <ImageView

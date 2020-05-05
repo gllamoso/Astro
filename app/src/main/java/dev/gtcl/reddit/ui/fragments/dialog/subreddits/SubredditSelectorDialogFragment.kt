@@ -130,7 +130,7 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
     }
 
     override fun onClick(subreddit: Subreddit) {
-        listingActions.onClick(SubredditListing(subreddit))
+        listingActions.onListingClicked(SubredditListing(subreddit))
     }
 
     override fun addToFavorites(subreddit: Subreddit, favorite: Boolean, refresh: Boolean) {

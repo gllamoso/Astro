@@ -38,7 +38,7 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
     private lateinit var listingType: ListingType
     private lateinit var postSort: PostSort
     private var t: Time? = null
-    private var pageSize = 40
+    private var pageSize = 15
 
     fun retry(){
         TODO()
@@ -65,12 +65,7 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
     fun loadInitial(){
         coroutineScope.launch {
             _networkState.value = NetworkState.LOADING
-            val response = if(::listingType.isInitialized)
-                listingRepository.getListing(listingType, postSort, t, null, pageSize, user).await()
-            else
-                listingRepository.getNetworkSubreddits(subredditWhere, limit = pageSize).await()
-            _initialListing.value = response.data.children.map { it.data }
-            after = response.data.after
+            loadFirstPage()
             _networkState.value = NetworkState.LOADED
         }
     }
@@ -83,15 +78,19 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
     val refreshState: LiveData<NetworkState>
         get() = _refreshState
 
+    suspend fun loadFirstPage(){
+        val response = if (::listingType.isInitialized)
+            listingRepository.getListing(listingType, postSort, t, null, pageSize * 3, user).await()
+        else
+            listingRepository.getNetworkSubreddits(subredditWhere, null, pageSize * 3).await()
+        _initialListing.value = response.data.children.map { it.data }
+        after = response.data.after
+    }
+
     fun refresh(){
         coroutineScope.launch {
             _refreshState.value = NetworkState.LOADING
-            val response = if(::listingType.isInitialized)
-                listingRepository.getListing(listingType, postSort, t, null, pageSize, user).await()
-            else
-                listingRepository.getNetworkSubreddits(subredditWhere, null, pageSize).await()
-            _initialListing.value = response.data.children.map { it.data }
-            after = response.data.after
+            loadFirstPage()
             _refreshState.value = NetworkState.LOADED
         }
     }

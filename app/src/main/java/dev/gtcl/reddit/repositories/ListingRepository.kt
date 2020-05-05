@@ -125,7 +125,6 @@ class ListingRepository private constructor(private val application: RedditAppli
 
     suspend fun insertSubreddit(sub: Subreddit){
         withContext(Dispatchers.IO){
-            Log.d("TAE","Insert sub: $sub")
             database.subredditDao.insert(sub.asDbModel(application.currentAccount?.id ?: GUEST_ID))
         }
     }

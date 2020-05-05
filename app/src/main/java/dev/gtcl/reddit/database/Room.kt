@@ -33,10 +33,10 @@ interface ReadItemDao{
 
 @Dao
 interface SubredditDao{
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(list: List<DbSubreddit>)
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(subreddit: DbSubreddit)
 
     @Query("select * from subs where userId = :userId order by displayName collate nocase asc")

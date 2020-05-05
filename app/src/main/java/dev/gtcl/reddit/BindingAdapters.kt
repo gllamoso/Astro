@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.Point
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -33,8 +34,7 @@ import dev.gtcl.reddit.models.reddit.*
 
 @BindingAdapter("imageUrlAndHideIfNull")
 fun bindImageAndHideIfNull(imgView: ImageView, imgUrl: String?){
-    if(imgUrl == null) return
-    if(imgUrl.startsWith("http")){
+    if(imgUrl != null && imgUrl.startsWith("http")){
         imgView.visibility = View.VISIBLE
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)

@@ -205,7 +205,7 @@
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <include android:id="@+id/bottom_sheet"
-            layout="@layout/bottom_sheet_comments"/>
+            layout="@layout/layout_bottom_sheet_comments"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

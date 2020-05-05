@@ -58,14 +58,17 @@ data class DbSubreddit(
     val name: String, // Subreddit ID + UserName
     val userId: String, // User subscribed to subreddit
     val displayName: String,
+    val title: String,
     val iconImg: String?,
+    val bannerImg: String?,
     val isFavorite: Boolean){
 
     fun asDomainModel() = Subreddit(
         name.replace("__$userId", ""),
         displayName,
         iconImg,
-        "",
+        title,
+        bannerImg,
         isFavorite
     )
 }

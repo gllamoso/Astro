@@ -35,7 +35,7 @@ class ViewPagerAdapter(fragment: Fragment, startingFragment: StartingViewPagerFr
         notifyItemInserted(fragments.size - 1)
     }
 
-    fun popFragment(currentPage: Int){
+    fun popFragments(currentPage: Int){
         var itemsRemoved = 0
         while(currentPage < fragments.size - 1) {
             fragments.pop()

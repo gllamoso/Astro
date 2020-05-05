@@ -22,7 +22,7 @@ import com.google.gson.Gson
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.asAccountDomainModel
 import dev.gtcl.reddit.databinding.ActivityMainBinding
-import dev.gtcl.reddit.databinding.NavHeaderBinding
+import dev.gtcl.reddit.databinding.LayoutNavHeaderBinding
 import dev.gtcl.reddit.models.reddit.Account
 import dev.gtcl.reddit.ui.activities.signin.SignInActivity
 
@@ -85,7 +85,7 @@ class MainActivity : FragmentActivity() {
     @SuppressLint("WrongConstant")
     private fun setDrawer(inflater: LayoutInflater){
         val drawerLayout = binding.drawerLayout
-        val header = NavHeaderBinding.inflate(inflater)
+        val header = LayoutNavHeaderBinding.inflate(inflater)
 
         binding.expandableListView.addHeaderView(header.root)
 
@@ -172,9 +172,5 @@ class MainActivity : FragmentActivity() {
         startActivityForResult(intent,
             REDIRECT_URL_REQUEST_CODE
         )
-    }
-
-    fun navigateUp(){
-        navController.navigateUp()
     }
 }

@@ -28,11 +28,11 @@ import dev.gtcl.reddit.ui.fragments.dialog.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.dialog.subreddits.SubredditSelectorDialogFragment
 import dev.gtcl.reddit.ui.fragments.dialog.TimePeriodSheetDialogFragment
 
-class ListingFragment : Fragment(), PostActions,
-    ListingActions {
+class ListingFragment : Fragment(), PostActions, ListingActions {
 
     private lateinit var binding: FragmentListingBinding
     private lateinit var adapter: ListingAdapter
+    private lateinit var loadMoreListener: LoadMoreScrollListener
 
     private lateinit var viewPagerActions: ViewPagerActions
     fun setViewPagerActions(viewPagerActions: ViewPagerActions){
@@ -56,12 +56,6 @@ class ListingFragment : Fragment(), PostActions,
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        if(!::binding.isInitialized)
-            setupFragment(inflater)
-        return binding.root
-    }
-
-    private fun setupFragment(inflater: LayoutInflater){
         binding = FragmentListingBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.model = model
@@ -75,24 +69,23 @@ class ListingFragment : Fragment(), PostActions,
             if(it) { model.loadInitial(FrontPage) }
         })
 
-        binding.toolbar.setNavigationOnClickListener {
+        binding.topAppBar.toolbar.setNavigationOnClickListener {
             parentModel.openDrawer()
         }
 
         setRecyclerView()
         setBottomAppbarClickListeners()
+        return binding.root
     }
 
     private fun setRecyclerView() {
-        val loadMoreScrollListener = LoadMoreScrollListener(
-            binding.list.layoutManager as GridLayoutManager,
-            object : OnLoadMoreListener {
-                override fun loadMore() {
-                    model.loadAfter()
-                }
-            })
+        loadMoreListener = LoadMoreScrollListener(
+            binding.list.layoutManager as GridLayoutManager
+        ) {model.loadAfter()}
 
-        adapter = ListingAdapter(this as PostActions, { model.retry()}, {loadMoreScrollListener.finishedLoading()})
+        adapter = ListingAdapter(this as PostActions,
+            { model.retry()},
+            {loadMoreListener.lastItemReached()})
 
         binding.list.adapter = adapter
         model.networkState.observe(viewLifecycleOwner, Observer {
@@ -110,13 +103,13 @@ class ListingFragment : Fragment(), PostActions,
             }
         })
 
-        binding.list.addOnScrollListener(loadMoreScrollListener)
+        binding.list.addOnScrollListener(loadMoreListener)
 
         model.additionalListing.observe(viewLifecycleOwner, Observer {
             if(it != null){
                 adapter.loadMore(it)
                 model.loadAfterFinished()
-                loadMoreScrollListener.finishedLoading()
+                loadMoreListener.finishedLoading()
             }
         })
 
@@ -125,7 +118,7 @@ class ListingFragment : Fragment(), PostActions,
 
     private fun setBottomAppbarClickListeners(){
         //TODO: Delete
-        binding.sortButton.setOnClickListener{
+        binding.bottomBarLayout.sortButton.setOnClickListener{
             SortSheetDialogFragment(model.sortSelected.value!!) { sort ->
                 // TODO: Move logic in ViewModel?
                 if (sort == PostSort.TOP || sort == PostSort.CONTROVERSIAL) {
@@ -146,12 +139,12 @@ class ListingFragment : Fragment(), PostActions,
         }
 
 
-        binding.subredditButton.setOnClickListener{
+        binding.bottomBarLayout.subredditButton.setOnClickListener{
             val subredditSelector = SubredditSelectorDialogFragment()
             subredditSelector.show(childFragmentManager, SubredditSelectorDialogFragment.TAG)
         }
 
-        binding.refreshButton.setOnClickListener{
+        binding.bottomBarLayout.refreshButton.setOnClickListener{
             adapter.loadInitial(emptyList())
             model.refresh()
         }
@@ -213,8 +206,11 @@ class ListingFragment : Fragment(), PostActions,
         dialog.show(childFragmentManager, null)
     }
 
-    override fun onClick(listing: ListingType) {
+    override fun onListingClicked(listing: ListingType) {
         model.loadInitial(listing)
+        adapter.lastItemReached = false
+        binding.list.scrollToPosition(0)
+        loadMoreListener.reset()
         for(fragment: Fragment in childFragmentManager.fragments){
             if(fragment is DialogFragment) {
                 fragment.dismiss()

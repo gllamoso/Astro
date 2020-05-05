@@ -73,7 +73,7 @@ class HomeFragment : Fragment(), ViewPagerActions {
                 override fun onPageScrollStateChanged(state: Int) {
                     super.onPageScrollStateChanged(state)
                     if(state == ViewPager2.SCROLL_STATE_IDLE){
-                        pageAdapter.popFragment(currentItem)
+                        pageAdapter.popFragments(currentItem)
                         parentModel.allowDrawerSwipe(currentItem == 0)
                     }
                 }

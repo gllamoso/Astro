@@ -1,6 +1,7 @@
 package dev.gtcl.reddit.ui.fragments.account
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,7 +17,8 @@ import dev.gtcl.reddit.ui.activities.main.MainActivity
 import dev.gtcl.reddit.ui.activities.main.MainActivityViewModel
 import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.actions.ViewPagerActions
-import dev.gtcl.reddit.ui.fragments.account.pages.UserAboutFragment
+import dev.gtcl.reddit.models.reddit.UrlType
+import dev.gtcl.reddit.ui.fragments.account.pages.about.UserAboutFragment
 import dev.gtcl.reddit.ui.fragments.account.pages.UserCommentsFragment
 import dev.gtcl.reddit.ui.fragments.account.pages.UserDownvotedFragment
 import dev.gtcl.reddit.ui.fragments.account.pages.UserHiddenFragment
@@ -24,6 +26,7 @@ import dev.gtcl.reddit.ui.fragments.account.pages.UserOverviewFragment
 import dev.gtcl.reddit.ui.fragments.account.pages.UserPostsFragment
 import dev.gtcl.reddit.ui.fragments.account.pages.UserSavedFragment
 import dev.gtcl.reddit.ui.fragments.account.pages.UserUpvotedFragment
+import dev.gtcl.reddit.ui.fragments.dialog.media.MediaDialogFragment
 
 class AccountFragment : Fragment(), PostActions {
 
@@ -140,6 +143,21 @@ class AccountFragment : Fragment(), PostActions {
     }
 
     override fun thumbnailClicked(post: Post) {
-        TODO("Not yet implemented")
+        parentModel.addReadPost(post.asReadListing)
+        Log.d("TAE","Post clicked: $post")
+        val urlType = when {
+            post.isImage -> UrlType.IMAGE
+            post.isGif -> UrlType.GIF
+            post.isGfycat -> UrlType.GFYCAT
+            post.isGfv -> UrlType.GIFV
+            post.isRedditVideo -> UrlType.M3U8
+            else -> UrlType.LINK
+        }
+        Log.d("TAE", "UrlType: $urlType")
+        val dialog = MediaDialogFragment.newInstance(
+            if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.videoUrl!! else post.url!!,
+            urlType,
+            post)
+        dialog.show(childFragmentManager, null)
     }
 }

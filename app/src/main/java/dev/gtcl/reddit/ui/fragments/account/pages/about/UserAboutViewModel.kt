@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.account.pages
+package dev.gtcl.reddit.ui.fragments.account.pages.about
 
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -13,7 +13,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.util.concurrent.Executors
 
 class UserAboutViewModel(val application: RedditApplication) : AndroidViewModel(application){
     // Repos

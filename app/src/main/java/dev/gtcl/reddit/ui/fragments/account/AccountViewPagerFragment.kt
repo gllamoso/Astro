@@ -47,7 +47,7 @@ class AccountViewPagerFragment: Fragment(),
             registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
                 override fun onPageScrollStateChanged(state: Int) {
                     if(state == ViewPager2.SCROLL_STATE_IDLE){
-                        viewpagerAdapter.popFragment(currentItem)
+                        viewpagerAdapter.popFragments(currentItem)
                     }
                     binding.viewPager.isUserInputEnabled = currentItem != 0
                 }

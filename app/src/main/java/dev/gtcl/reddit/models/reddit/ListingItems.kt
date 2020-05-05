@@ -287,6 +287,8 @@ data class Subreddit(
     val iconImg: String?,
     @Json(name = "title")
     val title: String,
+    @Json(name = "banner_img")
+    val bannerImg: String?,
     @Transient
     var isFavorite: Boolean = false
 ) : Item(ItemType.Subreddit) {
@@ -299,7 +301,9 @@ data class Subreddit(
         "${name}__${userId}",
         userId,
         displayName,
+        title,
         iconImg,
+        bannerImg,
         isFavorite
     )
 }

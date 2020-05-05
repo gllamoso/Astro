@@ -5,9 +5,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.models.reddit.Item
+import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.repositories.ListingRepository
-import dev.gtcl.reddit.models.reddit.ListingType
 import dev.gtcl.reddit.network.NetworkState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -35,6 +34,10 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     val listingSelected: LiveData<ListingType>
         get() = _listingSelected
 
+    private val _subredditSelected = MutableLiveData<Subreddit>()
+    val subredditSelected: LiveData<Subreddit>
+        get() = _subredditSelected
+
     private val _timeSelected = MutableLiveData<Time>()
     val timeSelected: LiveData<Time>
         get() = _timeSelected
@@ -55,13 +58,28 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
         get() = _initialListing
     private var after: String? = null
 
+    private val pageSize = 15
+
     fun loadInitial(listingType: ListingType, sortBy: PostSort = PostSort.BEST, timePeriod: Time? = null){
         coroutineScope.launch {
             _networkState.value = NetworkState.LOADING
             _listingSelected.value = listingType
             _sortSelected.value = sortBy
             _timeSelected.value = timePeriod
-            val response = listingRepository.getListing(listingType, sortBy, timePeriod, null, 20).await()
+            var sub: Subreddit? = null
+            if(listingType is SubredditListing){
+                sub = listingType.sub
+                if(sub.name == "")
+                    sub = (listingRepository.searchSubreddits(
+                        nsfw = true,
+                        includeProfiles = false,
+                        limit = 1,
+                        query = sub.displayName
+                    ).await().data.children[0] as SubredditChild).data
+            }
+            _subredditSelected.value = sub
+            // TODO: Add Subreddit
+            val response = listingRepository.getListing(listingType, sortBy, timePeriod, null, pageSize * 3).await()
             _initialListing.value = response.data.children.map { it.data }
             after = response.data.after
             _networkState.value = NetworkState.LOADED
@@ -79,7 +97,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     fun refresh(){
         coroutineScope.launch {
             _refreshState.value = NetworkState.LOADING
-            val response = listingRepository.getListing(listingSelected.value!!, sortSelected.value!!, timeSelected.value, null, 40).await()
+            val response = listingRepository.getListing(listingSelected.value!!, sortSelected.value!!, timeSelected.value, null, pageSize * 3).await()
             _initialListing.value = response.data.children.map { it.data }
             after = response.data.after
             _refreshState.value = NetworkState.LOADED
@@ -93,7 +111,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     fun loadAfter(){
         coroutineScope.launch {
             _networkState.value = NetworkState.LOADING
-            val response = listingRepository.getListing(listingSelected.value!!, sortSelected.value!!, timeSelected.value, after, 20).await()
+            val response = listingRepository.getListing(listingSelected.value!!, sortSelected.value!!, timeSelected.value, after, pageSize).await()
             _additionalListing.value = response.data.children.map { it.data }
             after = response.data.after
             _networkState.value = NetworkState.LOADED

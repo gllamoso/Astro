@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.account.pages
+package dev.gtcl.reddit.ui.fragments.account.pages.about
 
 import android.os.Bundle
 import android.view.LayoutInflater
