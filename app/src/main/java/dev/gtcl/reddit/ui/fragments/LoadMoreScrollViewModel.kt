@@ -3,13 +3,12 @@ package dev.gtcl.reddit.ui.fragments
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import dev.gtcl.reddit.PostSort
-import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.SubredditWhere
-import dev.gtcl.reddit.Time
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.ListingRepository
+import dev.gtcl.reddit.repositories.MessageRepository
+import dev.gtcl.reddit.repositories.SubredditRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,6 +19,8 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
 
     // Repos
     private val listingRepository = ListingRepository.getInstance(application)
+    private val subredditRepository = SubredditRepository.getInstance(application)
+    private val messageRepository = MessageRepository.getInstance(application)
 
     // Scopes
     private var viewModelJob = Job()
@@ -35,15 +36,17 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
     private var after: String? = null
     private var user: String? = null
 
-    private lateinit var listingType: ListingType
     private lateinit var postSort: PostSort
     private var t: Time? = null
     private var pageSize = 15
+
+    val subscribedSubs = subredditRepository.getSubscribedSubsLive()
 
     fun retry(){
         TODO()
     }
 
+    private lateinit var listingType: ListingType
     fun setListingInfo(listingType: ListingType, postSort: PostSort, t: Time?, pageSize: Int){
         this.listingType = listingType
         this.postSort = postSort
@@ -52,9 +55,14 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
     }
 
     private lateinit var subredditWhere: SubredditWhere
-
     fun setListingInfo(subredditWhere: SubredditWhere, pageSize: Int){
         this.subredditWhere = subredditWhere
+        this.pageSize = pageSize
+    }
+
+    private lateinit var messageWhere: MessageWhere
+    fun setListingInfo(messageWhere: MessageWhere, pageSize: Int){
+        this.messageWhere = messageWhere
         this.pageSize = pageSize
     }
 
@@ -78,11 +86,13 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
     val refreshState: LiveData<NetworkState>
         get() = _refreshState
 
-    suspend fun loadFirstPage(){
-        val response = if (::listingType.isInitialized)
-            listingRepository.getListing(listingType, postSort, t, null, pageSize * 3, user).await()
-        else
-            listingRepository.getNetworkSubreddits(subredditWhere, null, pageSize * 3).await()
+    private suspend fun loadFirstPage(){
+        val response = when{
+            ::listingType.isInitialized -> listingRepository.getListing(listingType, postSort, t, null, pageSize * 3, user).await()
+            ::subredditWhere.isInitialized -> subredditRepository.getNetworkSubreddits(subredditWhere, null, pageSize * 3).await()
+            ::messageWhere.isInitialized -> messageRepository.getMessages(messageWhere, null, pageSize * 3).await()
+            else -> throw IllegalStateException("Not enough info to load listing")
+        }
         _initialListing.value = response.data.children.map { it.data }
         after = response.data.after
     }
@@ -102,10 +112,12 @@ class LoadMoreScrollViewModel(application: RedditApplication): AndroidViewModel(
     fun loadAfter(){
         coroutineScope.launch {
             _networkState.value = NetworkState.LOADING
-            val response = if(::listingType.isInitialized)
-                listingRepository.getListing(listingType, postSort, t, after, pageSize, user).await()
-            else
-                listingRepository.getNetworkSubreddits(subredditWhere, after, pageSize).await()
+            val response = when{
+                ::listingType.isInitialized -> listingRepository.getListing(listingType, postSort, t, after, pageSize * 3, user).await()
+                ::subredditWhere.isInitialized -> subredditRepository.getNetworkSubreddits(subredditWhere, after, pageSize * 3).await()
+                ::messageWhere.isInitialized -> messageRepository.getMessages(messageWhere, after, pageSize * 3).await()
+                else -> throw IllegalStateException("Not enough info to load listing")
+            }
             _additionalListing.value = response.data.children.map { it.data }
             after = response.data.after
             _networkState.value = NetworkState.LOADED

@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemTrendingSubredditBinding
 import dev.gtcl.reddit.actions.SubredditActions
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending.TrendingSubredditPost
+import dev.gtcl.reddit.ui.fragments.dialog.subreddits.trending.TrendingSubredditPost
 
 class TrendingSubredditViewHolder private constructor(private val binding: ItemTrendingSubredditBinding): RecyclerView.ViewHolder(binding.root) {
     fun bind(trendingSubredditPost: TrendingSubredditPost, subredditActions: SubredditActions) {
@@ -27,16 +27,16 @@ class TrendingSubredditViewHolder private constructor(private val binding: ItemT
                 }
                 addIcon.setOnClickListener {
                     trendingSubredditPost.subs[i].apply {
-                        isAdded = !isAdded
-                        if(!isAdded) isFavorite = false
-                        subredditActions.subscribe(this, isAdded, true)
+                        isAddedToDb = !isAddedToDb
+                        if(!isAddedToDb) isFavorite = false
+                        subredditActions.subscribe(this, isAddedToDb, true)
                     }
                     this.invalidateAll()
                 }
                 favoriteIcon.setOnClickListener {
                     trendingSubredditPost.subs[i].apply{
                         isFavorite = !isFavorite
-                        if(isFavorite) this.isAdded = true
+                        if(isFavorite) this.isAddedToDb = true
                         subredditActions.addToFavorites(this, isFavorite, true)
                     }
                     this.invalidateAll()

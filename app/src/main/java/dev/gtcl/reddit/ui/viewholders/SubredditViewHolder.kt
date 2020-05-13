@@ -8,18 +8,18 @@ import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.actions.SubsAdapterActions
 
-class SubredditViewHolder(private val binding: ItemSubredditBinding): RecyclerView.ViewHolder(binding.root) {
+class SubredditViewHolder private constructor(private val binding: ItemSubredditBinding): RecyclerView.ViewHolder(binding.root) {
     fun bind(subreddit: Subreddit, subredditActions: SubredditActions, subsAdapterActions: SubsAdapterActions?){
         binding.sub = subreddit
         binding.root.setOnClickListener {
             subredditActions.onClick(subreddit)
         }
         binding.addIcon.setOnClickListener{
-            subreddit.isAdded = !subreddit.isAdded
-            if(!subreddit.isAdded) {
+            subreddit.isAddedToDb = !subreddit.isAddedToDb
+            if(!subreddit.isAddedToDb) {
                 subsAdapterActions?.remove(subreddit)
             }
-            subredditActions.subscribe(subreddit, subreddit.isAdded, subsAdapterActions == null)
+            subredditActions.subscribe(subreddit, subreddit.isAddedToDb, subsAdapterActions == null)
             binding.invalidateAll()
         }
         binding.favoriteIcon.setOnClickListener {

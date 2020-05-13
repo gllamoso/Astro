@@ -65,7 +65,7 @@
             android:src="@drawable/ic_add_circle_outline_24dp"
             android:padding="8dp"
             android:layout_marginEnd="8dp"
-            app:added="@{sub.added}"
+            app:added="@{sub.addedToDb}"
             android:background="?attr/selectableItemBackgroundBorderless"/>
 
     </LinearLayout>

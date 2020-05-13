@@ -53,6 +53,9 @@ data class AccountChild(override val data: Account): ListingChild(
 data class PostChild(override val data: Post) : ListingChild(
     ItemType.Post // t3
 )
+data class MessageChild(override val data: Message): ListingChild(
+    ItemType.Message // t4
+)
 data class SubredditChild(override val data: Subreddit): ListingChild(
     ItemType.Subreddit
 )
@@ -60,13 +63,14 @@ data class MoreChild(override val data: More): ListingChild(
     ItemType.More // more
 )
 
-// http://patorjk.com/software/taag/#p=display&f=Ivrit&t=t1%20-%20Comment
+// http://patorjk.com/software/taag/#p=display&f=Big&t=t1%20-%20Comment
 
-//     _   _            ____                                     _
-//    | |_/ |          / ___|___  _ __ ___  _ __ ___   ___ _ __ | |_
-//    | __| |  _____  | |   / _ \| '_ ` _ \| '_ ` _ \ / _ \ '_ \| __|
-//    | |_| | |_____| | |__| (_) | | | | | | | | | | |  __/ | | | |_
-//     \__|_|          \____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__|
+//   _  __             _____                                     _
+//  | |/_ |           / ____|                                   | |
+//  | |_| |  ______  | |     ___  _ __ ___  _ __ ___   ___ _ __ | |_
+//  | __| | |______| | |    / _ \| '_ ` _ \| '_ ` _ \ / _ \ '_ \| __|
+//  | |_| |          | |___| (_) | | | | | | | | | | |  __/ | | | |_
+//   \__|_|           \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__|
 
 data class Comment( // TODO: Add more properties: saved, liked, all_awardings
     override val name: String,
@@ -83,11 +87,12 @@ data class Comment( // TODO: Add more properties: saved, liked, all_awardings
 ): Item(ItemType.Comment)
 
 
-//     _   ____               _                             _
-//    | |_|___ \             / \   ___ ___ ___  _   _ _ __ | |_
-//    | __| __) |  _____    / _ \ / __/ __/ _ \| | | | '_ \| __|
-//    | |_ / __/  |_____|  / ___ \ (_| (_| (_) | |_| | | | | |_
-//     \__|_____|         /_/   \_\___\___\___/ \__,_|_| |_|\__|
+//   _   ___                                               _
+//  | | |__ \               /\                            | |
+//  | |_   ) |  ______     /  \   ___ ___ ___  _   _ _ __ | |_
+//  | __| / /  |______|   / /\ \ / __/ __/ _ \| | | | '_ \| __|
+//  | |_ / /_            / ____ \ (_| (_| (_) | |_| | | | | |_
+//   \__|____|          /_/    \_\___\___\___/ \__,_|_| |_|\__|
 
 data class Account(
     override val id: String,
@@ -126,11 +131,13 @@ data class AccountSubreddit(
     @Json(name = "banner_img") val bannerImg: String?
 )
 
-//     _   _____           ____           _
-//    | |_|___ /          |  _ \ ___  ___| |_
-//    | __| |_ \   _____  | |_) / _ \/ __| __|
-//    | |_ ___) | |_____| |  __/ (_) \__ \ |_
-//     \__|____/          |_|   \___/|___/\__|
+//   _   ____             _____          _
+//  | | |___ \           |  __ \        | |
+//  | |_  __) |  ______  | |__) |__  ___| |_
+//  | __||__ <  |______| |  ___/ _ \/ __| __|
+//  | |_ ___) |          | |  | (_) \__ \ |_
+//   \__|____/           |_|   \___/|___/\__|
+
 
 @Parcelize
 data class Post(
@@ -273,12 +280,45 @@ data class RedditVideo(
     val hlsUrl: String
 ) : Parcelable
 
-//     _   ____            ____        _                  _     _ _ _
-//    | |_| ___|          / ___| _   _| |__  _ __ ___  __| | __| (_) |_
-//    | __|___ \   _____  \___ \| | | | '_ \| '__/ _ \/ _` |/ _` | | __|
-//    | |_ ___) | |_____|  ___) | |_| | |_) | | |  __/ (_| | (_| | | |_
-//     \__|____/          |____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__|
+//   _   _  _              __  __
+//  | | | || |            |  \/  |
+//  | |_| || |_   ______  | \  / | ___  ___ ___  __ _  __ _  ___
+//  | __|__   _| |______| | |\/| |/ _ \/ __/ __|/ _` |/ _` |/ _ \
+//  | |_   | |            | |  | |  __/\__ \__ \ (_| | (_| |  __/
+//   \__|  |_|            |_|  |_|\___||___/___/\__,_|\__, |\___|
+//                                                     __/ |
+//                                                    |___/
 
+@Parcelize
+data class Message(
+    override val id: String,
+    @Json(name = "parent_id")
+    val parentId: String?,
+    override val name: String,
+    val subject: String,
+    @Json(name = "was_comment")
+    val wasComment: Boolean,
+    val author: String,
+    @Json(name = "created_utc")
+    val created: Long,
+    val body: String,
+    val dest: String,
+    val new: Boolean,
+    @Json(name = "subreddit_name_prefixed")
+    val subredditNamePrefixed: String?
+) : Parcelable, Item(ItemType.Message) {
+    @IgnoredOnParcel
+    override val depth = 0
+}
+
+//   _   _____             _____       _                  _     _ _ _
+//  | | | ____|           / ____|     | |                | |   | (_) |
+//  | |_| |__    ______  | (___  _   _| |__  _ __ ___  __| | __| |_| |_
+//  | __|___ \  |______|  \___ \| | | | '_ \| '__/ _ \/ _` |/ _` | | __|
+//  | |_ ___) |           ____) | |_| | |_) | | |  __/ (_| | (_| | | |_
+//   \__|____/           |_____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__|
+
+@Parcelize
 data class Subreddit(
     override val name: String,
     @Json(name = "display_name")
@@ -289,13 +329,19 @@ data class Subreddit(
     val title: String,
     @Json(name = "banner_img")
     val bannerImg: String?,
+    @Json(name = "user_is_subscribed")
+    val userSubscribed: Boolean?,
+    @Json(name = "public_description")
+    val publicDescription: String,
     @Transient
     var isFavorite: Boolean = false
-) : Item(ItemType.Subreddit) {
+) : Parcelable, Item(ItemType.Subreddit) {
+    @IgnoredOnParcel
     override val depth: Int = 0
+    @IgnoredOnParcel
     override val id = name.replace("t5_","")
-
-    var isAdded: Boolean = false
+    @IgnoredOnParcel
+    var isAddedToDb: Boolean = false
 
     fun asDbModel(userId: String) = DbSubreddit(
         "${name}__${userId}",
@@ -303,7 +349,6 @@ data class Subreddit(
         displayName,
         title,
         iconImg,
-        bannerImg,
         isFavorite
     )
 }
@@ -312,12 +357,12 @@ fun List<Subreddit>.asSubredditDatabaseModels(userId: String) = map { it.asDbMod
 
 data class SubredditNamesResponse(val names: List<String>)
 
-//   _    __                _                        _
-//  | |_ / /_              / \__      ____ _ _ __ __| |
-//  | __| '_ \   _____    / _ \ \ /\ / / _` | '__/ _` |
-//  | |_| (_) | |_____|  / ___ \ V  V / (_| | | | (_| |
-//   \__|\___/          /_/   \_\_/\_/ \__,_|_|  \__,_|
-
+//   _     __                                          _
+//  | |   / /                /\                       | |
+//  | |_ / /_    ______     /  \__      ____ _ _ __ __| |
+//  | __| '_ \  |______|   / /\ \ \ /\ / / _` | '__/ _` |
+//  | |_| (_) |           / ____ \ V  V / (_| | | | (_| |
+//   \__|\___/           /_/    \_\_/\_/ \__,_|_|  \__,_|
 
 class TrophyListingResponse(val data: TrophyListingData)
 class TrophyListingData(val trophies: List<TrophyListing>)

@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <com.google.android.material.appbar.AppBarLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:theme="@android:style/ThemeOverlay.Material.Dark.ActionBar"
+                app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior">
+
+                <!--            android:theme="@android:style/ThemeOverlay.Material.Dark.ActionBar"-->
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    app:layout_scrollFlags="scroll|enterAlways"
+                    app:title="@string/inbox"
+                    app:navigationIcon="@drawable/ic_menu_24dp" />
+
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tab_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="?attr/actionBarSize"
+                    app:tabSelectedTextColor="@android:color/white"
+                    app:tabIndicatorColor="@color/colorAccent"
+                    app:tabGravity="fill"
+                    android:background="@color/colorPrimary"/>
+
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/view_pager"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+            </LinearLayout>
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+        <ExpandableListView
+            android:id="@+id/expandable_list_view"
+            android:layout_gravity="start"
+            android:layout_width="235dp"
+            android:layout_height="match_parent"
+            android:background="?android:attr/colorBackgroundFloating"
+            android:groupIndicator="@android:color/transparent"
+            />
+
+    </androidx.drawerlayout.widget.DrawerLayout>
+
+</layout>

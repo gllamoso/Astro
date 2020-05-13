@@ -3,6 +3,7 @@ package dev.gtcl.reddit.ui
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
+import dev.gtcl.reddit.actions.MessageActions
 import dev.gtcl.reddit.database.ItemsRead
 import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.network.NetworkState
@@ -11,7 +12,12 @@ import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.ui.viewholders.*
 import java.io.InvalidObjectException
 
-class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class ListingAdapter(
+    private val postActions: PostActions? = null,
+    private val subredditActions: SubredditActions? = null,
+    private val messageActions: MessageActions? = null,
+    private val retry: () -> Unit,
+    private val onLastItemReached: () -> Unit): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var items = ArrayList<Item>()
     private var allReadSubs: HashSet<String> = HashSet()
@@ -19,29 +25,6 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     var lastItemReached = false
     private var subscribedSubs: HashSet<String> = HashSet()
     private var favSubs: HashSet<String> = HashSet()
-    lateinit var postActions: PostActions
-    lateinit var retry: () -> Unit
-    lateinit var onLastItemReached: () -> Unit
-
-    constructor(postActions: PostActions, retry: () -> Unit, onLastItemReached: () -> Unit) : this() {
-        this.postActions = postActions
-        this.retry = retry
-        this.onLastItemReached = onLastItemReached
-    }
-
-//    lateinit var listingActions: ListingActions
-//    constructor(listingActions: ListingActions, retry: () -> Unit, onLastItemReached: () -> Unit): this(){
-//        this.listingActions = listingActions
-//        this.retry = retry
-//        this.onLastItemReached = onLastItemReached
-//    }
-
-    lateinit var subredditActions: SubredditActions
-    constructor(subredditActions: SubredditActions, retry: () -> Unit, onLastItemReached: () -> Unit): this(){
-        this.subredditActions = subredditActions
-        this.retry = retry
-        this.onLastItemReached = onLastItemReached
-    }
 
     fun setSubscribedSubs(subs: List<Subreddit>){
         subscribedSubs = subs.map { it.displayName }.toHashSet()
@@ -49,7 +32,7 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         for(item: Item in items){
             if(item is Subreddit) {
                 item.apply {
-                    isAdded = subscribedSubs.contains(displayName)
+                    isAddedToDb = subscribedSubs.contains(displayName)
                     isFavorite = favSubs.contains(displayName)
                 }
             }
@@ -71,7 +54,7 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
         for(item: Item in items){
             if(item is Subreddit){
                 item.apply {
-                    isAdded = subscribedSubs.contains(displayName)
+                    isAddedToDb = subscribedSubs.contains(displayName)
                     isFavorite = favSubs.contains(displayName)
                 }
             }
@@ -88,7 +71,7 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             if(!currentIds.contains(item.name)){
                 if(item is Subreddit){
                     item.apply {
-                        isAdded = subscribedSubs.contains(displayName)
+                        isAddedToDb = subscribedSubs.contains(displayName)
                         isFavorite = favSubs.contains(displayName)
                     }
                 }
@@ -116,6 +99,7 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             is Post -> R.layout.item_post
             is Comment -> R.layout.item_comment
             is Subreddit -> R.layout.item_subreddit
+            is Message -> R.layout.item_message
             else -> throw InvalidObjectException("Unexpected item found: ${item.javaClass.simpleName} in position $position" )
         }
     }
@@ -125,6 +109,7 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             R.layout.item_post -> PostViewHolder.create(parent)
             R.layout.item_comment -> CommentViewHolder.create(parent)
             R.layout.item_subreddit -> SubredditViewHolder.create(parent)
+            R.layout.item_message -> MessageViewHolder.create(parent)
             R.layout.item_network_state -> NetworkStateItemViewHolder.create(parent, retry)
             else -> throw IllegalArgumentException("Unknown view type $viewType")
         }
@@ -133,6 +118,9 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             R.layout.item_post -> {
+                if(postActions == null){
+                    throw IllegalStateException("Post Actions not initialized")
+                }
                 val post = items[position] as Post
                 (holder as PostViewHolder).bind(post, postActions, allReadSubs.contains(post.name)) {
                     items.remove(post)
@@ -145,7 +133,17 @@ class ListingAdapter(): RecyclerView.Adapter<RecyclerView.ViewHolder>() {
             }
             R.layout.item_subreddit -> {
                 val subreddit = items[position] as Subreddit
+                if(subredditActions == null){
+                    throw IllegalStateException("Subreddit Actions not initialized")
+                }
                 (holder as SubredditViewHolder).bind(subreddit, subredditActions, null)
+            }
+            R.layout.item_message -> {
+                val message = items[position] as Message
+                if(messageActions == null){
+                    throw java.lang.IllegalStateException("Message Actions not initialized")
+                }
+                (holder as MessageViewHolder).bind(message, messageActions)
             }
             R.layout.item_network_state -> (holder as NetworkStateItemViewHolder).bindTo(networkState)
         }

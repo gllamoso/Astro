@@ -7,7 +7,7 @@ import dev.gtcl.reddit.databinding.ItemListingBinding
 import dev.gtcl.reddit.models.reddit.ListingType
 import dev.gtcl.reddit.actions.ListingActions
 
-class ListingViewHolder(private val binding: ItemListingBinding): RecyclerView.ViewHolder(binding.root) {
+class ListingViewHolder private constructor(private val binding: ItemListingBinding): RecyclerView.ViewHolder(binding.root) {
     fun bind(listingType: ListingType, listingActions: ListingActions){
         binding.listing = listingType
         binding.root.setOnClickListener {

@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.mine
+package dev.gtcl.reddit.ui.fragments.dialog.subreddits.mine
 
 import android.content.Context
 import android.view.ViewGroup
@@ -12,7 +12,6 @@ import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.ui.viewholders.ListingViewHolder
 import dev.gtcl.reddit.ui.viewholders.SectionTitleViewHolder
 import dev.gtcl.reddit.ui.viewholders.SubredditViewHolder
-import java.util.*
 
 class MultiAndSubredditsAdapter(private val context: Context, private val listingActions: ListingActions, private val subredditActions: SubredditActions) : RecyclerView.Adapter<RecyclerView.ViewHolder>(),
     SubsAdapterActions {

@@ -12,57 +12,89 @@
             type="dev.gtcl.reddit.ui.fragments.home.listing.ListingViewModel" />
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?android:attr/colorBackground">
 
-        <include
-            android:id="@+id/top_app_bar"
-            layout="@layout/layout_top_app_bar_listing"
-            app:model="@{model}"/>
-
-        <LinearLayout
-            android:id="@+id/swipe_refresh"
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-            <ProgressBar
-                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
-                android:layout_width="match_parent"
-                android:layout_height="8dp"
-                android:indeterminate="true"
-                app:setVisibility="@{model.networkState.status == Status.RUNNING}"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/list"
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:layout_weight="1"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                app:spanCount="1"
-                tools:itemCount="16"
-                android:scrollbars="vertical"
-                tools:listitem="@layout/item_post" />
-
-        </LinearLayout>
-
-        <com.google.android.material.bottomappbar.BottomAppBar
-            android:id="@+id/bottom_bar"
-            android:layout_width="match_parent"
-            android:layout_height="?actionBarSize"
-            android:layout_gravity="bottom"
-            app:contentInsetStart="0dp"
-            app:layout_behavior="dev.gtcl.reddit.ui.fragments.home.listing.BottomNavigationBehavior">
+            android:layout_height="match_parent">
 
             <include
-                android:id="@+id/bottom_bar_layout"
-                layout="@layout/layout_bottom_app_bar_listing"/>
+                android:id="@+id/top_app_bar"
+                layout="@layout/layout_top_app_bar_listing"
+                app:model="@{model}"/>
 
-        </com.google.android.material.bottomappbar.BottomAppBar>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+                <ProgressBar
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:layout_width="match_parent"
+                    android:layout_height="8dp"
+                    android:indeterminate="true"
+                    app:setVisibility="@{model.networkState.status == Status.RUNNING}"/>
+
+                <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                    android:id="@+id/swipe_refresh"
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1">
+
+                    <androidx.recyclerview.widget.RecyclerView
+                        android:id="@+id/list"
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                        app:spanCount="1"
+                        tools:itemCount="16"
+                        android:scrollbars="vertical"
+                        tools:listitem="@layout/item_post" />
+
+
+                </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+            </LinearLayout>
+
+            <com.google.android.material.bottomappbar.BottomAppBar
+                android:id="@+id/bottom_bar"
+                android:layout_width="match_parent"
+                android:layout_height="?actionBarSize"
+                android:layout_gravity="bottom"
+                app:contentInsetStart="0dp"
+                app:layout_behavior="dev.gtcl.reddit.ui.fragments.home.listing.BottomNavigationBehavior">
+
+                <include
+                    android:id="@+id/bottom_bar_layout"
+                    layout="@layout/layout_listing_buttons"/>
+
+            </com.google.android.material.bottomappbar.BottomAppBar>
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+        <ExpandableListView
+            android:id="@+id/expandable_list_view"
+            android:layout_gravity="start"
+            android:layout_width="235dp"
+            android:layout_height="match_parent"
+            android:background="?android:attr/colorBackgroundFloating"
+            android:groupIndicator="@android:color/transparent"
+            />
+
+        <include
+            android:id="@+id/right_side_bar_layout"
+            android:layout_width="240dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            layout="@layout/layout_side_bar"
+            app:sub="@{model.subredditSelected}"/>
+
+
+    </androidx.drawerlayout.widget.DrawerLayout>
 
 </layout>

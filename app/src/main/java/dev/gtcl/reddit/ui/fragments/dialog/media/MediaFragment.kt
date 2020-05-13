@@ -71,11 +71,6 @@ class MediaFragment: Fragment(){
         }
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        model.resized = false
-    }
-
     private fun setSubsamplingImageView(){
         Glide.with(requireContext())
             .asBitmap()
@@ -165,45 +160,8 @@ class MediaFragment: Fragment(){
         binding.root.setOnClickListener {
             showUiCallback()
         }
-
-        controllerView.findViewById<ImageButton>(R.id.video_options).setOnClickListener {
-            val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            val popupBinding = LayoutPopupVideoOptionsBinding.inflate(inflater)
-            val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
-            popupBinding.apply {
-                if(model.post == null){
-                    commentOption.root.visibility = View.GONE
-                } else {
-                    commentOption.root.apply {
-                        visibility = View.VISIBLE
-                        setOnClickListener {
-                            postUrlCallback(model.post!!)
-                            popupWindow.dismiss()
-                        }
-                    }
-                }
-
-                shareOption.root.setOnClickListener {
-                    popupWindow.dismiss()
-                    val shareIntent = Intent(Intent.ACTION_SEND)
-                    shareIntent.type = "text/plain"
-                    shareIntent.putExtra(Intent.EXTRA_SUBJECT, getText(R.string.share_subject_message))
-                    shareIntent.putExtra(Intent.EXTRA_TEXT, model.shareUrl)
-                    startActivity(Intent.createChooser(shareIntent, null))
-                }
-
-                downloadOption.root.setOnClickListener {
-                    model.download()
-                    popupWindow.dismiss()
-                }
-            }
-            popupBinding.root.measure(
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-            )
-            popupWindow.showAsDropDown(it, -popupBinding.root.measuredWidth, -(popupBinding.root.measuredHeight * 1.25).toInt())
-        }
     }
+
 
     companion object{
         fun newInstance(url: String, urlType: UrlType, post: Post? = null): MediaFragment{

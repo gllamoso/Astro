@@ -30,54 +30,14 @@
             android:layout_height="match_parent"
             android:elevation="0dp"/>
 
-        <com.google.android.exoplayer2.ui.PlayerControlView
-            android:id="@+id/player_controller"
+        <include
+            android:id="@+id/bottom_bar_controls"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            app:show_timeout="0"
-            app:setVisibility="@{(model.urlType == UrlType.GIFV || model.urlType == UrlType.M3U8 || model.urlType == UrlType.GFYCAT) &amp;&amp; model.showUi}"/>
-
-        <LinearLayout
-            android:id="@+id/bottom_bar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            android:layout_gravity="bottom"
-            android:orientation="horizontal"
-            android:gravity="center"
-            android:background="@drawable/transparent_gradient_top_to_bottom"
-            app:setVisibility="@{(model.urlType == UrlType.IMAGE || model.urlType == UrlType.GIF) &amp;&amp; model.showUi}"
-            android:elevation="2dp">
-
-            <ImageView
-                android:id="@+id/comment_button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/ic_comment_24dp"
-                android:tint="@android:color/white"
-                android:visibility="@{model.post != null ? View.VISIBLE : View.GONE}"
-                android:background="?attr/selectableItemBackgroundBorderless"/>
-
-            <ImageView
-                android:id="@+id/share_button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/ic_share_24dp"
-                android:tint="@android:color/white"
-                android:background="?attr/selectableItemBackgroundBorderless"/>
-
-            <ImageView
-                android:id="@+id/download_image_button"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:src="@drawable/ic_download_24dp"
-                android:tint="@android:color/white"
-                android:background="?attr/selectableItemBackgroundBorderless"/>
-
-        </LinearLayout>
+            layout="@layout/layout_media_buttons"
+            app:hasPostUrl="@{model.post != null}"
+            app:isVideo="@{(model.urlType == UrlType.GIFV || model.urlType == UrlType.M3U8 || model.urlType == UrlType.GFYCAT) &amp;&amp; model.showUi}"
+            android:layout_gravity="bottom"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

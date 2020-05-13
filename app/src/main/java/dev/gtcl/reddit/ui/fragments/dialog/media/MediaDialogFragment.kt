@@ -47,7 +47,7 @@ class MediaDialogFragment: DialogFragment() {
                 dismiss()
             }
             if(::binding.isInitialized){
-                childFragment.controllerView = binding.playerController
+                childFragment.controllerView = binding.bottomBarControls.playerController
                 playerControlViewPassed = true
             }
         }
@@ -66,7 +66,7 @@ class MediaDialogFragment: DialogFragment() {
 
         setViewPager()
         setOnClickListeners()
-        setListeners()
+        setObservers()
 
         binding.executePendingBindings()
         if(!playerControlViewPassed){
@@ -79,14 +79,14 @@ class MediaDialogFragment: DialogFragment() {
     private fun setControllerView(){
         for(fragment: Fragment in childFragmentManager.fragments){ // On orientation change, child fragment might be created before this fragment
             if(fragment is MediaFragment) {
-                fragment.controllerView = binding.playerController
+                fragment.controllerView = binding.bottomBarControls.playerController
                 playerControlViewPassed = true
                 break
             }
         }
     }
 
-    private fun setListeners(){
+    private fun setObservers(){
         model.urlType.observe(viewLifecycleOwner, Observer {
             dialog?.window?.setBackgroundDrawableResource(
                 if(it == UrlType.IMAGE || it == UrlType.GIF){
@@ -100,9 +100,9 @@ class MediaDialogFragment: DialogFragment() {
         model.showUi.observe(viewLifecycleOwner, Observer {
             if(model.urlType.value == UrlType.GFYCAT || model.urlType.value == UrlType.M3U8){
                 if(it){
-                    binding.playerController.show()
+                    binding.bottomBarControls.playerController.show()
                 } else {
-                    binding.playerController.hide()
+                    binding.bottomBarControls.playerController.hide()
                 }
             }
             binding.invalidateAll()
@@ -132,8 +132,7 @@ class MediaDialogFragment: DialogFragment() {
                     }
                     val multiplier = 500
                     binding.topToolbar.translationY = -multiplier * offset
-                    binding.bottomBar.translationY = multiplier * offset
-                    binding.playerController.translationY = multiplier * offset
+                    binding.bottomBarControls.root.translationY = multiplier * offset
                 }
             })
         }
@@ -145,11 +144,7 @@ class MediaDialogFragment: DialogFragment() {
             dismiss()
         }
 
-        if(binding.bottomBar.visibility == View.GONE) {
-            return
-        }
-
-        binding.apply {
+        binding.bottomBarControls.apply {
             commentButton.setOnClickListener {
                 val post = requireArguments().get(POST_KEY) as Post
                 postUrlCallback(post)
@@ -162,8 +157,8 @@ class MediaDialogFragment: DialogFragment() {
                 shareIntent.putExtra(Intent.EXTRA_TEXT, requireArguments().get(URL_KEY) as String)
                 startActivity(Intent.createChooser(shareIntent, null))
             }
-            downloadImageButton.setOnClickListener {
-                model?.download()
+            downloadButton.setOnClickListener {
+                model.download()
             }
         }
     }

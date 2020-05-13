@@ -60,7 +60,6 @@ data class DbSubreddit(
     val displayName: String,
     val title: String,
     val iconImg: String?,
-    val bannerImg: String?,
     val isFavorite: Boolean){
 
     fun asDomainModel() = Subreddit(
@@ -68,7 +67,9 @@ data class DbSubreddit(
         displayName,
         iconImg,
         title,
-        bannerImg,
+        "",
+        null,
+        "",
         isFavorite
     )
 }

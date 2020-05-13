@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemSectionHeaderBinding
 
-class SectionTitleViewHolder(private val binding: ItemSectionHeaderBinding): RecyclerView.ViewHolder(binding.root){
+class SectionTitleViewHolder private constructor(private val binding: ItemSectionHeaderBinding): RecyclerView.ViewHolder(binding.root){
     fun bind(header: String){
         binding.header = header
         binding.executePendingBindings()

@@ -1,24 +1,23 @@
 package dev.gtcl.reddit.ui.viewholders
 
-import android.util.Log
+import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.AdapterView
+import android.widget.PopupWindow
+import android.widget.RelativeLayout
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.databinding.ItemPostBinding
 import dev.gtcl.reddit.models.reddit.Post
-import dev.gtcl.reddit.ui.PostMenuItem
-import dev.gtcl.reddit.ui.POST_OPTIONS_SIZE
 import dev.gtcl.reddit.actions.PostActions
-import dev.gtcl.reddit.ui.PostOptionsAdapter
+import dev.gtcl.reddit.databinding.LayoutPopupPostOptionsBinding
 
 class PostViewHolder private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
-    fun bind(post: Post?, postActions: PostActions, isRead: Boolean, hide: () -> Unit){
+    fun bind(post: Post?, postActions: PostActions, isRead: Boolean, hideAction: () -> Unit){
         binding.post = post
         binding.executePendingBindings()
         setIfRead(isRead)
@@ -32,51 +31,65 @@ class PostViewHolder private constructor(private val binding:ItemPostBinding)
             postActions.thumbnailClicked(post!!)
         }
 
-        binding.moreOptions.apply {
-            adapter = PostOptionsAdapter(binding.root.context, post!!)
-            setSelection(POST_OPTIONS_SIZE - 1)
-            onItemSelectedListener = object : AdapterView.OnItemSelectedListener{
-                override fun onNothingSelected(parent: AdapterView<*>?) {}
-
-                override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-                    when(position){
-                        PostMenuItem.UPVOTE.position -> {
-                            binding.post?.let {
-                                postActions.vote(it, if(it.likes == true) Vote.UNVOTE else Vote.UPVOTE)
-                                it.likes = if(it.likes == true) null else true
-                                binding.invalidateAll()
-                            }
-                        }
-                        PostMenuItem.DOWNVOTE.position -> {
-                            binding.post?.let {
-                                postActions.vote(it, if(it.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
-                                it.likes = if(it.likes == false) null else false
-                                binding.invalidateAll()
-                            }
-                        }
-                        PostMenuItem.SHARE.position -> postActions.share(post)
-                        PostMenuItem.PROFILE.position -> postActions.viewProfile(post)
-                        PostMenuItem.SAVE.position -> {
-                            binding.post?.let {
-                                postActions.save(it)
-                                it.saved = !it.saved
-                                binding.invalidateAll()
-                            }
-                        }
-                        PostMenuItem.HIDE.position -> {
-                            binding.post?.let{
-                                postActions.hide(post)
-                                it.hidden = !it.hidden
-                                hide()
-                            }
-                        }
-                        PostMenuItem.REPORT.position -> postActions.report(post)
-                    }
-                    this@apply.setSelection(POST_OPTIONS_SIZE - 1)
-                }
-
+        if(post != null){
+            binding.moreOptions.setOnClickListener {
+                showPopupWindow(post, postActions, it, hideAction)
             }
         }
+    }
+
+    private fun showPopupWindow(post: Post, postActions: PostActions, anchorView: View, hideAction: () -> Unit){
+        val inflater = anchorView.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val popupBinding = LayoutPopupPostOptionsBinding.inflate(inflater)
+        val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
+        popupBinding.apply {
+            this.post = post
+            upvoteButton.root.setOnClickListener {
+                postActions.vote(post, if(post.likes == true) Vote.UNVOTE else Vote.UPVOTE)
+                post.likes = if(post.likes == true) null else true
+                binding.invalidateAll()
+                popupWindow.dismiss()
+            }
+            downvoteButton.root.setOnClickListener {
+                postActions.vote(post, if(post.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
+                post.likes = if(post.likes == false) null else false
+                binding.invalidateAll()
+                popupWindow.dismiss()
+            }
+            shareButton.root.setOnClickListener {
+                postActions.share(post)
+                popupWindow.dismiss()
+            }
+            profileButton.root.setOnClickListener {
+                postActions.viewProfile(post)
+                popupWindow.dismiss()
+            }
+            saveButton.root.setOnClickListener {
+                postActions.save(post)
+                post.saved = !post.saved
+                binding.invalidateAll()
+                popupWindow.dismiss()
+            }
+            hideButton.root.setOnClickListener {
+                postActions.hide(post)
+                post.hidden = !post.hidden
+                hideAction()
+                popupWindow.dismiss()
+            }
+            reportButton.root.setOnClickListener {
+                postActions.report(post)
+                popupWindow.dismiss()
+            }
+        }
+        popupBinding.root.measure(
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
+
+        popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
+        popupWindow.height = popupBinding.root.measuredHeight
+        popupWindow.showAsDropDown(anchorView)
+        popupBinding.executePendingBindings()
     }
 
     private fun setIfRead(isRead: Boolean){

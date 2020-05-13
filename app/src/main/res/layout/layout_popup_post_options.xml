@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="post"
+            type="dev.gtcl.reddit.models.reddit.Post" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="?android:attr/colorBackgroundFloating"
+        app:cardCornerRadius="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/upvote_button"
+                layout="@layout/item_menu_2"
+                app:icon="@{@drawable/ic_upvote_24dp}"
+                app:text="@{@string/upvote}"/>
+
+            <include
+                android:id="@+id/downvote_button"
+                layout="@layout/item_menu_2"
+                app:icon="@{@drawable/ic_downvote_24dp}"
+                app:text="@{@string/downvote}"/>
+
+            <include
+                android:id="@+id/share_button"
+                layout="@layout/item_menu_2"
+                app:icon="@{@drawable/ic_share_24dp}"
+                app:text="@{@string/share}"/>
+
+            <include
+                android:id="@+id/profile_button"
+                layout="@layout/item_menu_2"
+                app:icon="@{@drawable/ic_profile_24dp}"
+                app:text="@{post.author}"/>
+
+            <include
+                android:id="@+id/save_button"
+                layout="@layout/item_menu_2"
+                app:icon="@{post.saved ? @drawable/ic_remove_circle_outline_24dp : @drawable/ic_bookmark_24dp}"
+                app:text="@{post.saved ? @string/unsave : @string/save}"/>
+
+            <include
+                android:id="@+id/hide_button"
+                layout="@layout/item_menu_2"
+                app:icon="@{post.hidden ? @drawable/ic_unhide_24dp : @drawable/ic_hide_24dp}"
+                app:text="@{post.hidden ? @string/unhide : @string/hide}"/>
+
+            <include
+                android:id="@+id/report_button"
+                layout="@layout/item_menu_2"
+                app:icon="@{@drawable/ic_report_24dp}"
+                app:text="@{@string/report}"/>
+
+        </LinearLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+</layout>

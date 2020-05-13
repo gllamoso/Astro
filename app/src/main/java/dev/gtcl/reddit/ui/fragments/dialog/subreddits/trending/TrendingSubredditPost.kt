@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending
+package dev.gtcl.reddit.ui.fragments.dialog.subreddits.trending
 
 import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.models.reddit.ItemType
@@ -35,7 +35,7 @@ class TrendingSubredditPost(val post: Post){
 //            }
             val subsTemp = ArrayList<Subreddit>()
             for(x in 0 until 5){
-                subsTemp.add(Subreddit("",titlesSequence.elementAtOrElse(x){""},"", "", ""))
+                subsTemp.add(Subreddit("",titlesSequence.elementAtOrElse(x){""},"", "", "", null,""))
             }
             subs = subsTemp
         }
@@ -43,7 +43,7 @@ class TrendingSubredditPost(val post: Post){
 
     fun setSubscribedTo(subscribedSubs: HashSet<String>){
         for(sub: Subreddit in subs){
-            sub.isAdded = subscribedSubs.contains(sub.displayName.toLowerCase(Locale.ROOT))
+            sub.isAddedToDb = subscribedSubs.contains(sub.displayName.toLowerCase(Locale.ROOT))
         }
     }
 

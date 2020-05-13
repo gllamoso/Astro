@@ -52,8 +52,8 @@ class HomeFragment : Fragment(), ViewPagerActions {
         binding = FragmentViewPagerBinding.inflate(inflater)
 
         // TODO: Listener for refresh token
-        parentModel.fetchData.observe(viewLifecycleOwner, Observer {
-            if(it){
+        parentModel.ready.observe(viewLifecycleOwner, Observer {
+            if(it == true){
 //                model.fetchDefaultSubreddits()
             }
         })
@@ -69,12 +69,14 @@ class HomeFragment : Fragment(), ViewPagerActions {
 
         binding.viewPager.apply {
             adapter = pageAdapter
+            isUserInputEnabled = false
             registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
                 override fun onPageScrollStateChanged(state: Int) {
                     super.onPageScrollStateChanged(state)
                     if(state == ViewPager2.SCROLL_STATE_IDLE){
                         pageAdapter.popFragments(currentItem)
-                        parentModel.allowDrawerSwipe(currentItem == 0)
+//                        parentModel.allowDrawerSwipe(currentItem == 0)
+                        isUserInputEnabled = currentItem != 0
                     }
                 }
             })

@@ -1,28 +1,27 @@
-package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.search
+package dev.gtcl.reddit.ui.fragments.dialog.subreddits.search
 
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.models.reddit.SubredditChild
 import dev.gtcl.reddit.network.NetworkState
+import dev.gtcl.reddit.repositories.SubredditRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.util.concurrent.Executors
 
 class SearchViewModel(application: RedditApplication) : AndroidViewModel(application){
     // Repos
-    private val listingRepository = ListingRepository.getInstance(application)
+    private val subredditRepository = SubredditRepository.getInstance(application)
 
     // Scopes
     private var viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    val subscribedSubs = listingRepository.getSubscribedSubsLive()
+    val subscribedSubs = subredditRepository.getSubscribedSubsLive()
 
     private val _networkState = MutableLiveData<NetworkState>()
     val networkState: LiveData<NetworkState>
@@ -35,7 +34,7 @@ class SearchViewModel(application: RedditApplication) : AndroidViewModel(applica
     fun searchSubreddits(query: String){
         coroutineScope.launch {
             _networkState.value = NetworkState.LOADING
-            _searchedSubreddits.value = listingRepository.searchSubreddits(
+            _searchedSubreddits.value = subredditRepository.searchSubreddits(
                 nsfw = true,
                 includeProfiles = false,
                 limit = 20,

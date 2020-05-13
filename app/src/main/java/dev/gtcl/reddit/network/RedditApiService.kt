@@ -85,10 +85,13 @@ interface RedditApiService {
         @Query("id") id: String
     ): Call<Void>
 
-//     ____   __   ____  ____  ____
-//    (  _ \ /  \ / ___)(_  _)/ ___)
-//     ) __/(  O )\___ \  )(  \___ \
-//    (__)   \__/ (____/ (__) (____/
+//     _____          _
+//    |  __ \        | |
+//    | |__) |__  ___| |_ ___
+//    |  ___/ _ \/ __| __/ __|
+//    | |  | (_) \__ \ |_\__ \
+//    |_|   \___/|___/\__|___/
+//    http://patorjk.com/software/taag/#p=display&f=Big&t=Posts
 
     @GET("/{sort}/.json")
     fun getPostFromFrontPage(
@@ -140,10 +143,12 @@ interface RedditApiService {
         @Query("limit") limit: Int
     ): Deferred<ListingResponse>
 
-//     ____  _  _  ____  ____
-//    / ___)/ )( \(  _ \/ ___)
-//    \___ \) \/ ( ) _ (\___ \
-//    (____/\____/(____/(____/
+//      _____       _
+//     / ____|     | |
+//    | (___  _   _| |__  ___
+//     \___ \| | | | '_ \/ __|
+//     ____) | |_| | |_) \__ \
+//    |_____/ \__,_|_.__/|___/
 
     @GET("/subreddits/{where}.json")
     fun getSubreddits(
@@ -192,10 +197,12 @@ interface RedditApiService {
         @Query("sr_name") srName: String
     ): Call<Void>
 
-//     ___  __   _  _  _  _  ____  __ _  ____  ____
-//    / __)/  \ ( \/ )( \/ )(  __)(  ( \(_  _)/ ___)
-//   ( (__(  O )/ \/ \/ \/ \ ) _) /    /  )(  \___ \
-//    \___)\__/ \_)(_/\_)(_/(____)\_)__) (__) (____/
+//      _____                                     _
+//     / ____|                                   | |
+//    | |     ___  _ __ ___  _ __ ___   ___ _ __ | |_ ___
+//    | |    / _ \| '_ ` _ \| '_ ` _ \ / _ \ '_ \| __/ __|
+//    | |___| (_) | | | | | | | | | | |  __/ | | | |_\__ \
+//     \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__|___/
 
     @GET
     fun getPostAndComments(
@@ -221,6 +228,31 @@ interface RedditApiService {
         @Query("limit_children") limitChildren: Boolean = false,
         @Query("sort") sort: CommentSort
     ): Deferred<List<Child>>
+
+//     __  __
+//    |  \/  |
+//    | \  / | ___  ___ ___  __ _  __ _  ___  ___
+//    | |\/| |/ _ \/ __/ __|/ _` |/ _` |/ _ \/ __|
+//    | |  | |  __/\__ \__ \ (_| | (_| |  __/\__ \
+//    |_|  |_|\___||___/___/\__,_|\__, |\___||___/
+//                                 __/ |
+//                                |___/
+
+    @GET("/message/{where}")
+    fun getMessages(
+        @Header("Authorization") authorization: String? = null,
+        @Path("where") where: MessageWhere,
+        @Query("after") after: String? = null,
+        @Query("limit") limit: Int? = null
+    ): Deferred<ListingResponse>
+
+//                                  _
+//        /\                       | |
+//       /  \__      ____ _ _ __ __| |___
+//      / /\ \ \ /\ / / _` | '__/ _` / __|
+//     / ____ \ V  V / (_| | | | (_| \__ \
+//    /_/    \_\_/\_/ \__,_|_|  \__,_|___/
+
 
     // Awards
     @GET("/api/v1/user/{user}/trophies/.json")
@@ -257,6 +289,7 @@ interface RedditApiService {
                 .add(PolymorphicJsonAdapterFactory.of(ListingChild::class.java, "kind") // TODO: Finish
                     .withSubtype(CommentChild::class.java, "t1")
                     .withSubtype(PostChild::class.java, "t3")
+                    .withSubtype(MessageChild::class.java, "t4")
                     .withSubtype(SubredditChild::class.java, "t5")
                     .withSubtype(MoreChild::class.java, "more"))
                 .add(KotlinJsonAdapterFactory())

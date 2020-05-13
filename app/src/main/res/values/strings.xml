@@ -3,8 +3,6 @@
     <string name="preferences_file_key">Reddit Preference File Key</string>
     <string name="current_user_key">Current User</string>
 
-    <string name="retry">Retry</string>
-
     <!--Post Options-->
     <string name="upvote">Upvote</string>
     <string name="downvote">Downvote</string>
@@ -119,5 +117,14 @@
     <string name="download">Download</string>
     <string name="download_complete">Download complete</string>
     <string name="download_status_notification_name">Download Status</string>
+
+    <!--Inbox-->
+    <string name="inbox">Inbox</string>
+    <string name="unread">Unread</string>
+    <string name="sent">Sent</string>
+
+    <!--Misc-->
+    <string name="please_login_error">Please login</string>
+    <string name="retry">Retry</string>
 
 </resources>

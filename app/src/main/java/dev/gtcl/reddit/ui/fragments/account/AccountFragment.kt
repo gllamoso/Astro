@@ -18,14 +18,8 @@ import dev.gtcl.reddit.ui.activities.main.MainActivityViewModel
 import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.models.reddit.UrlType
+import dev.gtcl.reddit.ui.fragments.SimpleListingScrollerFragment
 import dev.gtcl.reddit.ui.fragments.account.pages.about.UserAboutFragment
-import dev.gtcl.reddit.ui.fragments.account.pages.UserCommentsFragment
-import dev.gtcl.reddit.ui.fragments.account.pages.UserDownvotedFragment
-import dev.gtcl.reddit.ui.fragments.account.pages.UserHiddenFragment
-import dev.gtcl.reddit.ui.fragments.account.pages.UserOverviewFragment
-import dev.gtcl.reddit.ui.fragments.account.pages.UserPostsFragment
-import dev.gtcl.reddit.ui.fragments.account.pages.UserSavedFragment
-import dev.gtcl.reddit.ui.fragments.account.pages.UserUpvotedFragment
 import dev.gtcl.reddit.ui.fragments.dialog.media.MediaDialogFragment
 
 class AccountFragment : Fragment(), PostActions {
@@ -50,14 +44,7 @@ class AccountFragment : Fragment(), PostActions {
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
         when(childFragment){
-            is UserAboutFragment -> childFragment.setUser(model.username)
-            is UserCommentsFragment -> childFragment.setFragment(this, model.username)
-            is UserPostsFragment -> childFragment.setFragment(this, model.username)
-            is UserSavedFragment -> childFragment.setFragment(this)
-            is UserUpvotedFragment -> childFragment.setFragment(this)
-            is UserDownvotedFragment -> childFragment.setFragment(this)
-            is UserHiddenFragment -> childFragment.setFragment(this)
-            is UserOverviewFragment -> childFragment.setFragment(this, model.username)
+            is SimpleListingScrollerFragment -> childFragment.setActions(postActions = this, user = model.username)
         }
     }
 
@@ -65,23 +52,23 @@ class AccountFragment : Fragment(), PostActions {
         binding = FragmentUserBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.model = model
-        setupViewPagerAdapter(model.username == null)
+        setupViewPagerAdapter()
         binding.toolbar.setNavigationOnClickListener {
-            parentModel.openDrawer()
+//            parentModel.openDrawer()
         }
         return binding.root
     }
 
-    private fun setupViewPagerAdapter(isCurrentUser: Boolean){
+    private fun setupViewPagerAdapter(){
         val viewPager = binding.viewPager
         val tabLayout = binding.tabLayout
         val adapter =
             AccountStateAdapter(
                 this,
-                isCurrentUser
+                model.username
             )
         viewPager.adapter = adapter
-        if(isCurrentUser){
+        if(model.username == null){
             TabLayoutMediator(tabLayout, viewPager){ tab, position ->
                 tab.text = getText(when(position){
                     0 -> R.string.about

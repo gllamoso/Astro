@@ -16,7 +16,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.util.concurrent.Executors
 
 class MainActivityViewModel(val application: RedditApplication): ViewModel() {
 
@@ -34,9 +33,13 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
 
     val allUsers = userRepository.getUsersFromDatabase()
 
-    private val _fetchData = MutableLiveData<Boolean>()
-    val fetchData: LiveData<Boolean>
-        get() = _fetchData
+    private val _ready = MutableLiveData<Boolean>()
+    val ready: LiveData<Boolean>
+        get() = _ready
+
+    fun readyComplete(){
+        _ready.value = null
+    }
 
     fun setCurrentUser(account: Account?, saveToPreferences: Boolean){
         _currentUser.value = account
@@ -46,14 +49,14 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
             val sharedPrefs = application.getSharedPreferences(application.getString(R.string.preferences_file_key), Context.MODE_PRIVATE)
             with(sharedPrefs.edit()) {
                 val json = Gson().toJson(account)
-                putString(application.getString(R.string.current_user_key), json)
+                putString(CURRENT_USER_KEY, json)
                 commit()
             }
         }
 
         if(account == null) {
             application.accessToken = null
-            _fetchData.value = true
+            _ready.value = true
         }
         else fetchAccessToken()
     }
@@ -68,8 +71,16 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
         }
     }
 
-    fun dataFetchComplete(){
-        _fetchData.value = null
+    private val _startSignInActivity = MutableLiveData<Boolean>()
+    val startSignInActivity: LiveData<Boolean>
+        get() = _startSignInActivity
+
+    fun startSignInActivity(){
+        _startSignInActivity.value = true
+    }
+
+    fun startSignInActivityFinished(){
+        _startSignInActivity.value = null
     }
 
     // --- Flow for adding a new user --- //
@@ -94,7 +105,7 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
             currentAccount.value?.let {
                 val accessToken = userRepository.getNewAccessToken(authorization = "Basic ${getEncodedAuthString(application.baseContext)}", refreshToken = it.refreshToken!!).await()
                 application.accessToken = accessToken
-                _fetchData.value = true
+                _ready.value = true
             }
         }
     }
@@ -113,25 +124,6 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
                 setCurrentUser(user, true)
             }
         }
-    }
-
-    private val _openDrawer = MutableLiveData<Boolean>()
-    val openDrawer: LiveData<Boolean>
-        get() = _openDrawer
-    fun openDrawer(){
-        _openDrawer.value = true
-    }
-
-    fun openDrawerComplete(){
-        _openDrawer.value = null
-    }
-
-    private val _allowDrawerSwipe = MutableLiveData<Boolean>()
-    val allowDrawerSwipe: LiveData<Boolean>
-        get() = _allowDrawerSwipe
-
-    fun allowDrawerSwipe(allow: Boolean){
-        _allowDrawerSwipe.value = allow
     }
 
     // Read posts

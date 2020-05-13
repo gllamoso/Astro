@@ -63,9 +63,8 @@ class MediaViewModel(private val application: RedditApplication): AndroidViewMod
     private var playWhenReady = true
     private var currentWindow = 0
     private var playbackPosition = 0.toLong()
-    var resized = false
 
-    lateinit var gfyItem: GfyItem
+    private lateinit var gfyItem: GfyItem
 
     private val _player = MutableLiveData<SimpleExoPlayer>()
     val player: LiveData<SimpleExoPlayer>

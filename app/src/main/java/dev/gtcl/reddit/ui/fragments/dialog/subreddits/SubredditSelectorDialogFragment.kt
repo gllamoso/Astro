@@ -8,23 +8,22 @@ import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResult
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayoutMediator
-import dev.gtcl.reddit.R
-import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.SubscribeAction
-import dev.gtcl.reddit.ViewModelFactory
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentDialogSubredditsBinding
 import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.models.reddit.SubredditListing
 import dev.gtcl.reddit.actions.ListingActions
 import dev.gtcl.reddit.actions.SubredditActions
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.mine.MineFragment
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.popular.PopularFragment
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.search.SearchFragment
-import dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending.TrendingFragment
+import dev.gtcl.reddit.ui.fragments.SimpleListingScrollerFragment
+import dev.gtcl.reddit.ui.fragments.dialog.subreddits.mine.MineFragment
+import dev.gtcl.reddit.ui.fragments.dialog.subreddits.search.SearchFragment
 import kotlin.NoSuchElementException
 
 class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditActions {
@@ -42,8 +41,7 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
         super.onAttachFragment(childFragment)
         when(childFragment){
             is MineFragment -> childFragment.setFragment(listingActions, this)
-            is TrendingFragment -> childFragment.setFragment(this)
-            is PopularFragment -> childFragment.setFragment(this)
+            is SimpleListingScrollerFragment -> childFragment.setActions(subredditActions = this)
             is SearchFragment -> childFragment.setFragment(this)
         }
     }
@@ -79,6 +77,13 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
                 }
             }
         }
+
+        model.subredditToSync.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                setFragmentResult(SUBREDDIT_UPDATE_REQUEST_KEY, bundleOf(STRING_KEY to it))
+                model.finishedSyncingSubreddit()
+            }
+        })
         setupTabLayout()
         setEditTextListener()
         return binding.root

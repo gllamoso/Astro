@@ -8,13 +8,14 @@ import android.widget.BaseExpandableListAdapter
 import android.widget.ImageView
 import android.widget.TextView
 import dev.gtcl.reddit.*
+import dev.gtcl.reddit.actions.LeftDrawerActions
 import dev.gtcl.reddit.models.reddit.Account
 
-class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners: DrawerOnClickListeners) : BaseExpandableListAdapter(){
+class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners: LeftDrawerActions) : BaseExpandableListAdapter(){
     private val addAccountString = context.getString(R.string.add_account)
     private val logoutString = context.getString(R.string.logout)
 
-    private val groups = listOf(context.getString(R.string.accounts), context.getString(R.string.home), context.getString(R.string.my_account), context.getString(R.string.settings))
+    private val groups = listOf(context.getString(R.string.accounts), context.getString(R.string.home), context.getString(R.string.my_account), context.getString(R.string.inbox), context.getString(R.string.settings))
     private lateinit var accountOptions: List<String>
     private lateinit var accounts: List<Account>
 
@@ -56,6 +57,12 @@ class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners
                 }
             }
             3 -> {
+                convertViewVar.findViewById<ImageView>(R.id.icon).setImageResource(R.drawable.ic_inbox_24dp)
+                convertViewVar.setOnClickListener {
+                    drawerOnClickListeners.onInboxClicked()
+                }
+            }
+            4 -> {
                 convertViewVar.findViewById<ImageView>(R.id.icon).setImageResource(R.drawable.ic_settings_24dp)
                 convertViewVar.setOnClickListener {
                     drawerOnClickListeners.onSettingsClicked()
@@ -130,21 +137,4 @@ class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners
         notifyDataSetChanged()
     }
 
-}
-
-interface DrawerOnClickListeners{
-    // Accounts
-    fun onAddAccountClicked()
-    fun onRemoveAccountClicked(username: String)
-    fun onAccountClicked(account: Account)
-    fun onLogoutClicked()
-
-    // Posts
-    fun onHomeClicked()
-
-    // My Account
-    fun onMyAccountClicked()
-
-    // Settings
-    fun onSettingsClicked()
 }

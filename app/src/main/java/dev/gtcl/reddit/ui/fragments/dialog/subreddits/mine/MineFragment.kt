@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.mine
+package dev.gtcl.reddit.ui.fragments.dialog.subreddits.mine
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -52,7 +52,7 @@ class MineFragment : Fragment() {
         model.initialSubs.observe(viewLifecycleOwner, Observer {
             if(it != null) {
                 for(sub: Subreddit in it)
-                    sub.isAdded = true
+                    sub.isAddedToDb = true
                 adapter.loadInitialSubreddits(it)
                 model.initialLoadFinished()
             }
@@ -65,5 +65,11 @@ class MineFragment : Fragment() {
 
     fun refresh(){
         model.refresh = true
+    }
+
+    companion object{
+        fun newInstance(): MineFragment{
+            return MineFragment()
+        }
     }
 }

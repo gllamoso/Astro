@@ -108,6 +108,15 @@ enum class SubscribeAction{
     UNSUBSCRIBE
 }
 
+enum class MessageWhere{
+    @SerializedName("inbox")
+    INBOX,
+    @SerializedName("unread")
+    UNREAD,
+    @SerializedName("sent")
+    SENT
+}
+
 val STATE by lazy {
     UUID.randomUUID().toString()
 }

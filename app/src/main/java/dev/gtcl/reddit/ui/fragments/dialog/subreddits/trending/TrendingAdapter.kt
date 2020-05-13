@@ -1,6 +1,5 @@
-package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.trending
+package dev.gtcl.reddit.ui.fragments.dialog.subreddits.trending
 
-import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
@@ -19,7 +18,7 @@ class TrendingAdapter(private val subredditActions: SubredditActions, private va
     private var currentIds: HashSet<String> = HashSet()
     private var subscribedSubs: HashSet<String> = HashSet()
     private var favoriteSubs: HashSet<String> = HashSet()
-    var lastItemReached = false
+    private var lastItemReached = false
     private var networkState = NetworkState.LOADED
 
     fun setNetworkState(networkState: NetworkState){

@@ -1,7 +1,6 @@
-package dev.gtcl.reddit.ui.fragments.home.listing.subreddits.search
+package dev.gtcl.reddit.ui.fragments.dialog.subreddits.search
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -58,5 +57,11 @@ class SearchFragment : Fragment() {
     fun searchSubreddit(query: String){
         searchAdapter.submitList(listOf())
         model.searchSubreddits(query)
+    }
+
+    companion object{
+        fun newInstance(): SearchFragment{
+            return SearchFragment()
+        }
     }
 }
