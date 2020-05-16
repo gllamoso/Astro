@@ -84,7 +84,7 @@
     <string name="hour_ago">1 hour ago</string>
     <string name="minutes_ago">%d minutes ago</string>
     <string name="a_moment_ago">A moment ago</string>
-    <string name="no_results">No results</string>
+    <string name="nothing_found">Nothing found.</string>
 
     <!--Account-->
     <string name="overview">Overview</string>

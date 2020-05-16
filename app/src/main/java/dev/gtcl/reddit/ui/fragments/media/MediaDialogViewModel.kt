@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.dialog.media
+package dev.gtcl.reddit.ui.fragments.media
 
 import android.content.Intent
 import android.widget.Toast

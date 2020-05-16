@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.dialog.subreddits
+package dev.gtcl.reddit.ui.fragments.subreddits
 
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -6,7 +6,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.SubscribeAction
-import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.models.reddit.SubredditChild
 import dev.gtcl.reddit.repositories.SubredditRepository
@@ -15,7 +14,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import retrofit2.Call
-import java.util.concurrent.Executors
 import retrofit2.Callback
 import retrofit2.Response
 

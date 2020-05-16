@@ -25,10 +25,13 @@ interface AccountDao{
 @Dao
 interface ReadItemDao{
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    fun insert(itemsRead: ItemsRead)
+    fun insert(itemsRead: ItemRead)
 
     @Query("select * from read_listing")
-    fun getAll(): LiveData<List<ItemsRead>>
+    fun getAllLiveData(): LiveData<List<ItemRead>>
+
+    @Query("select * from read_listing")
+    suspend fun getAll(): List<ItemRead>
 }
 
 @Dao
@@ -67,7 +70,7 @@ interface SubredditDao{
     fun updateFavoriteSub(userId: String, displayName: String, favorite: Boolean)
 }
 
-@Database(entities = [DbAccount::class, ItemsRead::class, DbSubreddit::class], version = 1, exportSchema = false)
+@Database(entities = [DbAccount::class, ItemRead::class, DbSubreddit::class], version = 1, exportSchema = false)
 abstract class RedditDatabase: RoomDatabase(){
     abstract val accountDao: AccountDao
     abstract val readItemDao: ReadItemDao

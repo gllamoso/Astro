@@ -59,7 +59,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
         get() = _initialListing
     private var after: String? = null
 
-    private val pageSize = 15
+    val pageSize = 15
 
     fun loadInitial(listingType: ListingType, sortBy: PostSort = PostSort.BEST, timePeriod: Time? = null){
         coroutineScope.launch {
@@ -98,7 +98,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
         val sub = subredditSelected.value ?: return
         val dbSubsMatchingName = subredditRepository.getSubscribedSubs(sub.displayName)
         val subInDb = if(dbSubsMatchingName.isNotEmpty()) dbSubsMatchingName[0] else null
-        sub.isAddedToDb = subInDb != null
+        sub.userSubscribed = subInDb != null
         sub.isFavorite = subInDb?.isFavorite ?: false
         _subredditSelected.value = null
         _subredditSelected.value = sub // Update

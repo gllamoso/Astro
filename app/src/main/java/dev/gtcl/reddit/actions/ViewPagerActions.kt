@@ -1,11 +1,9 @@
 package dev.gtcl.reddit.actions
 
-import dev.gtcl.reddit.models.reddit.Comment
-import dev.gtcl.reddit.models.reddit.Post
+import dev.gtcl.reddit.models.reddit.Item
 
 interface ViewPagerActions{
     fun enablePagerSwiping(enable: Boolean)
-    fun navigatePrevious()
-    fun viewComments(post: Post)
-    fun viewComments(comment: Comment)
+    fun navigatePreviousPage()
+    fun navigateToNewPage(item: Item)
 }

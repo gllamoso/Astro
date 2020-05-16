@@ -5,10 +5,11 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemTrendingSubredditBinding
 import dev.gtcl.reddit.actions.SubredditActions
-import dev.gtcl.reddit.ui.fragments.dialog.subreddits.trending.TrendingSubredditPost
+import dev.gtcl.reddit.models.reddit.Subreddit
+import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingSubredditPost
 
 class TrendingSubredditViewHolder private constructor(private val binding: ItemTrendingSubredditBinding): RecyclerView.ViewHolder(binding.root) {
-    fun bind(trendingSubredditPost: TrendingSubredditPost, subredditActions: SubredditActions) {
+    fun bind(trendingSubredditPost: TrendingSubredditPost, subredditActions: SubredditActions, subredditClickAction: (Subreddit) -> Unit) {
         binding.trendingPost = trendingSubredditPost
 
         for(i in 0 until 5){
@@ -23,21 +24,25 @@ class TrendingSubredditViewHolder private constructor(private val binding: ItemT
 
             binding.apply {
                 root.setOnClickListener {
-                    subredditActions.onClick(trendingSubredditPost.subs[i])
+                    subredditClickAction(trendingSubredditPost.subs[i])
                 }
                 addIcon.setOnClickListener {
                     trendingSubredditPost.subs[i].apply {
-                        isAddedToDb = !isAddedToDb
-                        if(!isAddedToDb) isFavorite = false
-                        subredditActions.subscribe(this, isAddedToDb, true)
+                        userSubscribed = userSubscribed != true
+                        if(!userSubscribed!!) {
+                            isFavorite = false
+                        }
+                        subredditActions.subscribe(this, userSubscribed!!)
                     }
                     this.invalidateAll()
                 }
                 favoriteIcon.setOnClickListener {
                     trendingSubredditPost.subs[i].apply{
                         isFavorite = !isFavorite
-                        if(isFavorite) this.isAddedToDb = true
-                        subredditActions.addToFavorites(this, isFavorite, true)
+                        if(isFavorite) {
+                            userSubscribed = true
+                        }
+                        subredditActions.addToFavorites(this, isFavorite)
                     }
                     this.invalidateAll()
                 }

@@ -1,10 +1,8 @@
 package dev.gtcl.reddit.repositories
 
 import androidx.annotation.MainThread
-import com.google.android.exoplayer2.util.Log
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.database.DbSubreddit
-import dev.gtcl.reddit.database.ItemsRead
+import dev.gtcl.reddit.database.ItemRead
 import dev.gtcl.reddit.database.redditDatabase
 import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.models.reddit.Child
@@ -15,7 +13,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Call
 import java.lang.IllegalStateException
-import java.util.concurrent.Executor
 
 const val GUEST_ID = "guest"
 
@@ -83,12 +80,15 @@ class ListingRepository private constructor(private val application: RedditAppli
     // --- DATABASE
 
     @MainThread
-    fun getReadPostsFromDatabase() = database.readItemDao.getAll()
+    fun getReadPostsLiveData() = database.readItemDao.getAllLiveData()
 
     @MainThread
-    suspend fun insertReadPostToDatabase(itemsRead: ItemsRead) {
+    suspend fun getReadPosts() = database.readItemDao.getAll()
+
+    @MainThread
+    suspend fun addReadItem(item: Item) {
         withContext(Dispatchers.IO){
-            database.readItemDao.insert(itemsRead)
+            database.readItemDao.insert(ItemRead(item.name))
         }
     }
 

@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import dev.gtcl.reddit.POST_KEY
 import dev.gtcl.reddit.databinding.FragmentShareOptionsBinding
@@ -19,5 +20,14 @@ class ShareOptionsDialogFragment : DialogFragment(){
         binding.post = post
         binding.invalidateAll()
         return binding.root
+    }
+
+    companion object{
+        fun newInstance(post: Post): ShareOptionsDialogFragment{
+            val fragment = ShareOptionsDialogFragment()
+            val args = bundleOf(POST_KEY to post)
+            fragment.arguments = args
+            return fragment
+        }
     }
 }

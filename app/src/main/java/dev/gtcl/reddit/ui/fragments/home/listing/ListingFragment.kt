@@ -7,7 +7,6 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
@@ -36,15 +35,15 @@ import dev.gtcl.reddit.database.asAccountDomainModel
 import dev.gtcl.reddit.databinding.LayoutNavHeaderBinding
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.activities.main.MainDrawerAdapter
-import dev.gtcl.reddit.ui.fragments.dialog.media.MediaDialogFragment
-import dev.gtcl.reddit.ui.fragments.dialog.subreddits.SubredditSelectorDialogFragment
+import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
+import dev.gtcl.reddit.ui.fragments.subreddits.SubredditSelectorDialogFragment
 import dev.gtcl.reddit.ui.fragments.dialog.TimePeriodSheetDialogFragment
 
 class ListingFragment : Fragment(), PostActions, ListingActions {
 
     private lateinit var binding: FragmentListingBinding
     private lateinit var adapter: ListingAdapter
-    private lateinit var loadMoreListener: LoadMoreScrollListener
+    private lateinit var loadMoreListener: ItemScrollListener
 
     private lateinit var viewPagerActions: ViewPagerActions
     fun setViewPagerActions(viewPagerActions: ViewPagerActions){
@@ -63,7 +62,7 @@ class ListingFragment : Fragment(), PostActions, ListingActions {
         super.onAttachFragment(childFragment)
         when(childFragment){
             is SubredditSelectorDialogFragment -> childFragment.listingActions = this
-            is MediaDialogFragment -> childFragment.postUrlCallback = this::postClicked
+//            is MediaDialogFragment -> childFragment.postUrlCallback = this::postClicked
         }
     }
 
@@ -187,9 +186,9 @@ class ListingFragment : Fragment(), PostActions, ListingActions {
         model.subredditSelected.observe(viewLifecycleOwner, Observer {sub ->
             if(sub != null){
                 binding.rightSideBarLayout.addIcon.setOnClickListener {
-                    sub.isAddedToDb = !sub.isAddedToDb
+                    sub.userSubscribed = sub.userSubscribed != true
                     binding.rightSideBarLayout.invalidateAll()
-                    model.subscribe(sub, if(sub.isAddedToDb) SubscribeAction.SUBSCRIBE else SubscribeAction.UNSUBSCRIBE)
+                    model.subscribe(sub, if(sub.userSubscribed == true) SubscribeAction.SUBSCRIBE else SubscribeAction.UNSUBSCRIBE)
                 }
                 binding.rightSideBarLayout.favoriteIcon.setOnClickListener {
                     sub.isFavorite = !sub.isFavorite
@@ -212,7 +211,8 @@ class ListingFragment : Fragment(), PostActions, ListingActions {
     }
 
     private fun setRecyclerView() {
-        loadMoreListener = LoadMoreScrollListener(
+        loadMoreListener = ItemScrollListener(
+            model.pageSize,
             binding.list.layoutManager as GridLayoutManager
         ) {model.loadAfter()}
 
@@ -323,13 +323,13 @@ class ListingFragment : Fragment(), PostActions, ListingActions {
         TODO("Not yet implemented")
     }
 
-    override fun postClicked(post: Post) {
-        parentModel.addReadPost(post.asReadListing)
-        viewPagerActions.viewComments(post)
-    }
+//    override fun postClicked(post: Post) {
+//        parentModel.addReadPost(post)
+//        viewPagerActions.viewComments(post)
+//    }
 
     override fun thumbnailClicked(post: Post) {
-        parentModel.addReadPost(post.asReadListing)
+        parentModel.addReadPost(post)
         Log.d("TAE","Post clicked: $post")
         val urlType = when {
             post.isImage -> UrlType.IMAGE

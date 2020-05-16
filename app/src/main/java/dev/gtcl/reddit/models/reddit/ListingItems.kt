@@ -5,7 +5,7 @@ import android.os.Parcelable
 import com.squareup.moshi.Json
 import dev.gtcl.reddit.database.DbAccount
 import dev.gtcl.reddit.database.DbSubreddit
-import dev.gtcl.reddit.database.ItemsRead
+import dev.gtcl.reddit.database.ItemRead
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 
@@ -172,8 +172,8 @@ data class Post(
     @IgnoredOnParcel
     override val depth = 0
 
-    val asReadListing: ItemsRead
-        get() = ItemsRead(this.name)
+    @IgnoredOnParcel
+    var isRead = false
 
     val isImage: Boolean
         get(){
@@ -329,8 +329,8 @@ data class Subreddit(
     val title: String,
     @Json(name = "banner_img")
     val bannerImg: String?,
-    @Json(name = "user_is_subscribed")
-    val userSubscribed: Boolean?,
+    @Json(name = "user_is_subscriber")
+    var userSubscribed: Boolean?,
     @Json(name = "public_description")
     val publicDescription: String,
     @Transient
@@ -340,8 +340,6 @@ data class Subreddit(
     override val depth: Int = 0
     @IgnoredOnParcel
     override val id = name.replace("t5_","")
-    @IgnoredOnParcel
-    var isAddedToDb: Boolean = false
 
     fun asDbModel(userId: String) = DbSubreddit(
         "${name}__${userId}",

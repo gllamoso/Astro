@@ -1,14 +1,11 @@
-package dev.gtcl.reddit.ui.fragments.dialog.media
+package dev.gtcl.reddit.ui.fragments.media
 
-import android.content.Context
-import android.content.Intent
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.*
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -23,7 +20,6 @@ import com.bumptech.glide.request.target.Target
 import com.google.android.exoplayer2.ui.PlayerControlView
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentMediaViewerBinding
-import dev.gtcl.reddit.databinding.LayoutPopupVideoOptionsBinding
 import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.models.reddit.UrlType
 import kotlin.IllegalArgumentException

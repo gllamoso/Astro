@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.dialog.media
+package dev.gtcl.reddit.ui.fragments.media
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter

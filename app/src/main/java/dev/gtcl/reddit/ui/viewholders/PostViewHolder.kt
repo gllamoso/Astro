@@ -6,9 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import android.widget.RelativeLayout
-import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import dev.gtcl.reddit.R
 import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.databinding.ItemPostBinding
 import dev.gtcl.reddit.models.reddit.Post
@@ -17,17 +15,18 @@ import dev.gtcl.reddit.databinding.LayoutPopupPostOptionsBinding
 
 class PostViewHolder private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
-    fun bind(post: Post?, postActions: PostActions, isRead: Boolean, hideAction: () -> Unit){
+    fun bind(post: Post?, postActions: PostActions, hideAction: (() -> Unit)?, postClicked: (Post) -> Unit){
         binding.post = post
         binding.executePendingBindings()
-        setIfRead(isRead)
         binding.rootLayout.setOnClickListener {
-            setIfRead(true)
-            postActions.postClicked(post!!)
+            post?.isRead = true
+            binding.invalidateAll()
+            postClicked(post!!)
         }
 
         binding.thumbnail.setOnClickListener{
-            setIfRead(true)
+            post?.isRead = true
+            binding.invalidateAll()
             postActions.thumbnailClicked(post!!)
         }
 
@@ -38,7 +37,7 @@ class PostViewHolder private constructor(private val binding:ItemPostBinding)
         }
     }
 
-    private fun showPopupWindow(post: Post, postActions: PostActions, anchorView: View, hideAction: () -> Unit){
+    private fun showPopupWindow(post: Post, postActions: PostActions, anchorView: View, hideAction: (() -> Unit)?){
         val inflater = anchorView.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = LayoutPopupPostOptionsBinding.inflate(inflater)
         val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
@@ -46,13 +45,21 @@ class PostViewHolder private constructor(private val binding:ItemPostBinding)
             this.post = post
             upvoteButton.root.setOnClickListener {
                 postActions.vote(post, if(post.likes == true) Vote.UNVOTE else Vote.UPVOTE)
-                post.likes = if(post.likes == true) null else true
+                post.likes = if(post.likes == true) {
+                    null
+                } else {
+                    true
+                }
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }
             downvoteButton.root.setOnClickListener {
                 postActions.vote(post, if(post.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
-                post.likes = if(post.likes == false) null else false
+                post.likes = if(post.likes == false) {
+                    null
+                } else {
+                    false
+                }
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }
@@ -73,7 +80,7 @@ class PostViewHolder private constructor(private val binding:ItemPostBinding)
             hideButton.root.setOnClickListener {
                 postActions.hide(post)
                 post.hidden = !post.hidden
-                hideAction()
+                hideAction?.invoke()
                 popupWindow.dismiss()
             }
             reportButton.root.setOnClickListener {
@@ -90,10 +97,6 @@ class PostViewHolder private constructor(private val binding:ItemPostBinding)
         popupWindow.height = popupBinding.root.measuredHeight
         popupWindow.showAsDropDown(anchorView)
         popupBinding.executePendingBindings()
-    }
-
-    private fun setIfRead(isRead: Boolean){
-        binding.title.setTextColor(ContextCompat.getColor(binding.root.context, if(isRead) android.R.color.darker_gray else R.color.textColor))
     }
 
     companion object {

@@ -13,7 +13,7 @@ import dev.gtcl.reddit.models.reddit.Subreddit
 //    |_| \_\___|\__,_|\__,_| |___|\__\___|_| |_| |_|
 
 @Entity(tableName = "read_listing")
-data class ItemsRead(
+data class ItemRead(
     @PrimaryKey
     val name: String)
 

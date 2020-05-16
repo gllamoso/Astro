@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.dialog.subreddits.mine
+package dev.gtcl.reddit.ui.fragments.subreddits.mine
 
 import android.content.Context
 import android.view.ViewGroup
@@ -117,7 +117,7 @@ class MultiAndSubredditsAdapter(private val context: Context, private val listin
                 3 -> (holder as ListingViewHolder).bind(Popular, listingActions)
                 4 -> (holder as ListingViewHolder).bind(ProfileListing(ProfileInfo.SAVED), listingActions)
                 5 -> (holder as SectionTitleViewHolder).bind(context.getString(R.string.subreddits)) // Subreddits header
-                in 6 until 6 + allSubs.size -> (holder as SubredditViewHolder).bind(allSubs[position - 6], subredditActions, this)
+                in 6 until 6 + allSubs.size -> (holder as SubredditViewHolder).bind(allSubs[position - 6], subredditActions, this) { listingActions.onListingClicked(SubredditListing(allSubs[position - 6]))}
                 else -> throw IllegalArgumentException("Invalid position: $position")
             }
         }
@@ -129,9 +129,9 @@ class MultiAndSubredditsAdapter(private val context: Context, private val listin
                 3 -> (holder as ListingViewHolder).bind(Popular, listingActions)
                 4 -> (holder as ListingViewHolder).bind(ProfileListing(ProfileInfo.SAVED), listingActions)
                 5 -> (holder as SectionTitleViewHolder).bind(context.getString(R.string.favorites)) // Favorites header
-                in 6 until 6 + favSubs.size -> (holder as SubredditViewHolder).bind(favSubs[position - 6], subredditActions, this)  // Favorite Subreddits
+                in 6 until 6 + favSubs.size -> (holder as SubredditViewHolder).bind(favSubs[position - 6], subredditActions, this){}  // Favorite Subreddits
                 6 + favSubs.size -> (holder as SectionTitleViewHolder).bind(context.getString(R.string.subreddits)) // Subreddits header
-                in (6 + favSubs.size + 1)..(6 + favSubs.size + allSubs.size) -> (holder as SubredditViewHolder).bind(allSubs[position - (6 + favSubs.size + 1)], subredditActions, this) // Non-favorite subreddits
+                in (6 + favSubs.size + 1)..(6 + favSubs.size + allSubs.size) -> (holder as SubredditViewHolder).bind(allSubs[position - (6 + favSubs.size + 1)], subredditActions, this) { listingActions.onListingClicked(SubredditListing(allSubs[position - (6 + favSubs.size + 1)]))} // Non-favorite subreddits
                 else -> throw IllegalArgumentException("Invalid position: $position")
             }
         }

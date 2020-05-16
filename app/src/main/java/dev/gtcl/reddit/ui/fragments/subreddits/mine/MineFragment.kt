@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.dialog.subreddits.mine
+package dev.gtcl.reddit.ui.fragments.subreddits.mine
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,14 +9,14 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
-import dev.gtcl.reddit.databinding.FragmentRecyclerViewBinding
 import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.actions.ListingActions
 import dev.gtcl.reddit.actions.SubredditActions
+import dev.gtcl.reddit.databinding.FragmentItemScrollerBinding
 
 class MineFragment : Fragment() {
 
-    private lateinit var binding: FragmentRecyclerViewBinding
+    private lateinit var binding: FragmentItemScrollerBinding
     private lateinit var listingActions: ListingActions
     private lateinit var subredditActions: SubredditActions
 
@@ -31,7 +31,7 @@ class MineFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentRecyclerViewBinding.inflate(inflater)
+        binding = FragmentItemScrollerBinding.inflate(inflater)
         model.loadInitial()
         setRecyclerViewAdapter()
         return binding.root
@@ -52,7 +52,7 @@ class MineFragment : Fragment() {
         model.initialSubs.observe(viewLifecycleOwner, Observer {
             if(it != null) {
                 for(sub: Subreddit in it)
-                    sub.isAddedToDb = true
+                    sub.userSubscribed = true
                 adapter.loadInitialSubreddits(it)
                 model.initialLoadFinished()
             }

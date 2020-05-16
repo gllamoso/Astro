@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.dialog.subreddits.trending
+package dev.gtcl.reddit.ui.fragments.subreddits.trending
 
 import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.models.reddit.ItemType
@@ -43,7 +43,7 @@ class TrendingSubredditPost(val post: Post){
 
     fun setSubscribedTo(subscribedSubs: HashSet<String>){
         for(sub: Subreddit in subs){
-            sub.isAddedToDb = subscribedSubs.contains(sub.displayName.toLowerCase(Locale.ROOT))
+            sub.userSubscribed = subscribedSubs.contains(sub.displayName.toLowerCase(Locale.ROOT))
         }
     }
 

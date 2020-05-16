@@ -1,19 +1,13 @@
-package dev.gtcl.reddit.ui.fragments.dialog.media
+package dev.gtcl.reddit.ui.fragments.media
 
 import android.annotation.SuppressLint
-import android.app.DownloadManager
-import android.content.Context
 import android.content.Intent
 import android.net.Uri
-import android.os.Environment
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.work.Data
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.WorkManager
 //import com.arthenica.mobileffmpeg.Config
 //import com.arthenica.mobileffmpeg.FFmpeg
 import com.google.android.exoplayer2.*
@@ -23,14 +17,11 @@ import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.URL_KEY
 import dev.gtcl.reddit.buildMediaSource
 import dev.gtcl.reddit.download.DownloadIntentService
-import dev.gtcl.reddit.download.DownloadService
-import dev.gtcl.reddit.download.HlsDownloader
 import dev.gtcl.reddit.models.gfycat.GfyItem
 import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.models.reddit.UrlType
 import dev.gtcl.reddit.repositories.GfycatRepository
 import kotlinx.coroutines.*
-import java.util.*
 
 class MediaViewModel(private val application: RedditApplication): AndroidViewModel(application){
 

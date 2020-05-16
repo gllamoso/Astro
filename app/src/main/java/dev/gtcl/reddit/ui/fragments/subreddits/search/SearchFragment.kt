@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.dialog.subreddits.search
+package dev.gtcl.reddit.ui.fragments.subreddits.search
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -9,12 +9,12 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
-import dev.gtcl.reddit.databinding.FragmentRecyclerViewBinding
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.database.asDomainModel
+import dev.gtcl.reddit.databinding.FragmentItemScrollerBinding
 
 class SearchFragment : Fragment() {
-    private lateinit var binding: FragmentRecyclerViewBinding
+    private lateinit var binding: FragmentItemScrollerBinding
     private lateinit var subredditActions: SubredditActions
     private lateinit var searchAdapter: SearchAdapter
 
@@ -28,7 +28,7 @@ class SearchFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentRecyclerViewBinding.inflate(inflater)
+        binding = FragmentItemScrollerBinding.inflate(inflater)
         binding.list.visibility = View.GONE
         binding.noResultsText.visibility = View.VISIBLE
         setRecyclerViewAdapter()

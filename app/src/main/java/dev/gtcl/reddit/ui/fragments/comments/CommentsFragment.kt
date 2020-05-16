@@ -26,7 +26,7 @@ import dev.gtcl.reddit.models.reddit.More
 import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.actions.ViewPagerActions
 
-class CommentsFragment : Fragment() {
+class CommentsFragment : Fragment() { // TODO: Create static newInstance method
 
     private val model: CommentsViewModel by lazy {
         val viewModelFactory = ViewModelFactory(requireContext().applicationContext as RedditApplication)
@@ -85,7 +85,7 @@ class CommentsFragment : Fragment() {
         })
 
         binding.toolbar.setNavigationOnClickListener {
-            viewPagerActions.navigatePrevious()
+            viewPagerActions.navigatePreviousPage()
             mediaController.hide()
         }
 

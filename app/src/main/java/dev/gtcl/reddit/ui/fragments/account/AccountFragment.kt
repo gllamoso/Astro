@@ -1,35 +1,30 @@
 package dev.gtcl.reddit.ui.fragments.account
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.*
+import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.databinding.FragmentUserBinding
-import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.ui.activities.main.MainActivity
 import dev.gtcl.reddit.ui.activities.main.MainActivityViewModel
-import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.actions.ViewPagerActions
-import dev.gtcl.reddit.models.reddit.UrlType
-import dev.gtcl.reddit.ui.fragments.SimpleListingScrollerFragment
-import dev.gtcl.reddit.ui.fragments.account.pages.about.UserAboutFragment
-import dev.gtcl.reddit.ui.fragments.dialog.media.MediaDialogFragment
+import dev.gtcl.reddit.models.reddit.Item
+import dev.gtcl.reddit.ui.fragments.ListingScrollerFragment
 
-class AccountFragment : Fragment(), PostActions {
+class AccountFragment : Fragment(), ItemClickListener {
 
     private lateinit var binding: FragmentUserBinding
 
-    private lateinit var viewPagerActions: ViewPagerActions
-    fun setFragment(viewPagerActions: ViewPagerActions, user: String?){
+    private var viewPagerActions: ViewPagerActions? = null
+    fun setFragment(viewPagerActions: ViewPagerActions){
         this.viewPagerActions = viewPagerActions
-        model.fetchAccount(user)
+//        model.fetchAccount(user)
     }
 
     val model: AccountFragmentViewModel by lazy {
@@ -44,7 +39,8 @@ class AccountFragment : Fragment(), PostActions {
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
         when(childFragment){
-            is SimpleListingScrollerFragment -> childFragment.setActions(postActions = this, user = model.username)
+//            is SimpleListingScrollerFragment -> childFragment.setActions(postActions = this, user = model.username)
+            is ListingScrollerFragment -> childFragment.setItemClickListener(this)
         }
     }
 
@@ -56,6 +52,8 @@ class AccountFragment : Fragment(), PostActions {
         binding.toolbar.setNavigationOnClickListener {
 //            parentModel.openDrawer()
         }
+        val user = requireArguments().getString(USER_KEY)
+        model.fetchAccount(user)
         return binding.root
     }
 
@@ -99,52 +97,16 @@ class AccountFragment : Fragment(), PostActions {
         }
     }
 
-    // Post Actions
-    override fun vote(post: Post, vote: Vote) {
-        TODO("Not yet implemented")
+    override fun itemClicked(item: Item) {
+        viewPagerActions?.navigateToNewPage(item)
     }
 
-    override fun share(post: Post) {
-        TODO("Not yet implemented")
-    }
-
-    override fun viewProfile(post: Post) {
-        val bundle = bundleOf(USER_KEY to post.author)
-        findNavController().navigate(R.id.account_fragment, bundle)
-    }
-
-    override fun save(post: Post) {
-        TODO("Not yet implemented")
-    }
-
-    override fun hide(post: Post) {
-        TODO("Not yet implemented")
-    }
-
-    override fun report(post: Post) {
-        TODO("Not yet implemented")
-    }
-
-    override fun postClicked(post: Post) {
-        viewPagerActions.viewComments(post)
-    }
-
-    override fun thumbnailClicked(post: Post) {
-        parentModel.addReadPost(post.asReadListing)
-        Log.d("TAE","Post clicked: $post")
-        val urlType = when {
-            post.isImage -> UrlType.IMAGE
-            post.isGif -> UrlType.GIF
-            post.isGfycat -> UrlType.GFYCAT
-            post.isGfv -> UrlType.GIFV
-            post.isRedditVideo -> UrlType.M3U8
-            else -> UrlType.LINK
+    companion object {
+        fun newInstance(user: String? = null): AccountFragment {
+            val fragment = AccountFragment()
+            val args = bundleOf(USER_KEY to user)
+            fragment.arguments = args
+            return fragment
         }
-        Log.d("TAE", "UrlType: $urlType")
-        val dialog = MediaDialogFragment.newInstance(
-            if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.videoUrl!! else post.url!!,
-            urlType,
-            post)
-        dialog.show(childFragmentManager, null)
     }
 }

@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.dialog.subreddits.search
+package dev.gtcl.reddit.ui.fragments.subreddits.search
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -13,7 +13,7 @@ class SearchAdapter(private val subredditActions: SubredditActions) : RecyclerVi
 
     fun submitList(subs: List<Subreddit>){
         for(sub: Subreddit in subs){
-            sub.isAddedToDb = subscribedSubs.contains(sub.displayName)
+            sub.userSubscribed = subscribedSubs.contains(sub.displayName)
             sub.isFavorite = favSubs.contains(sub.displayName)
         }
         this.subs = subs
@@ -25,7 +25,7 @@ class SearchAdapter(private val subredditActions: SubredditActions) : RecyclerVi
         favSubs = subs.filter { it.isFavorite }.map { it.displayName}.toHashSet()
         for(sub : Subreddit in subs){
             sub.apply {
-                isAddedToDb = subscribedSubs.contains(displayName)
+                userSubscribed = subscribedSubs.contains(displayName)
                 isFavorite = favSubs.contains(displayName)
             }
         }
@@ -39,7 +39,7 @@ class SearchAdapter(private val subredditActions: SubredditActions) : RecyclerVi
     override fun getItemCount() = subs.size
 
     override fun onBindViewHolder(holder: SubredditViewHolder, position: Int) {
-        holder.bind(subs[position], subredditActions, null)
+        holder.bind(subs[position], subredditActions, null) { }
     }
 
 }

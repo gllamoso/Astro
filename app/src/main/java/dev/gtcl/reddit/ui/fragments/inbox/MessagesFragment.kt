@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui.fragments.inbox
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -24,9 +25,8 @@ import dev.gtcl.reddit.models.reddit.Message
 import dev.gtcl.reddit.ui.activities.main.MainActivity
 import dev.gtcl.reddit.ui.activities.main.MainActivityViewModel
 import dev.gtcl.reddit.ui.activities.main.MainDrawerAdapter
-import dev.gtcl.reddit.ui.fragments.SimpleListingScrollerFragment
 
-class MessagesFragment: Fragment(), MessageActions{
+class MessagesFragment: Fragment(), MessageActions, LeftDrawerActions{
 
     private lateinit var binding: FragmentInboxBinding
 
@@ -36,9 +36,9 @@ class MessagesFragment: Fragment(), MessageActions{
 
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
-        when(childFragment){
-            is SimpleListingScrollerFragment -> childFragment.setActions(messageActions = this)
-        }
+//        when(childFragment){
+//            is ItemScrollerFragment -> childFragment.setActions(messageActions = this)
+//        }
     }
 
     override fun onCreateView(
@@ -47,12 +47,12 @@ class MessagesFragment: Fragment(), MessageActions{
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentInboxBinding.inflate(inflater)
-        setAdapter()
+        setViewPagerAdapter()
         setLeftDrawer(inflater)
         return binding.root
     }
 
-    private fun setAdapter(){
+    private fun setViewPagerAdapter(){
         binding.viewPager.adapter = MessagesStateAdapter(this)
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = getText(when(position){
@@ -67,52 +67,7 @@ class MessagesFragment: Fragment(), MessageActions{
     private fun setLeftDrawer(inflater: LayoutInflater){
         val header = LayoutNavHeaderBinding.inflate(inflater)
         binding.expandableListView.addHeaderView(header.root)
-        val adapter = MainDrawerAdapter(requireContext(),
-            object :
-                LeftDrawerActions {
-                override fun onAddAccountClicked() {
-                    parentModel.startSignInActivity()
-                }
-
-                override fun onRemoveAccountClicked(username: String) {
-                    parentModel.deleteUserFromDatabase(username)
-                }
-
-                override fun onAccountClicked(account: Account) {
-                    parentModel.setCurrentUser(account, true)
-                    binding.drawerLayout.closeDrawer(Gravity.LEFT)
-                }
-
-                override fun onLogoutClicked() {
-                    parentModel.setCurrentUser(null, true)
-                    binding.drawerLayout.closeDrawer(Gravity.LEFT)
-                }
-
-                override fun onHomeClicked() {
-                    findNavController().popBackStack(R.id.home_fragment, false)
-                    binding.drawerLayout.closeDrawer(Gravity.LEFT)
-                }
-
-                override fun onMyAccountClicked() {
-                    findNavController().navigate(R.id.account_fragment)
-                    binding.drawerLayout.closeDrawer(Gravity.LEFT)
-                }
-
-                override fun onInboxClicked() {
-                    if((activity?.application as RedditApplication).accessToken == null){
-                        Snackbar.make(binding.drawerLayout, R.string.please_login_error, Snackbar.LENGTH_SHORT).show()
-                    } else {
-                        findNavController().navigate(R.id.messages_fragment)
-                    }
-                    binding.drawerLayout.closeDrawer(Gravity.LEFT)
-                }
-
-                override fun onSettingsClicked() {
-                    Toast.makeText(context, "Settings", Toast.LENGTH_LONG).show()
-                    binding.drawerLayout.closeDrawer(Gravity.LEFT)
-                }
-
-            })
+        val adapter = MainDrawerAdapter(requireContext(), this)
 
         binding.expandableListView.setAdapter(adapter)
 
@@ -141,7 +96,14 @@ class MessagesFragment: Fragment(), MessageActions{
         })
     }
 
-    // Message Actions
+//     __  __                                               _   _
+//    |  \/  |                                    /\       | | (_)
+//    | \  / | ___  ___ ___  __ _  __ _  ___     /  \   ___| |_ _  ___  _ __  ___
+//    | |\/| |/ _ \/ __/ __|/ _` |/ _` |/ _ \   / /\ \ / __| __| |/ _ \| '_ \/ __|
+//    | |  | |  __/\__ \__ \ (_| | (_| |  __/  / ____ \ (__| |_| | (_) | | | \__ \
+//    |_|  |_|\___||___/___/\__,_|\__, |\___| /_/    \_\___|\__|_|\___/|_| |_|___/
+//                                 __/ |
+//                                |___/
 
     override fun reply(message: Message) {
         TODO("Not yet implemented")
@@ -161,5 +123,62 @@ class MessagesFragment: Fragment(), MessageActions{
 
     override fun block(user: String) {
         TODO("Not yet implemented")
+    }
+
+//     _           __ _     _____                                             _   _
+//    | |         / _| |   |  __ \                                  /\       | | (_)
+//    | |     ___| |_| |_  | |  | |_ __ __ ___      _____ _ __     /  \   ___| |_ _  ___  _ __  ___
+//    | |    / _ \  _| __| | |  | | '__/ _` \ \ /\ / / _ \ '__|   / /\ \ / __| __| |/ _ \| '_ \/ __|
+//    | |___|  __/ | | |_  | |__| | | | (_| |\ V  V /  __/ |     / ____ \ (__| |_| | (_) | | | \__ \
+//    |______\___|_|  \__| |_____/|_|  \__,_| \_/\_/ \___|_|    /_/    \_\___|\__|_|\___/|_| |_|___/
+//
+
+
+    override fun onAddAccountClicked() {
+        parentModel.startSignInActivity()
+    }
+
+    override fun onRemoveAccountClicked(user: String) {
+        parentModel.deleteUserFromDatabase(user)
+    }
+
+    @SuppressLint("RtlHardcoded")
+    override fun onAccountClicked(account: Account) {
+        parentModel.setCurrentUser(account, true)
+        binding.drawerLayout.closeDrawer(Gravity.LEFT)
+    }
+
+    @SuppressLint("RtlHardcoded")
+    override fun onLogoutClicked() {
+        parentModel.setCurrentUser(null, true)
+        binding.drawerLayout.closeDrawer(Gravity.LEFT)
+    }
+
+    @SuppressLint("RtlHardcoded")
+    override fun onHomeClicked() {
+        findNavController().popBackStack(R.id.home_fragment, false)
+        binding.drawerLayout.closeDrawer(Gravity.LEFT)
+    }
+
+    @SuppressLint("RtlHardcoded")
+    override fun onMyAccountClicked() {
+        findNavController().navigate(R.id.account_fragment)
+        binding.drawerLayout.closeDrawer(Gravity.LEFT)
+    }
+
+    @SuppressLint("RtlHardcoded")
+    override fun onInboxClicked() {
+        if((activity?.application as RedditApplication).accessToken == null){
+            Snackbar.make(binding.drawerLayout, R.string.please_login_error, Snackbar.LENGTH_SHORT).show()
+        } else {
+            findNavController().navigate(R.id.messages_fragment)
+        }
+        binding.drawerLayout.closeDrawer(Gravity.LEFT)
+    }
+
+    @SuppressLint("RtlHardcoded")
+    override fun onSettingsClicked() {
+        Toast.makeText(context, "Settings", Toast.LENGTH_LONG).show()
+        binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }
 }

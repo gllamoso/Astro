@@ -1,12 +1,9 @@
 package dev.gtcl.reddit.ui
 
-import android.util.Log
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class LoadMoreScrollListener(private val mLayoutManager: GridLayoutManager, private val onLoadMore: () -> Unit) : RecyclerView.OnScrollListener() {
-
-    private val visibleThreshold = 15
+class ItemScrollListener(private val visibleThreshold: Int = 15, private val mLayoutManager: GridLayoutManager, private val loadMore: () -> Unit) : RecyclerView.OnScrollListener() {
 
     private var isLoading = false
     fun finishedLoading(){
@@ -29,7 +26,7 @@ class LoadMoreScrollListener(private val mLayoutManager: GridLayoutManager, priv
         val totalItemCount = mLayoutManager.itemCount
         val lastVisibleItem = mLayoutManager.findLastVisibleItemPosition()
         if(!isLoading && totalItemCount <= lastVisibleItem + visibleThreshold){
-            onLoadMore()
+            loadMore()
             isLoading = true
         }
     }

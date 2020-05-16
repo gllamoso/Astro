@@ -10,13 +10,13 @@ import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
 import dev.gtcl.reddit.ui.fragments.home.listing.ListingFragment
 import java.util.*
 
-class ViewPagerAdapter(fragment: Fragment, startingFragment: StartingViewPagerFragments): FragmentStateAdapter(fragment){
-    val fragments = Stack<Fragment>()
+class ViewPagerAdapter(fragment: Fragment, startingFragment: StartingViewPagerFragments, user: String? = null): FragmentStateAdapter(fragment){
+    val fragments = Stack<Fragment>() // TODO: Update. Can cause data leakage
 
     init {
         when(startingFragment){
             StartingViewPagerFragments.LISTING -> fragments.add(ListingFragment())
-            StartingViewPagerFragments.USER -> fragments.add(AccountFragment())
+            StartingViewPagerFragments.USER -> fragments.add(AccountFragment.newInstance(user))
         }
     }
 

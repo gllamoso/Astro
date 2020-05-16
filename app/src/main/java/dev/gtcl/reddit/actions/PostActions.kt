@@ -10,6 +10,5 @@ interface PostActions {
     fun save(post: Post)
     fun hide(post: Post)
     fun report(post: Post)
-    fun postClicked(post: Post)
     fun thumbnailClicked(post: Post)
 }

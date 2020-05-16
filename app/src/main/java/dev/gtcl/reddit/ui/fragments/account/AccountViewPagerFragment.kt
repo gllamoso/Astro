@@ -12,6 +12,7 @@ import dev.gtcl.reddit.databinding.FragmentViewPagerBinding
 import dev.gtcl.reddit.models.reddit.Comment
 import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.actions.ViewPagerActions
+import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.ui.fragments.StartingViewPagerFragments
 import dev.gtcl.reddit.ui.fragments.SlidePageTransformer
 import dev.gtcl.reddit.ui.fragments.ViewPagerAdapter
@@ -25,9 +26,8 @@ class AccountViewPagerFragment: Fragment(),
 
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
-        val user : String? = arguments?.getString(USER_KEY)
         when(childFragment){
-            is AccountFragment -> childFragment.setFragment(this, user)
+            is AccountFragment -> childFragment.setFragment(this)
             is CommentsFragment -> childFragment.setViewPagerActions(this)
         }
     }
@@ -60,19 +60,18 @@ class AccountViewPagerFragment: Fragment(),
         binding.viewPager.isUserInputEnabled = enable
     }
 
-    override fun navigatePrevious() {
+    override fun navigatePreviousPage() {
         val currentPage = binding.viewPager.currentItem
         binding.viewPager.setCurrentItem(currentPage - 1, true)
     }
 
-    override fun viewComments(post: Post) {
-        viewpagerAdapter.addCommentsPage(post)
-        navigateToNextPage()
-    }
-
-    override fun viewComments(comment: Comment) {
-        TODO("Not yet implemented")
-//        navigateToNextPage()
+    override fun navigateToNewPage(item: Item) {
+        when(item){
+            is Post -> {
+                viewpagerAdapter.addCommentsPage(item)
+                navigateToNextPage()
+            }
+        }
     }
 
     private fun navigateToNextPage(){

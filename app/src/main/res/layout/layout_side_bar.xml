@@ -86,7 +86,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_add_circle_outline_24dp"
                 android:padding="8dp"
-                app:added="@{sub.addedToDb}"
+                app:added="@{sub.userSubscribed}"
                 android:background="?attr/selectableItemBackgroundBorderless"/>
 
             <ImageView

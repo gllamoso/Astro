@@ -1,6 +1,7 @@
 package dev.gtcl.reddit.repositories
 
 import androidx.annotation.MainThread
+import com.google.android.exoplayer2.util.Log
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.SubredditMineWhere
 import dev.gtcl.reddit.SubredditWhere
@@ -22,10 +23,16 @@ class SubredditRepository private constructor(private val application: RedditApp
 
     @MainThread
     fun getNetworkSubreddits(where: SubredditWhere, after: String? = null, limit: Int = 100): Deferred<ListingResponse> {
-        return if(application.accessToken != null)
-            RedditApi.oauth.getSubreddits("bearer ${application.accessToken!!.value}", where, after, limit)
-        else
+        return if(application.accessToken != null) {
+            RedditApi.oauth.getSubreddits(
+                "bearer ${application.accessToken!!.value}",
+                where,
+                after,
+                limit
+            )
+        } else {
             RedditApi.base.getSubreddits(null, where, after, limit)
+        }
     }
 
     @MainThread

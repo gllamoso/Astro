@@ -19,6 +19,7 @@ import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.ui.activities.main.MainActivity
 import dev.gtcl.reddit.ui.activities.main.MainActivityViewModel
 import dev.gtcl.reddit.actions.ViewPagerActions
+import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
 import dev.gtcl.reddit.ui.fragments.home.listing.ListingFragment
@@ -90,20 +91,25 @@ class HomeFragment : Fragment(), ViewPagerActions {
         binding.viewPager.isUserInputEnabled = enable
     }
 
-    override fun navigatePrevious() {
+    override fun navigatePreviousPage() {
         val currentPage = binding.viewPager.currentItem
         binding.viewPager.setCurrentItem(currentPage - 1, true)
     }
 
-    override fun viewComments(post: Post) {
-        pageAdapter.addCommentsPage(post)
-        parentModel.addReadPost(post.asReadListing)
+    override fun navigateToNewPage(item: Item) {
+        pageAdapter.addCommentsPage(item as Post)
         navigateNext()
     }
 
-    override fun viewComments(comment: Comment) {
+//    override fun viewComments(post: Post) {
+//        pageAdapter.addCommentsPage(post)
+//        parentModel.addReadPost(post)
 //        navigateNext()
-    }
+//    }
+//
+//    override fun viewComments(comment: Comment) {
+////        navigateNext()
+//    }
 
     private fun navigateNext() {
         val currentPage = binding.viewPager.currentItem

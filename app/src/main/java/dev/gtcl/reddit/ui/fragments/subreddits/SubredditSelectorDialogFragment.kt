@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.dialog.subreddits
+package dev.gtcl.reddit.ui.fragments.subreddits
 
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.os.Bundle
@@ -18,12 +18,11 @@ import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentDialogSubredditsBinding
 import dev.gtcl.reddit.models.reddit.Subreddit
-import dev.gtcl.reddit.models.reddit.SubredditListing
 import dev.gtcl.reddit.actions.ListingActions
 import dev.gtcl.reddit.actions.SubredditActions
-import dev.gtcl.reddit.ui.fragments.SimpleListingScrollerFragment
-import dev.gtcl.reddit.ui.fragments.dialog.subreddits.mine.MineFragment
-import dev.gtcl.reddit.ui.fragments.dialog.subreddits.search.SearchFragment
+import dev.gtcl.reddit.ui.fragments.subreddits.mine.MineFragment
+import dev.gtcl.reddit.ui.fragments.subreddits.search.SearchFragment
+import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingListFragment
 import kotlin.NoSuchElementException
 
 class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditActions {
@@ -41,7 +40,6 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
         super.onAttachFragment(childFragment)
         when(childFragment){
             is MineFragment -> childFragment.setFragment(listingActions, this)
-            is SimpleListingScrollerFragment -> childFragment.setActions(subredditActions = this)
             is SearchFragment -> childFragment.setFragment(this)
         }
     }
@@ -134,18 +132,18 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
         }
     }
 
-    override fun onClick(subreddit: Subreddit) {
-        listingActions.onListingClicked(SubredditListing(subreddit))
-    }
+//    override fun onClick(subreddit: Subreddit) {
+//        listingActions.onListingClicked(SubredditListing(subreddit))
+//    }
 
-    override fun addToFavorites(subreddit: Subreddit, favorite: Boolean, refresh: Boolean) {
+    override fun addToFavorites(subreddit: Subreddit, favorite: Boolean) {
         model.addToFavorites(subreddit, favorite)
-        if(refresh) refreshMineFragment()
+//        if(refresh) refreshMineFragment()
     }
 
-    override fun subscribe(subreddit: Subreddit, subscribe: Boolean, refresh: Boolean) {
+    override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
         model.subscribe(subreddit, if(subscribe) SubscribeAction.SUBSCRIBE else SubscribeAction.UNSUBSCRIBE, false)
-        if(refresh) refreshMineFragment()
+//        if(refresh) refreshMineFragment()
     }
 
     private fun refreshMineFragment(){
@@ -169,5 +167,15 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
     companion object {
         val TAG = SubredditSelectorDialogFragment::class.qualifiedName
     }
+
+//    override fun onDownScroll() {
+//        view?.post { // TODO: Fix
+//            val parent = requireView().parent as View
+//            val params = parent.layoutParams as CoordinatorLayout.LayoutParams
+//            val behavior = params.behavior
+//            val bottomSheetBehavior = behavior as BottomSheetBehavior
+//            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
+//        }
+//    }
 
 }

@@ -144,7 +144,13 @@ fun loadFavoriteIcon(imgView: ImageView, isFavorite: Boolean){
 
 @BindingAdapter("added")
 fun loadAddedIcon(imgView: ImageView, added: Boolean){
-    imgView.setImageResource(if(added) R.drawable.ic_remove_circle_outline_24dp else R.drawable.ic_add_circle_outline_24dp)
+    imgView.setImageResource(
+        if(added){
+            R.drawable.ic_remove_circle_outline_24dp
+        } else {
+            R.drawable.ic_add_circle_outline_24dp
+        }
+    )
 }
 
 @BindingAdapter("listingType")
@@ -283,4 +289,9 @@ fun setViewColor(view: View, likes: Boolean?){
         true -> view.setBackgroundColor(ContextCompat.getColor(view.context, android.R.color.holo_orange_dark))
         false -> view.setBackgroundColor(ContextCompat.getColor(view.context, android.R.color.holo_blue_dark))
     }
+}
+
+@BindingAdapter("read")
+fun setTextColor(textView: TextView, isRead: Boolean?){
+    textView.setTextColor(ContextCompat.getColor(textView.context, if(isRead == true) android.R.color.darker_gray else R.color.textColor))
 }

@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.dialog.subreddits.search
+package dev.gtcl.reddit.ui.fragments.subreddits.search
 
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData

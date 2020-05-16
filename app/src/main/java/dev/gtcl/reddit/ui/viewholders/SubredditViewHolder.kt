@@ -9,26 +9,29 @@ import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.actions.SubsAdapterActions
 
 class SubredditViewHolder private constructor(private val binding: ItemSubredditBinding): RecyclerView.ViewHolder(binding.root) {
-    fun bind(subreddit: Subreddit, subredditActions: SubredditActions, subsAdapterActions: SubsAdapterActions?){
+    fun bind(subreddit: Subreddit, subredditActions: SubredditActions, subsAdapterActions: SubsAdapterActions?, subClicked: () -> Unit){
         binding.sub = subreddit
         binding.root.setOnClickListener {
-            subredditActions.onClick(subreddit)
+            subClicked()
         }
         binding.addIcon.setOnClickListener{
-            subreddit.isAddedToDb = !subreddit.isAddedToDb
-            if(!subreddit.isAddedToDb) {
+            subreddit.userSubscribed = subreddit.userSubscribed != true
+            if(!subreddit.userSubscribed!!) {
                 subsAdapterActions?.remove(subreddit)
+                subreddit.isFavorite = false
             }
-            subredditActions.subscribe(subreddit, subreddit.isAddedToDb, subsAdapterActions == null)
+            subredditActions.subscribe(subreddit, subreddit.userSubscribed!!)
             binding.invalidateAll()
         }
         binding.favoriteIcon.setOnClickListener {
-            subredditActions.addToFavorites(subreddit, !subreddit.isFavorite, subsAdapterActions == null)
+            subredditActions.addToFavorites(subreddit, !subreddit.isFavorite)
             subreddit.isFavorite = !subreddit.isFavorite
-            if(subreddit.isFavorite)
+            if(subreddit.isFavorite) {
+                subreddit.userSubscribed = true
                 subsAdapterActions?.addToFavorites(subreddit)
-            else
+            } else {
                 subsAdapterActions?.removeFromFavorites(subreddit)
+            }
             binding.invalidateAll()
         }
         binding.executePendingBindings()

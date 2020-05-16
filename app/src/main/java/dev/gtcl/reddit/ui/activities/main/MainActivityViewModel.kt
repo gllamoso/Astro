@@ -8,8 +8,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.database.ItemsRead
+import dev.gtcl.reddit.database.ItemRead
 import dev.gtcl.reddit.models.reddit.Account
+import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.repositories.UserRepository
 import kotlinx.coroutines.CoroutineScope
@@ -127,11 +128,11 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
     }
 
     // Read posts
-    val allReadPosts = postRepository.getReadPostsFromDatabase()
+    val allReadPosts = postRepository.getReadPostsLiveData()
 
-    fun addReadPost(itemsRead: ItemsRead) {
+    fun addReadPost(post: Post) {
         coroutineScope.launch {
-            postRepository.insertReadPostToDatabase(itemsRead)
+            postRepository.addReadItem(post)
         }
     }
 }

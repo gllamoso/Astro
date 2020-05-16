@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.dialog.subreddits.mine
+package dev.gtcl.reddit.ui.fragments.subreddits.mine
 
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
