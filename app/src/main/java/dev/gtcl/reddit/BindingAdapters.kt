@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.graphics.Point
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -108,7 +107,7 @@ fun loadMultiIcon(imgView: ImageView, listingType: ListingType){
         FrontPage -> imgView.setImageResource(R.drawable.ic_front_page_24dp)
         All -> imgView.setImageResource(R.drawable.ic_all_24dp)
         Popular -> imgView.setImageResource(R.drawable.ic_trending_up_24dp)
-        is MultiReddit -> imgView.setImageResource(R.drawable.ic_collection_24dp)
+        is MultiRedditListing -> imgView.setImageResource(R.drawable.ic_collection_24dp)
         is SubredditListing -> loadSubIcon(imgView, listingType.sub.iconImg)
         else -> imgView.setImageResource(R.drawable.ic_bookmark_24dp)
     }
@@ -160,7 +159,7 @@ fun loadListingText(txtView: TextView, listingType: ListingType?){
             FrontPage -> txtView.context.getText(R.string.frontpage)
             All -> txtView.context.getText(R.string.all)
             Popular -> txtView.context.getText(R.string.popular_tab_label)
-            is MultiReddit -> it.name
+            is MultiRedditListing -> it.multiReddit.displayName
             is SubredditListing -> it.sub.displayName
             is ProfileListing -> when(it.info){
                 ProfileInfo.OVERVIEW -> txtView.context.getText(R.string.overview)
@@ -294,4 +293,18 @@ fun setViewColor(view: View, likes: Boolean?){
 @BindingAdapter("read")
 fun setTextColor(textView: TextView, isRead: Boolean?){
     textView.setTextColor(ContextCompat.getColor(textView.context, if(isRead == true) android.R.color.darker_gray else R.color.textColor))
+}
+
+@BindingAdapter("invert")
+fun invert(view: View, inverted: Boolean?){
+    if(inverted == null){
+        view.visibility = View.GONE
+    } else {
+        view.visibility = View.VISIBLE
+        view.rotation = if(inverted){
+                180F
+            } else {
+                0F
+            }
+    }
 }

@@ -49,10 +49,11 @@ class ListingScrollerViewModel(application: RedditApplication): AndroidViewModel
 
     private lateinit var postSort: PostSort
     private var t: Time? = null
-    var pageSize = 15
+    private var pageSize = 15
     var initialPageLoaded = false
     private var lastItemReached = false
 
+    val subscribedSubs = Transformations.map(subredditRepository.getSubscribedSubsLive()) { it.map { sub -> sub.displayName }.toHashSet() }!!
     val favoriteSubs = Transformations.map(subredditRepository.getFavoriteSubsLive()) { it.map { sub -> sub.displayName}.toHashSet() }!!
 
     private val _refreshState = MutableLiveData<NetworkState>()
@@ -130,9 +131,15 @@ class ListingScrollerViewModel(application: RedditApplication): AndroidViewModel
                 } else {
                     subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
                 }
+                val tempSubscribedSubs = if(subscribedSubs.value != null){
+                    subscribedSubs.value!!
+                } else {
+                    subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
+                }
                 for(item: Item in items){
                     if(item is Subreddit){
                         item.isFavorite = tempFavoriteSubs.contains(item.displayName)
+                        item.userSubscribed = tempSubscribedSubs.contains(item.displayName)
                     }
                 }
             }
@@ -188,9 +195,15 @@ class ListingScrollerViewModel(application: RedditApplication): AndroidViewModel
                     } else {
                         subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
                     }
+                    val tempSubscribedSubs = if(subscribedSubs.value != null){
+                        subscribedSubs.value!!
+                    } else {
+                        subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
+                    }
                     for(item: Item in newItems){
                         if(item is Subreddit){
                             item.isFavorite = tempFavoriteSubs.contains(item.displayName)
+                            item.userSubscribed = tempSubscribedSubs.contains(item.displayName)
                         }
                     }
                 }

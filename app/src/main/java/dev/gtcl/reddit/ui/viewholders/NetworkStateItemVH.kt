@@ -39,7 +39,7 @@ import dev.gtcl.reddit.network.NetworkState
 //    }
 //}
 
-class NetworkStateItemViewHolder private constructor(private val binding: ItemNetworkStateBinding, private val retryCallback: () -> Unit) : RecyclerView.ViewHolder(binding.root) {
+class NetworkStateItemVH private constructor(private val binding: ItemNetworkStateBinding, private val retryCallback: () -> Unit) : RecyclerView.ViewHolder(binding.root) {
     init {
         binding.retryButton.setOnClickListener {
             retryCallback()
@@ -51,8 +51,8 @@ class NetworkStateItemViewHolder private constructor(private val binding: ItemNe
     }
 
     companion object {
-        fun create(parent: ViewGroup, retryCallback: () -> Unit): NetworkStateItemViewHolder {
-            return NetworkStateItemViewHolder(
+        fun create(parent: ViewGroup, retryCallback: () -> Unit): NetworkStateItemVH {
+            return NetworkStateItemVH(
                 ItemNetworkStateBinding.inflate(LayoutInflater.from(parent.context)),
                 retryCallback
             )

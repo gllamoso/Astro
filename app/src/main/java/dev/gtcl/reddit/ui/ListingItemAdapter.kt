@@ -16,10 +16,9 @@ class ListingItemAdapter(
     private val postActions: PostActions? = null,
     private val subredditActions: SubredditActions? = null,
     private val messageActions: MessageActions? = null,
+    private val itemClickListener: ItemClickListener,
     private val retry: () -> Unit,
     private val hideableItems: Boolean = false): RecyclerView.Adapter<RecyclerView.ViewHolder>(), ItemClickListener  {
-
-    var itemClickListener: ItemClickListener? = null
 
     var networkState = NetworkState.LOADING
         set(value){
@@ -43,6 +42,14 @@ class ListingItemAdapter(
         if(newItems.isNotEmpty()){
             items.addAll(newItems)
             notifyItemRangeInserted(insertionPoint, newItems.size)
+        }
+    }
+
+    fun updateSubscribedItems(ids: HashSet<String>){
+        for(item: Item in items){
+            if(item is Subreddit){
+                item.userSubscribed = ids.contains(item.displayName)
+            }
         }
     }
 
@@ -75,11 +82,11 @@ class ListingItemAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            R.layout.item_post -> PostViewHolder.create(parent)
-            R.layout.item_comment -> CommentViewHolder.create(parent)
-            R.layout.item_subreddit -> SubredditViewHolder.create(parent)
-            R.layout.item_message -> MessageViewHolder.create(parent)
-            R.layout.item_network_state -> NetworkStateItemViewHolder.create(parent, retry)
+            R.layout.item_post -> PostVH.create(parent)
+            R.layout.item_comment -> CommentVH.create(parent)
+            R.layout.item_subreddit -> SubredditVH.create(parent)
+            R.layout.item_message -> MessageVH.create(parent)
+            R.layout.item_network_state -> NetworkStateItemVH.create(parent, retry)
             else -> throw IllegalArgumentException("Unknown view type $viewType")
         }
     }
@@ -102,29 +109,29 @@ class ListingItemAdapter(
                 val postClicked: (Post) -> Unit = {
                     itemClicked(it)
                 }
-                (holder as PostViewHolder).bind(post, postActions,
+                (holder as PostVH).bind(post, postActions,
                     hideAction = hide,
                     postClicked = postClicked)
             }
             R.layout.item_comment -> {
                 val comment = items[position] as Comment
-                (holder as CommentViewHolder).bind(comment) { _, _ ->  }
+                (holder as CommentVH).bind(comment) { _, _ ->  }
             }
             R.layout.item_subreddit -> {
                 val subreddit = items[position] as Subreddit
                 if(subredditActions == null){
                     throw IllegalStateException("Subreddit Actions not initialized")
                 }
-                (holder as SubredditViewHolder).bind(subreddit, subredditActions, null) {itemClicked(subreddit)}
+                (holder as SubredditVH).bind(subreddit, subredditActions, null, false, itemClickListener)
             }
             R.layout.item_message -> {
                 val message = items[position] as Message
                 if(messageActions == null){
                     throw java.lang.IllegalStateException("Message Actions not initialized")
                 }
-                (holder as MessageViewHolder).bind(message, messageActions)
+                (holder as MessageVH).bind(message, messageActions)
             }
-            R.layout.item_network_state -> (holder as NetworkStateItemViewHolder).bindTo(networkState)
+            R.layout.item_network_state -> (holder as NetworkStateItemVH).bindTo(networkState)
         }
     }
 

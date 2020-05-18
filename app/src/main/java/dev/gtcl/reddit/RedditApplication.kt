@@ -10,7 +10,7 @@ class RedditApplication : Application() {
     var accessToken: AccessToken? = null
         set(value){
             field = value
-            Log.d("TAE", "Access Token: ${value?.value}") // TODO: Remove
+            Log.d("TOKEN", "Access Token: ${value?.value}") // TODO: Remove
         }
 
     var currentAccount: Account? = null

@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.repositories
 
+import android.util.Log
 import androidx.annotation.MainThread
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.ItemRead
@@ -23,58 +24,77 @@ class ListingRepository private constructor(private val application: RedditAppli
     // --- NETWORK
     @MainThread
     fun getListing(listingType: ListingType, sort: PostSort, t: Time? = null, after: String?, pageSize: Int, user: String? = null): Deferred<ListingResponse>{
-        val accessToken = application.accessToken?.value
+        val accessToken = application.accessToken
         val userName = user ?: application.currentAccount?.name
         return when(listingType){
-            FrontPage -> if(accessToken != null) RedditApi.oauth.getPostFromFrontPage("bearer $accessToken", sort, t, after, pageSize)
-                else RedditApi.base.getPostFromFrontPage(null, sort, t, after, pageSize)
-            All -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit("bearer $accessToken", "all", sort, t, after, pageSize)
-                else RedditApi.base.getPostsFromSubreddit(null, "all", sort, t, after, pageSize)
-            Popular -> if(accessToken != null) RedditApi.oauth.getPostsFromSubreddit("bearer $accessToken", "popular", sort, t, after, pageSize)
-                else RedditApi.base.getPostsFromSubreddit(null, "popular", sort, t, after, pageSize)
-            is MultiReddit -> TODO()
-            is SubredditListing -> if (accessToken != null) RedditApi.oauth.getPostsFromSubreddit("bearer $accessToken", listingType.sub.displayName, sort, t, after, pageSize)
-                else RedditApi.base.getPostsFromSubreddit(null, listingType.sub.displayName, sort, t, after, pageSize)
-            is ProfileListing -> if(accessToken != null) RedditApi.oauth.getPostsFromUser("bearer $accessToken", userName!!, listingType.info, after, pageSize)
-                else RedditApi.base.getPostsFromUser(null, userName!!, listingType.info, after, pageSize)
+            FrontPage -> if(accessToken != null) {
+                    RedditApi.oauth.getPostFromFrontPage(accessToken.authorizationHeader, sort, t, after, pageSize)
+                } else {
+                    RedditApi.base.getPostFromFrontPage(null, sort, t, after, pageSize)
+                }
+            All -> if(accessToken != null) {
+                    RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, "all", sort, t, after, pageSize)
+                } else {
+                    RedditApi.base.getPostsFromSubreddit(null, "all", sort, t, after, pageSize)
+                }
+            Popular -> if(accessToken != null) {
+                    RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, "popular", sort, t, after, pageSize)
+                } else {
+                    RedditApi.base.getPostsFromSubreddit(null, "popular", sort, t, after, pageSize)
+                }
+            is MultiRedditListing -> if(accessToken != null){
+                    RedditApi.oauth.getMultiRedditListing(accessToken.authorizationHeader, listingType.multiReddit.path.removePrefix("/"), sort, t, after, pageSize)
+                } else {
+                    RedditApi.base.getMultiRedditListing(null , listingType.multiReddit.path.removePrefix("/"), sort, t, after, pageSize)
+                }
+            is SubredditListing -> if (accessToken != null) {
+                    RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, listingType.sub.displayName, sort, t, after, pageSize)
+                } else {
+                    RedditApi.base.getPostsFromSubreddit(null, listingType.sub.displayName, sort, t, after, pageSize)
+                }
+            is ProfileListing -> if(accessToken != null){
+                    RedditApi.oauth.getPostsFromUser(accessToken.authorizationHeader, userName!!, listingType.info, after, pageSize)
+                } else {
+                    RedditApi.base.getPostsFromUser(null, userName!!, listingType.info, after, pageSize)
+                }
         }
     }
 
     @MainThread
     fun vote(fullname: String, vote: Vote): Call<Void> {
         if(application.accessToken == null) throw IllegalStateException("User must be logged in to vote")
-        return RedditApi.oauth.vote("bearer ${application.accessToken!!.value}", fullname, vote.value)
+        return RedditApi.oauth.vote(application.accessToken!!.authorizationHeader, fullname, vote.value)
     }
 
     @MainThread
     fun save(id: String): Call<Void>{
         if(application.accessToken == null) throw IllegalStateException("User must be logged in to save")
-        return RedditApi.oauth.save("bearer ${application.accessToken!!.value}", id)
+        return RedditApi.oauth.save(application.accessToken!!.authorizationHeader, id)
     }
 
     @MainThread
     fun unsave(id: String): Call<Void>{
         if(application.accessToken == null) throw IllegalStateException("User must be logged in to unsave")
-        return RedditApi.oauth.unsave("bearer ${application.accessToken!!.value}", id)
+        return RedditApi.oauth.unsave(application.accessToken!!.authorizationHeader, id)
     }
 
     @MainThread
     fun hide(id: String): Call<Void>{
         if(application.accessToken == null) throw IllegalStateException("User must be logged in to hide")
-        return RedditApi.oauth.hide("bearer ${application.accessToken!!.value}", id)
+        return RedditApi.oauth.hide(application.accessToken!!.authorizationHeader, id)
     }
 
     @MainThread
     fun unhide(id: String): Call<Void>{
         if(application.accessToken == null) throw IllegalStateException("User must be logged in to unhide")
-        return RedditApi.oauth.unhide("bearer ${application.accessToken!!.value}", id)
+        return RedditApi.oauth.unhide(application.accessToken!!.authorizationHeader, id)
     }
 
 
     @MainThread
     fun getAwards(user: String): Deferred<TrophyListingResponse>{
         return if(application.accessToken == null) RedditApi.base.getAwards(null, user)
-            else RedditApi.oauth.getAwards("bearer ${application.accessToken!!.value}", user)
+            else RedditApi.oauth.getAwards(application.accessToken!!.authorizationHeader, user)
     }
 
     // --- DATABASE

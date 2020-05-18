@@ -1,22 +1,21 @@
 package dev.gtcl.reddit.repositories
 
 import androidx.annotation.MainThread
-import com.google.android.exoplayer2.util.Log
+import androidx.lifecycle.LiveData
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.SubredditMineWhere
 import dev.gtcl.reddit.SubredditWhere
 import dev.gtcl.reddit.SubscribeAction
+import dev.gtcl.reddit.database.DbMultiReddit
 import dev.gtcl.reddit.database.DbSubreddit
 import dev.gtcl.reddit.database.redditDatabase
-import dev.gtcl.reddit.models.reddit.ListingResponse
-import dev.gtcl.reddit.models.reddit.Subreddit
-import dev.gtcl.reddit.models.reddit.asSubredditDatabaseModels
+import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.network.RedditApi
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Call
-import java.lang.IllegalStateException
+import kotlin.IllegalStateException
 
 class SubredditRepository private constructor(private val application: RedditApplication){
     private val database = redditDatabase(application)
@@ -25,7 +24,7 @@ class SubredditRepository private constructor(private val application: RedditApp
     fun getNetworkSubreddits(where: SubredditWhere, after: String? = null, limit: Int = 100): Deferred<ListingResponse> {
         return if(application.accessToken != null) {
             RedditApi.oauth.getSubreddits(
-                "bearer ${application.accessToken!!.value}",
+                application.accessToken!!.authorizationHeader,
                 where,
                 after,
                 limit
@@ -38,7 +37,7 @@ class SubredditRepository private constructor(private val application: RedditApp
     @MainThread
     fun getNetworkAccountSubreddits(limit: Int = 100, after: String? = null): Deferred<ListingResponse> {
         return if(application.accessToken != null)
-            RedditApi.oauth.getSubredditsOfMine("bearer ${application.accessToken!!.value}", SubredditMineWhere.SUBSCRIBER, after, limit)
+            RedditApi.oauth.getSubredditsOfMine(application.accessToken!!.authorizationHeader, SubredditMineWhere.SUBSCRIBER, after, limit)
         else
             RedditApi.base.getSubreddits(null, SubredditWhere.DEFAULT, after, limit)
     }
@@ -83,10 +82,6 @@ class SubredditRepository private constructor(private val application: RedditApp
         }
     }
 
-
-    @MainThread
-    fun getNonFavoriteSubsLive() = database.subredditDao.getNonFavoriteSubsLive(application.currentAccount?.id ?: GUEST_ID)
-
     @MainThread
     fun getFavoriteSubsLive() = database.subredditDao.getFavoriteSubsLive(application.currentAccount?.id ?: GUEST_ID)
 
@@ -102,13 +97,60 @@ class SubredditRepository private constructor(private val application: RedditApp
     @MainThread
     fun subscribe(srName: String, subscribeAction: SubscribeAction): Call<Void> {
         if(application.accessToken == null) throw IllegalStateException("User must be logged in to subscribe")
-        return RedditApi.oauth.subscribeToSubreddit("bearer ${application.accessToken!!.value}", subscribeAction,  srName)
+        return RedditApi.oauth.subscribeToSubreddit(application.accessToken!!.authorizationHeader, subscribeAction,  srName)
     }
 
     @MainThread
     fun searchSubreddits(nsfw: Boolean, includeProfiles: Boolean, limit: Int, query: String): Deferred<ListingResponse> {
         return if(application.accessToken == null) RedditApi.base.getSubredditNameSearch(null, nsfw, includeProfiles, limit, query)
-        else RedditApi.oauth.getSubredditNameSearch("bearer ${application.accessToken!!.value}", nsfw, includeProfiles, limit, query)
+        else RedditApi.oauth.getSubredditNameSearch(application.accessToken!!.authorizationHeader, nsfw, includeProfiles, limit, query)
+    }
+
+//     __  __       _ _   _        _____          _     _ _ _
+//    |  \/  |     | | | (_)      |  __ \        | |   | (_) |
+//    | \  / |_   _| | |_ _ ______| |__) |___  __| | __| |_| |_ ___
+//    | |\/| | | | | | __| |______|  _  // _ \/ _` |/ _` | | __/ __|
+//    | |  | | |_| | | |_| |      | | \ \  __/ (_| | (_| | | |_\__ \
+//    |_|  |_|\__,_|_|\__|_|      |_|  \_\___|\__,_|\__,_|_|\__|___/
+//
+
+    @MainThread
+    fun getMyMultiReddits(): Deferred<List<MultiRedditChild>> {
+        if(application.accessToken == null) {
+            throw IllegalStateException("User must be logged in to fetch multireddits")
+        }
+        return RedditApi.oauth.getMyMultiReddits(application.accessToken!!.authorizationHeader)
+    }
+
+    @MainThread
+    fun getMultiReddit(multipath: String): Deferred<MultiRedditChild>{
+        return if(application.accessToken == null) {
+            RedditApi.base.getMultiReddit(null, multipath)
+        } else {
+            RedditApi.oauth.getMultiReddit(application.accessToken!!.authorizationHeader, multipath)
+        }
+    }
+
+    @MainThread
+    suspend fun insertMultiReddits(multis: List<DbMultiReddit>){
+        withContext(Dispatchers.IO){
+            database.multiRedditDao.insert(multis)
+        }
+    }
+
+    @MainThread
+    fun getMyMultiRedditsDb(): LiveData<List<DbMultiReddit>> {
+        if(application.currentAccount == null) {
+            throw IllegalStateException("Must be logged in to fetch multireddits")
+        }
+        return database.multiRedditDao.getMultiRedditsLive(application.currentAccount!!.id)
+    }
+
+    @MainThread
+    suspend fun deleteAllMultiReddits(){
+        withContext(Dispatchers.IO){
+            database.multiRedditDao.deleteSubscribedSubs(application.currentAccount!!.id)
+        }
     }
 
     companion object{

@@ -16,11 +16,9 @@ import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.SimpleItemAnimator
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.actions.LeftDrawerActions
+import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentListingBinding
 import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.ui.*
@@ -28,25 +26,29 @@ import dev.gtcl.reddit.ui.activities.main.MainActivity
 import dev.gtcl.reddit.ui.activities.main.MainActivityViewModel
 import dev.gtcl.reddit.ui.fragments.dialog.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.dialog.SortSheetDialogFragment
-import dev.gtcl.reddit.actions.ListingActions
-import dev.gtcl.reddit.actions.PostActions
-import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.database.asAccountDomainModel
 import dev.gtcl.reddit.databinding.LayoutNavHeaderBinding
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.activities.main.MainDrawerAdapter
+import dev.gtcl.reddit.ui.fragments.ListingScrollListener
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.SubredditSelectorDialogFragment
 import dev.gtcl.reddit.ui.fragments.dialog.TimePeriodSheetDialogFragment
 
-class ListingFragment : Fragment(), PostActions, ListingActions {
+class ListingFragment : Fragment(), PostActions, ListingTypeClickListener, ItemClickListener, SubredditActions, MessageActions {
 
     private lateinit var binding: FragmentListingBinding
-    private lateinit var adapter: ListingAdapter
-    private lateinit var loadMoreListener: ItemScrollListener
 
-    private lateinit var viewPagerActions: ViewPagerActions
-    fun setViewPagerActions(viewPagerActions: ViewPagerActions){
+    private val adapter: ListingItemAdapter by lazy {
+        ListingItemAdapter(this, this, this, this, model::retry, true)
+    }
+
+    private val scrollChangeListener by lazy{
+        ListingScrollListener(loadMore = model::loadAfter)
+    }
+
+    private var viewPagerActions: ViewPagerActions? = null
+    fun setActions(viewPagerActions: ViewPagerActions){
         this.viewPagerActions = viewPagerActions
     }
 
@@ -61,7 +63,7 @@ class ListingFragment : Fragment(), PostActions, ListingActions {
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
         when(childFragment){
-            is SubredditSelectorDialogFragment -> childFragment.listingActions = this
+            is SubredditSelectorDialogFragment -> childFragment.setListingTypeClickListener(this)
 //            is MediaDialogFragment -> childFragment.postUrlCallback = this::postClicked
         }
     }
@@ -79,7 +81,8 @@ class ListingFragment : Fragment(), PostActions, ListingActions {
         // TODO: Update. Wrap with observer, observing a refresh live data
         parentModel.ready.observe(viewLifecycleOwner, Observer{
             if(it == true) {
-                model.loadInitial(FrontPage)
+                model.setListingInfo(FrontPage, PostSort.HOT, null, 15)
+                model.loadInitialDataAndFirstPage()
                 parentModel.readyComplete()
             }
         })
@@ -92,11 +95,55 @@ class ListingFragment : Fragment(), PostActions, ListingActions {
             }
         })
 
+        setSwipeRefresh()
         setRecyclerView()
         setBottomAppbarClickListeners()
         setLeftDrawer(inflater)
         setRightDrawer()
         return binding.root
+    }
+
+    private fun setSwipeRefresh() {
+        binding.swipeRefresh.setOnRefreshListener {
+            model.refresh()
+        }
+
+        model.refreshState.observe(viewLifecycleOwner, Observer {
+            if(it == NetworkState.LOADED){
+                binding.swipeRefresh.isRefreshing = false
+            }
+        })
+    }
+
+    private fun setRecyclerView() {
+        binding.list.adapter = adapter
+        model.items.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                adapter.clearItems()
+                adapter.addItems(it)
+                scrollChangeListener.finishedLoading()
+                if(it.isEmpty()){
+                    binding.list.visibility = View.GONE
+//                    binding.noResultsText.visibility = View.VISIBLE
+                } else {
+                    binding.list.visibility = View.VISIBLE
+//                    binding.noResultsText.visibility = View.GONE
+                }
+            }
+        })
+
+        model.newItems.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                adapter.addItems(it)
+                model.newItemsAdded()
+                scrollChangeListener.finishedLoading()
+            }
+        })
+
+        model.networkState.observe(viewLifecycleOwner, Observer {
+//            binding.progressBar.visibility = if(it == NetworkState.LOADING) View.VISIBLE else View.GONE
+            adapter.networkState = it
+        })
     }
 
     @SuppressLint("RtlHardcoded")
@@ -110,8 +157,8 @@ class ListingFragment : Fragment(), PostActions, ListingActions {
                         parentModel.startSignInActivity()
                     }
 
-                    override fun onRemoveAccountClicked(username: String) {
-                        parentModel.deleteUserFromDatabase(username)
+                    override fun onRemoveAccountClicked(user: String) {
+                        parentModel.deleteUserFromDatabase(user)
                     }
 
                     override fun onAccountClicked(account: Account) {
@@ -210,54 +257,6 @@ class ListingFragment : Fragment(), PostActions, ListingActions {
         })
     }
 
-    private fun setRecyclerView() {
-        loadMoreListener = ItemScrollListener(
-            model.pageSize,
-            binding.list.layoutManager as GridLayoutManager
-        ) {model.loadAfter()}
-
-        adapter = ListingAdapter(postActions = this as PostActions,
-            retry = model::retry,
-            onLastItemReached = loadMoreListener::lastItemReached)
-
-        binding.list.adapter = adapter
-        model.networkState.observe(viewLifecycleOwner, Observer {
-            adapter.setNetworkState(it)
-        })
-
-        parentModel.allReadPosts.observe(viewLifecycleOwner, Observer {
-            adapter.setReadSubs(it)
-        })
-
-        model.initialListing.observe(viewLifecycleOwner, Observer {
-            if(it == null) {
-                return@Observer
-            }
-            adapter.loadInitial(it)
-            model.loadInitialFinished()
-        })
-
-        binding.list.addOnScrollListener(loadMoreListener)
-
-        model.additionalListing.observe(viewLifecycleOwner, Observer {
-            if(it != null){
-                adapter.loadMore(it)
-                model.loadAfterFinished()
-                loadMoreListener.finishedLoading()
-            }
-        })
-
-        (binding.list.itemAnimator as SimpleItemAnimator).supportsChangeAnimations = false
-
-        binding.swipeRefresh.setOnRefreshListener {
-            model.refresh()
-        }
-
-        model.refreshState.observe(viewLifecycleOwner, Observer {
-            binding.swipeRefresh.isRefreshing = it == NetworkState.LOADING
-        })
-    }
-
     private fun setBottomAppbarClickListeners(){
         //TODO: Delete
         binding.bottomBarLayout.sortButton.setOnClickListener{
@@ -265,13 +264,15 @@ class ListingFragment : Fragment(), PostActions, ListingActions {
                 // TODO: Move logic in ViewModel?
                 if (sort == PostSort.TOP || sort == PostSort.CONTROVERSIAL) {
                     TimePeriodSheetDialogFragment { time ->
-                        model.loadInitial(model.listingSelected.value!!, sort, time)
+                        model.setSortAndTime(sort, time)
+                        model.loadInitialDataAndFirstPage()
                         binding.list.scrollToPosition(0)
                         (binding.list.adapter as? ListingAdapter)?.loadInitial(listOf())
                     }
                         .show(childFragmentManager, TimePeriodSheetDialogFragment.TAG)
                 } else {
-                    model.loadInitial(model.listingSelected.value!!, sort)
+                    model.setSort(sort)
+                    model.loadInitialDataAndFirstPage()
                     binding.list.scrollToPosition(0)
                     (binding.list.adapter as? ListingAdapter)?.loadInitial(listOf())
                 }
@@ -347,16 +348,49 @@ class ListingFragment : Fragment(), PostActions, ListingActions {
         dialog.show(childFragmentManager, null)
     }
 
-    override fun onListingClicked(listing: ListingType) {
-        model.loadInitial(listing)
-        adapter.lastItemReached = false
+    override fun onClick(listing: ListingType) {
+        model.setListingInfo(listing)
+        model.loadInitialDataAndFirstPage()
+//        adapter.lastItemReached = false
         binding.list.scrollToPosition(0)
-        loadMoreListener.reset()
+//        loadMoreListener.reset()
         for(fragment: Fragment in childFragmentManager.fragments){
             if(fragment is DialogFragment) {
                 fragment.dismiss()
             }
         }
+    }
+
+    override fun itemClicked(item: Item) {
+        viewPagerActions?.navigateToNewPage(item)
+    }
+
+    override fun favorite(subreddit: Subreddit, favorite: Boolean) {
+        TODO("Not yet implemented")
+    }
+
+    override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
+        TODO("Not yet implemented")
+    }
+
+    override fun reply(message: Message) {
+        TODO("Not yet implemented")
+    }
+
+    override fun mark(message: Message) {
+        TODO("Not yet implemented")
+    }
+
+    override fun delete(message: Message) {
+        TODO("Not yet implemented")
+    }
+
+    override fun viewProfile(user: String) {
+        TODO("Not yet implemented")
+    }
+
+    override fun block(user: String) {
+        TODO("Not yet implemented")
     }
 
 }

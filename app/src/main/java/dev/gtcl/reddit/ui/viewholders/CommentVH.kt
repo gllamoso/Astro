@@ -7,7 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemCommentBinding
 import dev.gtcl.reddit.models.reddit.Comment
 
-class CommentViewHolder private constructor(private val binding: ItemCommentBinding): RecyclerView.ViewHolder(binding.root) {
+class CommentVH private constructor(private val binding: ItemCommentBinding): RecyclerView.ViewHolder(binding.root) {
     fun bind(comment: Comment, onCommentClicked: (Int, Comment) -> Unit){
         binding.comment = comment
         itemView.setOnClickListener { onCommentClicked(adapterPosition, comment)}
@@ -26,8 +26,8 @@ class CommentViewHolder private constructor(private val binding: ItemCommentBind
     }
 
     companion object{
-        fun create(parent: ViewGroup): CommentViewHolder {
-            return CommentViewHolder(ItemCommentBinding.inflate(LayoutInflater.from(parent.context)))
+        fun create(parent: ViewGroup): CommentVH {
+            return CommentVH(ItemCommentBinding.inflate(LayoutInflater.from(parent.context)))
         }
     }
 }

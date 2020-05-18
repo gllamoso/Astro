@@ -197,6 +197,35 @@ interface RedditApiService {
         @Query("sr_name") srName: String
     ): Call<Void>
 
+//     __  __       _ _   _        _____          _     _ _ _
+//    |  \/  |     | | | (_)      |  __ \        | |   | (_) |
+//    | \  / |_   _| | |_ _ ______| |__) |___  __| | __| |_| |_ ___
+//    | |\/| | | | | | __| |______|  _  // _ \/ _` |/ _` | | __/ __|
+//    | |  | | |_| | | |_| |      | | \ \  __/ (_| | (_| | | |_\__ \
+//    |_|  |_|\__,_|_|\__|_|      |_|  \_\___|\__,_|\__,_|_|\__|___/
+//
+
+    @GET("/api/multi/mine")
+    fun getMyMultiReddits(
+        @Header("Authorization") authorization: String
+    ): Deferred<List<MultiRedditChild>>
+
+    @GET("{multipath}{sort}.json")
+    fun getMultiRedditListing(
+        @Header("Authorization") authorization: String? = null,
+        @Path("multipath", encoded = true) multipath: String,
+        @Path("sort") sort: PostSort,
+        @Query("t") t: Time?,
+        @Query("after") after: String? = null,
+        @Query("limit") limit: Int
+    ): Deferred<ListingResponse>
+
+    @GET("/api/multi/{multipath}.json")
+    fun getMultiReddit(
+        @Header("Authorization") authorization: String? = null,
+        @Path("multipath", encoded = true) multipath: String
+    ): Deferred<MultiRedditChild>
+
 //      _____                                     _
 //     / ____|                                   | |
 //    | |     ___  _ __ ___  _ __ ___   ___ _ __ | |_ ___

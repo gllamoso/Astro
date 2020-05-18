@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -36,6 +37,7 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
             postActions = this,
             messageActions = this,
             subredditActions = this,
+            itemClickListener = this,
             retry = model::retry,
             hideableItems = false)
     }
@@ -46,7 +48,7 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
 
     private var parentItemClickListener: ItemClickListener? = null
 
-    fun setItemClickListener(listener: ItemClickListener){
+    fun setActions(listener: ItemClickListener){
         parentItemClickListener = listener
     }
 
@@ -86,7 +88,6 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentItemScrollerBinding.inflate(inflater)
         binding.nestedScrollView.setOnScrollChangeListener(scrollChangeListener)
-        listAdapter.itemClickListener = this
         binding.list.adapter = listAdapter
         setSwipeRefresh()
         setObservers()
@@ -126,10 +127,15 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
             listAdapter.networkState = it
         })
 
-        if(requireArguments().getSerializable(SUBREDDIT_WHERE_KEY) != null){
-            model.favoriteSubs.observe(viewLifecycleOwner, Observer {
-                if(it != null) {
+        if(requireArguments().getSerializable(SUBREDDIT_WHERE_KEY) != null && (parentFragment != null)){
+            model.favoriteSubs.observe(requireParentFragment().viewLifecycleOwner, Observer {
+                if(it != null && lifecycle.currentState != Lifecycle.State.RESUMED) {
                     listAdapter.updateFavoriteItems(it)
+                }
+            })
+            model.subscribedSubs.observe(requireParentFragment().viewLifecycleOwner, Observer {
+                if(it != null && lifecycle.currentState != Lifecycle.State.RESUMED){
+                    listAdapter.updateSubscribedItems(it)
                 }
             })
         }
@@ -145,11 +151,6 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
                 binding.swipeRefresh.isRefreshing = false
             }
         })
-    }
-
-    override fun itemClicked(item: Item) {
-        parentItemClickListener?.itemClicked(item)
-        model.addReadItem(item)
     }
 
 //     _____          _                  _   _
@@ -244,7 +245,7 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
 //    |_____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 //
 
-    override fun addToFavorites(subreddit: Subreddit, favorite: Boolean) {
+    override fun favorite(subreddit: Subreddit, favorite: Boolean) {
         model.addToFavorites(subreddit, favorite)
 //        if(refresh) refreshMineFragment()
     }
@@ -252,6 +253,18 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
         model.subscribe(subreddit, if(subscribe) SubscribeAction.SUBSCRIBE else SubscribeAction.UNSUBSCRIBE, false)
 //        if(refresh) refreshMineFragment()
+    }
+
+//     _____ _                    _____ _ _      _      _      _     _
+//    |_   _| |                  / ____| (_)    | |    | |    (_)   | |
+//      | | | |_ ___ _ __ ___   | |    | |_  ___| | __ | |     _ ___| |_ ___ _ __   ___ _ __
+//      | | | __/ _ \ '_ ` _ \  | |    | | |/ __| |/ / | |    | / __| __/ _ \ '_ \ / _ \ '__|
+//     _| |_| ||  __/ | | | | | | |____| | | (__|   <  | |____| \__ \ ||  __/ | | |  __/ |
+//    |_____|\__\___|_| |_| |_|  \_____|_|_|\___|_|\_\ |______|_|___/\__\___|_| |_|\___|_|
+
+    override fun itemClicked(item: Item) {
+        parentItemClickListener?.itemClicked(item)
+        model.addReadItem(item)
     }
 
 //     _   _                 _____           _

@@ -10,7 +10,7 @@ class MessageRepository private constructor(private val application: RedditAppli
 
     fun getMessages(where: MessageWhere, after: String? = null, limit: Int? = null): Deferred<ListingResponse>{
         if(application.accessToken == null) throw IllegalStateException("Not logged in")
-        return RedditApi.oauth.getMessages("bearer ${application.accessToken!!.value}", where, after, limit)
+        return RedditApi.oauth.getMessages(application.accessToken!!.authorizationHeader, where, after, limit)
     }
 
     companion object{

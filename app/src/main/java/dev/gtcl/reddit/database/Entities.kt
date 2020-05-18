@@ -4,24 +4,29 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import dev.gtcl.reddit.models.reddit.Account
 import dev.gtcl.reddit.models.reddit.AccountSubreddit
+import dev.gtcl.reddit.models.reddit.MultiReddit
 import dev.gtcl.reddit.models.reddit.Subreddit
 
-//     ____                _   ___ _
-//    |  _ \ ___  __ _  __| | |_ _| |_ ___ _ __ ___
-//    | |_) / _ \/ _` |/ _` |  | || || __/ _ \ '_ ` _ \
-//    |  _ <  __/ (_| | (_| |  | || ||  __/ | | | | |
-//    |_| \_\___|\__,_|\__,_| |___|\__\___|_| |_| |_|
+//   _____                _   _____ _
+//  |  __ \              | | |_   _| |
+//  | |__) |___  __ _  __| |   | | | |_ ___ _ __ ___
+//  |  _  // _ \/ _` |/ _` |   | | | __/ _ \ '_ ` _ \
+//  | | \ \  __/ (_| | (_| |  _| |_| ||  __/ | | | | |
+//  |_|  \_\___|\__,_|\__,_| |_____|\__\___|_| |_| |_|
 
 @Entity(tableName = "read_listing")
 data class ItemRead(
     @PrimaryKey
     val name: String)
 
-//        _                             _
-//       / \   ___ ___ ___  _   _ _ __ | |_ ___
-//      / _ \ / __/ __/ _ \| | | | '_ \| __/ __|
-//     / ___ \ (_| (_| (_) | |_| | | | | |_\__ \
-//    /_/   \_\___\___\___/ \__,_|_| |_|\__|___/
+//                                     _
+//      /\                            | |
+//     /  \   ___ ___ ___  _   _ _ __ | |_ ___
+//    / /\ \ / __/ __/ _ \| | | | '_ \| __/ __|
+//   / ____ \ (_| (_| (_) | |_| | | | | |_\__ \
+//  /_/    \_\___\___\___/ \__,_|_| |_|\__|___/
+//
+
 
 @Entity(tableName = "user_table")
 data class DbAccount(
@@ -46,16 +51,18 @@ data class DbAccount(
 
 fun List<DbAccount>.asAccountDomainModel() = map {it.asDomainModel()}
 
-//      ____        _                  _     _ _ _
-//     / ___| _   _| |__  _ __ ___  __| | __| (_) |_ ___
+//     _____       _                  _     _ _ _
+//    / ____|     | |                | |   | (_) |
+//   | (___  _   _| |__  _ __ ___  __| | __| |_| |_ ___
 //    \___ \| | | | '_ \| '__/ _ \/ _` |/ _` | | __/ __|
-//     ___) | |_| | |_) | | |  __/ (_| | (_| | | |_\__ \
-//    |____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__|___/
+//    ____) | |_| | |_) | | |  __/ (_| | (_| | | |_\__ \
+//   |_____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__|___/
+//
 
 @Entity(tableName = "subs")
 data class DbSubreddit(
     @PrimaryKey
-    val name: String, // Subreddit ID + UserName
+    val id: String, // {Subreddit ID}__{User ID}
     val userId: String, // User subscribed to subreddit
     val displayName: String,
     val title: String,
@@ -63,12 +70,12 @@ data class DbSubreddit(
     val isFavorite: Boolean){
 
     fun asDomainModel() = Subreddit(
-        name.replace("__$userId", ""),
+        id.replace("__$userId", ""),
         displayName,
         iconImg,
         title,
         "",
-        null,
+        true,
         "",
         isFavorite
     )
@@ -76,3 +83,30 @@ data class DbSubreddit(
 
 fun List<DbSubreddit>.asDomainModel() = map { it.asDomainModel() }
 
+//   __  __       _ _   _        _____          _     _ _ _
+//  |  \/  |     | | | (_)      |  __ \        | |   | (_) |
+//  | \  / |_   _| | |_ _ ______| |__) |___  __| | __| |_| |_ ___
+//  | |\/| | | | | | __| |______|  _  // _ \/ _` |/ _` | | __/ __|
+//  | |  | | |_| | | |_| |      | | \ \  __/ (_| | (_| | | |_\__ \
+//  |_|  |_|\__,_|_|\__|_|      |_|  \_\___|\__,_|\__,_|_|\__|___/
+//
+
+@Entity(tableName = "multis")
+data class DbMultiReddit(
+    @PrimaryKey
+    val id: String, // {Multi-Reddit Name}__{User ID}
+    val name: String,
+    val userId: String,
+    val path: String,
+    val iconUrl: String
+) {
+    fun asDomainModel() = MultiReddit(
+        true,
+        name,
+        listOf(),
+        path,
+        "",
+        userId,
+        iconUrl
+    )
+}

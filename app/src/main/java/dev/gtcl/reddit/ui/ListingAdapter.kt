@@ -106,11 +106,11 @@ class ListingAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            R.layout.item_post -> PostViewHolder.create(parent)
-            R.layout.item_comment -> CommentViewHolder.create(parent)
-            R.layout.item_subreddit -> SubredditViewHolder.create(parent)
-            R.layout.item_message -> MessageViewHolder.create(parent)
-            R.layout.item_network_state -> NetworkStateItemViewHolder.create(parent, retry)
+            R.layout.item_post -> PostVH.create(parent)
+            R.layout.item_comment -> CommentVH.create(parent)
+            R.layout.item_subreddit -> SubredditVH.create(parent)
+            R.layout.item_message -> MessageVH.create(parent)
+            R.layout.item_network_state -> NetworkStateItemVH.create(parent, retry)
             else -> throw IllegalArgumentException("Unknown view type $viewType")
         }
     }
@@ -122,7 +122,7 @@ class ListingAdapter(
                     throw IllegalStateException("Post Actions not initialized")
                 }
                 val post = items[position] as Post
-                (holder as PostViewHolder).bind(post, postActions, hideAction = {
+                (holder as PostVH).bind(post, postActions, hideAction = {
                     items.remove(post)
                     notifyItemRemoved(position)
                 },
@@ -134,7 +134,7 @@ class ListingAdapter(
             }
             R.layout.item_comment -> {
                 val comment = items[position] as Comment
-                (holder as CommentViewHolder).bind(comment) { _, _ ->  }
+                (holder as CommentVH).bind(comment) { _, _ ->  }
             }
             R.layout.item_subreddit -> {
                 val subreddit = items[position] as Subreddit
@@ -148,9 +148,9 @@ class ListingAdapter(
                 if(messageActions == null){
                     throw java.lang.IllegalStateException("Message Actions not initialized")
                 }
-                (holder as MessageViewHolder).bind(message, messageActions)
+                (holder as MessageVH).bind(message, messageActions)
             }
-            R.layout.item_network_state -> (holder as NetworkStateItemViewHolder).bindTo(networkState)
+            R.layout.item_network_state -> (holder as NetworkStateItemVH).bindTo(networkState)
         }
     }
 

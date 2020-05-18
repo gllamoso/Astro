@@ -54,35 +54,159 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     val networkState: LiveData<NetworkState>
         get() = _networkState
 
-    private val _initialListing = MutableLiveData<List<Item>>()
-    val initialListing: LiveData<List<Item>>
-        get() = _initialListing
+    private val _refreshState = MutableLiveData<NetworkState>()
+    val refreshState: LiveData<NetworkState>
+        get() = _refreshState
+
+    private val _items = MutableLiveData<ArrayList<Item>>()
+    val items: LiveData<ArrayList<Item>>
+        get() = _items
+
+    private val _newItems = MutableLiveData<List<Item>>()
+    val newItems: LiveData<List<Item>>
+        get() = _newItems
+
+    private val loadedIds = HashSet<String>()
+
+    private val readItemIds = HashSet<String>()
     private var after: String? = null
 
-    val pageSize = 15
+    private val _listingType = MutableLiveData<ListingType>()
+    val listingType: LiveData<ListingType>
+        get() = _listingType
 
-    fun loadInitial(listingType: ListingType, sortBy: PostSort = PostSort.BEST, timePeriod: Time? = null){
+    private val _errorMessage = MutableLiveData<String>()
+    val errorMessage: LiveData<String>
+        get() = _errorMessage
+
+    private lateinit var postSort: PostSort
+    private var t: Time? = null
+    private var pageSize = 15
+    var initialPageLoaded = false
+    private var lastItemReached = false
+
+    fun setListingInfo(listingType: ListingType, postSort: PostSort, t: Time?, pageSize: Int){
+        _listingType.value = listingType
+        this.postSort = postSort
+        this.t = t
+        this.pageSize = pageSize
+    }
+
+    fun setListingInfo(listingType: ListingType){
+        _listingType.value = listingType
+    }
+
+    fun setSortAndTime(postSort: PostSort, t: Time?){
+        this.postSort = postSort
+        this.t = t
+    }
+
+    fun setSort(sort: PostSort){
+        postSort = sort
+    }
+
+    fun loadInitial(){
         coroutineScope.launch {
             _networkState.value = NetworkState.LOADING
-            _listingSelected.value = listingType
-            _sortSelected.value = sortBy
-            _timeSelected.value = timePeriod
-            // TODO: Add Subreddit
-            val response = listingRepository.getListing(listingType, sortBy, timePeriod, null, pageSize * 3).await()
-            _initialListing.value = response.data.children.map { it.data }
+            val response = listingRepository.getListing(listingType.value!!, postSort, t, null, pageSize * 3).await()
+            val items  = response.data.children.map { it.data }
             after = response.data.after
             var sub: Subreddit? = null
-            if(listingType is SubredditListing){
+            if(listingType.value is SubredditListing){
                 sub = (subredditRepository.searchSubreddits(
                     nsfw = true,
                     includeProfiles = false,
                     limit = 1,
-                    query = listingType.sub.displayName
+                    query = (listingType.value!! as SubredditListing).sub.displayName
                 ).await().data.children[0] as SubredditChild).data
             }
             _subredditSelected.value = sub
             syncSubredditWithDatabase()
             _networkState.value = NetworkState.LOADED
+        }
+    }
+
+    fun loadInitialDataAndFirstPage(){
+        coroutineScope.launch {
+            _networkState.value = NetworkState.LOADING
+            loadFirstPage()
+            _networkState.value = NetworkState.LOADED
+        }
+    }
+
+    private suspend fun loadFirstPage(){
+        try {
+            // Load subreddit Info
+            var sub: Subreddit? = null
+            if(listingType.value is SubredditListing){
+                sub = (subredditRepository.searchSubreddits(
+                    nsfw = true,
+                    includeProfiles = false,
+                    limit = 1,
+                    query = (listingType.value!! as SubredditListing).sub.displayName
+                ).await().data.children[0] as SubredditChild).data
+            }
+            _subredditSelected.value = sub
+            syncSubredditWithDatabase()
+
+            // Get listing items
+            val response = listingRepository.getListing(listingType.value!!, postSort, t, null, pageSize * 3).await()
+            val items = ArrayList(response.data.children.map { it.data })
+            listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
+            setItemsReadStatus(items, readItemIds)
+            _items.value = items
+            lastItemReached = items.size < (pageSize * 3)
+            loadedIds.clear()
+            loadedIds.addAll(items.map { it.name })
+            after = response.data.after
+        } catch (e: Exception){
+            _errorMessage.value = e.toString()
+        }
+    }
+
+    fun loadAfter(){
+        if(lastItemReached){
+            return
+        }
+        coroutineScope.launch {
+            _networkState.value = NetworkState.LOADING
+            try{
+                val response = listingRepository.getListing(
+                        listingType.value!!,
+                        postSort,
+                        t,
+                        after,
+                        pageSize
+                    ).await()
+                val newItems = response.data.children.map { it.data }.filter { !loadedIds.contains(it.name) }
+
+                lastItemReached = newItems.isEmpty()
+                if(lastItemReached){
+                    _networkState.value = NetworkState.LOADED
+                    return@launch
+                }
+
+                loadedIds.addAll(newItems.map { it.name })
+                setItemsReadStatus(newItems, readItemIds)
+                _items.value!!.addAll(newItems)
+                _newItems.value = newItems.toList()
+                after = response.data.after
+                _networkState.value = NetworkState.LOADED
+            } catch (e: Exception){
+                _errorMessage.value = e.toString()
+            }
+        }
+    }
+
+    fun newItemsAdded(){
+        _newItems.value = null
+    }
+
+    fun refresh(){
+        coroutineScope.launch {
+            _refreshState.value = NetworkState.LOADING
+            loadFirstPage()
+            _refreshState.value = NetworkState.LOADED
         }
     }
 
@@ -144,50 +268,6 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
         subredditRepository.insertSubreddit(sub)
     }
 
-    ///
-
-    // Recycler View
-
-    fun loadInitialFinished(){
-        _initialListing.value = null
-    }
-
-    private val _refreshState = MutableLiveData<NetworkState>()
-    val refreshState: LiveData<NetworkState>
-        get() = _refreshState
-
-    fun refresh(){
-        coroutineScope.launch {
-            _refreshState.value = NetworkState.LOADING
-            _networkState.value = NetworkState.LOADING
-            val response = listingRepository.getListing(listingSelected.value!!, sortSelected.value!!, timeSelected.value, null, pageSize * 3).await()
-            _initialListing.value = response.data.children.map { it.data }
-            after = response.data.after
-            _refreshState.value = NetworkState.LOADED
-            _networkState.value = NetworkState.LOADED
-        }
-    }
-
-    private val _additionalListing = MutableLiveData<List<Item>>()
-    val additionalListing: LiveData<List<Item>>
-        get() = _additionalListing
-
-    fun loadAfter(){
-        coroutineScope.launch {
-            _networkState.value = NetworkState.LOADING
-            val response = listingRepository.getListing(listingSelected.value!!, sortSelected.value!!, timeSelected.value, after, pageSize).await()
-            _additionalListing.value = response.data.children.map { it.data }
-            after = response.data.after
-            _networkState.value = NetworkState.LOADED
-        }
-    }
-
-    fun loadAfterFinished(){
-        _additionalListing.value = null
-    }
-
-    ////
-
     // Post Actions
 
     fun vote(fullname: String, vote: Vote){
@@ -238,6 +318,19 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
 
             override fun onResponse(call: Call<Void>, response: Response<Void>) {}
         })
+    }
+
+    companion object{
+        fun setItemsReadStatus(items: List<Item>, readIds: HashSet<String>){
+            if(readIds.isEmpty()){
+                return
+            }
+            for(item: Item in items){
+                if(item is Post){
+                    item.isRead = readIds.contains(item.name)
+                }
+            }
+        }
     }
 
 }

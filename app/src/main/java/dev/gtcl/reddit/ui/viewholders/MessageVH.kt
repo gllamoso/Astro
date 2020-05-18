@@ -7,15 +7,15 @@ import dev.gtcl.reddit.actions.MessageActions
 import dev.gtcl.reddit.databinding.ItemMessageBinding
 import dev.gtcl.reddit.models.reddit.Message
 
-class MessageViewHolder private constructor(private val binding: ItemMessageBinding): RecyclerView.ViewHolder(binding.root){
+class MessageVH private constructor(private val binding: ItemMessageBinding): RecyclerView.ViewHolder(binding.root){
     fun bind(message: Message, messageActions: MessageActions){
         binding.message = message
         binding.executePendingBindings()
     }
 
     companion object{
-        fun create(parent: ViewGroup): MessageViewHolder {
-            return MessageViewHolder(ItemMessageBinding.inflate(LayoutInflater.from(parent.context)))
+        fun create(parent: ViewGroup): MessageVH {
+            return MessageVH(ItemMessageBinding.inflate(LayoutInflater.from(parent.context)))
         }
     }
 }

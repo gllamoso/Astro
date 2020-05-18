@@ -15,4 +15,6 @@ data class AccessToken(
     private val timeStamp = System.currentTimeMillis()
 
     fun isExpired() = (System.currentTimeMillis() - timeStamp)/1000 > expiresIn
+
+    val authorizationHeader = "bearer $value"
 }

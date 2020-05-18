@@ -17,7 +17,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class SubredditSelectorViewModel(application: RedditApplication): AndroidViewModel(application){
+class SubredditSelectorViewModel(private val application: RedditApplication): AndroidViewModel(application){
     // Repos
     private val subredditRepository = SubredditRepository.getInstance(application)
 
@@ -25,26 +25,25 @@ class SubredditSelectorViewModel(application: RedditApplication): AndroidViewMod
     private var viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    private val _subredditToSync = MutableLiveData<String>()
-    val subredditToSync: LiveData<String>
-        get() = _subredditToSync
-
-    fun finishedSyncingSubreddit(){
-        _subredditToSync.value = null
-    }
+    private val _errorMessage = MutableLiveData<String>()
+    val errorMessage: LiveData<String>
+        get() = _errorMessage
 
     fun subscribe(subreddit: Subreddit, subscribeAction: SubscribeAction, favorite: Boolean){
         coroutineScope.launch {
             subredditRepository.subscribe(subreddit.displayName, subscribeAction).enqueue(object: Callback<Void>{
                 override fun onFailure(call: Call<Void>, t: Throwable) {
-                    Log.d("TAE", "Failed") // TODO: Handle
+                    _errorMessage.value = t.localizedMessage
                 }
 
                 override fun onResponse(call: Call<Void>, response: Response<Void>) {
                     coroutineScope.launch {
-                        if(subscribeAction == SubscribeAction.SUBSCRIBE) insertSub(subreddit, favorite)
-                        else subredditRepository.removeSubreddit(subreddit)
-                        _subredditToSync.value = subreddit.displayName
+                        if(subscribeAction == SubscribeAction.SUBSCRIBE) {
+                            insertSub(subreddit, favorite)
+                        }
+                        else {
+                            subredditRepository.removeSubreddit(subreddit)
+                        }
                     }
                 }
             })
@@ -57,7 +56,6 @@ class SubredditSelectorViewModel(application: RedditApplication): AndroidViewMod
                 subscribe(subreddit, SubscribeAction.SUBSCRIBE, favorite)
             } else {
                 subredditRepository.addToFavorites(subreddit.displayName, favorite)
-                _subredditToSync.value = subreddit.displayName
             }
         }
     }
@@ -73,5 +71,42 @@ class SubredditSelectorViewModel(application: RedditApplication): AndroidViewMod
         else subreddit
         sub.isFavorite = favorite
         subredditRepository.insertSubreddit(sub)
+    }
+
+    fun syncSubscribedSubsAndMultiReddits(){
+        coroutineScope.launch {
+            try {
+                val favSubs = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
+                if(application.accessToken == null) {
+                    val subs = subredditRepository.getNetworkAccountSubreddits(100, null).await().data.children.map { it.data as Subreddit }
+                    for(sub: Subreddit in subs)
+                        if(favSubs.contains(sub.displayName))
+                            sub.isFavorite = true
+                    subredditRepository.deleteSubscribedSubs()
+                    subredditRepository.insertSubreddits(subs)
+                }
+                else {
+                    val allSubs = mutableListOf<Subreddit>()
+                    var subs = subredditRepository.getNetworkAccountSubreddits(100, null).await().data.children.map { it.data as Subreddit }
+                    while(subs.isNotEmpty()) {
+                        allSubs.addAll(subs)
+                        val lastSub = subs.last()
+                        subs = subredditRepository.getNetworkAccountSubreddits(100, after = lastSub.name).await().data.children.map { it.data as Subreddit }
+                    }
+                    for(sub: Subreddit in allSubs) {
+                        if (favSubs.contains(sub.displayName))
+                            sub.isFavorite = true
+                    }
+                    subredditRepository.deleteSubscribedSubs()
+                    subredditRepository.insertSubreddits(allSubs)
+
+                    val multiReddits = subredditRepository.getMyMultiReddits().await().map { it.data.asDbModel(application.currentAccount!!.id) }
+                    subredditRepository.deleteAllMultiReddits()
+                    subredditRepository.insertMultiReddits(multiReddits)
+                }
+            } catch(e: Exception) {
+                _errorMessage.value = e.toString()
+            }
+        }
     }
 }

@@ -9,7 +9,7 @@ import dev.gtcl.reddit.databinding.ItemMoreCommentBinding
 import dev.gtcl.reddit.models.reddit.Comment
 import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.models.reddit.More
-import dev.gtcl.reddit.ui.viewholders.CommentViewHolder
+import dev.gtcl.reddit.ui.viewholders.CommentVH
 
 class CommentsAdapter(private val commentItemClickListener: CommentItemClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
@@ -43,14 +43,14 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(viewType){
             R.layout.item_more_comment -> MoreViewHolder.create(parent)
-            R.layout.item_comment -> CommentViewHolder.create(parent)
+            R.layout.item_comment -> CommentVH.create(parent)
             else -> throw IllegalArgumentException("unknown view type $viewType")
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when(val commentItem = mCommentItems[position]){
-            is Comment -> (holder as CommentViewHolder).bind(commentItem) { pos, _ -> collapseComments(pos)}
+            is Comment -> (holder as CommentVH).bind(commentItem) { pos, _ -> collapseComments(pos)}
             is More -> (holder as MoreViewHolder).bind(commentItem) {
                 if(commentItem.isContinueThreadLink())
                     commentItemClickListener.onContinueThreadClicked(commentItem)

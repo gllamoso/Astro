@@ -8,7 +8,7 @@ import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingSubredditPost
 
-class TrendingSubredditViewHolder private constructor(private val binding: ItemTrendingSubredditBinding): RecyclerView.ViewHolder(binding.root) {
+class TrendingSubredditVH private constructor(private val binding: ItemTrendingSubredditBinding): RecyclerView.ViewHolder(binding.root) {
     fun bind(trendingSubredditPost: TrendingSubredditPost, subredditActions: SubredditActions, subredditClickAction: (Subreddit) -> Unit) {
         binding.trendingPost = trendingSubredditPost
 
@@ -42,7 +42,7 @@ class TrendingSubredditViewHolder private constructor(private val binding: ItemT
                         if(isFavorite) {
                             userSubscribed = true
                         }
-                        subredditActions.addToFavorites(this, isFavorite)
+                        subredditActions.favorite(this, isFavorite)
                     }
                     this.invalidateAll()
                 }
@@ -55,8 +55,8 @@ class TrendingSubredditViewHolder private constructor(private val binding: ItemT
     }
 
     companion object{
-        fun create(parent: ViewGroup): TrendingSubredditViewHolder {
-            return TrendingSubredditViewHolder(
+        fun create(parent: ViewGroup): TrendingSubredditVH {
+            return TrendingSubredditVH(
                 ItemTrendingSubredditBinding.inflate(
                     LayoutInflater.from(parent.context)))
         }

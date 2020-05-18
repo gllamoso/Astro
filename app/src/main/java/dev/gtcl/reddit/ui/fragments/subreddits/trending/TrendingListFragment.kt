@@ -5,16 +5,18 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.SubscribeAction
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.actions.ItemClickListener
+import dev.gtcl.reddit.actions.ListingTypeClickListener
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.databinding.FragmentItemScrollerBinding
 import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.models.reddit.Subreddit
+import dev.gtcl.reddit.models.reddit.SubredditListing
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.fragments.ListingScrollListener
 
@@ -28,28 +30,29 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
     }
 
     private val listAdapter: TrendingAdapter by lazy{
-        TrendingAdapter(this, model::retry)
+        TrendingAdapter(this,this, model::retry)
     }
 
     private val listingScrollListener by lazy{
         ListingScrollListener(loadMore = model::loadAfter)
     }
 
-    private var parentItemClickListener: ItemClickListener? = null
-
-    fun setItemClickListener(listener: ItemClickListener){
-        parentItemClickListener = listener
+    private var parentListingTypeClickListener: ListingTypeClickListener? = null
+    private var parentSubredditActions: SubredditActions? = null
+    fun setActions(listingTypeClickListener: ListingTypeClickListener, subredditActions: SubredditActions){
+        parentListingTypeClickListener = listingTypeClickListener
+        parentSubredditActions = subredditActions
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentItemScrollerBinding.inflate(inflater)
         binding.nestedScrollView.setOnScrollChangeListener(listingScrollListener)
-        listAdapter.itemClickListener = this
         binding.list.adapter = listAdapter
         setSwipeRefresh()
         setObservers()
         if(!model.initialPageLoaded){
             model.loadInitialDataAndFirstPage()
+            model.initialPageLoaded = true
         }
         return binding.root
     }
@@ -80,18 +83,24 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
         })
 
         model.networkState.observe(viewLifecycleOwner, Observer {
-            binding.progressBar.visibility = if(it == NetworkState.LOADING) View.VISIBLE else View.GONE
+            binding.progressBar.visibility = if(it == NetworkState.LOADING){
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
             listAdapter.networkState = it
         })
 
-        model.favoriteSubs.observe(viewLifecycleOwner, Observer {
-            if(it != null && it.isNotEmpty()) {
+        model.favoriteSubs.observe(requireParentFragment().viewLifecycleOwner, Observer {
+            if(it != null && lifecycle.currentState != Lifecycle.State.RESUMED){
+//                (model.initialPageLoaded && (lifecycle.currentState != Lifecycle.State.RESUMED) )) {
                 listAdapter.updateFavoriteItems(it)
             }
         })
 
-        model.subscribedSubs.observe(viewLifecycleOwner, Observer {
-            if(it != null && it.isNotEmpty()){
+        model.subscribedSubs.observe(requireParentFragment().viewLifecycleOwner, Observer {
+            if(it != null && lifecycle.currentState != Lifecycle.State.RESUMED){
+//                (model.initialPageLoaded && (lifecycle.currentState != Lifecycle.State.RESUMED) )){
                 listAdapter.updateSubscribedItems(it)
             }
         })
@@ -109,10 +118,6 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
         })
     }
 
-//    private val trendingAdapter: TrendingAdapter by lazy {
-//        Tre
-//    }
-
 //      _____       _                  _     _ _ _                  _   _
 //     / ____|     | |                | |   | (_) |       /\       | | (_)
 //    | (___  _   _| |__  _ __ ___  __| | __| |_| |_     /  \   ___| |_ _  ___  _ __  ___
@@ -121,14 +126,12 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
 //    |_____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 //
 
-    override fun addToFavorites(subreddit: Subreddit, favorite: Boolean) {
-        model.addToFavorites(subreddit, favorite)
-//        if(refresh) refreshMineFragment()
+    override fun favorite(subreddit: Subreddit, favorite: Boolean) {
+        parentSubredditActions?.favorite(subreddit, favorite)
     }
 
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-        model.subscribe(subreddit, if(subscribe) SubscribeAction.SUBSCRIBE else SubscribeAction.UNSUBSCRIBE, false)
-//        if(refresh) refreshMineFragment()
+        parentSubredditActions?.subscribe(subreddit, subscribe)
     }
 
     companion object{
@@ -138,7 +141,9 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
     }
 
     override fun itemClicked(item: Item) {
-        parentItemClickListener?.itemClicked(item)
+        if(item is Subreddit){
+            parentListingTypeClickListener?.onClick(SubredditListing(item))
+        }
     }
 
 }

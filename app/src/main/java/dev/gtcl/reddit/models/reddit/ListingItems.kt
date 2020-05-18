@@ -4,6 +4,7 @@ import android.net.Uri
 import android.os.Parcelable
 import com.squareup.moshi.Json
 import dev.gtcl.reddit.database.DbAccount
+import dev.gtcl.reddit.database.DbMultiReddit
 import dev.gtcl.reddit.database.DbSubreddit
 import dev.gtcl.reddit.database.ItemRead
 import kotlinx.android.parcel.IgnoredOnParcel
@@ -23,7 +24,9 @@ enum class ItemType {
     @Json(name="t6")
     Award,
     @Json(name="more")
-    More
+    More,
+    @Json(name="LabeledMulti")
+    MultiReddit
 }
 
 sealed class Item(val kind: ItemType){
@@ -61,6 +64,9 @@ data class SubredditChild(override val data: Subreddit): ListingChild(
 )
 data class MoreChild(override val data: More): ListingChild(
     ItemType.More // more
+)
+data class MultiRedditChild(override val data: MultiReddit): ListingChild(
+    ItemType.MultiReddit
 )
 
 // http://patorjk.com/software/taag/#p=display&f=Big&t=t1%20-%20Comment
@@ -407,3 +413,35 @@ data class More(
 
     fun isContinueThreadLink() = id == "_"
 }
+
+//     __  __       _ _   _        _____          _     _ _ _
+//    |  \/  |     | | | (_)      |  __ \        | |   | (_) |
+//    | \  / |_   _| | |_ _ ______| |__) |___  __| | __| |_| |_ ___
+//    | |\/| | | | | | __| |______|  _  // _ \/ _` |/ _` | | __/ __|
+//    | |  | | |_| | | |_| |      | | \ \  __/ (_| | (_| | | |_\__ \
+//    |_|  |_|\__,_|_|\__|_|      |_|  \_\___|\__,_|\__,_|_|\__|___/
+//
+
+data class MultiReddit(
+    @Json(name = "can_edit")
+    val canEdit: Boolean,
+    @Json(name = "display_name")
+    val displayName: String,
+    val subreddits: List<SubredditName>,
+    val path: String,
+    val owner: String,
+    @Json(name = "owner_id")
+    val ownerId: String,
+    @Json(name = "icon_url")
+    val iconUrl: String
+): Item(ItemType.MultiReddit) {
+    override val depth = 0
+    override val id = ""
+    override val name = displayName
+
+    fun asDbModel(userId: String) = DbMultiReddit("${displayName}__$userId}", displayName, userId, path, iconUrl)
+}
+
+data class SubredditName(
+    val name: String
+)

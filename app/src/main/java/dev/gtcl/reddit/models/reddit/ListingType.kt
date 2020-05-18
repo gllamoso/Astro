@@ -6,6 +6,6 @@ sealed class ListingType
 object FrontPage : ListingType()
 object All: ListingType()
 object Popular: ListingType()
-class MultiReddit(val user: String, val name: String): ListingType()
+class MultiRedditListing(val multiReddit: MultiReddit): ListingType()
 class SubredditListing(val sub: Subreddit): ListingType()
 class ProfileListing(val info: ProfileInfo): ListingType()

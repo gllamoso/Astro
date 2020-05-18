@@ -54,11 +54,8 @@ interface SubredditDao{
     @Query("delete from subs where userId = :userId")
     fun deleteSubscribedSubs(userId: String)
 
-    @Query("delete from subs where userId = :userId and displayName = :displayName")
+    @Query("delete from subs where userId = :userId and displayName = :displayName collate nocase")
     fun deleteSubreddit(userId: String, displayName: String)
-
-    @Query("select * from subs where userId = :userId and isFavorite = 0 order by displayName collate nocase asc")
-    fun getNonFavoriteSubsLive(userId: String): LiveData<List<DbSubreddit>>
 
     @Query("select * from subs where userId = :userId and isFavorite = 1 order by displayName collate nocase asc")
     fun getFavoriteSubsLive(userId: String): LiveData<List<DbSubreddit>>
@@ -66,15 +63,34 @@ interface SubredditDao{
     @Query("select * from subs where userId = :userId and isFavorite = 1")
     suspend fun getFavoriteSubs(userId: String): List<DbSubreddit>
 
-    @Query("update subs set isFavorite = :favorite where userId = :userId and displayName = :displayName")
+    @Query("update subs set isFavorite = :favorite where userId = :userId and displayName = :displayName collate nocase")
     fun updateFavoriteSub(userId: String, displayName: String, favorite: Boolean)
 }
 
-@Database(entities = [DbAccount::class, ItemRead::class, DbSubreddit::class], version = 1, exportSchema = false)
+@Dao
+interface MultiRedditDao{
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(list: List<DbMultiReddit>)
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    fun insert(multi: DbMultiReddit)
+
+    @Query("select * from multis where userId = :userId order by name collate nocase asc")
+    fun getMultiRedditsLive(userId: String): LiveData<List<DbMultiReddit>>
+
+    @Query("select * from multis where userId = :userId order by name collate nocase asc")
+    suspend fun getMultiReddits(userId: String): List<DbMultiReddit>
+
+    @Query("delete from multis where userId = :userId")
+    fun deleteSubscribedSubs(userId: String)
+}
+
+@Database(entities = [DbAccount::class, ItemRead::class, DbSubreddit::class, DbMultiReddit::class], version = 1, exportSchema = false)
 abstract class RedditDatabase: RoomDatabase(){
     abstract val accountDao: AccountDao
     abstract val readItemDao: ReadItemDao
     abstract val subredditDao: SubredditDao
+    abstract val multiRedditDao: MultiRedditDao
 }
 
 private lateinit var INSTANCE: RedditDatabase

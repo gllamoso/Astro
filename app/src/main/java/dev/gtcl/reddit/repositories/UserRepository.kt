@@ -30,12 +30,12 @@ class UserRepository private constructor(val application: RedditApplication) { /
 
     @MainThread
     fun getCurrentAccountInfo(): Deferred<Account> =
-        RedditApi.oauth.getCurrentAccountInfo("bearer ${application.accessToken!!.value}")
+        RedditApi.oauth.getCurrentAccountInfo(application.accessToken!!.authorizationHeader)
 
     @MainThread
     fun getAccountInfo(username: String): Deferred<AccountChild>{
         return if(application.accessToken != null)
-            RedditApi.oauth.getUserInfo("bearer ${application.accessToken!!.value}", username)
+            RedditApi.oauth.getUserInfo(application.accessToken!!.authorizationHeader, username)
         else
             RedditApi.base.getUserInfo(null, username)
     }

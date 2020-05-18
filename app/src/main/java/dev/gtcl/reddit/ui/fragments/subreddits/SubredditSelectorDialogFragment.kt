@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui.fragments.subreddits
 
+import android.app.Dialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.os.Bundle
 import android.os.Handler
@@ -16,16 +17,21 @@ import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.*
+import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.databinding.FragmentDialogSubredditsBinding
 import dev.gtcl.reddit.models.reddit.Subreddit
-import dev.gtcl.reddit.actions.ListingActions
+import dev.gtcl.reddit.actions.ListingTypeClickListener
 import dev.gtcl.reddit.actions.SubredditActions
+import dev.gtcl.reddit.models.reddit.Item
+import dev.gtcl.reddit.models.reddit.ListingType
+import dev.gtcl.reddit.models.reddit.SubredditListing
+import dev.gtcl.reddit.ui.fragments.ListingScrollerFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.mine.MineFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.search.SearchFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingListFragment
 import kotlin.NoSuchElementException
 
-class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditActions {
+class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditActions, ListingTypeClickListener, ItemClickListener {
 
     private lateinit var binding: FragmentDialogSubredditsBinding
 
@@ -34,30 +40,18 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
         ViewModelProvider(this, viewModelFactory).get(SubredditSelectorViewModel::class.java)
     }
 
-    lateinit var listingActions: ListingActions
+    private var parentListingTypeClickListener: ListingTypeClickListener? = null
+    fun setListingTypeClickListener(listingTypeClickListener: ListingTypeClickListener){
+        parentListingTypeClickListener = listingTypeClickListener
+    }
 
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
         when(childFragment){
-            is MineFragment -> childFragment.setFragment(listingActions, this)
-            is SearchFragment -> childFragment.setFragment(this)
-        }
-    }
-
-    override fun onStart() {
-        super.onStart()
-
-        if(dialog != null){
-            val bottomSheet = dialog!!.findViewById<View>(R.id.design_bottom_sheet)
-            bottomSheet.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
-        }
-
-        view?.post {
-            val parent = requireView().parent as View
-            val params = parent.layoutParams as CoordinatorLayout.LayoutParams
-            val behavior = params.behavior
-            val bottomSheetBehavior = behavior as BottomSheetBehavior
-            bottomSheetBehavior.peekHeight = (0.75 * requireView().measuredHeight).toInt()
+            is MineFragment -> childFragment.setActions(this, this)
+            is TrendingListFragment -> childFragment.setActions(this, this)
+            is ListingScrollerFragment -> childFragment.setActions(this)
+            is SearchFragment -> childFragment.setActions(this, this)
         }
     }
 
@@ -68,20 +62,10 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentDialogSubredditsBinding.inflate(inflater)
-        binding.refreshButton.setOnClickListener {
-            for(fragment: Fragment in childFragmentManager.fragments){
-                when(fragment){
-                    is MineFragment -> fragment.syncSubscribedSubs()
-                }
-            }
+        binding.syncButton.setOnClickListener {
+            model.syncSubscribedSubsAndMultiReddits()
         }
 
-        model.subredditToSync.observe(viewLifecycleOwner, Observer {
-            if(it != null){
-                setFragmentResult(SUBREDDIT_UPDATE_REQUEST_KEY, bundleOf(STRING_KEY to it))
-                model.finishedSyncingSubreddit()
-            }
-        })
         setupTabLayout()
         setEditTextListener()
         return binding.root
@@ -132,27 +116,12 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
         }
     }
 
-//    override fun onClick(subreddit: Subreddit) {
-//        listingActions.onListingClicked(SubredditListing(subreddit))
-//    }
-
-    override fun addToFavorites(subreddit: Subreddit, favorite: Boolean) {
+    override fun favorite(subreddit: Subreddit, favorite: Boolean) {
         model.addToFavorites(subreddit, favorite)
-//        if(refresh) refreshMineFragment()
     }
 
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
         model.subscribe(subreddit, if(subscribe) SubscribeAction.SUBSCRIBE else SubscribeAction.UNSUBSCRIBE, false)
-//        if(refresh) refreshMineFragment()
-    }
-
-    private fun refreshMineFragment(){
-        for(fragment: Fragment in childFragmentManager.fragments){
-            if(fragment is MineFragment){
-                fragment.refresh()
-                return
-            }
-        }
     }
 
     private fun searchSubreddit(query: String){
@@ -164,8 +133,14 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
         }
     }
 
-    companion object {
-        val TAG = SubredditSelectorDialogFragment::class.qualifiedName
+    override fun onClick(listing: ListingType) {
+        parentListingTypeClickListener?.onClick(listing)
+    }
+
+    override fun itemClicked(item: Item) {
+        if(item is Subreddit){
+            parentListingTypeClickListener?.onClick(SubredditListing(item))
+        }
     }
 
 //    override fun onDownScroll() {
@@ -177,5 +152,9 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
 //            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
 //        }
 //    }
+
+    companion object {
+        val TAG = SubredditSelectorDialogFragment::class.qualifiedName
+    }
 
 }

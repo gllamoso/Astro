@@ -14,7 +14,6 @@ import androidx.viewpager2.widget.ViewPager2
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentViewPagerBinding
-import dev.gtcl.reddit.models.reddit.Comment
 import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.ui.activities.main.MainActivity
 import dev.gtcl.reddit.ui.activities.main.MainActivityViewModel
@@ -44,7 +43,7 @@ class HomeFragment : Fragment(), ViewPagerActions {
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
         when(childFragment){
-            is ListingFragment -> childFragment.setViewPagerActions(this)
+            is ListingFragment -> childFragment.setActions(this)
             is CommentsFragment -> childFragment.setViewPagerActions(this) // TODO: Use Implement CommentActions
         }
     }

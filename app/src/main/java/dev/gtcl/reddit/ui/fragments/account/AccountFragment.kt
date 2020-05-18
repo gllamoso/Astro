@@ -40,7 +40,7 @@ class AccountFragment : Fragment(), ItemClickListener {
         super.onAttachFragment(childFragment)
         when(childFragment){
 //            is SimpleListingScrollerFragment -> childFragment.setActions(postActions = this, user = model.username)
-            is ListingScrollerFragment -> childFragment.setItemClickListener(this)
+            is ListingScrollerFragment -> childFragment.setActions(this)
         }
     }
 

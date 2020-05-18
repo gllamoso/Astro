@@ -13,7 +13,7 @@ import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.databinding.LayoutPopupPostOptionsBinding
 
-class PostViewHolder private constructor(private val binding:ItemPostBinding)
+class PostVH private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
     fun bind(post: Post?, postActions: PostActions, hideAction: (() -> Unit)?, postClicked: (Post) -> Unit){
         binding.post = post
@@ -100,8 +100,8 @@ class PostViewHolder private constructor(private val binding:ItemPostBinding)
     }
 
     companion object {
-        fun create(parent: ViewGroup): PostViewHolder {
-            return PostViewHolder(
+        fun create(parent: ViewGroup): PostVH {
+            return PostVH(
                 ItemPostBinding.inflate(
                     LayoutInflater.from(parent.context)
                 )

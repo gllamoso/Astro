@@ -76,7 +76,6 @@ class TrendingListViewModel(application: RedditApplication): AndroidViewModel(ap
             _networkState.value = NetworkState.LOADING
             loadFirstPage()
             _networkState.value = NetworkState.LOADED
-            initialPageLoaded = true
         }
     }
 
@@ -190,7 +189,7 @@ class TrendingListViewModel(application: RedditApplication): AndroidViewModel(ap
         }
     }
 
-    fun addToFavorites(subreddit: Subreddit, favorite: Boolean){
+    fun favorite(subreddit: Subreddit, favorite: Boolean){
         coroutineScope.launch {
             if(favorite) {
                 subscribe(subreddit, SubscribeAction.SUBSCRIBE, favorite)
