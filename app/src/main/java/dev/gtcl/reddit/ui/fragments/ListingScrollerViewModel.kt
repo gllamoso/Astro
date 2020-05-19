@@ -17,6 +17,9 @@ import kotlinx.coroutines.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
+import kotlin.collections.ArrayList
+import kotlin.collections.HashSet
 
 class ListingScrollerViewModel(application: RedditApplication): AndroidViewModel(application){
 
@@ -53,8 +56,16 @@ class ListingScrollerViewModel(application: RedditApplication): AndroidViewModel
     var initialPageLoaded = false
     private var lastItemReached = false
 
-    val subscribedSubs = Transformations.map(subredditRepository.getSubscribedSubsLive()) { it.map { sub -> sub.displayName }.toHashSet() }!!
-    val favoriteSubs = Transformations.map(subredditRepository.getFavoriteSubsLive()) { it.map { sub -> sub.displayName}.toHashSet() }!!
+    private var favoriteSubsHash: java.util.HashSet<String>? = null
+    private var subscribedSubsHash: java.util.HashSet<String>? = null
+
+    private val _subscribedSubs = MutableLiveData<java.util.HashSet<String>>()
+    val subscribedSubs: LiveData<java.util.HashSet<String>>
+        get() = _subscribedSubs
+
+    private val _favoriteSubs = MutableLiveData<java.util.HashSet<String>>()
+    val favoriteSubs: LiveData<java.util.HashSet<String>>
+        get() = _favoriteSubs
 
     private val _refreshState = MutableLiveData<NetworkState>()
     val refreshState: LiveData<NetworkState>
@@ -63,6 +74,23 @@ class ListingScrollerViewModel(application: RedditApplication): AndroidViewModel
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String>
         get() = _errorMessage
+
+    fun syncWithDb(){
+        coroutineScope.launch {
+            favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
+            _favoriteSubs.value = favoriteSubsHash
+            subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
+            _subscribedSubs.value = subscribedSubsHash
+        }
+    }
+
+    fun favoriteSubsSynced(){
+        _favoriteSubs.value = null
+    }
+
+    fun subredditsSynced(){
+        _subscribedSubs.value = null
+    }
 
     fun retry(){
         TODO()
@@ -126,20 +154,17 @@ class ListingScrollerViewModel(application: RedditApplication): AndroidViewModel
                 setItemsReadStatus(items, readItemIds)
             }
             if(::subredditWhere.isInitialized){
-                val tempFavoriteSubs = if(favoriteSubs.value != null){
-                    favoriteSubs.value!!
-                } else {
-                    subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
+                if(favoriteSubsHash == null){
+                    favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
                 }
-                val tempSubscribedSubs = if(subscribedSubs.value != null){
-                    subscribedSubs.value!!
-                } else {
-                    subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
+
+                if(subscribedSubsHash == null){
+                    subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
                 }
                 for(item: Item in items){
                     if(item is Subreddit){
-                        item.isFavorite = tempFavoriteSubs.contains(item.displayName)
-                        item.userSubscribed = tempSubscribedSubs.contains(item.displayName)
+                        item.isFavorite = favoriteSubsHash!!.contains(item.displayName)
+                        item.userSubscribed = subscribedSubsHash!!.contains(item.displayName)
                     }
                 }
             }
@@ -190,20 +215,17 @@ class ListingScrollerViewModel(application: RedditApplication): AndroidViewModel
                 }
 
                 if(::subredditWhere.isInitialized){
-                    val tempFavoriteSubs = if(favoriteSubs.value != null){
-                        favoriteSubs.value!!
-                    } else {
-                        subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
+                    if(favoriteSubsHash == null){
+                        favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
                     }
-                    val tempSubscribedSubs = if(subscribedSubs.value != null){
-                        subscribedSubs.value!!
-                    } else {
-                        subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
+
+                    if(subscribedSubsHash == null){
+                        subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
                     }
                     for(item: Item in newItems){
                         if(item is Subreddit){
-                            item.isFavorite = tempFavoriteSubs.contains(item.displayName)
-                            item.userSubscribed = tempSubscribedSubs.contains(item.displayName)
+                            item.isFavorite = favoriteSubsHash!!.contains(item.displayName)
+                            item.userSubscribed = subscribedSubsHash!!.contains(item.displayName)
                         }
                     }
                 }

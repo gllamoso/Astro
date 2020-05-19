@@ -44,6 +44,11 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
         parentSubredditActions = subredditActions
     }
 
+    override fun onResume() {
+        super.onResume()
+        model.syncWithDb()
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentItemScrollerBinding.inflate(inflater)
         binding.nestedScrollView.setOnScrollChangeListener(listingScrollListener)
@@ -91,17 +96,17 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
             listAdapter.networkState = it
         })
 
-        model.favoriteSubs.observe(requireParentFragment().viewLifecycleOwner, Observer {
-            if(it != null && lifecycle.currentState != Lifecycle.State.RESUMED){
-//                (model.initialPageLoaded && (lifecycle.currentState != Lifecycle.State.RESUMED) )) {
+        model.favoriteSubs.observe(viewLifecycleOwner, Observer {
+            if(it != null){
                 listAdapter.updateFavoriteItems(it)
+                model.favoriteSubsSynced()
             }
         })
 
-        model.subscribedSubs.observe(requireParentFragment().viewLifecycleOwner, Observer {
-            if(it != null && lifecycle.currentState != Lifecycle.State.RESUMED){
-//                (model.initialPageLoaded && (lifecycle.currentState != Lifecycle.State.RESUMED) )){
+        model.subscribedSubs.observe(viewLifecycleOwner, Observer {
+            if(it != null){
                 listAdapter.updateSubscribedItems(it)
+                model.subredditsSynced()
             }
         })
     }

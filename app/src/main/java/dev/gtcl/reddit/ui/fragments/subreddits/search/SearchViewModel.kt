@@ -25,10 +25,16 @@ class SearchViewModel(application: RedditApplication) : AndroidViewModel(applica
     private var viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    val favoriteSubs = Transformations.map(subredditRepository.getFavoriteSubsLive()) { it.map { sub -> sub.displayName.toLowerCase(
-        Locale.ROOT)}.toHashSet() }!!
-    val subscribedSubs = Transformations.map(subredditRepository.getSubscribedSubsLive()) { it.map { sub -> sub.displayName.toLowerCase(
-        Locale.ROOT)}.toHashSet() }!!
+    private var favoriteSubsHash: HashSet<String>? = null
+    private var subscribedSubsHash: HashSet<String>? = null
+
+    private val _subscribedSubs = MutableLiveData<HashSet<String>>()
+    val subscribedSubs: LiveData<HashSet<String>>
+        get() = _subscribedSubs
+
+    private val _favoriteSubs = MutableLiveData<HashSet<String>>()
+    val favoriteSubs: LiveData<HashSet<String>>
+        get() = _favoriteSubs
 
     private val _networkState = MutableLiveData<NetworkState>()
     val networkState: LiveData<NetworkState>
@@ -37,6 +43,23 @@ class SearchViewModel(application: RedditApplication) : AndroidViewModel(applica
     private val _searchedSubreddits = MutableLiveData<List<Subreddit>>()
     val searchedSubreddits: LiveData<List<Subreddit>>
         get() = _searchedSubreddits
+
+    fun syncWithDb(){
+        coroutineScope.launch {
+            favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
+            _favoriteSubs.value = favoriteSubsHash
+            subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
+            _subscribedSubs.value = subscribedSubsHash
+        }
+    }
+
+    fun favoriteSubsSynced(){
+        _favoriteSubs.value = null
+    }
+
+    fun subredditsSynced(){
+        _subscribedSubs.value = null
+    }
 
     fun searchSubreddits(query: String){
         coroutineScope.launch {
@@ -48,21 +71,18 @@ class SearchViewModel(application: RedditApplication) : AndroidViewModel(applica
                 query = query
             ).await().data.children.map { (it as SubredditChild).data }
 
-            val tempFavoriteSubs = if(favoriteSubs.value != null){
-                favoriteSubs.value!!
-            } else {
-                subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
+            if(favoriteSubsHash == null){
+                favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
             }
-            val tempSubscribedSubs = if(subscribedSubs.value != null){
-                subscribedSubs.value!!
-            } else {
-                subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
+
+            if(subscribedSubsHash == null){
+                subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
             }
 
             for(item: Item in subs){
                 if(item is Subreddit){
-                    item.isFavorite = tempFavoriteSubs.contains(item.displayName)
-                    item.userSubscribed = tempSubscribedSubs.contains(item.displayName)
+                    item.isFavorite = favoriteSubsHash!!.contains(item.displayName)
+                    item.userSubscribed = subscribedSubsHash!!.contains(item.displayName)
                 }
             }
             _searchedSubreddits.value = subs

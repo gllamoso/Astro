@@ -267,14 +267,12 @@ class ListingFragment : Fragment(), PostActions, ListingTypeClickListener, ItemC
                         model.setSortAndTime(sort, time)
                         model.loadInitialDataAndFirstPage()
                         binding.list.scrollToPosition(0)
-                        (binding.list.adapter as? ListingAdapter)?.loadInitial(listOf())
                     }
                         .show(childFragmentManager, TimePeriodSheetDialogFragment.TAG)
                 } else {
                     model.setSort(sort)
                     model.loadInitialDataAndFirstPage()
                     binding.list.scrollToPosition(0)
-                    (binding.list.adapter as? ListingAdapter)?.loadInitial(listOf())
                 }
 
             }

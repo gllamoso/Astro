@@ -85,6 +85,13 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        if(requireArguments().getSerializable(SUBREDDIT_WHERE_KEY) != null) {
+            model.syncWithDb()
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentItemScrollerBinding.inflate(inflater)
         binding.nestedScrollView.setOnScrollChangeListener(scrollChangeListener)
@@ -127,15 +134,17 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
             listAdapter.networkState = it
         })
 
-        if(requireArguments().getSerializable(SUBREDDIT_WHERE_KEY) != null && (parentFragment != null)){
-            model.favoriteSubs.observe(requireParentFragment().viewLifecycleOwner, Observer {
-                if(it != null && lifecycle.currentState != Lifecycle.State.RESUMED) {
+        if(requireArguments().getSerializable(SUBREDDIT_WHERE_KEY) != null){
+            model.favoriteSubs.observe(viewLifecycleOwner, Observer {
+                if(it != null) {
                     listAdapter.updateFavoriteItems(it)
+                    model.favoriteSubsSynced()
                 }
             })
-            model.subscribedSubs.observe(requireParentFragment().viewLifecycleOwner, Observer {
-                if(it != null && lifecycle.currentState != Lifecycle.State.RESUMED){
+            model.subscribedSubs.observe(viewLifecycleOwner, Observer {
+                if(it != null){
                     listAdapter.updateSubscribedItems(it)
+                    model.subredditsSynced()
                 }
             })
         }

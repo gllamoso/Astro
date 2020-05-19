@@ -38,6 +38,11 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         parentItemClickListener = itemClickListener
     }
 
+    override fun onResume() {
+        super.onResume()
+        model.syncWithDb()
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentItemScrollerBinding.inflate(inflater)
         binding.list.visibility = View.GONE
@@ -49,20 +54,6 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
 
     private fun setRecyclerViewAdapter(){
         binding.list.adapter = searchAdapter
-
-        if(parentFragment != null){
-            model.subscribedSubs.observe(requireParentFragment().viewLifecycleOwner, Observer {
-                if(it != null && lifecycle.currentState != Lifecycle.State.RESUMED){
-                    searchAdapter.updateSubscribedItems(it)
-                }
-            })
-
-            model.favoriteSubs.observe(requireParentFragment().viewLifecycleOwner, Observer {
-                if(it != null && lifecycle.currentState != Lifecycle.State.RESUMED){
-                    searchAdapter.updateFavoriteItems(it)
-                }
-            })
-        }
 
         model.searchedSubreddits.observe(viewLifecycleOwner, Observer {
             if(it != null){
@@ -79,6 +70,20 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
                 View.GONE
             } else {
                 View.VISIBLE
+            }
+        })
+
+        model.subscribedSubs.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                searchAdapter.updateSubscribedItems(it)
+                model.subredditsSynced()
+            }
+        })
+
+        model.favoriteSubs.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                searchAdapter.updateFavoriteItems(it)
+                model.favoriteSubsSynced()
             }
         })
     }

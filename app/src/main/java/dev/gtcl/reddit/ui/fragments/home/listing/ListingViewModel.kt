@@ -232,7 +232,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
         coroutineScope.launch {
             subredditRepository.subscribe(subreddit.displayName, subscribeAction).enqueue(object: Callback<Void>{
                 override fun onFailure(call: Call<Void>, t: Throwable) {
-                    Log.d("TAE", "Failed") // TODO: Handle
+                    _errorMessage.value = t.localizedMessage
                 }
 
                 override fun onResponse(call: Call<Void>, response: Response<Void>) {
@@ -273,7 +273,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     fun vote(fullname: String, vote: Vote){
         listingRepository.vote(fullname, vote).enqueue(object: Callback<Void>{
             override fun onFailure(call: Call<Void>, t: Throwable) {
-                Log.d("TAE", "Failed") // TODO: Handle
+                _errorMessage.value = t.localizedMessage
             }
             override fun onResponse(call: Call<Void>, response: Response<Void>) {}
         })
@@ -282,7 +282,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     fun save(id: String){
         listingRepository.save(id).enqueue(object: Callback<Void>{
             override fun onFailure(call: Call<Void>, t: Throwable) {
-                Log.d("TAE", "Failed") // TODO: Handle
+                _errorMessage.value = t.localizedMessage
             }
 
             override fun onResponse(call: Call<Void>, response: Response<Void>) {}
@@ -293,7 +293,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     fun unsave(id: String){
         listingRepository.unsave(id).enqueue(object: Callback<Void>{
             override fun onFailure(call: Call<Void>, t: Throwable) {
-                Log.d("TAE", "Failed") // TODO: Handle
+                _errorMessage.value = t.localizedMessage
             }
 
             override fun onResponse(call: Call<Void>, response: Response<Void>) {}
@@ -303,7 +303,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     fun hide(id: String){
         listingRepository.hide(id).enqueue(object: Callback<Void>{
             override fun onFailure(call: Call<Void>, t: Throwable) {
-                Log.d("TAE", "Failed") // TODO: Handle
+                _errorMessage.value = t.localizedMessage
             }
 
             override fun onResponse(call: Call<Void>, response: Response<Void>) {}
@@ -313,7 +313,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     fun unhide(id: String){
         listingRepository.unhide(id).enqueue(object: Callback<Void>{
             override fun onFailure(call: Call<Void>, t: Throwable) {
-                Log.d("TAE", "Failed") // TODO: Handle
+                _errorMessage.value = t.localizedMessage
             }
 
             override fun onResponse(call: Call<Void>, response: Response<Void>) {}

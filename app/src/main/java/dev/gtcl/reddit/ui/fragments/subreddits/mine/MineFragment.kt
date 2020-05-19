@@ -6,8 +6,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResultListener
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.*
@@ -16,6 +14,7 @@ import dev.gtcl.reddit.actions.ListingTypeClickListener
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.databinding.FragmentItemScrollerBinding
 import dev.gtcl.reddit.models.reddit.ListingType
+import dev.gtcl.reddit.network.NetworkState
 
 class MineFragment : Fragment(), SubredditActions, ListingTypeClickListener {
 
@@ -33,9 +32,15 @@ class MineFragment : Fragment(), SubredditActions, ListingTypeClickListener {
         ViewModelProvider(this, viewModelFactory).get(MineViewModel::class.java)
     }
 
+    override fun onResume() {
+        super.onResume()
+        model.syncWithDb()
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentItemScrollerBinding.inflate(inflater)
         setRecyclerViewAdapter()
+        setSwipeRefresh()
         return binding.root
     }
 
@@ -43,24 +48,29 @@ class MineFragment : Fragment(), SubredditActions, ListingTypeClickListener {
         val adapter = MySubredditsAdapter(requireContext(), this, this)
         binding.list.adapter = adapter
 
-        model.subscribedSubs.observe(requireParentFragment().viewLifecycleOwner, Observer {
-            if(it != null
-                && (!model.subscribedInitialized || lifecycle.currentState != Lifecycle.State.RESUMED)) {
-                for(sub: Subreddit in it){
-                    sub.userSubscribed = true
-                }
+        model.subscribedSubs.observe(viewLifecycleOwner, Observer {
+            if(it != null) {
                 adapter.setSubscribedSubs(it)
-                model.subscribedInitialized = true
+                model.subredditsSynced()
                 binding.progressBar.visibility = View.GONE
             }
         })
 
-        model.multiReddits.observe(requireParentFragment().viewLifecycleOwner, Observer {
-            if(it != null
-                && (!model.multiRedditsInitialized || lifecycle.currentState != Lifecycle.State.RESUMED)){
+        model.multiReddits.observe(viewLifecycleOwner, Observer {
+            if(it != null){
                 adapter.setMultiReddits(it)
-                model.multiRedditsInitialized = true
+                model.multiRedditsSynced()
             }
+        })
+    }
+
+    private fun setSwipeRefresh() {
+        binding.swipeRefresh.setOnRefreshListener {
+            model.syncDbWithReddit()
+        }
+
+        model.refreshState.observe(viewLifecycleOwner, Observer {
+            binding.swipeRefresh.isRefreshing = (it != NetworkState.LOADED)
         })
     }
 

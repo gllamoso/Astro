@@ -69,14 +69,21 @@ class SubredditRepository private constructor(private val application: RedditApp
     fun getSubscribedSubsLive() = database.subredditDao.getSubscribedSubsLive(application.currentAccount?.id ?: GUEST_ID)
 
     suspend fun getSubscribedSubs(displayName: String? = null): List<DbSubreddit>{
-        return if(displayName == null)
+        return if(displayName == null) {
             database.subredditDao.getSubscribedSubs(application.currentAccount?.id ?: GUEST_ID)
-        else
-            database.subredditDao.getSubscribedSubs(application.currentAccount?.id ?: GUEST_ID, displayName)
+        }
+        else {
+            database.subredditDao.getSubscribedSubs(
+                application.currentAccount?.id ?: GUEST_ID,
+                displayName
+            )
+        }
     }
 
     suspend fun deleteSubscribedSubs() {
-        if (application.currentAccount == null) return
+        if (application.currentAccount == null){
+            return
+        }
         withContext(Dispatchers.IO) {
             database.subredditDao.deleteSubscribedSubs(application.currentAccount!!.id)
         }
@@ -96,7 +103,9 @@ class SubredditRepository private constructor(private val application: RedditApp
 
     @MainThread
     fun subscribe(srName: String, subscribeAction: SubscribeAction): Call<Void> {
-        if(application.accessToken == null) throw IllegalStateException("User must be logged in to subscribe")
+        if(application.accessToken == null) {
+            throw IllegalStateException("User must be logged in to subscribe")
+        }
         return RedditApi.oauth.subscribeToSubreddit(application.accessToken!!.authorizationHeader, subscribeAction,  srName)
     }
 
@@ -139,11 +148,19 @@ class SubredditRepository private constructor(private val application: RedditApp
     }
 
     @MainThread
-    fun getMyMultiRedditsDb(): LiveData<List<DbMultiReddit>> {
+    fun getMyMultiRedditsDbLive(): LiveData<List<DbMultiReddit>> {
         if(application.currentAccount == null) {
             throw IllegalStateException("Must be logged in to fetch multireddits")
         }
         return database.multiRedditDao.getMultiRedditsLive(application.currentAccount!!.id)
+    }
+
+    @MainThread
+    suspend fun getMyMultiRedditsDb(): List<DbMultiReddit> {
+        if(application.currentAccount == null) {
+            throw IllegalStateException("Must be logged in to fetch multireddits")
+        }
+        return database.multiRedditDao.getMultiReddits(application.currentAccount!!.id)
     }
 
     @MainThread
