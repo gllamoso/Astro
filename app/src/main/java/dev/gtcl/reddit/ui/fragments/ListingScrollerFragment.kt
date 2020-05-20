@@ -33,13 +33,12 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
     }
 
     private val listAdapter: ListingItemAdapter by lazy{
-        ListingItemAdapter(
-            postActions = this,
-            messageActions = this,
-            subredditActions = this,
-            itemClickListener = this,
-            retry = model::retry,
-            hideableItems = false)
+        ListingItemAdapter(this,
+            this,
+            this,
+            this,
+            model::retry,
+            false)
     }
 
     private val scrollChangeListener by lazy{

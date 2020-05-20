@@ -37,7 +37,7 @@ class HomeViewModel(val application: RedditApplication): AndroidViewModel(applic
 //                    _defaultSubreddits.value = allSubs
 //                }
 //            } catch(e: Exception) {
-//                Log.d(TAG, "Exception: $e") // TODO: Handle?
+//                Log.d(TAG, "Exception: $e") // TODO: Handle
 //            }
 //        }
 //    }

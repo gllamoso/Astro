@@ -1,11 +1,13 @@
 package dev.gtcl.reddit.database
 
+import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
 import dev.gtcl.reddit.models.reddit.Account
 import dev.gtcl.reddit.models.reddit.AccountSubreddit
 import dev.gtcl.reddit.models.reddit.MultiReddit
 import dev.gtcl.reddit.models.reddit.Subreddit
+import kotlinx.android.parcel.Parcelize
 
 //   _____                _   _____ _
 //  |  __ \              | | |_   _| |
@@ -92,6 +94,7 @@ fun List<DbSubreddit>.asDomainModel() = map { it.asDomainModel() }
 //
 
 @Entity(tableName = "multis")
+@Parcelize
 data class DbMultiReddit(
     @PrimaryKey
     val id: String, // {Multi-Reddit Name}__{User ID}
@@ -99,7 +102,7 @@ data class DbMultiReddit(
     val userId: String,
     val path: String,
     val iconUrl: String
-) {
+): Parcelable {
     fun asDomainModel() = MultiReddit(
         true,
         name,

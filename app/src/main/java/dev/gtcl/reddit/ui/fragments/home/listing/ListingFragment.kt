@@ -19,6 +19,7 @@ import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
+import dev.gtcl.reddit.database.DbMultiReddit
 import dev.gtcl.reddit.databinding.FragmentListingBinding
 import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.ui.*
@@ -40,7 +41,12 @@ class ListingFragment : Fragment(), PostActions, ListingTypeClickListener, ItemC
     private lateinit var binding: FragmentListingBinding
 
     private val adapter: ListingItemAdapter by lazy {
-        ListingItemAdapter(this, this, this, this, model::retry, true)
+        ListingItemAdapter(this,
+            this,
+            this,
+            this,
+            model::retry,
+            true)
     }
 
     private val scrollChangeListener by lazy{
@@ -73,6 +79,7 @@ class ListingFragment : Fragment(), PostActions, ListingTypeClickListener, ItemC
         binding = FragmentListingBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.model = model
+        setListingInfo()
 
         //TODO: Add
 //        val subredditSelected = savedInstanceState?.getString(KEY_SUBREDDIT) ?: DEFAULT_SUBREDDIT
@@ -81,8 +88,7 @@ class ListingFragment : Fragment(), PostActions, ListingTypeClickListener, ItemC
         // TODO: Update. Wrap with observer, observing a refresh live data
         parentModel.ready.observe(viewLifecycleOwner, Observer{
             if(it == true) {
-                model.setListingInfo(FrontPage, PostSort.HOT, null, 15)
-                model.loadInitialDataAndFirstPage()
+                model.loadFirstPage()
                 parentModel.readyComplete()
             }
         })
@@ -95,12 +101,43 @@ class ListingFragment : Fragment(), PostActions, ListingTypeClickListener, ItemC
             }
         })
 
+        model.errorMessage.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            }
+        })
+
         setSwipeRefresh()
         setRecyclerView()
         setBottomAppbarClickListeners()
         setLeftDrawer(inflater)
         setRightDrawer()
         return binding.root
+    }
+
+    private fun setListingInfo(){
+        val args = requireArguments()
+        when{
+            args.get(DEFAULT_MULTI_REDDIT_KEY) != null -> {
+                when(args.get(DEFAULT_MULTI_REDDIT_KEY) as String){
+                    FrontPage.toString() -> model.setListingInfo(FrontPage)
+                    All.toString() -> model.setListingInfo(All)
+                    Popular.toString() -> model.setListingInfo(Popular)
+                }
+            }
+            args.get(MULTI_REDDIT_KEY) != null -> {
+                val multiReddit = args.get(MULTI_REDDIT_KEY) as DbMultiReddit
+                model.setListingInfo(MultiRedditListing(multiReddit))
+            }
+            args.get(SUBREDDIT_KEY) != null -> {
+                val subreddit = args.get(SUBREDDIT_KEY) as Subreddit
+                model.setListingInfo(SubredditListing(subreddit))
+            }
+            args.get(PROFILE_INFO_KEY) != null -> {
+                val profileInfo = args.get(PROFILE_INFO_KEY) as ProfileInfo
+                model.setListingInfo(ProfileListing(profileInfo))
+            }
+        }
     }
 
     private fun setSwipeRefresh() {
@@ -117,6 +154,7 @@ class ListingFragment : Fragment(), PostActions, ListingTypeClickListener, ItemC
 
     private fun setRecyclerView() {
         binding.list.adapter = adapter
+        binding.nestedScrollView.setOnScrollChangeListener(scrollChangeListener)
         model.items.observe(viewLifecycleOwner, Observer {
             if(it != null){
                 adapter.clearItems()
@@ -264,14 +302,14 @@ class ListingFragment : Fragment(), PostActions, ListingTypeClickListener, ItemC
                 // TODO: Move logic in ViewModel?
                 if (sort == PostSort.TOP || sort == PostSort.CONTROVERSIAL) {
                     TimePeriodSheetDialogFragment { time ->
-                        model.setSortAndTime(sort, time)
-                        model.loadInitialDataAndFirstPage()
+                        model.setSort(sort, time)
+                        model.loadFirstPage()
                         binding.list.scrollToPosition(0)
                     }
                         .show(childFragmentManager, TimePeriodSheetDialogFragment.TAG)
                 } else {
                     model.setSort(sort)
-                    model.loadInitialDataAndFirstPage()
+                    model.loadFirstPage()
                     binding.list.scrollToPosition(0)
                 }
 
@@ -290,7 +328,14 @@ class ListingFragment : Fragment(), PostActions, ListingTypeClickListener, ItemC
         }
     }
 
-    // Post Actions
+//     _____          _                  _   _
+//    |  __ \        | |       /\       | | (_)
+//    | |__) |__  ___| |_     /  \   ___| |_ _  ___  _ __  ___
+//    |  ___/ _ \/ __| __|   / /\ \ / __| __| |/ _ \| '_ \/ __|
+//    | |  | (_) \__ \ |_   / ____ \ (__| |_| | (_) | | | \__ \
+//    |_|   \___/|___/\__| /_/    \_\___|\__|_|\___/|_| |_|___/
+//
+
     override fun vote(post: Post, vote: Vote) {
         model.vote(post.name, vote)
     }
@@ -348,7 +393,7 @@ class ListingFragment : Fragment(), PostActions, ListingTypeClickListener, ItemC
 
     override fun onClick(listing: ListingType) {
         model.setListingInfo(listing)
-        model.loadInitialDataAndFirstPage()
+        model.loadFirstPage()
 //        adapter.lastItemReached = false
         binding.list.scrollToPosition(0)
 //        loadMoreListener.reset()
@@ -363,6 +408,14 @@ class ListingFragment : Fragment(), PostActions, ListingTypeClickListener, ItemC
         viewPagerActions?.navigateToNewPage(item)
     }
 
+//      _____       _                  _     _ _ _                  _   _
+//     / ____|     | |                | |   | (_) |       /\       | | (_)
+//    | (___  _   _| |__  _ __ ___  __| | __| |_| |_     /  \   ___| |_ _  ___  _ __  ___
+//     \___ \| | | | '_ \| '__/ _ \/ _` |/ _` | | __|   / /\ \ / __| __| |/ _ \| '_ \/ __|
+//     ____) | |_| | |_) | | |  __/ (_| | (_| | | |_   / ____ \ (__| |_| | (_) | | | \__ \
+//    |_____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
+//
+
     override fun favorite(subreddit: Subreddit, favorite: Boolean) {
         TODO("Not yet implemented")
     }
@@ -370,6 +423,15 @@ class ListingFragment : Fragment(), PostActions, ListingTypeClickListener, ItemC
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
         TODO("Not yet implemented")
     }
+
+//     __  __                                               _   _
+//    |  \/  |                                    /\       | | (_)
+//    | \  / | ___  ___ ___  __ _  __ _  ___     /  \   ___| |_ _  ___  _ __  ___
+//    | |\/| |/ _ \/ __/ __|/ _` |/ _` |/ _ \   / /\ \ / __| __| |/ _ \| '_ \/ __|
+//    | |  | |  __/\__ \__ \ (_| | (_| |  __/  / ____ \ (__| |_| | (_) | | | \__ \
+//    |_|  |_|\___||___/___/\__,_|\__, |\___| /_/    \_\___|\__|_|\___/|_| |_|___/
+//                                 __/ |
+//                                |___/
 
     override fun reply(message: Message) {
         TODO("Not yet implemented")
@@ -389,6 +451,23 @@ class ListingFragment : Fragment(), PostActions, ListingTypeClickListener, ItemC
 
     override fun block(user: String) {
         TODO("Not yet implemented")
+    }
+
+    companion object{
+        fun newInstance(listing: ListingType): ListingFragment {
+            val fragment = ListingFragment()
+            val args = bundleOf()
+            when(listing){
+                is FrontPage -> args.putString(DEFAULT_MULTI_REDDIT_KEY, FrontPage.toString())
+                is All -> args.putString(DEFAULT_MULTI_REDDIT_KEY, All.toString())
+                is Popular -> args.putString(DEFAULT_MULTI_REDDIT_KEY, Popular.toString())
+                is MultiRedditListing -> args.putParcelable(MULTI_REDDIT_KEY, listing.multiReddit)
+                is SubredditListing -> args.putParcelable(SUBREDDIT_KEY, listing.sub)
+                is ProfileListing -> args.putSerializable(PROFILE_INFO_KEY, listing.info)
+            }
+            fragment.arguments = args
+            return fragment
+        }
     }
 
 }

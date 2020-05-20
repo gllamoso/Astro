@@ -79,62 +79,37 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     val errorMessage: LiveData<String>
         get() = _errorMessage
 
-    private lateinit var postSort: PostSort
+    private var postSort = PostSort.HOT
     private var t: Time? = null
     private var pageSize = 15
     var initialPageLoaded = false
     private var lastItemReached = false
 
-    fun setListingInfo(listingType: ListingType, postSort: PostSort, t: Time?, pageSize: Int){
-        _listingType.value = listingType
-        this.postSort = postSort
-        this.t = t
-        this.pageSize = pageSize
-    }
+//    fun setListingInfo(listingType: ListingType, postSort: PostSort, t: Time?, pageSize: Int){
+//        _listingType.value = listingType
+//        this.postSort = postSort
+//        this.t = t
+//        this.pageSize = pageSize
+//    }
 
     fun setListingInfo(listingType: ListingType){
         _listingType.value = listingType
     }
 
-    fun setSortAndTime(postSort: PostSort, t: Time?){
+    fun setSort(postSort: PostSort, t: Time? = null){
         this.postSort = postSort
         this.t = t
     }
 
-    fun setSort(sort: PostSort){
-        postSort = sort
-    }
-
-    fun loadInitial(){
+    fun loadFirstPage(){
         coroutineScope.launch {
             _networkState.value = NetworkState.LOADING
-            val response = listingRepository.getListing(listingType.value!!, postSort, t, null, pageSize * 3).await()
-            val items  = response.data.children.map { it.data }
-            after = response.data.after
-            var sub: Subreddit? = null
-            if(listingType.value is SubredditListing){
-                sub = (subredditRepository.searchSubreddits(
-                    nsfw = true,
-                    includeProfiles = false,
-                    limit = 1,
-                    query = (listingType.value!! as SubredditListing).sub.displayName
-                ).await().data.children[0] as SubredditChild).data
-            }
-            _subredditSelected.value = sub
-            syncSubredditWithDatabase()
+            loadFirstPageAndData()
             _networkState.value = NetworkState.LOADED
         }
     }
 
-    fun loadInitialDataAndFirstPage(){
-        coroutineScope.launch {
-            _networkState.value = NetworkState.LOADING
-            loadFirstPage()
-            _networkState.value = NetworkState.LOADED
-        }
-    }
-
-    private suspend fun loadFirstPage(){
+    private suspend fun loadFirstPageAndData(){
         try {
             // Load subreddit Info
             var sub: Subreddit? = null

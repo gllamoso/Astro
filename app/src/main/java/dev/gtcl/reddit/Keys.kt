@@ -1,5 +1,7 @@
 package dev.gtcl.reddit
 
+import kotlin.reflect.jvm.internal.impl.renderer.DescriptorRenderer
+
 const val POST_KEY = "post"
 const val SUBREDDIT_KEY = "subreddit"
 const val URL_KEY = "url"
@@ -18,3 +20,5 @@ const val MESSAGE_WHERE_KEY = "message_where"
 const val USE_TRENDING_ADAPTER_KEY = "use_trending_adapter"
 const val SUBREDDIT_WHERE_KEY = "subreddit_where"
 const val PAGE_SIZE_KEY = "page_size"
+const val MULTI_REDDIT_KEY = "multireddit"
+const val DEFAULT_MULTI_REDDIT_KEY = "default_multireddit"

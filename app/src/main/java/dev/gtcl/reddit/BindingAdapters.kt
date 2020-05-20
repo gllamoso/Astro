@@ -154,22 +154,23 @@ fun loadAddedIcon(imgView: ImageView, added: Boolean){
 
 @BindingAdapter("listingType")
 fun loadListingText(txtView: TextView, listingType: ListingType?){
+    val context = txtView.context
     listingType?.let {
         txtView.text = when(it){
-            FrontPage -> txtView.context.getText(R.string.frontpage)
-            All -> txtView.context.getText(R.string.all)
-            Popular -> txtView.context.getText(R.string.popular_tab_label)
-            is MultiRedditListing -> it.multiReddit.displayName
+            FrontPage -> context.getText(R.string.frontpage)
+            All -> context.getText(R.string.all)
+            Popular -> context.getText(R.string.popular_tab_label)
+            is MultiRedditListing -> it.multiReddit.name
             is SubredditListing -> it.sub.displayName
             is ProfileListing -> when(it.info){
-                ProfileInfo.OVERVIEW -> txtView.context.getText(R.string.overview)
-                ProfileInfo.SUBMITTED -> txtView.context.getText(R.string.submitted)
-                ProfileInfo.COMMENTS -> txtView.context.getText(R.string.comments)
-                ProfileInfo.UPVOTED -> txtView.context.getText(R.string.upvoted)
-                ProfileInfo.DOWNVOTED -> txtView.context.getText(R.string.downvoted)
-                ProfileInfo.HIDDEN -> txtView.context.getText(R.string.hidden)
-                ProfileInfo.SAVED -> txtView.context.getText(R.string.saved)
-                ProfileInfo.GILDED -> txtView.context.getText(R.string.gilded)
+                ProfileInfo.OVERVIEW -> context.getText(R.string.overview)
+                ProfileInfo.SUBMITTED -> context.getText(R.string.submitted)
+                ProfileInfo.COMMENTS -> context.getText(R.string.comments)
+                ProfileInfo.UPVOTED -> context.getText(R.string.upvoted)
+                ProfileInfo.DOWNVOTED -> context.getText(R.string.downvoted)
+                ProfileInfo.HIDDEN -> context.getText(R.string.hidden)
+                ProfileInfo.SAVED -> context.getText(R.string.saved)
+                ProfileInfo.GILDED -> context.getText(R.string.gilded)
             }
         }
     }

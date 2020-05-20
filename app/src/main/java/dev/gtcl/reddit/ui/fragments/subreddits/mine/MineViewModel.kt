@@ -77,9 +77,11 @@ class MineViewModel(private val application: RedditApplication): AndroidViewMode
                     subredditRepository.deleteSubscribedSubs()
                     subredditRepository.insertSubreddits(allSubs)
 
-                    val multiReddits = subredditRepository.getMyMultiReddits().await().map { it.data.asDbModel(application.currentAccount!!.id) }
+                    val multiReddits = subredditRepository.getMyMultiReddits().await().map { it.data }
                     subredditRepository.deleteAllMultiReddits()
                     subredditRepository.insertMultiReddits(multiReddits)
+
+                    syncWithDb()
                 }
             } catch(e: Exception) {
                 _errorMessage.value = e.toString()

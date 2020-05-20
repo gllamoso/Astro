@@ -141,9 +141,9 @@ class SubredditRepository private constructor(private val application: RedditApp
     }
 
     @MainThread
-    suspend fun insertMultiReddits(multis: List<DbMultiReddit>){
+    suspend fun insertMultiReddits(multis: List<MultiReddit>){
         withContext(Dispatchers.IO){
-            database.multiRedditDao.insert(multis)
+            database.multiRedditDao.insert(multis.map { it.asDbModel() })
         }
     }
 

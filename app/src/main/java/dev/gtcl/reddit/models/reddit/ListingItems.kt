@@ -9,6 +9,7 @@ import dev.gtcl.reddit.database.DbSubreddit
 import dev.gtcl.reddit.database.ItemRead
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
+import kotlinx.android.parcel.RawValue
 
 enum class ItemType {
     @Json(name="t1")
@@ -427,7 +428,7 @@ data class MultiReddit(
     val canEdit: Boolean,
     @Json(name = "display_name")
     val displayName: String,
-    val subreddits: List<SubredditName>,
+    val subreddits: List<SubredditName> = listOf(),
     val path: String,
     val owner: String,
     @Json(name = "owner_id")
@@ -439,7 +440,7 @@ data class MultiReddit(
     override val id = ""
     override val name = displayName
 
-    fun asDbModel(userId: String) = DbMultiReddit("${displayName}__$userId}", displayName, userId, path, iconUrl)
+    fun asDbModel() = DbMultiReddit("${displayName}__${ownerId.replace("t2_","")}", displayName, ownerId.replace("t2_",""), path, iconUrl)
 }
 
 data class SubredditName(

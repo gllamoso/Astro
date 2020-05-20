@@ -18,6 +18,7 @@ import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.ui.activities.main.MainActivity
 import dev.gtcl.reddit.ui.activities.main.MainActivityViewModel
 import dev.gtcl.reddit.actions.ViewPagerActions
+import dev.gtcl.reddit.models.reddit.FrontPage
 import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
@@ -29,7 +30,11 @@ import dev.gtcl.reddit.ui.fragments.home.listing.ListingFragment
 class HomeFragment : Fragment(), ViewPagerActions {
 
     private lateinit var binding: FragmentViewPagerBinding
-    private lateinit var pageAdapter: ViewPagerAdapter
+    private val pageAdapter by lazy {
+        val adapter = PageAdapter(this)
+        adapter.addListingPage(FrontPage)
+        adapter
+    }
 
     val model: HomeViewModel by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
@@ -65,8 +70,6 @@ class HomeFragment : Fragment(), ViewPagerActions {
     }
 
     private fun setViewPagerAdapter(){
-        pageAdapter = ViewPagerAdapter(this, StartingViewPagerFragments.LISTING)
-
         binding.viewPager.apply {
             adapter = pageAdapter
             isUserInputEnabled = false
@@ -74,7 +77,7 @@ class HomeFragment : Fragment(), ViewPagerActions {
                 override fun onPageScrollStateChanged(state: Int) {
                     super.onPageScrollStateChanged(state)
                     if(state == ViewPager2.SCROLL_STATE_IDLE){
-                        pageAdapter.popFragments(currentItem)
+                        pageAdapter.popFragmentsGreaterThanPosition(currentItem)
 //                        parentModel.allowDrawerSwipe(currentItem == 0)
                         isUserInputEnabled = currentItem != 0
                     }
@@ -96,7 +99,7 @@ class HomeFragment : Fragment(), ViewPagerActions {
     }
 
     override fun navigateToNewPage(item: Item) {
-        pageAdapter.addCommentsPage(item as Post)
+        pageAdapter.addPostPage(item as Post)
         navigateNext()
     }
 

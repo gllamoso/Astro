@@ -100,7 +100,7 @@ class SubredditSelectorViewModel(private val application: RedditApplication): An
                     subredditRepository.deleteSubscribedSubs()
                     subredditRepository.insertSubreddits(allSubs)
 
-                    val multiReddits = subredditRepository.getMyMultiReddits().await().map { it.data.asDbModel(application.currentAccount!!.id) }
+                    val multiReddits = subredditRepository.getMyMultiReddits().await().map { it.data }
                     subredditRepository.deleteAllMultiReddits()
                     subredditRepository.insertMultiReddits(multiReddits)
                 }

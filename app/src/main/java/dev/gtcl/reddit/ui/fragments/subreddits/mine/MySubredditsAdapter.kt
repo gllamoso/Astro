@@ -285,7 +285,7 @@ class MySubredditsAdapter(private val context: Context, private val listingTypeC
                 listingTypeClickListener.onClick(SubredditListing(item))
             }
             is MultiReddit -> {
-                listingTypeClickListener.onClick(MultiRedditListing(item))
+                listingTypeClickListener.onClick(MultiRedditListing(item.asDbModel()))
             }
         }
     }

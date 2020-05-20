@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
@@ -210,6 +211,15 @@ class CommentsFragment : Fragment() { // TODO: Create static newInstance method
             playWhenReady = mPlayWhenReady
             seekTo(mCurrentWindow, mPlaybackPosition)
             prepare(mediaSource, false, false)
+        }
+    }
+
+    companion object{
+        fun newInstance(post: Post): CommentsFragment{
+            val fragment = CommentsFragment()
+            val args = bundleOf(POST_KEY to post)
+            fragment.arguments = args
+            return fragment
         }
     }
 }

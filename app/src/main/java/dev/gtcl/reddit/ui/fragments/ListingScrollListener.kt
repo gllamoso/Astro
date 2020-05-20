@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui.fragments
 
+import android.util.Log
 import androidx.core.widget.NestedScrollView
 
 class ListingScrollListener(private val visibleThreshold: Int = 2000, private val loadMore: () -> Unit) : NestedScrollView.OnScrollChangeListener{
@@ -17,8 +18,8 @@ class ListingScrollListener(private val visibleThreshold: Int = 2000, private va
             if ((scrollY + visibleThreshold >= (v.getChildAt(v.childCount - 1).measuredHeight - v.measuredHeight)) // gets recyclerview
                 && v.getChildAt(v.childCount - 1) != null
                 && !isLoading) {
-                loadMore()
-                isLoading = true
+                    loadMore()
+                    isLoading = true
             }
         }
     }

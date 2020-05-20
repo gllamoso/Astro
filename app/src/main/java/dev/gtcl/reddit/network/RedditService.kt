@@ -102,17 +102,6 @@ interface RedditApiService {
         @Query("limit") limit: Int
     ): Deferred<ListingResponse>
 
-    @GET("/user/{user}/m/{multi}/{sort}.json")
-    fun getPostFromMultiReddit(
-        @Header("Authorization") authorization: String?,
-        @Path("user") user: String,
-        @Path("multi") multi: String,
-        @Path("sort") sort: PostSort,
-        @Query("t") t: Time?,
-        @Query("after") after: String? = null,
-        @Query("limit") limit: Int
-    ): Deferred<ListingResponse>
-
     /**
      * categories: posts, saved, hidden, upvoted, downvoted, awards received, awards given
      */
@@ -121,14 +110,6 @@ interface RedditApiService {
         @Header("Authorization") authorization: String?,
         @Path("user") user: String,
         @Path("where") where: ProfileInfo,
-        @Query("after") after: String? = null,
-        @Query("limit") limit: Int
-    ): Deferred<ListingResponse>
-
-    @GET("/user/{user}/.json")
-    fun getUserOverview(
-        @Header("Authorization") authorization: String?,
-        @Path("user") user: String,
         @Query("after") after: String? = null,
         @Query("limit") limit: Int
     ): Deferred<ListingResponse>

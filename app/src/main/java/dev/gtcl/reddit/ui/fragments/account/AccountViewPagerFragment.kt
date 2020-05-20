@@ -7,22 +7,23 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
-import dev.gtcl.reddit.USER_KEY
 import dev.gtcl.reddit.databinding.FragmentViewPagerBinding
-import dev.gtcl.reddit.models.reddit.Comment
 import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.models.reddit.Item
-import dev.gtcl.reddit.ui.fragments.StartingViewPagerFragments
+import dev.gtcl.reddit.ui.fragments.PageAdapter
 import dev.gtcl.reddit.ui.fragments.SlidePageTransformer
-import dev.gtcl.reddit.ui.fragments.ViewPagerAdapter
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
 
 class AccountViewPagerFragment: Fragment(),
     ViewPagerActions {
 
     private lateinit var binding: FragmentViewPagerBinding
-    private lateinit var viewpagerAdapter: ViewPagerAdapter
+    private val pageAdapter by lazy {
+        val adapter = PageAdapter(this)
+        adapter.addAccountPage(null)
+        adapter
+    }
 
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
@@ -39,15 +40,14 @@ class AccountViewPagerFragment: Fragment(),
     }
 
     private fun setViewPagerAdapter(){
-        viewpagerAdapter = ViewPagerAdapter(this, StartingViewPagerFragments.USER)
         binding.viewPager.apply {
-            adapter =  viewpagerAdapter
+            adapter =  pageAdapter
             setPageTransformer(SlidePageTransformer())
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
             registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
                 override fun onPageScrollStateChanged(state: Int) {
                     if(state == ViewPager2.SCROLL_STATE_IDLE){
-                        viewpagerAdapter.popFragments(currentItem)
+                        pageAdapter.popFragmentsGreaterThanPosition(currentItem)
                     }
                     binding.viewPager.isUserInputEnabled = currentItem != 0
                 }
@@ -68,7 +68,7 @@ class AccountViewPagerFragment: Fragment(),
     override fun navigateToNewPage(item: Item) {
         when(item){
             is Post -> {
-                viewpagerAdapter.addCommentsPage(item)
+                pageAdapter.addPostPage(item)
                 navigateToNextPage()
             }
         }
