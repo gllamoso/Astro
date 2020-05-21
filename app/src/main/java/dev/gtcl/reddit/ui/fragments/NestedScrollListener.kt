@@ -1,9 +1,8 @@
 package dev.gtcl.reddit.ui.fragments
 
-import android.util.Log
 import androidx.core.widget.NestedScrollView
 
-class ListingScrollListener(private val visibleThreshold: Int = 2000, private val loadMore: () -> Unit) : NestedScrollView.OnScrollChangeListener{
+class NestedScrollListener(private val visibleThreshold: Int = 2000, private val loadMore: () -> Unit) : NestedScrollView.OnScrollChangeListener{
 
     private var isLoading = false
     fun finishedLoading(){
@@ -23,5 +22,7 @@ class ListingScrollListener(private val visibleThreshold: Int = 2000, private va
             }
         }
     }
+
+
 
 }

@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.RedditApplication
@@ -18,7 +17,7 @@ import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.models.reddit.SubredditListing
 import dev.gtcl.reddit.network.NetworkState
-import dev.gtcl.reddit.ui.fragments.ListingScrollListener
+import dev.gtcl.reddit.ui.fragments.NestedScrollListener
 
 class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
 
@@ -34,7 +33,7 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
     }
 
     private val listingScrollListener by lazy{
-        ListingScrollListener(loadMore = model::loadAfter)
+        NestedScrollListener(loadMore = model::loadAfter)
     }
 
     private var parentListingTypeClickListener: ListingTypeClickListener? = null

@@ -16,6 +16,8 @@ import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
@@ -31,7 +33,7 @@ import dev.gtcl.reddit.database.asAccountDomainModel
 import dev.gtcl.reddit.databinding.LayoutNavHeaderBinding
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.activities.main.MainDrawerAdapter
-import dev.gtcl.reddit.ui.fragments.ListingScrollListener
+import dev.gtcl.reddit.ui.fragments.NestedScrollListener
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.SubredditSelectorDialogFragment
 import dev.gtcl.reddit.ui.fragments.dialog.TimePeriodSheetDialogFragment
@@ -50,7 +52,7 @@ class ListingFragment : Fragment(), PostActions, ListingTypeClickListener, ItemC
     }
 
     private val scrollChangeListener by lazy{
-        ListingScrollListener(loadMore = model::loadAfter)
+        NestedScrollListener(loadMore = model::loadAfter)
     }
 
     private var viewPagerActions: ViewPagerActions? = null
@@ -80,10 +82,6 @@ class ListingFragment : Fragment(), PostActions, ListingTypeClickListener, ItemC
         binding.lifecycleOwner = this
         binding.model = model
         setListingInfo()
-
-        //TODO: Add
-//        val subredditSelected = savedInstanceState?.getString(KEY_SUBREDDIT) ?: DEFAULT_SUBREDDIT
-//        model.getPosts(Subreddit(displayName = subredditSelected))
 
         // TODO: Update. Wrap with observer, observing a refresh live data
         parentModel.ready.observe(viewLifecycleOwner, Observer{
@@ -162,10 +160,10 @@ class ListingFragment : Fragment(), PostActions, ListingTypeClickListener, ItemC
                 scrollChangeListener.finishedLoading()
                 if(it.isEmpty()){
                     binding.list.visibility = View.GONE
-//                    binding.noResultsText.visibility = View.VISIBLE
+                    binding.noResultsText.visibility = View.VISIBLE
                 } else {
                     binding.list.visibility = View.VISIBLE
-//                    binding.noResultsText.visibility = View.GONE
+                    binding.noResultsText.visibility = View.GONE
                 }
             }
         })

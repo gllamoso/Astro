@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -42,7 +41,7 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
     }
 
     private val scrollChangeListener by lazy{
-        ListingScrollListener(loadMore = model::loadAfter)
+        NestedScrollListener(loadMore = model::loadAfter)
     }
 
     private var parentItemClickListener: ItemClickListener? = null
