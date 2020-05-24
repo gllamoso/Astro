@@ -9,10 +9,7 @@ import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.SubredditRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -30,10 +27,6 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     private val _sortSelected = MutableLiveData<PostSort>()
     val sortSelected: LiveData<PostSort>
         get() = _sortSelected
-
-    private val _listingSelected = MutableLiveData<ListingType>()
-    val listingSelected: LiveData<ListingType>
-        get() = _listingSelected
 
     private val _subredditSelected = MutableLiveData<Subreddit>()
     val subredditSelected: LiveData<Subreddit>
@@ -85,13 +78,6 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     var initialPageLoaded = false
     private var lastItemReached = false
 
-//    fun setListingInfo(listingType: ListingType, postSort: PostSort, t: Time?, pageSize: Int){
-//        _listingType.value = listingType
-//        this.postSort = postSort
-//        this.t = t
-//        this.pageSize = pageSize
-//    }
-
     fun setListingInfo(listingType: ListingType){
         _listingType.value = listingType
     }
@@ -103,9 +89,10 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
 
     fun loadFirstPage(){
         coroutineScope.launch {
-            _networkState.value = NetworkState.LOADING
+            _networkState.postValue(NetworkState.LOADING)
             loadFirstPageAndData()
-            _networkState.value = NetworkState.LOADED
+            _networkState.postValue(NetworkState.LOADED)
+            initialPageLoaded = true
         }
     }
 
@@ -129,7 +116,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
             val items = ArrayList(response.data.children.map { it.data })
             listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
             setItemsReadStatus(items, readItemIds)
-            _items.value = items
+            _items.postValue(items)
             lastItemReached = items.size < (pageSize * 3)
             loadedIds.clear()
             loadedIds.addAll(items.map { it.name })
@@ -144,31 +131,33 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
             return
         }
         coroutineScope.launch {
-            _networkState.value = NetworkState.LOADING
-            try{
-                val response = listingRepository.getListing(
+            withContext(Dispatchers.Default){
+                _networkState.postValue(NetworkState.LOADING)
+                try{
+                    val response = listingRepository.getListing(
                         listingType.value!!,
                         postSort,
                         t,
                         after,
                         pageSize
                     ).await()
-                val newItems = response.data.children.map { it.data }.filter { !loadedIds.contains(it.name) }
+                    val newItems = response.data.children.map { it.data }.filter { !loadedIds.contains(it.name) }
 
-                lastItemReached = newItems.isEmpty()
-                if(lastItemReached){
-                    _networkState.value = NetworkState.LOADED
-                    return@launch
+                    lastItemReached = newItems.isEmpty()
+                    if(lastItemReached){
+                        _networkState.postValue(NetworkState.LOADED)
+                        return@withContext
+                    }
+
+                    loadedIds.addAll(newItems.map { it.name })
+                    setItemsReadStatus(newItems, readItemIds)
+                    _items.value!!.addAll(newItems)
+                    _newItems.postValue(newItems.toList())
+                    after = response.data.after
+                    _networkState.postValue(NetworkState.LOADED)
+                } catch (e: Exception){
+                    _errorMessage.postValue(e.toString())
                 }
-
-                loadedIds.addAll(newItems.map { it.name })
-                setItemsReadStatus(newItems, readItemIds)
-                _items.value!!.addAll(newItems)
-                _newItems.value = newItems.toList()
-                after = response.data.after
-                _networkState.value = NetworkState.LOADED
-            } catch (e: Exception){
-                _errorMessage.value = e.toString()
             }
         }
     }
@@ -180,7 +169,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     fun refresh(){
         coroutineScope.launch {
             _refreshState.value = NetworkState.LOADING
-            loadFirstPage()
+            loadFirstPageAndData()
             _refreshState.value = NetworkState.LOADED
         }
     }
@@ -200,7 +189,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
         sub.userSubscribed = subInDb != null
         sub.isFavorite = subInDb?.isFavorite ?: false
         _subredditSelected.value = null
-        _subredditSelected.value = sub // Update
+        _subredditSelected.value = sub
     }
 
     fun subscribe(subreddit: Subreddit, subscribeAction: SubscribeAction, favorite: Boolean = false){
@@ -293,19 +282,6 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
 
             override fun onResponse(call: Call<Void>, response: Response<Void>) {}
         })
-    }
-
-    companion object{
-        fun setItemsReadStatus(items: List<Item>, readIds: HashSet<String>){
-            if(readIds.isEmpty()){
-                return
-            }
-            for(item: Item in items){
-                if(item is Post){
-                    item.isRead = readIds.contains(item.name)
-                }
-            }
-        }
     }
 
 }

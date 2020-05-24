@@ -1,12 +1,15 @@
 package dev.gtcl.reddit.ui.viewholders
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import android.widget.RelativeLayout
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
 import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.databinding.ItemPostBinding
 import dev.gtcl.reddit.models.reddit.Post

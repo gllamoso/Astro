@@ -72,41 +72,4 @@ class SubredditSelectorViewModel(private val application: RedditApplication): An
         sub.isFavorite = favorite
         subredditRepository.insertSubreddit(sub)
     }
-
-    fun syncSubscribedSubsAndMultiReddits(){
-        coroutineScope.launch {
-            try {
-                val favSubs = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
-                if(application.accessToken == null) {
-                    val subs = subredditRepository.getNetworkAccountSubreddits(100, null).await().data.children.map { it.data as Subreddit }
-                    for(sub: Subreddit in subs)
-                        if(favSubs.contains(sub.displayName))
-                            sub.isFavorite = true
-                    subredditRepository.deleteSubscribedSubs()
-                    subredditRepository.insertSubreddits(subs)
-                }
-                else {
-                    val allSubs = mutableListOf<Subreddit>()
-                    var subs = subredditRepository.getNetworkAccountSubreddits(100, null).await().data.children.map { it.data as Subreddit }
-                    while(subs.isNotEmpty()) {
-                        allSubs.addAll(subs)
-                        val lastSub = subs.last()
-                        subs = subredditRepository.getNetworkAccountSubreddits(100, after = lastSub.name).await().data.children.map { it.data as Subreddit }
-                    }
-                    for(sub: Subreddit in allSubs) {
-                        if (favSubs.contains(sub.displayName))
-                            sub.isFavorite = true
-                    }
-                    subredditRepository.deleteSubscribedSubs()
-                    subredditRepository.insertSubreddits(allSubs)
-
-                    val multiReddits = subredditRepository.getMyMultiReddits().await().map { it.data }
-                    subredditRepository.deleteAllMultiReddits()
-                    subredditRepository.insertMultiReddits(multiReddits)
-                }
-            } catch(e: Exception) {
-                _errorMessage.value = e.toString()
-            }
-        }
-    }
 }

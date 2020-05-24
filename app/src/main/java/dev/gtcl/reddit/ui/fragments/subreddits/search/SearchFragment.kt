@@ -47,7 +47,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         binding = FragmentItemScrollerBinding.inflate(inflater)
         binding.list.visibility = View.GONE
         binding.noResultsText.visibility = View.VISIBLE
-        binding.progressBar.visibility = View.GONE
+//        binding.progressBar.visibility = View.GONE
         setRecyclerViewAdapter()
         return binding.root
     }
@@ -66,11 +66,11 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         })
 
         model.networkState.observe(viewLifecycleOwner, Observer {
-            binding.progressBar.visibility = if(it == NetworkState.LOADED){
-                View.GONE
-            } else {
-                View.VISIBLE
-            }
+//            binding.progressBar.visibility = if(it == NetworkState.LOADED){
+//                View.GONE
+//            } else {
+//                View.VISIBLE
+//            }
         })
 
         model.subscribedSubs.observe(viewLifecycleOwner, Observer {

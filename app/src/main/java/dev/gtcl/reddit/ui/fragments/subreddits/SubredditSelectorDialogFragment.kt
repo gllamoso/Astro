@@ -22,6 +22,7 @@ import dev.gtcl.reddit.databinding.FragmentDialogSubredditsBinding
 import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.actions.ListingTypeClickListener
 import dev.gtcl.reddit.actions.SubredditActions
+import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.models.reddit.ListingType
 import dev.gtcl.reddit.models.reddit.SubredditListing
@@ -31,7 +32,7 @@ import dev.gtcl.reddit.ui.fragments.subreddits.search.SearchFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingListFragment
 import kotlin.NoSuchElementException
 
-class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditActions, ListingTypeClickListener, ItemClickListener {
+class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditActions, ListingTypeClickListener, ItemClickListener, ViewPagerActions {
 
     private lateinit var binding: FragmentDialogSubredditsBinding
 
@@ -50,7 +51,7 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
         when(childFragment){
             is MineFragment -> childFragment.setActions(this, this)
             is TrendingListFragment -> childFragment.setActions(this, this)
-            is ListingScrollerFragment -> childFragment.setActions(this)
+            is ListingScrollerFragment -> childFragment.setActions(this, this)
             is SearchFragment -> childFragment.setActions(this, this)
         }
     }
@@ -62,9 +63,6 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentDialogSubredditsBinding.inflate(inflater)
-        binding.syncButton.setOnClickListener {
-            model.syncSubscribedSubsAndMultiReddits()
-        }
 
         setupTabLayout()
         setEditTextListener()
@@ -156,5 +154,13 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
     companion object {
         val TAG = SubredditSelectorDialogFragment::class.qualifiedName
     }
+
+    override fun enablePagerSwiping(enable: Boolean) {
+        binding.viewPager.isUserInputEnabled = enable
+    }
+
+    override fun navigatePreviousPage() {}
+
+    override fun navigateToNewPage(item: Item) {}
 
 }

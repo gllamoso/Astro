@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
@@ -20,7 +21,7 @@ class ListingItemAdapter(
     private val retry: () -> Unit,
     private val hideableItems: Boolean = false): RecyclerView.Adapter<RecyclerView.ViewHolder>(), ItemClickListener  {
 
-    var networkState = NetworkState.LOADING
+    var networkState: NetworkState? = NetworkState.LOADING
         set(value){
             val addNetworkStateView = (value != NetworkState.LOADED && value != networkState)
             field = value
@@ -32,8 +33,9 @@ class ListingItemAdapter(
     private val items = ArrayList<Item>()
 
     fun clearItems(){
+        val itemSize = items.size
         items.clear()
-        notifyDataSetChanged()
+        notifyItemRangeRemoved(0, itemSize)
     }
 
     fun addItems(newItems: List<Item>){
@@ -136,7 +138,7 @@ class ListingItemAdapter(
     }
 
     override fun itemClicked(item: Item) {
-        itemClickListener?.itemClicked(item)
+        itemClickListener.itemClicked(item)
     }
 
 }

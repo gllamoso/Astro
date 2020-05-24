@@ -52,7 +52,7 @@ class MineFragment : Fragment(), SubredditActions, ListingTypeClickListener {
             if(it != null) {
                 adapter.setSubscribedSubs(it)
                 model.subredditsSynced()
-                binding.progressBar.visibility = View.GONE
+//                binding.progressBar.visibility = View.GONE
             }
         })
 

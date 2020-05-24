@@ -17,14 +17,13 @@ import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.ui.fragments.ListingScrollerFragment
 
-class AccountFragment : Fragment(), ItemClickListener {
+class AccountFragment : Fragment(), ItemClickListener, ViewPagerActions {
 
     private lateinit var binding: FragmentUserBinding
 
-    private var viewPagerActions: ViewPagerActions? = null
+    private var parentViewPagerActions: ViewPagerActions? = null
     fun setFragment(viewPagerActions: ViewPagerActions){
-        this.viewPagerActions = viewPagerActions
-//        model.fetchAccount(user)
+        parentViewPagerActions = viewPagerActions
     }
 
     val model: AccountFragmentViewModel by lazy {
@@ -40,7 +39,7 @@ class AccountFragment : Fragment(), ItemClickListener {
         super.onAttachFragment(childFragment)
         when(childFragment){
 //            is SimpleListingScrollerFragment -> childFragment.setActions(postActions = this, user = model.username)
-            is ListingScrollerFragment -> childFragment.setActions(this)
+            is ListingScrollerFragment -> childFragment.setActions(this, this)
         }
     }
 
@@ -98,7 +97,7 @@ class AccountFragment : Fragment(), ItemClickListener {
     }
 
     override fun itemClicked(item: Item) {
-        viewPagerActions?.navigateToNewPage(item)
+        parentViewPagerActions?.navigateToNewPage(item)
     }
 
     companion object {
@@ -109,4 +108,12 @@ class AccountFragment : Fragment(), ItemClickListener {
             return fragment
         }
     }
+
+    override fun enablePagerSwiping(enable: Boolean) {
+        binding.viewPager.isUserInputEnabled = enable
+    }
+
+    override fun navigatePreviousPage() {}
+
+    override fun navigateToNewPage(item: Item) {}
 }

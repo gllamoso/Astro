@@ -36,8 +36,10 @@ class MineViewModel(private val application: RedditApplication): AndroidViewMode
 
     fun syncWithDb(){
         coroutineScope.launch {
-            _multiReddits.value = subredditRepository.getMyMultiRedditsDb()
-            _subscribedSubs.value = subredditRepository.getSubscribedSubs().map { it.asDomainModel() }
+            withContext(Dispatchers.Default){
+                _multiReddits.postValue(subredditRepository.getMyMultiRedditsDb())
+                _subscribedSubs.postValue(subredditRepository.getSubscribedSubs().map { it.asDomainModel() })
+            }
         }
     }
 
@@ -51,42 +53,44 @@ class MineViewModel(private val application: RedditApplication): AndroidViewMode
 
     fun syncDbWithReddit(){
         coroutineScope.launch {
-            try {
-                _refreshState.value = NetworkState.LOADING
-                val favSubs = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
-                if(application.accessToken == null) {
-                    subredditRepository.deleteSubscribedSubs()
-                    val subs = subredditRepository.getNetworkAccountSubreddits(100, null).await().data.children.map { it.data as Subreddit }
-                    for(sub: Subreddit in subs)
-                        if(favSubs.contains(sub.displayName))
-                            sub.isFavorite = true
-                    subredditRepository.insertSubreddits(subs)
-                }
-                else {
-                    val allSubs = mutableListOf<Subreddit>()
-                    var subs = subredditRepository.getNetworkAccountSubreddits(100, null).await().data.children.map { it.data as Subreddit }
-                    while(subs.isNotEmpty()) {
-                        allSubs.addAll(subs)
-                        val lastSub = subs.last()
-                        subs = subredditRepository.getNetworkAccountSubreddits(100, after = lastSub.name).await().data.children.map { it.data as Subreddit }
+            withContext(Dispatchers.Default){
+                try {
+                    _refreshState.postValue(NetworkState.LOADING)
+                    val favSubs = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
+                    if(application.accessToken == null) {
+                        subredditRepository.deleteSubscribedSubs()
+                        val subs = subredditRepository.getNetworkAccountSubreddits(100, null).await().data.children.map { it.data as Subreddit }
+                        for(sub: Subreddit in subs)
+                            if(favSubs.contains(sub.displayName))
+                                sub.isFavorite = true
+                        subredditRepository.insertSubreddits(subs)
                     }
-                    for(sub: Subreddit in allSubs) {
-                        if (favSubs.contains(sub.displayName))
-                            sub.isFavorite = true
+                    else {
+                        val allSubs = mutableListOf<Subreddit>()
+                        var subs = subredditRepository.getNetworkAccountSubreddits(100, null).await().data.children.map { it.data as Subreddit }
+                        while(subs.isNotEmpty()) {
+                            allSubs.addAll(subs)
+                            val lastSub = subs.last()
+                            subs = subredditRepository.getNetworkAccountSubreddits(100, after = lastSub.name).await().data.children.map { it.data as Subreddit }
+                        }
+                        for(sub: Subreddit in allSubs) {
+                            if (favSubs.contains(sub.displayName))
+                                sub.isFavorite = true
+                        }
+                        subredditRepository.deleteSubscribedSubs()
+                        subredditRepository.insertSubreddits(allSubs)
+
+                        val multiReddits = subredditRepository.getMyMultiReddits().await().map { it.data }
+                        subredditRepository.deleteAllMultiReddits()
+                        subredditRepository.insertMultiReddits(multiReddits)
+
+                        syncWithDb()
                     }
-                    subredditRepository.deleteSubscribedSubs()
-                    subredditRepository.insertSubreddits(allSubs)
-
-                    val multiReddits = subredditRepository.getMyMultiReddits().await().map { it.data }
-                    subredditRepository.deleteAllMultiReddits()
-                    subredditRepository.insertMultiReddits(multiReddits)
-
-                    syncWithDb()
+                } catch(e: Exception) {
+                    _errorMessage.postValue(e.toString())
+                } finally {
+                    _refreshState.postValue(NetworkState.LOADED)
                 }
-            } catch(e: Exception) {
-                _errorMessage.value = e.toString()
-            } finally {
-                _refreshState.value = NetworkState.LOADED
             }
         }
     }

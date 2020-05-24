@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.LinearLayoutManager
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.actions.ItemClickListener
@@ -17,7 +18,7 @@ import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.models.reddit.SubredditListing
 import dev.gtcl.reddit.network.NetworkState
-import dev.gtcl.reddit.ui.fragments.NestedScrollListener
+import dev.gtcl.reddit.ui.ItemScrollListener
 
 class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
 
@@ -33,7 +34,7 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
     }
 
     private val listingScrollListener by lazy{
-        NestedScrollListener(loadMore = model::loadAfter)
+        ItemScrollListener(7, binding.list.layoutManager as LinearLayoutManager, model::loadAfter)
     }
 
     private var parentListingTypeClickListener: ListingTypeClickListener? = null
@@ -50,8 +51,8 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentItemScrollerBinding.inflate(inflater)
-        binding.nestedScrollView.setOnScrollChangeListener(listingScrollListener)
         binding.list.adapter = listAdapter
+        binding.list.addOnScrollListener(listingScrollListener)
         setSwipeRefresh()
         setObservers()
         if(!model.initialPageLoaded){
@@ -87,11 +88,11 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
         })
 
         model.networkState.observe(viewLifecycleOwner, Observer {
-            binding.progressBar.visibility = if(it == NetworkState.LOADING){
-                View.VISIBLE
-            } else {
-                View.GONE
-            }
+//            binding.progressBar.visibility = if(it == NetworkState.LOADING){
+//                View.VISIBLE
+//            } else {
+//                View.GONE
+//            }
             listAdapter.networkState = it
         })
 

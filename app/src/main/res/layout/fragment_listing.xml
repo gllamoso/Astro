@@ -11,6 +11,7 @@
             type="dev.gtcl.reddit.ui.fragments.home.listing.ListingViewModel" />
     </data>
 
+
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
@@ -45,41 +46,33 @@
                     android:layout_height="0dp"
                     android:layout_weight="1">
 
-                    <androidx.core.widget.NestedScrollView
-                        android:id="@+id/nested_scroll_view"
+                    <FrameLayout
                         android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:scrollbars="vertical">
+                        android:layout_height="match_parent">
 
-                        <FrameLayout
+                        <TextView
+                            android:id="@+id/no_results_text"
                             android:layout_width="match_parent"
-                            android:layout_height="match_parent">
+                            android:layout_height="match_parent"
+                            android:gravity="center_horizontal|top"
+                            android:textColor="?attr/colorOnSurface"
+                            android:visibility="gone"
+                            android:padding="32dp"
+                            android:text="@string/nothing_found"
+                            android:elevation="8dp"/>
 
-                            <TextView
-                                android:id="@+id/no_results_text"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                android:gravity="center_horizontal|top"
-                                android:textColor="?attr/colorOnSurface"
-                                android:visibility="gone"
-                                android:padding="32dp"
-                                android:text="@string/nothing_found"
-                                android:elevation="8dp"/>
+                        <androidx.recyclerview.widget.RecyclerView
+                            android:id="@+id/list"
+                            android:tag="recycler_view"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"
+                            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                            app:spanCount="1"
+                            tools:itemCount="20"
+                            tools:listitem="@layout/item_listing"
+                            android:scrollbars="vertical"/>
 
-                            <androidx.recyclerview.widget.RecyclerView
-                                android:id="@+id/list"
-                                android:tag="recycler_view"
-                                android:layout_width="match_parent"
-                                android:layout_height="match_parent"
-                                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                                app:spanCount="1"
-                                tools:itemCount="20"
-                                tools:listitem="@layout/item_listing" />
-
-                        </FrameLayout>
-
-
-                    </androidx.core.widget.NestedScrollView>
+                    </FrameLayout>
 
                 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

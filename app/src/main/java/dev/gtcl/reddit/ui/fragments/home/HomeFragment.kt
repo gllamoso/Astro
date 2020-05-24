@@ -2,24 +2,25 @@ package dev.gtcl.reddit.ui.fragments.home
 
 
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
+import dev.gtcl.reddit.LISTING_KEY
 
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentViewPagerBinding
-import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.ui.activities.main.MainActivity
 import dev.gtcl.reddit.ui.activities.main.MainActivityViewModel
 import dev.gtcl.reddit.actions.ViewPagerActions
-import dev.gtcl.reddit.models.reddit.FrontPage
-import dev.gtcl.reddit.models.reddit.Item
+import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
 import dev.gtcl.reddit.ui.fragments.home.listing.ListingFragment
@@ -102,16 +103,6 @@ class HomeFragment : Fragment(), ViewPagerActions {
         pageAdapter.addPostPage(item as Post)
         navigateNext()
     }
-
-//    override fun viewComments(post: Post) {
-//        pageAdapter.addCommentsPage(post)
-//        parentModel.addReadPost(post)
-//        navigateNext()
-//    }
-//
-//    override fun viewComments(comment: Comment) {
-////        navigateNext()
-//    }
 
     private fun navigateNext() {
         val currentPage = binding.viewPager.currentItem

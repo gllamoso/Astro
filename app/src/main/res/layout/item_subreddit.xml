@@ -1,13 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="sub"
             type="dev.gtcl.reddit.models.reddit.Subreddit" />
+
         <variable
             name="iconTint"
             type="int" />
@@ -16,57 +17,47 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
         android:orientation="horizontal"
-        android:padding="8dp"
-        android:background="?attr/selectableItemBackground">
+        android:padding="8dp">
 
         <ImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            tools:src="@drawable/ic_reddit_circle"
-            android:layout_marginStart="8dp"
-            android:padding="8dp"
+            android:layout_margin="8dp"
             app:subredditIcon="@{sub.iconImg}"
-            app:tint="@{iconTint}"/>
+            app:tint="@{iconTint}"
+            tools:src="@drawable/ic_reddit_circle" />
 
-<!--        android:tint="@{iconTint == 0 ? @android:color/transparent : iconTint}"-->
-
-        <LinearLayout
+        <TextView
             android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
-
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:maxLines="1"
-                android:textColor="@color/textColor"
-                android:layout_gravity="center_vertical"
-                android:text="@{sub.displayName}"
-                tools:text="Subreddit Name"/>
-
-            <!--        TODO: drawableStart?-->
-
-        </LinearLayout>
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:text="@{sub.displayName}"
+            android:textColor="@color/textColor"
+            tools:text="Subreddit Name" />
 
         <ImageView
-            android:id="@+id/favorite_icon"
+            android:id="@+id/favorite_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
             android:src="@drawable/ic_favorite_unfilled_24dp"
-            android:padding="8dp"
-            app:favorite="@{sub.favorite}"
-            android:background="?attr/selectableItemBackgroundBorderless"/>
+            app:favorite="@{sub.favorite}" />
 
         <ImageView
-            android:id="@+id/add_icon"
+            android:id="@+id/add_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:src="@drawable/ic_add_circle_outline_24dp"
-            android:padding="8dp"
             android:layout_marginEnd="8dp"
-            app:added="@{sub.userSubscribed}"
-            android:background="?attr/selectableItemBackgroundBorderless"/>
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:src="@drawable/ic_add_circle_outline_24dp"
+            app:added="@{sub.userSubscribed}" />
 
     </LinearLayout>
 

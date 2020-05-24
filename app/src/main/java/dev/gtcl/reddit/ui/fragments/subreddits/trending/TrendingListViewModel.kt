@@ -5,18 +5,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
-import dev.gtcl.reddit.PostSort
-import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.SubscribeAction
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.DbMultiReddit
 import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.repositories.SubredditRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -53,12 +48,12 @@ class TrendingListViewModel(application: RedditApplication): AndroidViewModel(ap
     private var favoriteSubsHash: HashSet<String>? = null
     private var subscribedSubsHash: HashSet<String>? = null
 
-    private val _subscribedSubs = MutableLiveData<HashSet<String>>()
-    val subscribedSubs: LiveData<HashSet<String>>
+    private val _subscribedSubs = MutableLiveData<HashSet<String>?>()
+    val subscribedSubs: LiveData<HashSet<String>?>
         get() = _subscribedSubs
 
-    private val _favoriteSubs = MutableLiveData<HashSet<String>>()
-    val favoriteSubs: LiveData<HashSet<String>>
+    private val _favoriteSubs = MutableLiveData<HashSet<String>?>()
+    val favoriteSubs: LiveData<HashSet<String>?>
         get() = _favoriteSubs
 
     private val _refreshState = MutableLiveData<NetworkState>()
@@ -74,10 +69,12 @@ class TrendingListViewModel(application: RedditApplication): AndroidViewModel(ap
 
     fun syncWithDb(){
         coroutineScope.launch {
-            favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
-            _favoriteSubs.value = favoriteSubsHash
-            subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
-            _subscribedSubs.value = subscribedSubsHash
+            withContext(Dispatchers.Default){
+                favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
+                _favoriteSubs.postValue(favoriteSubsHash!!)
+                subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
+                _subscribedSubs.postValue(subscribedSubsHash!!)
+            }
         }
     }
 
@@ -110,27 +107,26 @@ class TrendingListViewModel(application: RedditApplication): AndroidViewModel(ap
     }
 
     private suspend fun loadFirstPage(){
-        try {
-            val response = listingRepository.getListing(TRENDING_LISTING, SORT, null, null, PAGE_SIZE).await()
-            val items = ArrayList(response.data.children.map { TrendingSubredditPost(it.data as Post) })
+        withContext(Dispatchers.Default){
+            try {
+                val response = listingRepository.getListing(TRENDING_LISTING, SORT, null, null, PAGE_SIZE * 3).await()
+                val items = ArrayList(response.data.children.map { TrendingSubredditPost(it.data as Post) })
 
-            if(favoriteSubsHash == null){
-                favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
+                if(favoriteSubsHash == null){
+                    favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
+                }
+                if(subscribedSubsHash == null){
+                    subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
+                }
+                setSubsAndFavoritesInTrendingPost(items, subscribedSubsHash!!, favoriteSubsHash!!)
+                _items.postValue(items)
+                lastItemReached = items.size < (PAGE_SIZE)
+                loadedIds.clear()
+                loadedIds.addAll(items.map { it.post.id })
+                after = response.data.after
+            } catch (e: Exception){
+                _errorMessage.postValue(e.toString())
             }
-            if(subscribedSubsHash == null){
-                subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
-            }
-            for(item: TrendingSubredditPost in items){
-                item.setFavorites(favoriteSubsHash!!)
-                item.setSubscribedTo(subscribedSubsHash!!)
-            }
-            _items.value = items
-            lastItemReached = items.size < (PAGE_SIZE)
-            loadedIds.clear()
-            loadedIds.addAll(items.map { it.post.id })
-            after = response.data.after
-        } catch (e: Exception){
-            _errorMessage.value = e.toString()
         }
     }
 
@@ -140,35 +136,34 @@ class TrendingListViewModel(application: RedditApplication): AndroidViewModel(ap
         }
         coroutineScope.launch {
             _networkState.value = NetworkState.LOADING
-            try{
-                val response = listingRepository.getListing(TRENDING_LISTING, SORT, null, after, PAGE_SIZE).await()
-                val newItems = response.data.children.map { TrendingSubredditPost(it.data as Post) }.filter { !loadedIds.contains(it.post.id) }
+            withContext(Dispatchers.Default) {
+                try{
+                    val response = listingRepository.getListing(TRENDING_LISTING, SORT, null, after, PAGE_SIZE).await()
+                    val newItems = response.data.children.map { TrendingSubredditPost(it.data as Post) }.filter { !loadedIds.contains(it.post.id) }
 
-                lastItemReached = newItems.isEmpty()
-                if(lastItemReached){
-                    _networkState.value = NetworkState.LOADED
-                    return@launch
-                }
+                    lastItemReached = newItems.isEmpty()
+                    if(lastItemReached){
+                        _networkState.value = NetworkState.LOADED
+                        return@withContext
+                    }
 
-                if(favoriteSubsHash == null){
-                    favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
-                }
-                if(subscribedSubsHash == null){
-                    subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
-                }
-                for(item: TrendingSubredditPost in newItems){
-                    item.setFavorites(favoriteSubsHash!!)
-                    item.setSubscribedTo(subscribedSubsHash!!)
-                }
+                    if(favoriteSubsHash == null){
+                        favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
+                    }
+                    if(subscribedSubsHash == null){
+                        subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
+                    }
+                    setSubsAndFavoritesInTrendingPost(newItems, subscribedSubsHash!!, favoriteSubsHash!!)
 
-                loadedIds.addAll(newItems.map { it.post.id })
-                _items.value!!.addAll(newItems)
-                _newItems.value = newItems.toList()
-                after = response.data.after
-                _networkState.value = NetworkState.LOADED
-            } catch (e: Exception){
-                _errorMessage.value = e.toString()
+                    loadedIds.addAll(newItems.map { it.post.id })
+                    _items.value!!.addAll(newItems)
+                    _newItems.postValue(newItems.toList())
+                    after = response.data.after
+                } catch (e: Exception){
+                    _errorMessage.postValue(e.toString())
+                }
             }
+            _networkState.value = NetworkState.LOADED
         }
     }
 
@@ -213,14 +208,16 @@ class TrendingListViewModel(application: RedditApplication): AndroidViewModel(ap
     }
 
     suspend fun insertSub(subreddit: Subreddit, favorite: Boolean){
-        val sub: Subreddit = if(subreddit.name == "")
-            (subredditRepository.searchSubreddits(
-                nsfw = true,
-                includeProfiles = false,
-                limit = 1,
-                query = subreddit.displayName
-            ).await().data.children[0] as SubredditChild).data
-        else subreddit
+        val sub: Subreddit = if(subreddit.name == ""){
+            (subredditRepository
+                .searchSubreddits(nsfw = true, includeProfiles = false, limit = 1, query = subreddit.displayName)
+                .await()
+                .data
+                .children[0] as SubredditChild)
+                .data
+        } else {
+            subreddit
+        }
         sub.isFavorite = favorite
         subredditRepository.insertSubreddit(sub)
     }

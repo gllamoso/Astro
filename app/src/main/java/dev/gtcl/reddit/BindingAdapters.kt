@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.Point
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
+import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -122,14 +123,29 @@ fun loadSubIcon(imgView: ImageView, imgUrl: String?){
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
-            .apply(
-                RequestOptions()
-                    .placeholder(R.drawable.ic_reddit_circle)
-//                    .error(R.drawable.ic_broken_image))
-            )
+            .apply(RequestOptions()
+                .placeholder(R.drawable.ic_reddit_circle)
+                .circleCrop())
             .into(imgView)
     }
 }
+
+@BindingAdapter("multiRedditIcon")
+fun loadMultiRedditIcon(imgView: ImageView, imgUrl: String?){
+    if(imgUrl == null || !imgUrl.startsWith("http")){
+        imgView.setImageResource(R.drawable.ic_collection_24dp)
+    }
+    else {
+        val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
+        Glide.with(imgView.context)
+            .load(imgUri)
+            .apply(RequestOptions()
+                .placeholder(R.drawable.ic_collection_24dp)
+                .circleCrop())
+            .into(imgView)
+    }
+}
+
 
 @BindingAdapter("tint")
 fun setTint(imgView: ImageView, color: Int){

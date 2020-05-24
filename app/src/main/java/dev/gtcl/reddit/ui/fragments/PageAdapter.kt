@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui.fragments
 
+import android.os.Parcelable
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import dev.gtcl.reddit.models.reddit.ListingType
@@ -7,10 +8,11 @@ import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.ui.fragments.account.AccountFragment
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
 import dev.gtcl.reddit.ui.fragments.home.listing.ListingFragment
+import kotlinx.android.parcel.Parcelize
 import java.util.*
 
 class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
-    private val pageStack = Stack<PageTypes>()
+    private var pageStack = Stack<PageTypes>()
 
     override fun getItemCount() = pageStack.size
 
@@ -45,15 +47,25 @@ class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
         }
         notifyItemRangeRemoved(pageStack.size - 1, itemsRemoved)
     }
+
+    fun getPageStack(): Stack<PageTypes> = pageStack
+
+    fun setPageStack(pageStack: Stack<PageTypes>){
+        this.pageStack = pageStack
+        notifyDataSetChanged()
+    }
 }
 
-sealed class PageTypes
+sealed class PageTypes: Parcelable
+@Parcelize
 class ListingPage(
     val listingType: ListingType
 ): PageTypes()
+@Parcelize
 class AccountPage(
     val user: String?
 ): PageTypes()
+@Parcelize
 class PostPage(
     val post: Post
 ): PageTypes()

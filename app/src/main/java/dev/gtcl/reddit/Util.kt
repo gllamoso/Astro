@@ -3,6 +3,7 @@ package dev.gtcl.reddit
 import android.content.Context
 import android.net.Uri
 import android.util.Base64
+import android.util.Log
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.dash.DashMediaSource
@@ -11,6 +12,12 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.gson.annotations.SerializedName
+import dev.gtcl.reddit.models.reddit.Item
+import dev.gtcl.reddit.models.reddit.Post
+import dev.gtcl.reddit.models.reddit.Subreddit
+import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingSubredditPost
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import java.util.*
 
 enum class PostSort{
@@ -198,4 +205,37 @@ enum class Vote(val value: Int){
     UPVOTE(1),
     DOWNVOTE(-1),
     UNVOTE(0)
+}
+
+suspend fun setItemsReadStatus(items: List<Item>, readIds: HashSet<String>){
+    withContext(Dispatchers.Default){
+        if(readIds.isEmpty()){
+            return@withContext
+        }
+        for(item: Item in items){
+            if(item is Post){
+                item.isRead = readIds.contains(item.name)
+            }
+        }
+    }
+}
+
+suspend fun setSubsAndFavorites(items: List<Item>, subscribedSubsHash: HashSet<String>, favoriteSubsHash: HashSet<String>){
+    withContext(Dispatchers.Default){
+        for(item: Item in items){
+            if(item is Subreddit){
+                item.userSubscribed = subscribedSubsHash.contains(item.displayName)
+                item.isFavorite = favoriteSubsHash.contains(item.displayName)
+            }
+        }
+    }
+}
+
+suspend fun setSubsAndFavoritesInTrendingPost(items: List<TrendingSubredditPost>, subscribedSubsHash: HashSet<String>, favoriteSubsHash: HashSet<String>){
+    withContext(Dispatchers.Default){
+        for(item: TrendingSubredditPost in items){
+            item.setSubscribedTo(subscribedSubsHash)
+            item.setFavorites(favoriteSubsHash)
+        }
+    }
 }

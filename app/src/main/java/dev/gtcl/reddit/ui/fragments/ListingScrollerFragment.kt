@@ -3,6 +3,7 @@ package dev.gtcl.reddit.ui.fragments
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
@@ -10,17 +11,19 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.GridLayoutManager
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.actions.ItemClickListener
-import dev.gtcl.reddit.actions.MessageActions
-import dev.gtcl.reddit.actions.PostActions
-import dev.gtcl.reddit.actions.SubredditActions
+import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentItemScrollerBinding
 import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.network.NetworkState
+import dev.gtcl.reddit.ui.ItemScrollListener
 import dev.gtcl.reddit.ui.ListingItemAdapter
 import dev.gtcl.reddit.ui.fragments.dialog.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
+import kotlin.math.abs
 
 open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, SubredditActions, ItemClickListener{
 
@@ -41,13 +44,14 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
     }
 
     private val scrollChangeListener by lazy{
-        NestedScrollListener(loadMore = model::loadAfter)
+        ItemScrollListener(15, binding.list.layoutManager as LinearLayoutManager, model::loadAfter)
     }
 
     private var parentItemClickListener: ItemClickListener? = null
-
-    fun setActions(listener: ItemClickListener){
+    private var viewPagerActions: ViewPagerActions? = null
+    fun setActions(listener: ItemClickListener, viewPagerActions: ViewPagerActions?){
         parentItemClickListener = listener
+        this.viewPagerActions = viewPagerActions
     }
 
     private fun setListingInfo(){
@@ -92,14 +96,15 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentItemScrollerBinding.inflate(inflater)
-        binding.nestedScrollView.setOnScrollChangeListener(scrollChangeListener)
         binding.list.adapter = listAdapter
+        binding.list.addOnScrollListener(scrollChangeListener)
         setSwipeRefresh()
         setObservers()
         if(!model.initialPageLoaded){
             setListingInfo()
             model.loadInitialDataAndFirstPage()
         }
+
         return binding.root
     }
 
@@ -128,7 +133,7 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
         })
 
         model.networkState.observe(viewLifecycleOwner, Observer {
-            binding.progressBar.visibility = if(it == NetworkState.LOADING) View.VISIBLE else View.GONE
+//            binding.progressBar.visibility = if(it == NetworkState.LOADING) View.VISIBLE else View.GONE
             listAdapter.networkState = it
         })
 

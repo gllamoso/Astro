@@ -8,12 +8,17 @@ import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingSubredditPost
 
-class TrendingSubredditVH private constructor(private val binding: ItemTrendingSubredditBinding): RecyclerView.ViewHolder(binding.root) {
-    fun bind(trendingSubredditPost: TrendingSubredditPost, subredditActions: SubredditActions, subredditClickAction: (Subreddit) -> Unit) {
+class TrendingSubredditVH private constructor(private val binding: ItemTrendingSubredditBinding) :
+    RecyclerView.ViewHolder(binding.root) {
+    fun bind(
+        trendingSubredditPost: TrendingSubredditPost,
+        subredditActions: SubredditActions,
+        subredditClickAction: (Subreddit) -> Unit
+    ) {
         binding.trendingPost = trendingSubredditPost
 
-        for(i in 0 until 5){
-            val binding = when(i){
+        for (i in 0 until 5) {
+            val binding = when (i) {
                 0 -> binding.subLayout0
                 1 -> binding.subLayout1
                 2 -> binding.subLayout2
@@ -26,20 +31,20 @@ class TrendingSubredditVH private constructor(private val binding: ItemTrendingS
                 root.setOnClickListener {
                     subredditClickAction(trendingSubredditPost.subs[i])
                 }
-                addIcon.setOnClickListener {
+                addButton.setOnClickListener {
                     trendingSubredditPost.subs[i].apply {
                         userSubscribed = userSubscribed != true
-                        if(!userSubscribed!!) {
+                        if (!userSubscribed!!) {
                             isFavorite = false
                         }
                         subredditActions.subscribe(this, userSubscribed!!)
                     }
                     this.invalidateAll()
                 }
-                favoriteIcon.setOnClickListener {
-                    trendingSubredditPost.subs[i].apply{
+                favoriteButton.setOnClickListener {
+                    trendingSubredditPost.subs[i].apply {
                         isFavorite = !isFavorite
-                        if(isFavorite) {
+                        if (isFavorite) {
                             userSubscribed = true
                         }
                         subredditActions.favorite(this, isFavorite)
@@ -54,11 +59,13 @@ class TrendingSubredditVH private constructor(private val binding: ItemTrendingS
         binding.executePendingBindings()
     }
 
-    companion object{
+    companion object {
         fun create(parent: ViewGroup): TrendingSubredditVH {
             return TrendingSubredditVH(
                 ItemTrendingSubredditBinding.inflate(
-                    LayoutInflater.from(parent.context)))
+                    LayoutInflater.from(parent.context)
+                )
+            )
         }
     }
 }

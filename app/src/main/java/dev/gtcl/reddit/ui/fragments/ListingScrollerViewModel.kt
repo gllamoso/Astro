@@ -59,12 +59,12 @@ class ListingScrollerViewModel(application: RedditApplication): AndroidViewModel
     private var favoriteSubsHash: java.util.HashSet<String>? = null
     private var subscribedSubsHash: java.util.HashSet<String>? = null
 
-    private val _subscribedSubs = MutableLiveData<java.util.HashSet<String>>()
-    val subscribedSubs: LiveData<java.util.HashSet<String>>
+    private val _subscribedSubs = MutableLiveData<HashSet<String>?>()
+    val subscribedSubs: LiveData<HashSet<String>?>
         get() = _subscribedSubs
 
-    private val _favoriteSubs = MutableLiveData<java.util.HashSet<String>>()
-    val favoriteSubs: LiveData<java.util.HashSet<String>>
+    private val _favoriteSubs = MutableLiveData<HashSet<String>?>()
+    val favoriteSubs: LiveData<HashSet<String>?>
         get() = _favoriteSubs
 
     private val _refreshState = MutableLiveData<NetworkState>()
@@ -77,10 +77,12 @@ class ListingScrollerViewModel(application: RedditApplication): AndroidViewModel
 
     fun syncWithDb(){
         coroutineScope.launch {
-            favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
-            _favoriteSubs.value = favoriteSubsHash
-            subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
-            _subscribedSubs.value = subscribedSubsHash
+            withContext(Dispatchers.Default){
+                favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
+                _favoriteSubs.postValue(favoriteSubsHash!!)
+                subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
+                _subscribedSubs.postValue(subscribedSubsHash!!)
+            }
         }
     }
 
@@ -161,12 +163,7 @@ class ListingScrollerViewModel(application: RedditApplication): AndroidViewModel
                 if(subscribedSubsHash == null){
                     subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
                 }
-                for(item: Item in items){
-                    if(item is Subreddit){
-                        item.isFavorite = favoriteSubsHash!!.contains(item.displayName)
-                        item.userSubscribed = subscribedSubsHash!!.contains(item.displayName)
-                    }
-                }
+                setSubsAndFavorites(items, subscribedSubsHash!!, favoriteSubsHash!!)
             }
             _items.value = items
             lastItemReached = items.size < (pageSize * 3)
@@ -186,24 +183,9 @@ class ListingScrollerViewModel(application: RedditApplication): AndroidViewModel
             _networkState.value = NetworkState.LOADING
             try{
                 val response = when {
-                    ::listingType.isInitialized -> listingRepository.getListing(
-                        listingType,
-                        postSort,
-                        t,
-                        after,
-                        pageSize,
-                        user
-                    ).await()
-                    ::subredditWhere.isInitialized -> subredditRepository.getNetworkSubreddits(
-                        subredditWhere,
-                        after,
-                        pageSize
-                    ).await()
-                    ::messageWhere.isInitialized -> messageRepository.getMessages(
-                        messageWhere,
-                        after,
-                        pageSize
-                    ).await()
+                    ::listingType.isInitialized -> listingRepository.getListing(listingType, postSort, t, after, pageSize, user).await()
+                    ::subredditWhere.isInitialized -> subredditRepository.getNetworkSubreddits(subredditWhere, after, pageSize).await()
+                    ::messageWhere.isInitialized -> messageRepository.getMessages(messageWhere, after, pageSize).await()
                     else -> throw IllegalStateException("Not enough info to load listing")
                 }
                 val newItems = response.data.children.map { it.data }.filter { !loadedIds.contains(it.name) }
@@ -222,12 +204,7 @@ class ListingScrollerViewModel(application: RedditApplication): AndroidViewModel
                     if(subscribedSubsHash == null){
                         subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
                     }
-                    for(item: Item in newItems){
-                        if(item is Subreddit){
-                            item.isFavorite = favoriteSubsHash!!.contains(item.displayName)
-                            item.userSubscribed = subscribedSubsHash!!.contains(item.displayName)
-                        }
-                    }
+                    setSubsAndFavorites(newItems, subscribedSubsHash!!, favoriteSubsHash!!)
                 }
 
                 loadedIds.addAll(newItems.map { it.name })
@@ -338,29 +315,17 @@ class ListingScrollerViewModel(application: RedditApplication): AndroidViewModel
     }
 
     suspend fun insertSub(subreddit: Subreddit, favorite: Boolean){
-        val sub: Subreddit = if(subreddit.name == "")
-            (subredditRepository.searchSubreddits(
-                nsfw = true,
-                includeProfiles = false,
-                limit = 1,
-                query = subreddit.displayName
-            ).await().data.children[0] as SubredditChild).data
-        else subreddit
+        val sub: Subreddit = if(subreddit.name == ""){
+            (subredditRepository
+                .searchSubreddits(nsfw = true, includeProfiles = false, limit = 1, query = subreddit.displayName).await()
+                .data
+                .children[0] as SubredditChild)
+                .data
+        } else {
+            subreddit
+        }
         sub.isFavorite = favorite
         subredditRepository.insertSubreddit(sub)
-    }
-
-    companion object{
-        fun setItemsReadStatus(items: List<Item>, readIds: HashSet<String>){
-            if(readIds.isEmpty()){
-                return
-            }
-            for(item: Item in items){
-                if(item is Post){
-                    item.isRead = readIds.contains(item.name)
-                }
-            }
-        }
     }
 
 }

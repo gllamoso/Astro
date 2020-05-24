@@ -11,10 +11,9 @@ import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.models.reddit.SubredditChild
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.SubredditRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import dev.gtcl.reddit.setSubsAndFavorites
+import dev.gtcl.reddit.setSubsAndFavoritesInTrendingPost
+import kotlinx.coroutines.*
 import java.util.*
 
 class SearchViewModel(application: RedditApplication) : AndroidViewModel(application){
@@ -28,28 +27,30 @@ class SearchViewModel(application: RedditApplication) : AndroidViewModel(applica
     private var favoriteSubsHash: HashSet<String>? = null
     private var subscribedSubsHash: HashSet<String>? = null
 
-    private val _subscribedSubs = MutableLiveData<HashSet<String>>()
-    val subscribedSubs: LiveData<HashSet<String>>
+    private val _subscribedSubs = MutableLiveData<HashSet<String>?>()
+    val subscribedSubs: LiveData<HashSet<String>?>
         get() = _subscribedSubs
 
-    private val _favoriteSubs = MutableLiveData<HashSet<String>>()
-    val favoriteSubs: LiveData<HashSet<String>>
+    private val _favoriteSubs = MutableLiveData<HashSet<String>?>()
+    val favoriteSubs: LiveData<HashSet<String>?>
         get() = _favoriteSubs
 
     private val _networkState = MutableLiveData<NetworkState>()
     val networkState: LiveData<NetworkState>
         get() = _networkState
 
-    private val _searchedSubreddits = MutableLiveData<List<Subreddit>>()
-    val searchedSubreddits: LiveData<List<Subreddit>>
+    private val _searchedSubreddits = MutableLiveData<List<Subreddit>?>()
+    val searchedSubreddits: LiveData<List<Subreddit>?>
         get() = _searchedSubreddits
 
     fun syncWithDb(){
         coroutineScope.launch {
-            favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
-            _favoriteSubs.value = favoriteSubsHash
-            subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
-            _subscribedSubs.value = subscribedSubsHash
+            withContext(Dispatchers.Default){
+                favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
+                _favoriteSubs.postValue(favoriteSubsHash)
+                subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
+                _subscribedSubs.postValue(subscribedSubsHash)
+            }
         }
     }
 
@@ -79,12 +80,7 @@ class SearchViewModel(application: RedditApplication) : AndroidViewModel(applica
                 subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
             }
 
-            for(item: Item in subs){
-                if(item is Subreddit){
-                    item.isFavorite = favoriteSubsHash!!.contains(item.displayName)
-                    item.userSubscribed = subscribedSubsHash!!.contains(item.displayName)
-                }
-            }
+            setSubsAndFavorites(subs, subscribedSubsHash!!, favoriteSubsHash!!)
             _searchedSubreddits.value = subs
 
             _networkState.value = NetworkState.LOADED
