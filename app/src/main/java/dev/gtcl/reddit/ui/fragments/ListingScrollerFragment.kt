@@ -44,7 +44,7 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
     }
 
     private val scrollChangeListener by lazy{
-        ItemScrollListener(15, binding.list.layoutManager as LinearLayoutManager, model::loadAfter)
+        ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadAfter)
     }
 
     private var parentItemClickListener: ItemClickListener? = null

@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
@@ -34,7 +35,7 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
     }
 
     private val listingScrollListener by lazy{
-        ItemScrollListener(7, binding.list.layoutManager as LinearLayoutManager, model::loadAfter)
+        ItemScrollListener(7, binding.list.layoutManager as GridLayoutManager, model::loadAfter)
     }
 
     private var parentListingTypeClickListener: ListingTypeClickListener? = null
