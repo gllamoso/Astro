@@ -23,9 +23,9 @@ class MediaDialogFragment: DialogFragment() {
     lateinit var postUrlCallback: (Post) -> Unit
     private var playerControlViewPassed = false // PlayerControlView is sometimes passed onAttachFragment or onCreateView
 
-    val model: MediaDialogViewModel by lazy {
+    val model: MediaDialogVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(MediaDialogViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(MediaDialogVM::class.java)
     }
 
     override fun onStart() {

@@ -29,9 +29,9 @@ import dev.gtcl.reddit.actions.ViewPagerActions
 
 class CommentsFragment : Fragment() { // TODO: Create static newInstance method
 
-    private val model: CommentsViewModel by lazy {
+    private val model: CommentsVM by lazy {
         val viewModelFactory = ViewModelFactory(requireContext().applicationContext as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(CommentsViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(CommentsVM::class.java)
     }
 
     private val mediaController: MediaController by lazy { MediaController(requireContext()) }
@@ -44,7 +44,7 @@ class CommentsFragment : Fragment() { // TODO: Create static newInstance method
     private lateinit var binding: FragmentCommentsBinding
 
     private lateinit var viewPagerActions: ViewPagerActions
-    fun setViewPagerActions(viewPagerActions: ViewPagerActions){
+    fun setActions(viewPagerActions: ViewPagerActions){
         this.viewPagerActions = viewPagerActions
     }
 
@@ -57,7 +57,7 @@ class CommentsFragment : Fragment() { // TODO: Create static newInstance method
         val post = bundle?.get(POST_KEY)
         post?.let { model.setPost(it as Post) }
 
-        val adapter1 = CommentsAdapter(object : CommentsAdapter.CommentItemClickListener{
+        val adapter = CommentsAdapter(object : CommentsAdapter.CommentItemClickListener{
             override fun onMoreCommentsClicked(position: Int, more: More) {
                 model.fetchMoreComments(position, more)
                 model.clearMoreComments()
@@ -68,10 +68,10 @@ class CommentsFragment : Fragment() { // TODO: Create static newInstance method
 //                findNavController().navigate(MainFragmentDirections.actionMainFragmentToCommentsFragment(CommentUrl(url)))
             }
         })
-        binding.bottomSheet.commentList.adapter = adapter1
+        binding.bottomSheet.commentList.adapter = adapter
         model.comments.observe(viewLifecycleOwner, Observer {
             if(it != null){
-                adapter1.submitList(it)
+                adapter.submitList(it)
                 binding.nestedScrollView.scrollTo(0,0)
                 model.clearComments()
             }
@@ -80,7 +80,7 @@ class CommentsFragment : Fragment() { // TODO: Create static newInstance method
 
         model.moreComments.observe(viewLifecycleOwner, Observer {
             if(it != null) {
-                adapter1.addItems(it.position, it.comments)
+                adapter.addItems(it.position, it.comments)
                 model.clearMoreComments()
             }
         })

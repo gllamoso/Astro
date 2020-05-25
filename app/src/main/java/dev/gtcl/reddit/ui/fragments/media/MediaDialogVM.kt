@@ -12,7 +12,7 @@ import dev.gtcl.reddit.download.DownloadIntentService
 import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.models.reddit.UrlType
 
-class MediaDialogViewModel(private val application: RedditApplication) : AndroidViewModel(application){
+class MediaDialogVM(private val application: RedditApplication) : AndroidViewModel(application){
 
     var initialized = false
 
@@ -26,8 +26,8 @@ class MediaDialogViewModel(private val application: RedditApplication) : Android
         _urlType.value = urlType
     }
 
-    private val _post = MutableLiveData<Post>()
-    val post: LiveData<Post>
+    private val _post = MutableLiveData<Post?>()
+    val post: LiveData<Post?>
         get() = _post
 
     fun setPost(post: Post?){

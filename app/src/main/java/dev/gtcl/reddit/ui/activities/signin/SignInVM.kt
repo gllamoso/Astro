@@ -4,7 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 
-class SignInViewModel : ViewModel() {
+class SignInVM : ViewModel() {
 
     private val _redirectUrl = MutableLiveData<String>()
     val redirectUrl: LiveData<String>

@@ -5,7 +5,7 @@
     <data>
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.fragments.account.pages.about.UserAboutViewModel" />
+            type="dev.gtcl.reddit.ui.fragments.account.pages.about.UserAboutVM" />
     </data>
 
     <androidx.core.widget.NestedScrollView

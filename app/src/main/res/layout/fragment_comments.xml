@@ -8,7 +8,7 @@
     <data>
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.fragments.comments.CommentsViewModel" />
+            type="dev.gtcl.reddit.ui.fragments.comments.CommentsVM" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout

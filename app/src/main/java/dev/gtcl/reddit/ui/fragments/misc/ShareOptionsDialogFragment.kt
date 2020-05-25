@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.dialog
+package dev.gtcl.reddit.ui.fragments.misc
 
 import android.os.Bundle
 import android.view.LayoutInflater

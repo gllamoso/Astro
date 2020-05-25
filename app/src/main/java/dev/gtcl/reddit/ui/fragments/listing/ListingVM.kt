@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.home.listing
+package dev.gtcl.reddit.ui.fragments.listing
 
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -9,34 +9,24 @@ import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.SubredditRepository
+import dev.gtcl.reddit.repositories.UserRepository
 import kotlinx.coroutines.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
-class ListingViewModel(val application: RedditApplication): AndroidViewModel(application) {
+class ListingVM(val application: RedditApplication): AndroidViewModel(application) {
 
     // Repos
     private val listingRepository = ListingRepository.getInstance(application)
     private val subredditRepository = SubredditRepository.getInstance(application)
+    private val userRepository = UserRepository.getInstance(application)
 
     // Scopes
     private var viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    private val _sortSelected = MutableLiveData<PostSort>()
-    val sortSelected: LiveData<PostSort>
-        get() = _sortSelected
+    private val _subreddit = MutableLiveData<Subreddit>()
+    val subreddit: LiveData<Subreddit>
+        get() = _subreddit
 
-    private val _subredditSelected = MutableLiveData<Subreddit>()
-    val subredditSelected: LiveData<Subreddit>
-        get() = _subredditSelected
-
-    private val _timeSelected = MutableLiveData<Time>()
-    val timeSelected: LiveData<Time>
-        get() = _timeSelected
-
-//    fun refresh() = postListingsOfSubreddit.value?.refresh?.invoke()
 //
     fun retry() {
 //        val listing = postListingsOfSubreddit.value
@@ -72,19 +62,31 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     val errorMessage: LiveData<String>
         get() = _errorMessage
 
-    private var postSort = PostSort.HOT
-    private var t: Time? = null
+    private val _postSort = MutableLiveData<PostSort>().apply { value = PostSort.HOT }
+    val postSort: LiveData<PostSort>
+        get() = _postSort
+
+    private val _time = MutableLiveData<Time?>().apply { value = null }
+    val time: LiveData<Time?>
+        get() = _time
+
     private var pageSize = 15
-    var initialPageLoaded = false
-    private var lastItemReached = false
+
+    private var _initialPageLoaded = false
+    val initialPageLoaded: Boolean
+        get() = _initialPageLoaded
+
+    private var _lastItemReached = MutableLiveData<Boolean>()
+    val lastItemReached: LiveData<Boolean>
+        get() = _lastItemReached
 
     fun setListingInfo(listingType: ListingType){
         _listingType.value = listingType
     }
 
-    fun setSort(postSort: PostSort, t: Time? = null){
-        this.postSort = postSort
-        this.t = t
+    fun setSort(postSort: PostSort, time: Time? = null){
+        _postSort.value = postSort
+        _time.value = time
     }
 
     fun loadFirstPage(){
@@ -92,7 +94,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
             _networkState.postValue(NetworkState.LOADING)
             loadFirstPageAndData()
             _networkState.postValue(NetworkState.LOADED)
-            initialPageLoaded = true
+            _initialPageLoaded = true
         }
     }
 
@@ -108,16 +110,16 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
                     query = (listingType.value!! as SubredditListing).sub.displayName
                 ).await().data.children[0] as SubredditChild).data
             }
-            _subredditSelected.value = sub
+            _subreddit.value = sub
             syncSubredditWithDatabase()
 
             // Get listing items
-            val response = listingRepository.getListing(listingType.value!!, postSort, t, null, pageSize * 3).await()
+            val response = listingRepository.getListing(listingType.value!!, postSort.value!!, time.value, null, pageSize * 3).await()
             val items = ArrayList(response.data.children.map { it.data })
             listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
             setItemsReadStatus(items, readItemIds)
             _items.postValue(items)
-            lastItemReached = items.size < (pageSize * 3)
+            _lastItemReached.value = items.size < (pageSize * 3)
             loadedIds.clear()
             loadedIds.addAll(items.map { it.name })
             after = response.data.after
@@ -127,7 +129,7 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     }
 
     fun loadAfter(){
-        if(lastItemReached){
+        if(lastItemReached.value == true){
             return
         }
         coroutineScope.launch {
@@ -136,15 +138,15 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
                 try{
                     val response = listingRepository.getListing(
                         listingType.value!!,
-                        postSort,
-                        t,
+                        postSort.value!!,
+                        time.value,
                         after,
                         pageSize
                     ).await()
                     val newItems = response.data.children.map { it.data }.filter { !loadedIds.contains(it.name) }
 
-                    lastItemReached = newItems.isEmpty()
-                    if(lastItemReached){
+                    _lastItemReached.postValue(newItems.isEmpty())
+                    if(lastItemReached.value == true){
                         _networkState.postValue(NetworkState.LOADED)
                         return@withContext
                     }
@@ -175,7 +177,6 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     }
 
     // Right Side Bar Layout
-
     fun syncSubreddit(){
         coroutineScope.launch {
             syncSubredditWithDatabase()
@@ -183,105 +184,13 @@ class ListingViewModel(val application: RedditApplication): AndroidViewModel(app
     }
 
     private suspend fun syncSubredditWithDatabase(){
-        val sub = subredditSelected.value ?: return
+        val sub = subreddit.value ?: return
         val dbSubsMatchingName = subredditRepository.getSubscribedSubs(sub.displayName)
         val subInDb = if(dbSubsMatchingName.isNotEmpty()) dbSubsMatchingName[0] else null
         sub.userSubscribed = subInDb != null
         sub.isFavorite = subInDb?.isFavorite ?: false
-        _subredditSelected.value = null
-        _subredditSelected.value = sub
-    }
-
-    fun subscribe(subreddit: Subreddit, subscribeAction: SubscribeAction, favorite: Boolean = false){
-        coroutineScope.launch {
-            subredditRepository.subscribe(subreddit.displayName, subscribeAction).enqueue(object: Callback<Void>{
-                override fun onFailure(call: Call<Void>, t: Throwable) {
-                    _errorMessage.value = t.localizedMessage
-                }
-
-                override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                    coroutineScope.launch {
-                        if(subscribeAction == SubscribeAction.SUBSCRIBE) insertSub(subreddit, favorite)
-                        else subredditRepository.removeSubreddit(subreddit)
-                    }
-                }
-            })
-        }
-    }
-
-    fun addToFavorites(subreddit: Subreddit, favorite: Boolean){
-        coroutineScope.launch {
-            if(favorite) {
-                subscribe(subreddit, SubscribeAction.SUBSCRIBE, favorite)
-            } else {
-                subredditRepository.addToFavorites(subreddit.displayName, favorite)
-            }
-        }
-    }
-
-    suspend fun insertSub(subreddit: Subreddit, favorite: Boolean){
-        val sub: Subreddit = if(subreddit.name == "")
-            (subredditRepository.searchSubreddits(
-                nsfw = true,
-                includeProfiles = false,
-                limit = 1,
-                query = subreddit.displayName
-            ).await().data.children[0] as SubredditChild).data
-        else subreddit
-        sub.isFavorite = favorite
-        subredditRepository.insertSubreddit(sub)
-    }
-
-    // Post Actions
-
-    fun vote(fullname: String, vote: Vote){
-        listingRepository.vote(fullname, vote).enqueue(object: Callback<Void>{
-            override fun onFailure(call: Call<Void>, t: Throwable) {
-                _errorMessage.value = t.localizedMessage
-            }
-            override fun onResponse(call: Call<Void>, response: Response<Void>) {}
-        })
-    }
-
-    fun save(id: String){
-        listingRepository.save(id).enqueue(object: Callback<Void>{
-            override fun onFailure(call: Call<Void>, t: Throwable) {
-                _errorMessage.value = t.localizedMessage
-            }
-
-            override fun onResponse(call: Call<Void>, response: Response<Void>) {}
-
-        })
-    }
-
-    fun unsave(id: String){
-        listingRepository.unsave(id).enqueue(object: Callback<Void>{
-            override fun onFailure(call: Call<Void>, t: Throwable) {
-                _errorMessage.value = t.localizedMessage
-            }
-
-            override fun onResponse(call: Call<Void>, response: Response<Void>) {}
-        })
-    }
-
-    fun hide(id: String){
-        listingRepository.hide(id).enqueue(object: Callback<Void>{
-            override fun onFailure(call: Call<Void>, t: Throwable) {
-                _errorMessage.value = t.localizedMessage
-            }
-
-            override fun onResponse(call: Call<Void>, response: Response<Void>) {}
-        })
-    }
-
-    fun unhide(id: String){
-        listingRepository.unhide(id).enqueue(object: Callback<Void>{
-            override fun onFailure(call: Call<Void>, t: Throwable) {
-                _errorMessage.value = t.localizedMessage
-            }
-
-            override fun onResponse(call: Call<Void>, response: Response<Void>) {}
-        })
+        _subreddit.value = null
+        _subreddit.value = sub
     }
 
 }

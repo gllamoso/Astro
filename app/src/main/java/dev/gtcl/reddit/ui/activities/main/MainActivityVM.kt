@@ -8,7 +8,6 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.database.ItemRead
 import dev.gtcl.reddit.models.reddit.Account
 import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.repositories.ListingRepository
@@ -18,7 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class MainActivityViewModel(val application: RedditApplication): ViewModel() {
+class MainActivityVM(val application: RedditApplication): ViewModel() {
 
     // Repos
     private val userRepository = UserRepository.getInstance(application)
@@ -28,19 +27,11 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
     private val viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    private val _currentUser = MutableLiveData<Account>()
-    val currentAccount: LiveData<Account>
+    private val _currentUser = MutableLiveData<Account?>()
+    val currentAccount: LiveData<Account?>
         get() = _currentUser
 
-    val allUsers = userRepository.getUsersFromDatabase()
-
-    private val _ready = MutableLiveData<Boolean>()
-    val ready: LiveData<Boolean>
-        get() = _ready
-
-    fun readyComplete(){
-        _ready.value = null
-    }
+    val allUsers = userRepository.getAllUsers()
 
     fun setCurrentUser(account: Account?, saveToPreferences: Boolean){
         _currentUser.value = account
@@ -57,7 +48,6 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
 
         if(account == null) {
             application.accessToken = null
-            _ready.value = true
         }
         else fetchAccessToken()
     }
@@ -72,8 +62,8 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
         }
     }
 
-    private val _startSignInActivity = MutableLiveData<Boolean>()
-    val startSignInActivity: LiveData<Boolean>
+    private val _startSignInActivity = MutableLiveData<Boolean?>()
+    val startSignInActivity: LiveData<Boolean?>
         get() = _startSignInActivity
 
     fun startSignInActivity(){
@@ -106,7 +96,6 @@ class MainActivityViewModel(val application: RedditApplication): ViewModel() {
             currentAccount.value?.let {
                 val accessToken = userRepository.getNewAccessToken(authorization = "Basic ${getEncodedAuthString(application.baseContext)}", refreshToken = it.refreshToken!!).await()
                 application.accessToken = accessToken
-                _ready.value = true
             }
         }
     }

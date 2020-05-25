@@ -9,30 +9,25 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.actions.LeftDrawerActions
 import dev.gtcl.reddit.actions.MessageActions
-import dev.gtcl.reddit.database.asAccountDomainModel
 import dev.gtcl.reddit.databinding.FragmentInboxBinding
 import dev.gtcl.reddit.databinding.LayoutNavHeaderBinding
 import dev.gtcl.reddit.models.reddit.Account
 import dev.gtcl.reddit.models.reddit.Message
-import dev.gtcl.reddit.ui.activities.main.MainActivity
-import dev.gtcl.reddit.ui.activities.main.MainActivityViewModel
 import dev.gtcl.reddit.ui.activities.main.MainDrawerAdapter
 
 class MessagesFragment: Fragment(), MessageActions, LeftDrawerActions{
 
     private lateinit var binding: FragmentInboxBinding
 
-    private val parentModel: MainActivityViewModel by lazy {
-        (activity as MainActivity).model
-    }
+//    private val parentModel: MainActivityViewModel by lazy {
+//        (activity as MainActivity).model
+//    }
 
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
@@ -71,13 +66,13 @@ class MessagesFragment: Fragment(), MessageActions, LeftDrawerActions{
 
         binding.expandableListView.setAdapter(adapter)
 
-        parentModel.allUsers.observe(viewLifecycleOwner, Observer {
-            adapter.setUsers(it.asAccountDomainModel())
-        })
-
-        parentModel.currentAccount.observe(viewLifecycleOwner, Observer {
-            header.account = it
-        })
+//        parentModel.allUsers.observe(viewLifecycleOwner, Observer {
+//            adapter.setUsers(it.asAccountDomainModel())
+//        })
+//
+//        parentModel.currentAccount.observe(viewLifecycleOwner, Observer {
+//            header.account = it
+//        })
 
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
         binding.toolbar.setNavigationOnClickListener {
@@ -135,34 +130,34 @@ class MessagesFragment: Fragment(), MessageActions, LeftDrawerActions{
 
 
     override fun onAddAccountClicked() {
-        parentModel.startSignInActivity()
+//        parentModel.startSignInActivity()
     }
 
     override fun onRemoveAccountClicked(user: String) {
-        parentModel.deleteUserFromDatabase(user)
+//        parentModel.deleteUserFromDatabase(user)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onAccountClicked(account: Account) {
-        parentModel.setCurrentUser(account, true)
+//        parentModel.setCurrentUser(account, true)
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onLogoutClicked() {
-        parentModel.setCurrentUser(null, true)
+//        parentModel.setCurrentUser(null, true)
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onHomeClicked() {
-        findNavController().popBackStack(R.id.home_fragment, false)
+//        findNavController().popBackStack(R.id.home_fragment, false)
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
-        findNavController().navigate(R.id.account_fragment)
+//        findNavController().navigate(R.id.account_fragment)
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }
 
@@ -171,7 +166,7 @@ class MessagesFragment: Fragment(), MessageActions, LeftDrawerActions{
         if((activity?.application as RedditApplication).accessToken == null){
             Snackbar.make(binding.drawerLayout, R.string.please_login_error, Snackbar.LENGTH_SHORT).show()
         } else {
-            findNavController().navigate(R.id.messages_fragment)
+//            findNavController().navigate(R.id.messages_fragment)
         }
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }

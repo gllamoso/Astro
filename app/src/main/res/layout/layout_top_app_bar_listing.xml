@@ -6,7 +6,7 @@
     <data>
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.fragments.home.listing.ListingViewModel" />
+            type="dev.gtcl.reddit.ui.fragments.listing.ListingVM" />
     </data>
 
     <com.google.android.material.appbar.AppBarLayout
@@ -37,7 +37,7 @@
                     android:scaleType="centerCrop"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:imageUrlAndHideIfNull="@{model.subredditSelected.bannerImg}"/>
+                    app:imageUrlAndHideIfNull="@{model.subreddit.bannerImg}"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -80,8 +80,8 @@
                         app:layout_constraintTop_toTopOf="parent"
                         android:padding="8dp"
                         android:layout_marginEnd="16dp"
-                        app:setVisibility="@{model.subredditSelected != null}"
-                        app:subredditIcon="@{model.subredditSelected.iconImg}"/>
+                        app:setVisibility="@{model.subreddit != null}"
+                        app:subredditIcon="@{model.subreddit.iconImg}"/>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

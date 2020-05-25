@@ -16,9 +16,9 @@ class UserAboutFragment : Fragment() {
 
     private lateinit var binding: FragmentUserAboutBinding
 
-    val model: UserAboutViewModel by lazy {
+    val model: UserAboutVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(UserAboutViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(UserAboutVM::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

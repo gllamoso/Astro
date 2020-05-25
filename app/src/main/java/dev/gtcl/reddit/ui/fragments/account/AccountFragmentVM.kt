@@ -1,23 +1,20 @@
-package dev.gtcl.reddit.ui.fragments.account.pages.about
+package dev.gtcl.reddit.ui.fragments.account
 
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
+import androidx.lifecycle.ViewModel
 import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.models.reddit.Account
-import dev.gtcl.reddit.repositories.ListingRepository
-import dev.gtcl.reddit.models.reddit.TrophyListingResponse
+import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.repositories.UserRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class UserAboutViewModel(val application: RedditApplication) : AndroidViewModel(application){
+class AccountFragmentVM(val application: RedditApplication): ViewModel() {
+
     // Repos
     private val userRepository = UserRepository.getInstance(application)
-    private val listingRepository = ListingRepository.getInstance(application)
 
     // Scopes
     private val viewModelJob = Job()
@@ -27,10 +24,15 @@ class UserAboutViewModel(val application: RedditApplication) : AndroidViewModel(
     val account: LiveData<Account>
         get() = _account
 
-    private var username: String? = null
+    private var _username: String? = null
+    val username: String?
+        get() = _username
+
+    fun setUsername(username: String?){
+        _username = username
+    }
 
     fun fetchAccount(user: String?){
-        username = user
         coroutineScope.launch {
             if(user != null)
                 _account.value = userRepository.getAccountInfo(user).await().data
@@ -39,13 +41,4 @@ class UserAboutViewModel(val application: RedditApplication) : AndroidViewModel(
         }
     }
 
-    // Awards
-    private val trophyListing = MutableLiveData<TrophyListingResponse>()
-    val awards = Transformations.map(trophyListing){ it.data.trophies.map { trophy -> trophy.data } }
-
-    fun fetchAwards(){
-        coroutineScope.launch {
-            trophyListing.value = listingRepository.getAwards(username ?: application.currentAccount!!.name).await()
-        }
-    }
 }

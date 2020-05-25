@@ -1,8 +1,7 @@
-package dev.gtcl.reddit.ui.fragments.home.listing
+package dev.gtcl.reddit.ui.fragments.listing
 
 import android.content.Context
 import android.util.AttributeSet
-import android.util.Log
 import android.view.View
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.view.ViewCompat

@@ -11,7 +11,7 @@ class ListingVH private constructor(private val binding: ItemListingBinding): Re
     fun bind(listingType: ListingType, listingTypeClickListener: ListingTypeClickListener){
         binding.listing = listingType
         binding.root.setOnClickListener {
-            listingTypeClickListener.onClick(listingType)
+            listingTypeClickListener.listingTypeClicked(listingType)
         }
         binding.executePendingBindings()
     }

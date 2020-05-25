@@ -1,19 +1,15 @@
-package dev.gtcl.reddit.ui.fragments
+package dev.gtcl.reddit.ui.fragments.item_scroller
 
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
-import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentItemScrollerBinding
@@ -21,37 +17,30 @@ import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.ItemScrollListener
 import dev.gtcl.reddit.ui.ListingItemAdapter
-import dev.gtcl.reddit.ui.fragments.dialog.ShareOptionsDialogFragment
+import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
-import kotlin.math.abs
 
-open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, SubredditActions, ItemClickListener{
+open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, SubredditActions, ItemClickListener{
 
     private lateinit var binding: FragmentItemScrollerBinding
-
-    val model: ListingScrollerViewModel by lazy {
-        val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(ListingScrollerViewModel::class.java)
-    }
-
-    private val listAdapter: ListingItemAdapter by lazy{
-        ListingItemAdapter(this,
-            this,
-            this,
-            this,
-            model::retry,
-            false)
-    }
-
-    private val scrollChangeListener by lazy{
-        ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadAfter)
-    }
+    private lateinit var scrollListener: ItemScrollListener
+    private lateinit var listAdapter: ListingItemAdapter
 
     private var parentItemClickListener: ItemClickListener? = null
-    private var viewPagerActions: ViewPagerActions? = null
-    fun setActions(listener: ItemClickListener, viewPagerActions: ViewPagerActions?){
+    private var parentPostActions: PostActions? = null
+    private var parentSubredditActions: SubredditActions? = null
+    private var parentMessageActions: MessageActions? = null
+
+    val model: ItemScrollerVM by lazy {
+        val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
+        ViewModelProvider(this, viewModelFactory).get(ItemScrollerVM::class.java)
+    }
+
+    fun setActions(listener: ItemClickListener, postActions: PostActions? = null, subredditActions: SubredditActions? = null, messageActions: MessageActions? = null){
         parentItemClickListener = listener
-        this.viewPagerActions = viewPagerActions
+        parentPostActions = postActions
+        parentSubredditActions = subredditActions
+        parentMessageActions = messageActions
     }
 
     private fun setListingInfo(){
@@ -96,8 +85,10 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentItemScrollerBinding.inflate(inflater)
+        listAdapter = ListingItemAdapter(this, this, this, this, model::retry, false)
+        scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadAfter)
         binding.list.adapter = listAdapter
-        binding.list.addOnScrollListener(scrollChangeListener)
+        binding.list.addOnScrollListener(scrollListener)
         setSwipeRefresh()
         setObservers()
         if(!model.initialPageLoaded){
@@ -113,7 +104,7 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
             if(it != null){
                 listAdapter.clearItems()
                 listAdapter.addItems(it)
-                scrollChangeListener.finishedLoading()
+                scrollListener.finishedLoading()
                 if(it.isEmpty()){
                     binding.list.visibility = View.GONE
                     binding.noResultsText.visibility = View.VISIBLE
@@ -128,7 +119,7 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
             if(it != null){
                 listAdapter.addItems(it)
                 model.newItemsAdded()
-                scrollChangeListener.finishedLoading()
+                scrollListener.finishedLoading()
             }
         })
 
@@ -174,49 +165,32 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
 //
 
     override fun vote(post: Post, vote: Vote) {
-        model.vote(post.name, vote)
+        parentPostActions?.vote(post, vote)
     }
 
     override fun share(post: Post) {
-        ShareOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
+        parentPostActions?.share(post)
     }
 
     override fun viewProfile(post: Post) {
-        val bundle = bundleOf(USER_KEY to post.author)
-        findNavController().navigate(R.id.account_fragment, bundle)
+        parentPostActions?.viewProfile(post)
     }
 
     override fun save(post: Post) {
-        if(post.saved) model.unsave(post.name)
-        else model.save(post.name)
+        parentPostActions?.save(post)
     }
 
     override fun hide(post: Post) {
-        if(!post.hidden) model.hide(post.name)
-        else model.unhide(post.name)
+        parentPostActions?.hide(post)
     }
 
     override fun report(post: Post) {
-        TODO("Not yet implemented")
+        parentPostActions?.report(post)
     }
 
     override fun thumbnailClicked(post: Post) {
         model.addReadItem(post)
-        Log.d("TAE","Post clicked: $post")
-        val urlType = when {
-            post.isImage -> UrlType.IMAGE
-            post.isGif -> UrlType.GIF
-            post.isGfycat -> UrlType.GFYCAT
-            post.isGfv -> UrlType.GIFV
-            post.isRedditVideo -> UrlType.M3U8
-            else -> UrlType.LINK
-        }
-        Log.d("TAE", "UrlType: $urlType")
-        val dialog = MediaDialogFragment.newInstance(
-            if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.videoUrl!! else post.url!!,
-            urlType,
-            post)
-        dialog.show(childFragmentManager, null)
+        parentPostActions?.thumbnailClicked(post)
     }
 
 //     __  __                                               _   _
@@ -229,24 +203,23 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
 //                                |___/
 
     override fun reply(message: Message) {
-        TODO("Not yet implemented")
+        parentMessageActions?.reply(message)
     }
 
     override fun mark(message: Message) {
-        TODO("Not yet implemented")
+        parentMessageActions?.mark(message)
     }
 
     override fun delete(message: Message) {
-        TODO("Not yet implemented")
+        parentMessageActions?.delete(message)
     }
 
     override fun viewProfile(user: String) {
-        val bundle = bundleOf(USER_KEY to user)
-        findNavController().navigate(R.id.account_fragment, bundle)
+        parentMessageActions?.viewProfile(user)
     }
 
     override fun block(user: String) {
-        TODO("Not yet implemented")
+        parentMessageActions?.block(user)
     }
 
 //      _____       _                  _     _ _ _                  _   _
@@ -258,13 +231,11 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
 //
 
     override fun favorite(subreddit: Subreddit, favorite: Boolean) {
-        model.addToFavorites(subreddit, favorite)
-//        if(refresh) refreshMineFragment()
+        parentSubredditActions?.favorite(subreddit, favorite)
     }
 
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-        model.subscribe(subreddit, if(subscribe) SubscribeAction.SUBSCRIBE else SubscribeAction.UNSUBSCRIBE, false)
-//        if(refresh) refreshMineFragment()
+        parentSubredditActions?.subscribe(subreddit, subscribe)
     }
 
 //     _____ _                    _____ _ _      _      _      _     _
@@ -275,8 +246,8 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
 //    |_____|\__\___|_| |_| |_|  \_____|_|_|\___|_|\_\ |______|_|___/\__\___|_| |_|\___|_|
 
     override fun itemClicked(item: Item) {
-        parentItemClickListener?.itemClicked(item)
         model.addReadItem(item)
+        parentItemClickListener?.itemClicked(item)
     }
 
 //     _   _                 _____           _
@@ -288,29 +259,33 @@ open class ListingScrollerFragment : Fragment(), PostActions, MessageActions, Su
 //
 
     companion object{
-        fun newInstance(profileInfo: ProfileInfo, postSort: PostSort, time: Time?, pageSize: Int, user: String? = null): ListingScrollerFragment{
-            val fragment = ListingScrollerFragment()
+        fun newInstance(profileInfo: ProfileInfo, postSort: PostSort, time: Time?, pageSize: Int, user: String? = null): ItemScrollerFragment {
+            val fragment =
+                ItemScrollerFragment()
             val args = bundleOf(PROFILE_INFO_KEY to profileInfo, POST_SORT_KEY to postSort, TIME_KEY to time, PAGE_SIZE_KEY to pageSize, USER_KEY to user)
             fragment.arguments = args
             return fragment
         }
 
-        fun newInstance(subreddit: Subreddit, postSort: PostSort, time: Time?, pageSize: Int, useTrendingAdapter: Boolean = false): ListingScrollerFragment {
-            val fragment = ListingScrollerFragment()
+        fun newInstance(subreddit: Subreddit, postSort: PostSort, time: Time?, pageSize: Int, useTrendingAdapter: Boolean = false): ItemScrollerFragment {
+            val fragment =
+                ItemScrollerFragment()
             val args = bundleOf(SUBREDDIT_KEY to subreddit, POST_SORT_KEY to postSort, TIME_KEY to time, PAGE_SIZE_KEY to pageSize, USE_TRENDING_ADAPTER_KEY to useTrendingAdapter)
             fragment.arguments = args
             return fragment
         }
 
-        fun newInstance(messageWhere: MessageWhere, pageSize: Int): ListingScrollerFragment {
-            val fragment = ListingScrollerFragment()
+        fun newInstance(messageWhere: MessageWhere, pageSize: Int): ItemScrollerFragment {
+            val fragment =
+                ItemScrollerFragment()
             val args = bundleOf(MESSAGE_WHERE_KEY to messageWhere, PAGE_SIZE_KEY to pageSize)
             fragment.arguments = args
             return fragment
         }
 
-        fun newInstance(subredditWhere: SubredditWhere, pageSize: Int): ListingScrollerFragment{
-            val fragment = ListingScrollerFragment()
+        fun newInstance(subredditWhere: SubredditWhere, pageSize: Int): ItemScrollerFragment {
+            val fragment =
+                ItemScrollerFragment()
             val args = bundleOf(SUBREDDIT_WHERE_KEY to subredditWhere, PAGE_SIZE_KEY to pageSize)
             fragment.arguments = args
             return fragment

@@ -30,9 +30,9 @@ class MediaFragment: Fragment(){
     lateinit var showUiCallback: () -> Unit
     lateinit var postUrlCallback: (Post) -> Unit
 
-    val model: MediaViewModel by lazy {
+    val model: MediaVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(MediaViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(MediaVM::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {

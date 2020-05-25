@@ -6,40 +6,44 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.ItemClickListener
+import dev.gtcl.reddit.actions.LeftDrawerActions
+import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.databinding.FragmentUserBinding
-import dev.gtcl.reddit.ui.activities.main.MainActivity
-import dev.gtcl.reddit.ui.activities.main.MainActivityViewModel
 import dev.gtcl.reddit.actions.ViewPagerActions
+import dev.gtcl.reddit.models.reddit.Account
 import dev.gtcl.reddit.models.reddit.Item
-import dev.gtcl.reddit.ui.fragments.ListingScrollerFragment
+import dev.gtcl.reddit.models.reddit.Post
+import dev.gtcl.reddit.ui.activities.main.MainActivityVM
+import dev.gtcl.reddit.ui.fragments.item_scroller.ItemScrollerFragment
 
-class AccountFragment : Fragment(), ItemClickListener, ViewPagerActions {
+class AccountFragment : Fragment(), ItemClickListener, PostActions, LeftDrawerActions {
 
     private lateinit var binding: FragmentUserBinding
 
-    private var parentViewPagerActions: ViewPagerActions? = null
-    fun setFragment(viewPagerActions: ViewPagerActions){
-        parentViewPagerActions = viewPagerActions
+    private var viewPagerActions: ViewPagerActions? = null
+    private var parentPostActions: PostActions? = null
+
+    fun setActions(viewPagerActions: ViewPagerActions, postActions: PostActions){
+        this.viewPagerActions = viewPagerActions
+        parentPostActions = postActions
     }
 
-    val model: AccountFragmentViewModel by lazy {
+    val model: AccountFragmentVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(AccountFragmentViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(AccountFragmentVM::class.java)
     }
 
-    private val parentModel: MainActivityViewModel by lazy {
-        (activity as MainActivity).model
-    }
+    private val parentViewModel: MainActivityVM by activityViewModels()
 
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
         when(childFragment){
-//            is SimpleListingScrollerFragment -> childFragment.setActions(postActions = this, user = model.username)
-            is ListingScrollerFragment -> childFragment.setActions(this, this)
+            is ItemScrollerFragment -> childFragment.setActions(this, postActions = this)
         }
     }
 
@@ -47,12 +51,13 @@ class AccountFragment : Fragment(), ItemClickListener, ViewPagerActions {
         binding = FragmentUserBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.model = model
-        setupViewPagerAdapter()
         binding.toolbar.setNavigationOnClickListener {
 //            parentModel.openDrawer()
         }
-        val user = requireArguments().getString(USER_KEY)
-        model.fetchAccount(user)
+        val username = requireArguments().getString(USER_KEY)
+        model.setUsername(username)
+        model.fetchAccount(username)
+        setupViewPagerAdapter()
         return binding.root
     }
 
@@ -97,7 +102,82 @@ class AccountFragment : Fragment(), ItemClickListener, ViewPagerActions {
     }
 
     override fun itemClicked(item: Item) {
-        parentViewPagerActions?.navigateToNewPage(item)
+        viewPagerActions?.navigateToNewPage(item)
+    }
+
+//     _____          _                  _   _
+//    |  __ \        | |       /\       | | (_)
+//    | |__) |__  ___| |_     /  \   ___| |_ _  ___  _ __  ___
+//    |  ___/ _ \/ __| __|   / /\ \ / __| __| |/ _ \| '_ \/ __|
+//    | |  | (_) \__ \ |_   / ____ \ (__| |_| | (_) | | | \__ \
+//    |_|   \___/|___/\__| /_/    \_\___|\__|_|\___/|_| |_|___/
+//
+
+    override fun vote(post: Post, vote: Vote) {
+        parentPostActions?.vote(post, vote)
+    }
+
+    override fun share(post: Post) {
+        parentPostActions?.share(post)
+    }
+
+    override fun viewProfile(post: Post) {
+        parentPostActions?.viewProfile(post)
+    }
+
+    override fun save(post: Post) {
+        parentPostActions?.save(post)
+    }
+
+    override fun hide(post: Post) {
+        parentPostActions?.hide(post)
+    }
+
+    override fun report(post: Post) {
+        parentPostActions?.report(post)
+    }
+
+    override fun thumbnailClicked(post: Post) {
+        parentPostActions?.thumbnailClicked(post)
+    }
+
+//     _           __ _     _____                                             _   _
+//    | |         / _| |   |  __ \                                  /\       | | (_)
+//    | |     ___| |_| |_  | |  | |_ __ __ ___      _____ _ __     /  \   ___| |_ _  ___  _ __  ___
+//    | |    / _ \  _| __| | |  | | '__/ _` \ \ /\ / / _ \ '__|   / /\ \ / __| __| |/ _ \| '_ \/ __|
+//    | |___|  __/ | | |_  | |__| | | | (_| |\ V  V /  __/ |     / ____ \ (__| |_| | (_) | | | \__ \
+//    |______\___|_|  \__| |_____/|_|  \__,_| \_/\_/ \___|_|    /_/    \_\___|\__|_|\___/|_| |_|___/
+
+    override fun onAddAccountClicked() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onRemoveAccountClicked(user: String) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onAccountClicked(account: Account) {
+        TODO("Not yet implemented")
+    }
+
+    override fun onLogoutClicked() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onHomeClicked() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onMyAccountClicked() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onInboxClicked() {
+        TODO("Not yet implemented")
+    }
+
+    override fun onSettingsClicked() {
+        TODO("Not yet implemented")
     }
 
     companion object {
@@ -108,12 +188,4 @@ class AccountFragment : Fragment(), ItemClickListener, ViewPagerActions {
             return fragment
         }
     }
-
-    override fun enablePagerSwiping(enable: Boolean) {
-        binding.viewPager.isUserInputEnabled = enable
-    }
-
-    override fun navigatePreviousPage() {}
-
-    override fun navigateToNewPage(item: Item) {}
 }

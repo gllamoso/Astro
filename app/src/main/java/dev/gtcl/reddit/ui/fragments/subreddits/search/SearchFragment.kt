@@ -5,25 +5,22 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.actions.SubredditActions
-import dev.gtcl.reddit.database.asDomainModel
 import dev.gtcl.reddit.databinding.FragmentItemScrollerBinding
 import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.models.reddit.Subreddit
-import dev.gtcl.reddit.network.NetworkState
 
 class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
     private lateinit var binding: FragmentItemScrollerBinding
 
-    private val model: SearchViewModel by lazy {
+    private val model: SearchVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(SearchViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(SearchVM::class.java)
     }
 
     private val searchAdapter by lazy{

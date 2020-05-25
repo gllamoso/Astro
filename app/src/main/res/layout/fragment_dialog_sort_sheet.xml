@@ -1,8 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="sort"
+            type="dev.gtcl.reddit.PostSort" />
+        <import type="dev.gtcl.reddit.PostSort"/>
+    </data>
 
     <LinearLayout
         android:orientation="vertical"
@@ -14,99 +21,49 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/sort_posts_by"
-            android:textColor="@android:color/darker_gray"/>
+            android:layout_marginStart="16dp"/>
 
-        <RadioGroup
-            android:id="@+id/radio_group"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+        <include
+            android:id="@+id/best_item"
+            layout="@layout/item_selectable"
+            app:icon="@{@drawable/ic_best_24dp}"
+            app:text="@{@string/order_best}"
+            app:isSelected="@{sort == PostSort.BEST}"/>
 
-            <RadioButton
-                android:id="@+id/best_radiobutton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/order_best"
-                android:padding="8dp"
-                android:drawableStart="@drawable/ic_best_24dp"
-                android:drawablePadding="8dp"
-                android:drawableEnd="@drawable/radio_button_custom"
-                android:button="@null"
-                android:background="?android:attr/selectableItemBackground"
-                android:textColor="@color/textColor"
-                android:drawableTint="@color/textColor"
-                tools:checked="true"/>
+        <include
+            android:id="@+id/hot_item"
+            layout="@layout/item_selectable"
+            app:icon="@{@drawable/ic_whatshot_24dp}"
+            app:text="@{@string/order_hot}"
+            app:isSelected="@{sort == PostSort.HOT}"/>
 
-            <RadioButton
-                android:id="@+id/hot_radiobutton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/order_hot"
-                android:padding="8dp"
-                android:drawableStart="@drawable/ic_whatshot_24dp"
-                android:drawablePadding="8dp"
-                android:drawableEnd="@drawable/radio_button_custom"
-                android:button="@null"
-                android:background="?android:attr/selectableItemBackground"
-                android:textColor="@color/textColor"
-                android:drawableTint="@color/textColor"/>
+        <include
+            android:id="@+id/new_item"
+            layout="@layout/item_selectable"
+            app:icon="@{@drawable/ic_new_24dp}"
+            app:text="@{@string/order_new}"
+            app:isSelected="@{sort == PostSort.NEW}"/>
 
-            <RadioButton
-                android:id="@+id/new_radiobutton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/order_new"
-                android:drawableStart="@drawable/ic_new_24dp"
-                android:drawablePadding="8dp"
-                android:padding="8dp"
-                android:drawableEnd="@drawable/radio_button_custom"
-                android:button="@null"
-                android:background="?android:attr/selectableItemBackground"
-                android:textColor="@color/textColor"
-                android:drawableTint="@color/textColor"/>
+        <include
+            android:id="@+id/top_item"
+            layout="@layout/item_selectable"
+            app:icon="@{@drawable/ic_upvote_24dp}"
+            app:text="@{@string/order_top}"
+            app:isSelected="@{sort == PostSort.TOP}"/>
 
-            <RadioButton
-                android:id="@+id/top_radiobutton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/order_top"
-                android:drawableStart="@drawable/ic_upvote_24dp"
-                android:drawablePadding="8dp"
-                android:padding="8dp"
-                android:drawableEnd="@drawable/radio_button_custom"
-                android:button="@null"
-                android:background="?android:attr/selectableItemBackground"
-                android:textColor="@color/textColor"
-                android:drawableTint="@color/textColor"/>
+        <include
+            android:id="@+id/controversial_item"
+            layout="@layout/item_selectable"
+            app:icon="@{@drawable/ic_controversial_24dp}"
+            app:text="@{@string/order_controversial}"
+            app:isSelected="@{sort == PostSort.CONTROVERSIAL}"/>
 
-            <RadioButton
-                android:id="@+id/controversial_radiobutton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/order_controversial"
-                android:drawableStart="@drawable/ic_controversial_24dp"
-                android:drawablePadding="8dp"
-                android:padding="8dp"
-                android:drawableEnd="@drawable/radio_button_custom"
-                android:button="@null"
-                android:background="?android:attr/selectableItemBackground"
-                android:textColor="@color/textColor"
-                android:drawableTint="@color/textColor"/>
-
-            <RadioButton
-                android:id="@+id/rising_radiobutton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/order_rising"
-                android:drawableStart="@drawable/ic_trending_up_24dp"
-                android:drawablePadding="8dp"
-                android:padding="8dp"
-                android:drawableEnd="@drawable/radio_button_custom"
-                android:button="@null"
-                android:background="?android:attr/selectableItemBackground"
-                android:textColor="@color/textColor"
-                android:drawableTint="@color/textColor"/>
-
-        </RadioGroup>
+        <include
+            android:id="@+id/rising_item"
+            layout="@layout/item_selectable"
+            app:icon="@{@drawable/ic_trending_up_24dp}"
+            app:text="@{@string/order_rising}"
+            app:isSelected="@{sort == PostSort.RISING}"/>
 
     </LinearLayout>
 

@@ -16,7 +16,7 @@ import dev.gtcl.reddit.setSubsAndFavoritesInTrendingPost
 import kotlinx.coroutines.*
 import java.util.*
 
-class SearchViewModel(application: RedditApplication) : AndroidViewModel(application){
+class SearchVM(application: RedditApplication) : AndroidViewModel(application){
     // Repos
     private val subredditRepository = SubredditRepository.getInstance(application)
 

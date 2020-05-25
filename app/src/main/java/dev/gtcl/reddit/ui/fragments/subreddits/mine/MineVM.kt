@@ -11,7 +11,7 @@ import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.SubredditRepository
 import kotlinx.coroutines.*
 
-class MineViewModel(private val application: RedditApplication): AndroidViewModel(application){
+class MineVM(private val application: RedditApplication): AndroidViewModel(application){
     private val subredditRepository = SubredditRepository.getInstance(application)
 
     // Scopes

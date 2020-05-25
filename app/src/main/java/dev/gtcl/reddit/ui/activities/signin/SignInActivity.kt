@@ -18,9 +18,9 @@ import dev.gtcl.reddit.databinding.ActivityWebviewBinding
 
 class SignInActivity : AppCompatActivity(){
 
-    val model: SignInViewModel by lazy {
+    val model: SignInVM by lazy {
         val viewModelFactory = ViewModelFactory(application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(SignInViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(SignInVM::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {

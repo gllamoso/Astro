@@ -7,12 +7,13 @@ import dev.gtcl.reddit.models.reddit.ListingType
 import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.ui.fragments.account.AccountFragment
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
-import dev.gtcl.reddit.ui.fragments.home.listing.ListingFragment
+import dev.gtcl.reddit.ui.fragments.listing.ListingFragment
+import dev.gtcl.reddit.ui.fragments.inbox.MessagesFragment
 import kotlinx.android.parcel.Parcelize
-import java.util.*
+import kotlin.collections.ArrayList
 
 class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
-    private var pageStack = Stack<PageTypes>()
+    private var pageStack = ArrayList<PageType>()
 
     override fun getItemCount() = pageStack.size
 
@@ -21,51 +22,55 @@ class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
             is ListingPage -> ListingFragment.newInstance(pageType.listingType)
             is AccountPage -> AccountFragment.newInstance(pageType.user)
             is PostPage -> CommentsFragment.newInstance(pageType.post)
+            is MessagesPage -> MessagesFragment()
         }
     }
 
     fun addAccountPage(user: String?){
         pageStack.add(AccountPage(user))
-        notifyItemInserted(pageStack.size - 1)
+        notifyItemInserted(pageStack.lastIndex)
     }
 
     fun addPostPage(post: Post){
         pageStack.add(PostPage(post))
-        notifyItemInserted(pageStack.size - 1)
+        notifyItemInserted(pageStack.lastIndex)
     }
 
     fun addListingPage(listingType: ListingType){
         pageStack.add(ListingPage(listingType))
-        notifyItemInserted(pageStack.size - 1)
+        notifyItemInserted(pageStack.lastIndex)
+    }
+
+    fun addPage(pageType: PageType){
+        pageStack.add(pageType)
+        notifyItemInserted(pageStack.lastIndex)
     }
 
     fun popFragmentsGreaterThanPosition(currentPage: Int){
-        var itemsRemoved = 0
-        while(currentPage < pageStack.size - 1) {
-            pageStack.pop()
-            itemsRemoved++
-        }
-        notifyItemRangeRemoved(pageStack.size - 1, itemsRemoved)
+        val itemsRemoved = pageStack.lastIndex - currentPage
+        pageStack.subList(currentPage + 1, pageStack.size).clear()
+        notifyItemRangeRemoved(pageStack.lastIndex, itemsRemoved)
     }
 
-    fun getPageStack(): Stack<PageTypes> = pageStack
+    fun getPageStack(): ArrayList<PageType> = pageStack
 
-    fun setPageStack(pageStack: Stack<PageTypes>){
-        this.pageStack = pageStack
-        notifyDataSetChanged()
+    fun setPageStack(pages: ArrayList<PageType>){
+        pageStack = pages
     }
 }
 
-sealed class PageTypes: Parcelable
+sealed class PageType: Parcelable
 @Parcelize
 class ListingPage(
     val listingType: ListingType
-): PageTypes()
+): PageType()
 @Parcelize
 class AccountPage(
     val user: String?
-): PageTypes()
+): PageType()
 @Parcelize
 class PostPage(
     val post: Post
-): PageTypes()
+): PageType()
+@Parcelize
+object MessagesPage: PageType()

@@ -17,7 +17,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class SubredditSelectorViewModel(private val application: RedditApplication): AndroidViewModel(application){
+class SubredditSelectorVM(private val application: RedditApplication): AndroidViewModel(application){
     // Repos
     private val subredditRepository = SubredditRepository.getInstance(application)
 

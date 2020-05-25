@@ -1,7 +1,6 @@
 package dev.gtcl.reddit.ui.fragments.subreddits.mine
 
 import android.content.Context
-import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.ProfileInfo
@@ -282,10 +281,10 @@ class MySubredditsAdapter(private val context: Context, private val listingTypeC
     override fun itemClicked(item: Item) {
         when(item){
             is Subreddit -> {
-                listingTypeClickListener.onClick(SubredditListing(item))
+                listingTypeClickListener.listingTypeClicked(SubredditListing(item))
             }
             is MultiReddit -> {
-                listingTypeClickListener.onClick(MultiRedditListing(item.asDbModel()))
+                listingTypeClickListener.listingTypeClicked(MultiRedditListing(item.asDbModel()))
             }
         }
     }

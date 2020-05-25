@@ -1,28 +1,23 @@
 package dev.gtcl.reddit.ui.activities.main
 
 import android.Manifest
-import android.annotation.SuppressLint
 import android.app.Activity
+import android.app.Fragment
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.widget.Toast
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import com.google.gson.Gson
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.database.asAccountDomainModel
 import dev.gtcl.reddit.databinding.ActivityMainBinding
-import dev.gtcl.reddit.databinding.LayoutNavHeaderBinding
 import dev.gtcl.reddit.models.reddit.Account
 import dev.gtcl.reddit.ui.activities.signin.SignInActivity
 
@@ -30,9 +25,9 @@ class MainActivity : FragmentActivity() {
     lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
 
-    val model: MainActivityViewModel by lazy {
+    private val model: MainActivityVM by lazy {
         val viewModelFactory = ViewModelFactory(application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(MainActivityViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(MainActivityVM::class.java)
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -57,11 +52,6 @@ class MainActivity : FragmentActivity() {
             val uri = data?.data
             uri?.let { model.fetchUserFromUri(it) }
         }
-    }
-
-    override fun onBackPressed() {
-        if(!navController.popBackStack())
-            super.onBackPressed()
     }
 
     // ---- HELPER FUNCTIONS -------

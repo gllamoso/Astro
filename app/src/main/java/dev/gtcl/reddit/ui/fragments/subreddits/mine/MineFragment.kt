@@ -1,7 +1,6 @@
 package dev.gtcl.reddit.ui.fragments.subreddits.mine
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -27,9 +26,9 @@ class MineFragment : Fragment(), SubredditActions, ListingTypeClickListener {
         this.parentSubredditActions = subredditActions
     }
 
-    val model: MineViewModel by lazy {
+    val model: MineVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity(). application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(MineViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(MineVM::class.java)
     }
 
     override fun onResume() {
@@ -96,7 +95,7 @@ class MineFragment : Fragment(), SubredditActions, ListingTypeClickListener {
         parentSubredditActions?.subscribe(subreddit, subscribe)
     }
 
-    override fun onClick(listing: ListingType) {
-        parentListingTypeClickListener?.onClick(listing)
+    override fun listingTypeClicked(listing: ListingType) {
+        parentListingTypeClickListener?.listingTypeClicked(listing)
     }
 }

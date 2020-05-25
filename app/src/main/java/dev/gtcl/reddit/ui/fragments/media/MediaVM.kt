@@ -23,7 +23,7 @@ import dev.gtcl.reddit.models.reddit.UrlType
 import dev.gtcl.reddit.repositories.GfycatRepository
 import kotlinx.coroutines.*
 
-class MediaViewModel(private val application: RedditApplication): AndroidViewModel(application){
+class MediaVM(private val application: RedditApplication): AndroidViewModel(application){
 
     private val gfycatRepository = GfycatRepository.getInstance()
 
@@ -57,8 +57,8 @@ class MediaViewModel(private val application: RedditApplication): AndroidViewMod
 
     private lateinit var gfyItem: GfyItem
 
-    private val _player = MutableLiveData<SimpleExoPlayer>()
-    val player: LiveData<SimpleExoPlayer>
+    private val _player = MutableLiveData<SimpleExoPlayer?>()
+    val player: LiveData<SimpleExoPlayer?>
         get() = _player
 
     fun initializePlayer(){
@@ -87,7 +87,7 @@ class MediaViewModel(private val application: RedditApplication): AndroidViewMod
             val player = ExoPlayerFactory.newSimpleInstance(application.baseContext, trackSelector)
             player!!.apply {
                 repeatMode = Player.REPEAT_MODE_ONE
-                playWhenReady = this@MediaViewModel.playWhenReady
+                playWhenReady = this@MediaVM.playWhenReady
                 seekTo(currentWindow, playbackPosition)
                 prepare(mediaSource, false, false)
                 addListener(object: Player.EventListener{

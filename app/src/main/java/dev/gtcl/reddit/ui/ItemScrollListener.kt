@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui
 
+import android.util.Log
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
@@ -10,22 +11,13 @@ class ItemScrollListener(private val visibleThreshold: Int = 15, private val lay
         isLoading = false
     }
 
-    private var hasReachedLastItem = false
-    fun lastItemReached(){
-        hasReachedLastItem = true
-    }
-
-    fun reset(){
-        hasReachedLastItem = false
-    }
-
     override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
         super.onScrolled(recyclerView, dx, dy)
-        if(dy <= 0 || hasReachedLastItem) return
+        if(dy <= 0 || isLoading) return
 
         val totalItemCount = layoutManager.itemCount
         val lastVisibleItem = layoutManager.findLastVisibleItemPosition()
-        if(!isLoading && totalItemCount <= lastVisibleItem + visibleThreshold){
+        if(totalItemCount <= lastVisibleItem + visibleThreshold){
             loadMore()
             isLoading = true
         }

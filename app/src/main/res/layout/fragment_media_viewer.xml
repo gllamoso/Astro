@@ -6,7 +6,7 @@
         <import type="dev.gtcl.reddit.models.reddit.UrlType"/>
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.fragments.media.MediaViewModel" />
+            type="dev.gtcl.reddit.ui.fragments.media.MediaVM" />
     </data>
 
     <FrameLayout

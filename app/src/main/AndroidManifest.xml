@@ -22,6 +22,7 @@
             </intent-filter>
         </activity>
         <activity android:name="dev.gtcl.reddit.ui.activities.signin.SignInActivity"/>
+
         <service
             android:name=".download.DownloadService"
             android:exported="false"/>

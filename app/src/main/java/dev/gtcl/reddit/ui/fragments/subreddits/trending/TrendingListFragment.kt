@@ -8,7 +8,6 @@ import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.recyclerview.widget.LinearLayoutManager
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.actions.ItemClickListener
@@ -25,9 +24,9 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
 
     private lateinit var binding: FragmentItemScrollerBinding
 
-    val model: TrendingListViewModel by lazy {
+    val model: TrendingListVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(TrendingListViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(TrendingListVM::class.java)
     }
 
     private val listAdapter: TrendingAdapter by lazy{
@@ -148,7 +147,7 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
 
     override fun itemClicked(item: Item) {
         if(item is Subreddit){
-            parentListingTypeClickListener?.onClick(SubredditListing(item))
+            parentListingTypeClickListener?.listingTypeClicked(SubredditListing(item))
         }
     }
 

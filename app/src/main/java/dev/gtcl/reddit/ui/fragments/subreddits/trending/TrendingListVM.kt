@@ -19,7 +19,7 @@ import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
-class TrendingListViewModel(application: RedditApplication): AndroidViewModel(application){
+class TrendingListVM(application: RedditApplication): AndroidViewModel(application){
 
     // Repos
     private val listingRepository = ListingRepository.getInstance(application)

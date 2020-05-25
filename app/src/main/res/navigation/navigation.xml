@@ -2,18 +2,30 @@
 <navigation xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/navigation"
-    app:startDestination="@+id/home_fragment">
-
+    app:startDestination="@id/splashFragment">
     <fragment
-        android:id="@+id/home_fragment"
-        android:name="dev.gtcl.reddit.ui.fragments.home.HomeFragment"
-        android:label="Home Fragment" />
+        android:id="@+id/viewPagerFragment"
+        android:name="dev.gtcl.reddit.ui.fragments.ViewPagerFragment"
+        android:label="ViewPagerFragment" >
+        <argument
+            android:name="startingPage"
+            app:argType="dev.gtcl.reddit.ui.fragments.PageType"/>
+        <action
+            android:id="@+id/action_viewPagerFragment_self"
+            app:destination="@id/viewPagerFragment"
+            app:enterAnim="@anim/slide_left"
+            app:popExitAnim="@anim/slide_right"/>
+    </fragment>
     <fragment
-        android:id="@+id/account_fragment"
-        android:name="dev.gtcl.reddit.ui.fragments.account.AccountViewPagerFragment"
-        android:label="Account Fragment" />
-    <fragment
-        android:id="@+id/messages_fragment"
-        android:name="dev.gtcl.reddit.ui.fragments.inbox.MessagesFragment"
-        android:label="Messages Fragment"/>
+        android:id="@+id/splashFragment"
+        android:name="dev.gtcl.reddit.ui.fragments.splash.SplashFragment"
+        android:label="SplashFragment" >
+        <action
+            android:id="@+id/action_splashScreenFragment_to_viewPagerFragment"
+            app:destination="@id/viewPagerFragment"
+            app:enterAnim="@anim/slide_left"
+            app:popExitAnim="@anim/slide_right"
+            app:popUpTo="@id/splashFragment"
+            app:popUpToInclusive="true" />
+    </fragment>
 </navigation>

@@ -5,6 +5,7 @@ import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.network.RedditApi
 import dev.gtcl.reddit.database.redditDatabase
+import dev.gtcl.reddit.models.reddit.AccessToken
 import dev.gtcl.reddit.models.reddit.Account
 import dev.gtcl.reddit.models.reddit.AccountChild
 import kotlinx.coroutines.Deferred
@@ -33,6 +34,10 @@ class UserRepository private constructor(val application: RedditApplication) { /
         RedditApi.oauth.getCurrentAccountInfo(application.accessToken!!.authorizationHeader)
 
     @MainThread
+    fun getAccount(accessToken: AccessToken): Deferred<Account> =
+        RedditApi.oauth.getCurrentAccountInfo(accessToken.authorizationHeader)
+
+    @MainThread
     fun getAccountInfo(username: String): Deferred<AccountChild>{
         return if(application.accessToken != null)
             RedditApi.oauth.getUserInfo(application.accessToken!!.authorizationHeader, username)
@@ -58,7 +63,7 @@ class UserRepository private constructor(val application: RedditApplication) { /
     }
 
     @MainThread
-    fun getUsersFromDatabase() = database.accountDao.getUsers()
+    fun getAllUsers() = database.accountDao.getUsers()
 
     companion object{
         private lateinit var INSTANCE: UserRepository

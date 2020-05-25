@@ -17,7 +17,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
-class CommentsViewModel(val application: RedditApplication): AndroidViewModel(application) {
+class CommentsVM(val application: RedditApplication): AndroidViewModel(application) {
 
     // Repos
     private val listingRepository = ListingRepository.getInstance(application)
@@ -32,8 +32,8 @@ class CommentsViewModel(val application: RedditApplication): AndroidViewModel(ap
     val post: LiveData<Post>
         get() = _post
 
-    private val _comments = MutableLiveData<List<Item>>()
-    val comments: LiveData<List<Item>>
+    private val _comments = MutableLiveData<List<Item>?>()
+    val comments: LiveData<List<Item>?>
         get() = _comments
 
     fun setPost(redditPost: Post){
@@ -52,8 +52,8 @@ class CommentsViewModel(val application: RedditApplication): AndroidViewModel(ap
         _comments.value = null
     }
 
-    private val _moreComments = MutableLiveData<MoreComments>()
-    val moreComments: LiveData<MoreComments>
+    private val _moreComments = MutableLiveData<MoreComments?>()
+    val moreComments: LiveData<MoreComments?>
         get() = _moreComments
 
     fun fetchMoreComments(position: Int, more: More){

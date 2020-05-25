@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.fragments.subreddits
 
-import android.app.Dialog
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import android.os.Bundle
 import android.os.Handler
@@ -8,13 +7,8 @@ import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
 import android.view.*
-import androidx.coordinatorlayout.widget.CoordinatorLayout
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResult
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.ItemClickListener
@@ -22,27 +16,26 @@ import dev.gtcl.reddit.databinding.FragmentDialogSubredditsBinding
 import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.actions.ListingTypeClickListener
 import dev.gtcl.reddit.actions.SubredditActions
-import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.models.reddit.ListingType
 import dev.gtcl.reddit.models.reddit.SubredditListing
-import dev.gtcl.reddit.ui.fragments.ListingScrollerFragment
+import dev.gtcl.reddit.ui.fragments.item_scroller.ItemScrollerFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.mine.MineFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.search.SearchFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingListFragment
 import kotlin.NoSuchElementException
 
-class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditActions, ListingTypeClickListener, ItemClickListener, ViewPagerActions {
+class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditActions, ListingTypeClickListener, ItemClickListener {
 
     private lateinit var binding: FragmentDialogSubredditsBinding
 
-    val model: SubredditSelectorViewModel by lazy {
+    val model: SubredditSelectorVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(SubredditSelectorViewModel::class.java)
+        ViewModelProvider(this, viewModelFactory).get(SubredditSelectorVM::class.java)
     }
 
     private var parentListingTypeClickListener: ListingTypeClickListener? = null
-    fun setListingTypeClickListener(listingTypeClickListener: ListingTypeClickListener){
+    fun setActions(listingTypeClickListener: ListingTypeClickListener){
         parentListingTypeClickListener = listingTypeClickListener
     }
 
@@ -51,7 +44,7 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
         when(childFragment){
             is MineFragment -> childFragment.setActions(this, this)
             is TrendingListFragment -> childFragment.setActions(this, this)
-            is ListingScrollerFragment -> childFragment.setActions(this, this)
+            is ItemScrollerFragment -> childFragment.setActions(this, subredditActions = this)
             is SearchFragment -> childFragment.setActions(this, this)
         }
     }
@@ -131,13 +124,13 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
         }
     }
 
-    override fun onClick(listing: ListingType) {
-        parentListingTypeClickListener?.onClick(listing)
+    override fun listingTypeClicked(listing: ListingType) {
+        parentListingTypeClickListener?.listingTypeClicked(listing)
     }
 
     override fun itemClicked(item: Item) {
         if(item is Subreddit){
-            parentListingTypeClickListener?.onClick(SubredditListing(item))
+            parentListingTypeClickListener?.listingTypeClicked(SubredditListing(item))
         }
     }
 
@@ -154,13 +147,5 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
     companion object {
         val TAG = SubredditSelectorDialogFragment::class.qualifiedName
     }
-
-    override fun enablePagerSwiping(enable: Boolean) {
-        binding.viewPager.isUserInputEnabled = enable
-    }
-
-    override fun navigatePreviousPage() {}
-
-    override fun navigateToNewPage(item: Item) {}
 
 }
