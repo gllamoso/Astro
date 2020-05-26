@@ -1,9 +1,13 @@
 package dev.gtcl.reddit.ui.fragments.signin
 
+import android.content.Context
 import android.net.Uri
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.google.gson.Gson
+import dev.gtcl.reddit.CURRENT_USER_KEY
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.getEncodedAuthString
@@ -63,10 +67,12 @@ class SignInVM(private val application: RedditApplication) : AndroidViewModel(ap
 
             val token = getAccessToken(code)
             val account = getAccount(token)
+            account.refreshToken = token.refreshToken
             userRepository.insertUserToDatabase(account)
 
             application.accessToken = token
             application.currentAccount = account
+            saveUserToSharedPreferences(account)
             _successfullyAddedAccount.value = true
             _loading.value = false
         }
@@ -99,6 +105,15 @@ class SignInVM(private val application: RedditApplication) : AndroidViewModel(ap
             return uri.getQueryParameter("code") ?: throw IllegalArgumentException("Code parameter not found: $url")
         } else {
             throw IllegalArgumentException("State parameter did not match: $url")
+        }
+    }
+
+    private fun saveUserToSharedPreferences(account: Account){
+        val sharedPrefs = application.getSharedPreferences(application.getString(R.string.preferences_file_key), Context.MODE_PRIVATE)
+        with(sharedPrefs.edit()) {
+            val json = Gson().toJson(account)
+            putString(CURRENT_USER_KEY, json)
+            commit()
         }
     }
 
