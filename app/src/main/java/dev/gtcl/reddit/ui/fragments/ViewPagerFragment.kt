@@ -151,6 +151,14 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions, PostA
         findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(MessagesPage))
     }
 
+    override fun signInNewAccount() {
+        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSignInFragment())
+    }
+
+    override fun launchWebview(url: String) {
+        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToWebViewFragment(url))
+    }
+
 //     _____          _                  _   _
 //    |  __ \        | |       /\       | | (_)
 //    | |__) |__  ___| |_     /  \   ___| |_ _  ___  _ __  ___
@@ -196,17 +204,18 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions, PostA
         }
         if(urlType == UrlType.LINK){
             val url = post.url!!
-            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
-                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                setPackage("com.android.chrome")
-            }
-            try {
-                startActivity(intent)
-            } catch (e: ActivityNotFoundException){
-                // Chrome may not be installed
-                intent.setPackage(null)
-                startActivity(intent)
-            }
+//            val intent = Intent(Intent.ACTION_VIEW, Uri.parse(url)).apply {
+//                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//                setPackage("com.android.chrome")
+//            }
+//            try {
+//                startActivity(intent)
+//            } catch (e: ActivityNotFoundException){
+//                // Chrome may not be installed
+//                intent.setPackage(null)
+//                startActivity(intent)
+//            }
+            launchWebview(url)
 
         } else {
             val dialog = MediaDialogFragment.newInstance(

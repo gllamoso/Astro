@@ -37,6 +37,7 @@ class MineVM(private val application: RedditApplication): AndroidViewModel(appli
     fun syncWithDb(){
         coroutineScope.launch {
             withContext(Dispatchers.Default){
+                // TODO: Handle if not logged in
                 _multiReddits.postValue(subredditRepository.getMyMultiRedditsDb())
                 _subscribedSubs.postValue(subredditRepository.getSubscribedSubs().map { it.asDomainModel() })
             }

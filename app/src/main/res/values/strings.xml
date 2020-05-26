@@ -124,7 +124,7 @@
     <string name="sent">Sent</string>
 
     <!--Misc-->
-    <string name="please_login_error">Please login</string>
+    <string name="please_login">Please log in</string>
     <string name="retry">Retry</string>
 
 </resources>

@@ -124,7 +124,6 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
         })
 
         model.networkState.observe(viewLifecycleOwner, Observer {
-//            binding.progressBar.visibility = if(it == NetworkState.LOADING) View.VISIBLE else View.GONE
             listAdapter.networkState = it
         })
 
@@ -142,6 +141,12 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
                 }
             })
         }
+
+        model.lastItemReached.observe(viewLifecycleOwner, Observer {
+            if(it == true){
+                binding.list.removeOnScrollListener(scrollListener)
+            }
+        })
     }
 
     private fun setSwipeRefresh(){

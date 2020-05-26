@@ -18,7 +18,7 @@ import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.models.reddit.Account
 import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.models.reddit.Post
-import dev.gtcl.reddit.ui.activities.main.MainActivityVM
+import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.item_scroller.ItemScrollerFragment
 
 class AccountFragment : Fragment(), ItemClickListener, PostActions, LeftDrawerActions {

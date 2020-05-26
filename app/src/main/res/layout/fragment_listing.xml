@@ -33,13 +33,6 @@
                 android:orientation="vertical"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-                <!--                <ProgressBar-->
-                <!--                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"-->
-                <!--                    android:layout_width="match_parent"-->
-                <!--                    android:layout_height="8dp"-->
-                <!--                    android:indeterminate="true"-->
-                <!--                    app:setVisibility="@{model.networkState.status == Status.RUNNING}"/>-->
-
                 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                     android:id="@+id/swipe_refresh"
                     android:layout_width="match_parent"
@@ -49,6 +42,15 @@
                     <FrameLayout
                         android:layout_width="match_parent"
                         android:layout_height="match_parent">
+
+                        <ProgressBar
+                            style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                            android:layout_width="match_parent"
+                            android:layout_height="6dp"
+                            android:indeterminate="true"
+                            android:elevation="100dp"
+                            android:background="?android:attr/colorBackground"
+                            app:setVisibility="@{model.networkState.status == Status.RUNNING}"/>
 
                         <TextView
                             android:id="@+id/no_results_text"

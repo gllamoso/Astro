@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.activities.main
+package dev.gtcl.reddit.ui.activities
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -73,12 +73,12 @@ class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners
     }
 
     override fun getChildrenCount(groupPosition: Int): Int {
-        return if(groupPosition == 0) accountOptions.size
+        return if(groupPosition == 0 && ::accountOptions.isInitialized) accountOptions.size
             else 0
     }
 
     override fun getChild(groupPosition: Int, childPosition: Int): Any {
-        return if (groupPosition == 0) accountOptions[childPosition]
+        return if (groupPosition == 0 && ::accountOptions.isInitialized) accountOptions[childPosition]
             else Any()
     }
 

@@ -49,7 +49,10 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
     private var t: Time? = null
     private var pageSize = 15
     var initialPageLoaded = false
-    private var lastItemReached = false
+
+    private val _lastItemReached = MutableLiveData<Boolean>()
+    val lastItemReached: LiveData<Boolean>
+        get() = _lastItemReached
 
     private var favoriteSubsHash: java.util.HashSet<String>? = null
     private var subscribedSubsHash: java.util.HashSet<String>? = null
@@ -161,7 +164,7 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
                 setSubsAndFavorites(items, subscribedSubsHash!!, favoriteSubsHash!!)
             }
             _items.value = items
-            lastItemReached = items.size < (pageSize * 3)
+            _lastItemReached.value = items.size < (pageSize * 3)
             loadedIds.clear()
             loadedIds.addAll(items.map { it.name })
             after = response.data.after
@@ -171,7 +174,7 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
     }
 
     fun loadAfter() {
-        if(lastItemReached){
+        if(_lastItemReached.value == true){
             return
         }
         coroutineScope.launch {
@@ -185,8 +188,8 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
                 }
                 val newItems = response.data.children.map { it.data }.filter { !loadedIds.contains(it.name) }
 
-                lastItemReached = newItems.isEmpty()
-                if(lastItemReached){
+                _lastItemReached.value = newItems.isEmpty()
+                if(_lastItemReached.value == true){
                     _networkState.value = NetworkState.LOADED
                     return@launch
                 }

@@ -19,7 +19,7 @@ import dev.gtcl.reddit.databinding.FragmentInboxBinding
 import dev.gtcl.reddit.databinding.LayoutNavHeaderBinding
 import dev.gtcl.reddit.models.reddit.Account
 import dev.gtcl.reddit.models.reddit.Message
-import dev.gtcl.reddit.ui.activities.main.MainDrawerAdapter
+import dev.gtcl.reddit.ui.activities.MainDrawerAdapter
 
 class MessagesFragment: Fragment(), MessageActions, LeftDrawerActions{
 
@@ -62,7 +62,10 @@ class MessagesFragment: Fragment(), MessageActions, LeftDrawerActions{
     private fun setLeftDrawer(inflater: LayoutInflater){
         val header = LayoutNavHeaderBinding.inflate(inflater)
         binding.expandableListView.addHeaderView(header.root)
-        val adapter = MainDrawerAdapter(requireContext(), this)
+        val adapter = MainDrawerAdapter(
+            requireContext(),
+            this
+        )
 
         binding.expandableListView.setAdapter(adapter)
 
@@ -164,7 +167,7 @@ class MessagesFragment: Fragment(), MessageActions, LeftDrawerActions{
     @SuppressLint("RtlHardcoded")
     override fun onInboxClicked() {
         if((activity?.application as RedditApplication).accessToken == null){
-            Snackbar.make(binding.drawerLayout, R.string.please_login_error, Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(binding.drawerLayout, R.string.please_login, Snackbar.LENGTH_SHORT).show()
         } else {
 //            findNavController().navigate(R.id.messages_fragment)
         }

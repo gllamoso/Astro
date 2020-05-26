@@ -124,10 +124,6 @@ enum class MessageWhere{
     SENT
 }
 
-val STATE by lazy {
-    UUID.randomUUID().toString()
-}
-
 const val SECONDS_IN_YEAR = 31_536_000.toLong()
 const val SECONDS_IN_MONTH = 2_592_000.toLong()
 const val SECONDS_IN_WEEK = 604_800.toLong()
@@ -174,12 +170,6 @@ fun timeSince(context: Context, seconds: Long): String{
     }
 }
 
-fun getEncodedAuthString(context: Context): String{
-    val clientID = context.getText(R.string.client_id)
-    val authString = "$clientID:"
-    return Base64.encodeToString(authString.toByteArray(), Base64.NO_WRAP)
-}
-
 fun buildMediaSource(context: Context, uri: Uri): MediaSource {
     val userAgent = "exoplayer"
 
@@ -199,6 +189,12 @@ fun buildMediaSource(context: Context, uri: Uri): MediaSource {
         DashMediaSource.Factory(dashChunkSourceFactory, dataSourceFactory)
             .createMediaSource(uri)
     }
+}
+
+fun getEncodedAuthString(context: Context): String{
+    val clientID = context.getText(R.string.client_id)
+    val authString = "$clientID:"
+    return Base64.encodeToString(authString.toByteArray(), Base64.NO_WRAP)
 }
 
 enum class Vote(val value: Int){
