@@ -25,7 +25,7 @@ import dev.gtcl.reddit.ui.fragments.subreddits.search.SearchFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingListFragment
 import kotlin.NoSuchElementException
 
-class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditActions, ListingTypeClickListener, ItemClickListener {
+class SubredditDialogFragment: BottomSheetDialogFragment(), SubredditActions, ListingTypeClickListener, ItemClickListener {
 
     private lateinit var binding: FragmentDialogSubredditsBinding
 
@@ -56,7 +56,6 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentDialogSubredditsBinding.inflate(inflater)
-
         setupTabLayout()
         setEditTextListener()
         return binding.root
@@ -134,18 +133,8 @@ class SubredditSelectorDialogFragment: BottomSheetDialogFragment(), SubredditAct
         }
     }
 
-//    override fun onDownScroll() {
-//        view?.post { // TODO: Fix
-//            val parent = requireView().parent as View
-//            val params = parent.layoutParams as CoordinatorLayout.LayoutParams
-//            val behavior = params.behavior
-//            val bottomSheetBehavior = behavior as BottomSheetBehavior
-//            bottomSheetBehavior.state = BottomSheetBehavior.STATE_EXPANDED
-//        }
-//    }
-
     companion object {
-        val TAG = SubredditSelectorDialogFragment::class.qualifiedName
+        val TAG = SubredditDialogFragment::class.qualifiedName
     }
 
 }

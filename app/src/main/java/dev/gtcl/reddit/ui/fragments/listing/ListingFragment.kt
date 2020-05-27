@@ -28,7 +28,7 @@ import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.activities.MainDrawerAdapter
 import dev.gtcl.reddit.ui.fragments.misc.SortDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.TimeDialogFragment
-import dev.gtcl.reddit.ui.fragments.subreddits.SubredditSelectorDialogFragment
+import dev.gtcl.reddit.ui.fragments.subreddits.SubredditDialogFragment
 
 class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeClickListener,
     ItemClickListener, LeftDrawerActions, SortActions {
@@ -71,7 +71,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
         when (childFragment) {
-            is SubredditSelectorDialogFragment -> childFragment.setActions(this)
+            is SubredditDialogFragment -> childFragment.setActions(this)
             is SortDialogFragment -> childFragment.setActions(this)
             is TimeDialogFragment -> childFragment.setActions(this)
 //            is MediaDialogFragment -> childFragment.postUrlCallback = this::postClicked
@@ -249,8 +249,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
         }
 
         binding.bottomBarLayout.subredditButton.setOnClickListener {
-            val subredditSelector = SubredditSelectorDialogFragment()
-            subredditSelector.show(childFragmentManager, SubredditSelectorDialogFragment.TAG)
+            SubredditDialogFragment().show(childFragmentManager, null)
         }
 
         binding.bottomBarLayout.refreshButton.setOnClickListener {
