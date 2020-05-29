@@ -29,6 +29,7 @@ import dev.gtcl.reddit.ui.activities.MainDrawerAdapter
 import dev.gtcl.reddit.ui.fragments.misc.SortDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.TimeDialogFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.SubredditDialogFragment
+import dev.gtcl.reddit.ui.fragments.subreddits.MySubredditsDialogFragment
 
 class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeClickListener,
     ItemClickListener, LeftDrawerActions, SortActions {
@@ -74,6 +75,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             is SubredditDialogFragment -> childFragment.setActions(this)
             is SortDialogFragment -> childFragment.setActions(this)
             is TimeDialogFragment -> childFragment.setActions(this)
+            is MySubredditsDialogFragment -> childFragment.setActions(this, this)
 //            is MediaDialogFragment -> childFragment.postUrlCallback = this::postClicked
         }
     }
@@ -249,7 +251,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
         }
 
         binding.bottomBarLayout.subredditButton.setOnClickListener {
-            SubredditDialogFragment().show(childFragmentManager, null)
+            MySubredditsDialogFragment().show(childFragmentManager, null)
         }
 
         binding.bottomBarLayout.refreshButton.setOnClickListener {

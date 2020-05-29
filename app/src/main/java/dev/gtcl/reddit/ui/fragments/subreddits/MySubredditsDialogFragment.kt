@@ -1,23 +1,26 @@
-package dev.gtcl.reddit.ui.fragments.subreddits.mine
+package dev.gtcl.reddit.ui.fragments.subreddits
 
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
-import dev.gtcl.reddit.*
-import dev.gtcl.reddit.models.reddit.Subreddit
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
+import dev.gtcl.reddit.R
 import dev.gtcl.reddit.actions.ListingTypeClickListener
 import dev.gtcl.reddit.actions.SubredditActions
-import dev.gtcl.reddit.databinding.FragmentItemScrollerBinding
+import dev.gtcl.reddit.databinding.FragmentDialogMySubredditsBinding
 import dev.gtcl.reddit.models.reddit.ListingType
+import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.network.NetworkState
+import dev.gtcl.reddit.ui.activities.MainActivityVM
+import dev.gtcl.reddit.ui.fragments.subreddits.mine.MineFragment
+import dev.gtcl.reddit.ui.fragments.subreddits.mine.MySubredditsAdapter
 
-class MineFragment : Fragment(), SubredditActions, ListingTypeClickListener {
+class MySubredditsDialogFragment: BottomSheetDialogFragment(), SubredditActions, ListingTypeClickListener{
 
-    private lateinit var binding: FragmentItemScrollerBinding
+    private lateinit var binding: FragmentDialogMySubredditsBinding
     private var parentListingTypeClickListener: ListingTypeClickListener? = null
     private var parentSubredditActions: SubredditActions? = null
 
@@ -26,55 +29,59 @@ class MineFragment : Fragment(), SubredditActions, ListingTypeClickListener {
         this.parentSubredditActions = subredditActions
     }
 
-    val model: MySubredditsVM by lazy {
-        val viewModelFactory = ViewModelFactory(requireActivity(). application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(MySubredditsVM::class.java)
-    }
+    private val activityModel: MainActivityVM by activityViewModels()
 
     override fun onResume() {
         super.onResume()
-        model.syncWithDb()
+        activityModel.getMySubreddits()
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentItemScrollerBinding.inflate(inflater)
-        setRecyclerViewAdapter()
-        setSwipeRefresh()
+        binding = FragmentDialogMySubredditsBinding.inflate(inflater)
+        setRecyclerView()
+        setListeners()
         return binding.root
     }
 
-    private fun setRecyclerViewAdapter(){
+    private fun setRecyclerView(){
         val adapter = MySubredditsAdapter(requireContext(), this, this)
-        binding.list.adapter = adapter
+        binding.recyclerView.adapter = adapter
 
-        model.subscribedSubs.observe(viewLifecycleOwner, Observer {
+        activityModel.subscribedSubs.observe(viewLifecycleOwner, Observer {
             if(it != null) {
                 adapter.setSubscribedSubs(it)
-                model.subredditsSynced()
-//                binding.progressBar.visibility = View.GONE
+                activityModel.subredditsSynced()
             }
         })
 
-        model.multiReddits.observe(viewLifecycleOwner, Observer {
+        activityModel.multiReddits.observe(viewLifecycleOwner, Observer {
             if(it != null){
                 adapter.setMultiReddits(it)
-                model.multiRedditsSynced()
+                activityModel.multiRedditsSynced()
             }
+        })
+
+        activityModel.refreshState.observe(viewLifecycleOwner, Observer {
+            binding.progressBar.visibility = if(it == NetworkState.LOADING) View.VISIBLE else View.GONE
         })
     }
 
-    private fun setSwipeRefresh() {
-        binding.swipeRefresh.setOnRefreshListener {
-            model.syncDbWithReddit()
+    private fun setListeners(){
+        binding.toolbar.setNavigationOnClickListener {
+            dismiss()
         }
 
-        model.refreshState.observe(viewLifecycleOwner, Observer {
-            binding.swipeRefresh.isRefreshing = (it != NetworkState.LOADED)
-        })
+        binding.toolbar.setOnMenuItemClickListener {
+            when(it.itemId){
+                R.id.search -> TODO("Add search fragment")
+                R.id.sync -> activityModel.syncDbWithReddit()
+            }
+            true
+        }
     }
 
     companion object{
-        fun newInstance(): MineFragment{
+        fun newInstance(): MineFragment {
             return MineFragment()
         }
     }
@@ -98,4 +105,5 @@ class MineFragment : Fragment(), SubredditActions, ListingTypeClickListener {
     override fun listingTypeClicked(listing: ListingType) {
         parentListingTypeClickListener?.listingTypeClicked(listing)
     }
+
 }

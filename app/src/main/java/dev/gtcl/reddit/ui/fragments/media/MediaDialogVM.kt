@@ -1,6 +1,7 @@
 package dev.gtcl.reddit.ui.fragments.media
 
 import android.content.Intent
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData

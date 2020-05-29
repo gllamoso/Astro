@@ -182,7 +182,7 @@ class MySubredditsAdapter(private val context: Context, private val listingTypeC
             position == allSubsHeaderIndex -> (holder as SectionHeaderVH).bind(allSubsSectionHeader)
             position > favoriteSubsHeaderIndex && favoriteSubsHeaderIndex != -1 -> (holder as SubredditVH).bind(favSubs[position - favoriteSubsHeaderIndex - 1], subredditActions, this, true, this)
             position == favoriteSubsHeaderIndex && favoriteSubsHeaderIndex != -1 -> (holder as SectionHeaderVH).bind(favSectionHeader)
-            position == multisHeaderIndex -> (holder as SectionHeaderVH).bind(multiSectionHeader)
+            position == multisHeaderIndex -> (holder as SectionHeaderVH).bind(multiSectionHeader, false)
             position == multisHeaderIndex + 1 -> (holder as ListingVH).bind(FrontPage, listingTypeClickListener)
             position == multisHeaderIndex + 2 -> (holder as ListingVH).bind(All, listingTypeClickListener)
             position == multisHeaderIndex + 3 -> (holder as ListingVH).bind(Popular, listingTypeClickListener)

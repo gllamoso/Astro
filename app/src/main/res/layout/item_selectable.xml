@@ -52,7 +52,7 @@
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_check_24dp"
                 android:layout_marginStart="8dp"
-                android:visibility="@{isSelected ? View.VISIBLE : View.INVISIBLE}"/>
+                android:visibility="@{isSelected ? View.VISIBLE : View.GONE}"/>
 
         </LinearLayout>
 

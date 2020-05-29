@@ -14,7 +14,7 @@ import dev.gtcl.reddit.ui.fragments.media.MediaVM
 import dev.gtcl.reddit.ui.fragments.signin.SignInVM
 import dev.gtcl.reddit.ui.fragments.splash.SplashVM
 import dev.gtcl.reddit.ui.fragments.subreddits.SubredditSelectorVM
-import dev.gtcl.reddit.ui.fragments.subreddits.mine.MineVM
+import dev.gtcl.reddit.ui.fragments.subreddits.mine.MySubredditsVM
 import dev.gtcl.reddit.ui.fragments.subreddits.search.SearchVM
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingListVM
 import java.lang.IllegalArgumentException
@@ -34,7 +34,7 @@ class ViewModelFactory(private val application: RedditApplication) : ViewModelPr
             modelClass.isAssignableFrom(AccountFragmentVM::class.java) -> AccountFragmentVM(application) as T
             modelClass.isAssignableFrom(UserAboutVM::class.java) -> UserAboutVM(application) as T
             modelClass.isAssignableFrom(ItemScrollerVM::class.java) -> ItemScrollerVM(application) as T
-            modelClass.isAssignableFrom(MineVM::class.java) -> MineVM(application) as T
+            modelClass.isAssignableFrom(MySubredditsVM::class.java) -> MySubredditsVM(application) as T
             modelClass.isAssignableFrom(TrendingListVM::class.java) -> TrendingListVM(application) as T
             modelClass.isAssignableFrom(SubredditSelectorVM::class.java) -> SubredditSelectorVM(application) as T
             modelClass.isAssignableFrom(SearchVM::class.java) -> SearchVM(application) as T

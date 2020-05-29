@@ -83,7 +83,6 @@ class DownloadIntentService : JobIntentService(){
             downloadStandardFile(url, fileUri.path!!)
         }
 
-
         scanMedia(file)
         showDownloadCompleteNotification(file.absolutePath)
 
@@ -108,7 +107,7 @@ class DownloadIntentService : JobIntentService(){
             type = when(fileExtension){
                 "mp4","wav" -> "video/*"
                 "jpeg", "bmp", "gif", "jpg", "png" -> "image/*"
-                else -> throw IllegalArgumentException("Invalid file type: $fileExtension")
+                else -> throw IllegalArgumentException("Invalid file type: $fileExtension") // TODO: Fix Gfycat download errors
             }
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
             data = FileProvider.getUriForFile(this@DownloadIntentService, this@DownloadIntentService.applicationContext.packageName + ".provider", File(filePath))

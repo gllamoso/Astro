@@ -7,8 +7,9 @@ import dev.gtcl.reddit.databinding.ItemSectionHeaderBinding
 import dev.gtcl.reddit.ui.fragments.subreddits.mine.SectionHeader
 
 class SectionHeaderVH private constructor(private val binding: ItemSectionHeaderBinding): RecyclerView.ViewHolder(binding.root){
-    fun bind(sectionHeader: SectionHeader){
+    fun bind(sectionHeader: SectionHeader, showTopDivider: Boolean = true){
         binding.header = sectionHeader
+        binding.showTopDivider = showTopDivider
         binding.executePendingBindings()
 
         sectionHeader.isCollapsed?.let {
