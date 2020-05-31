@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.repositories
 
-import android.util.Log
 import androidx.annotation.MainThread
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.ItemRead
@@ -12,7 +11,7 @@ import dev.gtcl.reddit.network.RedditApi
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import retrofit2.Call
+import retrofit2.Response
 import java.lang.IllegalStateException
 
 const val GUEST_ID = "guest"
@@ -55,37 +54,50 @@ class ListingRepository private constructor(private val application: RedditAppli
             is ProfileListing -> if(accessToken != null){
                     RedditApi.oauth.getPostsFromUser(accessToken.authorizationHeader, userName!!, listingType.info, after, pageSize)
                 } else {
-                    RedditApi.base.getPostsFromUser(null, userName!!, listingType.info, after, pageSize)
+                RedditApi.base.getPostsFromUser(null, userName!!, listingType.info, after, pageSize)
+            }
+            is SubscriptionListing -> {
+                if(accessToken != null){
+                    when(listingType.subscription.type){
+                        SubscriptionType.SUBREDDIT, SubscriptionType.USER -> RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, listingType.subscription.name, sort, t, after, pageSize)
+                        SubscriptionType.MULTIREDDIT ->  RedditApi.oauth.getMultiRedditListing(accessToken.authorizationHeader, listingType.subscription.url.removePrefix("/"), sort, t, after, pageSize)
+                    }
+                } else {
+                    when(listingType.subscription.type){
+                        SubscriptionType.SUBREDDIT, SubscriptionType.USER -> RedditApi.base.getPostsFromSubreddit(null, listingType.subscription.name, sort, t, after, pageSize)
+                        SubscriptionType.MULTIREDDIT ->  RedditApi.base.getMultiRedditListing(null, listingType.subscription.url.removePrefix("/"), sort, t, after, pageSize)
+                    }
                 }
+            }
         }
     }
 
     @MainThread
-    fun vote(fullname: String, vote: Vote): Call<Void> {
+    fun vote(fullname: String, vote: Vote): Deferred<Response<Unit>> {
         if(application.accessToken == null) throw IllegalStateException("User must be logged in to vote")
         return RedditApi.oauth.vote(application.accessToken!!.authorizationHeader, fullname, vote.value)
     }
 
     @MainThread
-    fun save(id: String): Call<Void>{
+    fun save(id: String): Deferred<Response<Unit>>{
         if(application.accessToken == null) throw IllegalStateException("User must be logged in to save")
         return RedditApi.oauth.save(application.accessToken!!.authorizationHeader, id)
     }
 
     @MainThread
-    fun unsave(id: String): Call<Void>{
+    fun unsave(id: String): Deferred<Response<Unit>>{
         if(application.accessToken == null) throw IllegalStateException("User must be logged in to unsave")
         return RedditApi.oauth.unsave(application.accessToken!!.authorizationHeader, id)
     }
 
     @MainThread
-    fun hide(id: String): Call<Void>{
+    fun hide(id: String): Deferred<Response<Unit>>{
         if(application.accessToken == null) throw IllegalStateException("User must be logged in to hide")
         return RedditApi.oauth.hide(application.accessToken!!.authorizationHeader, id)
     }
 
     @MainThread
-    fun unhide(id: String): Call<Void>{
+    fun unhide(id: String): Deferred<Response<Unit>>{
         if(application.accessToken == null) throw IllegalStateException("User must be logged in to unhide")
         return RedditApi.oauth.unhide(application.accessToken!!.authorizationHeader, id)
     }

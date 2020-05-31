@@ -1,12 +1,9 @@
 package dev.gtcl.reddit.ui.fragments.subreddits.trending
 
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.database.DbMultiReddit
 import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.ListingRepository
@@ -15,7 +12,6 @@ import kotlinx.coroutines.*
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
@@ -70,9 +66,9 @@ class TrendingListVM(application: RedditApplication): AndroidViewModel(applicati
     fun syncWithDb(){
         coroutineScope.launch {
             withContext(Dispatchers.Default){
-                favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
+//                favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
                 _favoriteSubs.postValue(favoriteSubsHash!!)
-                subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
+//                subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
                 _subscribedSubs.postValue(subscribedSubsHash!!)
             }
         }
@@ -113,10 +109,10 @@ class TrendingListVM(application: RedditApplication): AndroidViewModel(applicati
                 val items = ArrayList(response.data.children.map { TrendingSubredditPost(it.data as Post) })
 
                 if(favoriteSubsHash == null){
-                    favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
+//                    favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
                 }
                 if(subscribedSubsHash == null){
-                    subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
+//                    subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
                 }
                 setSubsAndFavoritesInTrendingPost(items, subscribedSubsHash!!, favoriteSubsHash!!)
                 _items.postValue(items)
@@ -148,10 +144,10 @@ class TrendingListVM(application: RedditApplication): AndroidViewModel(applicati
                     }
 
                     if(favoriteSubsHash == null){
-                        favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
+//                        favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
                     }
                     if(subscribedSubsHash == null){
-                        subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
+//                        subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
                     }
                     setSubsAndFavoritesInTrendingPost(newItems, subscribedSubsHash!!, favoriteSubsHash!!)
 
@@ -181,19 +177,19 @@ class TrendingListVM(application: RedditApplication): AndroidViewModel(applicati
 
     fun subscribe(subreddit: Subreddit, subscribeAction: SubscribeAction, favorite: Boolean){
         coroutineScope.launch {
-            subredditRepository.subscribe(subreddit.displayName, subscribeAction).enqueue(object:
-                Callback<Void> {
-                override fun onFailure(call: Call<Void>, t: Throwable) {
-                    _errorMessage.value = t.message
-                }
-
-                override fun onResponse(call: Call<Void>, response: Response<Void>) {
-                    coroutineScope.launch {
-                        if(subscribeAction == SubscribeAction.SUBSCRIBE) insertSub(subreddit, favorite)
-                        else subredditRepository.removeSubreddit(subreddit)
-                    }
-                }
-            })
+//            subredditRepository.subscribe(subreddit.displayName, subscribeAction).enqueue(object:
+//                Callback<Void> {
+//                override fun onFailure(call: Call<Void>, t: Throwable) {
+//                    _errorMessage.value = t.message
+//                }
+//
+//                override fun onResponse(call: Call<Void>, response: Response<Void>) {
+//                    coroutineScope.launch {
+//                        if(subscribeAction == SubscribeAction.SUBSCRIBE) insertSub(subreddit, favorite)
+////                        else subredditRepository.removeSubreddit(subreddit)
+//                    }
+//                }
+//            })
         }
     }
 
@@ -202,7 +198,7 @@ class TrendingListVM(application: RedditApplication): AndroidViewModel(applicati
             if(favorite) {
                 subscribe(subreddit, SubscribeAction.SUBSCRIBE, favorite)
             } else {
-                subredditRepository.addToFavorites(subreddit.displayName, favorite)
+//                subredditRepository.addToFavorites(subreddit.displayName, favorite)
             }
         }
     }
@@ -210,7 +206,7 @@ class TrendingListVM(application: RedditApplication): AndroidViewModel(applicati
     suspend fun insertSub(subreddit: Subreddit, favorite: Boolean){
         val sub: Subreddit = if(subreddit.name == ""){
             (subredditRepository
-                .searchSubreddits(nsfw = true, includeProfiles = false, limit = 1, query = subreddit.displayName)
+                .searchSubredditsFromReddit(nsfw = true, includeProfiles = false, limit = 1, query = subreddit.displayName)
                 .await()
                 .data
                 .children[0] as SubredditChild)
@@ -219,11 +215,11 @@ class TrendingListVM(application: RedditApplication): AndroidViewModel(applicati
             subreddit
         }
         sub.isFavorite = favorite
-        subredditRepository.insertSubreddit(sub)
+//        subredditRepository.insertSubreddit(sub)
     }
 
     companion object{
-        private val TRENDING_SUBREDDIT = Subreddit("", "trendingsubreddits", "", "", "", false, "")
+        private val TRENDING_SUBREDDIT = Subreddit("", "trendingsubreddits", "", "", "", false, "", "")
         private val TRENDING_LISTING = SubredditListing(TRENDING_SUBREDDIT)
         private val SORT = PostSort.NEW
         private const val PAGE_SIZE = 7

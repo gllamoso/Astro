@@ -17,19 +17,19 @@
             <include
                 android:id="@+id/comment_option"
                 layout="@layout/item_selectable"
-                app:icon="@{@drawable/ic_comment_24dp}"
+                app:iconDrawable="@{@drawable/ic_comment_24dp}"
                 app:text="@{@string/comments}"/>
 
             <include
                 android:id="@+id/share_option"
                 layout="@layout/item_selectable"
-                app:icon="@{@drawable/ic_share_24dp}"
+                app:iconDrawable="@{@drawable/ic_share_24dp}"
                 app:text="@{@string/share}"/>
 
             <include
                 android:id="@+id/download_option"
                 layout="@layout/item_selectable"
-                app:icon="@{@drawable/ic_download_24dp}"
+                app:iconDrawable="@{@drawable/ic_download_24dp}"
                 app:text="@{@string/download}"/>
 
         </LinearLayout>

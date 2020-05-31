@@ -1,18 +1,14 @@
 package dev.gtcl.reddit.ui.fragments.subreddits.search
 
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.Transformations
 import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.models.reddit.SubredditChild
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.SubredditRepository
 import dev.gtcl.reddit.setSubsAndFavorites
-import dev.gtcl.reddit.setSubsAndFavoritesInTrendingPost
 import kotlinx.coroutines.*
 import java.util.*
 
@@ -46,9 +42,9 @@ class SearchVM(application: RedditApplication) : AndroidViewModel(application){
     fun syncWithDb(){
         coroutineScope.launch {
             withContext(Dispatchers.Default){
-                favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
+//                favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
                 _favoriteSubs.postValue(favoriteSubsHash)
-                subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
+//                subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
                 _subscribedSubs.postValue(subscribedSubsHash)
             }
         }
@@ -65,7 +61,7 @@ class SearchVM(application: RedditApplication) : AndroidViewModel(application){
     fun searchSubreddits(query: String){
         coroutineScope.launch {
             _networkState.value = NetworkState.LOADING
-             val subs = subredditRepository.searchSubreddits(
+             val subs = subredditRepository.searchSubredditsFromReddit(
                 nsfw = true,
                 includeProfiles = false,
                 limit = 20,
@@ -73,11 +69,11 @@ class SearchVM(application: RedditApplication) : AndroidViewModel(application){
             ).await().data.children.map { (it as SubredditChild).data }
 
             if(favoriteSubsHash == null){
-                favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
+//                favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
             }
 
             if(subscribedSubsHash == null){
-                subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
+//                subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
             }
 
             setSubsAndFavorites(subs, subscribedSubsHash!!, favoriteSubsHash!!)

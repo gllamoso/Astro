@@ -10,9 +10,6 @@ import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.repositories.MessageRepository
 import dev.gtcl.reddit.repositories.SubredditRepository
 import kotlinx.coroutines.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
@@ -76,9 +73,9 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
     fun syncWithDb(){
         coroutineScope.launch {
             withContext(Dispatchers.Default){
-                favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
+                favoriteSubsHash = subredditRepository.getMyFavoriteSubscriptionsExcludingMultireddits().map { it.name }.toHashSet()
                 _favoriteSubs.postValue(favoriteSubsHash!!)
-                subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
+                subscribedSubsHash = subredditRepository.getMySubscriptionsExcludingMultireddits().map { it.name }.toHashSet()
                 _subscribedSubs.postValue(subscribedSubsHash!!)
             }
         }
@@ -144,7 +141,7 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
         try {
             val response = when{
                 ::listingType.isInitialized -> listingRepository.getListing(listingType, postSort, t, null, pageSize * 3, user).await()
-                ::subredditWhere.isInitialized -> subredditRepository.getNetworkSubreddits(subredditWhere, null, pageSize * 3).await()
+                ::subredditWhere.isInitialized -> subredditRepository.getSubredditsFromReddit(subredditWhere, null, pageSize * 3).await()
                 ::messageWhere.isInitialized -> messageRepository.getMessages(messageWhere, null, pageSize * 3).await()
                 else -> throw IllegalStateException("Not enough info to load listing")
             }
@@ -155,11 +152,11 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
             }
             if(::subredditWhere.isInitialized){
                 if(favoriteSubsHash == null){
-                    favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
+                    favoriteSubsHash = subredditRepository.getMyFavoriteSubscriptionsExcludingMultireddits().map { it.name }.toHashSet()
                 }
 
                 if(subscribedSubsHash == null){
-                    subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
+                    subscribedSubsHash = subredditRepository.getMySubscriptionsExcludingMultireddits().map { it.name }.toHashSet()
                 }
                 setSubsAndFavorites(items, subscribedSubsHash!!, favoriteSubsHash!!)
             }
@@ -182,7 +179,7 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
             try{
                 val response = when {
                     ::listingType.isInitialized -> listingRepository.getListing(listingType, postSort, t, after, pageSize, user).await()
-                    ::subredditWhere.isInitialized -> subredditRepository.getNetworkSubreddits(subredditWhere, after, pageSize).await()
+                    ::subredditWhere.isInitialized -> subredditRepository.getSubredditsFromReddit(subredditWhere, after, pageSize).await()
                     ::messageWhere.isInitialized -> messageRepository.getMessages(messageWhere, after, pageSize).await()
                     else -> throw IllegalStateException("Not enough info to load listing")
                 }
@@ -196,11 +193,11 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
 
                 if(::subredditWhere.isInitialized){
                     if(favoriteSubsHash == null){
-                        favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName }.toHashSet()
+                        favoriteSubsHash = subredditRepository.getMyFavoriteSubscriptionsExcludingMultireddits().map { it.name }.toHashSet()
                     }
 
                     if(subscribedSubsHash == null){
-                        subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName }.toHashSet()
+                        subscribedSubsHash = subredditRepository.getMySubscriptionsExcludingMultireddits().map { it.name }.toHashSet()
                     }
                     setSubsAndFavorites(newItems, subscribedSubsHash!!, favoriteSubsHash!!)
                 }

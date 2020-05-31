@@ -43,7 +43,7 @@ interface GfycatService {
             return Retrofit.Builder()
                 .baseUrl(URL.toHttpUrl())
                 .client(client)
-                .addConverterFactory(EnumConverterFactory())
+                .addConverterFactory(EnumConverterFactory)
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .build()

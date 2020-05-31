@@ -28,8 +28,7 @@ import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.activities.MainDrawerAdapter
 import dev.gtcl.reddit.ui.fragments.misc.SortDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.TimeDialogFragment
-import dev.gtcl.reddit.ui.fragments.subreddits.SubredditDialogFragment
-import dev.gtcl.reddit.ui.fragments.subreddits.MySubredditsDialogFragment
+import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsDialogFragment
 
 class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeClickListener,
     ItemClickListener, LeftDrawerActions, SortActions {
@@ -72,10 +71,9 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
         when (childFragment) {
-            is SubredditDialogFragment -> childFragment.setActions(this)
             is SortDialogFragment -> childFragment.setActions(this)
             is TimeDialogFragment -> childFragment.setActions(this)
-            is MySubredditsDialogFragment -> childFragment.setActions(this, this)
+            is SubscriptionsDialogFragment -> childFragment.setActions(this, this)
 //            is MediaDialogFragment -> childFragment.postUrlCallback = this::postClicked
         }
     }
@@ -251,7 +249,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
         }
 
         binding.bottomBarLayout.subredditButton.setOnClickListener {
-            MySubredditsDialogFragment().show(childFragmentManager, null)
+            SubscriptionsDialogFragment().show(childFragmentManager, null)
         }
 
         binding.bottomBarLayout.refreshButton.setOnClickListener {

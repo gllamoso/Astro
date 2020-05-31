@@ -13,6 +13,7 @@ import android.webkit.WebViewClient
 import android.widget.Toast
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -21,6 +22,7 @@ import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentSignInBinding
 import dev.gtcl.reddit.models.reddit.FrontPage
+import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.ListingPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 import java.util.UUID
@@ -33,6 +35,8 @@ class SignInFragment : Fragment() {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(SignInVM::class.java)
     }
+
+    private val activityModel: MainActivityVM by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -109,6 +113,7 @@ class SignInFragment : Fragment() {
         model.successfullyAddedAccount.observe(viewLifecycleOwner, Observer {
             if(it == true){
                 findNavController().navigate(SignInFragmentDirections.signInWithNewAccount(ListingPage(FrontPage)))
+                activityModel.syncSubscriptionsWithReddit()
             }
         })
     }

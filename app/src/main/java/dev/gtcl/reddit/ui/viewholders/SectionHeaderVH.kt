@@ -4,7 +4,6 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemSectionHeaderBinding
-import dev.gtcl.reddit.ui.fragments.subreddits.mine.SectionHeader
 
 class SectionHeaderVH private constructor(private val binding: ItemSectionHeaderBinding): RecyclerView.ViewHolder(binding.root){
     fun bind(sectionHeader: SectionHeader, showTopDivider: Boolean = true){
@@ -35,4 +34,19 @@ class SectionHeaderVH private constructor(private val binding: ItemSectionHeader
             return SectionHeaderVH(ItemSectionHeaderBinding.inflate(LayoutInflater.from(parent.context)))
         }
     }
+}
+
+abstract class SectionHeader(
+    val name: String,
+    collapsed: Boolean = false
+) {
+    var isCollapsed: Boolean = collapsed
+        set(collapse){
+            field = collapse
+            if(collapse != null) {
+                onCollapse(collapse)
+            }
+        }
+
+    abstract fun onCollapse(collapse: Boolean)
 }

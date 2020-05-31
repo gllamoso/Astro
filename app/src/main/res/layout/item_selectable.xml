@@ -5,7 +5,7 @@
 
     <data>
         <variable
-            name="icon"
+            name="iconDrawable"
             type="android.graphics.drawable.Drawable" />
         <variable
             name="text"
@@ -31,7 +31,7 @@
                 android:id="@+id/icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@{icon}"
+                android:src="@{iconDrawable}"
                 tools:src="@drawable/ic_upvote_24dp"
                 android:visibility="@{icon != null ? View.VISIBLE : View.GONE}"
                 android:layout_marginEnd="8dp"/>

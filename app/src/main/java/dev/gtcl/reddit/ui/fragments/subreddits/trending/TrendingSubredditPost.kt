@@ -35,7 +35,7 @@ class TrendingSubredditPost(val post: Post){
 //            }
             val subsTemp = ArrayList<Subreddit>()
             for(x in 0 until 5){
-                subsTemp.add(Subreddit("",titlesSequence.elementAtOrElse(x){""},"", "", "", null,""))
+                subsTemp.add(Subreddit("",titlesSequence.elementAtOrElse(x){""},"", "", "", null,"", ""))
             }
             subs = subsTemp
         }

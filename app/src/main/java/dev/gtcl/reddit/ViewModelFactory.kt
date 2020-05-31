@@ -13,8 +13,7 @@ import dev.gtcl.reddit.ui.fragments.media.MediaDialogVM
 import dev.gtcl.reddit.ui.fragments.media.MediaVM
 import dev.gtcl.reddit.ui.fragments.signin.SignInVM
 import dev.gtcl.reddit.ui.fragments.splash.SplashVM
-import dev.gtcl.reddit.ui.fragments.subreddits.SubredditSelectorVM
-import dev.gtcl.reddit.ui.fragments.subreddits.mine.MySubredditsVM
+import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsVM
 import dev.gtcl.reddit.ui.fragments.subreddits.search.SearchVM
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingListVM
 import java.lang.IllegalArgumentException
@@ -28,15 +27,12 @@ class ViewModelFactory(private val application: RedditApplication) : ViewModelPr
             modelClass.isAssignableFrom(ListingVM::class.java) -> ListingVM(application) as T
             modelClass.isAssignableFrom(ViewPagerVM::class.java) -> ViewPagerVM(application) as T
             modelClass.isAssignableFrom(CommentsVM::class.java) -> CommentsVM(application) as T
-            modelClass.isAssignableFrom(MainActivityVM::class.java) -> MainActivityVM(
-                application
-            ) as T
+            modelClass.isAssignableFrom(MainActivityVM::class.java) -> MainActivityVM(application) as T
             modelClass.isAssignableFrom(AccountFragmentVM::class.java) -> AccountFragmentVM(application) as T
             modelClass.isAssignableFrom(UserAboutVM::class.java) -> UserAboutVM(application) as T
             modelClass.isAssignableFrom(ItemScrollerVM::class.java) -> ItemScrollerVM(application) as T
-            modelClass.isAssignableFrom(MySubredditsVM::class.java) -> MySubredditsVM(application) as T
             modelClass.isAssignableFrom(TrendingListVM::class.java) -> TrendingListVM(application) as T
-            modelClass.isAssignableFrom(SubredditSelectorVM::class.java) -> SubredditSelectorVM(application) as T
+            modelClass.isAssignableFrom(SubscriptionsVM::class.java) -> SubscriptionsVM(application) as T
             modelClass.isAssignableFrom(SearchVM::class.java) -> SearchVM(application) as T
             modelClass.isAssignableFrom(MediaVM::class.java) -> MediaVM(application) as T
             modelClass.isAssignableFrom(MediaDialogVM::class.java) -> MediaDialogVM(application) as T

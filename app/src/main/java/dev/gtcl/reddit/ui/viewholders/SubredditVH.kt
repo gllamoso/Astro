@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.viewholders
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
@@ -8,10 +7,10 @@ import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.databinding.ItemSubredditBinding
 import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.actions.SubredditActions
-import dev.gtcl.reddit.actions.MySubredditAdapterActions
+import dev.gtcl.reddit.actions.SubscriptionAdapterActions
 
 class SubredditVH private constructor(private val binding: ItemSubredditBinding): RecyclerView.ViewHolder(binding.root) {
-    fun bind(sub: Subreddit, subredditActions: SubredditActions, mySubredditAdapterActions: MySubredditAdapterActions?, inFavoritesSection: Boolean = false, itemClickListener: ItemClickListener){
+    fun bind(sub: Subreddit, subredditActions: SubredditActions, subscriptionAdapterActions: SubscriptionAdapterActions?, inFavoritesSection: Boolean = false, itemClickListener: ItemClickListener){
         binding.sub = sub
         binding.root.setOnClickListener {
             itemClickListener.itemClicked(sub)
@@ -19,7 +18,7 @@ class SubredditVH private constructor(private val binding: ItemSubredditBinding)
         binding.addButton.setOnClickListener{
             sub.userSubscribed = sub.userSubscribed != true
             if(!sub.userSubscribed!!) {
-                mySubredditAdapterActions?.remove(sub)
+//                mySubscriptionActionsInAdapter?.remove(sub)
                 sub.isFavorite = false
             }
             subredditActions.subscribe(sub, sub.userSubscribed!!)
@@ -30,9 +29,9 @@ class SubredditVH private constructor(private val binding: ItemSubredditBinding)
             sub.isFavorite = !sub.isFavorite
             if(sub.isFavorite) {
                 sub.userSubscribed = true
-                mySubredditAdapterActions?.addToFavorites(sub)
+//                mySubscriptionActionsInAdapter?.addToFavorites(sub)
             } else {
-                mySubredditAdapterActions?.removeFromFavorites(sub, inFavoritesSection)
+//                mySubscriptionActionsInAdapter?.removeFromFavorites(sub, inFavoritesSection)
             }
             binding.invalidateAll()
         }

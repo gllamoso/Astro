@@ -1,27 +1,22 @@
 package dev.gtcl.reddit.repositories
 
 import androidx.annotation.MainThread
-import androidx.lifecycle.LiveData
-import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.SubredditMineWhere
-import dev.gtcl.reddit.SubredditWhere
-import dev.gtcl.reddit.SubscribeAction
-import dev.gtcl.reddit.database.DbMultiReddit
-import dev.gtcl.reddit.database.DbSubreddit
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.redditDatabase
 import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.network.RedditApi
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import retrofit2.Call
+import retrofit2.Response
+import java.io.StringWriter
 import kotlin.IllegalStateException
 
 class SubredditRepository private constructor(private val application: RedditApplication){
     private val database = redditDatabase(application)
 
     @MainThread
-    fun getNetworkSubreddits(where: SubredditWhere, after: String? = null, limit: Int = 100): Deferred<ListingResponse> {
+    fun getSubredditsFromReddit(where: SubredditWhere, after: String? = null, limit: Int = 100): Deferred<ListingResponse> {
         return if(application.accessToken != null) {
             RedditApi.oauth.getSubreddits(
                 application.accessToken!!.authorizationHeader,
@@ -35,7 +30,7 @@ class SubredditRepository private constructor(private val application: RedditApp
     }
 
     @MainThread
-    fun getNetworkAccountSubreddits(limit: Int = 100, after: String? = null): Deferred<ListingResponse> {
+    fun getMySubredditsFromReddit(limit: Int = 100, after: String? = null): Deferred<ListingResponse> {
         return if(application.accessToken != null)
             RedditApi.oauth.getSubredditsOfMine(application.accessToken!!.authorizationHeader, SubredditMineWhere.SUBSCRIBER, after, limit)
         else
@@ -43,74 +38,15 @@ class SubredditRepository private constructor(private val application: RedditApp
     }
 
     @MainThread
-    fun getSubsSearch(q: String, nsfw: String): Deferred<ListingResponse> = RedditApi.base.getSubredditsSearch(q, nsfw)
-
-    suspend fun insertSubreddit(sub: Subreddit){
-        withContext(Dispatchers.IO){
-            database.subredditDao.insert(sub.asDbModel(application.currentAccount?.id ?: GUEST_ID))
-        }
-    }
-
-    suspend fun insertSubreddits(subs: List<Subreddit>){
-        withContext(Dispatchers.IO){
-            database.subredditDao.insert(subs.asSubredditDatabaseModels(
-                application.currentAccount?.id ?: GUEST_ID
-            ))
-        }
-    }
-
-    suspend fun removeSubreddit(sub: Subreddit){
-        withContext(Dispatchers.IO){
-            database.subredditDao.deleteSubreddit(application.currentAccount?.id ?: GUEST_ID, sub.displayName)
-        }
-    }
-
-    @MainThread
-    fun getSubscribedSubsLive() = database.subredditDao.getSubscribedSubsLive(application.currentAccount?.id ?: GUEST_ID)
-
-    suspend fun getSubscribedSubs(displayName: String? = null): List<DbSubreddit>{
-        return if(displayName == null) {
-            database.subredditDao.getSubscribedSubs(application.currentAccount?.id ?: GUEST_ID)
-        }
-        else {
-            database.subredditDao.getSubscribedSubs(
-                application.currentAccount?.id ?: GUEST_ID,
-                displayName
-            )
-        }
-    }
-
-    suspend fun deleteSubscribedSubs() {
-        if (application.currentAccount == null){
-            return
-        }
-        withContext(Dispatchers.IO) {
-            database.subredditDao.deleteSubscribedSubs(application.currentAccount!!.id)
-        }
-    }
-
-    @MainThread
-    fun getFavoriteSubsLive() = database.subredditDao.getFavoriteSubsLive(application.currentAccount?.id ?: GUEST_ID)
-
-    suspend fun getFavoriteSubs() = database.subredditDao.getFavoriteSubs(application.currentAccount?.id ?: GUEST_ID)
-
-    suspend fun addToFavorites(displayName: String, favorite: Boolean){
-        if(application.currentAccount == null) return
-        withContext(Dispatchers.IO){
-            database.subredditDao.updateFavoriteSub(application.currentAccount!!.id, displayName, favorite)
-        }
-    }
-
-    @MainThread
-    fun subscribe(srName: String, subscribeAction: SubscribeAction): Call<Void> {
+    fun subscribe(srName: String, subscribeAction: SubscribeAction): Deferred<Response<Unit>> {
         if(application.accessToken == null) {
             throw IllegalStateException("User must be logged in to subscribe")
         }
-        return RedditApi.oauth.subscribeToSubreddit(application.accessToken!!.authorizationHeader, subscribeAction,  srName)
+        return RedditApi.oauth.subscribeToSubreddit(application.accessToken!!.authorizationHeader, subscribeAction, srName)
     }
 
     @MainThread
-    fun searchSubreddits(nsfw: Boolean, includeProfiles: Boolean, limit: Int, query: String): Deferred<ListingResponse> {
+    fun searchSubredditsFromReddit(nsfw: Boolean, includeProfiles: Boolean, limit: Int, query: String): Deferred<ListingResponse> {
         return if(application.accessToken == null) RedditApi.base.getSubredditNameSearch(null, nsfw, includeProfiles, limit, query)
         else RedditApi.oauth.getSubredditNameSearch(application.accessToken!!.authorizationHeader, nsfw, includeProfiles, limit, query)
     }
@@ -124,7 +60,7 @@ class SubredditRepository private constructor(private val application: RedditApp
 //
 
     @MainThread
-    fun getMyMultiReddits(): Deferred<List<MultiRedditChild>> {
+    fun getMyMultiRedditsFromReddit(): Deferred<List<MultiRedditChild>> {
         if(application.accessToken == null) {
             throw IllegalStateException("User must be logged in to fetch multireddits")
         }
@@ -132,7 +68,7 @@ class SubredditRepository private constructor(private val application: RedditApp
     }
 
     @MainThread
-    fun getMultiReddit(multipath: String): Deferred<MultiRedditChild>{
+    fun getMultiRedditFromReddit(multipath: String): Deferred<MultiRedditChild>{
         return if(application.accessToken == null) {
             RedditApi.base.getMultiReddit(null, multipath)
         } else {
@@ -141,34 +77,76 @@ class SubredditRepository private constructor(private val application: RedditApp
     }
 
     @MainThread
+    fun deleteMultiReddit(multipath: String): Deferred<Response<Unit>>{
+        if(application.accessToken == null){
+            throw IllegalStateException("User must be logged in to delete multireddit")
+        }
+        return RedditApi.oauth.deleteMultiReddit(application.accessToken!!.authorizationHeader, multipath)
+    }
+
+//      _____       _                   _       _   _
+//     / ____|     | |                 (_)     | | (_)
+//    | (___  _   _| |__  ___  ___ _ __ _ _ __ | |_ _  ___  _ __  ___
+//     \___ \| | | | '_ \/ __|/ __| '__| | '_ \| __| |/ _ \| '_ \/ __|
+//     ____) | |_| | |_) \__ \ (__| |  | | |_) | |_| | (_) | | | \__ \
+//    |_____/ \__,_|_.__/|___/\___|_|  |_| .__/ \__|_|\___/|_| |_|___/
+//                                       | |
+//                                       |_|
+
+    // INSERT
+    @MainThread
+    suspend fun insertSubreddits(subs: List<Subreddit>){
+        withContext(Dispatchers.IO){
+            database.subscriptionDao.insert(subs.asSubscriptions(application.currentAccount?.id ?: GUEST_ID))
+        }
+    }
+    @MainThread
+    suspend fun insertSubreddit(sub: Subreddit){
+        withContext(Dispatchers.IO){
+            database.subscriptionDao.insert(sub.asSubscription(application.currentAccount?.id ?: GUEST_ID))
+        }
+    }
+    @MainThread
     suspend fun insertMultiReddits(multis: List<MultiReddit>){
         withContext(Dispatchers.IO){
-            database.multiRedditDao.insert(multis.map { it.asDbModel() })
+            database.subscriptionDao.insert(multis.asSubscriptions())
         }
     }
-
     @MainThread
-    fun getMyMultiRedditsDbLive(): LiveData<List<DbMultiReddit>> {
-        if(application.currentAccount == null) {
-            throw IllegalStateException("Must be logged in to fetch multireddits")
-        }
-        return database.multiRedditDao.getMultiRedditsLive(application.currentAccount!!.id)
-    }
-
-    @MainThread
-    suspend fun getMyMultiRedditsDb(): List<DbMultiReddit> {
-        if(application.currentAccount == null) {
-            throw IllegalStateException("Must be logged in to fetch multireddits")
-        }
-        return database.multiRedditDao.getMultiReddits(application.currentAccount!!.id)
-    }
-
-    @MainThread
-    suspend fun deleteAllMultiReddits(){
+    suspend fun insertMultiReddit(multi: MultiReddit){
         withContext(Dispatchers.IO){
-            database.multiRedditDao.deleteSubscribedSubs(application.currentAccount!!.id)
+            database.subscriptionDao.insert(multi.asSubscription())
         }
     }
+
+    // UPDATE
+    suspend fun updateSubscription(name: String, favorite: Boolean){
+        withContext(Dispatchers.IO){
+            database.subscriptionDao.updateSubscription(application.currentAccount?.id ?: GUEST_ID, name, favorite)
+        }
+    }
+
+    // DELETE
+    @MainThread
+    suspend fun deleteAllMySubscriptions() {
+        withContext(Dispatchers.IO) {
+            database.subscriptionDao.deleteAllSubscriptions(application.currentAccount?.id ?: GUEST_ID)
+        }
+    }
+    @MainThread
+    suspend fun deleteSubscription(name: String){
+        withContext(Dispatchers.IO){
+            database.subscriptionDao.deleteSubscription(application.currentAccount?.id ?: GUEST_ID, name)
+        }
+    }
+
+    // GET
+    suspend fun getMySubscription(name: String) = database.subscriptionDao.getSubscription(application.currentAccount?.id ?: GUEST_ID, name)
+    suspend fun getMySubscriptions() = database.subscriptionDao.getSubscriptionsAlphabetically(application.currentAccount?.id ?: GUEST_ID)
+    suspend fun getMySubscriptions(subscriptionType: SubscriptionType) = database.subscriptionDao.getSubscriptionsAlphabetically(application.currentAccount?.id ?: GUEST_ID, subscriptionType)
+    suspend fun getMySubscriptionsExcludingMultireddits() = database.subscriptionDao.getSubscriptionsAlphabeticallyExcluding(application.currentAccount?.id ?: GUEST_ID, SubscriptionType.MULTIREDDIT)
+    suspend fun getMyFavoriteSubscriptions() = database.subscriptionDao.getFavoriteSubscriptionsAlphabetically(application.currentAccount?.id ?: GUEST_ID)
+    suspend fun getMyFavoriteSubscriptionsExcludingMultireddits() = database.subscriptionDao.getFavoriteSubscriptionsAlphabeticallyExcluding(application.currentAccount?.id ?: GUEST_ID, SubscriptionType.MULTIREDDIT)
 
     companion object{
         private lateinit var INSTANCE: SubredditRepository

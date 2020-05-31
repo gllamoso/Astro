@@ -169,7 +169,8 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions, PostA
 //
 
     override fun vote(post: Post, vote: Vote) {
-        model.vote(post.name, vote)
+//        model.vote(post.name, vote)
+        TODO("Reimplement")
     }
 
     override fun share(post: Post) {
@@ -181,13 +182,15 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions, PostA
     }
 
     override fun save(post: Post) {
-        if(post.saved) model.unsave(post.name)
-        else model.save(post.name)
+//        if(post.saved) model.unsave(post.name)
+//        else model.save(post.name)
+        TODO("Reimplement")
     }
 
     override fun hide(post: Post) {
-        if(!post.hidden) model.hide(post.name)
-        else model.unhide(post.name)
+//        if(!post.hidden) model.hide(post.name)
+//        else model.unhide(post.name)
+        TODO("Reimplement")
     }
 
     override fun report(post: Post) {
@@ -253,11 +256,13 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions, PostA
 //
 
     override fun favorite(subreddit: Subreddit, favorite: Boolean) {
-        model.addToFavorites(subreddit, favorite)
+//        model.addToFavorites(subreddit, favorite)
+        TODO("Reimplement")
     }
 
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-        model.subscribe(subreddit, if(subscribe) SubscribeAction.SUBSCRIBE else SubscribeAction.UNSUBSCRIBE, false)
+//        model.subscribe(subreddit, if(subscribe) SubscribeAction.SUBSCRIBE else SubscribeAction.UNSUBSCRIBE, false)
+        TODO("Reimplement")
     }
 
 }

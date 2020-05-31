@@ -3,6 +3,7 @@ package dev.gtcl.reddit.database
 import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.room.*
+import dev.gtcl.reddit.SubscriptionType
 
 @Dao
 interface AccountDao{
@@ -35,62 +36,48 @@ interface ReadItemDao{
 }
 
 @Dao
-interface SubredditDao{
+interface SubscriptionDao{
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(list: List<DbSubreddit>)
+    fun insert(list: List<Subscription>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(subreddit: DbSubreddit)
+    fun insert(subscription: Subscription)
 
-    @Query("select * from subs where userId = :userId order by displayName collate nocase asc")
-    suspend fun getSubscribedSubs(userId: String): List<DbSubreddit>
+    @Query("delete from subscriptions where userId = :userId")
+    fun deleteAllSubscriptions(userId: String)
 
-    @Query("select * from subs where userId = :userId and displayName = :displayName order by displayName collate nocase asc")
-    suspend fun getSubscribedSubs(userId: String, displayName: String): List<DbSubreddit>
+    @Query("delete from subscriptions where userId = :userId and name = :name")
+    fun deleteSubscription(userId: String, name: String)
 
-    @Query("select * from subs where userId = :userId order by displayName collate nocase asc")
-    fun getSubscribedSubsLive(userId: String): LiveData<List<DbSubreddit>>
+    @Query("select * from subscriptions where userId = :userId and name = :name")
+    suspend fun getSubscription(userId: String, name: String): Subscription?
 
-    @Query("delete from subs where userId = :userId")
-    fun deleteSubscribedSubs(userId: String)
+    @Query("select * from subscriptions where userId = :userId and isFavorite = 1 order by name collate nocase asc")
+    suspend fun getFavoriteSubscriptionsAlphabetically(userId: String): List<Subscription>
 
-    @Query("delete from subs where userId = :userId and displayName = :displayName collate nocase")
-    fun deleteSubreddit(userId: String, displayName: String)
+    @Query("select * from subscriptions where userId = :userId and isFavorite = 1 and type != :subscriptionType order by name collate nocase asc")
+    suspend fun getFavoriteSubscriptionsAlphabeticallyExcluding(userId: String, subscriptionType: SubscriptionType): List<Subscription>
 
-    @Query("select * from subs where userId = :userId and isFavorite = 1 order by displayName collate nocase asc")
-    fun getFavoriteSubsLive(userId: String): LiveData<List<DbSubreddit>>
+    @Query("select * from subscriptions where userId = :userId order by name collate nocase asc")
+    suspend fun getSubscriptionsAlphabetically(userId: String): List<Subscription>
 
-    @Query("select * from subs where userId = :userId and isFavorite = 1")
-    suspend fun getFavoriteSubs(userId: String): List<DbSubreddit>
+    @Query("select * from subscriptions where userId = :userId and type != :subscriptionType order by name collate nocase asc")
+    suspend fun getSubscriptionsAlphabeticallyExcluding(userId: String, subscriptionType: SubscriptionType): List<Subscription>
 
-    @Query("update subs set isFavorite = :favorite where userId = :userId and displayName = :displayName collate nocase")
-    fun updateFavoriteSub(userId: String, displayName: String, favorite: Boolean)
+    @Query("select * from subscriptions where userId = :userId and type = :subscriptionType order by name collate nocase asc")
+    suspend fun getSubscriptionsAlphabetically(userId: String, subscriptionType: SubscriptionType): List<Subscription>
+
+    @Query("update subscriptions set isFavorite = :isFavorite where userId = :userId and name = :name collate nocase")
+    suspend fun updateSubscription(userId: String, name: String, isFavorite: Boolean)
+
 }
 
-@Dao
-interface MultiRedditDao{
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(list: List<DbMultiReddit>)
-
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(multi: DbMultiReddit)
-
-    @Query("select * from multis where userId = :userId order by name collate nocase asc")
-    fun getMultiRedditsLive(userId: String): LiveData<List<DbMultiReddit>>
-
-    @Query("select * from multis where userId = :userId order by name collate nocase asc")
-    suspend fun getMultiReddits(userId: String): List<DbMultiReddit>
-
-    @Query("delete from multis where userId = :userId")
-    fun deleteSubscribedSubs(userId: String)
-}
-
-@Database(entities = [DbAccount::class, ItemRead::class, DbSubreddit::class, DbMultiReddit::class], version = 1, exportSchema = false)
+@Database(entities = [DbAccount::class, ItemRead::class, Subscription::class], version = 1, exportSchema = false)
+@TypeConverters(SubscriptionTypeConverter::class)
 abstract class RedditDatabase: RoomDatabase(){
     abstract val accountDao: AccountDao
     abstract val readItemDao: ReadItemDao
-    abstract val subredditDao: SubredditDao
-    abstract val multiRedditDao: MultiRedditDao
+    abstract val subscriptionDao: SubscriptionDao
 }
 
 private lateinit var INSTANCE: RedditDatabase

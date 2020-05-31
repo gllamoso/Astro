@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.fragments.listing
 
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -103,7 +102,7 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
             // Load subreddit Info
             var sub: Subreddit? = null
             if(listingType.value is SubredditListing){
-                sub = (subredditRepository.searchSubreddits(
+                sub = (subredditRepository.searchSubredditsFromReddit(
                     nsfw = true,
                     includeProfiles = false,
                     limit = 1,
@@ -184,13 +183,12 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     }
 
     private suspend fun syncSubredditWithDatabase(){
-        val sub = subreddit.value ?: return
-        val dbSubsMatchingName = subredditRepository.getSubscribedSubs(sub.displayName)
-        val subInDb = if(dbSubsMatchingName.isNotEmpty()) dbSubsMatchingName[0] else null
-        sub.userSubscribed = subInDb != null
-        sub.isFavorite = subInDb?.isFavorite ?: false
+        val subreddit = subreddit.value ?: return
+        val subscription = subredditRepository.getMySubscription(subreddit.displayName)
+        subreddit.userSubscribed = subscription != null
+        subreddit.isFavorite = subscription?.isFavorite ?: false
         _subreddit.value = null
-        _subreddit.value = sub
+        _subreddit.value = subreddit
     }
 
 }

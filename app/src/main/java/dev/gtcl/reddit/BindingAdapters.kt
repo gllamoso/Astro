@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.graphics.Point
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
-import android.util.Log
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -28,6 +27,7 @@ import com.bumptech.glide.request.transition.Transition
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.exoplayer2.ui.PlayerView
+import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.ItemAwardBinding
 import dev.gtcl.reddit.models.reddit.*
 
@@ -130,6 +130,27 @@ fun loadSubIcon(imgView: ImageView, imgUrl: String?){
     }
 }
 
+@BindingAdapter("subscriptionIcon")
+fun loadSubscriptionIcon(imgView: ImageView, subscription: Subscription){
+    val placeHolder = when(subscription.type){
+        SubscriptionType.MULTIREDDIT -> R.drawable.ic_collection_24dp
+        SubscriptionType.USER -> R.drawable.ic_user_24dp
+        SubscriptionType.SUBREDDIT -> R.drawable.ic_reddit_circle
+    }
+
+    if(subscription.icon == null || !subscription.icon.startsWith("https", true)){
+        imgView.setImageResource(placeHolder)
+        return
+    }
+
+    Glide.with(imgView.context)
+        .load(subscription.icon)
+        .apply(RequestOptions()
+            .placeholder(placeHolder)
+            .circleCrop())
+        .into(imgView)
+}
+
 @BindingAdapter("multiRedditIcon")
 fun loadMultiRedditIcon(imgView: ImageView, imgUrl: String?){
     if(imgUrl == null || !imgUrl.startsWith("http")){
@@ -188,6 +209,7 @@ fun loadListingText(txtView: TextView, listingType: ListingType?){
                 ProfileInfo.SAVED -> context.getText(R.string.saved)
                 ProfileInfo.GILDED -> context.getText(R.string.gilded)
             }
+            is SubscriptionListing -> it.subscription.name
         }
     }
 }

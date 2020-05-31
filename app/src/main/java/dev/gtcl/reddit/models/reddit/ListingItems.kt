@@ -3,13 +3,10 @@ package dev.gtcl.reddit.models.reddit
 import android.net.Uri
 import android.os.Parcelable
 import com.squareup.moshi.Json
-import dev.gtcl.reddit.database.DbAccount
-import dev.gtcl.reddit.database.DbMultiReddit
-import dev.gtcl.reddit.database.DbSubreddit
-import dev.gtcl.reddit.database.ItemRead
+import dev.gtcl.reddit.SubscriptionType
+import dev.gtcl.reddit.database.*
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
-import kotlinx.android.parcel.RawValue
 
 enum class ItemType {
     @Json(name="t1")
@@ -340,6 +337,7 @@ data class Subreddit(
     var userSubscribed: Boolean?,
     @Json(name = "public_description")
     val publicDescription: String,
+    val url: String,
     @Transient
     var isFavorite: Boolean = false
 ) : Parcelable, Item(ItemType.Subreddit) {
@@ -348,17 +346,26 @@ data class Subreddit(
     @IgnoredOnParcel
     override val id = name.replace("t5_","")
 
-    fun asDbModel(userId: String) = DbSubreddit(
+    fun asSubscription(userId: String) = Subscription(
         "${name}__${userId}",
-        userId,
         displayName,
-        title,
-        iconImg,
-        isFavorite
+        userId,
+        validImgUrl(iconImg ?: ""),
+        url,
+        isFavorite,
+        if(url.startsWith("/r/", true)){
+            SubscriptionType.SUBREDDIT
+        } else {
+            SubscriptionType.USER
+        }
     )
 }
 
-fun List<Subreddit>.asSubredditDatabaseModels(userId: String) = map { it.asDbModel(userId) }
+fun validImgUrl(url: String): String?{
+    return "http.+\\.(png|jpg)".toRegex().find(url)?.value
+}
+
+fun List<Subreddit>.asSubscriptions(userId: String) = map { it.asSubscription(userId) }
 
 data class SubredditNamesResponse(val names: List<String>)
 
@@ -422,27 +429,44 @@ data class More(
 //    | |  | | |_| | | |_| |      | | \ \  __/ (_| | (_| | | |_\__ \
 //    |_|  |_|\__,_|_|\__|_|      |_|  \_\___|\__,_|\__,_|_|\__|___/
 //
-
+@Parcelize
 data class MultiReddit(
     @Json(name = "can_edit")
     val canEdit: Boolean,
     @Json(name = "display_name")
     val displayName: String,
-    val subreddits: List<SubredditName> = listOf(),
+    val subreddits: List<SubredditData>,
     val path: String,
     val owner: String,
     @Json(name = "owner_id")
     val ownerId: String,
     @Json(name = "icon_url")
     val iconUrl: String
-): Item(ItemType.MultiReddit) {
-    override val depth = 0
-    override val id = ""
-    override val name = displayName
+): Item(ItemType.MultiReddit), Parcelable {
 
-    fun asDbModel() = DbMultiReddit("${displayName}__${ownerId.replace("t2_","")}", displayName, ownerId.replace("t2_",""), path, iconUrl)
+    @IgnoredOnParcel
+    override val depth = 0
+    @IgnoredOnParcel
+    override val id = ""
+    @IgnoredOnParcel
+    override val name = displayName
+    @IgnoredOnParcel
+    var isFavorite = false
+
+    fun asSubscription() = Subscription(
+    "${displayName}__${ownerId.replace("t2_","")}",
+        displayName,
+        ownerId.replace("t2_",""),
+        iconUrl,
+        path,
+        isFavorite,
+        SubscriptionType.MULTIREDDIT)
 }
 
-data class SubredditName(
-    val name: String
-)
+@Parcelize
+data class SubredditData(
+    val name: String,
+    val data: Subreddit
+): Parcelable
+
+fun List<MultiReddit>.asSubscriptions() = map { it.asSubscription() }

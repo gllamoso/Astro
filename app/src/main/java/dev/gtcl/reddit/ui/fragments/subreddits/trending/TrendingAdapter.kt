@@ -7,7 +7,6 @@ import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.viewholders.NetworkStateItemVH
 import dev.gtcl.reddit.actions.SubredditActions
-import dev.gtcl.reddit.database.DbSubreddit
 import dev.gtcl.reddit.ui.viewholders.TrendingSubredditVH
 import java.util.*
 import kotlin.collections.ArrayList

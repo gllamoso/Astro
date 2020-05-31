@@ -16,7 +16,7 @@ import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
-import retrofit2.Call
+import retrofit2.Response
 import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
@@ -59,31 +59,31 @@ interface RedditApiService {
         @Header("Authorization") authorization: String,
         @Query("id") id: String,
         @Query("dir") dir: Int
-    ): Call<Void>
+    ): Deferred<Response<Unit>>
 
     @POST("/api/save/")
     fun save(
         @Header("Authorization") authorization: String,
         @Query("id") id: String
-    ): Call<Void>
+    ): Deferred<Response<Unit>>
 
     @POST("/api/unsave/")
     fun unsave(
         @Header("Authorization") authorization: String,
         @Query("id") id: String
-    ): Call<Void>
+    ): Deferred<Response<Unit>>
 
     @POST("/api/hide")
     fun hide(
         @Header("Authorization") authorization: String,
         @Query("id") id: String
-    ): Call<Void>
+    ): Deferred<Response<Unit>>
 
     @POST("/api/unhide")
     fun unhide(
         @Header("Authorization") authorization: String,
         @Query("id") id: String
-    ): Call<Void>
+    ): Deferred<Response<Unit>>
 
 //     _____          _
 //    |  __ \        | |
@@ -176,7 +176,7 @@ interface RedditApiService {
         @Header("Authorization") authorization: String? = null,
         @Query("action") action: SubscribeAction,
         @Query("sr_name") srName: String
-    ): Call<Void>
+    ): Deferred<Response<Unit>>
 
 //     __  __       _ _   _        _____          _     _ _ _
 //    |  \/  |     | | | (_)      |  __ \        | |   | (_) |
@@ -188,7 +188,8 @@ interface RedditApiService {
 
     @GET("/api/multi/mine")
     fun getMyMultiReddits(
-        @Header("Authorization") authorization: String
+        @Header("Authorization") authorization: String,
+        @Query("expand_srs") expandSubs: Boolean = true
     ): Deferred<List<MultiRedditChild>>
 
     @GET("{multipath}{sort}.json")
@@ -204,8 +205,15 @@ interface RedditApiService {
     @GET("/api/multi/{multipath}.json")
     fun getMultiReddit(
         @Header("Authorization") authorization: String? = null,
-        @Path("multipath", encoded = true) multipath: String
+        @Path("multipath", encoded = true) multipath: String,
+        @Query("expand_srs") expandSubs: Boolean = true
     ): Deferred<MultiRedditChild>
+
+    @DELETE("/api/multi/{multipath}.json")
+    fun deleteMultiReddit(
+        @Header("Authorization") authorization: String? = null,
+        @Path("multipath", encoded = true) multipath: String
+    ): Deferred<Response<Unit>>
 
 //      _____                                     _
 //     / ____|                                   | |
@@ -309,7 +317,7 @@ interface RedditApiService {
             return Retrofit.Builder()
                 .baseUrl(httpUrl)
                 .client(client)
-                .addConverterFactory(EnumConverterFactory())
+                .addConverterFactory(EnumConverterFactory)
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
                 .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .build()

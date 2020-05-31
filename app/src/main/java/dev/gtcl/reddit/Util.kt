@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import androidx.room.TypeConverter
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.dash.DashMediaSource
@@ -122,6 +123,15 @@ enum class MessageWhere{
     UNREAD,
     @SerializedName("sent")
     SENT
+}
+
+enum class SubscriptionType{
+    @SerializedName("multi")
+    MULTIREDDIT,
+    @SerializedName("sub")
+    SUBREDDIT,
+    @SerializedName("user")
+    USER
 }
 
 const val SECONDS_IN_YEAR = 31_536_000.toLong()

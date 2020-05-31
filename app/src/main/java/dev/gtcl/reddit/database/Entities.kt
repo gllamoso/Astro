@@ -3,10 +3,9 @@ package dev.gtcl.reddit.database
 import android.os.Parcelable
 import androidx.room.Entity
 import androidx.room.PrimaryKey
-import dev.gtcl.reddit.models.reddit.Account
-import dev.gtcl.reddit.models.reddit.AccountSubreddit
-import dev.gtcl.reddit.models.reddit.MultiReddit
-import dev.gtcl.reddit.models.reddit.Subreddit
+import androidx.room.TypeConverter
+import dev.gtcl.reddit.SubscriptionType
+import dev.gtcl.reddit.models.reddit.*
 import kotlinx.android.parcel.Parcelize
 
 //   _____                _   _____ _
@@ -53,63 +52,46 @@ data class DbAccount(
 
 fun List<DbAccount>.asAccountDomainModel() = map {it.asDomainModel()}
 
-//     _____       _                  _     _ _ _
-//    / ____|     | |                | |   | (_) |
-//   | (___  _   _| |__  _ __ ___  __| | __| |_| |_ ___
-//    \___ \| | | | '_ \| '__/ _ \/ _` |/ _` | | __/ __|
-//    ____) | |_| | |_) | | |  __/ (_| | (_| | | |_\__ \
-//   |_____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__|___/
-//
+//    _____       _                   _       _   _
+//   / ____|     | |                 (_)     | | (_)
+//  | (___  _   _| |__  ___  ___ _ __ _ _ __ | |_ _  ___  _ __  ___
+//   \___ \| | | | '_ \/ __|/ __| '__| | '_ \| __| |/ _ \| '_ \/ __|
+//   ____) | |_| | |_) \__ \ (__| |  | | |_) | |_| | (_) | | | \__ \
+//  |_____/ \__,_|_.__/|___/\___|_|  |_| .__/ \__|_|\___/|_| |_|___/
+//                                     | |
+//                                     |_|
 
-@Entity(tableName = "subs")
-data class DbSubreddit(
-    @PrimaryKey
-    val id: String, // {Subreddit ID}__{User ID}
-    val userId: String, // User subscribed to subreddit
-    val displayName: String,
-    val title: String,
-    val iconImg: String?,
-    val isFavorite: Boolean){
-
-    fun asDomainModel() = Subreddit(
-        id.replace("__$userId", ""),
-        displayName,
-        iconImg,
-        title,
-        "",
-        true,
-        "",
-        isFavorite
-    )
-}
-
-fun List<DbSubreddit>.asDomainModel() = map { it.asDomainModel() }
-
-//   __  __       _ _   _        _____          _     _ _ _
-//  |  \/  |     | | | (_)      |  __ \        | |   | (_) |
-//  | \  / |_   _| | |_ _ ______| |__) |___  __| | __| |_| |_ ___
-//  | |\/| | | | | | __| |______|  _  // _ \/ _` |/ _` | | __/ __|
-//  | |  | | |_| | | |_| |      | | \ \  __/ (_| | (_| | | |_\__ \
-//  |_|  |_|\__,_|_|\__|_|      |_|  \_\___|\__,_|\__,_|_|\__|___/
-//
-
-@Entity(tableName = "multis")
+@Entity(tableName = "subscriptions")
 @Parcelize
-data class DbMultiReddit(
+data class Subscription(
     @PrimaryKey
-    val id: String, // {Multi-Reddit Name}__{User ID}
+    val id: String, // {name}__{user ID}
     val name: String,
     val userId: String,
-    val path: String,
-    val iconUrl: String
-): Parcelable {
-    fun asDomainModel() = MultiReddit(
-        true,
-        name,
-        listOf(),
-        path,
-        "",
-        userId,
-        iconUrl
-    )
+    val icon: String?,
+    val url: String,
+    var isFavorite: Boolean,
+    val type: SubscriptionType
+): Parcelable{
+
+    fun asSubreddit() = Subreddit("", name, icon, "", null, true, "", url, isFavorite)
+
+    fun asMultiReddit() = MultiReddit(true, name, listOf(), url, "", userId, icon ?: "")
+
+}
+
+class SubscriptionTypeConverter{
+
+    @TypeConverter
+    fun fromSubscriptionType(subscriptionType: SubscriptionType) = subscriptionType.name
+
+    @TypeConverter
+    fun toSubscriptionType(name: String): SubscriptionType{
+        return when(name){
+            SubscriptionType.MULTIREDDIT.name -> SubscriptionType.MULTIREDDIT
+            SubscriptionType.USER.name -> SubscriptionType.USER
+            SubscriptionType.SUBREDDIT.name -> SubscriptionType.SUBREDDIT
+            else -> throw IllegalArgumentException("Name not recognized as Subscription Type")
+        }
+    }
 }
