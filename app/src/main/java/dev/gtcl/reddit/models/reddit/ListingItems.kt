@@ -349,6 +349,7 @@ data class Subreddit(
     fun asSubscription(userId: String) = Subscription(
         "${name}__${userId}",
         displayName,
+        displayName.removePrefix("u_"),
         userId,
         validImgUrl(iconImg ?: ""),
         url,
@@ -455,6 +456,7 @@ data class MultiReddit(
 
     fun asSubscription() = Subscription(
     "${displayName}__${ownerId.replace("t2_","")}",
+        displayName,
         displayName,
         ownerId.replace("t2_",""),
         iconUrl,

@@ -383,7 +383,7 @@ class SubscriptionsAdapter(
             var hi = list.size - 1
             while(lo <= hi){
                 val mid = lo + (hi - lo)/2
-                val cmp = sub.name.compareTo(list[mid].name, true)
+                val cmp = sub.displayName.compareTo(list[mid].displayName, true)
                 when {
                     cmp < 0 -> {
                         hi = mid - 1
@@ -405,7 +405,7 @@ class SubscriptionsAdapter(
             var result = -1
             while(lo <= hi){
                 val mid = lo + (hi - lo)/2
-                val cmp = sub.name.compareTo(list[mid].name, true)
+                val cmp = sub.displayName.compareTo(list[mid].displayName, true)
                 when {
                     cmp <= 0 -> {
                         hi = mid - 1

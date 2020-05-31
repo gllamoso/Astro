@@ -67,6 +67,7 @@ data class Subscription(
     @PrimaryKey
     val id: String, // {name}__{user ID}
     val name: String,
+    val displayName: String,
     val userId: String,
     val icon: String?,
     val url: String,

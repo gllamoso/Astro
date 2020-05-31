@@ -52,19 +52,19 @@ interface SubscriptionDao{
     @Query("select * from subscriptions where userId = :userId and name = :name")
     suspend fun getSubscription(userId: String, name: String): Subscription?
 
-    @Query("select * from subscriptions where userId = :userId and isFavorite = 1 order by name collate nocase asc")
+    @Query("select * from subscriptions where userId = :userId and isFavorite = 1 order by displayName collate nocase asc")
     suspend fun getFavoriteSubscriptionsAlphabetically(userId: String): List<Subscription>
 
-    @Query("select * from subscriptions where userId = :userId and isFavorite = 1 and type != :subscriptionType order by name collate nocase asc")
+    @Query("select * from subscriptions where userId = :userId and isFavorite = 1 and type != :subscriptionType order by displayName collate nocase asc")
     suspend fun getFavoriteSubscriptionsAlphabeticallyExcluding(userId: String, subscriptionType: SubscriptionType): List<Subscription>
 
-    @Query("select * from subscriptions where userId = :userId order by name collate nocase asc")
+    @Query("select * from subscriptions where userId = :userId order by displayName collate nocase asc")
     suspend fun getSubscriptionsAlphabetically(userId: String): List<Subscription>
 
-    @Query("select * from subscriptions where userId = :userId and type != :subscriptionType order by name collate nocase asc")
+    @Query("select * from subscriptions where userId = :userId and type != :subscriptionType order by displayName collate nocase asc")
     suspend fun getSubscriptionsAlphabeticallyExcluding(userId: String, subscriptionType: SubscriptionType): List<Subscription>
 
-    @Query("select * from subscriptions where userId = :userId and type = :subscriptionType order by name collate nocase asc")
+    @Query("select * from subscriptions where userId = :userId and type = :subscriptionType order by displayName collate nocase asc")
     suspend fun getSubscriptionsAlphabetically(userId: String, subscriptionType: SubscriptionType): List<Subscription>
 
     @Query("update subscriptions set isFavorite = :isFavorite where userId = :userId and name = :name collate nocase")
