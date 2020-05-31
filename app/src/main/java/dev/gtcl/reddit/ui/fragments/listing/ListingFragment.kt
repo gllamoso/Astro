@@ -2,6 +2,7 @@ package dev.gtcl.reddit.ui.fragments.listing
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -74,7 +75,6 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             is SortDialogFragment -> childFragment.setActions(this)
             is TimeDialogFragment -> childFragment.setActions(this)
             is SubscriptionsDialogFragment -> childFragment.setActions(this, this)
-//            is MediaDialogFragment -> childFragment.postUrlCallback = this::postClicked
         }
     }
 
@@ -83,7 +83,6 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
         model.syncSubreddit()
     }
 
-    @SuppressLint("WrongConstant", "RtlHardcoded")
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

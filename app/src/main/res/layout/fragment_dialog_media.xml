@@ -8,7 +8,7 @@
         <import type="android.view.View"/>
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.fragments.media.MediaDialogVM" />
+            type="dev.gtcl.reddit.ui.fragments.media.MediaVM" />
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -34,10 +34,12 @@
             android:id="@+id/bottom_bar_controls"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="@drawable/transparent_gradient_top_to_bottom"
             layout="@layout/layout_media_buttons"
             app:hasPostUrl="@{model.post != null}"
-            app:isVideo="@{(model.urlType == UrlType.GIFV || model.urlType == UrlType.M3U8 || model.urlType == UrlType.GFYCAT) &amp;&amp; model.showUi}"
-            android:layout_gravity="bottom"/>
+            app:isVideo="@{(model.urlType == UrlType.GIFV || model.urlType == UrlType.M3U8 || model.urlType == UrlType.GFYCAT)}"
+            android:layout_gravity="bottom"
+            android:visibility="@{model.showUi ? View.VISIBLE : View.GONE}"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

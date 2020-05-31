@@ -2,12 +2,12 @@ package dev.gtcl.reddit.ui.fragments.media
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
@@ -15,17 +15,21 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentDialogMediaBinding
 import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.models.reddit.UrlType
+import java.lang.ref.WeakReference
 
 
 class MediaDialogFragment: DialogFragment() {
 
     private lateinit var binding: FragmentDialogMediaBinding
-    lateinit var postUrlCallback: (Post) -> Unit
-    private var playerControlViewPassed = false // PlayerControlView is sometimes passed onAttachFragment or onCreateView
+    private var onPostClicked: ((Post) -> Unit)? = null
 
-    val model: MediaDialogVM by lazy {
+    val model: MediaVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(MediaDialogVM::class.java)
+        ViewModelProvider(this, viewModelFactory).get(MediaVM::class.java)
+    }
+
+    fun setActions(onPostClicked: (Post) -> Unit){
+        this.onPostClicked = onPostClicked
     }
 
     override fun onStart() {
@@ -38,52 +42,28 @@ class MediaDialogFragment: DialogFragment() {
         }
     }
 
-    override fun onAttachFragment(childFragment: Fragment) {
-        super.onAttachFragment(childFragment)
-        if(childFragment is MediaFragment) {
-            childFragment.showUiCallback = this::showOrHideUi
-            childFragment.postUrlCallback = {
-                postUrlCallback(it)
-                dismiss()
-            }
-            if(::binding.isInitialized){
-                childFragment.controllerView = binding.bottomBarControls.playerController
-                playerControlViewPassed = true
-            }
-        }
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentDialogMediaBinding.inflate(inflater)
         binding.model = model
+        binding.lifecycleOwner = this
+
         if(!model.initialized){
-            model.setUrlType(requireArguments().get(URL_TYPE_KEY) as UrlType)
-            model.setPost(requireArguments().get(POST_KEY) as Post?)
-            model.setShowUi(true)
-            model.url = requireArguments().get(URL_KEY) as String
-            model.initialized = true
+            val args = requireArguments()
+            val url = args.getString(URL_KEY)!!
+            val urlType = args.get(URL_TYPE_KEY) as UrlType
+            val post = args.get(POST_KEY) as Post?
+            model.initialize(url, urlType, post)
         }
+
+        model.passPlayerControlView(WeakReference(binding.bottomBarControls.playerController))
 
         setViewPager()
         setOnClickListeners()
         setObservers()
 
         binding.executePendingBindings()
-        if(!playerControlViewPassed){
-            setControllerView()
-        }
 
         return binding.root
-    }
-
-    private fun setControllerView(){
-        for(fragment: Fragment in childFragmentManager.fragments){ // On orientation change, child fragment might be created before this fragment
-            if(fragment is MediaFragment) {
-                fragment.controllerView = binding.bottomBarControls.playerController
-                playerControlViewPassed = true
-                break
-            }
-        }
     }
 
     private fun setObservers(){
@@ -96,22 +76,11 @@ class MediaDialogFragment: DialogFragment() {
                 }
             )
         })
-
-        model.showUi.observe(viewLifecycleOwner, Observer {
-            if(model.urlType.value == UrlType.GFYCAT || model.urlType.value == UrlType.M3U8){
-                if(it){
-                    binding.bottomBarControls.playerController.show()
-                } else {
-                    binding.bottomBarControls.playerController.hide()
-                }
-            }
-            binding.invalidateAll()
-        })
     }
 
     private fun setViewPager(){
         binding.viewPager.apply {
-            adapter = MediaAdapter(this@MediaDialogFragment, model.url, model.urlType.value!!, model.post.value)
+            adapter = MediaAdapter(this@MediaDialogFragment)
             currentItem = 1
             orientation = ViewPager2.ORIENTATION_VERTICAL
             registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
@@ -139,7 +108,6 @@ class MediaDialogFragment: DialogFragment() {
     }
 
     private fun setOnClickListeners(){
-
         binding.topToolbar.setNavigationOnClickListener {
             dismiss()
         }
@@ -147,7 +115,7 @@ class MediaDialogFragment: DialogFragment() {
         binding.bottomBarControls.apply {
             commentButton.setOnClickListener {
                 val post = requireArguments().get(POST_KEY) as Post
-                postUrlCallback(post)
+                onPostClicked?.invoke(post)
                 dismiss()
             }
             shareButton.setOnClickListener {
@@ -161,10 +129,6 @@ class MediaDialogFragment: DialogFragment() {
                 model.download()
             }
         }
-    }
-
-    private fun showOrHideUi(){
-        model.alternateShowUi()
     }
 
     companion object{

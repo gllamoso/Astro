@@ -42,6 +42,7 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions, PostA
             is ListingFragment -> childFragment.setActions(this, this, this, this)
             is CommentsFragment -> childFragment.setActions(this)
             is AccountFragment -> childFragment.setActions(this, this)
+            is MediaDialogFragment -> childFragment.setActions { navigateToNewPage(it) }
         }
     }
 

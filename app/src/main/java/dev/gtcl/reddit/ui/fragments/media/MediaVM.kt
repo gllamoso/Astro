@@ -12,6 +12,7 @@ import androidx.lifecycle.MutableLiveData
 //import com.arthenica.mobileffmpeg.FFmpeg
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
+import com.google.android.exoplayer2.ui.PlayerControlView
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.URL_KEY
@@ -22,6 +23,7 @@ import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.models.reddit.UrlType
 import dev.gtcl.reddit.repositories.GfycatRepository
 import kotlinx.coroutines.*
+import java.lang.ref.WeakReference
 
 class MediaVM(private val application: RedditApplication): AndroidViewModel(application){
 
@@ -31,53 +33,83 @@ class MediaVM(private val application: RedditApplication): AndroidViewModel(appl
     private var viewModelJob = Job()
     private var coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    private val _loading = MutableLiveData<Boolean>()
+    private val _loading = MutableLiveData<Boolean>().apply { value = true }
     val loading: LiveData<Boolean>
         get() = _loading
 
-    fun setLoading(loading: Boolean){
-        _loading.value = loading
-    }
+    private val _showUi = MutableLiveData<Boolean>().apply { value = true }
+    val showUi: LiveData<Boolean>
+        get() = _showUi
 
-    var initialized = false
-    var url: String? = null
-    var post: Post? = null
+    private var _initialized = false
+    val initialized: Boolean
+        get() = _initialized
+
+    private val _url = MutableLiveData<String>()
+    val url: LiveData<String>
+        get() = _url
+
+    private val _post = MutableLiveData<Post?>()
+    val post: LiveData<Post?>
+        get() = _post
 
     private val _urlType = MutableLiveData<UrlType>()
     val urlType: LiveData<UrlType>
         get() = _urlType
 
-    fun setUrlType(urlType: UrlType){
-        _urlType.value = urlType
-    }
-
     private var playWhenReady = true
     private var currentWindow = 0
     private var playbackPosition = 0.toLong()
 
-    private lateinit var gfyItem: GfyItem
+    private var gfyItem: GfyItem? = null
 
     private val _player = MutableLiveData<SimpleExoPlayer?>()
     val player: LiveData<SimpleExoPlayer?>
         get() = _player
 
+    private val _playerControllerView = MutableLiveData<WeakReference<PlayerControlView>?>()
+    val playerControllerView: LiveData<WeakReference<PlayerControlView>?>
+        get() = _playerControllerView
+
+    fun loadingStarted(){
+        _loading.value = true
+    }
+
+    fun loadingFinished(){
+        _loading.value = false
+    }
+
+    fun initialize(url: String, urlType: UrlType, post: Post?){
+        _url.value = url
+        _urlType.value = urlType
+        _post.value = post
+        _initialized = true
+    }
+
+    fun toggleUiVisibility(){
+        _showUi.value = !(_showUi.value ?: false)
+    }
+
     fun initializePlayer(){
         if(player.value != null) return
+        if(url.value == null) throw IllegalStateException("Url has not been initialized")
         coroutineScope.launch {
+            _loading.value = true
             val trackSelector = DefaultTrackSelector()
             trackSelector.setParameters(trackSelector.buildUponParameters().setMaxVideoSizeSd())
-            var uri = Uri.parse(url)
+            var uri = Uri.parse(url.value)
             if(urlType.value == UrlType.GFYCAT) {
                 try {
                     gfyItem = gfycatRepository.getGfycatInfo(
-                        url!!.replace("http[s]?://gfycat.com/".toRegex(), "")
-                    ).await().gfyItem
-                    uri = Uri.parse(gfyItem.mobileUrl)
+                        url.value!!.replace("http[s]?://gfycat.com/".toRegex(), ""))
+                        .await()
+                        .gfyItem
+                    uri = Uri.parse(gfyItem!!.mobileUrl)
                 }
                 catch (e: Exception){
-                    Log.d("TAE", "Exception found: $e")
-                    if(post != null) {
-                        uri = Uri.parse(post!!.videoUrl)
+
+                    if(post.value != null) {
+                        uri = Uri.parse(post.value!!.videoUrl)
                     } else {
                         return@launch
                     }
@@ -92,15 +124,16 @@ class MediaVM(private val application: RedditApplication): AndroidViewModel(appl
                 prepare(mediaSource, false, false)
                 addListener(object: Player.EventListener{
                     override fun onPlayerError(error: ExoPlaybackException?) {
-                        Log.d("TAE", "Error: ${error.toString()}")
-                        if(uri.path != post?.videoUrl && post != null) {
-                            mediaSource = buildMediaSource(application.baseContext, Uri.parse(post!!.videoUrl))
+                        Log.e("Media", "Exception: $error")
+                        if(uri.path != post.value?.videoUrl && post.value != null) {
+                            mediaSource = buildMediaSource(application.baseContext, Uri.parse(post.value!!.videoUrl))
                             prepare(mediaSource, false, false)
                         }
                     }
                 })
             }
             _player.value = player
+            _loading.value = false
         }
     }
 
@@ -113,35 +146,27 @@ class MediaVM(private val application: RedditApplication): AndroidViewModel(appl
         }
     }
 
+    fun passPlayerControlView(playerReference: WeakReference<PlayerControlView>){
+        _playerControllerView.value = playerReference
+    }
+
+    fun playerControlViewObserved(){
+        _playerControllerView.value = null
+    }
+
     @SuppressLint("Recycle")
     fun download(){
-        val downloadUrl: String =
-            if(::gfyItem.isInitialized) {
-                gfyItem.mp4Url
-            } else {
-                url!!
-            }
-
+        if(url.value == null || loading.value == true) return
+        val downloadUrl: String = gfyItem?.mp4Url ?: url.value!!
         val serviceIntent = Intent(application.applicationContext, DownloadIntentService::class.java)
         serviceIntent.putExtra(URL_KEY, downloadUrl)
         DownloadIntentService.enqueueWork(application.applicationContext, serviceIntent)
         Toast.makeText(application, application.getText(R.string.downloading), Toast.LENGTH_SHORT).show()
     }
 
-    val shareUrl: String
-        get() {
-            return when{
-                ::gfyItem.isInitialized -> gfyItem.mp4Url
-                post != null -> post!!.url!!
-                else -> url!!
-            }
-        }
-
     override fun onCleared() {
         super.onCleared()
-        _player.value?.let {
-            it.release()
-        }
+        _player.value?.release()
         _player.value = null
     }
 }

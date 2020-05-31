@@ -16,7 +16,8 @@
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        tools:background="@android:color/black">
 
         <com.google.android.exoplayer2.ui.PlayerControlView
             android:id="@+id/player_controller"
@@ -31,7 +32,6 @@
             android:layout_height="?attr/actionBarSize"
             android:orientation="horizontal"
             android:gravity="center"
-            tools:background="@drawable/transparent_gradient_top_to_bottom"
             android:layout_below="@id/player_controller">
 
             <View
