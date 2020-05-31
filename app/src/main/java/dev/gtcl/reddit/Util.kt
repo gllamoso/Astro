@@ -245,3 +245,5 @@ suspend fun setSubsAndFavoritesInTrendingPost(items: List<TrendingSubredditPost>
         }
     }
 }
+
+fun String.toValidImgUrl(): String? = "http.+\\.(png|jpg)".toRegex().find(this)?.value

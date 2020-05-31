@@ -184,7 +184,7 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
 
     private suspend fun syncSubredditWithDatabase(){
         val subreddit = subreddit.value ?: return
-        val subscription = subredditRepository.getMySubscription(subreddit.displayName)
+        val subscription = subredditRepository.getMySubscription(subreddit.name)
         subreddit.userSubscribed = subscription != null
         subreddit.isFavorite = subscription?.isFavorite ?: false
         _subreddit.value = null

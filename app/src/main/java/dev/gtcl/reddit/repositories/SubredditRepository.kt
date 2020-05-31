@@ -9,7 +9,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
-import java.io.StringWriter
 import kotlin.IllegalStateException
 
 class SubredditRepository private constructor(private val application: RedditApplication){
@@ -120,9 +119,9 @@ class SubredditRepository private constructor(private val application: RedditApp
     }
 
     // UPDATE
-    suspend fun updateSubscription(name: String, favorite: Boolean){
+    suspend fun updateSubscription(subId: String, favorite: Boolean){
         withContext(Dispatchers.IO){
-            database.subscriptionDao.updateSubscription(application.currentAccount?.id ?: GUEST_ID, name, favorite)
+            database.subscriptionDao.updateSubscription(subId, favorite)
         }
     }
 
@@ -141,11 +140,12 @@ class SubredditRepository private constructor(private val application: RedditApp
     }
 
     // GET
-    suspend fun getMySubscription(name: String) = database.subscriptionDao.getSubscription(application.currentAccount?.id ?: GUEST_ID, name)
+    suspend fun getMySubscription(subredditName: String) = database.subscriptionDao.getSubscription("${subredditName}__${application.currentAccount?.id ?: GUEST_ID}")
     suspend fun getMySubscriptions() = database.subscriptionDao.getSubscriptionsAlphabetically(application.currentAccount?.id ?: GUEST_ID)
     suspend fun getMySubscriptions(subscriptionType: SubscriptionType) = database.subscriptionDao.getSubscriptionsAlphabetically(application.currentAccount?.id ?: GUEST_ID, subscriptionType)
     suspend fun getMySubscriptionsExcludingMultireddits() = database.subscriptionDao.getSubscriptionsAlphabeticallyExcluding(application.currentAccount?.id ?: GUEST_ID, SubscriptionType.MULTIREDDIT)
     suspend fun getMyFavoriteSubscriptions() = database.subscriptionDao.getFavoriteSubscriptionsAlphabetically(application.currentAccount?.id ?: GUEST_ID)
+    suspend fun getMyFavoriteSubscriptions(subscriptionType: SubscriptionType) = database.subscriptionDao.getFavoriteSubscriptionsAlphabetically(application.currentAccount?.id ?: GUEST_ID, subscriptionType)
     suspend fun getMyFavoriteSubscriptionsExcludingMultireddits() = database.subscriptionDao.getFavoriteSubscriptionsAlphabeticallyExcluding(application.currentAccount?.id ?: GUEST_ID, SubscriptionType.MULTIREDDIT)
 
     companion object{

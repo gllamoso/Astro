@@ -41,7 +41,7 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
             withContext(Dispatchers.Default){
                 try {
                     _refreshState.postValue(NetworkState.LOADING)
-                    val favSubs = subredditRepository.getMySubscriptions().map { it.name }.toHashSet()
+                    val favSubs = subredditRepository.getMyFavoriteSubscriptionsExcludingMultireddits().map { it.name }.toHashSet()
                     if(application.accessToken == null) {
                         subredditRepository.deleteAllMySubscriptions()
                         val subs = subredditRepository.getMySubredditsFromReddit(100, null).await().data.children.map { it.data as Subreddit }
@@ -62,9 +62,10 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
                             if (favSubs.contains(sub.displayName))
                                 sub.isFavorite = true
                         }
+                        val favMultireddits = subredditRepository.getMyFavoriteSubscriptions(SubscriptionType.MULTIREDDIT).map { it.name }.toHashSet()
                         val multiReddits = subredditRepository.getMyMultiRedditsFromReddit().await().map { it.data }
                         for(multi: MultiReddit in multiReddits){
-                            if(favSubs.contains(multi.name)){
+                            if(favMultireddits.contains(multi.name)){
                                 multi.isFavorite = true
                             }
                         }
@@ -104,7 +105,7 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
 
     fun favorite(subscription: Subscription, favorite: Boolean){
         coroutineScope.launch {
-            subredditRepository.updateSubscription(subscription.name, favorite)
+            subredditRepository.updateSubscription(subscription.id, favorite)
         }
     }
 

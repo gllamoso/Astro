@@ -49,11 +49,14 @@ interface SubscriptionDao{
     @Query("delete from subscriptions where userId = :userId and name = :name")
     fun deleteSubscription(userId: String, name: String)
 
-    @Query("select * from subscriptions where userId = :userId and name = :name")
-    suspend fun getSubscription(userId: String, name: String): Subscription?
+    @Query("select * from subscriptions where id = :subId")
+    suspend fun getSubscription(subId: String): Subscription?
 
     @Query("select * from subscriptions where userId = :userId and isFavorite = 1 order by displayName collate nocase asc")
     suspend fun getFavoriteSubscriptionsAlphabetically(userId: String): List<Subscription>
+
+    @Query("select * from subscriptions where userId = :userId and isFavorite = 1 and type = :subscriptionType order by displayName collate nocase asc")
+    suspend fun getFavoriteSubscriptionsAlphabetically(userId: String, subscriptionType: SubscriptionType): List<Subscription>
 
     @Query("select * from subscriptions where userId = :userId and isFavorite = 1 and type != :subscriptionType order by displayName collate nocase asc")
     suspend fun getFavoriteSubscriptionsAlphabeticallyExcluding(userId: String, subscriptionType: SubscriptionType): List<Subscription>
@@ -67,8 +70,8 @@ interface SubscriptionDao{
     @Query("select * from subscriptions where userId = :userId and type = :subscriptionType order by displayName collate nocase asc")
     suspend fun getSubscriptionsAlphabetically(userId: String, subscriptionType: SubscriptionType): List<Subscription>
 
-    @Query("update subscriptions set isFavorite = :isFavorite where userId = :userId and name = :name collate nocase")
-    suspend fun updateSubscription(userId: String, name: String, isFavorite: Boolean)
+    @Query("update subscriptions set isFavorite = :isFavorite where id = :subId collate nocase")
+    suspend fun updateSubscription(subId: String, isFavorite: Boolean)
 
 }
 

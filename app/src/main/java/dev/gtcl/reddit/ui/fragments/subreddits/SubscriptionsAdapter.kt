@@ -378,6 +378,8 @@ class SubscriptionsAdapter(
     }
 
     companion object{
+        private const val possibleDuplicates = 2
+
         fun binarySearch(list: List<Subscription>, sub: Subscription): Int{
             var lo = 0
             var hi = list.size - 1
@@ -392,7 +394,14 @@ class SubscriptionsAdapter(
                         lo = mid + 1
                     }
                     else -> {
-                        return mid
+                        for(i in (mid - possibleDuplicates)..(mid + possibleDuplicates)){
+                            if(i >= 0 && i < list.size){
+                                if(list[i].id == sub.id){
+                                    return i
+                                }
+                            }
+                        }
+                        return -1
                     }
                 }
             }

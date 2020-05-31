@@ -77,7 +77,7 @@ data class Subscription(
 
     fun asSubreddit() = Subreddit("", name, icon, "", null, true, "", url, isFavorite)
 
-    fun asMultiReddit() = MultiReddit(true, name, listOf(), url, "", userId, icon ?: "")
+    fun asMultiReddit() = MultiReddit(true, name, displayName, listOf(), url, "", userId, icon ?: "")
 
 }
 

@@ -5,6 +5,7 @@ import android.os.Parcelable
 import com.squareup.moshi.Json
 import dev.gtcl.reddit.SubscriptionType
 import dev.gtcl.reddit.database.*
+import dev.gtcl.reddit.toValidImgUrl
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 
@@ -351,7 +352,7 @@ data class Subreddit(
         displayName,
         displayName.removePrefix("u_"),
         userId,
-        validImgUrl(iconImg ?: ""),
+        (iconImg?.toValidImgUrl() ?: ""),
         url,
         isFavorite,
         if(url.startsWith("/r/", true)){
@@ -360,10 +361,6 @@ data class Subreddit(
             SubscriptionType.USER
         }
     )
-}
-
-fun validImgUrl(url: String): String?{
-    return "http.+\\.(png|jpg)".toRegex().find(url)?.value
 }
 
 fun List<Subreddit>.asSubscriptions(userId: String) = map { it.asSubscription(userId) }
@@ -436,6 +433,7 @@ data class MultiReddit(
     val canEdit: Boolean,
     @Json(name = "display_name")
     val displayName: String,
+    override val name: String,
     val subreddits: List<SubredditData>,
     val path: String,
     val owner: String,
@@ -450,13 +448,11 @@ data class MultiReddit(
     @IgnoredOnParcel
     override val id = ""
     @IgnoredOnParcel
-    override val name = displayName
-    @IgnoredOnParcel
     var isFavorite = false
 
     fun asSubscription() = Subscription(
     "${displayName}__${ownerId.replace("t2_","")}",
-        displayName,
+        name,
         displayName,
         ownerId.replace("t2_",""),
         iconUrl,
