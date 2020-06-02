@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui.fragments.listing
 
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -21,6 +22,10 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     // Scopes
     private var viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+
+    private val _title = MutableLiveData<String>()
+    val title: LiveData<String>
+        get() = _title
 
     private val _subreddit = MutableLiveData<Subreddit>()
     val subreddit: LiveData<Subreddit>
@@ -53,9 +58,7 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     private val readItemIds = HashSet<String>()
     private var after: String? = null
 
-    private val _listingType = MutableLiveData<ListingType>()
-    val listingType: LiveData<ListingType>
-        get() = _listingType
+    private lateinit var listingType: ListingType
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String>
@@ -80,7 +83,7 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
         get() = _lastItemReached
 
     fun setListingInfo(listingType: ListingType){
-        _listingType.value = listingType
+        this.listingType = listingType
     }
 
     fun setSort(postSort: PostSort, time: Time? = null){
@@ -99,21 +102,27 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
 
     private suspend fun loadFirstPageAndData(){
         try {
+            _title.value = getTitle(listingType)
+
             // Load subreddit Info
-            var sub: Subreddit? = null
-            if(listingType.value is SubredditListing){
-                sub = (subredditRepository.searchSubredditsFromReddit(
-                    nsfw = true,
-                    includeProfiles = false,
-                    limit = 1,
-                    query = (listingType.value!! as SubredditListing).sub.displayName
-                ).await().data.children[0] as SubredditChild).data
+            val sub = when(val listing = listingType){
+                is SubredditListing ->{ subredditRepository.getSubredditInfo(listing.sub.displayName).await().data }
+                is SubscriptionListing -> {
+                    val subscription = listing.subscription
+                    if(subscription.type == SubscriptionType.SUBREDDIT){
+                        subredditRepository.getSubredditInfo(subscription.displayName).await().data
+                    } else {
+                        null
+                    }
+                }
+                else -> null
             }
+
             _subreddit.value = sub
             syncSubredditWithDatabase()
 
             // Get listing items
-            val response = listingRepository.getListing(listingType.value!!, postSort.value!!, time.value, null, pageSize * 3).await()
+            val response = listingRepository.getListing(listingType, postSort.value!!, time.value, null, pageSize * 3).await()
             val items = ArrayList(response.data.children.map { it.data })
             listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
             setItemsReadStatus(items, readItemIds)
@@ -136,7 +145,7 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
                 _networkState.postValue(NetworkState.LOADING)
                 try{
                     val response = listingRepository.getListing(
-                        listingType.value!!,
+                        listingType,
                         postSort.value!!,
                         time.value,
                         after,
@@ -189,6 +198,18 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
         subreddit.isFavorite = subscription?.isFavorite ?: false
         _subreddit.value = null
         _subreddit.value = subreddit
+    }
+
+    private fun getTitle(listingType: ListingType): String{
+        return when(listingType){
+            is FrontPage -> application.getString(R.string.frontpage)
+            is All -> application.getString(R.string.all)
+            is Popular -> application.getString(R.string.popular_tab_label)
+            is MultiRedditListing -> listingType.multiReddit.displayName
+            is SubredditListing -> listingType.sub.displayName
+            is SubscriptionListing -> listingType.subscription.displayName
+            is ProfileListing -> listingType.info.name
+        }
     }
 
 }

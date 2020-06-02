@@ -137,7 +137,11 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions, PostA
 //                         |___/
 
     override fun listingSelected(listing: ListingType) {
-        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(listing)))
+        if(listing is SubscriptionListing && listing.subscription.type == SubscriptionType.USER){
+            accountSelected(listing.subscription.displayName)
+        } else {
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(listing)))
+        }
     }
 
     override fun accountSelected(user: String?) {

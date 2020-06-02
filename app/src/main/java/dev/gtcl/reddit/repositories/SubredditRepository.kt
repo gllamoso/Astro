@@ -30,10 +30,12 @@ class SubredditRepository private constructor(private val application: RedditApp
 
     @MainThread
     fun getMySubredditsFromReddit(limit: Int = 100, after: String? = null): Deferred<ListingResponse> {
-        return if(application.accessToken != null)
+        return if(application.accessToken != null) {
             RedditApi.oauth.getSubredditsOfMine(application.accessToken!!.authorizationHeader, SubredditMineWhere.SUBSCRIBER, after, limit)
-        else
+        }
+        else {
             RedditApi.base.getSubreddits(null, SubredditWhere.DEFAULT, after, limit)
+        }
     }
 
     @MainThread
@@ -48,6 +50,15 @@ class SubredditRepository private constructor(private val application: RedditApp
     fun searchSubredditsFromReddit(nsfw: Boolean, includeProfiles: Boolean, limit: Int, query: String): Deferred<ListingResponse> {
         return if(application.accessToken == null) RedditApi.base.getSubredditNameSearch(null, nsfw, includeProfiles, limit, query)
         else RedditApi.oauth.getSubredditNameSearch(application.accessToken!!.authorizationHeader, nsfw, includeProfiles, limit, query)
+    }
+
+    @MainThread
+    fun getSubredditInfo(displayName: String): Deferred<SubredditChild>{
+        return if(application.accessToken == null){
+            RedditApi.base.getSubredditInfo(null, displayName)
+        } else {
+            RedditApi.oauth.getSubredditInfo(application.accessToken!!.authorizationHeader, displayName)
+        }
     }
 
 //     __  __       _ _   _        _____          _     _ _ _

@@ -212,16 +212,15 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             binding.drawerLayout.openDrawer(Gravity.RIGHT)
         }
 
+        binding.rightSideBarLayout.lifecycleOwner = this
         model.subreddit.observe(viewLifecycleOwner, Observer { sub ->
             if (sub != null) {
                 binding.rightSideBarLayout.addButton.setOnClickListener {
                     sub.userSubscribed = sub.userSubscribed != true
-                    binding.rightSideBarLayout.invalidateAll()
                     subscribe(sub, (sub.userSubscribed == true))
                 }
                 binding.rightSideBarLayout.favoriteButton.setOnClickListener {
                     sub.isFavorite = !sub.isFavorite
-                    binding.rightSideBarLayout.invalidateAll()
                     favorite(sub, sub.isFavorite)
                 }
                 binding.drawerLayout.setDrawerLockMode(
@@ -236,7 +235,6 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
                     Gravity.RIGHT
                 )
             }
-            binding.rightSideBarLayout.invalidateAll()
         })
     }
 

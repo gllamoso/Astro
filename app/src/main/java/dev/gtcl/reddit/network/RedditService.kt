@@ -148,20 +148,6 @@ interface RedditApiService {
         @Query("show") show: String? = "all"
     ): Deferred<ListingResponse>
 
-    @GET("/subreddits/search.json")
-    fun getSubredditsSearch(
-        @Query("q") q: String,
-        @Query("include_over_18") nsfw: String
-    ): Deferred<ListingResponse>
-
-    @GET("/api/search_reddit_names.json")
-    fun getSubredditNameSearch(
-        @Query("exact") exact: Boolean = false,
-        @Query("include_over_18") nsfw: Boolean = true,
-        @Query("include_unadvertisable") includeUnadvertisable: Boolean = true, // If set to False, subs that have "hide_ads" set to True or are on on the "anti_ads_subreddits" list will be filtered
-        @Query("query") query: String
-    ): Deferred<SubredditNamesResponse>
-
     @GET("/api/subreddit_autocomplete_v2.json")
     fun getSubredditNameSearch(
         @Header("Authorization") authorization: String? = null,
@@ -177,6 +163,12 @@ interface RedditApiService {
         @Query("action") action: SubscribeAction,
         @Query("sr_name") srName: String
     ): Deferred<Response<Unit>>
+
+    @GET("/r/{displayName}/about")
+    fun getSubredditInfo(
+        @Header("Authorization") authorization: String? = null,
+        @Path("displayName") displayName: String
+    ): Deferred<SubredditChild>
 
 //     __  __       _ _   _        _____          _     _ _ _
 //    |  \/  |     | | | (_)      |  __ \        | |   | (_) |

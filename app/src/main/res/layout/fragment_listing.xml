@@ -25,7 +25,8 @@
             <include
                 android:id="@+id/top_app_bar"
                 layout="@layout/layout_top_app_bar_listing"
-                app:model="@{model}"/>
+                app:subreddit="@{model.subreddit}"
+                app:titleText="@{model.title}"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
