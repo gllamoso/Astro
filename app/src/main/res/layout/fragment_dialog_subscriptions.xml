@@ -16,7 +16,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:title="@string/my_subreddits"
+                app:title="@string/my_subscriptions"
                 app:navigationIcon="@drawable/ic_back_arrow_text_color_24dp"
                 app:menu="@menu/subreddits_menu"/>
 

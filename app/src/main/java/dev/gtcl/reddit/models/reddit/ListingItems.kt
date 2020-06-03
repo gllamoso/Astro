@@ -113,6 +113,9 @@ data class Account(
 
     override val depth: Int = 0
 
+    var isFavorite = false
+    var isSubscribed = false
+
     fun getValidProfileImg(): String {
         val imgRegex = "http.+\\.(png|jpg|gif)".toRegex()
         return imgRegex.find(iconImg!!)!!.value

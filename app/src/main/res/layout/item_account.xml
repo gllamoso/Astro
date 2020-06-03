@@ -5,12 +5,8 @@
 
     <data>
         <variable
-            name="sub"
-            type="dev.gtcl.reddit.models.reddit.Subreddit" />
-
-        <variable
-            name="iconTint"
-            type="int" />
+            name="account"
+            type="dev.gtcl.reddit.models.reddit.Account" />
     </data>
 
     <LinearLayout
@@ -25,9 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            app:subredditIcon="@{sub.iconImg}"
-            app:tint="@{iconTint}"
-            tools:src="@drawable/ic_reddit_circle" />
+            android:src="@drawable/ic_profile_24dp" />
 
         <TextView
             android:layout_width="0dp"
@@ -35,9 +29,10 @@
             android:layout_margin="8dp"
             android:layout_weight="1"
             android:maxLines="1"
-            android:text="@{sub.displayName}"
+            android:text="@{account.name}"
             android:textColor="@color/textColor"
-            tools:text="Subreddit Name" />
+            tools:text="Account Name"
+            android:textStyle="bold"/>
 
         <ImageView
             android:id="@+id/favorite_button"
@@ -46,7 +41,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
             android:src="@drawable/ic_favorite_unfilled_24dp"
-            app:favorite="@{sub.favorite}" />
+            app:favorite="@{account.favorite}" />
 
         <ImageView
             android:id="@+id/add_button"
@@ -56,7 +51,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
             android:src="@drawable/ic_add_circle_outline_24dp"
-            app:added="@{sub.userSubscribed}" />
+            app:added="@{account.subscribed}" />
 
     </LinearLayout>
 

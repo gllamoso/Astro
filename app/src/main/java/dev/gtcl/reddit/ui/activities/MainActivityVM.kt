@@ -105,7 +105,28 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
 
     fun favorite(subscription: Subscription, favorite: Boolean){
         coroutineScope.launch {
-            subredditRepository.updateSubscription(subscription.id, favorite)
+            subredditRepository.updateSubscription(subscription, favorite)
+        }
+    }
+
+    fun subscribe(subreddit: Subreddit){
+        coroutineScope.launch {
+            val response = subredditRepository.subscribe(subreddit.displayName, SubscribeAction.UNSUBSCRIBE).await()
+//            subreddit.isFavorite =
+            TODO("Finish")
+        }
+    }
+
+     fun unsubscribe(subreddit: Subreddit){
+         coroutineScope.launch {
+            TODO("Finish")
+         }
+     }
+
+    fun favorite(subreddit: Subreddit, favorite: Boolean){
+        coroutineScope.launch {
+            val response = subredditRepository.subscribe(subreddit.displayName, SubscribeAction.UNSUBSCRIBE).await()
+            subredditRepository.addSubscription(subreddit, favorite)
         }
     }
 

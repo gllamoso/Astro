@@ -25,7 +25,6 @@ class MainActivity : FragmentActivity() {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         navController = findNavController(R.id.nav_host_fragment)
         val toInitialize = model
-//        getUserFromSharedPreferences()
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),1) // TODO: Move somewhere
     }
 }

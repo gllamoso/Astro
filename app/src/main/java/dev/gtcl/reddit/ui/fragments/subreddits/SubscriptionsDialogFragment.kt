@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
@@ -15,14 +16,15 @@ import dev.gtcl.reddit.actions.ListingTypeClickListener
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.actions.SubscriptionActions
 import dev.gtcl.reddit.database.Subscription
-import dev.gtcl.reddit.databinding.FragmentDialogMySubredditsBinding
+import dev.gtcl.reddit.databinding.FragmentDialogSubscriptionsBinding
 import dev.gtcl.reddit.models.reddit.ListingType
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.activities.MainActivityVM
+import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 
 class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActions, ListingTypeClickListener{
 
-    private lateinit var binding: FragmentDialogMySubredditsBinding
+    private lateinit var binding: FragmentDialogSubscriptionsBinding
     private var parentListingTypeClickListener: ListingTypeClickListener? = null
     private var parentSubredditActions: SubredditActions? = null
 
@@ -48,7 +50,7 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentDialogMySubredditsBinding.inflate(inflater)
+        binding = FragmentDialogSubscriptionsBinding.inflate(inflater)
         setRecyclerView()
         setListeners()
         return binding.root
@@ -115,7 +117,10 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
 
         binding.toolbar.setOnMenuItemClickListener {
             when(it.itemId){
-                R.id.search -> TODO("Add search fragment")
+                R.id.search ->  {
+                    findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSearchFragment())
+                    dismiss()
+                }
                 R.id.sync -> activityModel.syncSubscriptionsWithReddit()
             }
             true

@@ -130,6 +130,22 @@ fun loadSubIcon(imgView: ImageView, imgUrl: String?){
     }
 }
 
+@BindingAdapter("accountIcon")
+fun loadAccountIcon(imgView: ImageView, imgUrl: String?){
+    if(imgUrl == null || !imgUrl.startsWith("http")){
+        imgView.setImageResource(R.drawable.ic_profile_24dp)
+    }
+    else {
+        val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
+        Glide.with(imgView.context)
+            .load(imgUri)
+            .apply(RequestOptions()
+                .placeholder(R.drawable.ic_profile_24dp)
+                .circleCrop())
+            .into(imgView)
+    }
+}
+
 @BindingAdapter("subscriptionIcon")
 fun loadSubscriptionIcon(imgView: ImageView, subscription: Subscription){
     val placeHolder = when(subscription.type){

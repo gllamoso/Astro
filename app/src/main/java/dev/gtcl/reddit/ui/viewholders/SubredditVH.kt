@@ -10,7 +10,7 @@ import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.actions.SubscriptionAdapterActions
 
 class SubredditVH private constructor(private val binding: ItemSubredditBinding): RecyclerView.ViewHolder(binding.root) {
-    fun bind(sub: Subreddit, subredditActions: SubredditActions, subscriptionAdapterActions: SubscriptionAdapterActions?, inFavoritesSection: Boolean = false, itemClickListener: ItemClickListener){
+    fun bind(sub: Subreddit, subredditActions: SubredditActions, itemClickListener: ItemClickListener){
         binding.sub = sub
         binding.root.setOnClickListener {
             itemClickListener.itemClicked(sub)
@@ -39,8 +39,6 @@ class SubredditVH private constructor(private val binding: ItemSubredditBinding)
     }
 
     companion object{
-        fun create(parent: ViewGroup): SubredditVH {
-            return SubredditVH(ItemSubredditBinding.inflate(LayoutInflater.from(parent.context)))
-        }
+        fun create(parent: ViewGroup) = SubredditVH(ItemSubredditBinding.inflate(LayoutInflater.from(parent.context)))
     }
 }

@@ -126,7 +126,7 @@
     <!--Misc-->
     <string name="please_login">Please log in</string>
     <string name="retry">Retry</string>
-    <string name="my_subreddits">My Subreddits</string>
-    <string name="sync">Sync Subreddits</string>
+    <string name="my_subscriptions">My Subscriptions</string>
+    <string name="sync_subscriptions">Sync Subscriptions</string>
 
 </resources>

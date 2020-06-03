@@ -2,6 +2,7 @@ package dev.gtcl.reddit.repositories
 
 import androidx.annotation.MainThread
 import dev.gtcl.reddit.*
+import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.database.redditDatabase
 import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.network.RedditApi
@@ -130,9 +131,16 @@ class SubredditRepository private constructor(private val application: RedditApp
     }
 
     // UPDATE
-    suspend fun updateSubscription(subId: String, favorite: Boolean){
+    suspend fun updateSubscription(subscription: Subscription, favorite: Boolean){
         withContext(Dispatchers.IO){
-            database.subscriptionDao.updateSubscription(subId, favorite)
+            database.subscriptionDao.updateSubscription(subscription.id, favorite)
+        }
+    }
+
+    suspend fun addSubscription(subreddit: Subreddit, favorite: Boolean){
+        withContext(Dispatchers.IO){
+            subreddit.isFavorite = favorite
+            database.subscriptionDao.insert(subreddit.asSubscription(application.currentAccount?.id ?: GUEST_ID))
         }
     }
 
