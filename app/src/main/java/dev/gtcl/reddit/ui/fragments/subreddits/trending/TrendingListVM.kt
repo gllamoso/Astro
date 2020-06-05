@@ -9,9 +9,7 @@ import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.repositories.SubredditRepository
 import kotlinx.coroutines.*
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
+import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
@@ -48,10 +46,6 @@ class TrendingListVM(application: RedditApplication): AndroidViewModel(applicati
     val subscribedSubs: LiveData<HashSet<String>?>
         get() = _subscribedSubs
 
-    private val _favoriteSubs = MutableLiveData<HashSet<String>?>()
-    val favoriteSubs: LiveData<HashSet<String>?>
-        get() = _favoriteSubs
-
     private val _refreshState = MutableLiveData<NetworkState>()
     val refreshState: LiveData<NetworkState>
         get() = _refreshState
@@ -66,16 +60,10 @@ class TrendingListVM(application: RedditApplication): AndroidViewModel(applicati
     fun syncWithDb(){
         coroutineScope.launch {
             withContext(Dispatchers.Default){
-//                favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
-                _favoriteSubs.postValue(favoriteSubsHash!!)
-//                subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
+                subscribedSubsHash = subredditRepository.getMySubscriptions(SubscriptionType.SUBREDDIT).map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
                 _subscribedSubs.postValue(subscribedSubsHash!!)
             }
         }
-    }
-
-    fun favoriteSubsSynced(){
-        _favoriteSubs.value = null
     }
 
     fun subredditsSynced(){
@@ -108,13 +96,10 @@ class TrendingListVM(application: RedditApplication): AndroidViewModel(applicati
                 val response = listingRepository.getListing(TRENDING_LISTING, SORT, null, null, PAGE_SIZE * 3).await()
                 val items = ArrayList(response.data.children.map { TrendingSubredditPost(it.data as Post) })
 
-                if(favoriteSubsHash == null){
-//                    favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
-                }
                 if(subscribedSubsHash == null){
-//                    subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
+                    subscribedSubsHash = subredditRepository.getMySubscriptions(SubscriptionType.SUBREDDIT).map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
                 }
-                setSubsAndFavoritesInTrendingPost(items, subscribedSubsHash!!, favoriteSubsHash!!)
+                setSubsAndFavoritesInTrendingPost(items, subscribedSubsHash!!)
                 _items.postValue(items)
                 lastItemReached = items.size < (PAGE_SIZE)
                 loadedIds.clear()
@@ -143,13 +128,10 @@ class TrendingListVM(application: RedditApplication): AndroidViewModel(applicati
                         return@withContext
                     }
 
-                    if(favoriteSubsHash == null){
-//                        favoriteSubsHash = subredditRepository.getFavoriteSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
-                    }
                     if(subscribedSubsHash == null){
-//                        subscribedSubsHash = subredditRepository.getSubscribedSubs().map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
+                        subscribedSubsHash = subredditRepository.getMySubscriptions(SubscriptionType.SUBREDDIT).map { it.displayName.toLowerCase(Locale.ENGLISH) }.toHashSet()
                     }
-                    setSubsAndFavoritesInTrendingPost(newItems, subscribedSubsHash!!, favoriteSubsHash!!)
+                    setSubsAndFavoritesInTrendingPost(newItems, subscribedSubsHash!!)
 
                     loadedIds.addAll(newItems.map { it.post.id })
                     _items.value!!.addAll(newItems)
@@ -165,57 +147,6 @@ class TrendingListVM(application: RedditApplication): AndroidViewModel(applicati
 
     fun newItemsAdded(){
         _newItems.value = null
-    }
-
-//      _____       _                  _     _ _ _                  _   _
-//     / ____|     | |                | |   | (_) |       /\       | | (_)
-//    | (___  _   _| |__  _ __ ___  __| | __| |_| |_     /  \   ___| |_ _  ___  _ __  ___
-//     \___ \| | | | '_ \| '__/ _ \/ _` |/ _` | | __|   / /\ \ / __| __| |/ _ \| '_ \/ __|
-//     ____) | |_| | |_) | | |  __/ (_| | (_| | | |_   / ____ \ (__| |_| | (_) | | | \__ \
-//    |_____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
-//
-
-    fun subscribe(subreddit: Subreddit, subscribeAction: SubscribeAction, favorite: Boolean){
-        coroutineScope.launch {
-//            subredditRepository.subscribe(subreddit.displayName, subscribeAction).enqueue(object:
-//                Callback<Void> {
-//                override fun onFailure(call: Call<Void>, t: Throwable) {
-//                    _errorMessage.value = t.message
-//                }
-//
-//                override fun onResponse(call: Call<Void>, response: Response<Void>) {
-//                    coroutineScope.launch {
-//                        if(subscribeAction == SubscribeAction.SUBSCRIBE) insertSub(subreddit, favorite)
-////                        else subredditRepository.removeSubreddit(subreddit)
-//                    }
-//                }
-//            })
-        }
-    }
-
-    fun favorite(subreddit: Subreddit, favorite: Boolean){
-        coroutineScope.launch {
-            if(favorite) {
-                subscribe(subreddit, SubscribeAction.SUBSCRIBE, favorite)
-            } else {
-//                subredditRepository.addToFavorites(subreddit.displayName, favorite)
-            }
-        }
-    }
-
-    suspend fun insertSub(subreddit: Subreddit, favorite: Boolean){
-        val sub: Subreddit = if(subreddit.name == ""){
-            (subredditRepository
-                .searchSubredditsFromReddit(nsfw = true, includeProfiles = false, limit = 1, query = subreddit.displayName)
-                .await()
-                .data
-                .children[0] as SubredditChild)
-                .data
-        } else {
-            subreddit
-        }
-        sub.isFavorite = favorite
-//        subredditRepository.insertSubreddit(sub)
     }
 
     companion object{

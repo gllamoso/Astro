@@ -35,15 +35,6 @@
             android:textStyle="bold"/>
 
         <ImageView
-            android:id="@+id/favorite_button"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackgroundBorderless"
-            android:padding="8dp"
-            android:src="@drawable/ic_favorite_unfilled_24dp"
-            app:favorite="@{account.favorite}" />
-
-        <ImageView
             android:id="@+id/add_button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -51,7 +42,7 @@
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
             android:src="@drawable/ic_add_circle_outline_24dp"
-            app:added="@{account.subscribed}" />
+            app:added="@{account.subreddit.userSubscribed}" />
 
     </LinearLayout>
 

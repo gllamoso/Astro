@@ -260,11 +260,6 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions, PostA
 //    |_____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 //
 
-    override fun favorite(subreddit: Subreddit, favorite: Boolean) {
-//        model.addToFavorites(subreddit, favorite)
-        TODO("Reimplement")
-    }
-
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
 //        model.subscribe(subreddit, if(subscribe) SubscribeAction.SUBSCRIBE else SubscribeAction.UNSUBSCRIBE, false)
         TODO("Reimplement")

@@ -5,6 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.Subscription
+import dev.gtcl.reddit.models.reddit.Account
 import dev.gtcl.reddit.models.reddit.MultiReddit
 import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.network.NetworkState
@@ -44,29 +45,29 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
                     val favSubs = subredditRepository.getMyFavoriteSubscriptionsExcludingMultireddits().map { it.name }.toHashSet()
                     if(application.accessToken == null) {
                         subredditRepository.deleteAllMySubscriptions()
-                        val subs = subredditRepository.getMySubredditsFromReddit(100, null).await().data.children.map { it.data as Subreddit }
+                        val subs = subredditRepository.getMySubreddits(100, null).await().data.children.map { it.data as Subreddit }
                         for(sub: Subreddit in subs)
                             if(favSubs.contains(sub.displayName))
-                                sub.isFavorite = true
+                                sub.setFavorite(true)
                         subredditRepository.insertSubreddits(subs)
                     }
                     else {
                         val allSubs = mutableListOf<Subreddit>()
-                        var subs = subredditRepository.getMySubredditsFromReddit(100, null).await().data.children.map { it.data as Subreddit }
+                        var subs = subredditRepository.getMySubreddits(100, null).await().data.children.map { it.data as Subreddit }
                         while(subs.isNotEmpty()) {
                             allSubs.addAll(subs)
                             val lastSub = subs.last()
-                            subs = subredditRepository.getMySubredditsFromReddit(100, after = lastSub.name).await().data.children.map { it.data as Subreddit }
+                            subs = subredditRepository.getMySubreddits(100, after = lastSub.name).await().data.children.map { it.data as Subreddit }
                         }
                         for(sub: Subreddit in allSubs) {
                             if (favSubs.contains(sub.displayName))
-                                sub.isFavorite = true
+                                sub.setFavorite(true)
                         }
                         val favMultireddits = subredditRepository.getMyFavoriteSubscriptions(SubscriptionType.MULTIREDDIT).map { it.name }.toHashSet()
-                        val multiReddits = subredditRepository.getMyMultiRedditsFromReddit().await().map { it.data }
+                        val multiReddits = subredditRepository.getMyMultiReddits().await().map { it.data }
                         for(multi: MultiReddit in multiReddits){
                             if(favMultireddits.contains(multi.name)){
-                                multi.isFavorite = true
+                                multi.setFavorite(true)
                             }
                         }
                         subredditRepository.deleteAllMySubscriptions()
@@ -86,16 +87,16 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
     fun unsubscribe(subscription: Subscription){
         coroutineScope.launch {
             if (subscription.type == SubscriptionType.USER || subscription.type == SubscriptionType.SUBREDDIT) {
-                val response = subredditRepository.subscribe(subscription.name, SubscribeAction.UNSUBSCRIBE).await()
+                val response = subredditRepository.subscribe(subscription, false).await()
                 if(response.code() == 200 || response.code() == 404){
-                    subredditRepository.deleteSubscription(subscription.name)
+                    subredditRepository.deleteSubscription(subscription)
                 } else {
                     _errorMessage.value = response.message()
                 }
             } else {
                 val response = subredditRepository.deleteMultiReddit(subscription.url.removePrefix("/")).await()
                 if(response.code() == 200 || response.code() == 404){
-                    subredditRepository.deleteSubscription(subscription.name)
+                    subredditRepository.deleteSubscription(subscription)
                 } else {
                     _errorMessage.value = response.message()
                 }
@@ -105,28 +106,22 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
 
     fun favorite(subscription: Subscription, favorite: Boolean){
         coroutineScope.launch {
-            subredditRepository.updateSubscription(subscription, favorite)
+            subredditRepository.addToFavorites(subscription, favorite)
         }
     }
 
-    fun subscribe(subreddit: Subreddit){
+    fun subscribe(subreddit: Subreddit, subscribe: Boolean){
         coroutineScope.launch {
-            val response = subredditRepository.subscribe(subreddit.displayName, SubscribeAction.UNSUBSCRIBE).await()
-//            subreddit.isFavorite =
-            TODO("Finish")
-        }
-    }
-
-     fun unsubscribe(subreddit: Subreddit){
-         coroutineScope.launch {
-            TODO("Finish")
-         }
-     }
-
-    fun favorite(subreddit: Subreddit, favorite: Boolean){
-        coroutineScope.launch {
-            val response = subredditRepository.subscribe(subreddit.displayName, SubscribeAction.UNSUBSCRIBE).await()
-            subredditRepository.addSubscription(subreddit, favorite)
+            val response = subredditRepository.subscribe(subreddit, subscribe).await()
+            if(response.code() == 200 || (!subscribe && response.code() == 404)){
+                if(subscribe){
+                    subredditRepository.insertSubreddit(subreddit)
+                } else {
+                    subredditRepository.deleteSubscription(subreddit)
+                }
+            } else {
+                _errorMessage.value = response.message()
+            }
         }
     }
 

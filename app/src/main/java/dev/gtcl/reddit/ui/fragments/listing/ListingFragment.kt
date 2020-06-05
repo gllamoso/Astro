@@ -19,7 +19,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
-import dev.gtcl.reddit.database.asAccountDomainModel
+import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.databinding.FragmentListingBinding
 import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.ui.*
@@ -183,7 +183,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 
         activityModel.allUsers.observe(viewLifecycleOwner, Observer {
             if (it != null) {
-                adapter.setUsers(it.asAccountDomainModel())
+                adapter.setUsers(it)
             }
         })
 
@@ -219,17 +219,12 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
                     sub.userSubscribed = sub.userSubscribed != true
                     subscribe(sub, (sub.userSubscribed == true))
                 }
-                binding.rightSideBarLayout.favoriteButton.setOnClickListener {
-                    sub.isFavorite = !sub.isFavorite
-                    favorite(sub, sub.isFavorite)
-                }
                 binding.drawerLayout.setDrawerLockMode(
                     DrawerLayout.LOCK_MODE_UNLOCKED,
                     Gravity.RIGHT
                 )
             } else {
                 binding.rightSideBarLayout.addButton.isClickable = false
-                binding.rightSideBarLayout.favoriteButton.isClickable = false
                 binding.drawerLayout.setDrawerLockMode(
                     DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
                     Gravity.RIGHT
@@ -306,10 +301,6 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 //    |_____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 //
 
-    override fun favorite(subreddit: Subreddit, favorite: Boolean) {
-        parentSubredditActions?.favorite(subreddit, favorite)
-    }
-
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
         parentSubredditActions?.subscribe(subreddit, subscribe)
     }
@@ -361,7 +352,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     }
 
     @SuppressLint("RtlHardcoded")
-    override fun onAccountClicked(account: Account) {
+    override fun onAccountClicked(account: SavedAccount) {
 //                        parentModel.setCurrentUser(account, true)
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }

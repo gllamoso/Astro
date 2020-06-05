@@ -54,15 +54,6 @@ class ListingItemAdapter(
         }
     }
 
-    fun updateFavoriteItems(favoriteSet: HashSet<String>){
-        for(item: Item in items){
-            if(item is Subreddit){
-                item.isFavorite = favoriteSet.contains(item.displayName)
-            }
-        }
-        notifyDataSetChanged()
-    }
-
     private val isLoading: Boolean
         get() = networkState != NetworkState.LOADED
 

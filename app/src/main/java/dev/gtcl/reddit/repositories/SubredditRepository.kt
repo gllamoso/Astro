@@ -16,7 +16,7 @@ class SubredditRepository private constructor(private val application: RedditApp
     private val database = redditDatabase(application)
 
     @MainThread
-    fun getSubredditsFromReddit(where: SubredditWhere, after: String? = null, limit: Int = 100): Deferred<ListingResponse> {
+    fun getSubredditsListing(where: SubredditWhere, after: String? = null, limit: Int = 100): Deferred<ListingResponse> {
         return if(application.accessToken != null) {
             RedditApi.oauth.getSubreddits(
                 application.accessToken!!.authorizationHeader,
@@ -30,7 +30,7 @@ class SubredditRepository private constructor(private val application: RedditApp
     }
 
     @MainThread
-    fun getMySubredditsFromReddit(limit: Int = 100, after: String? = null): Deferred<ListingResponse> {
+    fun getMySubreddits(limit: Int = 100, after: String? = null): Deferred<ListingResponse> {
         return if(application.accessToken != null) {
             RedditApi.oauth.getSubredditsOfMine(application.accessToken!!.authorizationHeader, SubredditMineWhere.SUBSCRIBER, after, limit)
         }
@@ -40,27 +40,35 @@ class SubredditRepository private constructor(private val application: RedditApp
     }
 
     @MainThread
-    fun subscribe(srName: String, subscribeAction: SubscribeAction): Deferred<Response<Unit>> {
-        if(application.accessToken == null) {
-            throw IllegalStateException("User must be logged in to subscribe")
+    fun subscribe(subreddit: Subreddit, subscribe: Boolean): Deferred<Response<Unit>> = subscribe(subreddit.displayName, subscribe)
+
+    @MainThread
+    fun searchSubreddits(nsfw: Boolean, includeProfiles: Boolean, limit: Int, query: String): Deferred<ListingResponse> {
+        return if(application.accessToken == null) {
+            RedditApi.base.getSubredditNameSearch(null, nsfw, includeProfiles, limit, query)
+        } else {
+            RedditApi.oauth.getSubredditNameSearch(application.accessToken!!.authorizationHeader, nsfw, includeProfiles, limit, query)
         }
-        return RedditApi.oauth.subscribeToSubreddit(application.accessToken!!.authorizationHeader, subscribeAction, srName)
     }
 
     @MainThread
-    fun searchSubredditsFromReddit(nsfw: Boolean, includeProfiles: Boolean, limit: Int, query: String): Deferred<ListingResponse> {
-        return if(application.accessToken == null) RedditApi.base.getSubredditNameSearch(null, nsfw, includeProfiles, limit, query)
-        else RedditApi.oauth.getSubredditNameSearch(application.accessToken!!.authorizationHeader, nsfw, includeProfiles, limit, query)
-    }
-
-    @MainThread
-    fun getSubredditInfo(displayName: String): Deferred<SubredditChild>{
+    fun getSubreddit(displayName: String): Deferred<SubredditChild>{
         return if(application.accessToken == null){
             RedditApi.base.getSubredditInfo(null, displayName)
         } else {
             RedditApi.oauth.getSubredditInfo(application.accessToken!!.authorizationHeader, displayName)
         }
     }
+
+//                                       _
+//        /\                            | |
+//       /  \   ___ ___ ___  _   _ _ __ | |_ ___
+//      / /\ \ / __/ __/ _ \| | | | '_ \| __/ __|
+//     / ____ \ (_| (_| (_) | |_| | | | | |_\__ \
+//    /_/    \_\___\___\___/ \__,_|_| |_|\__|___/
+//
+    @MainThread
+    fun subscribe(account: Account, subscribe: Boolean): Deferred<Response<Unit>> = subscribe("u_${account.name}", subscribe)
 
 //     __  __       _ _   _        _____          _     _ _ _
 //    |  \/  |     | | | (_)      |  __ \        | |   | (_) |
@@ -71,7 +79,7 @@ class SubredditRepository private constructor(private val application: RedditApp
 //
 
     @MainThread
-    fun getMyMultiRedditsFromReddit(): Deferred<List<MultiRedditChild>> {
+    fun getMyMultiReddits(): Deferred<List<MultiRedditChild>> {
         if(application.accessToken == null) {
             throw IllegalStateException("User must be logged in to fetch multireddits")
         }
@@ -79,7 +87,7 @@ class SubredditRepository private constructor(private val application: RedditApp
     }
 
     @MainThread
-    fun getMultiRedditFromReddit(multipath: String): Deferred<MultiRedditChild>{
+    fun getMultiReddit(multipath: String): Deferred<MultiRedditChild>{
         return if(application.accessToken == null) {
             RedditApi.base.getMultiReddit(null, multipath)
         } else {
@@ -129,20 +137,22 @@ class SubredditRepository private constructor(private val application: RedditApp
             database.subscriptionDao.insert(multi.asSubscription())
         }
     }
+    @MainThread
+    suspend fun insertAccount(account: Account){
+        withContext(Dispatchers.IO){
+            database.subscriptionDao.insert(account.asSubscription(application.currentAccount?.id ?: GUEST_ID))
+        }
+    }
 
     // UPDATE
-    suspend fun updateSubscription(subscription: Subscription, favorite: Boolean){
+    suspend fun addToFavorites(subscription: Subscription, favorite: Boolean){
         withContext(Dispatchers.IO){
             database.subscriptionDao.updateSubscription(subscription.id, favorite)
         }
     }
 
-    suspend fun addSubscription(subreddit: Subreddit, favorite: Boolean){
-        withContext(Dispatchers.IO){
-            subreddit.isFavorite = favorite
-            database.subscriptionDao.insert(subreddit.asSubscription(application.currentAccount?.id ?: GUEST_ID))
-        }
-    }
+    @MainThread
+    fun subscribe(subscription: Subscription, subscribe: Boolean) = subscribe(subscription.name, subscribe)
 
     // DELETE
     @MainThread
@@ -152,10 +162,18 @@ class SubredditRepository private constructor(private val application: RedditApp
         }
     }
     @MainThread
-    suspend fun deleteSubscription(name: String){
+    suspend fun deleteSubscription(subscription: Subscription){
         withContext(Dispatchers.IO){
-            database.subscriptionDao.deleteSubscription(application.currentAccount?.id ?: GUEST_ID, name)
+            database.subscriptionDao.deleteSubscription(subscription.id)
         }
+    }
+    @MainThread
+    suspend fun deleteSubscription(subreddit: Subreddit){
+        deleteSubscription(subreddit.asSubscription(application.currentAccount?.id ?: GUEST_ID))
+    }
+    @MainThread
+    suspend fun deleteSubscription(account: Account){
+        deleteSubscription(account.asSubscription(application.currentAccount?.id ?: GUEST_ID))
     }
 
     // GET
@@ -166,6 +184,28 @@ class SubredditRepository private constructor(private val application: RedditApp
     suspend fun getMyFavoriteSubscriptions() = database.subscriptionDao.getFavoriteSubscriptionsAlphabetically(application.currentAccount?.id ?: GUEST_ID)
     suspend fun getMyFavoriteSubscriptions(subscriptionType: SubscriptionType) = database.subscriptionDao.getFavoriteSubscriptionsAlphabetically(application.currentAccount?.id ?: GUEST_ID, subscriptionType)
     suspend fun getMyFavoriteSubscriptionsExcludingMultireddits() = database.subscriptionDao.getFavoriteSubscriptionsAlphabeticallyExcluding(application.currentAccount?.id ?: GUEST_ID, SubscriptionType.MULTIREDDIT)
+
+//     __  __ _
+//    |  \/  (_)
+//    | \  / |_ ___  ___
+//    | |\/| | / __|/ __|
+//    | |  | | \__ \ (__
+//    |_|  |_|_|___/\___|
+
+    @MainThread
+    fun subscribe(name: String, subscribe: Boolean): Deferred<Response<Unit>> {
+        if(application.accessToken == null){
+            throw IllegalStateException("User must be logged in to do that")
+        }
+
+        val action = if(subscribe){
+            SubscribeAction.SUBSCRIBE
+        } else {
+            SubscribeAction.UNSUBSCRIBE
+        }
+
+        return RedditApi.oauth.subscribe(application.accessToken!!.authorizationHeader, action, name)
+    }
 
     companion object{
         private lateinit var INSTANCE: SubredditRepository

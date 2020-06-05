@@ -39,13 +39,6 @@ class TrendingAdapter(private val itemClickListener: ItemClickListener, private 
         }
     }
 
-    fun updateFavoriteItems(ids: HashSet<String>){
-        for(item: TrendingSubredditPost in items){
-            item.setFavorites(ids)
-        }
-        notifyDataSetChanged()
-    }
-
     fun updateSubscribedItems(ids: HashSet<String>){
         for(item: TrendingSubredditPost in items){
             item.setSubscribedTo(ids)

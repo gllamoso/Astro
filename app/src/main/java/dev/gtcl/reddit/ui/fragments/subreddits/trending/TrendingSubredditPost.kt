@@ -46,12 +46,6 @@ class TrendingSubredditPost(val post: Post){
             sub.userSubscribed = subscribedSubs.contains(sub.displayName.toLowerCase(Locale.ROOT))
         }
     }
-
-    fun setFavorites(favorites: HashSet<String>){
-        for(sub: Subreddit in subs){
-            sub.isFavorite = favorites.contains(sub.displayName.toLowerCase(Locale.ROOT))
-        }
-    }
 }
 
 fun List<Item>.toTrendingPosts(): List<TrendingSubredditPost>{

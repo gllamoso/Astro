@@ -27,7 +27,7 @@ class SubscriptionVH private constructor(private val binding: ItemSubscriptionBi
 
         if(sub.type == SubscriptionType.MULTIREDDIT){
             binding.editButton.setOnClickListener {
-               subscriptionActions.edit(sub)
+               subscriptionActions.editMultiReddit(sub)
             }
         }
 

@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.fragments.listing
 
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -106,11 +105,11 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
 
             // Load subreddit Info
             val sub = when(val listing = listingType){
-                is SubredditListing ->{ subredditRepository.getSubredditInfo(listing.sub.displayName).await().data }
+                is SubredditListing ->{ subredditRepository.getSubreddit(listing.sub.displayName).await().data }
                 is SubscriptionListing -> {
                     val subscription = listing.subscription
                     if(subscription.type == SubscriptionType.SUBREDDIT){
-                        subredditRepository.getSubredditInfo(subscription.displayName).await().data
+                        subredditRepository.getSubreddit(subscription.displayName).await().data
                     } else {
                         null
                     }
@@ -195,7 +194,6 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
         val subreddit = subreddit.value ?: return
         val subscription = subredditRepository.getMySubscription(subreddit.name)
         subreddit.userSubscribed = subscription != null
-        subreddit.isFavorite = subscription?.isFavorite ?: false
         _subreddit.value = null
         _subreddit.value = subreddit
     }

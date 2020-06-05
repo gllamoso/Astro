@@ -148,7 +148,7 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
         activityModel.unsubscribe(sub)
     }
 
-    override fun edit(sub: Subscription) {
+    override fun editMultiReddit(sub: Subscription) {
         TODO("Not yet implemented")
     }
 

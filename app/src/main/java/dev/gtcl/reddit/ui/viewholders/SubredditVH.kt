@@ -17,22 +17,7 @@ class SubredditVH private constructor(private val binding: ItemSubredditBinding)
         }
         binding.addButton.setOnClickListener{
             sub.userSubscribed = sub.userSubscribed != true
-            if(!sub.userSubscribed!!) {
-//                mySubscriptionActionsInAdapter?.remove(sub)
-                sub.isFavorite = false
-            }
             subredditActions.subscribe(sub, sub.userSubscribed!!)
-            binding.invalidateAll()
-        }
-        binding.favoriteButton.setOnClickListener {
-            subredditActions.favorite(sub, !sub.isFavorite)
-            sub.isFavorite = !sub.isFavorite
-            if(sub.isFavorite) {
-                sub.userSubscribed = true
-//                mySubscriptionActionsInAdapter?.addToFavorites(sub)
-            } else {
-//                mySubscriptionActionsInAdapter?.removeFromFavorites(sub, inFavoritesSection)
-            }
             binding.invalidateAll()
         }
         binding.executePendingBindings()

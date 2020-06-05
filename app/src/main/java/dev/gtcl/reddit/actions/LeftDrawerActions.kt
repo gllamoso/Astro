@@ -1,13 +1,13 @@
 package dev.gtcl.reddit.actions
 
-import dev.gtcl.reddit.models.reddit.Account
+import dev.gtcl.reddit.database.SavedAccount
 
 
 interface LeftDrawerActions{
     // Accounts
     fun onAddAccountClicked()
     fun onRemoveAccountClicked(user: String)
-    fun onAccountClicked(account: Account)
+    fun onAccountClicked(account: SavedAccount)
     fun onLogoutClicked()
 
     // Posts

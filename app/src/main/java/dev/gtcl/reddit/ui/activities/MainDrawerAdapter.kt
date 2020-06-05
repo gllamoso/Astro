@@ -9,6 +9,7 @@ import android.widget.ImageView
 import android.widget.TextView
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.LeftDrawerActions
+import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.models.reddit.Account
 
 class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners: LeftDrawerActions) : BaseExpandableListAdapter(){
@@ -17,7 +18,7 @@ class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners
 
     private val groups = listOf(context.getString(R.string.accounts), context.getString(R.string.home), context.getString(R.string.my_account), context.getString(R.string.inbox), context.getString(R.string.settings))
     private lateinit var accountOptions: List<String>
-    private lateinit var accounts: List<Account>
+    private lateinit var accounts: List<SavedAccount>
 
     override fun getGroup(groupPosition: Int): Any = groups[groupPosition]
 
@@ -128,7 +129,7 @@ class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners
 
     override fun getGroupCount(): Int = groups.size
 
-    fun setUsers(listOfAccounts: List<Account>){
+    fun setUsers(listOfAccounts: List<SavedAccount>){
         accounts = listOfAccounts
         val options = (listOfAccounts.map { it.name } as MutableList)
         options.add(addAccountString)

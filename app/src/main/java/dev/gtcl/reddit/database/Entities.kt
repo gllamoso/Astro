@@ -30,27 +30,11 @@ data class ItemRead(
 
 
 @Entity(tableName = "user_table")
-data class DbAccount(
+data class SavedAccount(
     @PrimaryKey
     val id: String,
     val name: String,
-    val iconImg: String?,
-    val bannerImg: String?,
-    val refreshToken: String?) {
-
-    fun asDomainModel() = Account(
-        id = this.id,
-        name = this.name,
-        iconImg = this.iconImg,
-        linkKarma = 0,
-        commentKarma = 0,
-        created = 0L,
-        subreddit = AccountSubreddit(bannerImg),
-        refreshToken = this.refreshToken
-    )
-}
-
-fun List<DbAccount>.asAccountDomainModel() = map {it.asDomainModel()}
+    val refreshToken: String?)
 
 //    _____       _                   _       _   _
 //   / ____|     | |                 (_)     | | (_)
@@ -73,13 +57,7 @@ data class Subscription(
     val url: String,
     var isFavorite: Boolean,
     val type: SubscriptionType
-): Parcelable{
-
-    fun asSubreddit() = Subreddit("", name, icon, "", null, true, "", url, isFavorite)
-
-    fun asMultiReddit() = MultiReddit(true, name, displayName, listOf(), url, "", userId, icon ?: "")
-
-}
+): Parcelable
 
 class SubscriptionTypeConverter{
 

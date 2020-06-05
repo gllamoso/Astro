@@ -15,6 +15,7 @@ import dev.gtcl.reddit.actions.LeftDrawerActions
 import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.databinding.FragmentUserBinding
 import dev.gtcl.reddit.actions.ViewPagerActions
+import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.models.reddit.Account
 import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.models.reddit.Post
@@ -156,7 +157,7 @@ class AccountFragment : Fragment(), ItemClickListener, PostActions, LeftDrawerAc
         TODO("Not yet implemented")
     }
 
-    override fun onAccountClicked(account: Account) {
+    override fun onAccountClicked(account: SavedAccount) {
         TODO("Not yet implemented")
     }
 

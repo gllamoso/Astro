@@ -158,7 +158,7 @@ interface RedditApiService {
     ): Deferred<ListingResponse>
 
     @POST("/api/subscribe")
-    fun subscribeToSubreddit(
+    fun subscribe(
         @Header("Authorization") authorization: String? = null,
         @Query("action") action: SubscribeAction,
         @Query("sr_name") srName: String

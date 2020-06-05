@@ -8,19 +8,19 @@ import dev.gtcl.reddit.SubscriptionType
 @Dao
 interface AccountDao{
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(account: DbAccount)
+    fun insert(account: SavedAccount)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insert(accounts: List<DbAccount>)
+    fun insert(accounts: List<SavedAccount>)
 
     @Delete
-    fun deleteUser(account: DbAccount)
+    fun deleteUser(account: SavedAccount)
 
     @Query("delete from user_table where name = :username")
     fun deleteUser(username: String)
 
     @Query("select * from user_table")
-    fun getUsers(): LiveData<List<DbAccount>>
+    fun getUsers(): LiveData<List<SavedAccount>>
 }
 
 @Dao
@@ -46,8 +46,8 @@ interface SubscriptionDao{
     @Query("delete from subscriptions where userId = :userId")
     fun deleteAllSubscriptions(userId: String)
 
-    @Query("delete from subscriptions where userId = :userId and name = :name")
-    fun deleteSubscription(userId: String, name: String)
+    @Query("delete from subscriptions where id = :subId")
+    fun deleteSubscription(subId: String)
 
     @Query("select * from subscriptions where id = :subId")
     suspend fun getSubscription(subId: String): Subscription?
@@ -75,7 +75,7 @@ interface SubscriptionDao{
 
 }
 
-@Database(entities = [DbAccount::class, ItemRead::class, Subscription::class], version = 1, exportSchema = false)
+@Database(entities = [SavedAccount::class, ItemRead::class, Subscription::class], version = 1, exportSchema = false)
 @TypeConverters(SubscriptionTypeConverter::class)
 abstract class RedditDatabase: RoomDatabase(){
     abstract val accountDao: AccountDao

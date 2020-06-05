@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.fragments.subreddits.search
 
-import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
@@ -46,7 +45,7 @@ class SearchAdapter(private val subredditActions: SubredditActions, private val 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when(getItemViewType(position)){
-            R.layout.item_account -> (holder as AccountVH).bind(items[position] as Account, itemClickListener)
+            R.layout.item_account -> (holder as AccountVH).bind(items[position] as Account, subredditActions, itemClickListener)
             R.layout.item_subreddit -> (holder as SubredditVH).bind(items[position] as Subreddit, subredditActions, itemClickListener)
         }
     }

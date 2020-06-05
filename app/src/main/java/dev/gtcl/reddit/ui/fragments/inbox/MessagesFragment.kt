@@ -15,6 +15,7 @@ import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.actions.LeftDrawerActions
 import dev.gtcl.reddit.actions.MessageActions
+import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.databinding.FragmentInboxBinding
 import dev.gtcl.reddit.databinding.LayoutNavHeaderBinding
 import dev.gtcl.reddit.models.reddit.Account
@@ -141,7 +142,7 @@ class MessagesFragment: Fragment(), MessageActions, LeftDrawerActions{
     }
 
     @SuppressLint("RtlHardcoded")
-    override fun onAccountClicked(account: Account) {
+    override fun onAccountClicked(account: SavedAccount) {
 //        parentModel.setCurrentUser(account, true)
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }

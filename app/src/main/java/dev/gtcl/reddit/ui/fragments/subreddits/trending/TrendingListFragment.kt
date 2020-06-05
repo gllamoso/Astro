@@ -96,13 +96,6 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
             listAdapter.networkState = it
         })
 
-        model.favoriteSubs.observe(viewLifecycleOwner, Observer {
-            if(it != null){
-                listAdapter.updateFavoriteItems(it)
-                model.favoriteSubsSynced()
-            }
-        })
-
         model.subscribedSubs.observe(viewLifecycleOwner, Observer {
             if(it != null){
                 listAdapter.updateSubscribedItems(it)
@@ -130,10 +123,6 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
 //     ____) | |_| | |_) | | |  __/ (_| | (_| | | |_   / ____ \ (__| |_| | (_) | | | \__ \
 //    |_____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 //
-
-    override fun favorite(subreddit: Subreddit, favorite: Boolean) {
-        parentSubredditActions?.favorite(subreddit, favorite)
-    }
 
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
         parentSubredditActions?.subscribe(subreddit, subscribe)

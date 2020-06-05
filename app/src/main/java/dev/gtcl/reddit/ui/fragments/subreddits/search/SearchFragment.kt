@@ -57,7 +57,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
 
             private val handler = Handler(Looper.getMainLooper())
             private var workRunnable: Runnable? = null
-            private val DELAY = 500L
+            private val DELAY = 300L
 
             override fun afterTextChanged(s: Editable?) {
                 workRunnable?.let { handler.removeCallbacks(it) }
@@ -111,13 +111,8 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         hideKeyboard()
     }
 
-    override fun favorite(subreddit: Subreddit, favorite: Boolean) {
-//        activityModel.favorite()
-//        parentSubredditActions?.favorite(subreddit, favorite)
-    }
-
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-//        parentSubredditActions?.favorite(subreddit, subscribe)
+        activityModel.subscribe(subreddit, subscribe)
     }
 
     private fun showKeyboard(){

@@ -34,20 +34,7 @@ class TrendingSubredditVH private constructor(private val binding: ItemTrendingS
                 addButton.setOnClickListener {
                     trendingSubredditPost.subs[i].apply {
                         userSubscribed = userSubscribed != true
-                        if (!userSubscribed!!) {
-                            isFavorite = false
-                        }
                         subredditActions.subscribe(this, userSubscribed!!)
-                    }
-                    this.invalidateAll()
-                }
-                favoriteButton.setOnClickListener {
-                    trendingSubredditPost.subs[i].apply {
-                        isFavorite = !isFavorite
-                        if (isFavorite) {
-                            userSubscribed = true
-                        }
-                        subredditActions.favorite(this, isFavorite)
                     }
                     this.invalidateAll()
                 }

@@ -106,38 +106,40 @@ data class Account(
     @Json(name = "link_karma") val linkKarma: Int,
     @Json(name = "comment_karma") val commentKarma: Int,
     @Json(name = "created_utc") val created: Long,
-    val subreddit: AccountSubreddit? =  null,
+    val subreddit: Subreddit,
     // Additional field
     var refreshToken: String?
 ) : Item(ItemType.Account) {
 
     override val depth: Int = 0
 
-    var isFavorite = false
-    var isSubscribed = false
-
     fun getValidProfileImg(): String {
         val imgRegex = "http.+\\.(png|jpg|gif)".toRegex()
-        return imgRegex.find(iconImg!!)!!.value
+        return imgRegex.find(iconImg ?: "")?.value ?: ""
     }
 
     fun getValidBannerImg(): String {
         val imgRegex = "http.+\\.(png|jpg|gif)".toRegex()
-        return imgRegex.find(subreddit?.bannerImg ?: "")?.value ?: ""
+        return imgRegex.find(subreddit.bannerImg ?: "")?.value ?: ""
     }
 
-    fun asDbModel() = DbAccount(
+    fun asDbModel() = SavedAccount(
         id = this.id,
         name = this.name,
-        iconImg = this.iconImg,
-        bannerImg = this.subreddit?.bannerImg,
         refreshToken = this.refreshToken
     )
-}
 
-data class AccountSubreddit(
-    @Json(name = "banner_img") val bannerImg: String?
-)
+    fun asSubscription(userId: String) = Subscription(
+        "${subreddit!!.name}__${userId}",
+        "u_${name}",
+        name,
+        userId,
+        iconImg,
+        "/user/${name}/",
+        false,
+        SubscriptionType.USER
+    )
+}
 
 //   _   ____             _____          _
 //  | | |___ \           |  __ \        | |
@@ -341,21 +343,26 @@ data class Subreddit(
     var userSubscribed: Boolean?,
     @Json(name = "public_description")
     val publicDescription: String,
-    val url: String,
-    @Transient
-    var isFavorite: Boolean = false
+    val url: String
 ) : Parcelable, Item(ItemType.Subreddit) {
     @IgnoredOnParcel
     override val depth: Int = 0
     @IgnoredOnParcel
     override val id = name.replace("t5_","")
 
+    @IgnoredOnParcel
+    private var isFavorite = false
+
+    fun setFavorite(favorite: Boolean){
+        this.isFavorite = favorite
+    }
+
     fun asSubscription(userId: String) = Subscription(
         "${name}__${userId}",
         displayName,
         displayName.removePrefix("u_"),
         userId,
-        (iconImg?.toValidImgUrl() ?: ""),
+        iconImg?.toValidImgUrl(),
         url,
         isFavorite,
         if(url.startsWith("/r/", true)){
@@ -409,8 +416,6 @@ data class More(
     var count: Int
 ): Item(ItemType.More) {
 
-
-
     fun getChildrenAsValidString(): String {
         if(this.children.isEmpty()) return ""
         val sb = StringBuilder()
@@ -450,8 +455,12 @@ data class MultiReddit(
     override val depth = 0
     @IgnoredOnParcel
     override val id = ""
+
     @IgnoredOnParcel
-    var isFavorite = false
+    private var isFavorite = false
+    fun setFavorite(favorite: Boolean){
+        this.isFavorite = favorite
+    }
 
     fun asSubscription() = Subscription(
     "${displayName}__${ownerId.replace("t2_","")}",

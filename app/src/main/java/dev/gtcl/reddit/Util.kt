@@ -226,22 +226,18 @@ suspend fun setItemsReadStatus(items: List<Item>, readIds: HashSet<String>){
     }
 }
 
-suspend fun setSubsAndFavorites(items: List<Item>, subscribedSubsHash: HashSet<String>, favoriteSubsHash: HashSet<String>){
+suspend fun setSubs(items: List<Item>, subscribedSubsHash: HashSet<String>){
     withContext(Dispatchers.Default){
-        for(item: Item in items){
-            if(item is Subreddit){
-                item.userSubscribed = subscribedSubsHash.contains(item.displayName)
-                item.isFavorite = favoriteSubsHash.contains(item.displayName)
-            }
+        for(item: Item in items.filterIsInstance<Subreddit>()){
+            (item as Subreddit).userSubscribed = subscribedSubsHash.contains(item.displayName)
         }
     }
 }
 
-suspend fun setSubsAndFavoritesInTrendingPost(items: List<TrendingSubredditPost>, subscribedSubsHash: HashSet<String>, favoriteSubsHash: HashSet<String>){
+suspend fun setSubsAndFavoritesInTrendingPost(items: List<TrendingSubredditPost>, subscribedSubsHash: HashSet<String>){
     withContext(Dispatchers.Default){
         for(item: TrendingSubredditPost in items){
             item.setSubscribedTo(subscribedSubsHash)
-            item.setFavorites(favoriteSubsHash)
         }
     }
 }
