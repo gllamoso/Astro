@@ -28,13 +28,9 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
     val networkState: LiveData<NetworkState>
         get() = _networkState
 
-    private val _items = MutableLiveData<ArrayList<Item>>()
+    private val _items = MutableLiveData<ArrayList<Item>>().apply { value = ArrayList() }
     val items: LiveData<ArrayList<Item>>
         get() = _items
-
-    private val _newItems = MutableLiveData<List<Item>>()
-    val newItems: LiveData<List<Item>>
-        get() = _newItems
 
     private val loadedIds = HashSet<String>()
 
@@ -47,15 +43,9 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
     private var pageSize = 15
     var initialPageLoaded = false
 
-    private val _lastItemReached = MutableLiveData<Boolean>()
+    private val _lastItemReached = MutableLiveData<Boolean>().apply { value = false }
     val lastItemReached: LiveData<Boolean>
         get() = _lastItemReached
-
-    private var subscribedSubsHash: java.util.HashSet<String>? = null
-
-    private val _subscribedSubs = MutableLiveData<HashSet<String>?>()
-    val subscribedSubs: LiveData<HashSet<String>?>
-        get() = _subscribedSubs
 
     private val _refreshState = MutableLiveData<NetworkState>()
     val refreshState: LiveData<NetworkState>
@@ -64,19 +54,6 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String>
         get() = _errorMessage
-
-    fun syncWithDb(){
-        coroutineScope.launch {
-            withContext(Dispatchers.Default){
-                subscribedSubsHash = subredditRepository.getMySubscriptionsExcludingMultireddits().map { it.name }.toHashSet()
-                _subscribedSubs.postValue(subscribedSubsHash!!)
-            }
-        }
-    }
-
-    fun subredditsSynced(){
-        _subscribedSubs.value = null
-    }
 
     fun retry(){
         TODO()
@@ -102,10 +79,10 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
         this.pageSize = pageSize
     }
 
-    fun loadInitialDataAndFirstPage(){
+    fun loadItems(){
         coroutineScope.launch {
             _networkState.value = NetworkState.LOADING
-            loadFirstPage()
+            loadMore()
             _networkState.value = NetworkState.LOADED
             initialPageLoaded = true
         }
@@ -121,17 +98,22 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
     fun refresh(){
         coroutineScope.launch {
             _refreshState.value = NetworkState.LOADING
-            loadFirstPage()
+            loadMore()
             _refreshState.value = NetworkState.LOADED
         }
     }
 
-    private suspend fun loadFirstPage(){
+    private suspend fun loadMore(){
         try {
+            val size = if(items.value.isNullOrEmpty()){
+                pageSize * 3
+            } else {
+                pageSize
+            }
             val response = when{
-                ::listingType.isInitialized -> listingRepository.getListing(listingType, postSort, t, null, pageSize * 3, user).await()
-                ::subredditWhere.isInitialized -> subredditRepository.getSubredditsListing(subredditWhere, null, pageSize * 3).await()
-                ::messageWhere.isInitialized -> messageRepository.getMessages(messageWhere, null, pageSize * 3).await()
+                ::listingType.isInitialized -> listingRepository.getListing(listingType, postSort, t, after, size, user).await()
+                ::subredditWhere.isInitialized -> subredditRepository.getSubredditsListing(subredditWhere, after, size).await()
+                ::messageWhere.isInitialized -> messageRepository.getMessages(messageWhere, after, size).await()
                 else -> throw IllegalStateException("Not enough info to load listing")
             }
             val items = ArrayList(response.data.children.map { it.data })
@@ -139,64 +121,13 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
                 listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
                 setItemsReadStatus(items, readItemIds)
             }
-            if(::subredditWhere.isInitialized){
-                if(subscribedSubsHash == null){
-                    subscribedSubsHash = subredditRepository.getMySubscriptionsExcludingMultireddits().map { it.name }.toHashSet()
-                }
-                setSubs(items, subscribedSubsHash!!)
-            }
-            _items.value = items
-            _lastItemReached.value = items.size < (pageSize * 3)
-            loadedIds.clear()
+            _items += items
+            _lastItemReached.value = items.size < size
             loadedIds.addAll(items.map { it.name })
             after = response.data.after
         } catch (e: Exception){
             _errorMessage.value = e.toString()
         }
-    }
-
-    fun loadAfter() {
-        if(_lastItemReached.value == true){
-            return
-        }
-        coroutineScope.launch {
-            _networkState.value = NetworkState.LOADING
-            try{
-                val response = when {
-                    ::listingType.isInitialized -> listingRepository.getListing(listingType, postSort, t, after, pageSize, user).await()
-                    ::subredditWhere.isInitialized -> subredditRepository.getSubredditsListing(subredditWhere, after, pageSize).await()
-                    ::messageWhere.isInitialized -> messageRepository.getMessages(messageWhere, after, pageSize).await()
-                    else -> throw IllegalStateException("Not enough info to load listing")
-                }
-                val newItems = response.data.children.map { it.data }.filter { !loadedIds.contains(it.name) }
-
-                _lastItemReached.value = newItems.isEmpty()
-                if(_lastItemReached.value == true){
-                    _networkState.value = NetworkState.LOADED
-                    return@launch
-                }
-
-                if(::subredditWhere.isInitialized){
-                    if(subscribedSubsHash == null){
-                        subscribedSubsHash = subredditRepository.getMySubscriptionsExcludingMultireddits().map { it.name }.toHashSet()
-                    }
-                    setSubs(newItems, subscribedSubsHash!!)
-                }
-
-                loadedIds.addAll(newItems.map { it.name })
-                setItemsReadStatus(newItems, readItemIds)
-                _items.value!!.addAll(newItems)
-                _newItems.value = newItems.toList()
-                after = response.data.after
-                _networkState.value = NetworkState.LOADED
-            } catch (e: Exception){
-                _errorMessage.value = e.toString()
-            }
-        }
-    }
-
-    fun newItemsAdded(){
-        _newItems.value = null
     }
 
 }

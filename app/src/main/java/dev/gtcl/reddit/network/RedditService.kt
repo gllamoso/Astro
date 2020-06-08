@@ -18,6 +18,7 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Response
 import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
 
@@ -207,6 +208,21 @@ interface RedditApiService {
         @Path("multipath", encoded = true) multipath: String
     ): Deferred<Response<Unit>>
 
+    @DELETE("/api/multi/{multipath}/r/{srName}")
+    fun deleteSubredditInMultiReddit(
+        @Header("Authorization") authorization: String? = null,
+        @Path("multipath", encoded = true) multipath: String,
+        @Path("srName") srName: String
+    ): Deferred<Response<Unit>>
+
+    @PUT("/api/multi/{multipath}.json")
+    fun createOrUpdateMultiReddit(
+        @Header("Authorization") authorization: String? = null,
+        @Path("multipath", encoded = true) multipath: String,
+        @Query("model", encoded = true) model: MultiRedditUpdate,
+        @Query("expand_srs") expandSubs: Boolean = true
+    ): Deferred<MultiRedditChild>
+
 //      _____                                     _
 //     / ____|                                   | |
 //    | |     ___  _ __ ___  _ __ ___   ___ _ __ | |_ ___
@@ -311,6 +327,7 @@ interface RedditApiService {
                 .client(client)
                 .addConverterFactory(EnumConverterFactory)
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
+                .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .build()
                 .create(RedditApiService::class.java)

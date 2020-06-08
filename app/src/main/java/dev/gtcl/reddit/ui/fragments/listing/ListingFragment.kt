@@ -2,7 +2,6 @@ package dev.gtcl.reddit.ui.fragments.listing
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -136,7 +135,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             if (it != null) {
                 binding.list.scrollToPosition(0)
                 adapter.clearItems()
-                adapter.addItems(it)
+                adapter.setItems(it)
                 scrollListener.finishedLoading()
                 if (it.isEmpty()) {
                     binding.list.visibility = View.GONE
@@ -150,7 +149,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 
         model.newItems.observe(viewLifecycleOwner, Observer {
             if (it != null) {
-                adapter.addItems(it)
+                adapter.setItems(it)
                 model.newItemsAdded()
                 scrollListener.finishedLoading()
             }

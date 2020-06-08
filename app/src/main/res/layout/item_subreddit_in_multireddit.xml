@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="sub"
+            type="dev.gtcl.reddit.models.reddit.Subreddit" />
+
+        <variable
+            name="iconTint"
+            type="int" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:padding="8dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            app:subredditIcon="@{sub.iconImg}"
+            app:tint="@{iconTint}"
+            tools:src="@drawable/ic_reddit_circle" />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_margin="8dp"
+            android:layout_weight="1"
+            android:maxLines="1"
+            android:text="@{sub.displayName.replaceFirst(&quot;u_&quot;, &quot;u/&quot;)}"
+            android:textColor="@color/textColor"
+            tools:text="Subreddit Name" />
+
+        <ImageView
+            android:id="@+id/remove_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:padding="8dp"
+            android:src="@drawable/ic_x_24dp" />
+
+    </LinearLayout>
+
+
+</layout>

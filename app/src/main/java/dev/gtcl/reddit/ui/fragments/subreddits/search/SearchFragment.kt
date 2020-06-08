@@ -1,6 +1,7 @@
 package dev.gtcl.reddit.ui.fragments.subreddits.search
 
 import android.content.Context
+import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
@@ -16,7 +17,10 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.navigation.fragment.navArgs
+import androidx.recyclerview.widget.GridLayoutManager
 import dev.gtcl.reddit.RedditApplication
+import dev.gtcl.reddit.SELECTED_SUBREDDITS_KEY
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.actions.SubredditActions
@@ -26,6 +30,8 @@ import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.models.reddit.SubredditListing
 import dev.gtcl.reddit.network.NetworkState
+import dev.gtcl.reddit.ui.ItemScrollListener
+import dev.gtcl.reddit.ui.ListingItemAdapter
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.AccountPage
 import dev.gtcl.reddit.ui.fragments.ListingPage
@@ -39,15 +45,31 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         ViewModelProvider(this, viewModelFactory).get(SearchVM::class.java)
     }
 
+    private val args: SearchFragmentArgs by navArgs()
+
     private val activityModel: MainActivityVM by activityViewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentSearchBinding.inflate(inflater)
-        setEditTextListener()
-        setRecyclerViewAdapter()
-        setOnClickListeners()
-        showKeyboard()
         return binding.root
+    }
+
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        setEditTextListener()
+        setPopularRecyclerViewAdapter()
+        setSearchRecyclerViewAdapter()
+        setOnClickListeners()
+
+        if(args.multiSelectMode){
+            setMultiSelect()
+        } else {
+            binding.fab.visibility = View.GONE
+        }
+
+        if(resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT){
+            showKeyboard()
+        }
     }
 
     private fun setEditTextListener(){
@@ -62,8 +84,15 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             override fun afterTextChanged(s: Editable?) {
                 workRunnable?.let { handler.removeCallbacks(it) }
                 workRunnable = Runnable {
-                    if(!s.isNullOrBlank()){
+                    if(s.isNullOrBlank()){
+                        binding.popularList.visibility = View.VISIBLE
+                        binding.searchList.visibility = View.GONE
+                        binding.noResultsText.visibility = View.GONE
+                    } else {
                         model.searchSubreddits(s.toString())
+                        binding.popularList.visibility = View.GONE
+                        binding.searchList.visibility = View.VISIBLE
+                        binding.noResultsText.visibility = View.GONE
                     }
                 }
                 handler.postDelayed(workRunnable!!, DELAY)
@@ -72,18 +101,38 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         })
     }
 
-    private fun setRecyclerViewAdapter(){
+    private fun setPopularRecyclerViewAdapter(){
+        val listAdapter = ListingItemAdapter(subredditActions = this, itemClickListener = this, retry = model::retry)
+        val scrollListener = ItemScrollListener(15, binding.popularList.layoutManager as GridLayoutManager, model::loadMorePopular)
+        val recycler = binding.popularList
+        recycler.apply {
+            adapter = listAdapter
+            addOnScrollListener(scrollListener)
+        }
+        model.loadMorePopular()
+
+        model.popularItems.observe(viewLifecycleOwner, Observer {
+            listAdapter.setItems(it)
+            scrollListener.finishedLoading()
+            model.initialPageLoaded = true
+        })
+
+        model.lastItemReached.observe(viewLifecycleOwner, Observer {
+            if(it == true){
+                recycler.removeOnScrollListener(scrollListener)
+            }
+        })
+    }
+
+    private fun setSearchRecyclerViewAdapter(){
         val adapter = SearchAdapter(this, this)
-        binding.list.adapter = adapter
+        binding.searchList.adapter = adapter
 
         model.searchItems.observe(viewLifecycleOwner, Observer {
-            if(it != null){
-                adapter.submitList(it)
-                binding.list.smoothScrollToPosition(0)
-                binding.list.visibility = if(it.isEmpty()) View.GONE else View.VISIBLE
-                binding.noResultsText.visibility = if(it.isNotEmpty()) View.GONE else View.VISIBLE
-                model.searchComplete()
-            }
+            adapter.submitList(it)
+            binding.searchList.smoothScrollToPosition(0)
+            binding.searchList.visibility = if(it.isEmpty()) View.GONE else View.VISIBLE
+            binding.noResultsText.visibility = if(it.isNotEmpty() || binding.searchText.text.isNullOrEmpty()) View.GONE else View.VISIBLE
         })
 
         model.networkState.observe(viewLifecycleOwner, Observer {
@@ -102,13 +151,42 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         }
     }
 
-    override fun itemClicked(item: Item) {
-        if(item is Account){
-            findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(AccountPage(item.name)))
-        } else {
-            findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(ListingPage(SubredditListing(item as Subreddit))))
+    private fun setMultiSelect(){
+
+        val adapter = SelectedItemsAdapter{
+            model.removeSelectedItem(it)
         }
-        hideKeyboard()
+
+        binding.selectedItemsRecyclerView.adapter = adapter
+
+        model.selectedItems.observe(viewLifecycleOwner, Observer {
+            adapter.submitList(ArrayList(it))
+        })
+
+        binding.fab.setOnClickListener {
+            val navController = findNavController()
+            navController.previousBackStackEntry?.savedStateHandle?.set(SELECTED_SUBREDDITS_KEY, model.selectedItems.value?.toList() ?: listOf())
+            navController.popBackStack()
+        }
+    }
+
+    override fun itemClicked(item: Item) {
+        val multiSelectMode = args.multiSelectMode
+        if(multiSelectMode){
+            val name = when (item) {
+                is Subreddit ->  item.displayName
+                is Account ->  item.subreddit.displayName
+                else ->  ""
+            }
+            model.addSelectedItem(name)
+        } else {
+            if(item is Account){
+                findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(AccountPage(item.name)))
+            } else {
+                findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(ListingPage(SubredditListing(item as Subreddit))))
+            }
+            hideKeyboard()
+        }
     }
 
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {

@@ -29,7 +29,7 @@ class ListingItemAdapter(
             }
         }
 
-    private val items = ArrayList<Item>()
+    private var items = ArrayList<Item>()
 
     fun clearItems(){
         val itemSize = items.size
@@ -37,20 +37,14 @@ class ListingItemAdapter(
         notifyItemRangeRemoved(0, itemSize)
     }
 
-    fun addItems(newItems: List<Item>){
-        val insertionPoint = items.size
-        notifyItemRemoved(insertionPoint)
-        if(newItems.isNotEmpty()){
-            items.addAll(newItems)
-            notifyItemRangeInserted(insertionPoint, newItems.size)
-        }
-    }
-
-    fun updateSubscribedItems(ids: HashSet<String>){
-        for(item: Item in items){
-            if(item is Subreddit){
-                item.userSubscribed = ids.contains(item.displayName)
-            }
+    fun setItems(newItems: List<Item>){
+        val previousSize = items.size
+        notifyItemRemoved(previousSize)
+        items = ArrayList(newItems)
+        if(previousSize < items.size){
+            notifyItemRangeInserted(previousSize, items.size - previousSize)
+        } else if(previousSize > items.size) {
+            notifyItemRangeRemoved(items.size, previousSize - items.size)
         }
     }
 

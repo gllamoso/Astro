@@ -4,6 +4,7 @@ import android.content.Context
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import androidx.lifecycle.MutableLiveData
 import androidx.room.TypeConverter
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
@@ -13,6 +14,7 @@ import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.gson.annotations.SerializedName
+import com.squareup.moshi.Json
 import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.models.reddit.Subreddit
@@ -134,6 +136,18 @@ enum class SubscriptionType{
     USER
 }
 
+enum class Visibility{
+    @SerializedName("private")
+    @Json(name = "private")
+    PRIVATE,
+    @SerializedName("public")
+    @Json(name = "public")
+    PUBLIC,
+    @SerializedName("hidden")
+    @Json(name = "hidden")
+    HIDDEN
+}
+
 const val SECONDS_IN_YEAR = 31_536_000.toLong()
 const val SECONDS_IN_MONTH = 2_592_000.toLong()
 const val SECONDS_IN_WEEK = 604_800.toLong()
@@ -243,3 +257,27 @@ suspend fun setSubsAndFavoritesInTrendingPost(items: List<TrendingSubredditPost>
 }
 
 fun String.toValidImgUrl(): String? = "http.+\\.(png|jpg)".toRegex().find(this)?.value
+
+operator fun <T> MutableLiveData<ArrayList<T>>.plusAssign(values: List<T>) {
+    val value = this.value ?: arrayListOf()
+    value.addAll(values)
+    this.value = value
+}
+
+fun <T> MutableLiveData<ArrayList<T>>.remove(item: T){ // TODO: Implement with ItemScrollerFragment and ListingFragment
+    val value = this.value ?: arrayListOf()
+    value.remove(item)
+    this.value = value
+}
+
+operator fun <T> MutableLiveData<MutableSet<T>>.plusAssign(item: T){
+    val value = this.value ?: mutableSetOf()
+    value.add(item)
+    this.value = value
+}
+
+operator fun <T> MutableLiveData<MutableSet<T>>.minusAssign(item: T){
+    val value = this.value ?: hashSetOf()
+    value.remove(item)
+    this.value = value
+}

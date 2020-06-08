@@ -103,6 +103,22 @@ class SubredditRepository private constructor(private val application: RedditApp
         return RedditApi.oauth.deleteMultiReddit(application.accessToken!!.authorizationHeader, multipath)
     }
 
+    @MainThread
+    fun deleteSubredditFromMultiReddit(multipath: String, subreddit: Subreddit): Deferred<Response<Unit>>{
+        if(application.accessToken == null){
+            throw IllegalStateException("User must be logged in to delete Subreddit from MultiReddit")
+        }
+        return RedditApi.oauth.deleteSubredditInMultiReddit(application.accessToken!!.authorizationHeader, multipath, subreddit.displayName)
+    }
+
+    @MainThread
+    fun createOrUpdateMultiReddit(multipath: String, model: MultiRedditUpdate): Deferred<MultiRedditChild> {
+        if(application.accessToken == null){
+            throw IllegalStateException("User must be logged in to delete Subreddit from MultiReddit")
+        }
+        return RedditApi.oauth.createOrUpdateMultiReddit(application.accessToken!!.authorizationHeader, multipath, model)
+    }
+
 //      _____       _                   _       _   _
 //     / ____|     | |                 (_)     | | (_)
 //    | (___  _   _| |__  ___  ___ _ __ _ _ __ | |_ _  ___  _ __  ___

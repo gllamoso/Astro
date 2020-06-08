@@ -2,8 +2,12 @@ package dev.gtcl.reddit.models.reddit
 
 import android.net.Uri
 import android.os.Parcelable
+import com.google.gson.Gson
+import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
+import com.squareup.moshi.ToJson
 import dev.gtcl.reddit.SubscriptionType
+import dev.gtcl.reddit.Visibility
 import dev.gtcl.reddit.database.*
 import dev.gtcl.reddit.toValidImgUrl
 import kotlinx.android.parcel.IgnoredOnParcel
@@ -130,7 +134,7 @@ data class Account(
     )
 
     fun asSubscription(userId: String) = Subscription(
-        "${subreddit!!.name}__${userId}",
+        "${subreddit.name}__${userId}",
         "u_${name}",
         name,
         userId,
@@ -448,7 +452,9 @@ data class MultiReddit(
     @Json(name = "owner_id")
     val ownerId: String,
     @Json(name = "icon_url")
-    val iconUrl: String
+    val iconUrl: String,
+    val visibility: Visibility,
+    @Json(name = "description_md")val description: String
 ): Item(ItemType.MultiReddit), Parcelable {
 
     @IgnoredOnParcel
@@ -463,7 +469,7 @@ data class MultiReddit(
     }
 
     fun asSubscription() = Subscription(
-    "${displayName}__${ownerId.replace("t2_","")}",
+    "${name}__${ownerId.replace("t2_","")}",
         name,
         displayName,
         ownerId.replace("t2_",""),
@@ -476,7 +482,20 @@ data class MultiReddit(
 @Parcelize
 data class SubredditData(
     val name: String,
-    val data: Subreddit
+    val data: Subreddit?
 ): Parcelable
+
+@Parcelize
+data class MultiRedditUpdate(
+    @SerializedName("description_md") val description: String? = null,
+    @SerializedName("display_name") val displayName: String? = null,
+    @SerializedName("icon_img") val iconImg: String? = null,
+    @SerializedName("key_color") val keyColor: String? = null,
+    val subreddits: List<SubredditData>? = null,
+    val visibility: Visibility? = null
+):Parcelable{
+    override fun toString(): String = Gson().toJson(this)
+}
+
 
 fun List<MultiReddit>.asSubscriptions() = map { it.asSubscription() }

@@ -32,6 +32,11 @@
             app:destination="@id/searchFragment"
             app:enterAnim="@anim/slide_left"
             app:popExitAnim="@anim/slide_right"/>
+        <action
+            android:id="@+id/action_viewPagerFragment_to_multiRedditFragment"
+            app:destination="@id/multiRedditFragment"
+            app:enterAnim="@anim/slide_left"
+            app:popExitAnim="@anim/slide_right"/>
     </fragment>
     <fragment
         android:id="@+id/splashFragment"
@@ -61,6 +66,10 @@
         android:id="@+id/searchFragment"
         android:name="dev.gtcl.reddit.ui.fragments.subreddits.search.SearchFragment"
         android:label="SearchFragment" >
+        <argument
+            android:name="multiSelectMode"
+            app:argType="boolean"
+            />
         <action
             android:id="@+id/action_searchFragment_to_viewPagerFragment"
             app:destination="@id/viewPagerFragment"
@@ -69,4 +78,24 @@
             app:popUpTo="@id/searchFragment"
             app:popUpToInclusive="true"/>
     </fragment>
+    <fragment
+        android:id="@+id/multiRedditFragment"
+        android:name="dev.gtcl.reddit.ui.fragments.subreddits.multireddit.MultiRedditFragment"
+        android:label="MultiRedditFragment" >
+        <argument
+            android:name="multiReddit"
+            app:argType="dev.gtcl.reddit.database.Subscription" />
+        <action
+            android:id="@+id/action_multiRedditFragment_to_subredditSelectionFragment"
+            app:destination="@id/subredditSelectionFragment"
+            app:enterAnim="@anim/slide_left"
+            app:popExitAnim="@anim/slide_right"/>
+        <action
+            android:id="@+id/action_multiRedditFragment_to_searchFragment"
+            app:destination="@id/searchFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/subredditSelectionFragment"
+        android:name="dev.gtcl.reddit.ui.fragments.subreddits.multireddit.subselection.SubredditSelectionFragment"
+        android:label="SubredditSelectionFragment" />
 </navigation>

@@ -11,6 +11,8 @@ const val STRING_KEY = "string"
 const val CURRENT_USER_KEY = "current_user"
 const val SUBREDDIT_UPDATE_REQUEST_KEY = "sub_request_key"
 const val REDIRECT_URL_REQUEST_CODE = 1
+const val SELECTED_SUBREDDITS_KEY = "selected_subreddits"
+const val MULTI_KEY = "multireddit_key"
 
 // For listing fragments
 const val PROFILE_INFO_KEY = "profile_info"

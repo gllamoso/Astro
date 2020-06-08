@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -30,7 +31,9 @@
                         android:layout_height="match_parent"
                         android:maxLines="1"
                         android:imeOptions="actionDone"
-                        android:inputType="text" />
+                        android:inputType="text"
+                        android:hint="@string/search"
+                        android:background="@android:color/transparent"/>
 
                     <ImageView
                         android:layout_width="24dp"
@@ -41,6 +44,16 @@
                 </LinearLayout>
 
             </androidx.appcompat.widget.Toolbar>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/selected_items_recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                app:layoutManager="androidx.recyclerview.widget.StaggeredGridLayoutManager"
+                app:spanCount="2"
+                android:scrollbars="horizontal"
+                tools:listitem="@layout/item_selected"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -59,14 +72,22 @@
                 android:indeterminate="true"
                 android:visibility="gone"/>
 
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/popular_list"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="1"
+                android:scrollbars="vertical"/>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/list"
+                android:id="@+id/search_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="1"
                 android:visibility="gone"
+                tools:listitem="@layout/item_subreddit"
                 />
 
             <TextView
@@ -75,9 +96,18 @@
                 android:layout_height="match_parent"
                 android:text="@string/nothing_found"
                 android:textAlignment="center"
-                android:padding="32dp"/>
+                android:padding="32dp"
+                android:visibility="gone"/>
 
         </FrameLayout>
+
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:src="@drawable/ic_check_24dp"
+            android:layout_margin="32dp"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

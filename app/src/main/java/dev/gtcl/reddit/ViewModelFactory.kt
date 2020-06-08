@@ -13,6 +13,7 @@ import dev.gtcl.reddit.ui.fragments.media.MediaVM
 import dev.gtcl.reddit.ui.fragments.signin.SignInVM
 import dev.gtcl.reddit.ui.fragments.splash.SplashVM
 import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsVM
+import dev.gtcl.reddit.ui.fragments.subreddits.multireddit.MultiRedditVM
 import dev.gtcl.reddit.ui.fragments.subreddits.search.SearchVM
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingListVM
 import java.lang.IllegalArgumentException
@@ -34,6 +35,9 @@ class ViewModelFactory(private val application: RedditApplication) : ViewModelPr
             modelClass.isAssignableFrom(SubscriptionsVM::class.java) -> SubscriptionsVM(application) as T
             modelClass.isAssignableFrom(SearchVM::class.java) -> SearchVM(application) as T
             modelClass.isAssignableFrom(MediaVM::class.java) -> MediaVM(application) as T
+            modelClass.isAssignableFrom(MultiRedditVM::class.java) -> MultiRedditVM(
+                application
+            ) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class")
         }
     }

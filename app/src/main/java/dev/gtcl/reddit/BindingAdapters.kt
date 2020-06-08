@@ -19,6 +19,7 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
@@ -30,6 +31,7 @@ import com.google.android.exoplayer2.ui.PlayerView
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.ItemAwardBinding
 import dev.gtcl.reddit.models.reddit.*
+import dev.gtcl.reddit.ui.fragments.subreddits.multireddit.MultiRedditSubredditsAdapter
 
 
 @BindingAdapter("imageUrlAndHideIfNull")
@@ -362,4 +364,10 @@ fun invert(view: View, inverted: Boolean?){
                 0F
             }
     }
+}
+
+@BindingAdapter("subredditsInMultireddit")
+fun bindRecyclerViewForMultiReddit(recyclerView: RecyclerView, data: MutableList<Subreddit>){
+    val adapter = recyclerView.adapter as MultiRedditSubredditsAdapter
+    adapter.submitList(data)
 }

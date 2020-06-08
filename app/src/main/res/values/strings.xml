@@ -123,10 +123,20 @@
     <string name="unread">Unread</string>
     <string name="sent">Sent</string>
 
+    <!--Multi-Reddit-->
+    <string name="edit_custom_feed">Edit Custom Feed</string>
+    <string name="custom_feed_name">Custom Feed Name</string>
+    <string name="description_optional">Description (Optional)</string>
+    <string name="private_label">Private</string>
+    <string name="public_label">Public</string>
+    <string name="hidden_label">Hidden</string>
+    <string name="display_name_error">Please enter a name</string>
+
     <!--Misc-->
     <string name="please_login">Please log in</string>
     <string name="retry">Retry</string>
     <string name="my_subscriptions">My Subscriptions</string>
     <string name="sync_subscriptions">Sync Subscriptions</string>
+    <string name="done">Done</string>
 
 </resources>

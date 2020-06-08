@@ -1,7 +1,6 @@
 package dev.gtcl.reddit.ui.fragments.item_scroller
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,8 +16,6 @@ import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.ItemScrollListener
 import dev.gtcl.reddit.ui.ListingItemAdapter
-import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
-import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 
 open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, SubredditActions, ItemClickListener{
 
@@ -76,24 +73,17 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
         }
     }
 
-    override fun onResume() {
-        super.onResume()
-        if(requireArguments().getSerializable(SUBREDDIT_WHERE_KEY) != null) {
-            model.syncWithDb()
-        }
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentItemScrollerBinding.inflate(inflater)
         listAdapter = ListingItemAdapter(this, this, this, this, model::retry, false)
-        scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadAfter)
+        scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadItems)
         binding.list.adapter = listAdapter
         binding.list.addOnScrollListener(scrollListener)
         setSwipeRefresh()
         setObservers()
         if(!model.initialPageLoaded){
             setListingInfo()
-            model.loadInitialDataAndFirstPage()
+            model.loadItems()
         }
 
         return binding.root
@@ -101,40 +91,20 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
 
     private fun setObservers(){
         model.items.observe(viewLifecycleOwner, Observer {
-            if(it != null){
-                listAdapter.clearItems()
-                listAdapter.addItems(it)
-                scrollListener.finishedLoading()
-                if(it.isEmpty()){
-                    binding.list.visibility = View.GONE
-                    binding.noResultsText.visibility = View.VISIBLE
-                } else {
-                    binding.list.visibility = View.VISIBLE
-                    binding.noResultsText.visibility = View.GONE
-                }
-            }
-        })
-
-        model.newItems.observe(viewLifecycleOwner, Observer {
-            if(it != null){
-                listAdapter.addItems(it)
-                model.newItemsAdded()
-                scrollListener.finishedLoading()
+            listAdapter.setItems(it)
+            scrollListener.finishedLoading()
+            if(it.isEmpty()){
+                binding.list.visibility = View.GONE
+                binding.noResultsText.visibility = View.VISIBLE
+            } else {
+                binding.list.visibility = View.VISIBLE
+                binding.noResultsText.visibility = View.GONE
             }
         })
 
         model.networkState.observe(viewLifecycleOwner, Observer {
             listAdapter.networkState = it
         })
-
-        if(requireArguments().getSerializable(SUBREDDIT_WHERE_KEY) != null){
-            model.subscribedSubs.observe(viewLifecycleOwner, Observer {
-                if(it != null){
-                    listAdapter.updateSubscribedItems(it)
-                    model.subredditsSynced()
-                }
-            })
-        }
 
         model.lastItemReached.observe(viewLifecycleOwner, Observer {
             if(it == true){

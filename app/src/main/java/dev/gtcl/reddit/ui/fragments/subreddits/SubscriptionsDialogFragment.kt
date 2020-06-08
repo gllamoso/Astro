@@ -118,7 +118,7 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
         binding.toolbar.setOnMenuItemClickListener {
             when(it.itemId){
                 R.id.search ->  {
-                    findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSearchFragment())
+                    findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSearchFragment(false))
                     dismiss()
                 }
                 R.id.sync -> activityModel.syncSubscriptionsWithReddit()
@@ -149,7 +149,8 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
     }
 
     override fun editMultiReddit(sub: Subscription) {
-        TODO("Not yet implemented")
+        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToMultiRedditFragment(sub))
+        dismiss()
     }
 
     companion object{
