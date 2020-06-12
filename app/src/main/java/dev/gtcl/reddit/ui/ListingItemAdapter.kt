@@ -17,8 +17,7 @@ class ListingItemAdapter(
     private val subredditActions: SubredditActions? = null,
     private val messageActions: MessageActions? = null,
     private val itemClickListener: ItemClickListener,
-    private val retry: () -> Unit,
-    private val hideableItems: Boolean = false): RecyclerView.Adapter<RecyclerView.ViewHolder>(), ItemClickListener  {
+    private val retry: () -> Unit): RecyclerView.Adapter<RecyclerView.ViewHolder>(), ItemClickListener  {
 
     var networkState: NetworkState? = NetworkState.LOADING
         set(value){
@@ -43,8 +42,8 @@ class ListingItemAdapter(
         items = ArrayList(newItems)
         if(previousSize < items.size){
             notifyItemRangeInserted(previousSize, items.size - previousSize)
-        } else if(previousSize > items.size) {
-            notifyItemRangeRemoved(items.size, previousSize - items.size)
+        } else {
+            notifyDataSetChanged()
         }
     }
 
@@ -77,6 +76,11 @@ class ListingItemAdapter(
         }
     }
 
+    private val hideItem: (Int) -> Unit = {
+        items.removeAt(it)
+        notifyItemRemoved(it)
+    }
+
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             R.layout.item_post -> {
@@ -84,19 +88,11 @@ class ListingItemAdapter(
                     throw IllegalStateException("Post Actions not initialized")
                 }
                 val post = items[position] as Post
-                val hide: (() -> Unit)? = if(hideableItems) {
-                    {   
-                        items.remove(post)
-                        notifyItemRemoved(position)
-                    }
-                } else {
-                    null
-                }
                 val postClicked: (Post) -> Unit = {
                     itemClicked(it)
                 }
                 (holder as PostVH).bind(post, postActions,
-                    hideAction = hide,
+                    hideAction = hideItem,
                     postClicked = postClicked)
             }
             R.layout.item_comment -> {

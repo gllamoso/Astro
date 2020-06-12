@@ -8,7 +8,7 @@ interface PostActions {
     fun share(post: Post)
     fun viewProfile(post: Post)
     fun save(post: Post)
-    fun hide(post: Post)
+    fun hide(post: Post, position: Int)
     fun report(post: Post)
     fun thumbnailClicked(post: Post)
 }

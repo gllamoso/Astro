@@ -10,28 +10,26 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.actions.ItemClickListener
-import dev.gtcl.reddit.actions.LeftDrawerActions
-import dev.gtcl.reddit.actions.PostActions
+import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentUserBinding
-import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.models.reddit.Account
 import dev.gtcl.reddit.models.reddit.Item
+import dev.gtcl.reddit.models.reddit.ListingType
 import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.item_scroller.ItemScrollerFragment
 
-class AccountFragment : Fragment(), ItemClickListener, PostActions, LeftDrawerActions {
+class AccountFragment : Fragment(), ItemClickListener, LeftDrawerActions, NavigationActions, ViewPagerActions {
 
     private lateinit var binding: FragmentUserBinding
 
     private var viewPagerActions: ViewPagerActions? = null
-    private var parentPostActions: PostActions? = null
+    private var navigationActions: NavigationActions? = null
 
-    fun setActions(viewPagerActions: ViewPagerActions, postActions: PostActions){
+    fun setActions(viewPagerActions: ViewPagerActions, navigationActions: NavigationActions){
         this.viewPagerActions = viewPagerActions
-        parentPostActions = postActions
+        this.navigationActions = navigationActions
     }
 
     val model: AccountFragmentVM by lazy {
@@ -44,7 +42,7 @@ class AccountFragment : Fragment(), ItemClickListener, PostActions, LeftDrawerAc
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
         when(childFragment){
-            is ItemScrollerFragment -> childFragment.setActions(this, postActions = this)
+            is ItemScrollerFragment -> childFragment.setActions(this, this)
         }
     }
 
@@ -106,42 +104,6 @@ class AccountFragment : Fragment(), ItemClickListener, PostActions, LeftDrawerAc
         viewPagerActions?.navigateToNewPage(item)
     }
 
-//     _____          _                  _   _
-//    |  __ \        | |       /\       | | (_)
-//    | |__) |__  ___| |_     /  \   ___| |_ _  ___  _ __  ___
-//    |  ___/ _ \/ __| __|   / /\ \ / __| __| |/ _ \| '_ \/ __|
-//    | |  | (_) \__ \ |_   / ____ \ (__| |_| | (_) | | | \__ \
-//    |_|   \___/|___/\__| /_/    \_\___|\__|_|\___/|_| |_|___/
-//
-
-    override fun vote(post: Post, vote: Vote) {
-        parentPostActions?.vote(post, vote)
-    }
-
-    override fun share(post: Post) {
-        parentPostActions?.share(post)
-    }
-
-    override fun viewProfile(post: Post) {
-        parentPostActions?.viewProfile(post)
-    }
-
-    override fun save(post: Post) {
-        parentPostActions?.save(post)
-    }
-
-    override fun hide(post: Post) {
-        parentPostActions?.hide(post)
-    }
-
-    override fun report(post: Post) {
-        parentPostActions?.report(post)
-    }
-
-    override fun thumbnailClicked(post: Post) {
-        parentPostActions?.thumbnailClicked(post)
-    }
-
 //     _           __ _     _____                                             _   _
 //    | |         / _| |   |  __ \                                  /\       | | (_)
 //    | |     ___| |_| |_  | |  | |_ __ __ ___      _____ _ __     /  \   ___| |_ _  ___  _ __  ___
@@ -150,7 +112,7 @@ class AccountFragment : Fragment(), ItemClickListener, PostActions, LeftDrawerAc
 //    |______\___|_|  \__| |_____/|_|  \__,_| \_/\_/ \___|_|    /_/    \_\___|\__|_|\___/|_| |_|___/
 
     override fun onAddAccountClicked() {
-        TODO("Not yet implemented")
+        navigationActions?.signInNewAccount()
     }
 
     override fun onRemoveAccountClicked(user: String) {
@@ -170,15 +132,65 @@ class AccountFragment : Fragment(), ItemClickListener, PostActions, LeftDrawerAc
     }
 
     override fun onMyAccountClicked() {
-        TODO("Not yet implemented")
+        navigationActions?.accountSelected(null)
     }
 
     override fun onInboxClicked() {
-        TODO("Not yet implemented")
+        navigationActions?.messagesSelected()
     }
 
     override fun onSettingsClicked() {
         TODO("Not yet implemented")
+    }
+
+//     _   _             _             _   _                            _   _
+//    | \ | |           (_)           | | (_)                 /\       | | (_)
+//    |  \| | __ ___   ___  __ _  __ _| |_ _  ___  _ __      /  \   ___| |_ _  ___  _ __  ___
+//    | . ` |/ _` \ \ / / |/ _` |/ _` | __| |/ _ \| '_ \    / /\ \ / __| __| |/ _ \| '_ \/ __|
+//    | |\  | (_| |\ V /| | (_| | (_| | |_| | (_) | | | |  / ____ \ (__| |_| | (_) | | | \__ \
+//    |_| \_|\__,_| \_/ |_|\__, |\__,_|\__|_|\___/|_| |_| /_/    \_\___|\__|_|\___/|_| |_|___/
+//                          __/ |
+//                         |___/
+
+    override fun listingSelected(listing: ListingType) {
+        navigationActions?.listingSelected(listing)
+    }
+
+    override fun accountSelected(user: String?) {
+        navigationActions?.accountSelected(user)
+    }
+
+    override fun messagesSelected() {
+        navigationActions?.messagesSelected()
+    }
+
+    override fun signInNewAccount() {
+        navigationActions?.signInNewAccount()
+    }
+
+    override fun launchWebview(url: String) {
+        navigationActions?.launchWebview(url)
+    }
+
+//    __      ___               _____                                     _   _
+//    \ \    / (_)             |  __ \                          /\       | | (_)
+//     \ \  / / _  _____      _| |__) |_ _  __ _  ___ _ __     /  \   ___| |_ _  ___  _ __  ___
+//      \ \/ / | |/ _ \ \ /\ / /  ___/ _` |/ _` |/ _ \ '__|   / /\ \ / __| __| |/ _ \| '_ \/ __|
+//       \  /  | |  __/\ V  V /| |  | (_| | (_| |  __/ |     / ____ \ (__| |_| | (_) | | | \__ \
+//        \/   |_|\___| \_/\_/ |_|   \__,_|\__, |\___|_|    /_/    \_\___|\__|_|\___/|_| |_|___/
+//                                          __/ |
+//                                         |___/
+
+    override fun enablePagerSwiping(enable: Boolean) {
+        viewPagerActions?.enablePagerSwiping(enable)
+    }
+
+    override fun navigatePreviousPage() {
+        viewPagerActions?.navigatePreviousPage()
+    }
+
+    override fun navigateToNewPage(item: Item) {
+        viewPagerActions?.navigateToNewPage(item)
     }
 
     companion object {

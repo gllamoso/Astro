@@ -6,8 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
@@ -16,6 +18,11 @@ import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.ItemScrollListener
 import dev.gtcl.reddit.ui.ListingItemAdapter
+import dev.gtcl.reddit.ui.activities.MainActivityVM
+import dev.gtcl.reddit.ui.fragments.AccountPage
+import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
+import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
+import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
 
 open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, SubredditActions, ItemClickListener{
 
@@ -23,21 +30,19 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
     private lateinit var scrollListener: ItemScrollListener
     private lateinit var listAdapter: ListingItemAdapter
 
-    private var parentItemClickListener: ItemClickListener? = null
-    private var parentPostActions: PostActions? = null
-    private var parentSubredditActions: SubredditActions? = null
-    private var parentMessageActions: MessageActions? = null
+    private var viewPagerActions: ViewPagerActions? = null
+    private var navigationActions: NavigationActions? = null
 
     val model: ItemScrollerVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(ItemScrollerVM::class.java)
     }
 
-    fun setActions(listener: ItemClickListener, postActions: PostActions? = null, subredditActions: SubredditActions? = null, messageActions: MessageActions? = null){
-        parentItemClickListener = listener
-        parentPostActions = postActions
-        parentSubredditActions = subredditActions
-        parentMessageActions = messageActions
+    private val activityModel: MainActivityVM by activityViewModels()
+
+    fun setActions(viewPagerActions: ViewPagerActions?, navigationActions: NavigationActions?){
+        this.viewPagerActions = viewPagerActions
+        this.navigationActions = navigationActions
     }
 
     private fun setListingInfo(){
@@ -75,7 +80,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentItemScrollerBinding.inflate(inflater)
-        listAdapter = ListingItemAdapter(this, this, this, this, model::retry, false)
+        listAdapter = ListingItemAdapter(this, this, this, this, model::retry)
         scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadItems)
         binding.list.adapter = listAdapter
         binding.list.addOnScrollListener(scrollListener)
@@ -134,32 +139,51 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
 //
 
     override fun vote(post: Post, vote: Vote) {
-        parentPostActions?.vote(post, vote)
+        activityModel.vote(post.name, vote)
     }
 
     override fun share(post: Post) {
-        parentPostActions?.share(post)
+        ShareOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
     }
 
     override fun viewProfile(post: Post) {
-        parentPostActions?.viewProfile(post)
+        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(post.author)))
     }
 
     override fun save(post: Post) {
-        parentPostActions?.save(post)
+        activityModel.save(post.name, post.saved)
     }
 
-    override fun hide(post: Post) {
-        parentPostActions?.hide(post)
+    override fun hide(post: Post, position: Int) {
+        activityModel.hide(post.name, post.hidden)
+        if(post.hidden){
+            model.removeItemAt(position)
+        }
     }
 
     override fun report(post: Post) {
-        parentPostActions?.report(post)
+        TODO("Implement reporting")
     }
 
     override fun thumbnailClicked(post: Post) {
         model.addReadItem(post)
-        parentPostActions?.thumbnailClicked(post)
+        val urlType = when {
+            post.isImage -> UrlType.IMAGE
+            post.isGif -> UrlType.GIF
+            post.isGfycat -> UrlType.GFYCAT
+            post.isGfv -> UrlType.GIFV
+            post.isRedditVideo -> UrlType.M3U8
+            else -> UrlType.LINK
+        }
+        if(urlType == UrlType.LINK){
+            navigationActions?.launchWebview(post.url!!)
+        } else {
+            val dialog = MediaDialogFragment.newInstance(
+                if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.videoUrl!! else post.url!!,
+                urlType,
+                post)
+            dialog.show(childFragmentManager, null)
+        }
     }
 
 //     __  __                                               _   _
@@ -171,25 +195,17 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
 //                                 __/ |
 //                                |___/
 
-    override fun reply(message: Message) {
-        parentMessageActions?.reply(message)
-    }
+    override fun reply(message: Message) {}
 
-    override fun mark(message: Message) {
-        parentMessageActions?.mark(message)
-    }
+    override fun mark(message: Message) {}
 
-    override fun delete(message: Message) {
-        parentMessageActions?.delete(message)
-    }
+    override fun delete(message: Message) {}
 
     override fun viewProfile(user: String) {
-        parentMessageActions?.viewProfile(user)
+        navigationActions?.accountSelected(user)
     }
 
-    override fun block(user: String) {
-        parentMessageActions?.block(user)
-    }
+    override fun block(user: String) {}
 
 //      _____       _                  _     _ _ _                  _   _
 //     / ____|     | |                | |   | (_) |       /\       | | (_)
@@ -200,7 +216,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
 //
 
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-        parentSubredditActions?.subscribe(subreddit, subscribe)
+        activityModel.subscribe(subreddit, subscribe)
     }
 
 //     _____ _                    _____ _ _      _      _      _     _
@@ -212,7 +228,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
 
     override fun itemClicked(item: Item) {
         model.addReadItem(item)
-        parentItemClickListener?.itemClicked(item)
+        viewPagerActions?.navigateToNewPage(item)
     }
 
 //     _   _                 _____           _

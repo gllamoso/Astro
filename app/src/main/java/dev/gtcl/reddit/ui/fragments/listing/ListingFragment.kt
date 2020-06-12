@@ -14,6 +14,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
@@ -26,6 +27,10 @@ import dev.gtcl.reddit.databinding.LayoutNavHeaderBinding
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.activities.MainDrawerAdapter
+import dev.gtcl.reddit.ui.fragments.AccountPage
+import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
+import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
+import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.SortDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.TimeDialogFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsDialogFragment
@@ -37,8 +42,6 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     private lateinit var scrollListener: ItemScrollListener
     private var viewPagerActions: ViewPagerActions? = null
     private var navigationActions: NavigationActions? = null
-    private var parentPostActions: PostActions? = null
-    private var parentSubredditActions: SubredditActions? = null
 
     private val model: ListingVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
@@ -47,25 +50,12 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 
     private val activityModel: MainActivityVM by activityViewModels()
 
-    private val adapter: ListingItemAdapter by lazy {
-        ListingItemAdapter(
-            postActions = this,
-            itemClickListener = this,
-            retry = model::retry,
-            hideableItems = true
-        )
-    }
-
     fun setActions(
         viewPagerActions: ViewPagerActions,
-        navigationActions: NavigationActions,
-        postActions: PostActions,
-        subredditActions: SubredditActions
+        navigationActions: NavigationActions
     ) {
         this.viewPagerActions = viewPagerActions
         this.navigationActions = navigationActions
-        parentPostActions = postActions
-        parentSubredditActions = subredditActions
     }
 
     override fun onAttachFragment(childFragment: Fragment) {
@@ -93,7 +83,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
         setListingInfo()
 
         if (!model.initialPageLoaded) {
-            model.loadFirstPage()
+            model.loadMore()
         }
 
         setSwipeRefresh()
@@ -124,18 +114,27 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     }
 
     private fun setRecyclerView() {
+        val adapter = ListingItemAdapter(
+            postActions = this,
+            itemClickListener = this,
+            retry = model::retry
+        )
+
         binding.list.adapter = adapter
         scrollListener = ItemScrollListener(
             15,
             binding.list.layoutManager as GridLayoutManager,
-            model::loadAfter
+            model::loadMore
         )
         binding.list.addOnScrollListener(scrollListener)
+
         model.items.observe(viewLifecycleOwner, Observer {
             if (it != null) {
-                binding.list.scrollToPosition(0)
-                adapter.clearItems()
+                val prevCount = adapter.itemCount
                 adapter.setItems(it)
+                if(prevCount >= it.size){
+                    binding.list.scrollToPosition(0)
+                }
                 scrollListener.finishedLoading()
                 if (it.isEmpty()) {
                     binding.list.visibility = View.GONE
@@ -147,19 +146,8 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             }
         })
 
-        model.newItems.observe(viewLifecycleOwner, Observer {
-            if (it != null) {
-                adapter.setItems(it)
-                model.newItemsAdded()
-                scrollListener.finishedLoading()
-            }
-        })
-
         model.networkState.observe(viewLifecycleOwner, Observer {
             adapter.networkState = it
-            if(model.initialPageLoaded){
-
-            }
         })
 
         model.lastItemReached.observe(viewLifecycleOwner, Observer {
@@ -265,31 +253,54 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 //
 
     override fun vote(post: Post, vote: Vote) {
-        parentPostActions?.vote(post, vote)
+        activityModel.vote(post.name, vote)
     }
 
     override fun share(post: Post) {
-        parentPostActions?.share(post)
+        ShareOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
     }
 
     override fun viewProfile(post: Post) {
-        parentPostActions?.viewProfile(post)
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                AccountPage(post.author)
+            ))
     }
 
     override fun save(post: Post) {
-        parentPostActions?.save(post)
+        activityModel.save(post.name, post.saved)
     }
 
-    override fun hide(post: Post) {
-        parentPostActions?.hide(post)
+    override fun hide(post: Post, position: Int) {
+        activityModel.hide(post.name, post.hidden)
+        if(post.hidden){
+            model.removeItemAt(position)
+        }
     }
 
     override fun report(post: Post) {
-        parentPostActions?.report(post)
+        TODO("Implement reporting")
     }
 
     override fun thumbnailClicked(post: Post) {
-        parentPostActions?.thumbnailClicked(post)
+        model.addReadItem(post)
+        val urlType = when {
+            post.isImage -> UrlType.IMAGE
+            post.isGif -> UrlType.GIF
+            post.isGfycat -> UrlType.GFYCAT
+            post.isGfv -> UrlType.GIFV
+            post.isRedditVideo -> UrlType.M3U8
+            else -> UrlType.LINK
+        }
+        if(urlType == UrlType.LINK){
+            navigationActions?.launchWebview(post.url!!)
+        } else {
+            val dialog = MediaDialogFragment.newInstance(
+                if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.videoUrl!! else post.url!!,
+                urlType,
+                post)
+            dialog.show(childFragmentManager, null)
+        }
     }
 
 //      _____       _                  _     _ _ _                  _   _
@@ -301,7 +312,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 //
 
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-        parentSubredditActions?.subscribe(subreddit, subscribe)
+//        parentSubredditActions?.subscribe(subreddit, subscribe)
     }
 
 //     _      _     _   _               _______                  _____ _ _      _      _      _     _
@@ -406,7 +417,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 
     override fun sortSelected(sort: PostSort, time: Time?) {
         model.setSort(sort, time)
-        model.loadFirstPage()
+        model.refresh()
     }
 
     companion object {

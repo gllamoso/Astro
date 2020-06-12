@@ -86,7 +86,6 @@ class MultiRedditVM(application: RedditApplication): AndroidViewModel(applicatio
             } catch (e: HttpException){
                 _errorMessage.value = e.toString()
             }
-
         }
     }
 

@@ -18,7 +18,7 @@ import dev.gtcl.reddit.databinding.LayoutPopupPostOptionsBinding
 
 class PostVH private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
-    fun bind(post: Post?, postActions: PostActions, hideAction: (() -> Unit)?, postClicked: (Post) -> Unit){
+    fun bind(post: Post?, postActions: PostActions, hideAction: ((Int) -> Unit), postClicked: (Post) -> Unit){
         binding.post = post
         binding.executePendingBindings()
         binding.rootLayout.setOnClickListener {
@@ -40,7 +40,7 @@ class PostVH private constructor(private val binding:ItemPostBinding)
         }
     }
 
-    private fun showPopupWindow(post: Post, postActions: PostActions, anchorView: View, hideAction: (() -> Unit)?){
+    private fun showPopupWindow(post: Post, postActions: PostActions, anchorView: View, hideAction: ((Int) -> Unit)){
         val inflater = anchorView.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = LayoutPopupPostOptionsBinding.inflate(inflater)
         val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
@@ -75,15 +75,15 @@ class PostVH private constructor(private val binding:ItemPostBinding)
                 popupWindow.dismiss()
             }
             saveButton.root.setOnClickListener {
-                postActions.save(post)
                 post.saved = !post.saved
+                postActions.save(post)
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }
             hideButton.root.setOnClickListener {
-                postActions.hide(post)
                 post.hidden = !post.hidden
-                hideAction?.invoke()
+                postActions.hide(post, adapterPosition)
+                hideAction(adapterPosition)
                 popupWindow.dismiss()
             }
             reportButton.root.setOnClickListener {

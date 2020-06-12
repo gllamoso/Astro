@@ -23,7 +23,7 @@ import dev.gtcl.reddit.ui.fragments.listing.ListingFragment
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
 
-class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions, PostActions, SubredditActions, MessageActions {
+class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
 
     private lateinit var binding: FragmentViewPagerBinding
 
@@ -39,7 +39,7 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions, PostA
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
         when(childFragment){
-            is ListingFragment -> childFragment.setActions(this, this, this, this)
+            is ListingFragment -> childFragment.setActions(this, this)
             is CommentsFragment -> childFragment.setActions(this)
             is AccountFragment -> childFragment.setActions(this, this)
             is MediaDialogFragment -> childFragment.setActions { navigateToNewPage(it) }
@@ -163,106 +163,6 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions, PostA
 //            setExitAnimations(requireContext(), R.anim.slide_left, R.anim.slide_left)
         }.build()
         intent.launchUrl(requireContext(), Uri.parse(url))
-    }
-
-//     _____          _                  _   _
-//    |  __ \        | |       /\       | | (_)
-//    | |__) |__  ___| |_     /  \   ___| |_ _  ___  _ __  ___
-//    |  ___/ _ \/ __| __|   / /\ \ / __| __| |/ _ \| '_ \/ __|
-//    | |  | (_) \__ \ |_   / ____ \ (__| |_| | (_) | | | \__ \
-//    |_|   \___/|___/\__| /_/    \_\___|\__|_|\___/|_| |_|___/
-//
-
-    override fun vote(post: Post, vote: Vote) {
-//        model.vote(post.name, vote)
-        TODO("Reimplement")
-    }
-
-    override fun share(post: Post) {
-        ShareOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
-    }
-
-    override fun viewProfile(post: Post) {
-        accountSelected(post.author)
-    }
-
-    override fun save(post: Post) {
-//        if(post.saved) model.unsave(post.name)
-//        else model.save(post.name)
-        TODO("Reimplement")
-    }
-
-    override fun hide(post: Post) {
-//        if(!post.hidden) model.hide(post.name)
-//        else model.unhide(post.name)
-        TODO("Reimplement")
-    }
-
-    override fun report(post: Post) {
-        TODO("Not yet implemented")
-    }
-
-    override fun thumbnailClicked(post: Post) {
-        val urlType = when {
-            post.isImage -> UrlType.IMAGE
-            post.isGif -> UrlType.GIF
-            post.isGfycat -> UrlType.GFYCAT
-            post.isGfv -> UrlType.GIFV
-            post.isRedditVideo -> UrlType.M3U8
-            else -> UrlType.LINK
-        }
-        if(urlType == UrlType.LINK){
-            val url = post.url!!
-            launchWebview(url)
-        } else {
-            val dialog = MediaDialogFragment.newInstance(
-                if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.videoUrl!! else post.url!!,
-                urlType,
-                post)
-            dialog.show(childFragmentManager, null)
-        }
-    }
-
-//     __  __                                               _   _
-//    |  \/  |                                    /\       | | (_)
-//    | \  / | ___  ___ ___  __ _  __ _  ___     /  \   ___| |_ _  ___  _ __  ___
-//    | |\/| |/ _ \/ __/ __|/ _` |/ _` |/ _ \   / /\ \ / __| __| |/ _ \| '_ \/ __|
-//    | |  | |  __/\__ \__ \ (_| | (_| |  __/  / ____ \ (__| |_| | (_) | | | \__ \
-//    |_|  |_|\___||___/___/\__,_|\__, |\___| /_/    \_\___|\__|_|\___/|_| |_|___/
-//                                 __/ |
-//                                |___/
-
-    override fun reply(message: Message) {
-        TODO("Not yet implemented")
-    }
-
-    override fun mark(message: Message) {
-        TODO("Not yet implemented")
-    }
-
-    override fun delete(message: Message) {
-        TODO("Not yet implemented")
-    }
-
-    override fun viewProfile(user: String) {
-        accountSelected(user)
-    }
-
-    override fun block(user: String) {
-        TODO("Not yet implemented")
-    }
-
-//      _____       _                  _     _ _ _                  _   _
-//     / ____|     | |                | |   | (_) |       /\       | | (_)
-//    | (___  _   _| |__  _ __ ___  __| | __| |_| |_     /  \   ___| |_ _  ___  _ __  ___
-//     \___ \| | | | '_ \| '__/ _ \/ _` |/ _` | | __|   / /\ \ / __| __| |/ _ \| '_ \/ __|
-//     ____) | |_| | |_) | | |  __/ (_| | (_| | | |_   / ____ \ (__| |_| | (_) | | | \__ \
-//    |_____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
-//
-
-    override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-//        model.subscribe(subreddit, if(subscribe) SubscribeAction.SUBSCRIBE else SubscribeAction.UNSUBSCRIBE, false)
-        TODO("Reimplement")
     }
 
 }

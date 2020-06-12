@@ -264,12 +264,6 @@ operator fun <T> MutableLiveData<ArrayList<T>>.plusAssign(values: List<T>) {
     this.value = value
 }
 
-fun <T> MutableLiveData<ArrayList<T>>.remove(item: T){ // TODO: Implement with ItemScrollerFragment and ListingFragment
-    val value = this.value ?: arrayListOf()
-    value.remove(item)
-    this.value = value
-}
-
 operator fun <T> MutableLiveData<MutableSet<T>>.plusAssign(item: T){
     val value = this.value ?: mutableSetOf()
     value.add(item)

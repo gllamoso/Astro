@@ -1,7 +1,9 @@
 package dev.gtcl.reddit.ui.activities
 
 import android.Manifest
+import android.app.Fragment
 import android.os.Bundle
+import android.util.Log
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity

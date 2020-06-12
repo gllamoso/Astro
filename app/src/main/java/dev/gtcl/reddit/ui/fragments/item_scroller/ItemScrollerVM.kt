@@ -32,8 +32,6 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
     val items: LiveData<ArrayList<Item>>
         get() = _items
 
-    private val loadedIds = HashSet<String>()
-
     private val readItemIds = HashSet<String>()
     private var after: String? = null
     var user: String? = null
@@ -41,7 +39,9 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
     private lateinit var postSort: PostSort
     private var t: Time? = null
     private var pageSize = 15
-    var initialPageLoaded = false
+    private var _initialPageLoaded = false
+    val initialPageLoaded: Boolean
+        get() = _initialPageLoaded
 
     private val _lastItemReached = MutableLiveData<Boolean>().apply { value = false }
     val lastItemReached: LiveData<Boolean>
@@ -84,7 +84,7 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
             _networkState.value = NetworkState.LOADING
             loadMore()
             _networkState.value = NetworkState.LOADED
-            initialPageLoaded = true
+            _initialPageLoaded = true
         }
     }
 
@@ -98,6 +98,8 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
     fun refresh(){
         coroutineScope.launch {
             _refreshState.value = NetworkState.LOADING
+            after = null
+            _items.value?.clear()
             loadMore()
             _refreshState.value = NetworkState.LOADED
         }
@@ -123,11 +125,14 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
             }
             _items += items
             _lastItemReached.value = items.size < size
-            loadedIds.addAll(items.map { it.name })
             after = response.data.after
         } catch (e: Exception){
             _errorMessage.value = e.toString()
         }
+    }
+
+    fun removeItemAt(position: Int){
+        _items.value?.removeAt(position)
     }
 
 }

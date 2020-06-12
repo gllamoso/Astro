@@ -9,6 +9,7 @@ import dev.gtcl.reddit.models.reddit.Account
 import dev.gtcl.reddit.models.reddit.MultiReddit
 import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.network.NetworkState
+import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.repositories.SubredditRepository
 import dev.gtcl.reddit.repositories.UserRepository
 import kotlinx.coroutines.*
@@ -18,6 +19,7 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
     // Repos
     private val userRepository = UserRepository.getInstance(application)
     private val subredditRepository = SubredditRepository.getInstance(application)
+    private val listingRepository = ListingRepository.getInstance(application)
 
     // Scopes
     private val viewModelJob = Job()
@@ -124,5 +126,46 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
             }
         }
     }
+
+    fun vote(thingId: String, vote: Vote){
+        coroutineScope.launch {
+            val response = listingRepository.vote(thingId, vote).await()
+            if (response.code() != 200) {
+                _errorMessage.value = response.message()
+            }
+        }
+    }
+
+    fun save(thingId: String, save: Boolean){
+        coroutineScope.launch {
+            val response = if(save){
+                listingRepository.save(thingId).await()
+            } else {
+                listingRepository.unsave(thingId).await()
+            }
+            if(response.code() != 200){
+                _errorMessage.value = response.message()
+            }
+        }
+    }
+
+    fun hide(thingId: String, hide: Boolean){
+        coroutineScope.launch {
+            val response = if(hide){
+                listingRepository.hide(thingId).await()
+            } else {
+                listingRepository.unhide(thingId).await()
+            }
+            if(response.code() != 200){
+                _errorMessage.value = response.message()
+            }
+        }
+    }
+
+    fun report(){
+        TODO("Implement Reporting")
+    }
+
+
 
 }
