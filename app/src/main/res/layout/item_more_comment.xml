@@ -6,7 +6,7 @@
     <data>
         <variable
             name="more"
-            type="dev.gtcl.reddit.models.reddit.More" />
+            type="dev.gtcl.reddit.models.reddit.listing.More" />
     </data>
 
     <LinearLayout

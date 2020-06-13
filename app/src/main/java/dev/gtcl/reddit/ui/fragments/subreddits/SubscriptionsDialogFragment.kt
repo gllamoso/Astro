@@ -17,7 +17,7 @@ import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.actions.SubscriptionActions
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.FragmentDialogSubscriptionsBinding
-import dev.gtcl.reddit.models.reddit.ListingType
+import dev.gtcl.reddit.models.reddit.listing.ListingType
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections

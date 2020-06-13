@@ -15,7 +15,7 @@ import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.SELECTED_SUBREDDITS_KEY
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentMultiredditSubredditsBinding
-import dev.gtcl.reddit.models.reddit.Subreddit
+import dev.gtcl.reddit.models.reddit.listing.Subreddit
 
 class MultiRedditFragment: Fragment(),
     MultiRedditSubredditsAdapter.OnSubredditRemovedListener {

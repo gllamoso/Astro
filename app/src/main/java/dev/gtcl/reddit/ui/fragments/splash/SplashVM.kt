@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.models.reddit.AccessToken
-import dev.gtcl.reddit.models.reddit.Account
+import dev.gtcl.reddit.models.reddit.listing.Account
 import dev.gtcl.reddit.repositories.UserRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

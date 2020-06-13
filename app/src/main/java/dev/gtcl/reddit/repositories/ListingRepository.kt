@@ -5,8 +5,7 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.ItemRead
 import dev.gtcl.reddit.database.redditDatabase
 import dev.gtcl.reddit.models.reddit.*
-import dev.gtcl.reddit.models.reddit.Child
-import dev.gtcl.reddit.models.reddit.CommentPage
+import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.RedditApi
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
@@ -112,9 +111,6 @@ class ListingRepository private constructor(private val application: RedditAppli
     // --- DATABASE
 
     @MainThread
-    fun getReadPostsLiveData() = database.readItemDao.getAllLiveData()
-
-    @MainThread
     suspend fun getReadPosts() = database.readItemDao.getAll()
 
     @MainThread
@@ -125,12 +121,23 @@ class ListingRepository private constructor(private val application: RedditAppli
     }
 
     // --- COMMENTS
-    fun getPostAndComments(permalink: String, sort: CommentSort = CommentSort.BEST, limit: Int = 15): Deferred<CommentPage> =
-        RedditApi.base.getPostAndComments(permalink = "$permalink.json", sort = sort, limit = limit)
+    fun getPostAndComments(permalink: String, sort: CommentSort = CommentSort.BEST, limit: Int = 15): Deferred<CommentPage>{
+        return if(application.accessToken == null) {
+            RedditApi.base.getPostAndComments(null, "$permalink.json", sort, limit)
+        } else {
+            RedditApi.oauth.getPostAndComments(application.accessToken!!.authorizationHeader, "$permalink.json", sort, limit)
+        }
+    }
 
     @MainThread
-    fun getMoreComments(children: String, linkId: String, sort: CommentSort = CommentSort.BEST): Deferred<List<Child>> =
-        RedditApi.base.getMoreComments(children = children, linkId = linkId, sort = sort)
+    fun getMoreComments(children: String, linkId: String, sort: CommentSort = CommentSort.BEST): Deferred<MoreCommentsResponse>{
+        return if(application.accessToken == null) {
+            RedditApi.base.getMoreComments(null, children, linkId, sort = sort)
+        } else {
+            RedditApi.oauth.getMoreComments(application.accessToken!!.authorizationHeader, children, linkId, sort = sort)
+        }
+    }
+
 
     companion object{
         private lateinit var INSTANCE: ListingRepository

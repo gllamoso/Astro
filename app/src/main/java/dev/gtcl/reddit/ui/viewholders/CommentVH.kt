@@ -5,7 +5,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemCommentBinding
-import dev.gtcl.reddit.models.reddit.Comment
+import dev.gtcl.reddit.models.reddit.listing.Comment
 
 class CommentVH private constructor(private val binding: ItemCommentBinding): RecyclerView.ViewHolder(binding.root) {
     fun bind(comment: Comment, onCommentClicked: (Int, Comment) -> Unit){

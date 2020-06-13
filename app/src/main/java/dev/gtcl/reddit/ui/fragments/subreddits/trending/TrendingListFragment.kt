@@ -14,9 +14,9 @@ import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.actions.ListingTypeClickListener
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.databinding.FragmentItemScrollerBinding
-import dev.gtcl.reddit.models.reddit.Item
-import dev.gtcl.reddit.models.reddit.Subreddit
-import dev.gtcl.reddit.models.reddit.SubredditListing
+import dev.gtcl.reddit.models.reddit.listing.Item
+import dev.gtcl.reddit.models.reddit.listing.Subreddit
+import dev.gtcl.reddit.models.reddit.listing.SubredditListing
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.ItemScrollListener
 
@@ -136,7 +136,11 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
 
     override fun itemClicked(item: Item) {
         if(item is Subreddit){
-            parentListingTypeClickListener?.listingTypeClicked(SubredditListing(item))
+            parentListingTypeClickListener?.listingTypeClicked(
+                SubredditListing(
+                    item
+                )
+            )
         }
     }
 

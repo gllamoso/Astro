@@ -6,8 +6,8 @@ import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.network.RedditApi
 import dev.gtcl.reddit.database.redditDatabase
 import dev.gtcl.reddit.models.reddit.AccessToken
-import dev.gtcl.reddit.models.reddit.Account
-import dev.gtcl.reddit.models.reddit.AccountChild
+import dev.gtcl.reddit.models.reddit.listing.Account
+import dev.gtcl.reddit.models.reddit.listing.AccountChild
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

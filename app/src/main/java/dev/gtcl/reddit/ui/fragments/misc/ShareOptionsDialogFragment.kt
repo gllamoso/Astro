@@ -8,7 +8,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import dev.gtcl.reddit.POST_KEY
 import dev.gtcl.reddit.databinding.FragmentShareOptionsBinding
-import dev.gtcl.reddit.models.reddit.Post
+import dev.gtcl.reddit.models.reddit.listing.Post
 
 class ShareOptionsDialogFragment : DialogFragment(){
 

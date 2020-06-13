@@ -5,9 +5,9 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.actions.SubredditActions
-import dev.gtcl.reddit.models.reddit.Account
-import dev.gtcl.reddit.models.reddit.Item
-import dev.gtcl.reddit.models.reddit.Subreddit
+import dev.gtcl.reddit.models.reddit.listing.Account
+import dev.gtcl.reddit.models.reddit.listing.Item
+import dev.gtcl.reddit.models.reddit.listing.Subreddit
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.viewholders.AccountVH
 import dev.gtcl.reddit.ui.viewholders.SubredditVH

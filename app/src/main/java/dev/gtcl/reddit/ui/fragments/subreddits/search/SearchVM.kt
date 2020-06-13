@@ -8,6 +8,8 @@ import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.SubredditWhere
 import dev.gtcl.reddit.minusAssign
 import dev.gtcl.reddit.models.reddit.*
+import dev.gtcl.reddit.models.reddit.listing.Item
+import dev.gtcl.reddit.models.reddit.listing.SubredditChild
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.plusAssign
 import dev.gtcl.reddit.repositories.SubredditRepository

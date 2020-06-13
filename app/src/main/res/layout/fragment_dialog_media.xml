@@ -4,7 +4,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <import type="dev.gtcl.reddit.models.reddit.UrlType"/>
+        <import type="dev.gtcl.reddit.models.reddit.listing.UrlType"/>
         <import type="android.view.View"/>
         <variable
             name="model"

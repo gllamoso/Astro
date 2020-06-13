@@ -13,10 +13,8 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentUserBinding
 import dev.gtcl.reddit.database.SavedAccount
-import dev.gtcl.reddit.models.reddit.Account
-import dev.gtcl.reddit.models.reddit.Item
-import dev.gtcl.reddit.models.reddit.ListingType
-import dev.gtcl.reddit.models.reddit.Post
+import dev.gtcl.reddit.models.reddit.listing.Item
+import dev.gtcl.reddit.models.reddit.listing.ListingType
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.item_scroller.ItemScrollerFragment
 

@@ -10,7 +10,6 @@ import android.widget.TextView
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.LeftDrawerActions
 import dev.gtcl.reddit.database.SavedAccount
-import dev.gtcl.reddit.models.reddit.Account
 
 class MainDrawerAdapter(val context: Context, private val drawerOnClickListeners: LeftDrawerActions) : BaseExpandableListAdapter(){
     private val addAccountString = context.getString(R.string.add_account)

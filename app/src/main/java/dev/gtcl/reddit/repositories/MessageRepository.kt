@@ -2,7 +2,7 @@ package dev.gtcl.reddit.repositories
 
 import dev.gtcl.reddit.MessageWhere
 import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.models.reddit.ListingResponse
+import dev.gtcl.reddit.models.reddit.listing.ListingResponse
 import dev.gtcl.reddit.network.RedditApi
 import kotlinx.coroutines.Deferred
 

@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.actions.MessageActions
 import dev.gtcl.reddit.databinding.ItemMessageBinding
-import dev.gtcl.reddit.models.reddit.Message
+import dev.gtcl.reddit.models.reddit.listing.Message
 
 class MessageVH private constructor(private val binding: ItemMessageBinding): RecyclerView.ViewHolder(binding.root){
     fun bind(message: Message, messageActions: MessageActions){

@@ -1,17 +1,24 @@
-package dev.gtcl.reddit.models.reddit
+package dev.gtcl.reddit.models.reddit.listing
 
 import android.net.Uri
 import android.os.Parcelable
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
-import com.squareup.moshi.ToJson
 import dev.gtcl.reddit.SubscriptionType
 import dev.gtcl.reddit.Visibility
-import dev.gtcl.reddit.database.*
+import dev.gtcl.reddit.database.SavedAccount
+import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.toValidImgUrl
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
+
+sealed class Item(val kind: ItemType){
+    abstract val depth: Int
+    abstract val id: String?
+    abstract val name: String
+    var hiddenPoints = 0 // Hide if > 0
+}
 
 enum class ItemType {
     @Json(name="t1")
@@ -32,46 +39,6 @@ enum class ItemType {
     MultiReddit
 }
 
-sealed class Item(val kind: ItemType){
-    abstract val depth: Int
-    abstract val id: String?
-    abstract val name: String
-    var hiddenPoints = 0 // Hide if > 0
-}
-
-class ListingResponse(val data: ListingData)
-
-class ListingData(
-    val children: List<ListingChild>,
-    val after: String?
-)
-
-sealed class ListingChild(@Json(name="kind") val kind: ItemType){
-    abstract val data: Item
-}
-
-data class CommentChild(override val data: Comment): ListingChild(
-    ItemType.Comment // t1
-)
-data class AccountChild(override val data: Account): ListingChild(
-    ItemType.Account // t2
-)
-data class PostChild(override val data: Post) : ListingChild(
-    ItemType.Post // t3
-)
-data class MessageChild(override val data: Message): ListingChild(
-    ItemType.Message // t4
-)
-data class SubredditChild(override val data: Subreddit): ListingChild(
-    ItemType.Subreddit
-)
-data class MoreChild(override val data: More): ListingChild(
-    ItemType.More // more
-)
-data class MultiRedditChild(override val data: MultiReddit): ListingChild(
-    ItemType.MultiReddit
-)
-
 // http://patorjk.com/software/taag/#p=display&f=Big&t=t1%20-%20Comment
 
 //   _  __             _____                                     _
@@ -83,18 +50,17 @@ data class MultiRedditChild(override val data: MultiReddit): ListingChild(
 
 data class Comment( // TODO: Add more properties: saved, liked, all_awardings
     override val name: String,
-    override val id: String = name.replace("t1_", ""),
-    override var depth: Int = 0,
+    override val id: String,
+    override var depth: Int,
     val author: String,
     @Json(name="author_fullname")
-    val authorFullName: String?,
+    val authorFullName: String,
     val body: String,
     val score: Int,
     @Json(name="created_utc")
     val created: Long,
     var isPartiallyCollapsed: Boolean = false
 ): Item(ItemType.Comment)
-
 
 //   _   ___                                               _
 //  | | |__ \               /\                            | |
@@ -260,7 +226,7 @@ enum class PostType{
 }
 
 @Parcelize
-enum class UrlType: Parcelable{
+enum class UrlType: Parcelable {
     IMAGE,
     GIF,
     GIFV,
@@ -389,10 +355,7 @@ data class SubredditNamesResponse(val names: List<String>)
 //   \__|\___/           /_/    \_\_/\_/ \__,_|_|  \__,_|
 
 class TrophyListingResponse(val data: TrophyListingData)
-class TrophyListingData(val trophies: List<TrophyListing>)
-data class TrophyListing(override val data: Award): ListingChild(
-    ItemType.Award
-)
+class TrophyListingData(val trophies: List<TrophyChild>)
 
 @Parcelize
 data class Award(
@@ -415,7 +378,7 @@ data class More(
     override val name: String,
     override val id: String = name.replace("t1_", ""),
     override var depth: Int,
-    val parentId: String,
+    @Json(name = "parent_id") val parentId: String,
     val children: List<String>,
     var count: Int
 ): Item(ItemType.More) {
@@ -469,7 +432,7 @@ data class MultiReddit(
     }
 
     fun asSubscription() = Subscription(
-    "${name}__${ownerId.replace("t2_","")}",
+        "${name}__${ownerId.replace("t2_","")}",
         name,
         displayName,
         ownerId.replace("t2_",""),
@@ -493,9 +456,8 @@ data class MultiRedditUpdate(
     @SerializedName("key_color") val keyColor: String? = null,
     val subreddits: List<SubredditData>? = null,
     val visibility: Visibility? = null
-):Parcelable{
+): Parcelable {
     override fun toString(): String = Gson().toJson(this)
 }
-
 
 fun List<MultiReddit>.asSubscriptions() = map { it.asSubscription() }

@@ -6,7 +6,7 @@
     <data>
         <variable
             name="sub"
-            type="dev.gtcl.reddit.models.reddit.Subreddit" />
+            type="dev.gtcl.reddit.models.reddit.listing.Subreddit" />
 
         <variable
             name="iconTint"

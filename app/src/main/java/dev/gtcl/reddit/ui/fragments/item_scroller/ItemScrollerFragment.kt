@@ -14,7 +14,7 @@ import androidx.recyclerview.widget.GridLayoutManager
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentItemScrollerBinding
-import dev.gtcl.reddit.models.reddit.*
+import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.ItemScrollListener
 import dev.gtcl.reddit.ui.ListingItemAdapter
@@ -54,7 +54,10 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
                 val time = args.getSerializable(TIME_KEY) as Time?
                 val pageSize = args.getInt(PAGE_SIZE_KEY)
                 val user = args.getString(USER_KEY)
-                model.setListingInfo(ProfileListing(profileInfo), postSort, time, pageSize)
+                model.setListingInfo(
+                    ProfileListing(
+                        profileInfo
+                    ), postSort, time, pageSize)
                 model.user = user
             }
             args.getParcelable<Subreddit>(SUBREDDIT_KEY) != null -> {
@@ -62,7 +65,10 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
                 val postSort = args.getSerializable(POST_SORT_KEY) as PostSort
                 val time = args.getSerializable(TIME_KEY) as Time?
                 val pageSize = args.getInt(PAGE_SIZE_KEY)
-                model.setListingInfo(SubredditListing(subreddit), postSort, time, pageSize)
+                model.setListingInfo(
+                    SubredditListing(
+                        subreddit
+                    ), postSort, time, pageSize)
             }
             args.getSerializable(MESSAGE_WHERE_KEY) != null -> {
                 val messageWhere = args.getSerializable(MESSAGE_WHERE_KEY) as MessageWhere

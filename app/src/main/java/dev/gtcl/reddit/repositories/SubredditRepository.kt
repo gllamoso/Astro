@@ -5,6 +5,7 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.database.redditDatabase
 import dev.gtcl.reddit.models.reddit.*
+import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.RedditApi
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers

@@ -7,10 +7,8 @@ import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.models.reddit.*
-import dev.gtcl.reddit.models.reddit.Child
-import dev.gtcl.reddit.models.reddit.CommentAdapter
-import dev.gtcl.reddit.models.reddit.CommentPage
 import dev.gtcl.reddit.models.reddit.AccessToken
+import dev.gtcl.reddit.models.reddit.listing.*
 import kotlinx.coroutines.Deferred
 import okhttp3.HttpUrl
 import okhttp3.HttpUrl.Companion.toHttpUrl
@@ -238,14 +236,7 @@ interface RedditApiService {
         @Query("limit") limit: Int
     ): Deferred<CommentPage>
 
-    @GET
-    fun getComments(
-        @Header("Authorization") authorization: String? = null,
-        @Url permalink: String,
-        @Query("sort") sort: CommentSort
-    ): Deferred<List<Item>>
-
-    @GET("/api/morechildren/")
+    @GET("/api/morechildren/.json")
     fun getMoreComments(
         @Header("Authorization") authorization: String? = null,
         @Query("children") children: String,
@@ -253,7 +244,7 @@ interface RedditApiService {
         @Query("api_type") apiType: String = "json",
         @Query("limit_children") limitChildren: Boolean = false,
         @Query("sort") sort: CommentSort
-    ): Deferred<List<Child>>
+    ): Deferred<MoreCommentsResponse>
 
 //     __  __
 //    |  \/  |
@@ -311,7 +302,7 @@ interface RedditApiService {
                 .build()
 
             val moshi = Moshi.Builder()
-                .add(CommentAdapter())
+                .add(CommentsMoshiAdapter())
                 .add(PolymorphicJsonAdapterFactory.of(ListingChild::class.java, "kind") // TODO: Finish
                     .withSubtype(CommentChild::class.java, "t1")
                     .withSubtype(PostChild::class.java, "t3")

@@ -7,7 +7,7 @@ import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.actions.MessageActions
 import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.actions.SubredditActions
-import dev.gtcl.reddit.models.reddit.*
+import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.viewholders.*
 import java.io.InvalidObjectException

@@ -5,9 +5,8 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.Subscription
-import dev.gtcl.reddit.models.reddit.Account
-import dev.gtcl.reddit.models.reddit.MultiReddit
-import dev.gtcl.reddit.models.reddit.Subreddit
+import dev.gtcl.reddit.models.reddit.listing.MultiReddit
+import dev.gtcl.reddit.models.reddit.listing.Subreddit
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.repositories.SubredditRepository

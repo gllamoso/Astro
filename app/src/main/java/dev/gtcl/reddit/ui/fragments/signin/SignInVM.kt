@@ -12,7 +12,7 @@ import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.getEncodedAuthString
 import dev.gtcl.reddit.models.reddit.AccessToken
-import dev.gtcl.reddit.models.reddit.Account
+import dev.gtcl.reddit.models.reddit.listing.Account
 import dev.gtcl.reddit.repositories.UserRepository
 import kotlinx.coroutines.*
 import java.util.*

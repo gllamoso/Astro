@@ -1,6 +1,6 @@
 package dev.gtcl.reddit.actions
 
-import dev.gtcl.reddit.models.reddit.ListingType
+import dev.gtcl.reddit.models.reddit.listing.ListingType
 
 interface NavigationActions {
     fun listingSelected(listing: ListingType)

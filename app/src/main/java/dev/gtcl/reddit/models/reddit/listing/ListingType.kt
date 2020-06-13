@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.models.reddit
+package dev.gtcl.reddit.models.reddit.listing
 
 import android.os.Parcelable
 import dev.gtcl.reddit.ProfileInfo

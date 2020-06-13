@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemSubredditInMultiredditBinding
-import dev.gtcl.reddit.models.reddit.Subreddit
+import dev.gtcl.reddit.models.reddit.listing.Subreddit
 
 class MultiRedditSubredditsAdapter(private val onSubredditRemovedListener: OnSubredditRemovedListener) : ListAdapter<Subreddit, MultiRedditSubredditsAdapter.MultiRedditSubredditVH>(DiffCallback){
 

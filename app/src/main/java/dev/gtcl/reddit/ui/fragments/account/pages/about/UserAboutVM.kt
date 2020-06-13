@@ -5,9 +5,9 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
 import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.models.reddit.Account
 import dev.gtcl.reddit.repositories.ListingRepository
-import dev.gtcl.reddit.models.reddit.TrophyListingResponse
+import dev.gtcl.reddit.models.reddit.listing.Account
+import dev.gtcl.reddit.models.reddit.listing.TrophyListingResponse
 import dev.gtcl.reddit.repositories.UserRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers

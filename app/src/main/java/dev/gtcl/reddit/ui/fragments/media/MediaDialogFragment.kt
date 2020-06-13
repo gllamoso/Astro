@@ -2,7 +2,6 @@ package dev.gtcl.reddit.ui.fragments.media
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,8 +12,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentDialogMediaBinding
-import dev.gtcl.reddit.models.reddit.Post
-import dev.gtcl.reddit.models.reddit.UrlType
+import dev.gtcl.reddit.models.reddit.listing.Post
+import dev.gtcl.reddit.models.reddit.listing.UrlType
 import java.lang.ref.WeakReference
 
 

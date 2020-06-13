@@ -3,8 +3,8 @@ package dev.gtcl.reddit.ui.fragments
 import android.os.Parcelable
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import dev.gtcl.reddit.models.reddit.ListingType
-import dev.gtcl.reddit.models.reddit.Post
+import dev.gtcl.reddit.models.reddit.listing.ListingType
+import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.ui.fragments.account.AccountFragment
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
 import dev.gtcl.reddit.ui.fragments.listing.ListingFragment

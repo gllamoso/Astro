@@ -21,9 +21,9 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.databinding.FragmentListingBinding
-import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.databinding.LayoutNavHeaderBinding
+import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.activities.MainDrawerAdapter
@@ -299,7 +299,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
                 if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.videoUrl!! else post.url!!,
                 urlType,
                 post)
-            dialog.show(childFragmentManager, null)
+            dialog.show(parentFragmentManager, null)
         }
     }
 

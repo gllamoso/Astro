@@ -29,9 +29,6 @@ interface ReadItemDao{
     fun insert(itemsRead: ItemRead)
 
     @Query("select * from read_listing")
-    fun getAllLiveData(): LiveData<List<ItemRead>>
-
-    @Query("select * from read_listing")
     suspend fun getAll(): List<ItemRead>
 }
 

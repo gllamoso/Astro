@@ -1,16 +1,16 @@
 package dev.gtcl.reddit.ui.fragments.comments
 
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.CommentSort
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.models.reddit.MoreComments
-import dev.gtcl.reddit.models.reddit.convertChildrenToCommentItems
-import dev.gtcl.reddit.models.reddit.Item
 import dev.gtcl.reddit.repositories.ListingRepository
-import dev.gtcl.reddit.models.reddit.More
-import dev.gtcl.reddit.models.reddit.Post
+import dev.gtcl.reddit.models.reddit.listing.Item
+import dev.gtcl.reddit.models.reddit.listing.More
+import dev.gtcl.reddit.models.reddit.listing.Post
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -61,8 +61,7 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
             val children = listingRepository.getMoreComments(more.getChildrenAsValidString(), post.value!!.name, CommentSort.BEST).await()
             _moreComments.value = MoreComments(
                 position,
-                more.depth,
-                children.convertChildrenToCommentItems(more.depth)
+                children.json.data.things.map { it.data }
             )
         }
     }

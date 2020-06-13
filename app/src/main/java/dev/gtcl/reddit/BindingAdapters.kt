@@ -30,7 +30,7 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.exoplayer2.ui.PlayerView
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.ItemAwardBinding
-import dev.gtcl.reddit.models.reddit.*
+import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.fragments.subreddits.multireddit.MultiRedditSubredditsAdapter
 
 

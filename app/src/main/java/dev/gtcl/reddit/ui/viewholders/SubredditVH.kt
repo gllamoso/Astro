@@ -5,9 +5,8 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.databinding.ItemSubredditBinding
-import dev.gtcl.reddit.models.reddit.Subreddit
 import dev.gtcl.reddit.actions.SubredditActions
-import dev.gtcl.reddit.actions.SubscriptionAdapterActions
+import dev.gtcl.reddit.models.reddit.listing.Subreddit
 
 class SubredditVH private constructor(private val binding: ItemSubredditBinding): RecyclerView.ViewHolder(binding.root) {
     fun bind(sub: Subreddit, subredditActions: SubredditActions, itemClickListener: ItemClickListener){

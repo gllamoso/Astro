@@ -15,8 +15,8 @@ import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentSplashBinding
-import dev.gtcl.reddit.models.reddit.Account
-import dev.gtcl.reddit.models.reddit.FrontPage
+import dev.gtcl.reddit.models.reddit.listing.Account
+import dev.gtcl.reddit.models.reddit.listing.FrontPage
 import dev.gtcl.reddit.ui.fragments.ListingPage
 
 class SplashFragment : Fragment(){
@@ -38,7 +38,9 @@ class SplashFragment : Fragment(){
 
         model.ready.observe(viewLifecycleOwner, Observer {
             if(it != null){
-                findNavController().navigate(SplashFragmentDirections.actionSplashScreenFragmentToViewPagerFragment(ListingPage(FrontPage)))
+                findNavController().navigate(SplashFragmentDirections.actionSplashScreenFragmentToViewPagerFragment(ListingPage(
+                    FrontPage
+                )))
                 model.readyComplete()
             }
         })

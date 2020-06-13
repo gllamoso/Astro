@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.databinding.ItemAccountBinding
-import dev.gtcl.reddit.models.reddit.Account
+import dev.gtcl.reddit.models.reddit.listing.Account
 
 class AccountVH private constructor(private val binding: ItemAccountBinding): RecyclerView.ViewHolder(binding.root){
 

@@ -19,8 +19,8 @@ import dev.gtcl.reddit.URL_KEY
 import dev.gtcl.reddit.buildMediaSource
 import dev.gtcl.reddit.download.DownloadIntentService
 import dev.gtcl.reddit.models.gfycat.GfyItem
-import dev.gtcl.reddit.models.reddit.Post
-import dev.gtcl.reddit.models.reddit.UrlType
+import dev.gtcl.reddit.models.reddit.listing.Post
+import dev.gtcl.reddit.models.reddit.listing.UrlType
 import dev.gtcl.reddit.repositories.GfycatRepository
 import kotlinx.coroutines.*
 import java.lang.ref.WeakReference

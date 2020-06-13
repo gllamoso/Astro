@@ -4,7 +4,8 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.models.reddit.*
+import dev.gtcl.reddit.models.reddit.listing.Item
+import dev.gtcl.reddit.models.reddit.listing.ListingType
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.repositories.MessageRepository

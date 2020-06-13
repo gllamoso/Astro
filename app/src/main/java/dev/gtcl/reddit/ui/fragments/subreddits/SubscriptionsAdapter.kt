@@ -1,21 +1,19 @@
 package dev.gtcl.reddit.ui.fragments.subreddits
 
 import android.content.Context
-import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.ProfileInfo
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.SubscriptionType
 import dev.gtcl.reddit.actions.ListingTypeClickListener
-import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.actions.SubscriptionActions
 import dev.gtcl.reddit.actions.SubscriptionAdapterActions
 import dev.gtcl.reddit.database.Subscription
-import dev.gtcl.reddit.models.reddit.All
-import dev.gtcl.reddit.models.reddit.FrontPage
-import dev.gtcl.reddit.models.reddit.Popular
-import dev.gtcl.reddit.models.reddit.ProfileListing
+import dev.gtcl.reddit.models.reddit.listing.All
+import dev.gtcl.reddit.models.reddit.listing.FrontPage
+import dev.gtcl.reddit.models.reddit.listing.Popular
+import dev.gtcl.reddit.models.reddit.listing.ProfileListing
 import dev.gtcl.reddit.ui.viewholders.ListingVH
 import dev.gtcl.reddit.ui.viewholders.SectionHeader
 import dev.gtcl.reddit.ui.viewholders.SectionHeaderVH
@@ -228,7 +226,10 @@ class SubscriptionsAdapter(
             position > subredditsHeaderIndex -> (holder as SubscriptionVH).bind(subreddits[position - subredditsHeaderIndex - 1], listingTypeClickListener, this, subscriptionActions)
             position == subredditsHeaderIndex -> (holder as SectionHeaderVH).bind(subredditsSectionHeader)
             position > multisHeaderIndex + 4 -> (holder as SubscriptionVH).bind(multis[position - multisHeaderIndex - 4 - 1], listingTypeClickListener, this, subscriptionActions)
-            position == multisHeaderIndex + 4 -> (holder as ListingVH).bind(ProfileListing(ProfileInfo.SAVED), listingTypeClickListener)
+            position == multisHeaderIndex + 4 -> (holder as ListingVH).bind(
+                ProfileListing(
+                    ProfileInfo.SAVED
+                ), listingTypeClickListener)
             position == multisHeaderIndex + 3 -> (holder as ListingVH).bind(Popular, listingTypeClickListener)
             position == multisHeaderIndex + 2 -> (holder as ListingVH).bind(All, listingTypeClickListener)
             position == multisHeaderIndex + 1 -> (holder as ListingVH).bind(FrontPage, listingTypeClickListener)

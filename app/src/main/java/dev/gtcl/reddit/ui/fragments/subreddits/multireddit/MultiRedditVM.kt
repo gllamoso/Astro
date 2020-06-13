@@ -8,10 +8,10 @@ import com.google.gson.Gson
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.Visibility
 import dev.gtcl.reddit.database.Subscription
-import dev.gtcl.reddit.models.reddit.MultiReddit
-import dev.gtcl.reddit.models.reddit.MultiRedditUpdate
-import dev.gtcl.reddit.models.reddit.Subreddit
-import dev.gtcl.reddit.models.reddit.SubredditData
+import dev.gtcl.reddit.models.reddit.listing.MultiReddit
+import dev.gtcl.reddit.models.reddit.listing.MultiRedditUpdate
+import dev.gtcl.reddit.models.reddit.listing.Subreddit
+import dev.gtcl.reddit.models.reddit.listing.SubredditData
 import dev.gtcl.reddit.repositories.SubredditRepository
 import kotlinx.coroutines.*
 import retrofit2.HttpException

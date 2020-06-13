@@ -4,11 +4,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.models.reddit.*
+import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.SubredditRepository
-import dev.gtcl.reddit.repositories.UserRepository
 import kotlinx.coroutines.*
 
 class ListingVM(val application: RedditApplication): AndroidViewModel(application) {

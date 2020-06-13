@@ -18,8 +18,7 @@ import dev.gtcl.reddit.actions.MessageActions
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.databinding.FragmentInboxBinding
 import dev.gtcl.reddit.databinding.LayoutNavHeaderBinding
-import dev.gtcl.reddit.models.reddit.Account
-import dev.gtcl.reddit.models.reddit.Message
+import dev.gtcl.reddit.models.reddit.listing.Message
 import dev.gtcl.reddit.ui.activities.MainDrawerAdapter
 
 class MessagesFragment: Fragment(), MessageActions, LeftDrawerActions{

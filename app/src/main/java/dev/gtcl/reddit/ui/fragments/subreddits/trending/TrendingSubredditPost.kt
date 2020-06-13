@@ -1,9 +1,9 @@
 package dev.gtcl.reddit.ui.fragments.subreddits.trending
 
-import dev.gtcl.reddit.models.reddit.Item
-import dev.gtcl.reddit.models.reddit.ItemType
-import dev.gtcl.reddit.models.reddit.Post
-import dev.gtcl.reddit.models.reddit.Subreddit
+import dev.gtcl.reddit.models.reddit.listing.Item
+import dev.gtcl.reddit.models.reddit.listing.ItemType
+import dev.gtcl.reddit.models.reddit.listing.Post
+import dev.gtcl.reddit.models.reddit.listing.Subreddit
 import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet

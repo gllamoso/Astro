@@ -16,12 +16,14 @@ import androidx.viewpager2.widget.ViewPager2
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentViewPagerBinding
-import dev.gtcl.reddit.models.reddit.*
+import dev.gtcl.reddit.models.reddit.listing.Item
+import dev.gtcl.reddit.models.reddit.listing.ListingType
+import dev.gtcl.reddit.models.reddit.listing.Post
+import dev.gtcl.reddit.models.reddit.listing.SubscriptionListing
 import dev.gtcl.reddit.ui.fragments.account.AccountFragment
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
 import dev.gtcl.reddit.ui.fragments.listing.ListingFragment
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
-import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
 
 class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
 

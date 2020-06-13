@@ -2,7 +2,6 @@ package dev.gtcl.reddit.ui.fragments.signin
 
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,11 +20,9 @@ import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentSignInBinding
-import dev.gtcl.reddit.models.reddit.FrontPage
+import dev.gtcl.reddit.models.reddit.listing.FrontPage
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.ListingPage
-import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
-import java.util.UUID
 
 class SignInFragment : Fragment() {
 
@@ -112,7 +109,9 @@ class SignInFragment : Fragment() {
 
         model.successfullyAddedAccount.observe(viewLifecycleOwner, Observer {
             if(it == true){
-                findNavController().navigate(SignInFragmentDirections.signInWithNewAccount(ListingPage(FrontPage)))
+                findNavController().navigate(SignInFragmentDirections.signInWithNewAccount(ListingPage(
+                    FrontPage
+                )))
                 activityModel.syncSubscriptionsWithReddit()
             }
         })

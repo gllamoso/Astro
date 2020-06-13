@@ -1,6 +1,6 @@
 package dev.gtcl.reddit.actions
 
-import dev.gtcl.reddit.models.reddit.Message
+import dev.gtcl.reddit.models.reddit.listing.Message
 
 interface MessageActions {
     fun reply(message: Message)

@@ -4,7 +4,9 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.models.reddit.*
+import dev.gtcl.reddit.models.reddit.listing.Post
+import dev.gtcl.reddit.models.reddit.listing.Subreddit
+import dev.gtcl.reddit.models.reddit.listing.SubredditListing
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.repositories.SubredditRepository
@@ -151,7 +153,10 @@ class TrendingListVM(application: RedditApplication): AndroidViewModel(applicati
 
     companion object{
         private val TRENDING_SUBREDDIT = Subreddit("", "trendingsubreddits", "", "", "", false, "", "")
-        private val TRENDING_LISTING = SubredditListing(TRENDING_SUBREDDIT)
+        private val TRENDING_LISTING =
+            SubredditListing(
+                TRENDING_SUBREDDIT
+            )
         private val SORT = PostSort.NEW
         private const val PAGE_SIZE = 7
     }

@@ -23,9 +23,9 @@ import com.google.android.exoplayer2.util.Util
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentCommentsBinding
-import dev.gtcl.reddit.models.reddit.More
-import dev.gtcl.reddit.models.reddit.Post
 import dev.gtcl.reddit.actions.ViewPagerActions
+import dev.gtcl.reddit.models.reddit.listing.More
+import dev.gtcl.reddit.models.reddit.listing.Post
 
 class CommentsFragment : Fragment() { // TODO: Create static newInstance method
 

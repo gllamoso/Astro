@@ -15,9 +15,9 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
-import dev.gtcl.reddit.models.reddit.Item
-import dev.gtcl.reddit.models.reddit.Post
-import dev.gtcl.reddit.models.reddit.Subreddit
+import dev.gtcl.reddit.models.reddit.listing.Item
+import dev.gtcl.reddit.models.reddit.listing.Post
+import dev.gtcl.reddit.models.reddit.listing.Subreddit
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingSubredditPost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

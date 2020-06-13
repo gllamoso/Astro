@@ -6,7 +6,7 @@
     <data>
         <variable
             name="post"
-            type="dev.gtcl.reddit.models.reddit.Post" />
+            type="dev.gtcl.reddit.models.reddit.listing.Post" />
     </data>
 
     <LinearLayout

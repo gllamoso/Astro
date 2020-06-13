@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <import type="dev.gtcl.reddit.models.reddit.UrlType"/>
+        <import type="dev.gtcl.reddit.models.reddit.listing.UrlType"/>
         <variable
             name="model"
             type="dev.gtcl.reddit.ui.fragments.media.MediaVM" />

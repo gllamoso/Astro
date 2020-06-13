@@ -3,14 +3,11 @@ package dev.gtcl.reddit.ui.fragments.media
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -19,12 +16,9 @@ import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
-import com.google.android.exoplayer2.ui.PlayerControlView
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentMediaViewerBinding
-import dev.gtcl.reddit.models.reddit.Post
-import dev.gtcl.reddit.models.reddit.UrlType
-import java.lang.ref.WeakReference
+import dev.gtcl.reddit.models.reddit.listing.UrlType
 import kotlin.IllegalArgumentException
 
 class MediaFragment: Fragment(){

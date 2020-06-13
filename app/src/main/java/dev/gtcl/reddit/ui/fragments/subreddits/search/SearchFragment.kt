@@ -25,10 +25,10 @@ import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.databinding.FragmentSearchBinding
-import dev.gtcl.reddit.models.reddit.Account
-import dev.gtcl.reddit.models.reddit.Item
-import dev.gtcl.reddit.models.reddit.Subreddit
-import dev.gtcl.reddit.models.reddit.SubredditListing
+import dev.gtcl.reddit.models.reddit.listing.Account
+import dev.gtcl.reddit.models.reddit.listing.Item
+import dev.gtcl.reddit.models.reddit.listing.Subreddit
+import dev.gtcl.reddit.models.reddit.listing.SubredditListing
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.ItemScrollListener
 import dev.gtcl.reddit.ui.ListingItemAdapter
@@ -183,7 +183,9 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             if(item is Account){
                 findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(AccountPage(item.name)))
             } else {
-                findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(ListingPage(SubredditListing(item as Subreddit))))
+                findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(ListingPage(
+                    SubredditListing(item as Subreddit)
+                )))
             }
             hideKeyboard()
         }
