@@ -244,7 +244,7 @@ interface RedditApiService {
         @Query("api_type") apiType: String = "json",
         @Query("limit_children") limitChildren: Boolean = false,
         @Query("sort") sort: CommentSort
-    ): Deferred<MoreCommentsResponse>
+    ): Deferred<MoreChildrenResponse>
 
 //     __  __
 //    |  \/  |

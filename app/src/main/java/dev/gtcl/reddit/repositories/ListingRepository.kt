@@ -130,7 +130,7 @@ class ListingRepository private constructor(private val application: RedditAppli
     }
 
     @MainThread
-    fun getMoreComments(children: String, linkId: String, sort: CommentSort = CommentSort.BEST): Deferred<MoreCommentsResponse>{
+    fun getMoreComments(children: String, linkId: String, sort: CommentSort = CommentSort.BEST): Deferred<MoreChildrenResponse>{
         return if(application.accessToken == null) {
             RedditApi.base.getMoreComments(null, children, linkId, sort = sort)
         } else {
