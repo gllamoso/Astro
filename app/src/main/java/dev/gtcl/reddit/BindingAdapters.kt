@@ -119,14 +119,14 @@ fun loadMultiIcon(imgView: ImageView, listingType: ListingType){
 @BindingAdapter("subredditIcon")
 fun loadSubIcon(imgView: ImageView, imgUrl: String?){
     if(imgUrl == null || !imgUrl.startsWith("http")){
-        imgView.setImageResource(R.drawable.ic_reddit_circle)
+        imgView.setImageResource(R.drawable.ic_reddit_cricle_24dp)
     }
     else {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
             .apply(RequestOptions()
-                .placeholder(R.drawable.ic_reddit_circle)
+                .placeholder(R.drawable.ic_reddit_cricle_24dp)
                 .circleCrop())
             .into(imgView)
     }
@@ -153,7 +153,7 @@ fun loadSubscriptionIcon(imgView: ImageView, subscription: Subscription){
     val placeHolder = when(subscription.type){
         SubscriptionType.MULTIREDDIT -> R.drawable.ic_collection_24dp
         SubscriptionType.USER -> R.drawable.ic_user_24dp
-        SubscriptionType.SUBREDDIT -> R.drawable.ic_reddit_circle
+        SubscriptionType.SUBREDDIT -> R.drawable.ic_reddit_cricle_24dp
     }
 
     if(subscription.icon == null || !subscription.icon.startsWith("https", true)){

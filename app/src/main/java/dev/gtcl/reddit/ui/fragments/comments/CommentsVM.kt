@@ -176,4 +176,10 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
             it.playWhenReady = false
         }
     }
+
+    override fun onCleared() {
+        super.onCleared()
+        _player.value?.release()
+        _player.value = null
+    }
 }
