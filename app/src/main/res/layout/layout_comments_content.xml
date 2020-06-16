@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="post"
+            type="dev.gtcl.reddit.models.reddit.listing.Post" />
+        <variable
+            name="showMediaControls"
+            type="Boolean" />
+        <import type="dev.gtcl.reddit.models.reddit.listing.PostType"/>
+        <import type="android.view.View"/>
+    </data>
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@{post.postType == PostType.TEXT || post.postType == PostType.URL ? @android:color/transparent : @android:color/black}">
+
+        <TextView
+            android:id="@+id/content_text"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="@{post.selftext}"
+            android:visibility="@{post.postType == PostType.TEXT ? View.VISIBLE : View.GONE}"/>
+
+        <com.google.android.exoplayer2.ui.PlayerView
+            android:id="@+id/player_view"
+            android:layout_width="match_parent"
+            android:layout_height="525dp"
+            app:setViewSize="@{75}"
+            android:padding="8dp"
+            android:visibility="@{post.postType == PostType.VIDEO ? View.VISIBLE : View.GONE}"
+            app:use_controller="false"
+            app:surface_type="texture_view"
+            app:show_buffering="always"
+            app:resize_mode="fit"/>
+
+        <ImageView
+            android:id="@+id/image_view"
+            android:layout_width="match_parent"
+            android:layout_height="525dp"
+            app:setViewSize="@{75}"
+            android:padding="8dp"
+            android:visibility="@{post.postType == PostType.GIF ? View.VISIBLE : View.GONE}"/>
+
+        <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+            android:id="@+id/scale_image_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:visibility="@{post.postType == PostType.IMAGE ? View.VISIBLE : View.GONE}"
+            app:tileBackgroundColor="@android:color/transparent"
+            app:setViewSize="@{75}"
+            app:zoomEnabled="true"/>
+
+        <include
+            android:id="@+id/media_buttons"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            android:layout_gravity="bottom"
+            layout="@layout/layout_media_buttons"
+            android:visibility="@{(post.postType == PostType.IMAGE || post.postType == PostType.VIDEO) &amp;&amp; showMediaControls ? View.VISIBLE : View.GONE}"
+            app:hasPostUrl="@{false}"
+            app:isVideo="@{post.postType == PostType.VIDEO}"
+            app:expandable="@{post.postType == PostType.IMAGE || post.postType == PostType.VIDEO}"
+            />
+
+    </FrameLayout>
+
+</layout>

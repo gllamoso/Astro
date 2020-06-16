@@ -21,6 +21,7 @@ import dev.gtcl.reddit.models.reddit.listing.Subreddit
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingSubredditPost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.text.NumberFormat
 import java.util.*
 
 enum class PostSort{
@@ -192,6 +193,34 @@ fun timeSince(context: Context, seconds: Long): String{
         }
         else -> context.getString(R.string.a_moment_ago)
     }
+}
+
+fun numFormatted(num: Long): String{
+    val sb = StringBuilder()
+    when {
+        num >= 1_000_000 -> {
+            sb.append(num / 1_000_000)
+            val decimal = num % 1_000_000 / 100_000
+            if(decimal > 0){
+                sb.append(".")
+                sb.append(decimal)
+            }
+            sb.append("M")
+        }
+        num >= 1_000 -> {
+            sb.append(num / 1_000)
+            val decimal = num % 1_000 / 100
+            if(decimal > 0){
+                sb.append(".")
+                sb.append(decimal)
+            }
+            sb.append("k")
+        }
+        else -> {
+            sb.append(num)
+        }
+    }
+    return sb.toString()
 }
 
 fun buildMediaSource(context: Context, uri: Uri): MediaSource {

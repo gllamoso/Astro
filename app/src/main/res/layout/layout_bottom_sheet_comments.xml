@@ -4,106 +4,62 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <LinearLayout
+    <data>
+        <variable
+            name="numOfComments"
+            type="int" />
+    </data>
+
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/bottom_sheet"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/bottom_sheet_behavior"
-        app:behavior_hideable="false"
-        app:behavior_peekHeight="?attr/actionBarSize"
+        app:behavior_hideable="true"
+        app:behavior_peekHeight="0dp"
         android:orientation="vertical"
-        android:elevation="1dp"
-        android:backgroundTint="@color/colorPrimary"
-        android:background="@drawable/top_rounded_corners">
+        android:elevation="1dp">
 
-        <RelativeLayout
-            android:id="@+id/bottom_bar"
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize">
+            android:layout_height="wrap_content">
 
-            <ImageView
-                android:layout_marginTop="4dp"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_expandable_indicator"
-                android:layout_alignParentTop="true"
-                android:layout_centerInParent="true"/>
-
-            <LinearLayout
+            <androidx.appcompat.widget.Toolbar
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:layout_height="?android:attr/actionBarSize">
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    app:number_of_comments="@{numOfComments}"
+                    tools:text="123 Comments"
+                    android:gravity="center_vertical|start"
+                    android:layout_marginStart="16dp"
+                    android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"/>
 
                 <ImageView
-                    android:id="@+id/upvote_button"
+                    android:id="@+id/reply_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_upvote_24dp"
-                    android:layout_gravity="center"
-                    android:tint="@android:color/white"/>
+                    android:src="@drawable/ic_reply_24"
+                    android:layout_gravity="end"
+                    android:layout_marginEnd="16dp"/>
 
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="2"/>
+            </androidx.appcompat.widget.Toolbar>
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_downvote_24dp"
-                    android:layout_gravity="center"
-                    android:tint="@android:color/white"/>
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="2"/>
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_bookmark_24dp"
-                    android:layout_gravity="center"
-                    android:tint="@android:color/white"/>
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="2"/>
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_more_vert_24dp"
-                    android:layout_gravity="center"
-                    android:tint="@android:color/white"/>
-
-                <View
-                    android:layout_width="0dp"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
-
-
-            </LinearLayout>
-
-        </RelativeLayout>
+        </com.google.android.material.appbar.AppBarLayout>
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/comment_list"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="1"
+            android:layout_height="match_parent"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             android:background="?android:attr/colorBackground"
             app:spanCount="1"
             tools:itemCount="10"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior"
             />
 
-    </LinearLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
 </layout>

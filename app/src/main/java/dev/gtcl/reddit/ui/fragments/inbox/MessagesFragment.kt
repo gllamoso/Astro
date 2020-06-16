@@ -29,13 +29,6 @@ class MessagesFragment: Fragment(), MessageActions, LeftDrawerActions{
 //        (activity as MainActivity).model
 //    }
 
-    override fun onAttachFragment(childFragment: Fragment) {
-        super.onAttachFragment(childFragment)
-//        when(childFragment){
-//            is ItemScrollerFragment -> childFragment.setActions(messageActions = this)
-//        }
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -168,8 +161,6 @@ class MessagesFragment: Fragment(), MessageActions, LeftDrawerActions{
     override fun onInboxClicked() {
         if((activity?.application as RedditApplication).accessToken == null){
             Snackbar.make(binding.drawerLayout, R.string.please_login, Snackbar.LENGTH_SHORT).show()
-        } else {
-//            findNavController().navigate(R.id.messages_fragment)
         }
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }

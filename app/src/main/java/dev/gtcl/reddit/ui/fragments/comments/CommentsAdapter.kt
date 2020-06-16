@@ -1,29 +1,39 @@
 package dev.gtcl.reddit.ui.fragments.comments
 
-import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
-import dev.gtcl.reddit.databinding.ItemMoreCommentBinding
 import dev.gtcl.reddit.models.reddit.listing.Comment
 import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.More
 import dev.gtcl.reddit.ui.viewholders.CommentVH
+import dev.gtcl.reddit.ui.viewholders.MoreVH
 
 class CommentsAdapter(private val commentItemClickListener: CommentItemClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
     private var mCommentItems = mutableListOf<Item>()
 
-    private val collapseComments: (Int) -> Unit = { // TODO: Interface? Add method to CommentItemClickListener?
+    private val collapseComments: (Int) -> Unit = {
         val collapse = !(mCommentItems[it] as Comment).isPartiallyCollapsed
         (mCommentItems[it] as Comment).isPartiallyCollapsed = collapse
-        val pDepth = mCommentItems[it].depth
-        var cIndex = it
-        while(++cIndex < itemCount - 1 && mCommentItems[cIndex].depth > pDepth){
-            mCommentItems[cIndex].hiddenPoints += if(collapse) 1 else -1
+        val depth = when(val item = mCommentItems[it]){
+            is Comment -> item.depth ?: 0
+            else -> 0
         }
-        notifyItemRangeChanged(it, cIndex - it)
+        var i = it
+        while(++i < itemCount - 1){
+            val item = mCommentItems[i]
+            val itemDepth = when(item){
+                is Comment -> item.depth ?: 0
+                is More -> item.depth
+                else -> 0
+            }
+            if(itemDepth <= depth){
+                break
+            }
+            item.hiddenPoints += if(collapse) 1 else -1
+        }
+        notifyItemRangeChanged(it, i - it)
     }
 
 
@@ -42,7 +52,7 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(viewType){
-            R.layout.item_more_comment -> MoreViewHolder.create(parent)
+            R.layout.item_more_comment -> MoreVH.create(parent)
             R.layout.item_comment -> CommentVH.create(parent)
             else -> throw IllegalArgumentException("unknown view type $viewType")
         }
@@ -50,8 +60,8 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when(val commentItem = mCommentItems[position]){
-            is Comment -> (holder as CommentVH).bind(commentItem) { pos, _ -> collapseComments(pos)}
-            is More -> (holder as MoreViewHolder).bind(commentItem) {
+            is Comment -> (holder as CommentVH).bind(commentItem, collapseComments)
+            is More -> (holder as MoreVH).bind(commentItem) {
                 if(commentItem.isContinueThreadLink())
                     commentItemClickListener.onContinueThreadClicked(commentItem)
                 else
@@ -68,28 +78,6 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
     }
 
     override fun getItemCount(): Int = mCommentItems.size
-
-    class MoreViewHolder private constructor(private val binding: ItemMoreCommentBinding): RecyclerView.ViewHolder(binding.root) {
-        fun bind(item: More, onMoreClicked: () -> Unit){
-            binding.more = item
-            if(item.hiddenPoints > 0){
-                itemView.visibility = View.GONE
-                itemView.layoutParams = RecyclerView.LayoutParams(0,0)
-            }
-            else {
-                itemView.visibility = View.VISIBLE
-                itemView.layoutParams = RecyclerView.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT,ViewGroup.LayoutParams.WRAP_CONTENT)
-            }
-            binding.commentTextView.setOnClickListener { onMoreClicked() }
-            binding.executePendingBindings()
-        }
-
-        companion object{
-            fun create(parent: ViewGroup): MoreViewHolder {
-                return MoreViewHolder(ItemMoreCommentBinding.inflate(LayoutInflater.from(parent.context)))
-            }
-        }
-    }
 
     interface CommentItemClickListener{
         fun onMoreCommentsClicked(position: Int, more: More)

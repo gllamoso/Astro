@@ -37,9 +37,9 @@ class MediaFragment: Fragment(){
 
         model.urlType.observe(viewLifecycleOwner, Observer {
             when(it) {
-                UrlType.IMAGE -> setSubsamplingImageView()
+                UrlType.IMAGE -> initSubsamplingImageView()
                 UrlType.GIF -> setGifToImageView()
-                UrlType.GFYCAT, UrlType.M3U8, UrlType.GIFV -> setVideoPlayer()
+                UrlType.GFYCAT, UrlType.M3U8, UrlType.GIFV -> initVideoPlayer()
                 else -> throw IllegalArgumentException("Invalid URL Type: $it")
             }
         })
@@ -56,7 +56,7 @@ class MediaFragment: Fragment(){
         }
     }
 
-    private fun setSubsamplingImageView(){
+    private fun initSubsamplingImageView(){
 
         model.url.observe(viewLifecycleOwner, Observer {
             Glide.with(requireContext())
@@ -130,7 +130,7 @@ class MediaFragment: Fragment(){
         }
     }
 
-    private fun setVideoPlayer(){
+    private fun initVideoPlayer(){
         model.initializePlayer()
 
         model.player.observe(viewLifecycleOwner, Observer {simpleExoPlayer ->

@@ -39,7 +39,6 @@ interface GfycatService {
                 .add(KotlinJsonAdapterFactory())
                 .build()
 
-
             return Retrofit.Builder()
                 .baseUrl(URL.toHttpUrl())
                 .client(client)

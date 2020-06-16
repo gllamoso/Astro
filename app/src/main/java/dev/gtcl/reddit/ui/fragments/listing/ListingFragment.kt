@@ -296,7 +296,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             navigationActions?.launchWebview(post.url!!)
         } else {
             val dialog = MediaDialogFragment.newInstance(
-                if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.videoUrl!! else post.url!!,
+                if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.previewVideoUrl!! else post.url!!,
                 urlType,
                 post)
             dialog.show(parentFragmentManager, null)

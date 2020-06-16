@@ -9,26 +9,25 @@
         <variable
             name="model"
             type="dev.gtcl.reddit.ui.fragments.comments.CommentsVM" />
+        <import type="dev.gtcl.reddit.models.reddit.listing.PostType"/>
+        <import type="android.view.View"/>
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".ui.fragments.comments.CommentsFragment"
         android:background="?android:attr/colorBackground">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
+            android:layout_height="wrap_content">
 
             <androidx.appcompat.widget.Toolbar
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@color/colorPrimary"
-                android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
-                app:layout_scrollFlags="scroll|enterAlways"
+                app:layout_collapseMode="pin"
                 app:navigationIcon="?homeAsUpIndicator"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
@@ -44,149 +43,49 @@
 
             </androidx.appcompat.widget.Toolbar>
 
+        </com.google.android.material.appbar.AppBarLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
             <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                 android:id="@+id/swipe_refresh"
                 android:layout_width="match_parent"
-                android:layout_height="0dp"
-                app:layout_constraintTop_toBottomOf="@id/toolbar"
-                app:layout_constraintBottom_toTopOf="@id/empty_view"
+                android:layout_height="match_parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent">
 
                 <androidx.core.widget.NestedScrollView
                     android:id="@+id/nested_scroll_view"
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent">
+                    android:layout_height="wrap_content"
+                    android:scrollbars="vertical">
 
                     <LinearLayout
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical">
+                        android:orientation="vertical"
+                        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
-                        <androidx.cardview.widget.CardView
-                            android:id="@+id/card_view"
+                        <include
+                            android:id="@+id/post"
+                            layout="@layout/layout_post_in_comments"
+                            app:post="@{model.post}"/>
+
+                        <include
+                            android:id="@+id/content"
+                            layout="@layout/layout_comments_content"
+                            app:post="@{model.post}"
+                            app:showMediaControls="@{model.showMediaControls}"/>
+
+                        <View
                             android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:elevation="8dp"
-                            app:cardCornerRadius="8dp"
-                            android:layout_marginTop="8dp"
-                            android:layout_marginStart="8dp"
-                            android:layout_marginEnd="8dp">
-
-                            <LinearLayout
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:orientation="vertical"
-                                android:padding="8dp">
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal">
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@{model.post.author}"
-                                        tools:text="JohnDoe"
-                                        android:textSize="12sp"
-                                        android:textStyle="bold"/>
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text=" • "
-                                        tools:ignore="HardcodedText"
-                                        android:textSize="12sp"/>
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        app:timestamp="@{model.post.created}"
-                                        tools:text="9 hours ago"
-                                        android:textSize="12sp"/>
-
-                                </LinearLayout>
-
-                                <TextView
-                                    android:id="@+id/post_title"
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:text="@{model.post.title}"
-                                    tools:text="This is a post title and might be multiple lines"
-                                    android:textColor="?android:attr/colorForeground"
-                                    android:textSize="18sp"/>
-
-                                <LinearLayout
-                                    android:layout_width="match_parent"
-                                    android:layout_height="wrap_content"
-                                    android:orientation="horizontal">
-
-                                    <TextView
-                                        android:id="@+id/num_comments"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@{String.format(@string/num_comments, model.post.numComments)}"
-                                        tools:text="99 comments"
-                                        android:textSize="12sp"/>
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text=" • "
-                                        tools:ignore="HardcodedText"
-                                        android:textSize="12sp"/>
-
-                                    <TextView
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        android:text="@{String.format(@string/num_points, model.post.score)}"
-                                        tools:text="12345 points"
-                                        android:textSize="12sp"/>
-
-                                    <TextView
-                                        android:layout_marginLeft="4dp"
-                                        android:layout_width="wrap_content"
-                                        android:layout_height="wrap_content"
-                                        app:upvoteRatio="@{model.post.upvoteRatio}"
-                                        tools:text="(98% upvote)"
-                                        tools:ignore="RtlHardcoded"
-                                        android:textSize="12sp"/>
-
-                                </LinearLayout>
-
-                            </LinearLayout>
-
-                        </androidx.cardview.widget.CardView>
-
-                        <FrameLayout
-                            android:id="@+id/content_background"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="16dp"
-                            android:background="@android:color/black">
-
-                            <TextView
-                                android:id="@+id/content_text"
-                                android:layout_width="match_parent"
-                                android:layout_height="wrap_content"
-                                android:padding="16dp"/>
-
-                            <com.google.android.exoplayer2.ui.PlayerView
-                                android:id="@+id/player_view"
-                                android:layout_width="match_parent"
-                                android:layout_height="525dp"
-                                app:setViewSize="@{60}"
-                                android:padding="8dp"/>
-
-                            <ImageView
-                                android:id="@+id/url_image_view"
-                                android:layout_width="match_parent"
-                                android:layout_height="525dp"
-                                app:setViewSize="@{60}"
-                                android:padding="8dp"/>
-
-                        </FrameLayout>
+                            android:layout_height="?android:attr/actionBarSize"/>
 
                     </LinearLayout>
 
@@ -194,18 +93,31 @@
 
             </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-            <View
-                android:id="@+id/empty_view"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+        </LinearLayout>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+        <com.google.android.material.bottomappbar.BottomAppBar
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            android:layout_gravity="bottom"
+            app:contentInsetStart="0dp">
 
-        <include android:id="@+id/bottom_sheet"
-            layout="@layout/layout_bottom_sheet_comments"/>
+            <include
+                android:id="@+id/bottom_bar"
+                layout="@layout/layout_comments_bottom_bar" />
+
+        </com.google.android.material.bottomappbar.BottomAppBar>
+
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_marginTop="?android:attr/actionBarSize">
+
+            <include android:id="@+id/bottom_sheet"
+                layout="@layout/layout_bottom_sheet_comments"
+                app:numOfComments="@{model.post.numComments}"
+                tools:visibility="gone"/>
+
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

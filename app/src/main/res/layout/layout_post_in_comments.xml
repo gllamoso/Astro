@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="post"
+            type="dev.gtcl.reddit.models.reddit.listing.Post" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:elevation="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="16dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{post.author}"
+                    tools:text="JohnDoe"
+                    android:textSize="12sp"
+                    android:textStyle="bold"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" • "
+                    tools:ignore="HardcodedText"
+                    android:textSize="12sp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:timestamp="@{post.created}"
+                    tools:text="9 hours ago"
+                    android:textSize="12sp"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/post_title"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@{post.title}"
+                tools:text="This is a post title and might be multiple lines"
+                android:textColor="?android:attr/colorForeground"
+                android:textSize="18sp"/>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+
+                <TextView
+                    android:id="@+id/num_comments"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:number_of_comments="@{post.numComments}"
+                    tools:text="99 comments"
+                    android:textSize="12sp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text=" • "
+                    tools:ignore="HardcodedText"
+                    android:textSize="12sp"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{String.format(@string/num_points, post.score)}"
+                    tools:text="12345 points"
+                    android:textSize="12sp"/>
+
+                <TextView
+                    android:layout_marginLeft="4dp"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    app:upvoteRatio="@{post.upvoteRatio}"
+                    tools:text="(98% upvote)"
+                    tools:ignore="RtlHardcoded"
+                    android:textSize="12sp"/>
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>

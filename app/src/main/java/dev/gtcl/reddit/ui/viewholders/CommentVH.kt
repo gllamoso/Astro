@@ -8,9 +8,9 @@ import dev.gtcl.reddit.databinding.ItemCommentBinding
 import dev.gtcl.reddit.models.reddit.listing.Comment
 
 class CommentVH private constructor(private val binding: ItemCommentBinding): RecyclerView.ViewHolder(binding.root) {
-    fun bind(comment: Comment, onCommentClicked: (Int, Comment) -> Unit){
+    fun bind(comment: Comment, onCommentClicked: (Int) -> Unit){
         binding.comment = comment
-        itemView.setOnClickListener { onCommentClicked(adapterPosition, comment)}
+        itemView.setOnClickListener { onCommentClicked(adapterPosition)}
         if(comment.hiddenPoints > 0){
             itemView.visibility = View.GONE
             itemView.layoutParams = RecyclerView.LayoutParams(0,0)

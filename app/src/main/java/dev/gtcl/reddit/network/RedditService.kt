@@ -303,7 +303,7 @@ interface RedditApiService {
 
             val moshi = Moshi.Builder()
                 .add(CommentsMoshiAdapter())
-                .add(PolymorphicJsonAdapterFactory.of(ListingChild::class.java, "kind") // TODO: Finish
+                .add(PolymorphicJsonAdapterFactory.of(ListingChild::class.java, "kind")
                     .withSubtype(CommentChild::class.java, "t1")
                     .withSubtype(PostChild::class.java, "t3")
                     .withSubtype(MessageChild::class.java, "t4")

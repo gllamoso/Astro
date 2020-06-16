@@ -4,6 +4,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -60,7 +61,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
                     ), postSort, time, pageSize)
                 model.user = user
             }
-            args.getParcelable<Subreddit>(SUBREDDIT_KEY) != null -> {
+            args.getSerializable(SUBREDDIT_KEY) != null -> {
                 val subreddit = args.getParcelable<Subreddit>(SUBREDDIT_KEY)!!
                 val postSort = args.getSerializable(POST_SORT_KEY) as PostSort
                 val time = args.getSerializable(TIME_KEY) as Time?
@@ -121,6 +122,10 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
             if(it == true){
                 binding.list.removeOnScrollListener(scrollListener)
             }
+        })
+
+        model.errorMessage.observe(viewLifecycleOwner, Observer {
+            Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
         })
     }
 
@@ -185,7 +190,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
             navigationActions?.launchWebview(post.url!!)
         } else {
             val dialog = MediaDialogFragment.newInstance(
-                if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.videoUrl!! else post.url!!,
+                if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.previewVideoUrl!! else post.url!!,
                 urlType,
                 post)
             dialog.show(childFragmentManager, null)

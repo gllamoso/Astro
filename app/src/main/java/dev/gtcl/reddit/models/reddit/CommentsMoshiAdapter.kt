@@ -2,6 +2,7 @@ package dev.gtcl.reddit.models.reddit
 
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonReader
+import com.squareup.moshi.ToJson
 import dev.gtcl.reddit.models.reddit.listing.*
 import java.lang.RuntimeException
 import java.util.*
@@ -17,6 +18,9 @@ data class MoreComments(
 )
 
 class CommentsMoshiAdapter {
+
+    @ToJson
+    fun toJson(commentPage: CommentPage) = "{}" // UNUSED
 
     @FromJson
     fun getCommentsPageInfo(jsonReader: JsonReader): CommentPage {
@@ -368,7 +372,7 @@ class CommentsMoshiAdapter {
             id = "",
             depth = depth,
             author = author!!,
-            authorFullName = authorFullName!!,
+            authorFullName = authorFullName,
             body = body!!,
             score = score!!,
             created = created!!

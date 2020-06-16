@@ -37,8 +37,7 @@
                 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                     android:id="@+id/swipe_refresh"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1">
+                    android:layout_height="match_parent">
 
                     <FrameLayout
                         android:layout_width="match_parent"
@@ -58,7 +57,7 @@
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
                             android:gravity="center_horizontal|top"
-                            android:textColor="?attr/colorOnSurface"
+                            android:textColor="@android:color/black"
                             android:visibility="gone"
                             android:padding="32dp"
                             android:text="@string/nothing_found"
@@ -91,7 +90,7 @@
 
                 <include
                     android:id="@+id/bottom_bar_layout"
-                    layout="@layout/layout_listing_buttons"/>
+                    layout="@layout/layout_listing_bottom_bar"/>
 
             </com.google.android.material.bottomappbar.BottomAppBar>
 

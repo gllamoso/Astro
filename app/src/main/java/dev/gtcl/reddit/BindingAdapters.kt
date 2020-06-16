@@ -247,7 +247,13 @@ fun setVisibility(view: View, constraint: Boolean) {
 @BindingAdapter("commentItem")
 fun setIndentation(view: View, listItem: Item?){
     listItem?.let {
-        if (it.depth == 0) {
+        val depth = when(it){
+            is Comment -> it.depth ?: 0
+            is More -> it.depth
+            else -> 0
+        }
+
+        if (depth == 0) {
             view.visibility = View.GONE
             return
         }
@@ -255,11 +261,11 @@ fun setIndentation(view: View, listItem: Item?){
 
         val indicatorSize = view.context.resources.getDimension(R.dimen.comment_indicator_size)
         val lp = LinearLayout.LayoutParams(indicatorSize.toInt(), LinearLayout.LayoutParams.MATCH_PARENT)
-        val leftMargin = 1.5 * indicatorSize * (listItem.depth - 1)
+        val leftMargin = 1.5 * indicatorSize * (depth - 1)
         lp.setMargins(leftMargin.toInt(), 0, 0, 0)
         view.layoutParams = lp
 
-        when(listItem.depth % 5){
+        when(depth % 5){
             0 -> view.setBackgroundColor(Color.BLUE)
             1 -> view.setBackgroundColor(Color.RED)
             2 -> view.setBackgroundColor(Color.GREEN)
@@ -370,4 +376,10 @@ fun invert(view: View, inverted: Boolean?){
 fun bindRecyclerViewForMultiReddit(recyclerView: RecyclerView, data: MutableList<Subreddit>){
     val adapter = recyclerView.adapter as MultiRedditSubredditsAdapter
     adapter.submitList(data)
+}
+
+@BindingAdapter("number_of_comments")
+fun formatComments(textView: TextView, num: Int){
+    val numFormatted = numFormatted(num.toLong())
+    textView.text = String.format(textView.context.getText(R.string.num_comments).toString(), numFormatted)
 }

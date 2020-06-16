@@ -86,16 +86,7 @@
             android:name="multiReddit"
             app:argType="dev.gtcl.reddit.database.Subscription" />
         <action
-            android:id="@+id/action_multiRedditFragment_to_subredditSelectionFragment"
-            app:destination="@id/subredditSelectionFragment"
-            app:enterAnim="@anim/slide_left"
-            app:popExitAnim="@anim/slide_right"/>
-        <action
             android:id="@+id/action_multiRedditFragment_to_searchFragment"
             app:destination="@id/searchFragment" />
     </fragment>
-    <fragment
-        android:id="@+id/subredditSelectionFragment"
-        android:name="dev.gtcl.reddit.ui.fragments.subreddits.multireddit.subselection.SubredditSelectionFragment"
-        android:label="SubredditSelectionFragment" />
 </navigation>

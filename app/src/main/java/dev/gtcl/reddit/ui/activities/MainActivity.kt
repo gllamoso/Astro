@@ -29,4 +29,14 @@ class MainActivity : FragmentActivity() {
         val toInitialize = model
         ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE),1) // TODO: Move somewhere
     }
+
+    override fun onResume() {
+        super.onResume()
+        if(!isChangingConfigurations){
+            val thisApplication = application as RedditApplication
+            thisApplication.currentAccount?.let {
+                model.refreshAccessToken()
+            }
+        }
+    }
 }

@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.fragments.media
 
-import android.annotation.SuppressLint
 import android.content.Intent
 import android.net.Uri
 import android.util.Log
@@ -8,8 +7,6 @@ import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-//import com.arthenica.mobileffmpeg.Config
-//import com.arthenica.mobileffmpeg.FFmpeg
 import com.google.android.exoplayer2.*
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import com.google.android.exoplayer2.ui.PlayerControlView
@@ -91,8 +88,12 @@ class MediaVM(private val application: RedditApplication): AndroidViewModel(appl
     }
 
     fun initializePlayer(){
-        if(player.value != null) return
-        if(url.value == null) throw IllegalStateException("Url has not been initialized")
+        if(player.value != null) {
+            return
+        }
+        if(url.value == null) {
+            throw IllegalStateException("Url has not been initialized")
+        }
         coroutineScope.launch {
             _loading.value = true
             val trackSelector = DefaultTrackSelector()
@@ -107,9 +108,8 @@ class MediaVM(private val application: RedditApplication): AndroidViewModel(appl
                     uri = Uri.parse(gfyItem!!.mobileUrl)
                 }
                 catch (e: Exception){
-
                     if(post.value != null) {
-                        uri = Uri.parse(post.value!!.videoUrl)
+                        uri = Uri.parse(post.value!!.previewVideoUrl)
                     } else {
                         return@launch
                     }
@@ -125,8 +125,8 @@ class MediaVM(private val application: RedditApplication): AndroidViewModel(appl
                 addListener(object: Player.EventListener{
                     override fun onPlayerError(error: ExoPlaybackException?) {
                         Log.e("Media", "Exception: $error")
-                        if(uri.path != post.value?.videoUrl && post.value != null) {
-                            mediaSource = buildMediaSource(application.baseContext, Uri.parse(post.value!!.videoUrl))
+                        if(uri.path != post.value?.previewVideoUrl && post.value != null) {
+                            mediaSource = buildMediaSource(application.baseContext, Uri.parse(post.value!!.previewVideoUrl))
                             prepare(mediaSource, false, false)
                         }
                     }
@@ -154,9 +154,10 @@ class MediaVM(private val application: RedditApplication): AndroidViewModel(appl
         _playerControllerView.value = null
     }
 
-    @SuppressLint("Recycle")
     fun download(){
-        if(url.value == null || loading.value == true) return
+        if(url.value == null || loading.value == true) {
+            return
+        }
         val downloadUrl: String = gfyItem?.mp4Url ?: url.value!!
         val serviceIntent = Intent(application.applicationContext, DownloadIntentService::class.java)
         serviceIntent.putExtra(URL_KEY, downloadUrl)

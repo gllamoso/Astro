@@ -36,6 +36,7 @@
             android:layout_height="wrap_content"
             android:background="@drawable/transparent_gradient_top_to_bottom"
             layout="@layout/layout_media_buttons"
+            app:expandable="@{false}"
             app:hasPostUrl="@{model.post != null}"
             app:isVideo="@{(model.urlType == UrlType.GIFV || model.urlType == UrlType.M3U8 || model.urlType == UrlType.GFYCAT)}"
             android:layout_gravity="bottom"

@@ -12,6 +12,9 @@
         <variable
             name="isVideo"
             type="Boolean" />
+        <variable
+            name="expandable"
+            type="Boolean" />
     </data>
 
     <RelativeLayout
@@ -37,7 +40,6 @@
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:visibility="@{hasPostUrl ? View.VISIBLE : View.GONE}"
                 android:layout_weight="1"/>
 
             <ImageView
@@ -48,13 +50,13 @@
                 android:tint="@android:color/white"
                 android:visibility="@{hasPostUrl ? View.VISIBLE : View.GONE}"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_marginStart="16dp"
                 android:padding="8dp"/>
 
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_weight="2"/>
+                android:layout_weight="2"
+                android:visibility="@{hasPostUrl ? View.VISIBLE : View.GONE}"/>
 
             <ImageView
                 android:id="@+id/share_button"
@@ -63,7 +65,6 @@
                 android:src="@drawable/ic_share_24dp"
                 android:tint="@android:color/white"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_marginStart="16dp"
                 android:padding="8dp"/>
 
             <View
@@ -78,8 +79,23 @@
                 android:src="@drawable/ic_download_24dp"
                 android:tint="@android:color/white"
                 android:background="?attr/selectableItemBackgroundBorderless"
-                android:layout_marginStart="16dp"
                 android:padding="8dp"/>
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:layout_weight="2"
+                android:visibility="@{expandable ? View.VISIBLE : View.GONE}"/>
+
+            <ImageView
+                android:id="@+id/fullscreen_button"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_fullscreen_24"
+                android:tint="@android:color/white"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:padding="8dp"
+                android:visibility="@{expandable ? View.VISIBLE : View.GONE}"/>
 
             <View
                 android:layout_width="0dp"

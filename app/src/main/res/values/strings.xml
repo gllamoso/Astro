@@ -67,7 +67,7 @@
     <string name="continue_to_thread"><u>Continue to thread</u></string>
 
     <!--Post Details-->
-    <string name="num_comments">%d comments</string>
+    <string name="num_comments">%s comments</string>
     <string name="num_points">%d points</string>
     <string name="upvote_ratio">(%.0f%% upvote)</string>
 

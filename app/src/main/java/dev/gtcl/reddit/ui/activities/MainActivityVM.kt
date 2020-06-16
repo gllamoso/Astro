@@ -1,10 +1,12 @@
 package dev.gtcl.reddit.ui.activities
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.Subscription
+import dev.gtcl.reddit.models.reddit.AccessToken
 import dev.gtcl.reddit.models.reddit.listing.MultiReddit
 import dev.gtcl.reddit.models.reddit.listing.Subreddit
 import dev.gtcl.reddit.network.NetworkState
@@ -36,6 +38,13 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
 
     fun refreshObserved(){
         _refreshState.value = null
+    }
+
+    fun refreshAccessToken(){
+        coroutineScope.launch {
+            val refreshToken = application.accessToken!!.refreshToken!!
+            application.accessToken = fetchAccessToken(refreshToken)
+        }
     }
 
     fun syncSubscriptionsWithReddit(){
@@ -165,6 +174,10 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
         TODO("Implement Reporting")
     }
 
-
+    private suspend fun fetchAccessToken(refreshToken: String): AccessToken {
+        return userRepository.getNewAccessToken("Basic ${getEncodedAuthString(application.baseContext)}", refreshToken).await().apply {
+            this.refreshToken = refreshToken
+        }
+    }
 
 }

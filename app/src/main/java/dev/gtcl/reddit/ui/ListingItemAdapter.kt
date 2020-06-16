@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
@@ -36,12 +37,12 @@ class ListingItemAdapter(
         notifyItemRangeRemoved(0, itemSize)
     }
 
-    fun setItems(newItems: List<Item>){
-        val previousSize = items.size
+    fun setItems(items: List<Item>){
+        val previousSize = this.items.size
         notifyItemRemoved(previousSize)
-        items = ArrayList(newItems)
-        if(previousSize < items.size){
-            notifyItemRangeInserted(previousSize, items.size - previousSize)
+        this.items = ArrayList(items)
+        if(previousSize < this.items.size){
+            notifyItemRangeInserted(previousSize, this.items.size - previousSize)
         } else {
             notifyDataSetChanged()
         }
@@ -97,7 +98,7 @@ class ListingItemAdapter(
             }
             R.layout.item_comment -> {
                 val comment = items[position] as Comment
-                (holder as CommentVH).bind(comment) { _, _ ->  }
+                (holder as CommentVH).bind(comment) { }
             }
             R.layout.item_subreddit -> {
                 val subreddit = items[position] as Subreddit

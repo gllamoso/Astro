@@ -14,7 +14,6 @@ import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 
 sealed class Item(val kind: ItemType){
-    abstract val depth: Int
     abstract val id: String?
     abstract val name: String
     var hiddenPoints = 0 // Hide if > 0
@@ -51,10 +50,10 @@ enum class ItemType {
 data class Comment( // TODO: Add more properties: saved, liked, all_awardings
     override val name: String,
     override val id: String,
-    override var depth: Int,
+    val depth: Int?,
     val author: String,
     @Json(name="author_fullname")
-    val authorFullName: String,
+    val authorFullName: String?,
     val body: String,
     val score: Int,
     @Json(name="created_utc")
@@ -80,8 +79,6 @@ data class Account(
     // Additional field
     var refreshToken: String?
 ) : Item(ItemType.Account) {
-
-    override val depth: Int = 0
 
     fun getValidProfileImg(): String {
         val imgRegex = "http.+\\.(png|jpg|gif)".toRegex()
@@ -150,9 +147,6 @@ data class Post(
 ) : Parcelable, Item(ItemType.Post) {
 
     @IgnoredOnParcel
-    override val depth = 0
-
-    @IgnoredOnParcel
     var isRead = false
 
     val isImage: Boolean
@@ -177,7 +171,7 @@ data class Post(
             return false
         }
 
-    val videoUrl: String?
+    val previewVideoUrl: String?
         get() {
             return when {
                 secureMedia?.redditVideo != null -> secureMedia.redditVideo.hlsUrl
@@ -211,8 +205,9 @@ data class Post(
         get(){
             return when{
                 isSelf -> PostType.TEXT
+                isGif -> PostType.GIF
                 isImage -> PostType.IMAGE
-                videoUrl != null -> PostType.VIDEO
+                previewVideoUrl != null || isGfycat || isRedditVideo || isGfv -> PostType.VIDEO
                 else -> PostType.URL
             }
         }
@@ -221,6 +216,7 @@ data class Post(
 enum class PostType{
     TEXT,
     IMAGE,
+    GIF,
     VIDEO,
     URL
 }
@@ -286,10 +282,7 @@ data class Message(
     val new: Boolean,
     @Json(name = "subreddit_name_prefixed")
     val subredditNamePrefixed: String?
-) : Parcelable, Item(ItemType.Message) {
-    @IgnoredOnParcel
-    override val depth = 0
-}
+) : Parcelable, Item(ItemType.Message)
 
 //   _   _____             _____       _                  _     _ _ _
 //  | | | ____|           / ____|     | |                | |   | (_) |
@@ -315,8 +308,6 @@ data class Subreddit(
     val publicDescription: String,
     val url: String
 ) : Parcelable, Item(ItemType.Subreddit) {
-    @IgnoredOnParcel
-    override val depth: Int = 0
     @IgnoredOnParcel
     override val id = name.replace("t5_","")
 
@@ -364,8 +355,6 @@ data class Award(
     @Json(name = "icon_70") val icon70: String,
     @Json(name = "icon_40") val icon40: String
 ) : Parcelable, Item(ItemType.Award){
-    @IgnoredOnParcel
-    override val depth = 0
 }
 
 //                                        __  __
@@ -377,7 +366,7 @@ data class Award(
 data class More(
     override val name: String,
     override val id: String = name.replace("t1_", ""),
-    override var depth: Int,
+    val depth: Int,
     @Json(name = "parent_id") val parentId: String,
     val children: List<String>,
     var count: Int
@@ -419,9 +408,6 @@ data class MultiReddit(
     val visibility: Visibility,
     @Json(name = "description_md")val description: String
 ): Item(ItemType.MultiReddit), Parcelable {
-
-    @IgnoredOnParcel
-    override val depth = 0
     @IgnoredOnParcel
     override val id = ""
 

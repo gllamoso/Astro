@@ -59,6 +59,8 @@ class SplashVM(val application: RedditApplication): ViewModel() {
     }
 
     private suspend fun fetchAccessToken(refreshToken: String): AccessToken {
-        return userRepository.getNewAccessToken("Basic ${getEncodedAuthString(application.baseContext)}", refreshToken).await()
+        return userRepository.getNewAccessToken("Basic ${getEncodedAuthString(application.baseContext)}", refreshToken).await().apply {
+            this.refreshToken = refreshToken
+        }
     }
 }
