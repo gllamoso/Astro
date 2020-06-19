@@ -4,8 +4,11 @@ import android.content.Context
 import android.net.Uri
 import android.util.Base64
 import android.util.Log
+import android.view.Menu
+import android.view.MenuItem
+import android.widget.PopupMenu
+import androidx.core.view.iterator
 import androidx.lifecycle.MutableLiveData
-import androidx.room.TypeConverter
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.dash.DashMediaSource
@@ -21,7 +24,7 @@ import dev.gtcl.reddit.models.reddit.listing.Subreddit
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingSubredditPost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.text.NumberFormat
+import java.lang.Exception
 import java.util.*
 
 enum class PostSort{
@@ -303,4 +306,22 @@ operator fun <T> MutableLiveData<MutableSet<T>>.minusAssign(item: T){
     val value = this.value ?: hashSetOf()
     value.remove(item)
     this.value = value
+}
+
+fun setMenuItemsUncheckable(menu: Menu){
+    for(item: MenuItem in menu){
+        item.isCheckable = false
+    }
+}
+
+fun PopupMenu.forceIcons(){
+    try {
+        val fieldPopup = PopupMenu::class.java.getDeclaredField("mPopup")
+        fieldPopup.isAccessible = true
+        val mPopup = fieldPopup.get(this)
+        mPopup.javaClass.getDeclaredMethod("setForceShowIcon", Boolean::class.java)
+            .invoke(mPopup, true)
+    } catch(e: Exception){
+        Log.e("Popup", "Error showing menu icons.", e)
+    }
 }

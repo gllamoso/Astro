@@ -20,14 +20,14 @@ import java.lang.ref.WeakReference
 class MediaDialogFragment: DialogFragment() {
 
     private lateinit var binding: FragmentDialogMediaBinding
-    private var onPostClicked: ((Post) -> Unit)? = null
+    private var onPostClicked: ((Post, Int) -> Unit)? = null
 
     val model: MediaVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(MediaVM::class.java)
     }
 
-    fun setActions(onPostClicked: (Post) -> Unit){
+    fun setActions(onPostClicked: (Post, Int) -> Unit){
         this.onPostClicked = onPostClicked
     }
 
@@ -114,7 +114,8 @@ class MediaDialogFragment: DialogFragment() {
         binding.bottomBarControls.apply {
             commentButton.setOnClickListener {
                 val post = requireArguments().get(POST_KEY) as Post
-                onPostClicked?.invoke(post)
+                val position = requireArguments().get(POSITION_KEY) as Int
+                onPostClicked?.invoke(post, position)
                 dismiss()
             }
             shareButton.setOnClickListener {
@@ -131,9 +132,9 @@ class MediaDialogFragment: DialogFragment() {
     }
 
     companion object{
-        fun newInstance(url: String, urlType: UrlType, post: Post?): MediaDialogFragment{
+        fun newInstance(url: String, urlType: UrlType, post: Post?, position: Int?): MediaDialogFragment{
             val fragment = MediaDialogFragment()
-            val args = bundleOf(URL_KEY to url, URL_TYPE_KEY to urlType, POST_KEY to post)
+            val args = bundleOf(URL_KEY to url, URL_TYPE_KEY to urlType, POST_KEY to post, POSITION_KEY to position)
             fragment.arguments = args
             return fragment
         }

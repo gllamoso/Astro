@@ -50,10 +50,6 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
     val moreComments: LiveData<MoreComments?>
         get() = _moreComments
 
-    private val _showMediaControls = MutableLiveData<Boolean>().apply { value = true }
-    val showMediaControls: LiveData<Boolean>
-        get() = _showMediaControls
-
     private val _loading = MutableLiveData<Boolean>().apply { value = true }
     val loading: LiveData<Boolean>
         get() = _loading
@@ -77,10 +73,12 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
 
     fun fetchPostAndComments(permalink: String = post.value!!.permalink){
         coroutineScope.launch {
+            _loading.value = true
             val commentPage = listingRepository.getPostAndComments(permalink, CommentSort.BEST, pageSize * 3).await()
             _post.value = commentPage.post
             _comments.value = commentPage.comments.toMutableList()
             _commentsFetched = true
+            _loading.value = false
         }
     }
 
@@ -107,7 +105,6 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
             throw IllegalStateException("Post has not been initialized")
         }
         coroutineScope.launch {
-            _loading.value = true
             val trackSelector = DefaultTrackSelector()
             trackSelector.setParameters(trackSelector.buildUponParameters().setMaxVideoSizeSd())
             val url = when{
@@ -145,12 +142,7 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
                 })
             }
             _player.value = player
-            _loading.value = false
         }
-    }
-
-    fun toggleShowMediaButtons(){
-        _showMediaControls.value = _showMediaControls.value != true
     }
 
     fun loadingFinished(){

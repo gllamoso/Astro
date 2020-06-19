@@ -16,6 +16,7 @@ import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
@@ -32,6 +33,7 @@ import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.ItemAwardBinding
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.fragments.subreddits.multireddit.MultiRedditSubredditsAdapter
+import java.lang.Integer.max
 
 
 @BindingAdapter("imageUrlAndHideIfNull")
@@ -238,13 +240,7 @@ fun setVisibility(viewGroup: ViewGroup, listingType: ListingType?){
     viewGroup.visibility = if(listingType is SubredditListing) View.VISIBLE else View.GONE
 }
 
-
-@BindingAdapter("setVisibility")
-fun setVisibility(view: View, constraint: Boolean) {
-    view.visibility = if(constraint) View.VISIBLE else View.GONE
-}
-
-@BindingAdapter("commentItem")
+@BindingAdapter("indent_item")
 fun setIndentation(view: View, listItem: Item?){
     listItem?.let {
         val depth = when(it){
@@ -275,6 +271,23 @@ fun setIndentation(view: View, listItem: Item?){
     }
 }
 
+@BindingAdapter("indent")
+fun setIndentation(linearLayout: LinearLayout, indent: Int){
+    linearLayout.removeAllViews()
+    val viewSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0.75F, linearLayout.context.resources.displayMetrics).toInt()
+    val indentationSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8F, linearLayout.context.resources.displayMetrics).toInt()
+    for(i in 1..indent){
+        val params = LinearLayout.LayoutParams(viewSize, WindowManager.LayoutParams.MATCH_PARENT).apply {
+            marginStart = indentationSize
+        }
+        val view = View(linearLayout.context).apply {
+            setBackgroundColor(Color.GRAY)
+            layoutParams = params
+        }
+        linearLayout.addView(view)
+    }
+}
+
 @SuppressLint("SetTextI18n")
 @BindingAdapter("comment")
 fun setCommentInfo(view: LinearLayout, comment: Comment){
@@ -298,7 +311,7 @@ fun setCommentInfo(view: LinearLayout, comment: Comment){
     }
 }
 
-@BindingAdapter("moreComment")
+@BindingAdapter("more_comment")
 fun setMoreCommentText(textView: TextView, item: More){
     if(item.isContinueThreadLink())
         textView.text = textView.resources.getString(R.string.continue_to_thread)
@@ -312,6 +325,13 @@ fun setTimestamp(textView: TextView, time: Long?){
         val timestamp = timeSince(textView.context, time)
         textView.text = timestamp
     } else textView.text = ""
+}
+
+@BindingAdapter("points")
+fun setPoints(textView: TextView, points: Long){
+    val pointsFormatted = numFormatted(points)
+    val pointsText = textView.resources.getString(R.string.num_points)
+    textView.text = String.format(pointsText, pointsFormatted)
 }
 
 @BindingAdapter("upvoteRatio")
@@ -382,4 +402,28 @@ fun bindRecyclerViewForMultiReddit(recyclerView: RecyclerView, data: MutableList
 fun formatComments(textView: TextView, num: Int){
     val numFormatted = numFormatted(num.toLong())
     textView.text = String.format(textView.context.getText(R.string.num_comments).toString(), numFormatted)
+}
+
+@BindingAdapter("upvote_tint")
+fun applyUpvoteTint(imageView: ImageView, likes: Boolean?){
+    when(likes){
+        true -> imageView.setColorFilter(ContextCompat.getColor(imageView.context, android.R.color.holo_orange_dark))
+        else -> imageView.clearColorFilter()
+    }
+}
+
+@BindingAdapter("downvote_tint")
+fun applyDownvoteTint(imageView: ImageView, likes: Boolean?){
+    when(likes){
+        false -> imageView.setColorFilter(ContextCompat.getColor(imageView.context, android.R.color.holo_blue_dark))
+        else -> imageView.clearColorFilter()
+    }
+}
+
+@BindingAdapter("bookmark_tint")
+fun applyBookmarkTint(imageView: ImageView, bookmarked: Boolean){
+    when(bookmarked){
+        true -> imageView.setColorFilter(ContextCompat.getColor(imageView.context, android.R.color.holo_orange_light))
+        else -> imageView.clearColorFilter()
+    }
 }

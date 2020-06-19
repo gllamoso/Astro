@@ -3,6 +3,8 @@ package dev.gtcl.reddit
 import kotlin.reflect.jvm.internal.impl.renderer.DescriptorRenderer
 
 const val POST_KEY = "post"
+const val POSITION_KEY = "position"
+const val POST_BUNDLE_KEY = "post_bundle"
 const val SUBREDDIT_KEY = "subreddit"
 const val URL_KEY = "url"
 const val URL_TYPE_KEY = "url_type"

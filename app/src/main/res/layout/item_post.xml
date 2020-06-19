@@ -7,6 +7,7 @@
         <variable
             name="post"
             type="dev.gtcl.reddit.models.reddit.listing.Post" />
+        <import type="android.view.View"/>
     </data>
 
     <RelativeLayout
@@ -37,7 +38,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="4dp"
-                    app:setVisibility="@{post.saved == true}"/>
+                    android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}" />
 
                 <View
                     android:id="@+id/upvote_indicator"
@@ -57,7 +58,7 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     android:layout_marginBottom="8dp"
                     android:layout_marginEnd="4dp"
-                    app:setVisibility="@{post.hidden == true}"/>
+                    android:visibility="@{post.hidden == true ? View.VISIBLE : View.GONE}" />
 
                 <LinearLayout
                     android:id="@+id/text"

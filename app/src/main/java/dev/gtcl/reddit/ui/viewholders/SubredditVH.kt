@@ -12,7 +12,7 @@ class SubredditVH private constructor(private val binding: ItemSubredditBinding)
     fun bind(sub: Subreddit, subredditActions: SubredditActions, itemClickListener: ItemClickListener){
         binding.sub = sub
         binding.root.setOnClickListener {
-            itemClickListener.itemClicked(sub)
+            itemClickListener.itemClicked(sub, adapterPosition)
         }
         binding.addButton.setOnClickListener{
             sub.userSubscribed = sub.userSubscribed != true

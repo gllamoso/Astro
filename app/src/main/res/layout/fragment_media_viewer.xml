@@ -4,6 +4,7 @@
 
     <data>
         <import type="dev.gtcl.reddit.models.reddit.listing.UrlType"/>
+        <import type="android.view.View"/>
         <variable
             name="model"
             type="dev.gtcl.reddit.ui.fragments.media.MediaVM" />
@@ -18,7 +19,7 @@
             android:id="@+id/scale_image_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:setVisibility="@{model.urlType == UrlType.IMAGE}"
+            android:visibility="@{model.urlType == UrlType.IMAGE ? View.VISIBLE : View.GONE}"
             app:tileBackgroundColor="@android:color/transparent"
             app:zoomEnabled="true"/>
 
@@ -26,13 +27,13 @@
             android:id="@+id/image_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:setVisibility="@{model.urlType == UrlType.GIF}" />
+            android:visibility="@{model.urlType == UrlType.GIF ? View.VISIBLE : View.GONE}" />
 
         <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/playerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            app:setVisibility="@{model.urlType == UrlType.GFYCAT || model.urlType == UrlType.M3U8 || model.urlType == UrlType.GIFV}"
+            android:visibility="@{(model.urlType == UrlType.GFYCAT || model.urlType == UrlType.M3U8 || model.urlType == UrlType.GIFV) ? View.VISIBLE : View.GONE}"
             android:layout_gravity="center"
             app:show_buffering="always"
             app:resize_mode="fit"
@@ -44,7 +45,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            app:setVisibility="@{model.loading == true}"
+            android:visibility="@{model.loading == true ? View.VISIBLE : View.GONE}"
             android:elevation="10dp"/>
 
     </FrameLayout>

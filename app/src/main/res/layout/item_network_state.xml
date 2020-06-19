@@ -6,6 +6,7 @@
 
     <data>
         <import type="dev.gtcl.reddit.network.Status"/>
+        <import type="android.view.View"/>
         <variable
             name="networkState"
             type="dev.gtcl.reddit.network.NetworkState" />
@@ -22,14 +23,14 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:text="@{networkState.msg}"
-            app:setVisibility="@{networkState.msg != null}"
+            android:visibility="@{networkState.msg != null ? View.VISIBLE : View.GONE}"
             tools:text="There is an error"/>
         <ProgressBar
             android:id="@+id/progress_bar"
             style="?android:attr/progressBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:setVisibility="@{networkState.status == Status.RUNNING}"
+            android:visibility="@{networkState.status == Status.RUNNING ? View.VISIBLE : View.GONE}"
             android:layout_gravity="center"/>
         <Button
             android:id="@+id/retry_button"
@@ -37,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            app:setVisibility="@{networkState.status == Status.FAILED}"
+            android:visibility="@{networkState.status == Status.FAILED ? View.VISIBLE : View.GONE}"
             android:text="@string/retry"/>
     </LinearLayout>
 

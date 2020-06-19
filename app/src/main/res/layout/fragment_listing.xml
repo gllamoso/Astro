@@ -6,6 +6,7 @@
 
     <data>
         <import type="dev.gtcl.reddit.network.Status"/>
+        <import type="android.view.View"/>
         <variable
             name="model"
             type="dev.gtcl.reddit.ui.fragments.listing.ListingVM" />
@@ -50,7 +51,7 @@
                             android:indeterminate="true"
                             android:elevation="100dp"
                             android:background="?android:attr/colorBackground"
-                            app:setVisibility="@{model.networkState.status == Status.RUNNING}"/>
+                            android:visibility="@{model.networkState.status == Status.RUNNING ? View.VISIBLE : View.GONE}" />
 
                         <TextView
                             android:id="@+id/no_results_text"
@@ -83,7 +84,7 @@
             <com.google.android.material.bottomappbar.BottomAppBar
                 android:id="@+id/bottom_bar"
                 android:layout_width="match_parent"
-                android:layout_height="?actionBarSize"
+                android:layout_height="wrap_content"
                 android:layout_gravity="bottom"
                 app:contentInsetStart="0dp"
                 app:layout_behavior="dev.gtcl.reddit.ui.fragments.listing.BottomNavigationBehavior">

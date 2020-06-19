@@ -37,6 +37,11 @@
             app:destination="@id/multiRedditFragment"
             app:enterAnim="@anim/slide_left"
             app:popExitAnim="@anim/slide_right"/>
+        <action
+            android:id="@+id/action_viewPagerFragment_to_replyFragment"
+            app:destination="@id/replyFragment"
+            app:enterAnim="@anim/slide_up"
+            app:popExitAnim="@anim/slide_down"/>
     </fragment>
     <fragment
         android:id="@+id/splashFragment"
@@ -88,5 +93,14 @@
         <action
             android:id="@+id/action_multiRedditFragment_to_searchFragment"
             app:destination="@id/searchFragment" />
+    </fragment>
+    <fragment
+        android:id="@+id/replyFragment"
+        android:name="dev.gtcl.reddit.ui.fragments.comments.reply.ReplyFragment"
+        android:label="ReplyFragment" >
+        <argument
+            android:name="item"
+            app:argType="dev.gtcl.reddit.models.reddit.listing.Item"
+            />
     </fragment>
 </navigation>

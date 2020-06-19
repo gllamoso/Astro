@@ -2,16 +2,17 @@ package dev.gtcl.reddit.ui.fragments.listing
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.util.Log
+import android.view.*
+import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.core.os.bundleOf
+import androidx.core.view.iterator
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -34,6 +35,7 @@ import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.SortDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.TimeDialogFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsDialogFragment
+import java.lang.Exception
 
 class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeClickListener,
     ItemClickListener, LeftDrawerActions, SortActions {
@@ -155,6 +157,13 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
                 binding.list.removeOnScrollListener(scrollListener)
             }
         })
+
+        parentFragmentManager.setFragmentResultListener(POST_BUNDLE_KEY, viewLifecycleOwner){ _, bundle ->
+            val post = bundle.get(POST_KEY) as Post
+            val position = bundle.get(POSITION_KEY) as Int
+            model.updateItem(post, position)
+            adapter.updateItem(post, position)
+        }
     }
 
     @SuppressLint("RtlHardcoded")
@@ -234,6 +243,16 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
         binding.bottomBarLayout.refreshButton.setOnClickListener {
             model.refresh()
         }
+
+        binding.bottomBarLayout.moreOptionsButton.setOnClickListener {
+            val popupMenu = PopupMenu(context, it)
+            popupMenu.inflate(R.menu.comments_menu)
+            popupMenu.forceIcons()
+            popupMenu.setOnMenuItemClickListener { menuItem ->
+                true
+            }
+            popupMenu.show()
+        }
     }
 
     private fun setOtherObservers() {
@@ -282,7 +301,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
         TODO("Implement reporting")
     }
 
-    override fun thumbnailClicked(post: Post) {
+    override fun thumbnailClicked(post: Post, position: Int) {
         model.addReadItem(post)
         val urlType = when {
             post.isImage -> UrlType.IMAGE
@@ -298,7 +317,8 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             val dialog = MediaDialogFragment.newInstance(
                 if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.previewVideoUrl!! else post.url!!,
                 urlType,
-                post)
+                post,
+                position)
             dialog.show(parentFragmentManager, null)
         }
     }
@@ -340,8 +360,10 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 //     _| |_| ||  __/ | | | | | | |____| | | (__|   <  | |____| \__ \ ||  __/ | | |  __/ |
 //    |_____|\__\___|_| |_| |_|  \_____|_|_|\___|_|\_\ |______|_|___/\__\___|_| |_|\___|_|
 
-    override fun itemClicked(item: Item) {
-        viewPagerActions?.navigateToNewPage(item)
+    override fun itemClicked(item: Item, position: Int) {
+        if(item is Post){
+            viewPagerActions?.navigateToComments(item, position)
+        }
     }
 
 //     _           __ _     _____                                             _   _

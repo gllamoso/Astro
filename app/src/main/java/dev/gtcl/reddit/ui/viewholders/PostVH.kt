@@ -15,19 +15,19 @@ import dev.gtcl.reddit.models.reddit.listing.Post
 
 class PostVH private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
-    fun bind(post: Post?, postActions: PostActions, hideAction: ((Int) -> Unit), postClicked: (Post) -> Unit){
+    fun bind(post: Post?, postActions: PostActions, hideAction: ((Int) -> Unit), postClicked: (Post, Int) -> Unit){
         binding.post = post
         binding.executePendingBindings()
         binding.rootLayout.setOnClickListener {
             post?.isRead = true
             binding.invalidateAll()
-            postClicked(post!!)
+            postClicked(post!!, adapterPosition)
         }
 
         binding.thumbnail.setOnClickListener{
             post?.isRead = true
             binding.invalidateAll()
-            postActions.thumbnailClicked(post!!)
+            postActions.thumbnailClicked(post!!, adapterPosition)
         }
 
         if(post != null){
@@ -96,6 +96,7 @@ class PostVH private constructor(private val binding:ItemPostBinding)
         popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
         popupWindow.height = popupBinding.root.measuredHeight
         popupWindow.showAsDropDown(anchorView)
+        popupWindow.elevation = 10F
         popupBinding.executePendingBindings()
     }
 

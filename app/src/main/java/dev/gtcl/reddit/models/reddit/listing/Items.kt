@@ -13,7 +13,7 @@ import dev.gtcl.reddit.toValidImgUrl
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 
-sealed class Item(val kind: ItemType){
+sealed class Item(val kind: ItemType) : Parcelable{
     abstract val id: String?
     abstract val name: String
     var hiddenPoints = 0 // Hide if > 0
@@ -47,7 +47,8 @@ enum class ItemType {
 //  | |_| |          | |___| (_) | | | | | | | | | | |  __/ | | | |_
 //   \__|_|           \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__|
 
-data class Comment( // TODO: Add more properties: saved, liked, all_awardings
+@Parcelize
+data class Comment( // TODO: Add more properties: all_awardings
     override val name: String,
     override val id: String,
     val depth: Int?,
@@ -58,6 +59,8 @@ data class Comment( // TODO: Add more properties: saved, liked, all_awardings
     val score: Int,
     @Json(name="created_utc")
     val created: Long,
+    val saved: Boolean,
+    var likes: Boolean?,
     var isPartiallyCollapsed: Boolean = false
 ): Item(ItemType.Comment)
 
@@ -68,6 +71,7 @@ data class Comment( // TODO: Add more properties: saved, liked, all_awardings
 //  | |_ / /_            / ____ \ (_| (_| (_) | |_| | | | | |_
 //   \__|____|          /_/    \_\___\___\___/ \__,_|_| |_|\__|
 
+@Parcelize
 data class Account(
     override val id: String,
     override val name: String,
@@ -144,7 +148,7 @@ data class Post(
     val media: Media?,
     val domain: String
     // TODO: Add crosspost_parent_list
-) : Parcelable, Item(ItemType.Post) {
+) : Item(ItemType.Post) {
 
     @IgnoredOnParcel
     var isRead = false
@@ -282,7 +286,7 @@ data class Message(
     val new: Boolean,
     @Json(name = "subreddit_name_prefixed")
     val subredditNamePrefixed: String?
-) : Parcelable, Item(ItemType.Message)
+) : Item(ItemType.Message)
 
 //   _   _____             _____       _                  _     _ _ _
 //  | | | ____|           / ____|     | |                | |   | (_) |
@@ -307,7 +311,7 @@ data class Subreddit(
     @Json(name = "public_description")
     val publicDescription: String,
     val url: String
-) : Parcelable, Item(ItemType.Subreddit) {
+) : Item(ItemType.Subreddit) {
     @IgnoredOnParcel
     override val id = name.replace("t5_","")
 
@@ -336,8 +340,6 @@ data class Subreddit(
 
 fun List<Subreddit>.asSubscriptions(userId: String) = map { it.asSubscription(userId) }
 
-data class SubredditNamesResponse(val names: List<String>)
-
 //   _     __                                          _
 //  | |   / /                /\                       | |
 //  | |_ / /_    ______     /  \__      ____ _ _ __ __| |
@@ -363,6 +365,7 @@ data class Award(
 //    | | | | | | (_) | | |  __/ |_____| | |  | | (_) | | |  __/
 //    |_| |_| |_|\___/|_|  \___|         |_|  |_|\___/|_|  \___|
 
+@Parcelize
 data class More(
     override val name: String,
     override val id: String = name.replace("t1_", ""),
@@ -407,7 +410,7 @@ data class MultiReddit(
     val iconUrl: String,
     val visibility: Visibility,
     @Json(name = "description_md")val description: String
-): Item(ItemType.MultiReddit), Parcelable {
+): Item(ItemType.MultiReddit) {
     @IgnoredOnParcel
     override val id = ""
 

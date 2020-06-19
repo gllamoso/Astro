@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.models.reddit
 
+import android.util.JsonToken
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.ToJson
@@ -334,6 +335,8 @@ class CommentsMoshiAdapter {
         var body: String? = null
         var score: Int? = null
         var created: Long? = null
+        var likes: Boolean? = null
+        var saved: Boolean? = null
         var replies: List<Item>? = null
         while (jsonReader.hasNext()) {
             when (jsonReader.nextName()) {
@@ -360,6 +363,16 @@ class CommentsMoshiAdapter {
                         replies = getCommentsFromListing(jsonReader, depth + 1)
                     else jsonReader.skipValue()
                 }
+                "likes" -> {
+                    if(jsonReader.peek() == JsonReader.Token.NULL){
+                        jsonReader.skipValue()
+                    } else {
+                        likes = jsonReader.nextBoolean()
+                    }
+                }
+                "saved" -> {
+                    saved = jsonReader.nextBoolean()
+                }
                 else -> {
                     jsonReader.skipValue()
                 }
@@ -375,7 +388,9 @@ class CommentsMoshiAdapter {
             authorFullName = authorFullName,
             body = body!!,
             score = score!!,
-            created = created!!
+            created = created!!,
+            likes =  likes,
+            saved = saved!!
         )
 
         comments.add(comment)

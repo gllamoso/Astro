@@ -155,6 +155,10 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
         }
     }
 
+    fun updateItem(item: Item, position: Int){
+        _items.value?.set(position, item)
+    }
+
     // Right Side Bar Layout
     fun syncSubreddit(){
         coroutineScope.launch {

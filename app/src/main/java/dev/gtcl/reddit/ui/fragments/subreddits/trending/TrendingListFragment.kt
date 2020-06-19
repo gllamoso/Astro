@@ -134,7 +134,7 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
         }
     }
 
-    override fun itemClicked(item: Item) {
+    override fun itemClicked(item: Item, position: Int) {
         if(item is Subreddit){
             parentListingTypeClickListener?.listingTypeClicked(
                 SubredditListing(

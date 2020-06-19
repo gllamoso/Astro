@@ -15,6 +15,7 @@ import dev.gtcl.reddit.databinding.FragmentUserBinding
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.ListingType
+import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.item_scroller.ItemScrollerFragment
 
@@ -98,11 +99,13 @@ class AccountFragment : Fragment(), ItemClickListener, LeftDrawerActions, Naviga
         }
     }
 
-    override fun itemClicked(item: Item) {
-        viewPagerActions?.navigateToNewPage(item)
+    override fun itemClicked(item: Item, position: Int) {
+        if(item is Post){
+            viewPagerActions?.navigateToComments(item, position)
+        }
     }
 
-//     _           __ _     _____                                             _   _
+    //     _           __ _     _____                                             _   _
 //    | |         / _| |   |  __ \                                  /\       | | (_)
 //    | |     ___| |_| |_  | |  | |_ __ __ ___      _____ _ __     /  \   ___| |_ _  ___  _ __  ___
 //    | |    / _ \  _| __| | |  | | '__/ _` \ \ /\ / / _ \ '__|   / /\ \ / __| __| |/ _ \| '_ \/ __|
@@ -187,8 +190,8 @@ class AccountFragment : Fragment(), ItemClickListener, LeftDrawerActions, Naviga
         viewPagerActions?.navigatePreviousPage()
     }
 
-    override fun navigateToNewPage(item: Item) {
-        viewPagerActions?.navigateToNewPage(item)
+    override fun navigateToComments(post: Post, position: Int) {
+        viewPagerActions?.navigateToComments(post, position)
     }
 
     companion object {

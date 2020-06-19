@@ -25,7 +25,7 @@ import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
 
-open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, SubredditActions, ItemClickListener{
+open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, MessageActions, SubredditActions, ItemClickListener{
 
     private lateinit var binding: FragmentItemScrollerBinding
     private lateinit var scrollListener: ItemScrollListener
@@ -87,7 +87,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentItemScrollerBinding.inflate(inflater)
-        listAdapter = ListingItemAdapter(this, this, this, this, model::retry)
+        listAdapter = ListingItemAdapter(this, this, this, this, this, model::retry)
         scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadItems)
         binding.list.adapter = listAdapter
         binding.list.addOnScrollListener(scrollListener)
@@ -176,7 +176,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
         TODO("Implement reporting")
     }
 
-    override fun thumbnailClicked(post: Post) {
+    override fun thumbnailClicked(post: Post, position: Int) {
         model.addReadItem(post)
         val urlType = when {
             post.isImage -> UrlType.IMAGE
@@ -192,9 +192,41 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
             val dialog = MediaDialogFragment.newInstance(
                 if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.previewVideoUrl!! else post.url!!,
                 urlType,
-                post)
+                post,
+                position)
             dialog.show(childFragmentManager, null)
         }
+    }
+
+//      _____                                     _                  _   _
+//     / ____|                                   | |       /\       | | (_)
+//    | |     ___  _ __ ___  _ __ ___   ___ _ __ | |_     /  \   ___| |_ _  ___  _ __  ___
+//    | |    / _ \| '_ ` _ \| '_ ` _ \ / _ \ '_ \| __|   / /\ \ / __| __| |/ _ \| '_ \/ __|
+//    | |___| (_) | | | | | | | | | | |  __/ | | | |_   / ____ \ (__| |_| | (_) | | | \__ \
+//     \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
+
+    override fun vote(comment: Comment, vote: Vote) {
+        TODO("Not yet implemented")
+    }
+
+    override fun save(comment: Comment) {
+        TODO("Not yet implemented")
+    }
+
+    override fun share(comment: Comment) {
+        TODO("Not yet implemented")
+    }
+
+    override fun reply(comment: Comment) {
+        TODO("Not yet implemented")
+    }
+
+    override fun viewProfile(comment: Comment) {
+        TODO("Not yet implemented")
+    }
+
+    override fun report(comment: Comment) {
+        TODO("Not yet implemented")
     }
 
 //     __  __                                               _   _
@@ -237,12 +269,14 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
 //     _| |_| ||  __/ | | | | | | |____| | | (__|   <  | |____| \__ \ ||  __/ | | |  __/ |
 //    |_____|\__\___|_| |_| |_|  \_____|_|_|\___|_|\_\ |______|_|___/\__\___|_| |_|\___|_|
 
-    override fun itemClicked(item: Item) {
+    override fun itemClicked(item: Item, position: Int) {
         model.addReadItem(item)
-        viewPagerActions?.navigateToNewPage(item)
+        if(item is Post){
+            viewPagerActions?.navigateToComments(item, position)
+        }
     }
 
-//     _   _                 _____           _
+    //     _   _                 _____           _
 //    | \ | |               |_   _|         | |
 //    |  \| | _____      __   | |  _ __  ___| |_ __ _ _ __   ___ ___
 //    | . ` |/ _ \ \ /\ / /   | | | '_ \/ __| __/ _` | '_ \ / __/ _ \
@@ -284,5 +318,6 @@ open class ItemScrollerFragment : Fragment(), PostActions, MessageActions, Subre
         }
 
     }
+
 
 }

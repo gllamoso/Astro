@@ -170,7 +170,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         }
     }
 
-    override fun itemClicked(item: Item) {
+    override fun itemClicked(item: Item, position: Int) {
         val multiSelectMode = args.multiSelectMode
         if(multiSelectMode){
             val name = when (item) {

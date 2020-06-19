@@ -44,7 +44,9 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
             is ListingFragment -> childFragment.setActions(this, this)
             is CommentsFragment -> childFragment.setActions(this)
             is AccountFragment -> childFragment.setActions(this, this)
-            is MediaDialogFragment -> childFragment.setActions { navigateToNewPage(it) }
+            is MediaDialogFragment -> childFragment.setActions { post, position ->
+                navigateToComments(post, position)
+            }
         }
     }
 
@@ -119,8 +121,8 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
         binding.viewPager.setCurrentItem(currentPage - 1, true)
     }
 
-    override fun navigateToNewPage(item: Item) {
-        pageAdapter.addPostPage(item as Post)
+    override fun navigateToComments(post: Post, position: Int) {
+        pageAdapter.addPostPage(post, position)
         navigateNext()
     }
 

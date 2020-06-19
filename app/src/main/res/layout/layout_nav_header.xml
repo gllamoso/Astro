@@ -8,6 +8,7 @@
         <variable
             name="account"
             type="dev.gtcl.reddit.models.reddit.listing.Account" />
+        <import type="android.view.View"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -38,7 +39,7 @@
             app:layout_constraintBottom_toTopOf="@id/name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:setVisibility="@{account != null}" />
+            android:visibility="@{account != null ? View.VISIBLE : View.GONE}" />
 
         <TextView
             android:id="@+id/name"

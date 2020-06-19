@@ -23,6 +23,7 @@
     <string name="order_controversial">Controversial</string>
     <string name="order_rising">Rising</string>
     <string name="sort_posts_by">Sort posts by</string>
+    <string name="sort">Sort</string>
 
     <!--Posts From Fragment-->
     <string name="posts_from">Posts from</string>
@@ -63,27 +64,29 @@
     <string name="redirect_uri">http://reddit.gtcl.com/redirect</string>
 
     <!--Comments-->
+    <string name="reply">Reply</string>
     <string name="more_replies"><u>%d more replies</u></string>
     <string name="continue_to_thread"><u>Continue to thread</u></string>
+    <string name="add_comment">Add Comment</string>
 
     <!--Post Details-->
     <string name="num_comments">%s comments</string>
-    <string name="num_points">%d points</string>
+    <string name="num_points">%s points</string>
     <string name="upvote_ratio">(%.0f%% upvote)</string>
 
     <!--Time-->
-    <string name="years_ago">%d years ago</string>
-    <string name="year_ago">1 year ago</string>
-    <string name="months_ago">%d months ago</string>
-    <string name="month_ago">1 month ago</string>
-    <string name="weeks_ago">%d weeks ago</string>
-    <string name="week_ago">1 week ago</string>
-    <string name="days_ago">%d days ago</string>
-    <string name="day_ago">1 day ago</string>
-    <string name="hours_ago">%d hours ago</string>
-    <string name="hour_ago">1 hour ago</string>
-    <string name="minutes_ago">%d minutes ago</string>
-    <string name="a_moment_ago">A moment ago</string>
+    <string name="years_ago">%d years</string>
+    <string name="year_ago">1 year</string>
+    <string name="months_ago">%d months</string>
+    <string name="month_ago">1 month</string>
+    <string name="weeks_ago">%d weeks</string>
+    <string name="week_ago">1 week</string>
+    <string name="days_ago">%d days</string>
+    <string name="day_ago">1 day</string>
+    <string name="hours_ago">%d hours</string>
+    <string name="hour_ago">1 hour</string>
+    <string name="minutes_ago">%d minutes</string>
+    <string name="a_moment_ago">A moment</string>
     <string name="nothing_found">Nothing found.</string>
 
     <!--Account-->
@@ -138,5 +141,10 @@
     <string name="my_subscriptions">My Subscriptions</string>
     <string name="sync_subscriptions">Sync Subscriptions</string>
     <string name="done">Done</string>
+    <string name="send">Send</string>
+    <string name="edit">Edit</string>
+    <string name="reload">Reload</string>
+    <string name="subscriptions">Subscriptions</string>
+    <string name="more_options">More Options</string>
 
 </resources>

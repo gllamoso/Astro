@@ -8,9 +8,6 @@
         <variable
             name="post"
             type="dev.gtcl.reddit.models.reddit.listing.Post" />
-        <variable
-            name="showMediaControls"
-            type="Boolean" />
         <import type="dev.gtcl.reddit.models.reddit.listing.PostType"/>
         <import type="android.view.View"/>
     </data>
@@ -35,7 +32,7 @@
             app:setViewSize="@{75}"
             android:padding="8dp"
             android:visibility="@{post.postType == PostType.VIDEO ? View.VISIBLE : View.GONE}"
-            app:use_controller="false"
+            app:use_controller="true"
             app:surface_type="texture_view"
             app:show_buffering="always"
             app:resize_mode="fit"/>
@@ -56,18 +53,6 @@
             app:tileBackgroundColor="@android:color/transparent"
             app:setViewSize="@{75}"
             app:zoomEnabled="true"/>
-
-        <include
-            android:id="@+id/media_buttons"
-            android:layout_height="wrap_content"
-            android:layout_width="match_parent"
-            android:layout_gravity="bottom"
-            layout="@layout/layout_media_buttons"
-            android:visibility="@{(post.postType == PostType.IMAGE || post.postType == PostType.VIDEO) &amp;&amp; showMediaControls ? View.VISIBLE : View.GONE}"
-            app:hasPostUrl="@{false}"
-            app:isVideo="@{post.postType == PostType.VIDEO}"
-            app:expandable="@{post.postType == PostType.IMAGE || post.postType == PostType.VIDEO}"
-            />
 
     </FrameLayout>
 

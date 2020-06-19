@@ -5,11 +5,16 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
+import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.os.bundleOf
+import androidx.core.view.iterator
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -19,18 +24,25 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dev.gtcl.reddit.*
+import dev.gtcl.reddit.actions.CommentActions
+import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.databinding.FragmentCommentsBinding
 import dev.gtcl.reddit.actions.ViewPagerActions
-import dev.gtcl.reddit.models.reddit.listing.More
-import dev.gtcl.reddit.models.reddit.listing.Post
-import dev.gtcl.reddit.models.reddit.listing.PostType
+import dev.gtcl.reddit.models.reddit.listing.*
+import dev.gtcl.reddit.ui.activities.MainActivityVM
+import dev.gtcl.reddit.ui.fragments.AccountPage
+import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
+import dev.gtcl.reddit.ui.fragments.misc.SortDialogFragment
+import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsDialogFragment
 
-class CommentsFragment : Fragment() {
+class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
 
     private val model: CommentsVM by lazy {
         val viewModelFactory = ViewModelFactory(requireContext().applicationContext as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(CommentsVM::class.java)
     }
+
+    private val activityModel: MainActivityVM by activityViewModels()
 
     private lateinit var binding: FragmentCommentsBinding
 
@@ -46,10 +58,20 @@ class CommentsFragment : Fragment() {
         binding.model = model
 
         initPost()
-        initCommentsAdapter()
+        initTopBar()
+        initBottomBarAndCommentsAdapter()
 
         binding.executePendingBindings()
         return binding.root
+    }
+
+    override fun onPause() {
+        super.onPause()
+        val position = arguments?.get(POSITION_KEY)
+        val post = model.post.value.apply {
+            this?.isRead = true
+        }
+        parentFragmentManager.setFragmentResult(POST_BUNDLE_KEY, bundleOf(POST_KEY to post, POSITION_KEY to position))
     }
 
     override fun onStop() {
@@ -59,17 +81,14 @@ class CommentsFragment : Fragment() {
         }
     }
 
-    private fun initCommentsAdapter(){
-        val adapter = CommentsAdapter(object : CommentsAdapter.CommentItemClickListener{
-            override fun onMoreCommentsClicked(position: Int, more: More) {
-                model.fetchMoreComments(position, more)
-            }
+    private fun initTopBar(){
+        binding.toolbar.setNavigationOnClickListener {
+            viewPagerActions?.navigatePreviousPage()
+        }
+    }
 
-            override fun onContinueThreadClicked(more: More) {
-                val url = "${model.post.value?.permalink}${more.parentId.replace("t1_","")}"
-                viewPagerActions?.navigateToNewPage(model.post.value!!)
-            }
-        })
+    private fun initBottomBarAndCommentsAdapter(){
+        val adapter = CommentsAdapter(this, this)
         binding.bottomSheet.commentList.adapter = adapter
         model.comments.observe(viewLifecycleOwner, Observer {
             if(it != null){
@@ -83,10 +102,6 @@ class CommentsFragment : Fragment() {
                 model.clearMoreComments()
             }
         })
-
-        binding.toolbar.setNavigationOnClickListener {
-            viewPagerActions?.navigatePreviousPage()
-        }
 
         val behavior = BottomSheetBehavior.from(binding.bottomSheet.bottomSheet)
         behavior.addBottomSheetCallback(object: BottomSheetBehavior.BottomSheetCallback(){
@@ -102,9 +117,80 @@ class CommentsFragment : Fragment() {
             }
         })
         behavior.state = BottomSheetBehavior.STATE_COLLAPSED
+
+        binding.bottomSheet.toolbar.setOnMenuItemClickListener {
+            if(it.itemId == R.id.reply && model.post.value != null){
+                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToReplyFragment(model.post.value!!))
+                true
+            } else {
+                false
+            }
+        }
+
+        initBottomBarOnClickListeners(behavior)
+    }
+
+    private fun initBottomBarOnClickListeners(behavior: BottomSheetBehavior<CoordinatorLayout>){
+
         binding.bottomBar.commentsButton.setOnClickListener {
+            if(model.loading.value == true){
+                return@setOnClickListener
+            }
             behavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
+
+        binding.bottomBar.upvoteButton.setOnClickListener {
+            if(model.loading.value == true){
+                return@setOnClickListener
+            }
+            model.post.value?.let {
+                it.likes = if(it.likes == true){
+                    null
+                } else {
+                    true
+                }
+                val vote = if(it.likes == true){
+                    Vote.UPVOTE
+                } else {
+                    Vote.UNVOTE
+                }
+                activityModel.vote(it.name, vote)
+                binding.bottomBar.invalidateAll()
+            }
+        }
+
+        binding.bottomBar.downvoteButton.setOnClickListener {
+            if(model.loading.value == true){
+                return@setOnClickListener
+            }
+            model.post.value?.let {
+                it.likes = if(it.likes == false){
+                    null
+                } else {
+                    false
+                }
+                val vote = if(it.likes == false){
+                    Vote.DOWNVOTE
+                } else {
+                    Vote.UNVOTE
+                }
+                activityModel.vote(it.name, vote)
+                binding.bottomBar.invalidateAll()
+            }
+        }
+
+        binding.bottomBar.saveButton.setOnClickListener {
+            if(model.loading.value == true){
+                return@setOnClickListener
+            }
+            model.post.value?.let {
+                it.saved = !it.saved
+                activityModel.save(it.name, it.saved)
+                binding.bottomBar.invalidateAll()
+            }
+        }
+
+
     }
 
     private fun initPost(){
@@ -148,10 +234,6 @@ class CommentsFragment : Fragment() {
             })
             .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
             .into(SubsamplingScaleImageViewTarget(binding.content.scaleImageView))
-
-        binding.content.scaleImageView.setOnClickListener {
-            model.toggleShowMediaButtons()
-        }
     }
 
     private fun initGifToImageView(post: Post){
@@ -181,10 +263,6 @@ class CommentsFragment : Fragment() {
 
             })
             .into(binding.content.imageView)
-
-        binding.content.imageView.setOnClickListener {
-            model.toggleShowMediaButtons()
-        }
     }
 
     private fun initVideoPlayer(post: Post){
@@ -192,22 +270,59 @@ class CommentsFragment : Fragment() {
         model.player.observe(viewLifecycleOwner, Observer {simpleExoPlayer ->
             if(simpleExoPlayer != null) {
                 binding.content.playerView.player = simpleExoPlayer
-                binding.content.mediaButtons.playerController.player = simpleExoPlayer
                 model.loadingFinished()
             }
         })
+    }
 
-        binding.content.root.setOnClickListener {
-            model.toggleShowMediaButtons()
-        }
+//      _____                                     _                  _   _
+//     / ____|                                   | |       /\       | | (_)
+//    | |     ___  _ __ ___  _ __ ___   ___ _ __ | |_     /  \   ___| |_ _  ___  _ __  ___
+//    | |    / _ \| '_ ` _ \| '_ ` _ \ / _ \ '_ \| __|   / /\ \ / __| __| |/ _ \| '_ \/ __|
+//    | |___| (_) | | | | | | | | | | |  __/ | | | |_   / ____ \ (__| |_| | (_) | | | \__ \
+//    \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
+
+    override fun vote(comment: Comment, vote: Vote) {
+        TODO("Not yet implemented")
+    }
+
+    override fun save(comment: Comment) {
+        TODO("Not yet implemented")
+    }
+
+    override fun share(comment: Comment) {
+        TODO("Not yet implemented")
+    }
+
+    override fun reply(comment: Comment) {
+        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToReplyFragment(comment))
+    }
+
+    override fun viewProfile(comment: Comment) {
+        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(comment.author)))
+    }
+
+    override fun report(comment: Comment) {
+        TODO("Not yet implemented")
     }
 
     companion object{
-        fun newInstance(post: Post): CommentsFragment{
+        fun newInstance(post: Post, position: Int? = null): CommentsFragment{
             val fragment = CommentsFragment()
-            val args = bundleOf(POST_KEY to post)
+            val args = bundleOf(POST_KEY to post, POSITION_KEY to position)
             fragment.arguments = args
             return fragment
         }
     }
+
+    override fun itemClicked(item: Item, position: Int) {
+        if(item is More){
+            if(item.isContinueThreadLink()){
+                TODO("Implement Continue Thread")
+            } else {
+                model.fetchMoreComments(position, item)
+            }
+        }
+    }
+
 }

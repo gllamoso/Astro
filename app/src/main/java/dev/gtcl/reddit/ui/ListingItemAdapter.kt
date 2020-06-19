@@ -1,13 +1,9 @@
 package dev.gtcl.reddit.ui
 
-import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
-import dev.gtcl.reddit.actions.ItemClickListener
-import dev.gtcl.reddit.actions.MessageActions
-import dev.gtcl.reddit.actions.PostActions
-import dev.gtcl.reddit.actions.SubredditActions
+import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.viewholders.*
@@ -17,6 +13,7 @@ class ListingItemAdapter(
     private val postActions: PostActions? = null,
     private val subredditActions: SubredditActions? = null,
     private val messageActions: MessageActions? = null,
+    private val commentActions: CommentActions? = null,
     private val itemClickListener: ItemClickListener,
     private val retry: () -> Unit): RecyclerView.Adapter<RecyclerView.ViewHolder>(), ItemClickListener  {
 
@@ -46,6 +43,11 @@ class ListingItemAdapter(
         } else {
             notifyDataSetChanged()
         }
+    }
+
+    fun updateItem(item: Item, position: Int){
+        items[position] = item
+        notifyItemChanged(position)
     }
 
     private val isLoading: Boolean
@@ -89,8 +91,8 @@ class ListingItemAdapter(
                     throw IllegalStateException("Post Actions not initialized")
                 }
                 val post = items[position] as Post
-                val postClicked: (Post) -> Unit = {
-                    itemClicked(it)
+                val postClicked: (Post, Int) -> Unit = { p, adapterPosition ->
+                    itemClicked(p, adapterPosition)
                 }
                 (holder as PostVH).bind(post, postActions,
                     hideAction = hideItem,
@@ -98,7 +100,10 @@ class ListingItemAdapter(
             }
             R.layout.item_comment -> {
                 val comment = items[position] as Comment
-                (holder as CommentVH).bind(comment) { }
+                if(commentActions == null){
+                    throw IllegalStateException("Comment Actions not initialized")
+                }
+                (holder as CommentVH).bind(comment, commentActions, itemClickListener)
             }
             R.layout.item_subreddit -> {
                 val subreddit = items[position] as Subreddit
@@ -118,8 +123,8 @@ class ListingItemAdapter(
         }
     }
 
-    override fun itemClicked(item: Item) {
-        itemClickListener.itemClicked(item)
+    override fun itemClicked(item: Item, position: Int) {
+        itemClickListener.itemClicked(item, position)
     }
 
 }

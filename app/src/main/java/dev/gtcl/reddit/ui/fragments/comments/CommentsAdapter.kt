@@ -3,39 +3,17 @@ package dev.gtcl.reddit.ui.fragments.comments
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
+import dev.gtcl.reddit.actions.CommentActions
+import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.models.reddit.listing.Comment
 import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.More
 import dev.gtcl.reddit.ui.viewholders.CommentVH
 import dev.gtcl.reddit.ui.viewholders.MoreVH
 
-class CommentsAdapter(private val commentItemClickListener: CommentItemClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+class CommentsAdapter(private val commentActions: CommentActions, private val itemClickListener: ItemClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), ItemClickListener{
 
     private var mCommentItems = mutableListOf<Item>()
-
-    private val collapseComments: (Int) -> Unit = {
-        val collapse = !(mCommentItems[it] as Comment).isPartiallyCollapsed
-        (mCommentItems[it] as Comment).isPartiallyCollapsed = collapse
-        val depth = when(val item = mCommentItems[it]){
-            is Comment -> item.depth ?: 0
-            else -> 0
-        }
-        var i = it
-        while(++i < itemCount - 1){
-            val item = mCommentItems[i]
-            val itemDepth = when(item){
-                is Comment -> item.depth ?: 0
-                is More -> item.depth
-                else -> 0
-            }
-            if(itemDepth <= depth){
-                break
-            }
-            item.hiddenPoints += if(collapse) 1 else -1
-        }
-        notifyItemRangeChanged(it, i - it)
-    }
-
 
     fun submitList(items: List<Item>){
         mCommentItems = items.toMutableList()
@@ -60,13 +38,8 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when(val commentItem = mCommentItems[position]){
-            is Comment -> (holder as CommentVH).bind(commentItem, collapseComments)
-            is More -> (holder as MoreVH).bind(commentItem) {
-                if(commentItem.isContinueThreadLink())
-                    commentItemClickListener.onContinueThreadClicked(commentItem)
-                else
-                    commentItemClickListener.onMoreCommentsClicked(position, commentItem)
-            }
+            is Comment -> (holder as CommentVH).bind(commentItem, commentActions, this)
+            is More -> (holder as MoreVH).bind(commentItem, itemClickListener)
         }
     }
 
@@ -79,9 +52,31 @@ class CommentsAdapter(private val commentItemClickListener: CommentItemClickList
 
     override fun getItemCount(): Int = mCommentItems.size
 
-    interface CommentItemClickListener{
-        fun onMoreCommentsClicked(position: Int, more: More)
-        fun onContinueThreadClicked(more: More)
+    override fun itemClicked(item: Item, position: Int) {
+        val collapse = !(mCommentItems[position] as Comment).isPartiallyCollapsed
+        (mCommentItems[position] as Comment).isPartiallyCollapsed = collapse
+        val depth = when(val item = mCommentItems[position]){
+            is Comment -> item.depth ?: 0
+            else -> 0
+        }
+        var i = position
+        while(++i < itemCount - 1){
+            val currItem = mCommentItems[i]
+            val itemDepth = when(currItem){
+                is Comment -> currItem.depth ?: 0
+                is More -> currItem.depth
+                else -> 0
+            }
+            if(itemDepth <= depth){
+                break
+            }
+            currItem.hiddenPoints += if(collapse){
+                1
+            } else {
+                -1
+            }
+        }
+        notifyItemRangeChanged(position, i - position)
     }
 
 }

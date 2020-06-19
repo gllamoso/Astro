@@ -58,7 +58,7 @@ class TrendingAdapter(private val itemClickListener: ItemClickListener, private 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when(getItemViewType(position)){
-            R.layout.item_trending_subreddit -> (holder as TrendingSubredditVH).bind(items[position], subredditActions) { itemClickListener.itemClicked(it) }
+            R.layout.item_trending_subreddit -> (holder as TrendingSubredditVH).bind(items[position], subredditActions) { itemClickListener.itemClicked(it, position) }
             R.layout.item_network_state -> (holder as NetworkStateItemVH).bindTo(networkState)
         }
 
