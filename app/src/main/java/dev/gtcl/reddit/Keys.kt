@@ -1,7 +1,5 @@
 package dev.gtcl.reddit
 
-import kotlin.reflect.jvm.internal.impl.renderer.DescriptorRenderer
-
 const val POST_KEY = "post"
 const val POSITION_KEY = "position"
 const val POST_BUNDLE_KEY = "post_bundle"
@@ -13,6 +11,7 @@ const val STRING_KEY = "string"
 const val CURRENT_USER_KEY = "current_user"
 const val SUBREDDIT_UPDATE_REQUEST_KEY = "sub_request_key"
 const val REDIRECT_URL_REQUEST_CODE = 1
+const val GALLERY_REQUEST_KEY = 123
 const val SELECTED_SUBREDDITS_KEY = "selected_subreddits"
 const val MULTI_KEY = "multireddit_key"
 

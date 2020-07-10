@@ -20,10 +20,12 @@ import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
 import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.Post
+import dev.gtcl.reddit.models.reddit.listing.PostType
 import dev.gtcl.reddit.models.reddit.listing.Subreddit
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingSubredditPost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import java.io.File
 import java.lang.Exception
 import java.util.*
 
@@ -308,12 +310,6 @@ operator fun <T> MutableLiveData<MutableSet<T>>.minusAssign(item: T){
     this.value = value
 }
 
-fun setMenuItemsUncheckable(menu: Menu){
-    for(item: MenuItem in menu){
-        item.isCheckable = false
-    }
-}
-
 fun PopupMenu.forceIcons(){
     try {
         val fieldPopup = PopupMenu::class.java.getDeclaredField("mPopup")
@@ -325,3 +321,9 @@ fun PopupMenu.forceIcons(){
         Log.e("Popup", "Error showing menu icons.", e)
     }
 }
+
+sealed class PostContent(val postType: PostType)
+class TextPost(val body: String): PostContent(PostType.TEXT)
+class ImagePost(val file: File): PostContent(PostType.IMAGE)
+class LinkPost(val url: String): PostContent(PostType.URL)
+// TODO: Video/GIF

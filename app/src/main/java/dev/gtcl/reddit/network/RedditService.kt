@@ -246,6 +246,14 @@ interface RedditApiService {
         @Query("sort") sort: CommentSort
     ): Deferred<MoreChildrenResponse>
 
+    @POST("/api/comment/.json")
+    fun addComment(
+        @Header("Authorization") authorization: String,
+        @Query("thing_id") parentName: String,
+        @Query("text") body: String,
+        @Query("api_type") apiType: String = "json"
+    ): Deferred<MoreChildrenResponse>
+
 //     __  __
 //    |  \/  |
 //    | \  / | ___  ___ ___  __ _  __ _  ___  ___

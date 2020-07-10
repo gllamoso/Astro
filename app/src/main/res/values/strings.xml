@@ -41,6 +41,7 @@
     <string name="search_tab_label">Search</string>
     <string name="search">Search…</string>
     <string name="subreddits">Subreddits</string>
+    <string name="subreddit">Subreddit</string>
 
     <!--Multi Reddits-->
     <string name="multireddits">Multireddits</string>
@@ -134,6 +135,17 @@
     <string name="public_label">Public</string>
     <string name="hidden_label">Hidden</string>
     <string name="display_name_error">Please enter a name</string>
+
+    <!--Create Post-->
+    <string name="create_post">Create Post</string>
+    <string name="rules">Rules</string>
+    <string name="title">Title</string>
+    <string name="text">Text</string>
+    <string name="image">Image</string>
+    <string name="link">Link</string>
+    <string name="url">URL</string>
+    <string name="camera">Camera</string>
+    <string name="gallery">Gallery</string>
 
     <!--Misc-->
     <string name="please_login">Please log in</string>

@@ -246,9 +246,15 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 
         binding.bottomBarLayout.moreOptionsButton.setOnClickListener {
             val popupMenu = PopupMenu(context, it)
-            popupMenu.inflate(R.menu.comments_menu)
+            popupMenu.inflate(R.menu.listing_more_menu)
             popupMenu.forceIcons()
             popupMenu.setOnMenuItemClickListener { menuItem ->
+                when(menuItem.itemId){
+                    R.id.post -> {
+                        val subredditName = model.subreddit.value?.displayName
+                        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToCreatePostFragment(subredditName))
+                    }
+                }
                 true
             }
             popupMenu.show()

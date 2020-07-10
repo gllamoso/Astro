@@ -11,7 +11,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
-import java.lang.IllegalStateException
+import kotlin.IllegalStateException
 
 const val GUEST_ID = "guest"
 
@@ -138,6 +138,14 @@ class ListingRepository private constructor(private val application: RedditAppli
         }
     }
 
+    @MainThread
+    fun addComment(parentName: String, body: String): Deferred<MoreChildrenResponse>{
+        return if(application.accessToken == null){
+            throw IllegalStateException("Must be logged in to add comment")
+        } else {
+            RedditApi.oauth.addComment(application.accessToken!!.authorizationHeader, parentName, body)
+        }
+    }
 
     companion object{
         private lateinit var INSTANCE: ListingRepository

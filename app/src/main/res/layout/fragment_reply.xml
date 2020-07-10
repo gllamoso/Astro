@@ -27,7 +27,7 @@
                 android:layout_height="?attr/actionBarSize"
                 app:title="@string/reply"
                 app:navigationIcon="@drawable/ic_x_24dp"
-                app:menu="@menu/reply_menu"/>
+                app:menu="@menu/post_menu"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 

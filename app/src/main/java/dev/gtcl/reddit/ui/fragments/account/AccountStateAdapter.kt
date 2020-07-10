@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.fragments.account
 
-import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import dev.gtcl.reddit.PostSort

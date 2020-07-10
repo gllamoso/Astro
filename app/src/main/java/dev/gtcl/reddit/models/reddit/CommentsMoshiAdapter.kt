@@ -390,7 +390,7 @@ class CommentsMoshiAdapter {
             score = score!!,
             created = created!!,
             likes =  likes,
-            saved = saved!!
+            saved = saved
         )
 
         comments.add(comment)

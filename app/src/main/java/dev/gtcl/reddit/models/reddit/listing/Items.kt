@@ -59,7 +59,7 @@ data class Comment( // TODO: Add more properties: all_awardings
     val score: Int,
     @Json(name="created_utc")
     val created: Long,
-    val saved: Boolean,
+    val saved: Boolean?,
     var likes: Boolean?,
     var isPartiallyCollapsed: Boolean = false
 ): Item(ItemType.Comment)
@@ -218,10 +218,15 @@ data class Post(
 }
 
 enum class PostType{
+    @SerializedName("self")
     TEXT,
+    @SerializedName("image")
     IMAGE,
+    @SerializedName("videogif")
     GIF,
+    @SerializedName("video")
     VIDEO,
+    @SerializedName("link")
     URL
 }
 
