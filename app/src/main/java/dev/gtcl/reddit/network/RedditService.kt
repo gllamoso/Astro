@@ -123,6 +123,37 @@ interface RedditApiService {
         @Query("limit") limit: Int
     ): Deferred<ListingResponse>
 
+    @POST("/api/submit")
+    fun submitPost(
+        @Header("Authorization") authorization: String,
+        @Query("sr") subreddit: String,
+        @Query("kind") kind: PostType,
+        @Query("title") title: String,
+        @Query("text") text: String?,
+        @Query("url") url: String?,
+        @Query("nsfw") nsfw: Boolean,
+        @Query("spoiler") spoiler: Boolean,
+        @Query("flair_id") flairId: String?,
+        @Query("flair_text") flairText: String?,
+        @Query("resubmit") resubmit: Boolean,
+        @Query("api_type") apiType: String = "json"
+    ): Deferred<PostSubmittedResponse>
+
+    @POST("/api/submit")
+    fun submitPostForError(
+        @Header("Authorization") authorization: String,
+        @Query("sr") subreddit: String,
+        @Query("kind") kind: PostType,
+        @Query("title") title: String,
+        @Query("text") text: String?,
+        @Query("url") url: String?,
+        @Query("nsfw") nsfw: Boolean,
+        @Query("spoiler") spoiler: Boolean,
+        @Query("flair_id") flairId: String?,
+        @Query("flair_text") flairText: String?,
+        @Query("api_type") apiType: String = "json"
+    ): Deferred<ErrorResponse>
+
 //      _____       _
 //     / ____|     | |
 //    | (___  _   _| |__  ___
@@ -168,6 +199,12 @@ interface RedditApiService {
         @Header("Authorization") authorization: String? = null,
         @Path("displayName") displayName: String
     ): Deferred<SubredditChild>
+
+    @GET("/r/{displayName}/about/rules.json")
+    fun getSubredditRules(
+        @Header("Authorization") authorization: String? = null,
+        @Path("displayName") displayName: String
+    ): Deferred<RulesResponse>
 
 //     __  __       _ _   _        _____          _     _ _ _
 //    |  \/  |     | | | (_)      |  __ \        | |   | (_) |
@@ -278,13 +315,24 @@ interface RedditApiService {
 //     / ____ \ V  V / (_| | | | (_| \__ \
 //    /_/    \_\_/\_/ \__,_|_|  \__,_|___/
 
-
-    // Awards
     @GET("/api/v1/user/{user}/trophies/.json")
     fun getAwards(
         @Header("Authorization") authorization: String? = null,
         @Path("user") user: String
     ): Deferred<TrophyListingResponse>
+
+//     ______ _       _
+//    |  ____| |     (_)
+//    | |__  | | __ _ _ _ __ ___
+//    |  __| | |/ _` | | '__/ __|
+//    | |    | | (_| | | |  \__ \
+//    |_|    |_|\__,_|_|_|  |___/
+
+    @GET("/r/{displayName}/api/link_flair.json")
+    fun getFlairs(
+        @Header("Authorization") authorization: String,
+        @Path("displayName") srName: String
+    ): Deferred<List<Flair>>
 
     companion object {
         private const val BASE_URL = "https://www.reddit.com/"

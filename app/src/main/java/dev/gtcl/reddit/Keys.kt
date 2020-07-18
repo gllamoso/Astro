@@ -14,6 +14,9 @@ const val REDIRECT_URL_REQUEST_CODE = 1
 const val GALLERY_REQUEST_KEY = 123
 const val SELECTED_SUBREDDITS_KEY = "selected_subreddits"
 const val MULTI_KEY = "multireddit_key"
+const val FLAIRS_KEY = "flairs"
+const val FLAIR_SELECTED_KEY = "flair_selected"
+const val FLAIR_EDIT_KEY = "flair_edit"
 
 // For listing fragments
 const val PROFILE_INFO_KEY = "profile_info"

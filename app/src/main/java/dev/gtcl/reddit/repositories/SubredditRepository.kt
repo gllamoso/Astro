@@ -1,16 +1,22 @@
 package dev.gtcl.reddit.repositories
 
+import android.util.Log
 import androidx.annotation.MainThread
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.database.redditDatabase
-import dev.gtcl.reddit.models.reddit.*
+import dev.gtcl.reddit.models.reddit.ErrorResponse
+import dev.gtcl.reddit.models.reddit.PostSubmittedResponse
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.RedditApi
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
+import retrofit2.http.Header
+import retrofit2.http.POST
+import retrofit2.http.Query
+import java.net.URL
 import kotlin.IllegalStateException
 
 class SubredditRepository private constructor(private val application: RedditApplication){
@@ -58,6 +64,15 @@ class SubredditRepository private constructor(private val application: RedditApp
             RedditApi.base.getSubredditInfo(null, displayName)
         } else {
             RedditApi.oauth.getSubredditInfo(application.accessToken!!.authorizationHeader, displayName)
+        }
+    }
+
+    @MainThread
+    fun getRules(displayName: String): Deferred<RulesResponse>{
+        return if(application.accessToken == null){
+            RedditApi.base.getSubredditRules(null, displayName)
+        } else {
+            RedditApi.oauth.getSubredditRules(application.accessToken!!.authorizationHeader, displayName)
         }
     }
 
@@ -194,6 +209,7 @@ class SubredditRepository private constructor(private val application: RedditApp
     }
 
     // GET
+    suspend fun searchMySubscriptionsExcludingMultireddits(startsWith: String) = database.subscriptionDao.searchSubscriptionsExcludingMultiReddits(application.currentAccount?.id ?: GUEST_ID, "$startsWith%")
     suspend fun getMySubscription(subredditName: String) = database.subscriptionDao.getSubscription("${subredditName}__${application.currentAccount?.id ?: GUEST_ID}")
     suspend fun getMySubscriptions() = database.subscriptionDao.getSubscriptionsAlphabetically(application.currentAccount?.id ?: GUEST_ID)
     suspend fun getMySubscriptions(subscriptionType: SubscriptionType) = database.subscriptionDao.getSubscriptionsAlphabetically(application.currentAccount?.id ?: GUEST_ID, subscriptionType)
@@ -222,6 +238,96 @@ class SubredditRepository private constructor(private val application: RedditApp
         }
 
         return RedditApi.oauth.subscribe(application.accessToken!!.authorizationHeader, action, name)
+    }
+
+    @MainThread
+    fun getFlairs(srName: String): Deferred<List<Flair>>{
+        if(application.accessToken == null){
+            throw IllegalStateException("User must be logged in to do that")
+        }
+
+        return RedditApi.oauth.getFlairs(application.accessToken!!.authorizationHeader, srName)
+    }
+
+    @MainThread
+    fun submitTextPost(
+        subreddit: String,
+        title: String,
+        text: String,
+        nsfw: Boolean,
+        spoiler: Boolean,
+        flair: Flair?
+    ): Deferred<PostSubmittedResponse>{
+        if(application.accessToken == null){
+            throw IllegalStateException("User must be logged in to do that")
+        }
+        return RedditApi.oauth.submitPost(
+            application.accessToken!!.authorizationHeader,
+            subreddit,
+            PostType.TEXT,
+            title,
+            text,
+            null,
+            nsfw,
+            spoiler,
+            flair?.id,
+            flair?.text,
+            true
+        )
+    }
+
+    @MainThread
+    fun submitUrlPost(
+        subreddit: String,
+        title: String,
+        url: String,
+        nsfw: Boolean,
+        spoiler: Boolean,
+        flair: Flair?,
+        resubmit: Boolean = false
+    ): Deferred<PostSubmittedResponse>{
+        if(application.accessToken == null){
+            throw IllegalStateException("User must be logged in to do that")
+        }
+        return RedditApi.oauth.submitPost(
+            application.accessToken!!.authorizationHeader,
+            subreddit,
+            PostType.URL,
+            title,
+            null,
+            url,
+            nsfw,
+            spoiler,
+            flair?.id,
+            flair?.text,
+            resubmit
+        )
+    }
+
+    @MainThread
+    fun submitUrlPostForErrors(
+        subreddit: String,
+        title: String,
+        url: String,
+        nsfw: Boolean,
+        spoiler: Boolean,
+        flair: Flair?
+    ): Deferred<ErrorResponse>{
+        if(application.accessToken == null){
+            throw IllegalStateException("User must be logged in to do that")
+        }
+        return RedditApi.oauth.submitPostForError(
+            application.accessToken!!.authorizationHeader,
+            subreddit,
+            PostType.URL,
+            title,
+            null,
+            url,
+            nsfw,
+            spoiler,
+            flair?.id,
+            flair?.text
+        )
     }
 
     companion object{

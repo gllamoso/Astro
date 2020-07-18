@@ -16,6 +16,7 @@
                 android:id="@+id/url_text"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:inputType="textUri"
                 android:hint="@string/url"/>
 
         </com.google.android.material.textfield.TextInputLayout>

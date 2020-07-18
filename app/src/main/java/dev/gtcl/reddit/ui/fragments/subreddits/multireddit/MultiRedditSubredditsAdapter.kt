@@ -13,8 +13,7 @@ class MultiRedditSubredditsAdapter(private val onSubredditRemovedListener: OnSub
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MultiRedditSubredditVH = MultiRedditSubredditVH.create(parent)
 
     override fun onBindViewHolder(holder: MultiRedditSubredditVH, position: Int) {
-        val subreddit = getItem(position)
-        holder.bind(subreddit, onSubredditRemovedListener)
+        holder.bind(getItem(position), onSubredditRemovedListener)
     }
 
     companion object DiffCallback : DiffUtil.ItemCallback<Subreddit>(){

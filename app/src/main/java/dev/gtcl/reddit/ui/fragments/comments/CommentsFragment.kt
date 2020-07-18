@@ -5,12 +5,10 @@ import android.graphics.drawable.Drawable
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
-import android.view.MenuItem
 import android.view.View
 import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.os.bundleOf
-import androidx.core.view.iterator
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -32,8 +30,6 @@ import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.AccountPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
-import dev.gtcl.reddit.ui.fragments.misc.SortDialogFragment
-import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsDialogFragment
 
 class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
 
@@ -194,13 +190,18 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
     }
 
     private fun initPost(){
-        val post = requireArguments().get(POST_KEY) as Post
+        val post = requireArguments().get(POST_KEY) as Post?
+        val url = requireArguments().get(URL_KEY) as String?
         if(!model.commentsFetched){
-            model.setPost(post)
-            when (post.postType) {
-                PostType.IMAGE -> initSubsamplingImageView(post)
-                PostType.GIF -> initGifToImageView(post)
-                PostType.VIDEO -> initVideoPlayer(post)
+            if(post != null){
+                model.setPost(post)
+                when (post.postType) {
+                    PostType.IMAGE -> initSubsamplingImageView(post)
+                    PostType.GIF -> initGifToImageView(post)
+                    PostType.VIDEO -> initVideoPlayer(post)
+                }
+            } else {
+               model.fetchPostAndComments(url!!.replace("https://www.reddit.com/", ""))
             }
         }
     }
@@ -307,9 +308,16 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
     }
 
     companion object{
-        fun newInstance(post: Post, position: Int? = null): CommentsFragment{
+        fun newInstance(post: Post, position: Int): CommentsFragment{
             val fragment = CommentsFragment()
             val args = bundleOf(POST_KEY to post, POSITION_KEY to position)
+            fragment.arguments = args
+            return fragment
+        }
+
+        fun newInstance(url: String): CommentsFragment{
+            val fragment = CommentsFragment()
+            val args = bundleOf(URL_KEY to url)
             fragment.arguments = args
             return fragment
         }

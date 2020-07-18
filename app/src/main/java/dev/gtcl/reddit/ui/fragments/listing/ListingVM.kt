@@ -17,7 +17,7 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     private val subredditRepository = SubredditRepository.getInstance(application)
 
     // Scopes
-    private var viewModelJob = Job()
+    private val viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
     private val _title = MutableLiveData<String>()

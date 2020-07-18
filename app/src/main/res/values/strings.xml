@@ -146,6 +146,20 @@
     <string name="url">URL</string>
     <string name="camera">Camera</string>
     <string name="gallery">Gallery</string>
+    <string name="no_rules_found">No rules found</string>
+    <string name="required">Required</string>
+    <string name="invalid">Invalid</string>
+    <string name="text_hint">Text (Optional)</string>
+    <string name="get_notifications">Get notifications</string>
+    <string name="nsfw">NSFW</string>
+    <string name="spoiler">Spoiler</string>
+    <string name="flair">Flair</string>
+    <string name="select_flair">Select Flair</string>
+    <string name="edit_flair">Edit Flair</string>
+    <string name="no_flair">No flair</string>
+    <string name="no_flair_found">No flair found</string>
+    <string name="unable_fetch_error">Unable to fetch error</string>
+    <string name="url_already_posted">URL already posted. Resubmit?</string>
 
     <!--Misc-->
     <string name="please_login">Please log in</string>
@@ -158,5 +172,6 @@
     <string name="reload">Reload</string>
     <string name="subscriptions">Subscriptions</string>
     <string name="more_options">More Options</string>
+    <string name="close">Close</string>
 
 </resources>

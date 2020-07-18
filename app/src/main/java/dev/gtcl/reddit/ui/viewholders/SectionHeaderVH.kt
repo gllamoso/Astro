@@ -11,12 +11,10 @@ class SectionHeaderVH private constructor(private val binding: ItemSectionHeader
         binding.showTopDivider = showTopDivider
         binding.executePendingBindings()
 
-        sectionHeader.isCollapsed?.let {
-            binding.root.setOnClickListener {
-                sectionHeader.apply {
-                    isCollapsed = !isCollapsed!!
-                    rotateCollapseIndicator(isCollapsed!!)
-                }
+        binding.root.setOnClickListener {
+            sectionHeader.apply {
+                isCollapsed = !isCollapsed
+                rotateCollapseIndicator(isCollapsed)
             }
         }
     }
@@ -43,9 +41,7 @@ abstract class SectionHeader(
     var isCollapsed: Boolean = collapsed
         set(collapse){
             field = collapse
-            if(collapse != null) {
-                onCollapse(collapse)
-            }
+            onCollapse(collapse)
         }
 
     abstract fun onCollapse(collapse: Boolean)

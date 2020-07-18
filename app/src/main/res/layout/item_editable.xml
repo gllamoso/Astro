@@ -5,13 +5,10 @@
 
     <data>
         <variable
-            name="iconDrawable"
-            type="android.graphics.drawable.Drawable" />
-        <variable
             name="text"
             type="String" />
         <variable
-            name="isSelected"
+            name="isEditable"
             type="Boolean" />
         <import type="android.view.View"/>
     </data>
@@ -27,15 +24,6 @@
             android:background="?attr/selectableItemBackground"
             android:padding="16dp">
 
-            <ImageView
-                android:id="@+id/icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@{iconDrawable}"
-                tools:src="@drawable/ic_upvote_24dp"
-                android:visibility="@{icon != null ? View.VISIBLE : View.GONE}"
-                android:layout_marginEnd="8dp"/>
-
             <TextView
                 android:id="@+id/textView"
                 android:layout_width="0dp"
@@ -45,14 +33,15 @@
                 android:textSize="16sp"
                 android:text="@{text}"
                 android:maxLines="1"
-                tools:text="Upvote" />
+                tools:text="Text" />
 
             <ImageView
+                android:id="@+id/edit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_check_24dp"
+                android:src="@drawable/ic_edit_24dp"
                 android:layout_marginStart="8dp"
-                android:visibility="@{isSelected ? View.VISIBLE : View.GONE}"/>
+                android:visibility="@{isEditable ? View.VISIBLE : View.GONE}"/>
 
         </LinearLayout>
 

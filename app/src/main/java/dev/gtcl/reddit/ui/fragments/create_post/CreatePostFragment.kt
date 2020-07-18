@@ -1,18 +1,29 @@
 package dev.gtcl.reddit.ui.fragments.create_post
 
+import android.app.AlertDialog
 import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ArrayAdapter
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.chip.Chip
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentCreatePostBinding
+import dev.gtcl.reddit.models.reddit.listing.Flair
+import dev.gtcl.reddit.ui.fragments.create_post.flair.FlairSelectionDialogFragment
+import java.util.*
+import kotlin.NoSuchElementException
 
 class CreatePostFragment : Fragment(){
 
@@ -31,18 +42,48 @@ class CreatePostFragment : Fragment(){
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCreatePostBinding.inflate(inflater)
-
+        binding.model = model
+        binding.lifecycleOwner = viewLifecycleOwner
         initSubredditText()
         initViewPagerAdapter()
-        initToolbarObservers()
-        initModelObservers()
+        initToolbar()
+        initObservers()
 
         return binding.root
     }
 
     private fun initSubredditText(){
         val subredditName = args.subredditName
+        binding.rulesButton.isEnabled = subredditName != null
         binding.subredditText.setText(subredditName)
+        model.searchSubreddits(subredditName ?: "")
+
+        binding.subredditText.addTextChangedListener(object: TextWatcher{
+
+            private var timer = Timer()
+            private val DELAY = 500L
+
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                model.searchSubreddits(s.toString())
+                timer.cancel()
+                binding.flairChip.text = getString(R.string.flair)
+                binding.flairChip.isChecked = false
+                timer = Timer().apply {
+                    schedule(object: TimerTask(){
+                        override fun run() {
+                            model.validateSubreddit(s.toString())
+                        }
+                    }, DELAY)
+                }
+            }
+        })
+
+        binding.rulesButton.setOnClickListener {
+            model.fetchRules(binding.subredditText.text.toString())
+        }
     }
 
     private fun initViewPagerAdapter(){
@@ -60,7 +101,7 @@ class CreatePostFragment : Fragment(){
         }.attach()
     }
 
-    private fun initToolbarObservers(){
+    private fun initToolbar(){
         val toolbar = binding.toolbar
 
         toolbar.setNavigationOnClickListener {
@@ -70,24 +111,160 @@ class CreatePostFragment : Fragment(){
         toolbar.setOnMenuItemClickListener {
             when(it.itemId){
                 R.id.send -> {
-                    model.fetchData()
+                    var fetchData = true
+
+                    if(binding.subredditText.text.isNullOrEmpty()){
+                        binding.subredditTextInputLayout.error = getText(R.string.required)
+                        fetchData = false
+                    } else if(model.subredditValid.value != true){
+                        binding.subredditTextInputLayout.error = getText(R.string.invalid)
+                        fetchData = false
+                    }
+
+                    if(binding.titleText.text.isNullOrEmpty()){
+                        binding.titleTextInputLayout.error = getText(R.string.required)
+                        fetchData = false
+                    } else if(binding.titleText.text.toString().length > 300){
+                        binding.titleTextInputLayout.error = getText(R.string.invalid)
+                        fetchData = false
+                    }
+
+                    if(fetchData){
+                        model.fetchData()
+                    }
                 }
             }
             true
         }
     }
 
-    private fun initModelObservers(){
+    private fun initObservers(){
+        model.subredditValid.observe(viewLifecycleOwner, Observer {
+            binding.rulesButton.isEnabled = it
+        })
+
+        model.subredditSuggestions.observe(viewLifecycleOwner, Observer {
+            val adapter = ArrayAdapter<String>(requireContext(), android.R.layout.simple_dropdown_item_1line, it)
+            binding.subredditText.setAdapter(adapter)
+        })
+
+        model.errorMessage.observe(viewLifecycleOwner, Observer {
+            Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+        })
+
+        model.rules.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                val builder = AlertDialog.Builder(requireContext())
+                builder.setTitle(R.string.rules)
+                builder.setMessage(it)
+                builder.setPositiveButton(R.string.done) { dialog, _ -> dialog?.dismiss() }
+                builder.create().show()
+                model.rulesObserved()
+            }
+        })
+
+        binding.subredditText.addTextChangedListener(object: TextWatcher{
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                binding.subredditTextInputLayout.error = null
+                binding.flairChip.apply {
+                    text = getString(R.string.flair)
+                    isChecked = false
+                }
+                model.selectFlair(null)
+            }
+        })
+
+        binding.titleText.addTextChangedListener(object: TextWatcher{
+            override fun afterTextChanged(s: Editable?) {}
+            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+                binding.titleTextInputLayout.error = null
+            }
+        })
+
+        binding.flairChip.setOnClickListener {
+            binding.flairChip.isChecked = false
+            if(model.subredditValid.value == true){
+                model.fetchFlairs(binding.subredditText.text.toString())
+
+                childFragmentManager.setFragmentResultListener(FLAIR_SELECTED_KEY, viewLifecycleOwner, FragmentResultListener { _, result ->
+                    model.selectFlair(result.get(FLAIRS_KEY) as Flair?)
+                })
+
+                childFragmentManager.setFragmentResultListener(FLAIR_EDIT_KEY, viewLifecycleOwner, FragmentResultListener { _, result ->
+                    model.selectFlair(result.get(FLAIRS_KEY) as Flair)
+                })
+            }
+        }
+
+        model.flairs.observe(viewLifecycleOwner, Observer {
+            if(it != null && model.subredditValid.value == true){
+                if(it.isNotEmpty()){
+                    FlairSelectionDialogFragment.newInstance(it, binding.subredditText.text.toString()).show(childFragmentManager, null)
+                } else {
+                    Snackbar.make(binding.root, getString(R.string.no_flair_found), Snackbar.LENGTH_LONG).show()
+                }
+                model.flairsObserved()
+                binding.flairChip.isChecked = false
+            }
+        })
+
         model.postContent.observe(viewLifecycleOwner, Observer { postContent ->
             postContent?.let {
-                val sub = binding.subredditText.text?.toString() ?: ""
-                val title = binding.titleText.text?.toString() ?: ""
-                val body = when(it){
-                    is TextPost -> it.body
-                    is ImagePost -> it.file.absolutePath
-                    is LinkPost -> it.url
+                val sub = binding.subredditText.text.toString()
+                val title = binding.titleText.text.toString()
+                when(it){
+                    is TextPost -> {
+                        model.submitTextPost(
+                            sub,
+                            title,
+                            it.body,
+                            binding.nsfwChip.isChecked,
+                            binding.spoilerChip.isChecked)
+                    }
+                    is ImagePost ->{
+                        model.submitPhotoPost(
+                            sub,
+                            title,
+                            it.uri,
+                            binding.nsfwChip.isChecked,
+                            binding.spoilerChip.isChecked)
+                    }
+                    is LinkPost -> {
+                        model.submitUrlPost(
+                            sub,
+                            title,
+                            it.url,
+                            binding.nsfwChip.isChecked,
+                            binding.spoilerChip.isChecked)
+                    }
                 }
-                Log.d("TAE", "Sub: $sub, Title: $title, Body: $body")
+                model.postContentObserved()
+            }
+        })
+
+        model.urlResubmit.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                val builder = AlertDialog.Builder(requireContext())
+                builder.setMessage(R.string.url_already_posted)
+                builder.setPositiveButton(R.string.done) { dialog, _ ->
+                    val sub = binding.subredditText.text.toString()
+                    val title = binding.titleText.text.toString()
+                    model.submitUrlPost(
+                        sub,
+                        title,
+                        it,
+                        binding.nsfwChip.isChecked,
+                        binding.spoilerChip.isChecked,
+                    true)
+                    dialog?.dismiss()
+                }
+                builder.create().show()
+                model.urlResubmitObserved()
             }
         })
     }

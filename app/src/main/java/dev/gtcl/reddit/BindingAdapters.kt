@@ -7,6 +7,7 @@ import android.graphics.Color
 import android.graphics.Point
 import android.graphics.Typeface
 import android.graphics.drawable.Drawable
+import android.net.Uri
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
@@ -29,6 +30,7 @@ import com.bumptech.glide.request.transition.Transition
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.exoplayer2.ui.PlayerView
+import com.google.android.material.chip.Chip
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.ItemAwardBinding
 import dev.gtcl.reddit.models.reddit.listing.*
@@ -66,6 +68,19 @@ fun bindImage(imgView: ImageView, imgUrl: String?){
 //                        .error(R.drawable.ic_broken_image))
             .into(imgView)
     }
+}
+
+@BindingAdapter("uri")
+fun bindUriToImage(imgView: ImageView, uri: Uri?){
+    if(uri == null){
+        imgView.visibility = View.GONE
+        return
+    }
+
+    imgView.visibility = View.VISIBLE
+    Glide.with(imgView.context)
+        .load(uri)
+        .into(imgView)
 }
 
 @BindingAdapter("post")
@@ -426,4 +441,9 @@ fun applyBookmarkTint(imageView: ImageView, bookmarked: Boolean){
         true -> imageView.setColorFilter(ContextCompat.getColor(imageView.context, android.R.color.holo_orange_light))
         else -> imageView.clearColorFilter()
     }
+}
+
+@BindingAdapter("chip_is_checked")
+fun checkChip(chip: Chip, check: Boolean){
+    chip.isChecked = check
 }

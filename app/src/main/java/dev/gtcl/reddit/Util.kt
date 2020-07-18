@@ -25,8 +25,10 @@ import dev.gtcl.reddit.models.reddit.listing.Subreddit
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingSubredditPost
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.http.Url
 import java.io.File
 import java.lang.Exception
+import java.net.URL
 import java.util.*
 
 enum class PostSort{
@@ -324,6 +326,6 @@ fun PopupMenu.forceIcons(){
 
 sealed class PostContent(val postType: PostType)
 class TextPost(val body: String): PostContent(PostType.TEXT)
-class ImagePost(val file: File): PostContent(PostType.IMAGE)
-class LinkPost(val url: String): PostContent(PostType.URL)
+class ImagePost(val uri: Uri): PostContent(PostType.IMAGE)
+class LinkPost(val url: URL): PostContent(PostType.URL)
 // TODO: Video/GIF

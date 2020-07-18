@@ -49,26 +49,29 @@ interface SubscriptionDao{
     @Query("select * from subscriptions where id = :subId")
     suspend fun getSubscription(subId: String): Subscription?
 
+    @Query("select * from subscriptions where userId = :userId and name like :q and type != 'MULTIREDDIT' order by name collate nocase asc")
+    suspend fun searchSubscriptionsExcludingMultiReddits(userId: String, q: String): List<Subscription>
+
     @Query("select * from subscriptions where userId = :userId and isFavorite = 1 order by displayName collate nocase asc")
     suspend fun getFavoriteSubscriptionsAlphabetically(userId: String): List<Subscription>
 
-    @Query("select * from subscriptions where userId = :userId and isFavorite = 1 and type = :subscriptionType order by displayName collate nocase asc")
-    suspend fun getFavoriteSubscriptionsAlphabetically(userId: String, subscriptionType: SubscriptionType): List<Subscription>
+    @Query("select * from subscriptions where userId = :userId and isFavorite = 1 and type = :type order by displayName collate nocase asc")
+    suspend fun getFavoriteSubscriptionsAlphabetically(userId: String, type: SubscriptionType): List<Subscription>
 
-    @Query("select * from subscriptions where userId = :userId and isFavorite = 1 and type != :subscriptionType order by displayName collate nocase asc")
-    suspend fun getFavoriteSubscriptionsAlphabeticallyExcluding(userId: String, subscriptionType: SubscriptionType): List<Subscription>
+    @Query("select * from subscriptions where userId = :userId and isFavorite = 1 and type != :excluding order by displayName collate nocase asc")
+    suspend fun getFavoriteSubscriptionsAlphabeticallyExcluding(userId: String, excluding: SubscriptionType): List<Subscription>
 
     @Query("select * from subscriptions where userId = :userId order by displayName collate nocase asc")
     suspend fun getSubscriptionsAlphabetically(userId: String): List<Subscription>
 
-    @Query("select * from subscriptions where userId = :userId and type != :subscriptionType order by displayName collate nocase asc")
-    suspend fun getSubscriptionsAlphabeticallyExcluding(userId: String, subscriptionType: SubscriptionType): List<Subscription>
+    @Query("select * from subscriptions where userId = :userId and type != :excluding order by displayName collate nocase asc")
+    suspend fun getSubscriptionsAlphabeticallyExcluding(userId: String, excluding: SubscriptionType): List<Subscription>
 
-    @Query("select * from subscriptions where userId = :userId and type = :subscriptionType order by displayName collate nocase asc")
-    suspend fun getSubscriptionsAlphabetically(userId: String, subscriptionType: SubscriptionType): List<Subscription>
+    @Query("select * from subscriptions where userId = :userId and type = :type order by displayName collate nocase asc")
+    suspend fun getSubscriptionsAlphabetically(userId: String, type: SubscriptionType): List<Subscription>
 
-    @Query("update subscriptions set isFavorite = :isFavorite where id = :subId collate nocase")
-    suspend fun updateSubscription(subId: String, isFavorite: Boolean)
+    @Query("update subscriptions set isFavorite = :favorite where id = :subId collate nocase")
+    suspend fun updateSubscription(subId: String, favorite: Boolean)
 
 }
 
