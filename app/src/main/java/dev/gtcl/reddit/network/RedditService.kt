@@ -154,6 +154,13 @@ interface RedditApiService {
         @Query("api_type") apiType: String = "json"
     ): Deferred<ErrorResponse>
 
+    @POST("/api/sendreplies")
+    fun setSendReplies(
+        @Header("Authorization") authorization: String,
+        @Query("id") id: String,
+        @Query("state") state: Boolean
+    ): Deferred<Response<Unit>>
+
 //      _____       _
 //     / ____|     | |
 //    | (___  _   _| |__  ___

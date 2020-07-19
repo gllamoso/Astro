@@ -223,6 +223,7 @@ class CreatePostFragment : Fragment(){
                             sub,
                             title,
                             it.body,
+                            binding.getNotificationsChip.isChecked,
                             binding.nsfwChip.isChecked,
                             binding.spoilerChip.isChecked)
                     }
@@ -231,6 +232,7 @@ class CreatePostFragment : Fragment(){
                             sub,
                             title,
                             it.uri,
+                            binding.getNotificationsChip.isChecked,
                             binding.nsfwChip.isChecked,
                             binding.spoilerChip.isChecked)
                     }
@@ -239,6 +241,7 @@ class CreatePostFragment : Fragment(){
                             sub,
                             title,
                             it.url,
+                            binding.getNotificationsChip.isChecked,
                             binding.nsfwChip.isChecked,
                             binding.spoilerChip.isChecked)
                     }

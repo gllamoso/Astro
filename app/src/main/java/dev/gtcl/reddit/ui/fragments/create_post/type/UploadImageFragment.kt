@@ -15,6 +15,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.bumptech.glide.Glide
+import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.ImagePost
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
@@ -100,6 +101,8 @@ class UploadImageFragment: Fragment() {
                     parentModel.setPostContent(
                         ImagePost(model.uri.value!!)
                     )
+                } else {
+                    Snackbar.make(binding.root, getString(R.string.select_photo), Snackbar.LENGTH_LONG).show()
                 }
                 parentModel.dataFetched()
             }

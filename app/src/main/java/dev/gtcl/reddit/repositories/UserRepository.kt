@@ -39,10 +39,12 @@ class UserRepository private constructor(val application: RedditApplication) { /
 
     @MainThread
     fun getAccountInfo(username: String): Deferred<AccountChild>{
-        return if(application.accessToken != null)
+        return if(application.accessToken != null){
             RedditApi.oauth.getUserInfo(application.accessToken!!.authorizationHeader, username)
-        else
+        }
+        else{
             RedditApi.base.getUserInfo(null, username)
+        }
     }
 
     // --- DATABASE

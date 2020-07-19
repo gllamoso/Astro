@@ -17,10 +17,7 @@ import dev.gtcl.reddit.models.reddit.listing.Flair
 import dev.gtcl.reddit.models.reddit.listing.Rule
 import dev.gtcl.reddit.repositories.ImgurRepository
 import dev.gtcl.reddit.repositories.SubredditRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import retrofit2.HttpException
 import java.io.File
 import java.io.FileOutputStream
@@ -157,6 +154,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
         subreddit: String,
         title: String,
         text: String,
+        notifications: Boolean,
         nsfw: Boolean,
         spoiler: Boolean
     ){
@@ -170,6 +168,14 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                     spoiler,
                     _flair.value
                 ).await()
+
+                if(!notifications){
+                    val sendNotificationsResponse = subredditRepository.sendRepliesToInbox(test.json.data.name, notifications).await()
+                    if(!sendNotificationsResponse.isSuccessful){
+                        throw HttpException(sendNotificationsResponse)
+                    }
+                }
+
                 Log.d("TAE", "Test: $test")
             } catch (e: Exception){
                 _errorMessage.value = e.toString()
@@ -181,6 +187,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
         subreddit: String,
         title: String,
         photo: Uri,
+        notifications: Boolean,
         nsfw: Boolean,
         spoiler: Boolean
     ){
@@ -197,6 +204,13 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                     true
                 ).await()
 
+                if(!notifications){
+                    val sendNotificationsResponse = subredditRepository.sendRepliesToInbox(test.json.data.name, notifications).await()
+                    if(!sendNotificationsResponse.isSuccessful){
+                        throw HttpException(sendNotificationsResponse)
+                    }
+                }
+
                 Log.d("TAE", "Test: $test")
             } catch (e: Exception){
                 _errorMessage.value = e.toString()
@@ -208,6 +222,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
         subreddit: String,
         title: String,
         url: URL,
+        notifications: Boolean,
         nsfw: Boolean,
         spoiler: Boolean,
         resubmit: Boolean = false
@@ -223,6 +238,14 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                     _flair.value,
                     resubmit
                 ).await()
+
+                if(!notifications){
+                    val sendNotificationsResponse = subredditRepository.sendRepliesToInbox(test.json.data.name, notifications).await()
+                    if(!sendNotificationsResponse.isSuccessful){
+                        throw HttpException(sendNotificationsResponse)
+                    }
+                }
+
                 Log.d("TAE", "Test: $test")
             } catch (e: Exception){
                 if(e is JsonDataException && e.localizedMessage.startsWith("Required value 'data' missing")){

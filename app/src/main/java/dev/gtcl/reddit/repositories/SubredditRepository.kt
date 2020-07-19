@@ -97,7 +97,7 @@ class SubredditRepository private constructor(private val application: RedditApp
     @MainThread
     fun getMyMultiReddits(): Deferred<List<MultiRedditChild>> {
         if(application.accessToken == null) {
-            throw IllegalStateException("User must be logged in to fetch multireddits")
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
         }
         return RedditApi.oauth.getMyMultiReddits(application.accessToken!!.authorizationHeader)
     }
@@ -114,7 +114,7 @@ class SubredditRepository private constructor(private val application: RedditApp
     @MainThread
     fun deleteMultiReddit(multipath: String): Deferred<Response<Unit>>{
         if(application.accessToken == null){
-            throw IllegalStateException("User must be logged in to delete multireddit")
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
         }
         return RedditApi.oauth.deleteMultiReddit(application.accessToken!!.authorizationHeader, multipath)
     }
@@ -122,7 +122,7 @@ class SubredditRepository private constructor(private val application: RedditApp
     @MainThread
     fun deleteSubredditFromMultiReddit(multipath: String, subreddit: Subreddit): Deferred<Response<Unit>>{
         if(application.accessToken == null){
-            throw IllegalStateException("User must be logged in to delete Subreddit from MultiReddit")
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
         }
         return RedditApi.oauth.deleteSubredditInMultiReddit(application.accessToken!!.authorizationHeader, multipath, subreddit.displayName)
     }
@@ -130,7 +130,7 @@ class SubredditRepository private constructor(private val application: RedditApp
     @MainThread
     fun createOrUpdateMultiReddit(multipath: String, model: MultiRedditUpdate): Deferred<MultiRedditChild> {
         if(application.accessToken == null){
-            throw IllegalStateException("User must be logged in to delete Subreddit from MultiReddit")
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
         }
         return RedditApi.oauth.createOrUpdateMultiReddit(application.accessToken!!.authorizationHeader, multipath, model)
     }
@@ -228,7 +228,7 @@ class SubredditRepository private constructor(private val application: RedditApp
     @MainThread
     fun subscribe(name: String, subscribe: Boolean): Deferred<Response<Unit>> {
         if(application.accessToken == null){
-            throw IllegalStateException("User must be logged in to do that")
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
         }
 
         val action = if(subscribe){
@@ -243,7 +243,7 @@ class SubredditRepository private constructor(private val application: RedditApp
     @MainThread
     fun getFlairs(srName: String): Deferred<List<Flair>>{
         if(application.accessToken == null){
-            throw IllegalStateException("User must be logged in to do that")
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
         }
 
         return RedditApi.oauth.getFlairs(application.accessToken!!.authorizationHeader, srName)
@@ -259,7 +259,7 @@ class SubredditRepository private constructor(private val application: RedditApp
         flair: Flair?
     ): Deferred<PostSubmittedResponse>{
         if(application.accessToken == null){
-            throw IllegalStateException("User must be logged in to do that")
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
         }
         return RedditApi.oauth.submitPost(
             application.accessToken!!.authorizationHeader,
@@ -287,7 +287,7 @@ class SubredditRepository private constructor(private val application: RedditApp
         resubmit: Boolean = false
     ): Deferred<PostSubmittedResponse>{
         if(application.accessToken == null){
-            throw IllegalStateException("User must be logged in to do that")
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
         }
         return RedditApi.oauth.submitPost(
             application.accessToken!!.authorizationHeader,
@@ -314,7 +314,7 @@ class SubredditRepository private constructor(private val application: RedditApp
         flair: Flair?
     ): Deferred<ErrorResponse>{
         if(application.accessToken == null){
-            throw IllegalStateException("User must be logged in to do that")
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
         }
         return RedditApi.oauth.submitPostForError(
             application.accessToken!!.authorizationHeader,
@@ -327,6 +327,18 @@ class SubredditRepository private constructor(private val application: RedditApp
             spoiler,
             flair?.id,
             flair?.text
+        )
+    }
+
+    @MainThread
+    fun sendRepliesToInbox(id: String, state: Boolean): Deferred<Response<Unit>>{
+        if(application.accessToken == null){
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        }
+        return RedditApi.oauth.setSendReplies(
+            application.accessToken!!.authorizationHeader,
+            id,
+            state
         )
     }
 

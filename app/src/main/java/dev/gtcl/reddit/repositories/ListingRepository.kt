@@ -73,31 +73,41 @@ class ListingRepository private constructor(private val application: RedditAppli
 
     @MainThread
     fun vote(fullname: String, vote: Vote): Deferred<Response<Unit>> {
-        if(application.accessToken == null) throw IllegalStateException("User must be logged in to vote")
+        if(application.accessToken == null) {
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        }
         return RedditApi.oauth.vote(application.accessToken!!.authorizationHeader, fullname, vote.value)
     }
 
     @MainThread
     fun save(id: String): Deferred<Response<Unit>>{
-        if(application.accessToken == null) throw IllegalStateException("User must be logged in to save")
+        if(application.accessToken == null) {
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        }
         return RedditApi.oauth.save(application.accessToken!!.authorizationHeader, id)
     }
 
     @MainThread
     fun unsave(id: String): Deferred<Response<Unit>>{
-        if(application.accessToken == null) throw IllegalStateException("User must be logged in to unsave")
+        if(application.accessToken == null) {
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        }
         return RedditApi.oauth.unsave(application.accessToken!!.authorizationHeader, id)
     }
 
     @MainThread
     fun hide(id: String): Deferred<Response<Unit>>{
-        if(application.accessToken == null) throw IllegalStateException("User must be logged in to hide")
+        if(application.accessToken == null) {
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        }
         return RedditApi.oauth.hide(application.accessToken!!.authorizationHeader, id)
     }
 
     @MainThread
     fun unhide(id: String): Deferred<Response<Unit>>{
-        if(application.accessToken == null) throw IllegalStateException("User must be logged in to unhide")
+        if(application.accessToken == null) {
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        }
         return RedditApi.oauth.unhide(application.accessToken!!.authorizationHeader, id)
     }
 
@@ -141,7 +151,7 @@ class ListingRepository private constructor(private val application: RedditAppli
     @MainThread
     fun addComment(parentName: String, body: String): Deferred<MoreChildrenResponse>{
         return if(application.accessToken == null){
-            throw IllegalStateException("Must be logged in to add comment")
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
         } else {
             RedditApi.oauth.addComment(application.accessToken!!.authorizationHeader, parentName, body)
         }
