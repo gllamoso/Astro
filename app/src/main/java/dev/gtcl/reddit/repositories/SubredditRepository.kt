@@ -345,8 +345,9 @@ class SubredditRepository private constructor(private val application: RedditApp
     companion object{
         private lateinit var INSTANCE: SubredditRepository
         fun getInstance(application: RedditApplication): SubredditRepository {
-            if(!Companion::INSTANCE.isInitialized)
+            if(!Companion::INSTANCE.isInitialized){
                 INSTANCE = SubredditRepository(application)
+            }
             return INSTANCE
         }
     }

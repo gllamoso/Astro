@@ -19,8 +19,9 @@ class MessageRepository private constructor(private val application: RedditAppli
     companion object{
         private lateinit var INSTANCE: MessageRepository
         fun getInstance(application: RedditApplication): MessageRepository {
-            if(!Companion::INSTANCE.isInitialized)
+            if(!Companion::INSTANCE.isInitialized){
                 INSTANCE = MessageRepository(application)
+            }
             return INSTANCE
         }
     }

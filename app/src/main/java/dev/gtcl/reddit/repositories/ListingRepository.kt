@@ -160,8 +160,9 @@ class ListingRepository private constructor(private val application: RedditAppli
     companion object{
         private lateinit var INSTANCE: ListingRepository
         fun getInstance(application: RedditApplication): ListingRepository {
-            if(!Companion::INSTANCE.isInitialized)
+            if(!Companion::INSTANCE.isInitialized){
                 INSTANCE = ListingRepository(application)
+            }
             return INSTANCE
         }
     }

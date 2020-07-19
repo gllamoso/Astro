@@ -10,8 +10,9 @@ class GfycatRepository private constructor(){
     companion object{
         private lateinit var INSTANCE: GfycatRepository
         fun getInstance(): GfycatRepository{
-            if(!Companion::INSTANCE.isInitialized)
+            if(!Companion::INSTANCE.isInitialized){
                 INSTANCE = GfycatRepository()
+            }
             return INSTANCE
         }
     }

@@ -70,9 +70,9 @@ class UserRepository private constructor(val application: RedditApplication) { /
     companion object{
         private lateinit var INSTANCE: UserRepository
         fun getInstance(application: RedditApplication): UserRepository {
-            if(!Companion::INSTANCE.isInitialized)
-                INSTANCE =
-                    UserRepository(application)
+            if(!Companion::INSTANCE.isInitialized){
+                INSTANCE = UserRepository(application)
+            }
             return INSTANCE
         }
     }
