@@ -9,33 +9,19 @@
         <variable
             name="hasPostUrl"
             type="Boolean" />
-        <variable
-            name="isVideo"
-            type="Boolean" />
-        <variable
-            name="expandable"
-            type="Boolean" />
     </data>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        tools:background="@android:color/black">
-
-        <com.google.android.exoplayer2.ui.PlayerControlView
-            android:id="@+id/player_controller"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            app:show_timeout="0"
-            android:visibility="@{isVideo ? View.VISIBLE : View.GONE}" />
+        android:layout_height="?attr/actionBarSize"
+        tools:background="@android:color/black"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
+            android:layout_height="match_parent"
             android:orientation="horizontal"
-            android:gravity="center"
-            android:layout_below="@id/player_controller">
+            android:gravity="center">
 
             <View
                 android:layout_width="0dp"
@@ -84,26 +70,10 @@
             <View
                 android:layout_width="0dp"
                 android:layout_height="0dp"
-                android:layout_weight="2"
-                android:visibility="@{expandable ? View.VISIBLE : View.GONE}"/>
-
-            <ImageView
-                android:id="@+id/fullscreen_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_fullscreen_24"
-                android:tint="@android:color/white"
-                android:background="?attr/selectableItemBackgroundBorderless"
-                android:padding="8dp"
-                android:visibility="@{expandable ? View.VISIBLE : View.GONE}"/>
-
-            <View
-                android:layout_width="0dp"
-                android:layout_height="0dp"
                 android:layout_weight="1"/>
 
         </LinearLayout>
 
-    </RelativeLayout>
+    </LinearLayout>
 
 </layout>

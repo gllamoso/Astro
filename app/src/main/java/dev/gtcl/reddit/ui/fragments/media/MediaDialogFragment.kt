@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
@@ -14,6 +15,7 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentDialogMediaBinding
 import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.models.reddit.listing.UrlType
+import dev.gtcl.reddit.ui.activities.MainActivityVM
 import java.lang.ref.WeakReference
 
 
@@ -54,7 +56,7 @@ class MediaDialogFragment: DialogFragment() {
             model.initialize(url, urlType, post)
         }
 
-        model.passPlayerControlView(WeakReference(binding.bottomBarControls.playerController))
+//        model.passPlayerControlView(WeakReference(binding.bottomBarControls.playerController))
 
         setViewPager()
         setOnClickListeners()

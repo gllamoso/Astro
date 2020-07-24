@@ -1,6 +1,7 @@
 package dev.gtcl.reddit.ui.fragments.item_scroller
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,15 +13,18 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentItemScrollerBinding
+import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.ItemScrollListener
 import dev.gtcl.reddit.ui.ListingItemAdapter
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.AccountPage
+import dev.gtcl.reddit.ui.fragments.PostPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
@@ -178,23 +182,35 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     override fun thumbnailClicked(post: Post, position: Int) {
         model.addReadItem(post)
-        val urlType = when {
-            post.isImage -> UrlType.IMAGE
-            post.isGif -> UrlType.GIF
-            post.isGfycat -> UrlType.GFYCAT
-            post.isGfv -> UrlType.GIFV
-            post.isRedditVideo -> UrlType.M3U8
-            else -> UrlType.LINK
-        }
-        if(urlType == UrlType.LINK){
-            navigationActions?.launchWebview(post.url!!)
-        } else {
-            val dialog = MediaDialogFragment.newInstance(
-                if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.previewVideoUrl!! else post.url!!,
-                urlType,
-                post,
-                position)
-            dialog.show(childFragmentManager, null)
+        when(val urlType = post.urlType){
+            UrlType.LINK -> {
+                navigationActions?.launchWebview(post.url!!)
+            }
+            else -> {
+                if(urlType != null){
+                    val mediaType = when(urlType){
+                        UrlType.IMGUR_ALBUM -> MediaType.IMGUR_ALBUM
+                        UrlType.GIF -> MediaType.GIF
+                        UrlType.GFYCAT -> MediaType.GFYCAT
+                        UrlType.IMAGE -> MediaType.PICTURE
+                        UrlType.M3U8, UrlType.GIFV -> MediaType.VIDEO
+                        UrlType.LINK -> throw IllegalArgumentException("Invalid media type: $urlType")
+                    }
+                    val url = when(mediaType){
+                        MediaType.VIDEO -> post.previewVideoUrl!!
+                        else -> post.url!!
+                    }
+                    val backupUrl = when(mediaType){
+                        MediaType.GFYCAT -> post.previewVideoUrl
+                        else -> null
+                    }
+                    val dialog = dev.gtcl.reddit.ui.fragments.media.test.MediaDialogFragment.newInstance(
+                        MediaURL(url, mediaType, backupUrl),
+                        PostPage(post, position)
+                    )
+                    dialog.show(parentFragmentManager, null)
+                }
+            }
         }
     }
 

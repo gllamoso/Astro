@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.models.reddit
 
-import android.util.JsonToken
 import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.ToJson

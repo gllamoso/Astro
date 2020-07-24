@@ -12,6 +12,8 @@ import dev.gtcl.reddit.ui.fragments.account.pages.about.UserAboutVM
 import dev.gtcl.reddit.ui.fragments.create_post.CreatePostVM
 import dev.gtcl.reddit.ui.fragments.create_post.type.UploadImageVM
 import dev.gtcl.reddit.ui.fragments.media.MediaVM
+import dev.gtcl.reddit.ui.fragments.media.test.MediaListVM
+import dev.gtcl.reddit.ui.fragments.media.test.list.item.MediaItemVM
 import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
 import dev.gtcl.reddit.ui.fragments.signin.SignInVM
 import dev.gtcl.reddit.ui.fragments.splash.SplashVM
@@ -42,7 +44,9 @@ class ViewModelFactory(private val application: RedditApplication) : ViewModelPr
             modelClass.isAssignableFrom(ReplyVM::class.java) -> ReplyVM(application) as T
             modelClass.isAssignableFrom(CreatePostVM::class.java) -> CreatePostVM(application) as T
             modelClass.isAssignableFrom(UploadImageVM::class.java) -> UploadImageVM(application) as T
-            else -> throw IllegalArgumentException("Unknown ViewModel class")
+            modelClass.isAssignableFrom(MediaItemVM::class.java) -> MediaItemVM(application) as T
+            modelClass.isAssignableFrom(MediaListVM::class.java) -> MediaListVM(application) as T
+            else -> throw IllegalArgumentException("Unknown ViewModel class: $modelClass")
         }
     }
 

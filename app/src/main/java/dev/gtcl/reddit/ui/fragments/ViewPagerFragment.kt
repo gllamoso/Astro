@@ -2,12 +2,16 @@ package dev.gtcl.reddit.ui.fragments
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -15,11 +19,12 @@ import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
-import dev.gtcl.reddit.databinding.FragmentViewPagerBinding
+import dev.gtcl.reddit.databinding.FragmentViewpagerBinding
 import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.ListingType
 import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.models.reddit.listing.SubscriptionListing
+import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.account.AccountFragment
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
 import dev.gtcl.reddit.ui.fragments.listing.ListingFragment
@@ -27,7 +32,7 @@ import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 
 class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
 
-    private lateinit var binding: FragmentViewPagerBinding
+    private lateinit var binding: FragmentViewpagerBinding
 
     private val args: ViewPagerFragmentArgs by navArgs()
 
@@ -35,6 +40,9 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(ViewPagerVM::class.java)
     }
+
+    private val activityModel: MainActivityVM by activityViewModels()
+
     private lateinit var pageAdapter: PageAdapter
     private lateinit var backPressedCallback: OnBackPressedCallback
 
@@ -51,7 +59,7 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentViewPagerBinding.inflate(inflater)
+        binding = FragmentViewpagerBinding.inflate(inflater)
         pageAdapter = PageAdapter(this)
         setViewPagerAdapter()
         setBackPressedCallback()
@@ -60,7 +68,7 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
 
     override fun onResume() {
         super.onResume()
-        backPressedCallback.isEnabled = binding.viewPager.currentItem != 0
+        backPressedCallback.isEnabled = binding.viewpager.currentItem != 0
     }
 
     private fun setViewPagerAdapter(){
@@ -70,7 +78,7 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
             pageAdapter.addPage(args.startingPage)
         }
 
-        binding.viewPager.apply {
+        binding.viewpager.apply {
             adapter = pageAdapter
             isUserInputEnabled = model.isViewPagerSwipeEnabled
             registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
@@ -87,6 +95,24 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
             setPageTransformer(SlidePageTransformer())
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
+
+//        childFragmentManager.setFragmentResultListener(POST_KEY, viewLifecycleOwner){ _, bundle ->
+//            val post = bundle.get(POST_KEY) as Post
+//            pageAdapter.addPostPage(post, -1)
+//        }
+//
+//        childFragmentManager.setFragmentResultListener(POST_PAGE_KEY, viewLifecycleOwner){ _, bundle ->
+//            val postPage = bundle.get(POST_PAGE_KEY) as PostPage
+//            pageAdapter.addPage(postPage)
+//        }
+
+        activityModel.newPage.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                pageAdapter.addPage(it)
+                navigateNext()
+                activityModel.newPageObserved()
+            }
+        })
     }
 
     private fun setBackPressedCallback(){
@@ -113,12 +139,12 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
 //                                         |___/
 
     override fun enablePagerSwiping(enable: Boolean) {
-        binding.viewPager.isUserInputEnabled = enable
+        binding.viewpager.isUserInputEnabled = enable
     }
 
     override fun navigatePreviousPage() {
-        val currentPage = binding.viewPager.currentItem
-        binding.viewPager.setCurrentItem(currentPage - 1, true)
+        val currentPage = binding.viewpager.currentItem
+        binding.viewpager.setCurrentItem(currentPage - 1, true)
     }
 
     override fun navigateToComments(post: Post, position: Int) {
@@ -127,8 +153,8 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
     }
 
     private fun navigateNext() {
-        val currentPage = binding.viewPager.currentItem
-        binding.viewPager.setCurrentItem(currentPage + 1, true)
+        val currentPage = binding.viewpager.currentItem
+        binding.viewpager.setCurrentItem(currentPage + 1, true)
     }
 
 //     _   _             _             _   _                            _   _

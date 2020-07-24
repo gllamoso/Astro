@@ -1,7 +1,6 @@
 package dev.gtcl.reddit.ui.fragments
 
 import android.os.Parcelable
-import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import dev.gtcl.reddit.models.reddit.listing.ListingType
@@ -14,7 +13,7 @@ import kotlinx.android.parcel.Parcelize
 import kotlin.collections.ArrayList
 
 class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
-    private var pageStack = ArrayList<PageType>()
+    private var pageStack = ArrayList<ViewPagerPage>()
 
     override fun getItemCount() = pageStack.size
 
@@ -22,7 +21,7 @@ class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
         return when(val pageType = pageStack[position]){
             is ListingPage -> ListingFragment.newInstance(pageType.listingType)
             is AccountPage -> AccountFragment.newInstance(pageType.user)
-            is PostPage -> CommentsFragment.newInstance(pageType.post, pageType.position)
+            is PostPage -> CommentsFragment.newInstance(pageType)
             is MessagesPage -> MessagesFragment()
         }
     }
@@ -42,7 +41,7 @@ class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
         notifyItemInserted(pageStack.lastIndex)
     }
 
-    fun addPage(pageType: PageType){
+    fun addPage(pageType: ViewPagerPage){
         pageStack.add(pageType)
         notifyItemInserted(pageStack.lastIndex)
     }
@@ -53,26 +52,26 @@ class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
         notifyItemRangeRemoved(pageStack.lastIndex, itemsRemoved)
     }
 
-    fun getPageStack(): ArrayList<PageType> = pageStack
+    fun getPageStack(): ArrayList<ViewPagerPage> = pageStack
 
-    fun setPageStack(pages: ArrayList<PageType>){
+    fun setPageStack(pages: ArrayList<ViewPagerPage>){
         pageStack = pages
     }
 }
 
-sealed class PageType: Parcelable
+sealed class ViewPagerPage: Parcelable
 @Parcelize
 class ListingPage(
     val listingType: ListingType
-): PageType()
+): ViewPagerPage()
 @Parcelize
 class AccountPage(
     val user: String?
-): PageType()
+): ViewPagerPage()
 @Parcelize
 class PostPage(
     val post: Post,
     val position: Int
-): PageType()
+): ViewPagerPage()
 @Parcelize
-object MessagesPage: PageType()
+object MessagesPage: ViewPagerPage()

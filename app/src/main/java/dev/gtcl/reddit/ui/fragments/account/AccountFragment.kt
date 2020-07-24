@@ -36,8 +36,6 @@ class AccountFragment : Fragment(), ItemClickListener, LeftDrawerActions, Naviga
         ViewModelProvider(this, viewModelFactory).get(AccountFragmentVM::class.java)
     }
 
-    private val parentViewModel: MainActivityVM by activityViewModels()
-
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
         when(childFragment){
@@ -105,7 +103,7 @@ class AccountFragment : Fragment(), ItemClickListener, LeftDrawerActions, Naviga
         }
     }
 
-    //     _           __ _     _____                                             _   _
+//     _           __ _     _____                                             _   _
 //    | |         / _| |   |  __ \                                  /\       | | (_)
 //    | |     ___| |_| |_  | |  | |_ __ __ ___      _____ _ __     /  \   ___| |_ _  ___  _ __  ___
 //    | |    / _ \  _| __| | |  | | '__/ _` \ \ /\ / / _ \ '__|   / /\ \ / __| __| |/ _ \| '_ \/ __|

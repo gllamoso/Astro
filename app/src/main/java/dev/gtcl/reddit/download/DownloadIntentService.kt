@@ -20,7 +20,9 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.FileProvider
 import com.arthenica.mobileffmpeg.Config
 import com.arthenica.mobileffmpeg.FFmpeg
+import dev.gtcl.reddit.ALBUM_KEY
 import dev.gtcl.reddit.R
+import dev.gtcl.reddit.URLS_KEY
 import dev.gtcl.reddit.URL_KEY
 import java.io.BufferedInputStream
 import java.io.File
@@ -63,7 +65,8 @@ class DownloadIntentService : JobIntentService(){
         val saveDestination = File("${picturesFolder}/${applicationContext.getText(R.string.app_name)}")
         val folderExists = createFolder(saveDestination)
         if(!folderExists){
-            Toast.makeText(applicationContext, "Unable to create directory: ${saveDestination.absolutePath}", Toast.LENGTH_SHORT).show() // TODO: Add String value
+            val text = String.format(getString(R.string.unable_to_create_directory), saveDestination.absolutePath)
+            Toast.makeText(applicationContext, text, Toast.LENGTH_SHORT).show() // TODO: Add String value
             stopForeground(false)
             return
         }
@@ -207,8 +210,18 @@ class DownloadIntentService : JobIntentService(){
         private const val SUMMARY_ID = 1999
         private val DOWNLOAD_GROUP_KEY = DownloadIntentService::class.java.name
         val TAG: String = DownloadIntentService::class.java.simpleName
-        fun enqueueWork(context: Context, work: Intent){
-            enqueueWork(context, DownloadIntentService::class.java, JOB_ID, work)
+        fun enqueueWork(context: Context, downloadUrl: String){
+            val serviceIntent = Intent(context, DownloadIntentService::class.java)
+            serviceIntent.putExtra(URL_KEY, downloadUrl)
+            enqueueWork(context, DownloadIntentService::class.java, JOB_ID, serviceIntent)
+        }
+
+        fun enqueueWork(context: Context, downloadUrls: List<String>, albumName: String){
+            TODO("Implement album download")
+//            val serviceIntent = Intent(context, DownloadIntentService::class.java)
+//            serviceIntent.putExtra(ALBUM_KEY, albumName)
+//            serviceIntent.putStringArrayListExtra(URLS_KEY, ArrayList<String>(downloadUrls))
+//            enqueueWork(context, DownloadIntentService::class.java, JOB_ID, serviceIntent)
         }
     }
 

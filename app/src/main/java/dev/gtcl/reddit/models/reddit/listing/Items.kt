@@ -9,6 +9,8 @@ import dev.gtcl.reddit.SubscriptionType
 import dev.gtcl.reddit.Visibility
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.database.Subscription
+import dev.gtcl.reddit.network.IMGUR_ALBUM_URL
+import dev.gtcl.reddit.network.IMGUR_GALLERY_URL
 import dev.gtcl.reddit.toValidImgUrl
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
@@ -153,7 +155,8 @@ data class Post(
     @IgnoredOnParcel
     var isRead = false
 
-    val isImage: Boolean
+    @IgnoredOnParcel
+    private val isImage: Boolean
         get(){
             url?.let {
                 val uri = Uri.parse(it)
@@ -164,17 +167,19 @@ data class Post(
             return false
         }
 
-    val isGif: Boolean
+    @IgnoredOnParcel
+    private val isGif: Boolean
         get(){
             url?.let {
                 val uri = Uri.parse(it)
                 uri.lastPathSegment?.let { lastPathSegment ->
-                    return lastPathSegment.contains(".gif$".toRegex())
+                   return lastPathSegment.contains(".gif$".toRegex())
                 }
             }
             return false
         }
 
+    @IgnoredOnParcel
     val previewVideoUrl: String?
         get() {
             return when {
@@ -186,13 +191,20 @@ data class Post(
         }
 
     @IgnoredOnParcel
-    val isGfycat: Boolean = domain == "gfycat.com"
+    val isGfycat: Boolean
+        get() = domain == "gfycat.com"
 
     @IgnoredOnParcel
-    val isRedditVideo = domain == "v.redd.it"
+    val isRedditVideo
+        get() = domain == "v.redd.it"
 
+    @IgnoredOnParcel
+    private val isImgurAlbum: Boolean
+        get() = url?.startsWith(IMGUR_ALBUM_URL) ?: false || url?.startsWith(IMGUR_GALLERY_URL) ?: false
+
+    @IgnoredOnParcel
     val isGfv: Boolean
-        get(){
+        get() {
             url?.let {
                 val uri = Uri.parse(it)
                 uri.lastPathSegment?.let { lastPathSegment ->
@@ -203,8 +215,24 @@ data class Post(
         }
 
     @IgnoredOnParcel
+    val urlType: UrlType?
+        get(){
+            return when{
+                url.isNullOrEmpty() -> null
+                isImage -> UrlType.IMAGE
+                isGif -> UrlType.GIF
+                isGfycat -> UrlType.GFYCAT
+                isGfv -> UrlType.GIFV
+                isRedditVideo -> UrlType.M3U8
+                isImgurAlbum -> UrlType.IMGUR_ALBUM
+                else -> UrlType.LINK
+            }
+        }
+
+    @IgnoredOnParcel
     val shortLink = "http://redd.it/$id"
 
+    @IgnoredOnParcel
     val postType: PostType
         get(){
             return when{
@@ -237,6 +265,7 @@ enum class UrlType: Parcelable {
     GIFV,
     GFYCAT,
     M3U8,
+    IMGUR_ALBUM,
     LINK
 }
 

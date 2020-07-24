@@ -1,7 +1,7 @@
 package dev.gtcl.reddit.models.imgur
 
-data class ImgurData(
+data class ImgurImage(
     val id: String,
     val link: String,
-    val images: List<ImgurImage>?
+    val type: String
 )

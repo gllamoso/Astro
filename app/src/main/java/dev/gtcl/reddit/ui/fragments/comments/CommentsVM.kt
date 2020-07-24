@@ -153,10 +153,7 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
         if(_post.value == null) {
             return
         }
-        val downloadUrl: String = gfyItem?.mp4Url ?: _post.value!!.url!!
-        val serviceIntent = Intent(application.applicationContext, DownloadIntentService::class.java)
-        serviceIntent.putExtra(URL_KEY, downloadUrl)
-        DownloadIntentService.enqueueWork(application.applicationContext, serviceIntent)
+        DownloadIntentService.enqueueWork(application.applicationContext, gfyItem?.mp4Url ?: _post.value!!.url!!)
         Toast.makeText(application, application.getText(R.string.downloading), Toast.LENGTH_SHORT).show()
     }
 

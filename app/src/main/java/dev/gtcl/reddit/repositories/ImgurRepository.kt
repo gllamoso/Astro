@@ -4,7 +4,6 @@ import androidx.annotation.MainThread
 import dev.gtcl.reddit.models.imgur.ImgurResponse
 import dev.gtcl.reddit.network.ImgurApi
 import kotlinx.coroutines.Deferred
-import okhttp3.MediaType
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
@@ -18,6 +17,9 @@ class ImgurRepository private constructor(){
         val body = MultipartBody.Part.createFormData("image", image.name, requestFile)
         return ImgurApi.retrofit.uploadImage(body = body)
     }
+
+    @MainThread
+    fun getAlbumImages(albumHash: String): Deferred<ImgurResponse> = ImgurApi.retrofit.getAlbumImages(albumHash = albumHash)
 
     companion object{
         private lateinit var INSTANCE: ImgurRepository

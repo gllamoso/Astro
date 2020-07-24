@@ -156,6 +156,14 @@ enum class Visibility{
     HIDDEN
 }
 
+enum class MediaType{
+    PICTURE,
+    GIF,
+    VIDEO,
+    GFYCAT,
+    IMGUR_ALBUM
+}
+
 const val SECONDS_IN_YEAR = 31_536_000.toLong()
 const val SECONDS_IN_MONTH = 2_592_000.toLong()
 const val SECONDS_IN_WEEK = 604_800.toLong()
@@ -323,6 +331,8 @@ fun PopupMenu.forceIcons(){
         Log.e("Popup", "Error showing menu icons.", e)
     }
 }
+
+
 
 sealed class PostContent(val postType: PostType)
 class TextPost(val body: String): PostContent(PostType.TEXT)

@@ -24,11 +24,14 @@ import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.databinding.FragmentListingBinding
 import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.databinding.LayoutNavHeaderBinding
+import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.activities.MainDrawerAdapter
 import dev.gtcl.reddit.ui.fragments.AccountPage
+import dev.gtcl.reddit.ui.fragments.PostPage
+import dev.gtcl.reddit.ui.fragments.ViewPagerFragment
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
@@ -286,10 +289,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     }
 
     override fun viewProfile(post: Post) {
-        findNavController().navigate(
-            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
-                AccountPage(post.author)
-            ))
+        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(post.author)))
     }
 
     override fun save(post: Post) {
@@ -308,24 +308,52 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     }
 
     override fun thumbnailClicked(post: Post, position: Int) {
+//        model.addReadItem(post)
+//        when(val urlType = post.urlType){
+//            UrlType.LINK -> navigationActions?.launchWebview(post.url!!)
+//            UrlType.IMGUR_ALBUM -> Snackbar.make(binding.root, "Imgur Album Selected", Snackbar.LENGTH_LONG).show()
+//            else -> {
+//                if(urlType != null){
+//                    val dialog = MediaDialogFragment.newInstance(
+//                        if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.previewVideoUrl!! else post.url!!,
+//                        urlType,
+//                        post,
+//                        position)
+//                    dialog.show(parentFragmentManager, null)
+//                }
+//            }
+//        }
+
         model.addReadItem(post)
-        val urlType = when {
-            post.isImage -> UrlType.IMAGE
-            post.isGif -> UrlType.GIF
-            post.isGfycat -> UrlType.GFYCAT
-            post.isGfv -> UrlType.GIFV
-            post.isRedditVideo -> UrlType.M3U8
-            else -> UrlType.LINK
-        }
-        if(urlType == UrlType.LINK){
-            navigationActions?.launchWebview(post.url!!)
-        } else {
-            val dialog = MediaDialogFragment.newInstance(
-                if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.previewVideoUrl!! else post.url!!,
-                urlType,
-                post,
-                position)
-            dialog.show(parentFragmentManager, null)
+        when(val urlType = post.urlType){
+            UrlType.LINK -> {
+                navigationActions?.launchWebview(post.url!!)
+            }
+            else -> {
+                if(urlType != null){
+                    val mediaType = when(urlType){
+                        UrlType.IMGUR_ALBUM -> MediaType.IMGUR_ALBUM
+                        UrlType.GIF -> MediaType.GIF
+                        UrlType.GFYCAT -> MediaType.GFYCAT
+                        UrlType.IMAGE -> MediaType.PICTURE
+                        UrlType.M3U8, UrlType.GIFV -> MediaType.VIDEO
+                        UrlType.LINK -> throw IllegalArgumentException("Invalid media type: $urlType")
+                    }
+                    val url = when(mediaType){
+                        MediaType.VIDEO -> post.previewVideoUrl!!
+                        else -> post.url!!
+                    }
+                    val backupUrl = when(mediaType){
+                        MediaType.GFYCAT -> post.previewVideoUrl
+                        else -> null
+                    }
+                    val dialog = dev.gtcl.reddit.ui.fragments.media.test.MediaDialogFragment.newInstance(
+                        MediaURL(url, mediaType, backupUrl),
+                        PostPage(post, position)
+                    )
+                    dialog.show(parentFragmentManager, null)
+                }
+            }
         }
     }
 

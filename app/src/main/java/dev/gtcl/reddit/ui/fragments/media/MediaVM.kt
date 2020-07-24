@@ -158,10 +158,7 @@ class MediaVM(private val application: RedditApplication): AndroidViewModel(appl
         if(url.value == null || loading.value == true) {
             return
         }
-        val downloadUrl: String = gfyItem?.mp4Url ?: url.value!!
-        val serviceIntent = Intent(application.applicationContext, DownloadIntentService::class.java)
-        serviceIntent.putExtra(URL_KEY, downloadUrl)
-        DownloadIntentService.enqueueWork(application.applicationContext, serviceIntent)
+        DownloadIntentService.enqueueWork(application.applicationContext, gfyItem?.mp4Url ?: url.value!!)
         Toast.makeText(application, application.getText(R.string.downloading), Toast.LENGTH_SHORT).show()
     }
 

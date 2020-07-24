@@ -1,22 +1,22 @@
 package dev.gtcl.reddit
 
 const val POST_KEY = "post"
+const val POST_PAGE_KEY = "post_page"
 const val POSITION_KEY = "position"
 const val POST_BUNDLE_KEY = "post_bundle"
 const val SUBREDDIT_KEY = "subreddit"
 const val URL_KEY = "url"
+const val URLS_KEY = "urls"
 const val URL_TYPE_KEY = "url_type"
 const val USER_KEY = "user"
-const val STRING_KEY = "string"
+const val MEDIA_KEY = "media"
 const val CURRENT_USER_KEY = "current_user"
-const val SUBREDDIT_UPDATE_REQUEST_KEY = "sub_request_key"
-const val REDIRECT_URL_REQUEST_CODE = 1
-const val GALLERY_REQUEST_KEY = 123
 const val SELECTED_SUBREDDITS_KEY = "selected_subreddits"
 const val MULTI_KEY = "multireddit_key"
 const val FLAIRS_KEY = "flairs"
 const val FLAIR_SELECTED_KEY = "flair_selected"
 const val FLAIR_EDIT_KEY = "flair_edit"
+const val ALBUM_KEY = "album"
 
 // For listing fragments
 const val PROFILE_INFO_KEY = "profile_info"

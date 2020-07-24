@@ -3,26 +3,21 @@ package dev.gtcl.reddit.network
 import android.util.Log
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
-import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dev.gtcl.reddit.models.imgur.ImgurResponse
-import dev.gtcl.reddit.models.reddit.CommentsMoshiAdapter
-import dev.gtcl.reddit.models.reddit.listing.*
 import kotlinx.coroutines.Deferred
 import okhttp3.HttpUrl.Companion.toHttpUrl
 import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
-import okhttp3.RequestBody
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.http.Header
-import retrofit2.http.Multipart
-import retrofit2.http.POST
-import retrofit2.http.Part
+import retrofit2.http.*
 
 const val CLIENT_ID = "f6d367a7352ac18"
+const val IMGUR_GALLERY_URL = "https://imgur.com/gallery/"
+const val IMGUR_ALBUM_URL = "https://imgur.com/a/"
 interface ImgurService {
 
     @Multipart
@@ -30,6 +25,12 @@ interface ImgurService {
     fun uploadImage(
         @Header("Authorization") authorization: String = "Client-ID $CLIENT_ID",
         @Part body: MultipartBody.Part
+    ): Deferred<ImgurResponse>
+
+    @GET("/3/album/{albumHash}")
+    fun getAlbumImages(
+        @Header("Authorization") authorization: String = "Client-ID $CLIENT_ID",
+        @Path("albumHash") albumHash: String
     ): Deferred<ImgurResponse>
 
     companion object{

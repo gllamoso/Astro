@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.activities
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -13,6 +12,7 @@ import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.repositories.SubredditRepository
 import dev.gtcl.reddit.repositories.UserRepository
+import dev.gtcl.reddit.ui.fragments.ViewPagerPage
 import kotlinx.coroutines.*
 
 class MainActivityVM(val application: RedditApplication): ViewModel() {
@@ -32,12 +32,24 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
     val errorMessage: LiveData<String>
         get() = _errorMessage
 
+    private val _newPage = MutableLiveData<ViewPagerPage?>()
+    val newPage: LiveData<ViewPagerPage?>
+        get() = _newPage
+
     private val _refreshState = MutableLiveData<NetworkState?>()
     val refreshState: LiveData<NetworkState?>
         get() = _refreshState
 
     fun refreshObserved(){
         _refreshState.value = null
+    }
+
+    fun newPage(page: ViewPagerPage){
+        _newPage.value = page
+    }
+
+    fun newPageObserved(){
+        _newPage.value = null
     }
 
     fun refreshAccessToken(){
@@ -173,6 +185,7 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
     fun report(){
         TODO("Implement Reporting")
     }
+
 
     private suspend fun fetchAccessToken(refreshToken: String): AccessToken {
         return userRepository.getNewAccessToken("Basic ${getEncodedAuthString(application.baseContext)}", refreshToken).await().apply {

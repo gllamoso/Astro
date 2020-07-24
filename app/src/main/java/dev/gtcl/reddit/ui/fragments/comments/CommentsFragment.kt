@@ -29,6 +29,7 @@ import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.AccountPage
+import dev.gtcl.reddit.ui.fragments.PostPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 
 class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
@@ -67,7 +68,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
         val post = model.post.value.apply {
             this?.isRead = true
         }
-        parentFragmentManager.setFragmentResult(POST_BUNDLE_KEY, bundleOf(POST_KEY to post, POSITION_KEY to position))
+//        parentFragmentManager.setFragmentResult(POST_BUNDLE_KEY, bundleOf(POST_KEY to post, POSITION_KEY to position))
     }
 
     override fun onStop() {
@@ -190,15 +191,15 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
     }
 
     private fun initPost(){
-        val post = requireArguments().get(POST_KEY) as Post?
+        val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
         val url = requireArguments().get(URL_KEY) as String?
         if(!model.commentsFetched){
-            if(post != null){
-                model.setPost(post)
-                when (post.postType) {
-                    PostType.IMAGE -> initSubsamplingImageView(post)
-                    PostType.GIF -> initGifToImageView(post)
-                    PostType.VIDEO -> initVideoPlayer(post)
+            if(postPage != null){
+                model.setPost(postPage.post)
+                when (postPage.post.postType) {
+                    PostType.IMAGE -> initSubsamplingImageView(postPage.post)
+                    PostType.GIF -> initGifToImageView(postPage.post)
+                    PostType.VIDEO -> initVideoPlayer(postPage.post)
                 }
             } else {
                model.fetchPostAndComments(url!!.replace("https://www.reddit.com/", ""))
@@ -308,9 +309,9 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
     }
 
     companion object{
-        fun newInstance(post: Post, position: Int): CommentsFragment{
+        fun newInstance(postPage: PostPage): CommentsFragment{
             val fragment = CommentsFragment()
-            val args = bundleOf(POST_KEY to post, POSITION_KEY to position)
+            val args = bundleOf(POST_PAGE_KEY to postPage)
             fragment.arguments = args
             return fragment
         }

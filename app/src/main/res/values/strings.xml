@@ -121,6 +121,7 @@
     <string name="download">Download</string>
     <string name="download_complete">Download complete</string>
     <string name="download_status_notification_name">Download Status</string>
+    <string name="unable_to_download_file">Unable to download file</string>
 
     <!--Inbox-->
     <string name="inbox">Inbox</string>
@@ -175,5 +176,8 @@
     <string name="more_options">More Options</string>
     <string name="close">Close</string>
     <string name="user_must_be_logged_in">User must be logged in to do that</string>
+    <string name="download_album">Download Album</string>
+    <string name="album_name">Album Name</string>
+    <string name="unable_to_create_directory">Unable to create directory %s</string>
 
 </resources>

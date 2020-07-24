@@ -9,7 +9,7 @@
         android:label="ViewPagerFragment" >
         <argument
             android:name="startingPage"
-            app:argType="dev.gtcl.reddit.ui.fragments.PageType"/>
+            app:argType="dev.gtcl.reddit.ui.fragments.ViewPagerPage"/>
         <action
             android:id="@+id/action_viewPagerFragment_self"
             app:destination="@id/viewPagerFragment"
