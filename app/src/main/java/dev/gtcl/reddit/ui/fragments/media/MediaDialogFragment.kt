@@ -2,10 +2,10 @@ package dev.gtcl.reddit.ui.fragments.media
 
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import androidx.core.os.bundleOf
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
@@ -13,25 +13,21 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentDialogMediaBinding
-import dev.gtcl.reddit.models.reddit.listing.Post
-import dev.gtcl.reddit.models.reddit.listing.UrlType
+import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.ui.activities.MainActivityVM
-import java.lang.ref.WeakReference
+import dev.gtcl.reddit.ui.fragments.PostPage
+import dev.gtcl.reddit.ui.fragments.media.list.MediaListAdapter
 
-
-class MediaDialogFragment: DialogFragment() {
+class MediaDialogFragment : DialogFragment(){
 
     private lateinit var binding: FragmentDialogMediaBinding
-    private var onPostClicked: ((Post, Int) -> Unit)? = null
 
-    val model: MediaVM by lazy {
+    private val model: MediaDialogVM by lazy{
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(MediaVM::class.java)
+        ViewModelProvider(this, viewModelFactory).get(MediaDialogVM::class.java)
     }
 
-    fun setActions(onPostClicked: (Post, Int) -> Unit){
-        this.onPostClicked = onPostClicked
-    }
+    private val activityModel: MainActivityVM by activityViewModels()
 
     override fun onStart() {
         super.onStart()
@@ -43,100 +39,133 @@ class MediaDialogFragment: DialogFragment() {
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = FragmentDialogMediaBinding.inflate(inflater)
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.model = model
-        binding.lifecycleOwner = this
+        model.setMedia(requireArguments().get(MEDIA_KEY) as MediaURL)
 
-        if(!model.initialized){
-            val args = requireArguments()
-            val url = args.getString(URL_KEY)!!
-            val urlType = args.get(URL_TYPE_KEY) as UrlType
-            val post = args.get(POST_KEY) as Post?
-            model.initialize(url, urlType, post)
-        }
-
-//        model.passPlayerControlView(WeakReference(binding.bottomBarControls.playerController))
-
-        setViewPager()
-        setOnClickListeners()
-        setObservers()
-
-        binding.executePendingBindings()
+        initAdapters()
+        initWindowBackground()
+        initTopbar()
+        initBottomBar()
 
         return binding.root
     }
 
-    private fun setObservers(){
-        model.urlType.observe(viewLifecycleOwner, Observer {
-            dialog?.window?.setBackgroundDrawableResource(
-                if(it == UrlType.IMAGE || it == UrlType.GIF){
-                    R.color.darkTransparent
-                } else {
-                    android.R.color.black
+    private fun initAdapters(){
+        val mediaListAdapter =
+            MediaListAdapter { position ->
+                model.setItemPosition(position)
+                binding.drawerLayout.closeDrawer(GravityCompat.END)
+            }
+
+        model.mediaItems.observe(viewLifecycleOwner, Observer {
+            if(binding.viewpager.adapter == null){
+                val swipeToDismissAdapter =
+                    MediaSwipeToDismissAdapter(
+                        this,
+                        it
+                    )
+                binding.viewpager.apply {
+                    this.adapter = swipeToDismissAdapter
+                    currentItem = 1
+                    registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
+                        override fun onPageScrollStateChanged(state: Int) {
+                            if(state == ViewPager2.SCROLL_STATE_IDLE && currentItem != 1){
+                                dismiss()
+                            }
+                        }
+
+                        override fun onPageScrolled(
+                            position: Int,
+                            positionOffset: Float,
+                            positionOffsetPixels: Int
+                        ) {
+                            super.onPageScrolled(position, positionOffset, positionOffsetPixels)
+                            val offset = if(position == 0) {
+                                1 - positionOffset
+                            } else {
+                                positionOffset
+                            }
+                            val multiplier = 1000
+                            binding.topToolbar.translationY = -multiplier * offset
+                            binding.bottomBarControls.root.translationY = multiplier * offset
+                        }
+                    })
                 }
+            }
+            mediaListAdapter.submitList(it)
+
+            binding.drawerLayout.setDrawerLockMode(
+                if(it.size > 1) DrawerLayout.LOCK_MODE_UNLOCKED else DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
+                GravityCompat.END
             )
         })
+
+
+
+        binding.albumThumbnails.adapter = mediaListAdapter
     }
 
-    private fun setViewPager(){
-        binding.viewPager.apply {
-            adapter = MediaAdapter(this@MediaDialogFragment)
-            currentItem = 1
-            orientation = ViewPager2.ORIENTATION_VERTICAL
-            registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
-                override fun onPageScrollStateChanged(state: Int) {
-                    super.onPageScrollStateChanged(state)
-                    if(state == ViewPager2.SCROLL_STATE_IDLE){
-                        if(currentItem != 1)
-                            dismiss()
-                    }
-                }
-
-                override fun onPageScrolled(position: Int, positionOffset: Float, positionOffsetPixels: Int) {
-                    super.onPageScrolled(position, positionOffset, positionOffsetPixels)
-                    val offset = if(position == 0) {
-                        1 - positionOffset
-                    } else {
-                        positionOffset
-                    }
-                    val multiplier = 500
-                    binding.topToolbar.translationY = -multiplier * offset
-                    binding.bottomBarControls.root.translationY = multiplier * offset
-                }
-            })
+    private fun initTopbar(){
+        binding.albumIcon.setOnClickListener {
+            binding.drawerLayout.openDrawer(GravityCompat.END)
         }
-    }
 
-    private fun setOnClickListeners(){
         binding.topToolbar.setNavigationOnClickListener {
             dismiss()
         }
+    }
+
+    private fun initWindowBackground(){
+//        dialog?.window?.setBackgroundDrawableResource(
+//            if(mediaURL.mediaType == MediaType.PICTURE || mediaURL.mediaType == MediaType.GIF){
+//                R.color.darkTransparent
+//            } else {
+//                android.R.color.black
+//            }
+//        )
+
+        dialog?.window?.setBackgroundDrawableResource(android.R.color.black)
+    }
+
+    private fun initBottomBar(){
+        val mediaUrl = requireArguments().get(MEDIA_KEY) as MediaURL
+        val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
+        model.setPost(postPage?.post)
 
         binding.bottomBarControls.apply {
             commentButton.setOnClickListener {
-                val post = requireArguments().get(POST_KEY) as Post
-                val position = requireArguments().get(POSITION_KEY) as Int
-                onPostClicked?.invoke(post, position)
+                if (postPage != null) {
+                    activityModel.newPage(postPage)
+                }
                 dismiss()
             }
+
             shareButton.setOnClickListener {
                 val shareIntent = Intent(Intent.ACTION_SEND)
                 shareIntent.type = "text/plain"
                 shareIntent.putExtra(Intent.EXTRA_SUBJECT, getText(R.string.share_subject_message))
-                shareIntent.putExtra(Intent.EXTRA_TEXT, requireArguments().get(URL_KEY) as String)
+                shareIntent.putExtra(Intent.EXTRA_TEXT, mediaUrl.url)
                 startActivity(Intent.createChooser(shareIntent, null))
             }
+
             downloadButton.setOnClickListener {
-                model.download()
+                model.downloadCurrentItem()
             }
         }
     }
 
     companion object{
-        fun newInstance(url: String, urlType: UrlType, post: Post?, position: Int?): MediaDialogFragment{
-            val fragment = MediaDialogFragment()
-            val args = bundleOf(URL_KEY to url, URL_TYPE_KEY to urlType, POST_KEY to post, POSITION_KEY to position)
+        fun newInstance(mediaURL: MediaURL, postPage: PostPage? = null): MediaDialogFragment {
+            val fragment =
+                MediaDialogFragment()
+            val args = bundleOf(MEDIA_KEY to mediaURL, POST_PAGE_KEY to postPage)
             fragment.arguments = args
             return fragment
         }

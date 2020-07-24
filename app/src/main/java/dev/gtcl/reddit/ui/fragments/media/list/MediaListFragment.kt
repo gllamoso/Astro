@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.media.test.list
+package dev.gtcl.reddit.ui.fragments.media.list
 
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -13,15 +13,15 @@ import androidx.viewpager2.widget.ViewPager2
 import dev.gtcl.reddit.MEDIA_KEY
 import dev.gtcl.reddit.databinding.FragmentViewpagerBinding
 import dev.gtcl.reddit.models.reddit.MediaURL
-import dev.gtcl.reddit.ui.fragments.media.test.MediaListVM
+import dev.gtcl.reddit.ui.fragments.media.MediaDialogVM
 
 
 class MediaListFragment : Fragment(){
 
     private lateinit var binding: FragmentViewpagerBinding
 
-    val model: MediaListVM by lazy {
-        ViewModelProviders.of(requireParentFragment()).get(MediaListVM::class.java)
+    val model: MediaDialogVM by lazy {
+        ViewModelProviders.of(requireParentFragment()).get(MediaDialogVM::class.java)
     }
 
     override fun onCreateView(
@@ -31,7 +31,11 @@ class MediaListFragment : Fragment(){
     ): View? {
         binding = FragmentViewpagerBinding.inflate(inflater)
         val items = requireArguments().get(MEDIA_KEY) as List<MediaURL>
-        val adapter = MediaListFragmentAdapter(this, items)
+        val adapter =
+            MediaListFragmentAdapter(
+                this,
+                items
+            )
         binding.viewpager.apply {
             this.adapter = adapter
             model.setItemPosition(0)
@@ -52,8 +56,9 @@ class MediaListFragment : Fragment(){
     }
 
     companion object{
-        fun newInstance(mediaItems: List<MediaURL>): MediaListFragment{
-            val fragment = MediaListFragment()
+        fun newInstance(mediaItems: List<MediaURL>): MediaListFragment {
+            val fragment =
+                MediaListFragment()
             val args = bundleOf(MEDIA_KEY to mediaItems)
             fragment.arguments = args
             return fragment

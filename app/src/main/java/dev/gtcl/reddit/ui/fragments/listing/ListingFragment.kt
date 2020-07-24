@@ -2,12 +2,10 @@ package dev.gtcl.reddit.ui.fragments.listing
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.PopupMenu
 import android.widget.Toast
 import androidx.core.os.bundleOf
-import androidx.core.view.iterator
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
@@ -31,14 +29,12 @@ import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.activities.MainDrawerAdapter
 import dev.gtcl.reddit.ui.fragments.AccountPage
 import dev.gtcl.reddit.ui.fragments.PostPage
-import dev.gtcl.reddit.ui.fragments.ViewPagerFragment
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.SortDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.TimeDialogFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsDialogFragment
-import java.lang.Exception
 
 class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeClickListener,
     ItemClickListener, LeftDrawerActions, SortActions {
@@ -308,21 +304,6 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     }
 
     override fun thumbnailClicked(post: Post, position: Int) {
-//        model.addReadItem(post)
-//        when(val urlType = post.urlType){
-//            UrlType.LINK -> navigationActions?.launchWebview(post.url!!)
-//            UrlType.IMGUR_ALBUM -> Snackbar.make(binding.root, "Imgur Album Selected", Snackbar.LENGTH_LONG).show()
-//            else -> {
-//                if(urlType != null){
-//                    val dialog = MediaDialogFragment.newInstance(
-//                        if(urlType == UrlType.M3U8 || urlType == UrlType.GIFV) post.previewVideoUrl!! else post.url!!,
-//                        urlType,
-//                        post,
-//                        position)
-//                    dialog.show(parentFragmentManager, null)
-//                }
-//            }
-//        }
 
         model.addReadItem(post)
         when(val urlType = post.urlType){
@@ -347,7 +328,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
                         MediaType.GFYCAT -> post.previewVideoUrl
                         else -> null
                     }
-                    val dialog = dev.gtcl.reddit.ui.fragments.media.test.MediaDialogFragment.newInstance(
+                    val dialog = MediaDialogFragment.newInstance(
                         MediaURL(url, mediaType, backupUrl),
                         PostPage(post, position)
                     )

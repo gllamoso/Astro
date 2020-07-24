@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.media.test.list
+package dev.gtcl.reddit.ui.fragments.media.list
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -6,7 +6,9 @@ import androidx.recyclerview.widget.ListAdapter
 import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.ui.viewholders.MediaVH
 
-class MediaListRecyclerViewAdapter(private val itemClickListener: (Int) -> Unit) : ListAdapter<MediaURL, MediaVH>(DiffCallback){
+class MediaListAdapter(private val itemClickListener: (Int) -> Unit) : ListAdapter<MediaURL, MediaVH>(
+    DiffCallback
+){
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = MediaVH.create(parent)
 

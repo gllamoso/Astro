@@ -7,7 +7,7 @@
         <import type="android.view.View"/>
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.fragments.media.test.list.item.MediaItemVM" />
+            type="dev.gtcl.reddit.ui.fragments.media.list.item.MediaItemVM" />
     </data>
 
     <FrameLayout

@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.media.test.list.item
+package dev.gtcl.reddit.ui.fragments.media.list.item
 
 import android.net.Uri
 import android.util.Log

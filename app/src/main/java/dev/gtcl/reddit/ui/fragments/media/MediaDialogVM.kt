@@ -1,6 +1,5 @@
-package dev.gtcl.reddit.ui.fragments.media.test
+package dev.gtcl.reddit.ui.fragments.media
 
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -19,7 +18,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
-class MediaListVM(private val application: RedditApplication): AndroidViewModel(application){
+class MediaDialogVM(private val application: RedditApplication): AndroidViewModel(application){
 
     private val imgurRepository = ImgurRepository.getInstance()
     private val gfycatRepository = GfycatRepository.getInstance()

@@ -1,7 +1,6 @@
 package dev.gtcl.reddit.ui.fragments.item_scroller
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -13,7 +12,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentItemScrollerBinding
@@ -204,7 +202,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                         MediaType.GFYCAT -> post.previewVideoUrl
                         else -> null
                     }
-                    val dialog = dev.gtcl.reddit.ui.fragments.media.test.MediaDialogFragment.newInstance(
+                    val dialog = MediaDialogFragment.newInstance(
                         MediaURL(url, mediaType, backupUrl),
                         PostPage(post, position)
                     )

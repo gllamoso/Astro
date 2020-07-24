@@ -15,7 +15,6 @@ import dev.gtcl.reddit.Visibility
 import dev.gtcl.reddit.databinding.FragmentDialogMultiredditBinding
 import dev.gtcl.reddit.models.reddit.listing.MultiReddit
 import dev.gtcl.reddit.models.reddit.listing.MultiRedditUpdate
-import dev.gtcl.reddit.ui.fragments.media.MediaVM
 
 class MultiRedditDetailsDialogFragment: DialogFragment() {
     private lateinit var binding: FragmentDialogMultiredditBinding

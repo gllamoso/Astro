@@ -10,14 +10,14 @@ import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProviders
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.FragmentDialogAlbumNameBinding
-import dev.gtcl.reddit.ui.fragments.media.test.MediaListVM
+import dev.gtcl.reddit.ui.fragments.media.MediaDialogVM
 
 class DownloadAlbumFragment: DialogFragment(){
 
     private lateinit var binding: FragmentDialogAlbumNameBinding
 
-    val model: MediaListVM by lazy {
-        ViewModelProviders.of(requireParentFragment()).get(MediaListVM::class.java)
+    val model: MediaDialogVM by lazy {
+        ViewModelProviders.of(requireParentFragment()).get(MediaDialogVM::class.java)
     }
 
     override fun onCreateView(

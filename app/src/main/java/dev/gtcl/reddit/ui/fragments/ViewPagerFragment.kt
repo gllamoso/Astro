@@ -20,7 +20,6 @@ import androidx.viewpager2.widget.ViewPager2
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentViewpagerBinding
-import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.ListingType
 import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.models.reddit.listing.SubscriptionListing
@@ -28,7 +27,6 @@ import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.account.AccountFragment
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
 import dev.gtcl.reddit.ui.fragments.listing.ListingFragment
-import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 
 class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
 
@@ -52,9 +50,6 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
             is ListingFragment -> childFragment.setActions(this, this)
             is CommentsFragment -> childFragment.setActions(this)
             is AccountFragment -> childFragment.setActions(this, this)
-            is MediaDialogFragment -> childFragment.setActions { post, position ->
-                navigateToComments(post, position)
-            }
         }
     }
 

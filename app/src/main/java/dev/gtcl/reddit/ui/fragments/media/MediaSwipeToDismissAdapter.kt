@@ -1,9 +1,9 @@
-package dev.gtcl.reddit.ui.fragments.media.test
+package dev.gtcl.reddit.ui.fragments.media
 
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import dev.gtcl.reddit.models.reddit.MediaURL
-import dev.gtcl.reddit.ui.fragments.media.test.list.MediaListFragment
+import dev.gtcl.reddit.ui.fragments.media.list.MediaListFragment
 
 class MediaSwipeToDismissAdapter(fragment: Fragment, private val items: List<MediaURL>): FragmentStateAdapter(fragment){
 
