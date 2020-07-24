@@ -39,12 +39,13 @@ class MediaDialogVM(private val application: RedditApplication): AndroidViewMode
     val itemPosition : LiveData<Int>
         get() = _itemPosition
 
-    private val _showUi = MutableLiveData<Boolean>().apply { value = true }
-    val showUi: LiveData<Boolean>
-        get() = _showUi
+    private val _isLoading = MutableLiveData<Boolean>().apply { value = true }
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
 
     fun setMedia(mediaURL: MediaURL){
         coroutineScope.launch {
+            _isLoading.value = true
             if(mediaURL.mediaType == MediaType.IMGUR_ALBUM){
                 val album = imgurRepository.getAlbumImages(mediaURL.imgurHash).await().data.images!!
                 _mediaItems.value = album.map {
@@ -64,6 +65,7 @@ class MediaDialogVM(private val application: RedditApplication): AndroidViewMode
             } else {
                 _mediaItems.value = listOf(mediaURL)
             }
+            _isLoading.value = false
         }
     }
 
@@ -73,10 +75,6 @@ class MediaDialogVM(private val application: RedditApplication): AndroidViewMode
 
     fun setItemPosition(position: Int){
         _itemPosition.value = position
-    }
-
-    fun toggleUiVisibility(){
-        _showUi.value = !(_showUi.value ?: false)
     }
 
     fun downloadAlbum(name: String){

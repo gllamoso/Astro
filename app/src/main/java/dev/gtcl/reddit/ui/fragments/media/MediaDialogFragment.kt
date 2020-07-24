@@ -47,6 +47,8 @@ class MediaDialogFragment : DialogFragment(){
         binding = FragmentDialogMediaBinding.inflate(inflater)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.model = model
+        binding.activityModel = activityModel
+        activityModel.showUi(true)
         model.setMedia(requireArguments().get(MEDIA_KEY) as MediaURL)
 
         initAdapters()

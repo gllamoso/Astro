@@ -22,7 +22,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import java.lang.ref.WeakReference
 
-class MediaItemVM(private val application: RedditApplication): AndroidViewModel(application){
+class MediaVM(private val application: RedditApplication): AndroidViewModel(application){
 
     private val gfycatRepository = GfycatRepository.getInstance()
 
@@ -98,7 +98,6 @@ class MediaItemVM(private val application: RedditApplication): AndroidViewModel(
                 _player.value = player
             }
             _initialized = true
-            _isLoading.value = false
         }
     }
 
@@ -112,6 +111,10 @@ class MediaItemVM(private val application: RedditApplication): AndroidViewModel(
         _player.value?.let {0
             it.playWhenReady = true
         }
+    }
+
+    fun setLoadingState(loading: Boolean){
+        _isLoading.value = loading
     }
 
     override fun onCleared() {

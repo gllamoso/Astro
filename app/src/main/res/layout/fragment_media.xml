@@ -7,7 +7,7 @@
         <import type="android.view.View"/>
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.fragments.media.list.item.MediaItemVM" />
+            type="dev.gtcl.reddit.ui.fragments.media.list.item.MediaVM" />
     </data>
 
     <FrameLayout
@@ -46,15 +46,14 @@
             android:layout_height="wrap_content"
             app:show_timeout="0"
             android:layout_gravity="bottom"
-            android:layout_marginBottom="?android:attr/actionBarSize"
-            android:visibility="@{(model.mediaURL.mediaType == MediaType.GFYCAT || model.mediaURL.mediaType == MediaType.VIDEO)  ? View.VISIBLE : View.GONE}" />
+            android:layout_marginBottom="?android:attr/actionBarSize" />
 
         <ProgressBar
             android:id="@+id/progress_bar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="@{model.loading == true ? View.VISIBLE : View.GONE}"
+            android:visibility="@{model.loading ? View.VISIBLE : View.GONE}"
             android:elevation="10dp"/>
 
     </FrameLayout>

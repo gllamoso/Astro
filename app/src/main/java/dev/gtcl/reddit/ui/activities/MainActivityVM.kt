@@ -40,6 +40,10 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
     val refreshState: LiveData<NetworkState?>
         get() = _refreshState
 
+    private val _showUi = MutableLiveData<Boolean>()
+    val showUi: LiveData<Boolean>
+        get() = _showUi
+
     fun refreshObserved(){
         _refreshState.value = null
     }
@@ -186,6 +190,13 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
         TODO("Implement Reporting")
     }
 
+    fun showUi(show: Boolean){
+        _showUi.value = show
+    }
+
+    fun toggleUi(){
+        _showUi.value = !(_showUi.value ?: true)
+    }
 
     private suspend fun fetchAccessToken(refreshToken: String): AccessToken {
         return userRepository.getNewAccessToken("Basic ${getEncodedAuthString(application.baseContext)}", refreshToken).await().apply {
