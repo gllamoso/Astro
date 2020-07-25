@@ -258,9 +258,16 @@ interface RedditApiService {
     ): Deferred<Response<Unit>>
 
     @PUT("/api/multi/{multipath}.json")
-    fun createOrUpdateMultiReddit(
+    fun updateMulti(
         @Header("Authorization") authorization: String? = null,
         @Path("multipath", encoded = true) multipath: String,
+        @Query("model", encoded = true) model: MultiRedditUpdate,
+        @Query("expand_srs") expandSubs: Boolean = true
+    ): Deferred<MultiRedditChild>
+
+    @POST("/api/multi/.json")
+    fun createMulti(
+        @Header("Authorization") authorization: String? = null,
         @Query("model", encoded = true) model: MultiRedditUpdate,
         @Query("expand_srs") expandSubs: Boolean = true
     ): Deferred<MultiRedditChild>

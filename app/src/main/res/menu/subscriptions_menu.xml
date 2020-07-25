@@ -13,4 +13,9 @@
         android:title="@string/sync_subscriptions"
         app:showAsAction="ifRoom"
         />
+    <item
+        android:id="@+id/createMulti"
+        android:icon="@drawable/ic_edit_24dp"
+        android:title="@string/create_custom_feed"
+        app:showAsAction="never"/>
 </menu>

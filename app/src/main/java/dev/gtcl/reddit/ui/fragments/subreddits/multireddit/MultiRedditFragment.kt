@@ -5,16 +5,15 @@ import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import dev.gtcl.reddit.R
-import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.SELECTED_SUBREDDITS_KEY
-import dev.gtcl.reddit.ViewModelFactory
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentMultiredditSubredditsBinding
+import dev.gtcl.reddit.models.reddit.listing.MultiRedditUpdate
 import dev.gtcl.reddit.models.reddit.listing.Subreddit
 
 class MultiRedditFragment: Fragment(),
@@ -81,6 +80,11 @@ class MultiRedditFragment: Fragment(),
                 }
             }
             true
+        }
+
+        childFragmentManager.setFragmentResultListener(MULTI_KEY, viewLifecycleOwner){ _, bundle ->
+            val multiUpdate = bundle.get(MULTI_KEY) as MultiRedditUpdate
+            model.updateMultiReddit(multiUpdate)
         }
     }
 

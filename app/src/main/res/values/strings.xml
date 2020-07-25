@@ -130,12 +130,14 @@
 
     <!--Multi-Reddit-->
     <string name="edit_custom_feed">Edit Custom Feed</string>
+    <string name="create_custom_feed">Create Custom Feed</string>
     <string name="custom_feed_name">Custom Feed Name</string>
     <string name="description_optional">Description (Optional)</string>
     <string name="private_label">Private</string>
     <string name="public_label">Public</string>
     <string name="hidden_label">Hidden</string>
     <string name="display_name_error">Please enter a name</string>
+    <string name="conflict_error">Custom feed conflicts with another</string>
 
     <!--Create Post-->
     <string name="create_post">Create Post</string>

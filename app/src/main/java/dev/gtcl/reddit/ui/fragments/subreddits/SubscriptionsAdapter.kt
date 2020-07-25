@@ -321,15 +321,42 @@ class SubscriptionsAdapter(
         removeFromFavoritesListAndNotify(sub)
 
         // Remove from all Subreddits section
-        val changePosition =
-            binarySearch(
-                subreddits,
-                sub
-            )
-        if(changePosition != -1){
-            subreddits.removeAt(changePosition)
-            notifyItemRemoved(subredditsHeaderIndex + 1 + changePosition)
+        when(sub.type){
+            SubscriptionType.SUBREDDIT -> {
+                val changePosition =
+                    binarySearch(
+                        subreddits,
+                        sub
+                    )
+                if(changePosition != -1){
+                    subreddits.removeAt(changePosition)
+                    notifyItemRemoved(subredditsHeaderIndex + 1 + changePosition)
+                }
+            }
+            SubscriptionType.MULTIREDDIT -> {
+                val changePosition =
+                    binarySearch(
+                        multis,
+                        sub
+                    )
+                if(changePosition != -1){
+                    multis.removeAt(changePosition)
+                    notifyItemRemoved(multisHeaderIndex + 5 + changePosition)
+                }
+            }
+            SubscriptionType.USER -> {
+                val changePosition =
+                    binarySearch(
+                        users,
+                        sub
+                    )
+                if(changePosition != -1){
+                    users.removeAt(changePosition)
+                    notifyItemRemoved(usersHeaderIndex + 1 + changePosition)
+                }
+            }
         }
+
     }
 
     private fun removeFromFavoritesListAndNotify(sub: Subscription){

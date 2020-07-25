@@ -70,6 +70,10 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     val lastItemReached: LiveData<Boolean>
         get() = _lastItemReached
 
+    private var _newMultiReddit = MutableLiveData<MultiReddit>()
+    val newMultiReddit: LiveData<MultiReddit>
+        get() = _newMultiReddit
+
     fun setListingInfo(listingType: ListingType){
         this.listingType = listingType
         _title.value = getTitle(listingType)

@@ -1,12 +1,9 @@
 package dev.gtcl.reddit.ui.fragments.subreddits.multireddit
 
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.google.gson.Gson
 import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.Visibility
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.models.reddit.listing.MultiReddit
 import dev.gtcl.reddit.models.reddit.listing.MultiRedditUpdate
@@ -80,7 +77,7 @@ class MultiRedditVM(application: RedditApplication): AndroidViewModel(applicatio
                 allNames.addAll(names)
                 val subsData = allNames.map { SubredditData(it, null) }
                 val model = MultiRedditUpdate(subreddits = subsData)
-                val response = subredditRepository.createOrUpdateMultiReddit(multipath, model).await()
+                val response = subredditRepository.updateMulti(multipath, model).await()
                 _multi.value = response.data
                 _subreddits.value = response.data.subreddits.map{ it.data!! }.toMutableList()
             } catch (e: HttpException){
@@ -92,7 +89,7 @@ class MultiRedditVM(application: RedditApplication): AndroidViewModel(applicatio
     fun updateMultiReddit(model: MultiRedditUpdate){
         coroutineScope.launch {
             try {
-                val response = subredditRepository.createOrUpdateMultiReddit(multipath, model).await()
+                val response = subredditRepository.updateMulti(multipath, model).await()
                 _multi.value = response.data
                 subredditRepository.insertMultiReddit(response.data)
             } catch (e: HttpException){

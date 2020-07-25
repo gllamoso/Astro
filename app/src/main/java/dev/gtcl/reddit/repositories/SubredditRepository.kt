@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.repositories
 
-import android.util.Log
 import androidx.annotation.MainThread
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.Subscription
@@ -13,10 +12,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
-import retrofit2.http.Header
-import retrofit2.http.POST
-import retrofit2.http.Query
-import java.net.URL
 import kotlin.IllegalStateException
 
 class SubredditRepository private constructor(private val application: RedditApplication){
@@ -128,11 +123,19 @@ class SubredditRepository private constructor(private val application: RedditApp
     }
 
     @MainThread
-    fun createOrUpdateMultiReddit(multipath: String, model: MultiRedditUpdate): Deferred<MultiRedditChild> {
+    fun updateMulti(multipath: String, model: MultiRedditUpdate): Deferred<MultiRedditChild> {
         if(application.accessToken == null){
             throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
         }
-        return RedditApi.oauth.createOrUpdateMultiReddit(application.accessToken!!.authorizationHeader, multipath, model)
+        return RedditApi.oauth.updateMulti(application.accessToken!!.authorizationHeader, multipath, model)
+    }
+
+    @MainThread
+    fun createMulti(model: MultiRedditUpdate): Deferred<MultiRedditChild> {
+        if(application.accessToken == null){
+            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        }
+        return RedditApi.oauth.createMulti(application.accessToken!!.authorizationHeader, model)
     }
 
 //      _____       _                   _       _   _

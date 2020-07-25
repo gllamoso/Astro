@@ -30,7 +30,7 @@
                     android:layout_height="match_parent"
                     android:layout_weight="1"
                     android:gravity="center_vertical"
-                    android:text="@string/edit_custom_feed"
+                    android:text="@{multi == null ? @string/create_custom_feed : @string/edit_custom_feed}"
                     android:textAppearance="@style/TextAppearance.AppCompat.Title" />
 
                 <ImageView
@@ -55,7 +55,8 @@
             android:paddingVertical="4dp"
             app:boxBackgroundColor="@android:color/transparent"
             app:counterEnabled="true"
-            app:counterMaxLength="50">
+            app:counterMaxLength="50"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/display_name_input"
@@ -76,7 +77,8 @@
             android:paddingVertical="2dp"
             app:boxBackgroundColor="@android:color/transparent"
             app:counterEnabled="true"
-            app:counterMaxLength="500">
+            app:counterMaxLength="500"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
 
             <com.google.android.material.textfield.TextInputEditText
                 android:id="@+id/description_input"

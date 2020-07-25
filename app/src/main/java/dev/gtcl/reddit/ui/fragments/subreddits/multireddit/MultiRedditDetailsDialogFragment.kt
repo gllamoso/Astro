@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import android.widget.ArrayAdapter
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProviders
 import dev.gtcl.reddit.MULTI_KEY
 import dev.gtcl.reddit.R
@@ -19,21 +20,17 @@ import dev.gtcl.reddit.models.reddit.listing.MultiRedditUpdate
 class MultiRedditDetailsDialogFragment: DialogFragment() {
     private lateinit var binding: FragmentDialogMultiredditBinding
 
-    val model: MultiRedditVM by lazy {
-        ViewModelProviders.of(requireParentFragment()).get(MultiRedditVM::class.java)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        val multi = requireArguments().get(MULTI_KEY) as MultiReddit
+        val multi = requireArguments().get(MULTI_KEY) as MultiReddit?
         binding = FragmentDialogMultiredditBinding.inflate(inflater)
         binding.multi = multi
         setSpinner(multi)
-        binding.displayNameInput.setText(multi.displayName)
-        binding.descriptionInput.setText(multi.description)
+        binding.displayNameInput.setText(multi?.displayName)
+        binding.descriptionInput.setText(multi?.description)
         binding.executePendingBindings()
         return binding.root
     }
@@ -56,16 +53,22 @@ class MultiRedditDetailsDialogFragment: DialogFragment() {
                 2 -> Visibility.HIDDEN
                 else -> null
             }
-            model.updateMultiReddit(MultiRedditUpdate(displayName = displayName, description = description, visibility = visibility))
+            setFragmentResult(MULTI_KEY,
+                bundleOf(MULTI_KEY to MultiRedditUpdate(displayName = displayName, description = description, visibility = visibility)))
             dismiss()
         }
     }
 
-    private fun setSpinner(multi: MultiReddit){
+    private fun setSpinner(multi: MultiReddit?){
         val strArray = arrayOf(resources.getString(R.string.private_label), resources.getString(R.string.public_label), resources.getString(R.string.hidden))
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, strArray)
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
         binding.visibilitySpinner.adapter = arrayAdapter
+
+        if(multi == null){
+            return
+        }
+
         binding.visibilitySpinner.setSelection(when(multi.visibility){
             Visibility.PRIVATE -> 0
             Visibility.PUBLIC -> 1
@@ -74,7 +77,7 @@ class MultiRedditDetailsDialogFragment: DialogFragment() {
     }
 
     companion object{
-        fun newInstance(multi: MultiReddit): MultiRedditDetailsDialogFragment{
+        fun newInstance(multi: MultiReddit?): MultiRedditDetailsDialogFragment{
             val arguments = bundleOf(MULTI_KEY to multi)
             return MultiRedditDetailsDialogFragment().apply {
                 this.arguments = arguments
