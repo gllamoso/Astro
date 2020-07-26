@@ -19,12 +19,11 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
-import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.SELECTED_SUBREDDITS_KEY
-import dev.gtcl.reddit.ViewModelFactory
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.databinding.FragmentSearchBinding
+import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.Account
 import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.Subreddit
@@ -35,6 +34,11 @@ import dev.gtcl.reddit.ui.ListingItemAdapter
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.AccountPage
 import dev.gtcl.reddit.ui.fragments.ListingPage
+import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
+import io.noties.markwon.AbstractMarkwonPlugin
+import io.noties.markwon.LinkResolverDef
+import io.noties.markwon.Markwon
+import io.noties.markwon.MarkwonConfiguration
 
 
 class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
@@ -48,6 +52,30 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
     private val args: SearchFragmentArgs by navArgs()
 
     private val activityModel: MainActivityVM by activityViewModels()
+
+    private val markwon: Markwon by lazy {
+        Markwon.builder(requireContext())
+            .usePlugin(object : AbstractMarkwonPlugin() {
+                override fun configureConfiguration(builder: MarkwonConfiguration.Builder) {
+                    builder.linkResolver(object : LinkResolverDef() {
+                        override fun resolve(view: View, link: String) {
+                            when(link.getUrlType()){
+                                UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
+                                UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
+                                UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(
+                                    MediaURL(link, MediaType.VIDEO)
+                                ).show(childFragmentManager, null)
+                                UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
+                                UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
+                                UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
+                            }
+
+                        }
+                    })
+                }
+            })
+            .build()
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentSearchBinding.inflate(inflater)
@@ -102,7 +130,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
     }
 
     private fun setPopularRecyclerViewAdapter(){
-        val listAdapter = ListingItemAdapter(subredditActions = this, itemClickListener = this, retry = model::retry)
+        val listAdapter = ListingItemAdapter(markwon, subredditActions = this, itemClickListener = this, retry = model::retry)
         val scrollListener = ItemScrollListener(15, binding.popularList.layoutManager as GridLayoutManager, model::loadMorePopular)
         val recycler = binding.popularList
         recycler.apply {

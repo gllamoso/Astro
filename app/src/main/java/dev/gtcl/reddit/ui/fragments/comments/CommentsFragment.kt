@@ -3,6 +3,7 @@ package dev.gtcl.reddit.ui.fragments.comments
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -22,20 +23,26 @@ import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import dev.gtcl.reddit.*
+import dev.gtcl.reddit.R
 import dev.gtcl.reddit.actions.CommentActions
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.databinding.FragmentCommentsBinding
 import dev.gtcl.reddit.actions.ViewPagerActions
+import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.AccountPage
 import dev.gtcl.reddit.ui.fragments.PostPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
+import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
+import io.noties.markwon.*
+import io.noties.markwon.core.spans.LinkSpan
 
 class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
 
     private val model: CommentsVM by lazy {
-        val viewModelFactory = ViewModelFactory(requireContext().applicationContext as RedditApplication)
+        val viewModelFactory =
+            ViewModelFactory(requireContext().applicationContext as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(CommentsVM::class.java)
     }
 
@@ -45,11 +52,37 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
 
     private var viewPagerActions: ViewPagerActions? = null
 
-    fun setActions(viewPagerActions: ViewPagerActions){
+    private val markwon: Markwon by lazy {
+        Markwon.builder(requireContext())
+            .usePlugin(object : AbstractMarkwonPlugin() {
+                override fun configureConfiguration(builder: MarkwonConfiguration.Builder) {
+                    builder.linkResolver(object : LinkResolverDef() {
+                        override fun resolve(view: View, link: String) {
+                            when(link.getUrlType()){
+                                UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
+                                UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
+                                UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
+                                UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
+                                UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
+                                UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
+                            }
+
+                        }
+                    })
+                }
+            })
+            .build()
+    }
+
+    fun setActions(viewPagerActions: ViewPagerActions) {
         this.viewPagerActions = viewPagerActions
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = FragmentCommentsBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.model = model
@@ -73,51 +106,57 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
 
     override fun onStop() {
         super.onStop()
-        if(!requireActivity().isChangingConfigurations){
+        if (!requireActivity().isChangingConfigurations) {
             model.pausePlayer()
         }
     }
 
-    private fun initTopBar(){
+    private fun initTopBar() {
         binding.toolbar.setNavigationOnClickListener {
             viewPagerActions?.navigatePreviousPage()
         }
     }
 
-    private fun initBottomBarAndCommentsAdapter(){
-        val adapter = CommentsAdapter(this, this)
+    private fun initBottomBarAndCommentsAdapter() {
+        val adapter = CommentsAdapter(markwon,this, this)
         binding.bottomSheet.commentList.adapter = adapter
         model.comments.observe(viewLifecycleOwner, Observer {
-            if(it != null){
+            if (it != null) {
                 adapter.submitList(it)
             }
         })
 
         model.moreComments.observe(viewLifecycleOwner, Observer {
-            if(it != null) {
+            if (it != null) {
                 adapter.addItems(it.position, it.comments)
                 model.clearMoreComments()
             }
         })
 
         val behavior = BottomSheetBehavior.from(binding.bottomSheet.bottomSheet)
-        behavior.addBottomSheetCallback(object: BottomSheetBehavior.BottomSheetCallback(){
+        behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(p0: View, p1: Float) {
                 viewPagerActions?.enablePagerSwiping(false)
             }
 
             override fun onStateChanged(p0: View, newState: Int) {
-                when(newState){
-                    BottomSheetBehavior.STATE_HIDDEN, BottomSheetBehavior.STATE_COLLAPSED ->  viewPagerActions?.enablePagerSwiping(true)
-                    else ->  viewPagerActions?.enablePagerSwiping(false)
+                when (newState) {
+                    BottomSheetBehavior.STATE_HIDDEN, BottomSheetBehavior.STATE_COLLAPSED -> viewPagerActions?.enablePagerSwiping(
+                        true
+                    )
+                    else -> viewPagerActions?.enablePagerSwiping(false)
                 }
             }
         })
         behavior.state = BottomSheetBehavior.STATE_COLLAPSED
 
         binding.bottomSheet.toolbar.setOnMenuItemClickListener {
-            if(it.itemId == R.id.reply && model.post.value != null){
-                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToReplyFragment(model.post.value!!))
+            if (it.itemId == R.id.reply && model.post.value != null) {
+                findNavController().navigate(
+                    ViewPagerFragmentDirections.actionViewPagerFragmentToReplyFragment(
+                        model.post.value!!
+                    )
+                )
                 true
             } else {
                 false
@@ -127,26 +166,26 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
         initBottomBarOnClickListeners(behavior)
     }
 
-    private fun initBottomBarOnClickListeners(behavior: BottomSheetBehavior<CoordinatorLayout>){
+    private fun initBottomBarOnClickListeners(behavior: BottomSheetBehavior<CoordinatorLayout>) {
 
         binding.bottomBar.commentsButton.setOnClickListener {
-            if(model.loading.value == true){
+            if (model.loading.value == true) {
                 return@setOnClickListener
             }
             behavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
         binding.bottomBar.upvoteButton.setOnClickListener {
-            if(model.loading.value == true){
+            if (model.loading.value == true) {
                 return@setOnClickListener
             }
             model.post.value?.let {
-                it.likes = if(it.likes == true){
+                it.likes = if (it.likes == true) {
                     null
                 } else {
                     true
                 }
-                val vote = if(it.likes == true){
+                val vote = if (it.likes == true) {
                     Vote.UPVOTE
                 } else {
                     Vote.UNVOTE
@@ -157,16 +196,16 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
         }
 
         binding.bottomBar.downvoteButton.setOnClickListener {
-            if(model.loading.value == true){
+            if (model.loading.value == true) {
                 return@setOnClickListener
             }
             model.post.value?.let {
-                it.likes = if(it.likes == false){
+                it.likes = if (it.likes == false) {
                     null
                 } else {
                     false
                 }
-                val vote = if(it.likes == false){
+                val vote = if (it.likes == false) {
                     Vote.DOWNVOTE
                 } else {
                     Vote.UNVOTE
@@ -177,7 +216,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
         }
 
         binding.bottomBar.saveButton.setOnClickListener {
-            if(model.loading.value == true){
+            if (model.loading.value == true) {
                 return@setOnClickListener
             }
             model.post.value?.let {
@@ -190,24 +229,27 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
 
     }
 
-    private fun initPost(){
+    private fun initPost() {
         val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
         val url = requireArguments().get(URL_KEY) as String?
-        if(!model.commentsFetched){
-            if(postPage != null){
+        if (!model.commentsFetched) {
+            if (postPage != null) {
                 model.setPost(postPage.post)
                 when (postPage.post.postType) {
                     PostType.IMAGE -> initSubsamplingImageView(postPage.post)
                     PostType.GIF -> initGifToImageView(postPage.post)
                     PostType.VIDEO -> initVideoPlayer(postPage.post)
+                    else -> {
+                        markwon.setMarkdown(binding.content.contentText, postPage.post.selftext)
+                    }
                 }
             } else {
-               model.fetchPostAndComments(url!!.replace("https://www.reddit.com/", ""))
+                model.fetchPostAndComments(url!!.replace("https://www.reddit.com/", ""))
             }
         }
     }
 
-    private fun initSubsamplingImageView(post: Post){
+    private fun initSubsamplingImageView(post: Post) {
         Glide.with(requireContext())
             .asBitmap()
             .load(post.url)
@@ -238,10 +280,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
             .into(SubsamplingScaleImageViewTarget(binding.content.scaleImageView))
     }
 
-    private fun initGifToImageView(post: Post){
+    private fun initGifToImageView(post: Post) {
         Glide.with(requireContext())
             .load(post.url)
-            .addListener(object: RequestListener<Drawable>{
+            .addListener(object : RequestListener<Drawable> {
                 override fun onLoadFailed(
                     e: GlideException?,
                     model: Any?,
@@ -267,10 +309,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
             .into(binding.content.imageView)
     }
 
-    private fun initVideoPlayer(post: Post){
+    private fun initVideoPlayer(post: Post) {
         model.initializePlayer(post)
-        model.player.observe(viewLifecycleOwner, Observer {simpleExoPlayer ->
-            if(simpleExoPlayer != null) {
+        model.player.observe(viewLifecycleOwner, Observer { simpleExoPlayer ->
+            if (simpleExoPlayer != null) {
                 binding.content.playerView.player = simpleExoPlayer
                 model.loadingFinished()
             }
@@ -297,26 +339,34 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
     }
 
     override fun reply(comment: Comment) {
-        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToReplyFragment(comment))
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentToReplyFragment(
+                comment
+            )
+        )
     }
 
     override fun viewProfile(comment: Comment) {
-        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(comment.author)))
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                AccountPage(comment.author)
+            )
+        )
     }
 
     override fun report(comment: Comment) {
         TODO("Not yet implemented")
     }
 
-    companion object{
-        fun newInstance(postPage: PostPage): CommentsFragment{
+    companion object {
+        fun newInstance(postPage: PostPage): CommentsFragment {
             val fragment = CommentsFragment()
             val args = bundleOf(POST_PAGE_KEY to postPage)
             fragment.arguments = args
             return fragment
         }
 
-        fun newInstance(url: String): CommentsFragment{
+        fun newInstance(url: String): CommentsFragment {
             val fragment = CommentsFragment()
             val args = bundleOf(URL_KEY to url)
             fragment.arguments = args
@@ -325,13 +375,13 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
     }
 
     override fun itemClicked(item: Item, position: Int) {
-        if(item is More){
-            if(item.isContinueThreadLink()){
+        if (item is More) {
+            if (item.isContinueThreadLink) {
                 TODO("Implement Continue Thread")
             } else {
-                model.fetchMoreComments(position, item)
+                model.fetchMoreComments(position)
             }
         }
     }
-
 }
+

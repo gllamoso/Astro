@@ -2,18 +2,20 @@ package dev.gtcl.reddit.models.reddit.listing
 
 import android.net.Uri
 import android.os.Parcelable
+import android.util.Log
+import androidx.lifecycle.ViewModelProvider
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
-import dev.gtcl.reddit.SubscriptionType
-import dev.gtcl.reddit.Visibility
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.network.IMGUR_ALBUM_URL
 import dev.gtcl.reddit.network.IMGUR_GALLERY_URL
-import dev.gtcl.reddit.toValidImgUrl
+import dev.gtcl.reddit.ui.fragments.comments.CommentsVM
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
+import java.util.*
 
 sealed class Item(val kind: ItemType) : Parcelable{
     abstract val id: String?
@@ -156,30 +158,6 @@ data class Post(
     var isRead = false
 
     @IgnoredOnParcel
-    private val isImage: Boolean
-        get(){
-            url?.let {
-                val uri = Uri.parse(it)
-                uri.lastPathSegment?.let { lastPathSegment ->
-                    return lastPathSegment.contains("(.jpg|.png|.svg)".toRegex())
-                }
-            }
-            return false
-        }
-
-    @IgnoredOnParcel
-    private val isGif: Boolean
-        get(){
-            url?.let {
-                val uri = Uri.parse(it)
-                uri.lastPathSegment?.let { lastPathSegment ->
-                   return lastPathSegment.contains(".gif$".toRegex())
-                }
-            }
-            return false
-        }
-
-    @IgnoredOnParcel
     val previewVideoUrl: String?
         get() {
             return when {
@@ -191,45 +169,6 @@ data class Post(
         }
 
     @IgnoredOnParcel
-    val isGfycat: Boolean
-        get() = domain == "gfycat.com"
-
-    @IgnoredOnParcel
-    val isRedditVideo
-        get() = domain == "v.redd.it"
-
-    @IgnoredOnParcel
-    private val isImgurAlbum: Boolean
-        get() = url?.startsWith(IMGUR_ALBUM_URL) ?: false || url?.startsWith(IMGUR_GALLERY_URL) ?: false
-
-    @IgnoredOnParcel
-    val isGfv: Boolean
-        get() {
-            url?.let {
-                val uri = Uri.parse(it)
-                uri.lastPathSegment?.let { lastPathSegment ->
-                    return lastPathSegment.contains(".gifv".toRegex())
-                }
-            }
-            return false
-        }
-
-    @IgnoredOnParcel
-    val urlType: UrlType?
-        get(){
-            return when{
-                url.isNullOrEmpty() -> null
-                isImage -> UrlType.IMAGE
-                isGif -> UrlType.GIF
-                isGfycat -> UrlType.GFYCAT
-                isGfv -> UrlType.GIFV
-                isRedditVideo -> UrlType.M3U8
-                isImgurAlbum -> UrlType.IMGUR_ALBUM
-                else -> UrlType.LINK
-            }
-        }
-
-    @IgnoredOnParcel
     val shortLink = "http://redd.it/$id"
 
     @IgnoredOnParcel
@@ -237,9 +176,9 @@ data class Post(
         get(){
             return when{
                 isSelf -> PostType.TEXT
-                isGif -> PostType.GIF
-                isImage -> PostType.IMAGE
-                previewVideoUrl != null || isGfycat || isRedditVideo || isGfv -> PostType.VIDEO
+                GIF_REGEX.matches(url ?: "") -> PostType.GIF
+                IMAGE_REGEX.matches(url ?: "") -> PostType.IMAGE
+                previewVideoUrl != null || GFYCAT_REGEX.matches(url ?: "") || HLS_REGEX.matches(url ?: "") || GIFV_REGEX.matches(url ?: "") -> PostType.VIDEO
                 else -> PostType.URL
             }
         }
@@ -256,17 +195,6 @@ enum class PostType{
     VIDEO,
     @SerializedName("link")
     URL
-}
-
-@Parcelize
-enum class UrlType: Parcelable {
-    IMAGE,
-    GIF,
-    GIFV,
-    GFYCAT,
-    M3U8,
-    IMGUR_ALBUM,
-    LINK
 }
 
 // Reddit API Response
@@ -409,16 +337,37 @@ data class More(
     var count: Int
 ): Item(ItemType.More) {
 
-    fun getChildrenAsValidString(): String {
-        if(this.children.isEmpty()) return ""
+
+    @IgnoredOnParcel
+    private val childrenQueue = LinkedList<String>(children)
+
+    private fun pollChildren(count: Int): List<String>{
+        val children = ArrayList<String>()
+        while(children.size < count && childrenQueue.isNotEmpty()){
+            children.add(childrenQueue.poll())
+        }
+        return children
+    }
+
+    fun pollChildrenAsValidString(count: Int): String{
         val sb = StringBuilder()
-        for(item in this.children)
-            sb.append("$item,")
-        sb.deleteCharAt(sb.length - 1)
+        val children = pollChildren(count)
+        for(child in children){
+            sb.append("$child,")
+        }
+        val lastCommaIndex = sb.lastIndexOf(",")
+        if(lastCommaIndex > 0 && lastCommaIndex < sb.length){
+            sb.deleteCharAt(lastCommaIndex)
+        }
         return sb.toString()
     }
 
-    fun isContinueThreadLink() = id == "_"
+    fun isChildQueueEmpty(): Boolean = childrenQueue.isEmpty()
+
+    fun queueSize() = childrenQueue.size
+
+    @IgnoredOnParcel
+    val isContinueThreadLink = id == "_"
 }
 
 //     __  __       _ _   _        _____          _     _ _ _

@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.fragments.comments
 
-import android.content.Intent
 import android.net.Uri
 import android.util.Log
 import android.widget.Toast
@@ -24,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
+const val CHILDREN_PER_FETCH = 50
 class CommentsVM(val application: RedditApplication): AndroidViewModel(application) {
 
     // Repos
@@ -82,13 +82,21 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
         }
     }
 
-    fun fetchMoreComments(position: Int, more: More){
+    fun fetchMoreComments(position: Int){
         coroutineScope.launch {
-            val comments = listingRepository.getMoreComments(more.getChildrenAsValidString(), post.value!!.name, CommentSort.BEST).await().json.data.things.map { it.data }
+            val moreItem = _comments.value?.get(position)
+            if(moreItem == null || moreItem !is More){
+                throw IllegalArgumentException("Invalid more item: $moreItem")
+            }
+            val children = moreItem.pollChildrenAsValidString(CHILDREN_PER_FETCH)
+            val comments = listingRepository.getMoreComments(children, post.value!!.name, CommentSort.BEST).await().json.data.things.map { it.data }
             _moreComments.value = MoreComments(
                 position,
                 comments
             )
+            if(moreItem.isChildQueueEmpty()){
+                _comments.value?.removeAt(position)
+            }
             _comments.value?.addAll(position, comments)
         }
     }
@@ -107,12 +115,13 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
         coroutineScope.launch {
             val trackSelector = DefaultTrackSelector()
             trackSelector.setParameters(trackSelector.buildUponParameters().setMaxVideoSizeSd())
-            val url = when{
-                post.isGfv || post.isGfycat || post.isRedditVideo -> post.url
+            val urlType = (post.url ?: "").getUrlType()
+            val url = when(urlType){
+                UrlType.GIFV, UrlType.GFYCAT, UrlType.HLS -> post.url
                 else -> post.previewVideoUrl
             }
             var uri = Uri.parse(url)
-            if(post.isGfycat) {
+            if(urlType == UrlType.GFYCAT) {
                 try {
                     gfyItem = gfycatRepository.getGfycatInfo(
                         url!!.replace("http[s]?://gfycat.com/".toRegex(), ""))

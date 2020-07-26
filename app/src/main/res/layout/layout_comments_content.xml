@@ -22,7 +22,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp"
-            android:text="@{post.selftext}"
             android:visibility="@{post.postType == PostType.TEXT ? View.VISIBLE : View.GONE}"/>
 
         <com.google.android.exoplayer2.ui.PlayerView

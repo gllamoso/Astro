@@ -182,12 +182,7 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
     }
 
     override fun launchWebview(url: String) {
-        val intent = CustomTabsIntent.Builder().apply {
-//            TODO: Add Animations
-//            setStartAnimations(requireContext(), R.anim.slide_right, R.anim.slide_right)
-//            setExitAnimations(requireContext(), R.anim.slide_left, R.anim.slide_left)
-        }.build()
-        intent.launchUrl(requireContext(), Uri.parse(url))
+        activityModel.openChromeTab(url)
     }
 
 }

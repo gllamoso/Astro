@@ -44,6 +44,10 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
     val showUi: LiveData<Boolean>
         get() = _showUi
 
+    private val _openChromeTab = MutableLiveData<String?>()
+    val openChromeTab: LiveData<String?>
+        get() = _openChromeTab
+
     fun refreshObserved(){
         _refreshState.value = null
     }
@@ -196,6 +200,14 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
 
     fun toggleUi(){
         _showUi.value = !(_showUi.value ?: true)
+    }
+
+    fun openChromeTab(url: String){
+        _openChromeTab.value = url
+    }
+
+    fun chromeTabOpened(){
+        _openChromeTab.value = null
     }
 
     private suspend fun fetchAccessToken(refreshToken: String): AccessToken {

@@ -2,12 +2,10 @@ package dev.gtcl.reddit
 
 import android.content.Context
 import android.net.Uri
+import android.os.Parcelable
 import android.util.Base64
 import android.util.Log
-import android.view.Menu
-import android.view.MenuItem
 import android.widget.PopupMenu
-import androidx.core.view.iterator
 import androidx.lifecycle.MutableLiveData
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
@@ -18,15 +16,11 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
-import dev.gtcl.reddit.models.reddit.listing.Item
-import dev.gtcl.reddit.models.reddit.listing.Post
-import dev.gtcl.reddit.models.reddit.listing.PostType
-import dev.gtcl.reddit.models.reddit.listing.Subreddit
+import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingSubredditPost
+import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import retrofit2.http.Url
-import java.io.File
 import java.lang.Exception
 import java.net.URL
 import java.util.*
@@ -332,10 +326,45 @@ fun PopupMenu.forceIcons(){
     }
 }
 
-
-
 sealed class PostContent(val postType: PostType)
 class TextPost(val body: String): PostContent(PostType.TEXT)
 class ImagePost(val uri: Uri): PostContent(PostType.IMAGE)
 class LinkPost(val url: URL): PostContent(PostType.URL)
-// TODO: Video/GIF
+
+val IMGUR_GALLERY_REGEX = "http[s]?://imgur\\.com/gallery/\\w+".toRegex()
+val IMGUR_ALBUM_REGEX = "http[s]?://imgur\\.com/a/\\w+".toRegex()
+val IMAGE_REGEX = "https[s]?://.+\\.(jpg|png|svg)".toRegex()
+val GIF_REGEX = "https[s]?://.+\\.gif".toRegex()
+val GIFV_REGEX = "https[s]?://.+\\.gifv".toRegex()
+val GFYCAT_REGEX =  "https[s]?://(www\\.)?gfycat.com/\\w+".toRegex()
+val HLS_REGEX = "https[s]?://.+/HLSPlaylist\\.m3u8.*".toRegex()
+val REDDIT_VIDEO_REGEX = "https[s]?://v.redd.it/\\w+".toRegex()
+val STANDARD_VIDEO = "https[s]?://.+\\.(mp4)".toRegex()
+
+@Parcelize
+enum class UrlType: Parcelable {
+    IMAGE,
+    GIF,
+    GIFV,
+    GFYCAT,
+    HLS,
+    REDDIT_VIDEO,
+    STANDARD_VIDEO,
+    IMGUR_ALBUM,
+    OTHER
+}
+
+
+fun String.getUrlType(): UrlType{
+    return when{
+        IMGUR_ALBUM_REGEX.matches(this) or IMGUR_GALLERY_REGEX.matches(this) -> UrlType.IMGUR_ALBUM
+        IMAGE_REGEX.matches(this) -> UrlType.IMAGE
+        GIF_REGEX.matches(this) -> UrlType.GIF
+        GIFV_REGEX.matches(this) -> UrlType.GIFV
+        GFYCAT_REGEX.matches(this) -> UrlType.GFYCAT
+        HLS_REGEX.matches(this) -> UrlType.HLS
+        REDDIT_VIDEO_REGEX.matches(this) -> UrlType.REDDIT_VIDEO
+        STANDARD_VIDEO.matches(this) -> UrlType.STANDARD_VIDEO
+        else -> UrlType.OTHER
+    }
+}

@@ -7,9 +7,11 @@ import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.viewholders.*
+import io.noties.markwon.Markwon
 import java.io.InvalidObjectException
 
 class ListingItemAdapter(
+    private val markwon: Markwon,
     private val postActions: PostActions? = null,
     private val subredditActions: SubredditActions? = null,
     private val messageActions: MessageActions? = null,
@@ -103,7 +105,7 @@ class ListingItemAdapter(
                 if(commentActions == null){
                     throw IllegalStateException("Comment Actions not initialized")
                 }
-                (holder as CommentVH).bind(comment, commentActions, itemClickListener)
+                (holder as CommentVH).bind(comment, markwon, commentActions, itemClickListener)
             }
             R.layout.item_subreddit -> {
                 val subreddit = items[position] as Subreddit

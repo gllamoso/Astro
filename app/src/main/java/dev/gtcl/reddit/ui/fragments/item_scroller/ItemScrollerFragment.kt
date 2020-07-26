@@ -1,6 +1,7 @@
 package dev.gtcl.reddit.ui.fragments.item_scroller
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,6 +27,10 @@ import dev.gtcl.reddit.ui.fragments.PostPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
+import io.noties.markwon.AbstractMarkwonPlugin
+import io.noties.markwon.LinkResolverDef
+import io.noties.markwon.Markwon
+import io.noties.markwon.MarkwonConfiguration
 
 open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, MessageActions, SubredditActions, ItemClickListener{
 
@@ -39,6 +44,28 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     val model: ItemScrollerVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(ItemScrollerVM::class.java)
+    }
+
+    private val markwon: Markwon by lazy {
+        Markwon.builder(requireContext())
+            .usePlugin(object : AbstractMarkwonPlugin() {
+                override fun configureConfiguration(builder: MarkwonConfiguration.Builder) {
+                    builder.linkResolver(object : LinkResolverDef() {
+                        override fun resolve(view: View, link: String) {
+                            when(link.getUrlType()){
+                                UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
+                                UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
+                                UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
+                                UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
+                                UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
+                                UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
+                            }
+
+                        }
+                    })
+                }
+            })
+            .build()
     }
 
     private val activityModel: MainActivityVM by activityViewModels()
@@ -89,7 +116,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentItemScrollerBinding.inflate(inflater)
-        listAdapter = ListingItemAdapter(this, this, this, this, this, model::retry)
+        listAdapter = ListingItemAdapter(markwon, this, this, this, this, this, model::retry)
         scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadItems)
         binding.list.adapter = listAdapter
         binding.list.addOnScrollListener(scrollListener)
@@ -180,34 +207,32 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     override fun thumbnailClicked(post: Post, position: Int) {
         model.addReadItem(post)
-        when(val urlType = post.urlType){
-            UrlType.LINK -> {
-                navigationActions?.launchWebview(post.url!!)
-            }
+        Log.d("TAE", "Url clicked: ${post.url}")
+        when (val urlType: UrlType? = post.url?.getUrlType()) {
+            UrlType.OTHER -> navigationActions?.launchWebview(post.url)
+            null -> throw IllegalArgumentException("Post does not have URL")
             else -> {
-                if(urlType != null){
-                    val mediaType = when(urlType){
-                        UrlType.IMGUR_ALBUM -> MediaType.IMGUR_ALBUM
-                        UrlType.GIF -> MediaType.GIF
-                        UrlType.GFYCAT -> MediaType.GFYCAT
-                        UrlType.IMAGE -> MediaType.PICTURE
-                        UrlType.M3U8, UrlType.GIFV -> MediaType.VIDEO
-                        UrlType.LINK -> throw IllegalArgumentException("Invalid media type: $urlType")
-                    }
-                    val url = when(mediaType){
-                        MediaType.VIDEO -> post.previewVideoUrl!!
-                        else -> post.url!!
-                    }
-                    val backupUrl = when(mediaType){
-                        MediaType.GFYCAT -> post.previewVideoUrl
-                        else -> null
-                    }
-                    val dialog = MediaDialogFragment.newInstance(
-                        MediaURL(url, mediaType, backupUrl),
-                        PostPage(post, position)
-                    )
-                    dialog.show(parentFragmentManager, null)
+                val mediaType = when (urlType) {
+                    UrlType.IMGUR_ALBUM -> MediaType.IMGUR_ALBUM
+                    UrlType.GIF -> MediaType.GIF
+                    UrlType.GFYCAT -> MediaType.GFYCAT
+                    UrlType.IMAGE -> MediaType.PICTURE
+                    UrlType.HLS, UrlType.GIFV, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> MediaType.VIDEO
+                    UrlType.OTHER -> throw IllegalArgumentException("Invalid media type: $urlType")
                 }
+                val url = when (mediaType) {
+                    MediaType.VIDEO -> post.previewVideoUrl!!
+                    else -> post.url
+                }
+                val backupUrl = when (mediaType) {
+                    MediaType.GFYCAT -> post.previewVideoUrl
+                    else -> null
+                }
+                val dialog = MediaDialogFragment.newInstance(
+                    MediaURL(url, mediaType, backupUrl),
+                    PostPage(post, position)
+                )
+                dialog.show(parentFragmentManager, null)
             }
         }
     }

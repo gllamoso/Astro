@@ -17,7 +17,6 @@ import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
@@ -35,7 +34,6 @@ import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.ItemAwardBinding
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.fragments.subreddits.multireddit.MultiRedditSubredditsAdapter
-import java.lang.Integer.max
 
 
 @BindingAdapter("imageUrlAndHideIfNull")
@@ -250,40 +248,9 @@ fun loadListingText(txtView: TextView, listingType: ListingType?){
 }
 
 @BindingAdapter("listingType")
-fun setVisibility(viewGroup: ViewGroup, listingType: ListingType?){
-    if(listingType == null) return
-    viewGroup.visibility = if(listingType is SubredditListing) View.VISIBLE else View.GONE
-}
-
-@BindingAdapter("indent_item")
-fun setIndentation(view: View, listItem: Item?){
-    listItem?.let {
-        val depth = when(it){
-            is Comment -> it.depth ?: 0
-            is More -> it.depth
-            else -> 0
-        }
-
-        if (depth == 0) {
-            view.visibility = View.GONE
-            return
-        }
-        view.visibility = View.VISIBLE
-
-        val indicatorSize = view.context.resources.getDimension(R.dimen.comment_indicator_size)
-        val lp = LinearLayout.LayoutParams(indicatorSize.toInt(), LinearLayout.LayoutParams.MATCH_PARENT)
-        val leftMargin = 1.5 * indicatorSize * (depth - 1)
-        lp.setMargins(leftMargin.toInt(), 0, 0, 0)
-        view.layoutParams = lp
-
-        when(depth % 5){
-            0 -> view.setBackgroundColor(Color.BLUE)
-            1 -> view.setBackgroundColor(Color.RED)
-            2 -> view.setBackgroundColor(Color.GREEN)
-            3 -> view.setBackgroundColor(Color.YELLOW)
-            4 -> view.setBackgroundColor(Color.MAGENTA)
-        }
-    }
+fun setVisibility(viewGroup: ViewGroup, listingType: ListingType?) {
+    if (listingType == null) return
+    viewGroup.visibility = if (listingType is SubredditListing) View.VISIBLE else View.GONE
 }
 
 @BindingAdapter("indent")
@@ -291,10 +258,10 @@ fun setIndentation(linearLayout: LinearLayout, indent: Int){
     linearLayout.removeAllViews()
     val viewSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0.75F, linearLayout.context.resources.displayMetrics).toInt()
     val indentationSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8F, linearLayout.context.resources.displayMetrics).toInt()
+    val params = LinearLayout.LayoutParams(viewSize, WindowManager.LayoutParams.MATCH_PARENT).apply {
+        marginStart = indentationSize
+    }
     for(i in 1..indent){
-        val params = LinearLayout.LayoutParams(viewSize, WindowManager.LayoutParams.MATCH_PARENT).apply {
-            marginStart = indentationSize
-        }
         val view = View(linearLayout.context).apply {
             setBackgroundColor(Color.GRAY)
             layoutParams = params
@@ -328,10 +295,10 @@ fun setCommentInfo(view: LinearLayout, comment: Comment){
 
 @BindingAdapter("more_comment")
 fun setMoreCommentText(textView: TextView, item: More){
-    if(item.isContinueThreadLink())
+    if(item.isContinueThreadLink)
         textView.text = textView.resources.getString(R.string.continue_to_thread)
     else
-        textView.text = String.format(textView.resources.getText(R.string.more_replies).toString(), item.count)
+        textView.text = String.format(textView.resources.getText(R.string.more_replies).toString(), item.queueSize())
 }
 
 @BindingAdapter("timestamp")

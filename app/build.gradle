@@ -110,4 +110,7 @@ dependencies {
 
     // Chrome Tabs
     implementation "com.android.support:customtabs:28.0.0"
+
+    // Markwon
+    implementation "io.noties.markwon:core:4.4.0"
 }

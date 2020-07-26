@@ -2,6 +2,7 @@ package dev.gtcl.reddit.ui.fragments.listing
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.PopupMenu
 import android.widget.Toast
@@ -35,6 +36,10 @@ import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.SortDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.TimeDialogFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsDialogFragment
+import io.noties.markwon.AbstractMarkwonPlugin
+import io.noties.markwon.LinkResolverDef
+import io.noties.markwon.Markwon
+import io.noties.markwon.MarkwonConfiguration
 
 class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeClickListener,
     ItemClickListener, LeftDrawerActions, SortActions {
@@ -50,6 +55,28 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     }
 
     private val activityModel: MainActivityVM by activityViewModels()
+
+    private val markwon: Markwon by lazy {
+        Markwon.builder(requireContext())
+            .usePlugin(object : AbstractMarkwonPlugin() {
+                override fun configureConfiguration(builder: MarkwonConfiguration.Builder) {
+                    builder.linkResolver(object : LinkResolverDef() {
+                        override fun resolve(view: View, link: String) {
+                            when(link.getUrlType()){
+                                UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
+                                UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
+                                UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
+                                UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
+                                UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
+                                UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
+                            }
+
+                        }
+                    })
+                }
+            })
+            .build()
+    }
 
     fun setActions(
         viewPagerActions: ViewPagerActions,
@@ -79,7 +106,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentListingBinding.inflate(inflater)
-        binding.lifecycleOwner = this
+        binding.lifecycleOwner = viewLifecycleOwner
         binding.model = model
         setListingInfo()
 
@@ -116,6 +143,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 
     private fun setRecyclerView() {
         val adapter = ListingItemAdapter(
+            markwon,
             postActions = this,
             itemClickListener = this,
             retry = model::retry
@@ -133,7 +161,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             if (it != null) {
                 val prevCount = adapter.itemCount
                 adapter.setItems(it)
-                if(prevCount >= it.size){
+                if (prevCount >= it.size) {
                     binding.list.scrollToPosition(0)
                 }
                 scrollListener.finishedLoading()
@@ -157,7 +185,10 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             }
         })
 
-        parentFragmentManager.setFragmentResultListener(POST_BUNDLE_KEY, viewLifecycleOwner){ _, bundle ->
+        parentFragmentManager.setFragmentResultListener(
+            POST_BUNDLE_KEY,
+            viewLifecycleOwner
+        ) { _, bundle ->
             val post = bundle.get(POST_KEY) as Post
             val position = bundle.get(POSITION_KEY) as Int
             model.updateItem(post, position)
@@ -248,10 +279,14 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             popupMenu.inflate(R.menu.listing_more_menu)
             popupMenu.forceIcons()
             popupMenu.setOnMenuItemClickListener { menuItem ->
-                when(menuItem.itemId){
+                when (menuItem.itemId) {
                     R.id.post -> {
                         val subredditName = model.subreddit.value?.displayName
-                        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToCreatePostFragment(subredditName))
+                        findNavController().navigate(
+                            ViewPagerFragmentDirections.actionViewPagerFragmentToCreatePostFragment(
+                                subredditName
+                            )
+                        )
                     }
                 }
                 true
@@ -285,7 +320,11 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     }
 
     override fun viewProfile(post: Post) {
-        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(post.author)))
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                AccountPage(post.author)
+            )
+        )
     }
 
     override fun save(post: Post) {
@@ -294,7 +333,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 
     override fun hide(post: Post, position: Int) {
         activityModel.hide(post.name, post.hidden)
-        if(post.hidden){
+        if (post.hidden) {
             model.removeItemAt(position)
         }
     }
@@ -304,36 +343,32 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     }
 
     override fun thumbnailClicked(post: Post, position: Int) {
-
         model.addReadItem(post)
-        when(val urlType = post.urlType){
-            UrlType.LINK -> {
-                navigationActions?.launchWebview(post.url!!)
-            }
+        when (val urlType: UrlType? = post.url?.getUrlType()) {
+            UrlType.OTHER -> navigationActions?.launchWebview(post.url)
+            null -> throw IllegalArgumentException("Post does not have URL")
             else -> {
-                if(urlType != null){
-                    val mediaType = when(urlType){
-                        UrlType.IMGUR_ALBUM -> MediaType.IMGUR_ALBUM
-                        UrlType.GIF -> MediaType.GIF
-                        UrlType.GFYCAT -> MediaType.GFYCAT
-                        UrlType.IMAGE -> MediaType.PICTURE
-                        UrlType.M3U8, UrlType.GIFV -> MediaType.VIDEO
-                        UrlType.LINK -> throw IllegalArgumentException("Invalid media type: $urlType")
-                    }
-                    val url = when(mediaType){
-                        MediaType.VIDEO -> post.previewVideoUrl!!
-                        else -> post.url!!
-                    }
-                    val backupUrl = when(mediaType){
-                        MediaType.GFYCAT -> post.previewVideoUrl
-                        else -> null
-                    }
-                    val dialog = MediaDialogFragment.newInstance(
-                        MediaURL(url, mediaType, backupUrl),
-                        PostPage(post, position)
-                    )
-                    dialog.show(parentFragmentManager, null)
+                val mediaType = when (urlType) {
+                    UrlType.IMGUR_ALBUM -> MediaType.IMGUR_ALBUM
+                    UrlType.GIF -> MediaType.GIF
+                    UrlType.GFYCAT -> MediaType.GFYCAT
+                    UrlType.IMAGE -> MediaType.PICTURE
+                    UrlType.HLS, UrlType.GIFV, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> MediaType.VIDEO
+                    UrlType.OTHER -> throw IllegalArgumentException("Invalid media type: $urlType")
                 }
+                val url = when (mediaType) {
+                    MediaType.VIDEO -> post.previewVideoUrl!!
+                    else -> post.url
+                }
+                val backupUrl = when (mediaType) {
+                    MediaType.GFYCAT -> post.previewVideoUrl
+                    else -> null
+                }
+                val dialog = MediaDialogFragment.newInstance(
+                    MediaURL(url, mediaType, backupUrl),
+                    PostPage(post, position)
+                )
+                dialog.show(parentFragmentManager, null)
             }
         }
     }
@@ -376,7 +411,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 //    |_____|\__\___|_| |_| |_|  \_____|_|_|\___|_|\_\ |______|_|___/\__\___|_| |_|\___|_|
 
     override fun itemClicked(item: Item, position: Int) {
-        if(item is Post){
+        if (item is Post) {
             viewPagerActions?.navigateToComments(item, position)
         }
     }
