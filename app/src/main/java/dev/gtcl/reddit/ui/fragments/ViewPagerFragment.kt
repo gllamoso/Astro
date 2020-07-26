@@ -91,15 +91,13 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
 
-//        childFragmentManager.setFragmentResultListener(POST_KEY, viewLifecycleOwner){ _, bundle ->
-//            val post = bundle.get(POST_KEY) as Post
-//            pageAdapter.addPostPage(post, -1)
-//        }
-//
-//        childFragmentManager.setFragmentResultListener(POST_PAGE_KEY, viewLifecycleOwner){ _, bundle ->
-//            val postPage = bundle.get(POST_PAGE_KEY) as PostPage
-//            pageAdapter.addPage(postPage)
-//        }
+        model.continueThread.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                pageAdapter.addPage(ContinueThreadPage(it))
+                navigateNext()
+                model.continueThreadObserved()
+            }
+        })
 
         activityModel.newPage.observe(viewLifecycleOwner, Observer {
             if(it != null){

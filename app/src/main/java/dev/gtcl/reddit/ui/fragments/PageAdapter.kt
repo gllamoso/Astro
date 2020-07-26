@@ -1,6 +1,7 @@
 package dev.gtcl.reddit.ui.fragments
 
 import android.os.Parcelable
+import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import dev.gtcl.reddit.models.reddit.listing.ListingType
@@ -22,6 +23,7 @@ class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
             is ListingPage -> ListingFragment.newInstance(pageType.listingType)
             is AccountPage -> AccountFragment.newInstance(pageType.user)
             is PostPage -> CommentsFragment.newInstance(pageType)
+            is ContinueThreadPage -> CommentsFragment.newInstance(pageType.url)
             is MessagesPage -> MessagesFragment()
         }
     }
@@ -49,7 +51,7 @@ class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
     fun popFragmentsGreaterThanPosition(currentPage: Int){
         val itemsRemoved = pageStack.lastIndex - currentPage
         pageStack.subList(currentPage + 1, pageStack.size).clear()
-        notifyItemRangeRemoved(pageStack.lastIndex, itemsRemoved)
+        notifyItemRangeRemoved(pageStack.lastIndex + 1, itemsRemoved)
     }
 
     fun getPageStack(): ArrayList<ViewPagerPage> = pageStack
@@ -72,6 +74,10 @@ class AccountPage(
 class PostPage(
     val post: Post,
     val position: Int
+): ViewPagerPage()
+@Parcelize
+class ContinueThreadPage(
+    val url: String
 ): ViewPagerPage()
 @Parcelize
 object MessagesPage: ViewPagerPage()

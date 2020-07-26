@@ -26,8 +26,6 @@ class MediaListFragment : Fragment(){
         ViewModelProviders.of(requireParentFragment()).get(MediaDialogVM::class.java)
     }
 
-    private val activityModel: MainActivityVM by activityViewModels()
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

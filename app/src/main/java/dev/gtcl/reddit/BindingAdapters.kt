@@ -256,7 +256,7 @@ fun setVisibility(viewGroup: ViewGroup, listingType: ListingType?) {
 @BindingAdapter("indent")
 fun setIndentation(linearLayout: LinearLayout, indent: Int){
     linearLayout.removeAllViews()
-    val viewSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 0.75F, linearLayout.context.resources.displayMetrics).toInt()
+    val viewSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, .90F, linearLayout.context.resources.displayMetrics).toInt()
     val indentationSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8F, linearLayout.context.resources.displayMetrics).toInt()
     val params = LinearLayout.LayoutParams(viewSize, WindowManager.LayoutParams.MATCH_PARENT).apply {
         marginStart = indentationSize

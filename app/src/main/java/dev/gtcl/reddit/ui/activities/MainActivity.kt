@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.ActivityCompat
+import androidx.core.content.ContentProviderCompat.requireContext
 import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
@@ -36,11 +37,10 @@ class MainActivity : FragmentActivity() {
                 } else {
                     it
                 }
-                Log.d("TAE", "Url: $url")
                 val intent = CustomTabsIntent.Builder().apply {
-//              TODO: Add Animations
-//              setStartAnimations(requireContext(), R.anim.slide_right, R.anim.slide_right)
-//              setExitAnimations(requireContext(), R.anim.slide_left, R.anim.slide_left)
+//                  TODO: Add Animations
+//                    setStartAnimations(this@MainActivity, R.anim.slide_right, R.anim.slide_right)
+//                    setExitAnimations(this@MainActivity, R.anim.slide_left, R.anim.slide_left)
                 }.build()
                 intent.launchUrl(this, Uri.parse(url))
                 model.chromeTabOpened()

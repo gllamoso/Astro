@@ -13,6 +13,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -34,7 +35,9 @@ import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.AccountPage
 import dev.gtcl.reddit.ui.fragments.PostPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
+import dev.gtcl.reddit.ui.fragments.ViewPagerVM
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
+import dev.gtcl.reddit.ui.fragments.media.MediaDialogVM
 import io.noties.markwon.*
 import io.noties.markwon.core.spans.LinkSpan
 
@@ -44,6 +47,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
         val viewModelFactory =
             ViewModelFactory(requireContext().applicationContext as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(CommentsVM::class.java)
+    }
+
+    private val viewPagerModel: ViewPagerVM by lazy {
+        ViewModelProviders.of(requireParentFragment()).get(ViewPagerVM::class.java)
     }
 
     private val activityModel: MainActivityVM by activityViewModels()
@@ -148,7 +155,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
                 }
             }
         })
-        behavior.state = BottomSheetBehavior.STATE_COLLAPSED
 
         binding.bottomSheet.toolbar.setOnMenuItemClickListener {
             if (it.itemId == R.id.reply && model.post.value != null) {
@@ -244,7 +250,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
                     }
                 }
             } else {
-                model.fetchPostAndComments(url!!.replace("https://www.reddit.com/", ""))
+                model.fetchPostAndComments(url!!.replace("http[s]?://www\\.reddit\\.com/".toRegex(), ""))
+                BottomSheetBehavior.from(binding.bottomSheet.bottomSheet).state = BottomSheetBehavior.STATE_EXPANDED
             }
         }
     }
@@ -358,6 +365,16 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
         TODO("Not yet implemented")
     }
 
+    override fun itemClicked(item: Item, position: Int) {
+        if (item is More) {
+            if (item.isContinueThreadLink) {
+                viewPagerModel.continueThread("${model.post.value!!.permalink}${item.parentId.replace("t1_", "")}")
+            } else {
+                model.fetchMoreComments(position)
+            }
+        }
+    }
+
     companion object {
         fun newInstance(postPage: PostPage): CommentsFragment {
             val fragment = CommentsFragment()
@@ -371,16 +388,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
             val args = bundleOf(URL_KEY to url)
             fragment.arguments = args
             return fragment
-        }
-    }
-
-    override fun itemClicked(item: Item, position: Int) {
-        if (item is More) {
-            if (item.isContinueThreadLink) {
-                TODO("Implement Continue Thread")
-            } else {
-                model.fetchMoreComments(position)
-            }
         }
     }
 }
