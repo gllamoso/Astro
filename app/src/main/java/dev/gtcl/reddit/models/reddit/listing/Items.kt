@@ -3,6 +3,7 @@ package dev.gtcl.reddit.models.reddit.listing
 import android.net.Uri
 import android.os.Parcelable
 import android.util.Log
+import android.webkit.URLUtil
 import androidx.lifecycle.ViewModelProvider
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
@@ -175,7 +176,13 @@ data class Post(
     val postType: PostType
         get(){
             return when{
-                isSelf -> PostType.TEXT
+                isSelf -> {
+                    if(URLUtil.isValidUrl(selftext)){
+                        PostType.TEXT_URL
+                    } else{
+                        PostType.TEXT
+                    }
+                }
                 GIF_REGEX.matches(url ?: "") -> PostType.GIF
                 IMAGE_REGEX.matches(url ?: "") -> PostType.IMAGE
                 previewVideoUrl != null || GFYCAT_REGEX.matches(url ?: "") || HLS_REGEX.matches(url ?: "") || GIFV_REGEX.matches(url ?: "") -> PostType.VIDEO
@@ -187,6 +194,8 @@ data class Post(
 enum class PostType{
     @SerializedName("self")
     TEXT,
+    @SerializedName("self_url")
+    TEXT_URL,
     @SerializedName("image")
     IMAGE,
     @SerializedName("videogif")

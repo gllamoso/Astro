@@ -53,6 +53,15 @@
             app:setViewSize="@{75}"
             app:zoomEnabled="true"/>
 
+        <include
+            android:id="@+id/thumbnail_with_url_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            layout="@layout/layout_url_with_thumbnail"
+            app:thumbnailUrl="@{post.thumbnail}"
+            app:url="@{(post.postType == PostType.TEXT_URL) ? post.selftext : post.url}"
+            android:visibility="@{(post.postType == PostType.URL || post.postType == PostType.TEXT_URL) ? View.VISIBLE : View.GONE}"/>
+
     </FrameLayout>
 
 </layout>

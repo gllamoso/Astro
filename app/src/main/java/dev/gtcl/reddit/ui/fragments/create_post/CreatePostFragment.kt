@@ -261,6 +261,7 @@ class CreatePostFragment : Fragment(){
                         sub,
                         title,
                         it,
+                        binding.getNotificationsChip.isChecked,
                         binding.nsfwChip.isChecked,
                         binding.spoilerChip.isChecked,
                     true)

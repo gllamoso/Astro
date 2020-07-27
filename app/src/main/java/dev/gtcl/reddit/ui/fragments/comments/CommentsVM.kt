@@ -83,13 +83,18 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
     }
 
     fun fetchMoreComments(position: Int){
+        if(_loading.value == true){
+            return
+        }
+
         coroutineScope.launch {
+            _loading.value = true
             val moreItem = _comments.value?.get(position)
             if(moreItem == null || moreItem !is More){
                 throw IllegalArgumentException("Invalid more item: $moreItem")
             }
             val children = moreItem.pollChildrenAsValidString(CHILDREN_PER_FETCH)
-            val comments = listingRepository.getMoreComments(children, post.value!!.name, CommentSort.BEST).await().json.data.things.map { it.data }
+            val comments = listingRepository.getMoreComments(children, post.value!!.name, CommentSort.BEST).await().json.data.things.map { it.data }.filter { !(it is More && it.depth == 0) }
             _moreComments.value = MoreComments(
                 position,
                 comments
@@ -98,6 +103,7 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
                 _comments.value?.removeAt(position)
             }
             _comments.value?.addAll(position, comments)
+            _loading.value = false
         }
     }
 

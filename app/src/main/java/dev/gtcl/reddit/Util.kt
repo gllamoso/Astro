@@ -5,6 +5,7 @@ import android.net.Uri
 import android.os.Parcelable
 import android.util.Base64
 import android.util.Log
+import android.webkit.URLUtil
 import android.widget.PopupMenu
 import androidx.lifecycle.MutableLiveData
 import com.google.android.exoplayer2.source.MediaSource

@@ -235,9 +235,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     PostType.IMAGE -> initSubsamplingImageView(postPage.post)
                     PostType.GIF -> initGifToImageView(postPage.post)
                     PostType.VIDEO -> initVideoPlayer(postPage.post)
-                    else -> {
-                        markwon.setMarkdown(binding.content.contentText, postPage.post.selftext)
-                    }
+                    PostType.TEXT -> markwon.setMarkdown(binding.content.contentText, postPage.post.selftext)
+                    PostType.URL -> initUrlPreview(postPage.post)
                 }
             } else {
                 model.fetchPostAndComments(url!!.replace("http[s]?://www\\.reddit\\.com/".toRegex(), ""))
@@ -304,6 +303,12 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
             })
             .into(binding.content.imageView)
+    }
+
+    private fun initUrlPreview(post: Post){
+        binding.content.thumbnailWithUrlLayout.root.setOnClickListener {
+            handleLink(post.url ?: "")
+        }
     }
 
     private fun initVideoPlayer(post: Post) {

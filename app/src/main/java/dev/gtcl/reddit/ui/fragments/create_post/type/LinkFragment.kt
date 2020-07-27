@@ -7,6 +7,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.URLUtil
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
@@ -48,10 +49,14 @@ class LinkFragment: Fragment() {
     private fun initObservers(){
         model.fetchData.observe(viewLifecycleOwner, Observer {
             if(it == true){
-                if(binding.urlText.text.isNullOrEmpty()){
+                val text = binding.urlText.text.toString()
+                if(text.isNullOrEmpty()){
                     binding.textInputLayout.error = getString(R.string.required)
                 } else {
                     try{
+                        if(!URLUtil.isValidUrl(text)){
+                            throw Exception()
+                        }
                         val url = URL(binding.urlText.text.toString())
                         model.setPostContent(LinkPost(url))
                     } catch(e: Exception){
