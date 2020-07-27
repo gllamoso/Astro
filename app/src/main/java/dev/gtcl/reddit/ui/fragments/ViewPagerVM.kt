@@ -7,16 +7,16 @@ class ViewPagerVM(private val application: RedditApplication): AndroidViewModel(
     var isViewPagerSwipeEnabled = false
     var pages: ArrayList<ViewPagerPage>? = null
 
-    private val _continueThread = MutableLiveData<String?>()
 
-    val continueThread: LiveData<String?>
-        get() = _continueThread
+    private val _newPage = MutableLiveData<ViewPagerPage?>()
+    val newPage: LiveData<ViewPagerPage?>
+        get() = _newPage
 
-    fun continueThreadObserved(){
-        _continueThread.value = null
+    fun newPage(page: ViewPagerPage){
+        _newPage.value = page
     }
 
-    fun continueThread(url: String){
-        _continueThread.value = url
+    fun newPageObserved(){
+        _newPage.value = null
     }
 }

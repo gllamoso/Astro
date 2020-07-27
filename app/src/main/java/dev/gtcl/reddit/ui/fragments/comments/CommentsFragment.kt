@@ -27,21 +27,19 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.actions.CommentActions
 import dev.gtcl.reddit.actions.ItemClickListener
+import dev.gtcl.reddit.actions.LinkHandler
 import dev.gtcl.reddit.databinding.FragmentCommentsBinding
 import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.activities.MainActivityVM
-import dev.gtcl.reddit.ui.fragments.AccountPage
-import dev.gtcl.reddit.ui.fragments.PostPage
-import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
-import dev.gtcl.reddit.ui.fragments.ViewPagerVM
+import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogVM
 import io.noties.markwon.*
 import io.noties.markwon.core.spans.LinkSpan
 
-class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
+class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler {
 
     private val model: CommentsVM by lazy {
         val viewModelFactory =
@@ -65,15 +63,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
                 override fun configureConfiguration(builder: MarkwonConfiguration.Builder) {
                     builder.linkResolver(object : LinkResolverDef() {
                         override fun resolve(view: View, link: String) {
-                            when(link.getUrlType()){
-                                UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
-                                UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
-                                UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
-                                UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
-                                UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
-                                UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
-                            }
-
+                            handleLink(link)
                         }
                     })
                 }
@@ -368,7 +358,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
     override fun itemClicked(item: Item, position: Int) {
         if (item is More) {
             if (item.isContinueThreadLink) {
-                viewPagerModel.continueThread("${model.post.value!!.permalink}${item.parentId.replace("t1_", "")}")
+                viewPagerModel.newPage(ContinueThreadPage("${model.post.value!!.permalink}${item.parentId.replace("t1_", "")}"))
             } else {
                 model.fetchMoreComments(position)
             }
@@ -388,6 +378,18 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener {
             val args = bundleOf(URL_KEY to url)
             fragment.arguments = args
             return fragment
+        }
+    }
+
+    override fun handleLink(link: String) {
+        when(link.getUrlType()){
+            UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
+            UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
+            UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
+            UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
+            UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
+            UrlType.REDDIT_COMMENTS -> viewPagerModel.newPage(ContinueThreadPage(link))
+            UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
         }
     }
 }

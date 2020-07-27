@@ -340,6 +340,7 @@ val GFYCAT_REGEX =  "https[s]?://(www\\.)?gfycat.com/\\w+".toRegex()
 val HLS_REGEX = "https[s]?://.+/HLSPlaylist\\.m3u8.*".toRegex()
 val REDDIT_VIDEO_REGEX = "https[s]?://v.redd.it/\\w+".toRegex()
 val STANDARD_VIDEO = "https[s]?://.+\\.(mp4)".toRegex()
+val REDDIT_COMMENTS_REGEX = "http[s]?://www\\.reddit\\.com/r/\\w+/comments/.+".toRegex()
 
 @Parcelize
 enum class UrlType: Parcelable {
@@ -351,6 +352,7 @@ enum class UrlType: Parcelable {
     REDDIT_VIDEO,
     STANDARD_VIDEO,
     IMGUR_ALBUM,
+    REDDIT_COMMENTS,
     OTHER
 }
 
@@ -365,6 +367,7 @@ fun String.getUrlType(): UrlType{
         HLS_REGEX.matches(this) -> UrlType.HLS
         REDDIT_VIDEO_REGEX.matches(this) -> UrlType.REDDIT_VIDEO
         STANDARD_VIDEO.matches(this) -> UrlType.STANDARD_VIDEO
+        REDDIT_COMMENTS_REGEX.matches(this) -> UrlType.REDDIT_COMMENTS
         else -> UrlType.OTHER
     }
 }

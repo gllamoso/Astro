@@ -91,11 +91,11 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
 
-        model.continueThread.observe(viewLifecycleOwner, Observer {
+        model.newPage.observe(viewLifecycleOwner, Observer {
             if(it != null){
-                pageAdapter.addPage(ContinueThreadPage(it))
+                pageAdapter.addPage(it)
                 navigateNext()
-                model.continueThreadObserved()
+                model.newPageObserved()
             }
         })
 

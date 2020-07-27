@@ -14,6 +14,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.snackbar.Snackbar
@@ -28,9 +29,7 @@ import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.activities.MainDrawerAdapter
-import dev.gtcl.reddit.ui.fragments.AccountPage
-import dev.gtcl.reddit.ui.fragments.PostPage
-import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
+import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.SortDialogFragment
@@ -42,7 +41,7 @@ import io.noties.markwon.Markwon
 import io.noties.markwon.MarkwonConfiguration
 
 class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeClickListener,
-    ItemClickListener, LeftDrawerActions, SortActions {
+    ItemClickListener, LeftDrawerActions, SortActions, LinkHandler {
 
     private lateinit var binding: FragmentListingBinding
     private lateinit var scrollListener: ItemScrollListener
@@ -54,6 +53,10 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
         ViewModelProvider(this, viewModelFactory).get(ListingVM::class.java)
     }
 
+    private val viewPagerModel: ViewPagerVM by lazy {
+        ViewModelProviders.of(requireParentFragment()).get(ViewPagerVM::class.java)
+    }
+
     private val activityModel: MainActivityVM by activityViewModels()
 
     private val markwon: Markwon by lazy {
@@ -62,15 +65,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
                 override fun configureConfiguration(builder: MarkwonConfiguration.Builder) {
                     builder.linkResolver(object : LinkResolverDef() {
                         override fun resolve(view: View, link: String) {
-                            when(link.getUrlType()){
-                                UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
-                                UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
-                                UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
-                                UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
-                                UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
-                                UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
-                            }
-
+                            handleLink(link)
                         }
                     })
                 }
@@ -354,7 +349,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
                     UrlType.GFYCAT -> MediaType.GFYCAT
                     UrlType.IMAGE -> MediaType.PICTURE
                     UrlType.HLS, UrlType.GIFV, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> MediaType.VIDEO
-                    UrlType.OTHER -> throw IllegalArgumentException("Invalid media type: $urlType")
+                    else -> throw IllegalArgumentException("Invalid media type: $urlType")
                 }
                 val url = when (mediaType) {
                     MediaType.VIDEO -> post.previewVideoUrl!!
@@ -497,6 +492,18 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             return ListingFragment().apply {
                 arguments = bundleOf(LISTING_KEY to listing)
             }
+        }
+    }
+
+    override fun handleLink(link: String) {
+        when(link.getUrlType()){
+            UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
+            UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
+            UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
+            UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
+            UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
+            UrlType.REDDIT_COMMENTS -> viewPagerModel.newPage(ContinueThreadPage(link))
+            UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
         }
     }
 

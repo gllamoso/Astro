@@ -32,7 +32,7 @@ import io.noties.markwon.LinkResolverDef
 import io.noties.markwon.Markwon
 import io.noties.markwon.MarkwonConfiguration
 
-open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, MessageActions, SubredditActions, ItemClickListener{
+open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, MessageActions, SubredditActions, ItemClickListener, LinkHandler{
 
     private lateinit var binding: FragmentItemScrollerBinding
     private lateinit var scrollListener: ItemScrollListener
@@ -52,15 +52,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                 override fun configureConfiguration(builder: MarkwonConfiguration.Builder) {
                     builder.linkResolver(object : LinkResolverDef() {
                         override fun resolve(view: View, link: String) {
-                            when(link.getUrlType()){
-                                UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
-                                UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
-                                UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
-                                UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
-                                UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
-                                UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
-                            }
-
+                            handleLink(link)
                         }
                     })
                 }
@@ -218,7 +210,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                     UrlType.GFYCAT -> MediaType.GFYCAT
                     UrlType.IMAGE -> MediaType.PICTURE
                     UrlType.HLS, UrlType.GIFV, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> MediaType.VIDEO
-                    UrlType.OTHER -> throw IllegalArgumentException("Invalid media type: $urlType")
+                    else -> throw IllegalArgumentException("Invalid media type: $urlType")
                 }
                 val url = when (mediaType) {
                     MediaType.VIDEO -> post.previewVideoUrl!!
@@ -356,6 +348,18 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             return fragment
         }
 
+    }
+
+    override fun handleLink(link: String) {
+        when(link.getUrlType()){
+            UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
+            UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
+            UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
+            UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
+            UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
+            UrlType.REDDIT_COMMENTS -> TODO("Need to be implemented")
+            UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
+        }
     }
 
 
