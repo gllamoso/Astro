@@ -37,13 +37,8 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     private lateinit var binding: FragmentItemScrollerBinding
 
-    private val scrollListener: ItemScrollListener by lazy{
-        ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadMore)
-    }
-
-    private val listAdapter: ListingItemAdapter by lazy {
-        ListingItemAdapter(markwon, this, this, this, this, this, model::retry)
-    }
+    private lateinit var scrollListener: ItemScrollListener
+    private lateinit var listAdapter: ListingItemAdapter
 
     private var viewPagerActions: ViewPagerActions? = null
     private var navigationActions: NavigationActions? = null
@@ -123,8 +118,12 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             model.loadFirstItems()
         }
 
-        binding.list.adapter = listAdapter
-        binding.list.addOnScrollListener(scrollListener)
+        listAdapter = ListingItemAdapter(markwon, this, this, this, this, this, model::retry)
+        scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadMore)
+        binding.list.apply {
+            adapter = listAdapter
+            addOnScrollListener(scrollListener)
+        }
         setSwipeRefresh()
         setObservers()
 

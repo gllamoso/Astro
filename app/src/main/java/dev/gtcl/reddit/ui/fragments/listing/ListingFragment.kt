@@ -71,22 +71,8 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             .build()
     }
 
-    private val scrollListener: ItemScrollListener by lazy{
-        ItemScrollListener(
-            15,
-            binding.list.layoutManager as GridLayoutManager,
-            model::loadMore
-        )
-    }
-
-    private val listAdapter: ListingItemAdapter by lazy{
-        ListingItemAdapter(
-            markwon,
-            postActions = this,
-            itemClickListener = this,
-            retry = model::retry
-        )
-    }
+    private lateinit var scrollListener: ItemScrollListener
+    private lateinit var listAdapter: ListingItemAdapter
 
     fun setActions(
         viewPagerActions: ViewPagerActions,
@@ -118,9 +104,9 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
         binding = FragmentListingBinding.inflate(inflater)
         binding.lifecycleOwner = viewLifecycleOwner
         binding.model = model
-        setListingInfo()
 
         if (!model.initialPageLoaded) {
+            setListingInfo()
             model.loadFirstItems()
         }
 
@@ -152,7 +138,8 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     }
 
     private fun setList() {
-
+        scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadMore)
+        listAdapter = ListingItemAdapter(markwon, postActions = this, itemClickListener = this, retry = model::retry)
         binding.list.apply {
             this.adapter = listAdapter
             addOnScrollListener(scrollListener)
