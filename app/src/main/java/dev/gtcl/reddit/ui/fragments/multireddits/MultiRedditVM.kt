@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.subreddits.multireddit
+package dev.gtcl.reddit.ui.fragments.multireddits
 
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData

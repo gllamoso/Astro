@@ -6,7 +6,7 @@
     <data>
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.fragments.subreddits.multireddit.MultiRedditVM" />
+            type="dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditVM" />
         <import type="android.view.View"/>
     </data>
 

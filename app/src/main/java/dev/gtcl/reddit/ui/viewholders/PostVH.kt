@@ -8,6 +8,7 @@ import android.widget.PopupWindow
 import android.widget.RelativeLayout
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.Vote
+import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.databinding.ItemPostBinding
 import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.databinding.LayoutPopupPostOptionsBinding
@@ -15,29 +16,27 @@ import dev.gtcl.reddit.models.reddit.listing.Post
 
 class PostVH private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
-    fun bind(post: Post?, postActions: PostActions, hideAction: ((Int) -> Unit), postClicked: (Post, Int) -> Unit){
+    fun bind(post: Post, postActions: PostActions, itemClickListener: ItemClickListener) {
         binding.post = post
         binding.executePendingBindings()
         binding.rootLayout.setOnClickListener {
-            post?.isRead = true
+            post.isRead = true
             binding.invalidateAll()
-            postClicked(post!!, adapterPosition)
+            itemClickListener.itemClicked(post, adapterPosition)
         }
 
         binding.thumbnail.setOnClickListener{
-            post?.isRead = true
+            post.isRead = true
             binding.invalidateAll()
-            postActions.thumbnailClicked(post!!, adapterPosition)
+            postActions.thumbnailClicked(post, adapterPosition)
         }
 
-        if(post != null){
-            binding.moreOptions.setOnClickListener {
-                showPopupWindow(post, postActions, it, hideAction)
-            }
+        binding.moreOptions.setOnClickListener {
+            showPopupWindow(post, postActions, it)
         }
     }
 
-    private fun showPopupWindow(post: Post, postActions: PostActions, anchorView: View, hideAction: ((Int) -> Unit)){
+    private fun showPopupWindow(post: Post, postActions: PostActions, anchorView: View){
         val inflater = anchorView.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = LayoutPopupPostOptionsBinding.inflate(inflater)
         val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
@@ -80,7 +79,6 @@ class PostVH private constructor(private val binding:ItemPostBinding)
             hideButton.root.setOnClickListener {
                 post.hidden = !post.hidden
                 postActions.hide(post, adapterPosition)
-                hideAction(adapterPosition)
                 popupWindow.dismiss()
             }
             reportButton.root.setOnClickListener {

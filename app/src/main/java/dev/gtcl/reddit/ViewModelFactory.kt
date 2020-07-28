@@ -17,8 +17,8 @@ import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
 import dev.gtcl.reddit.ui.fragments.signin.SignInVM
 import dev.gtcl.reddit.ui.fragments.splash.SplashVM
 import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsVM
-import dev.gtcl.reddit.ui.fragments.subreddits.multireddit.MultiRedditVM
-import dev.gtcl.reddit.ui.fragments.subreddits.search.SearchVM
+import dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditVM
+import dev.gtcl.reddit.ui.fragments.search.SearchVM
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingListVM
 import java.lang.IllegalArgumentException
 

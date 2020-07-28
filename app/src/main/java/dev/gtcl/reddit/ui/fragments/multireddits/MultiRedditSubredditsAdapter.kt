@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.subreddits.multireddit
+package dev.gtcl.reddit.ui.fragments.multireddits
 
 import android.view.LayoutInflater
 import android.view.ViewGroup
@@ -26,6 +26,8 @@ class MultiRedditSubredditsAdapter(private val onSubredditRemovedListener: OnSub
         }
 
     }
+
+
 
     class MultiRedditSubredditVH private constructor(private val binding: ItemSubredditInMultiredditBinding): RecyclerView.ViewHolder(binding.root){
 

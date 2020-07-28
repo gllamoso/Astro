@@ -1,7 +1,6 @@
-package dev.gtcl.reddit.ui.fragments.subreddits.multireddit
+package dev.gtcl.reddit.ui.fragments.multireddits
 
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment

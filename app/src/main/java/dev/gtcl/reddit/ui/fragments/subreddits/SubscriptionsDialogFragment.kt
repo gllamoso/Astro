@@ -2,18 +2,15 @@ package dev.gtcl.reddit.ui.fragments.subreddits
 
 import android.app.AlertDialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.MULTI_KEY
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
@@ -24,12 +21,11 @@ import dev.gtcl.reddit.actions.SubscriptionActions
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.FragmentDialogSubscriptionsBinding
 import dev.gtcl.reddit.models.reddit.listing.ListingType
-import dev.gtcl.reddit.models.reddit.listing.MultiReddit
 import dev.gtcl.reddit.models.reddit.listing.MultiRedditUpdate
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
-import dev.gtcl.reddit.ui.fragments.subreddits.multireddit.MultiRedditDetailsDialogFragment
+import dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditDetailsDialogFragment
 
 class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActions, ListingTypeClickListener{
 

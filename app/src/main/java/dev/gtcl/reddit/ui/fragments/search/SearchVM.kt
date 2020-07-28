@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.subreddits.search
+package dev.gtcl.reddit.ui.fragments.search
 
 import android.util.Log
 import androidx.lifecycle.AndroidViewModel
@@ -7,7 +7,6 @@ import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.SubredditWhere
 import dev.gtcl.reddit.minusAssign
-import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.SubredditChild
 import dev.gtcl.reddit.network.NetworkState
@@ -39,9 +38,13 @@ class SearchVM(application: RedditApplication) : AndroidViewModel(application){
     val errorMessage: LiveData<String>
         get() = _errorMessage
 
-    private val _popularItems = MutableLiveData<ArrayList<Item>>().apply { value = arrayListOf() }
-    val popularItems: LiveData<ArrayList<Item>>
+    private val _popularItems = MutableLiveData<MutableList<Item>>().apply { value = arrayListOf() }
+    val popularItems: LiveData<MutableList<Item>>
         get() = _popularItems
+
+    private val _morePopularItems = MutableLiveData<List<Item>?>()
+    val morePopularItems: LiveData<List<Item>?>
+        get() = _morePopularItems
 
     private val _lastItemReached = MutableLiveData<Boolean>()
     val lastItemReached: LiveData<Boolean>
@@ -98,6 +101,24 @@ class SearchVM(application: RedditApplication) : AndroidViewModel(application){
         results.addAll(subs)
     }
 
+    fun loadPopular(){
+        coroutineScope.launch {
+            _networkState.value = NetworkState.LOADING
+            try {
+                val size = pageSize * 3
+                val response = subredditRepository.getSubredditsListing(SubredditWhere.POPULAR, after, size).await()
+                val subs = response.data.children.map { it.data }.toMutableList()
+                _popularItems.value = subs
+                _lastItemReached.value = subs.size < size
+                after = response.data.after
+            } catch(e: Exception){
+                _errorMessage.value = e.toString()
+            } finally {
+                _networkState.value = NetworkState.LOADED
+            }
+        }
+    }
+
     fun loadMorePopular(){
         coroutineScope.launch {
             _networkState.value = NetworkState.LOADING
@@ -109,7 +130,8 @@ class SearchVM(application: RedditApplication) : AndroidViewModel(application){
                 }
                 val response = subredditRepository.getSubredditsListing(SubredditWhere.POPULAR, after, size).await()
                 val subs = response.data.children.map { it.data }
-                _popularItems += subs
+                _morePopularItems.value = subs
+                _popularItems.value?.addAll(subs)
                 _lastItemReached.value = subs.size < size
                 after = response.data.after
             } catch(e: Exception){
@@ -118,6 +140,10 @@ class SearchVM(application: RedditApplication) : AndroidViewModel(application){
                 _networkState.value = NetworkState.LOADED
             }
         }
+    }
+
+    fun morePopularItemsObserved(){
+        _morePopularItems.value = null
     }
 
     fun addSelectedItem(item: String){

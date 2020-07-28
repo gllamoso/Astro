@@ -33,7 +33,7 @@ import com.google.android.material.chip.Chip
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.ItemAwardBinding
 import dev.gtcl.reddit.models.reddit.listing.*
-import dev.gtcl.reddit.ui.fragments.subreddits.multireddit.MultiRedditSubredditsAdapter
+import dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditSubredditsAdapter
 
 
 @BindingAdapter("imageUrlAndHideIfNull")

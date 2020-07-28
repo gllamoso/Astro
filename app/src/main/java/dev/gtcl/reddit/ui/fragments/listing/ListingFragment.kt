@@ -11,7 +11,6 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -22,8 +21,8 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.databinding.FragmentListingBinding
-import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.databinding.LayoutNavHeaderBinding
+import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.NetworkState
@@ -44,7 +43,6 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     ItemClickListener, LeftDrawerActions, SortActions, LinkHandler {
 
     private lateinit var binding: FragmentListingBinding
-    private lateinit var scrollListener: ItemScrollListener
     private var viewPagerActions: ViewPagerActions? = null
     private var navigationActions: NavigationActions? = null
 
@@ -71,6 +69,23 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
                 }
             })
             .build()
+    }
+
+    private val scrollListener: ItemScrollListener by lazy{
+        ItemScrollListener(
+            15,
+            binding.list.layoutManager as GridLayoutManager,
+            model::loadMore
+        )
+    }
+
+    private val listAdapter: ListingItemAdapter by lazy{
+        ListingItemAdapter(
+            markwon,
+            postActions = this,
+            itemClickListener = this,
+            retry = model::retry
+        )
     }
 
     fun setActions(
@@ -106,11 +121,11 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
         setListingInfo()
 
         if (!model.initialPageLoaded) {
-            model.loadMore()
+            model.loadFirstItems()
         }
 
         setSwipeRefresh()
-        setRecyclerView()
+        setList()
         setBottomAppbarClickListeners()
         setLeftDrawer(inflater)
         setRightDrawer()
@@ -136,42 +151,28 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
         })
     }
 
-    private fun setRecyclerView() {
-        val adapter = ListingItemAdapter(
-            markwon,
-            postActions = this,
-            itemClickListener = this,
-            retry = model::retry
-        )
+    private fun setList() {
 
-        binding.list.adapter = adapter
-        scrollListener = ItemScrollListener(
-            15,
-            binding.list.layoutManager as GridLayoutManager,
-            model::loadMore
-        )
-        binding.list.addOnScrollListener(scrollListener)
+        binding.list.apply {
+            this.adapter = listAdapter
+            addOnScrollListener(scrollListener)
+        }
 
         model.items.observe(viewLifecycleOwner, Observer {
-            if (it != null) {
-                val prevCount = adapter.itemCount
-                adapter.setItems(it)
-                if (prevCount >= it.size) {
-                    binding.list.scrollToPosition(0)
-                }
+            scrollListener.finishedLoading()
+            listAdapter.submitList(it)
+        })
+
+        model.moreItems.observe(viewLifecycleOwner, Observer {
+            if(it != null){
                 scrollListener.finishedLoading()
-                if (it.isEmpty()) {
-                    binding.list.visibility = View.GONE
-                    binding.noResultsText.visibility = View.VISIBLE
-                } else {
-                    binding.list.visibility = View.VISIBLE
-                    binding.noResultsText.visibility = View.GONE
-                }
+                listAdapter.addItems(it)
+                model.moreItemsObserved()
             }
         })
 
         model.networkState.observe(viewLifecycleOwner, Observer {
-            adapter.networkState = it
+            listAdapter.networkState = it
         })
 
         model.lastItemReached.observe(viewLifecycleOwner, Observer {
@@ -180,15 +181,15 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             }
         })
 
-        parentFragmentManager.setFragmentResultListener(
-            POST_BUNDLE_KEY,
-            viewLifecycleOwner
-        ) { _, bundle ->
-            val post = bundle.get(POST_KEY) as Post
-            val position = bundle.get(POSITION_KEY) as Int
-            model.updateItem(post, position)
-            adapter.updateItem(post, position)
-        }
+//        parentFragmentManager.setFragmentResultListener(
+//            POST_BUNDLE_KEY,
+//            viewLifecycleOwner
+//        ) { _, bundle ->
+//            val post = bundle.get(POST_KEY) as Post
+//            val position = bundle.get(POSITION_KEY) as Int
+//            model.updateItem(post, position)
+//            adapter.updateItem(post, position)
+//        }
     }
 
     @SuppressLint("RtlHardcoded")
@@ -328,9 +329,8 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 
     override fun hide(post: Post, position: Int) {
         activityModel.hide(post.name, post.hidden)
-        if (post.hidden) {
-            model.removeItemAt(position)
-        }
+        model.removeItemAt(position)
+        listAdapter.removeAt(position)
     }
 
     override fun report(post: Post) {

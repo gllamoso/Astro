@@ -28,8 +28,7 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     val subreddit: LiveData<Subreddit?>
         get() = _subreddit
 
-    fun retry() {
-    }
+    fun retry() {}
 
     private val _networkState = MutableLiveData<NetworkState>()
     val networkState: LiveData<NetworkState>
@@ -39,9 +38,13 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     val refreshState: LiveData<NetworkState>
         get() = _refreshState
 
-    private val _items = MutableLiveData<ArrayList<Item>>()
-    val items: LiveData<ArrayList<Item>>
+    private val _items = MutableLiveData<MutableList<Item>>()
+    val items: LiveData<MutableList<Item>>
         get() = _items
+
+    private val _moreItems = MutableLiveData<List<Item>?>()
+    val moreItems: LiveData<List<Item>?>
+        get() = _moreItems
 
     private val readItemIds = HashSet<String>()
     private var after: String? = null
@@ -66,7 +69,7 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     val initialPageLoaded: Boolean
         get() = _initialPageLoaded
 
-    private var _lastItemReached = MutableLiveData<Boolean>()
+    private var _lastItemReached = MutableLiveData<Boolean>().apply { value = false }
     val lastItemReached: LiveData<Boolean>
         get() = _lastItemReached
 
@@ -106,36 +109,58 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
         _time.value = time
     }
 
+    fun loadFirstItems(){
+        if(lastItemReached.value == true){
+            return
+        }
+        coroutineScope.launch {
+            _networkState.postValue(NetworkState.LOADING)
+            try {
+                // Get listing items
+                val size = pageSize * 3
+                val response = listingRepository.getListing(listingType, postSort.value!!, time.value, after, size).await()
+                val items = response.data.children.map { it.data }.toMutableList()
+                listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
+                setItemsReadStatus(items, readItemIds)
+                _items.value = items
+                _lastItemReached.value = items.size < size
+                after = response.data.after
+            } catch (e: Exception){
+                _errorMessage.value = e.toString()
+            }
+            _networkState.postValue(NetworkState.LOADED)
+            _refreshState.postValue(NetworkState.LOADED)
+            _initialPageLoaded = true
+        }
+    }
+
     fun loadMore(){
         if(lastItemReached.value == true){
             return
         }
         coroutineScope.launch {
             _networkState.postValue(NetworkState.LOADING)
-            loadItems()
+            try {
+                // Get listing items
+                val size = pageSize
+                val response = listingRepository.getListing(listingType, postSort.value!!, time.value, after, size).await()
+                val items = response.data.children.map { it.data }.toMutableList()
+                listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
+                setItemsReadStatus(items, readItemIds)
+                _moreItems.value = items
+                _items.value?.addAll(items)
+                _lastItemReached.value = items.size < size
+                after = response.data.after
+            } catch (e: Exception){
+                _errorMessage.value = e.toString()
+            }
             _networkState.postValue(NetworkState.LOADED)
             _initialPageLoaded = true
         }
     }
 
-    private suspend fun loadItems(){
-        try {
-            // Get listing items
-            val size = if(items.value.isNullOrEmpty()){
-                pageSize * 3
-            } else {
-                pageSize
-            }
-            val response = listingRepository.getListing(listingType, postSort.value!!, time.value, after, size).await()
-            val items = ArrayList(response.data.children.map { it.data })
-            listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
-            setItemsReadStatus(items, readItemIds)
-            _items += items
-            _lastItemReached.value = items.size < size
-            after = response.data.after
-        } catch (e: Exception){
-            _errorMessage.value = e.toString()
-        }
+    fun moreItemsObserved(){
+        _moreItems.value = null
     }
 
     fun refresh(){
@@ -143,8 +168,8 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
             _refreshState.value = NetworkState.LOADING
             after = null
             _items.value?.clear()
-            loadMore()
-            _refreshState.value = NetworkState.LOADED
+            _lastItemReached.value = false
+            loadFirstItems()
         }
     }
 
@@ -160,7 +185,7 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     }
 
     fun updateItem(item: Item, position: Int){
-        _items.value?.set(position, item)
+        _items.updateItem(item, position)
     }
 
     // Right Side Bar Layout

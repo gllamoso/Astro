@@ -29,9 +29,13 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
     val networkState: LiveData<NetworkState>
         get() = _networkState
 
-    private val _items = MutableLiveData<ArrayList<Item>>().apply { value = ArrayList() }
-    val items: LiveData<ArrayList<Item>>
+    private val _items = MutableLiveData<MutableList<Item>>()
+    val items: LiveData<MutableList<Item>>
         get() = _items
+
+    private val _moreItems = MutableLiveData<List<Item>?>()
+    val moreItems: LiveData<List<Item>?>
+        get() = _moreItems
 
     private val readItemIds = HashSet<String>()
     private var after: String? = null
@@ -80,13 +84,25 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
         this.pageSize = pageSize
     }
 
-    fun loadItems(){
+    fun loadFirstItems(){
         coroutineScope.launch {
             _networkState.value = NetworkState.LOADING
-            loadMore()
+            loadFirsItemsSuspend()
             _networkState.value = NetworkState.LOADED
             _initialPageLoaded = true
         }
+    }
+
+    fun loadMore(){
+        coroutineScope.launch {
+            _networkState.value = NetworkState.LOADING
+            loadMoreSuspend()
+            _networkState.value = NetworkState.LOADED
+        }
+    }
+
+    fun moreItemsObserved(){
+        _moreItems.value = null
     }
 
     fun addReadItem(item: Item){
@@ -106,25 +122,38 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
         }
     }
 
-    private suspend fun loadMore(){
+    private suspend fun loadFirsItemsSuspend(){
         try {
-            val size = if(items.value.isNullOrEmpty()){
-                pageSize * 3
-            } else {
-                pageSize
-            }
+            val size = pageSize * 3
             val response = when{
                 ::listingType.isInitialized -> listingRepository.getListing(listingType, postSort, t, after, size, user).await()
                 ::subredditWhere.isInitialized -> subredditRepository.getSubredditsListing(subredditWhere, after, size).await()
                 ::messageWhere.isInitialized -> messageRepository.getMessages(messageWhere, after, size).await()
                 else -> throw IllegalStateException("Not enough info to load listing")
             }
-            val items = ArrayList(response.data.children.map { it.data })
-            if(::listingType.isInitialized){
-                listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
-                setItemsReadStatus(items, readItemIds)
+            val items = response.data.children.map { it.data }.toMutableList()
+            listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
+            setItemsReadStatus(items, readItemIds)
+            _items.value = items
+            _lastItemReached.value = items.size < size
+            after = response.data.after
+        } catch (e: Exception){
+            _errorMessage.value = e.toString()
+        }
+    }
+
+    private suspend fun loadMoreSuspend(){
+        try {
+            val size = pageSize
+            val response = when{
+                ::listingType.isInitialized -> listingRepository.getListing(listingType, postSort, t, after, size, user).await()
+                ::subredditWhere.isInitialized -> subredditRepository.getSubredditsListing(subredditWhere, after, size).await()
+                ::messageWhere.isInitialized -> messageRepository.getMessages(messageWhere, after, size).await()
+                else -> throw IllegalStateException("Not enough info to load listing")
             }
-            _items += items
+            val items = response.data.children.map { it.data }.toMutableList()
+            _moreItems.value = items
+            _items.value?.addAll(items)
             _lastItemReached.value = items.size < size
             after = response.data.after
         } catch (e: Exception){

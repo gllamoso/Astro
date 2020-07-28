@@ -13,6 +13,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentItemScrollerBinding
@@ -35,8 +36,14 @@ import io.noties.markwon.MarkwonConfiguration
 open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, MessageActions, SubredditActions, ItemClickListener, LinkHandler{
 
     private lateinit var binding: FragmentItemScrollerBinding
-    private lateinit var scrollListener: ItemScrollListener
-    private lateinit var listAdapter: ListingItemAdapter
+
+    private val scrollListener: ItemScrollListener by lazy{
+        ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadMore)
+    }
+
+    private val listAdapter: ListingItemAdapter by lazy {
+        ListingItemAdapter(markwon, this, this, this, this, this, model::retry)
+    }
 
     private var viewPagerActions: ViewPagerActions? = null
     private var navigationActions: NavigationActions? = null
@@ -108,30 +115,33 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentItemScrollerBinding.inflate(inflater)
-        listAdapter = ListingItemAdapter(markwon, this, this, this, this, this, model::retry)
-        scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadItems)
+        binding.model = model
+        binding.lifecycleOwner = viewLifecycleOwner
+
+        if(!model.initialPageLoaded){
+            setListingInfo()
+            model.loadFirstItems()
+        }
+
         binding.list.adapter = listAdapter
         binding.list.addOnScrollListener(scrollListener)
         setSwipeRefresh()
         setObservers()
-        if(!model.initialPageLoaded){
-            setListingInfo()
-            model.loadItems()
-        }
 
         return binding.root
     }
 
     private fun setObservers(){
         model.items.observe(viewLifecycleOwner, Observer {
-            listAdapter.setItems(it)
+            listAdapter.submitList(it)
             scrollListener.finishedLoading()
-            if(it.isEmpty()){
-                binding.list.visibility = View.GONE
-                binding.noResultsText.visibility = View.VISIBLE
-            } else {
-                binding.list.visibility = View.VISIBLE
-                binding.noResultsText.visibility = View.GONE
+        })
+
+        model.moreItems.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                listAdapter.addItems(it)
+                scrollListener.finishedLoading()
+                model.moreItemsObserved()
             }
         })
 
@@ -146,7 +156,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         })
 
         model.errorMessage.observe(viewLifecycleOwner, Observer {
-            Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+            Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
         })
     }
 

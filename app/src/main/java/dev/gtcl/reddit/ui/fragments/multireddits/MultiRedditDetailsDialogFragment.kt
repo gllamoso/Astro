@@ -1,7 +1,6 @@
-package dev.gtcl.reddit.ui.fragments.subreddits.multireddit
+package dev.gtcl.reddit.ui.fragments.multireddits
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,7 +8,6 @@ import android.widget.ArrayAdapter
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
-import androidx.lifecycle.ViewModelProviders
 import dev.gtcl.reddit.MULTI_KEY
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.Visibility

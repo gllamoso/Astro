@@ -17,7 +17,7 @@ class ListingItemAdapter(
     private val messageActions: MessageActions? = null,
     private val commentActions: CommentActions? = null,
     private val itemClickListener: ItemClickListener,
-    private val retry: () -> Unit): RecyclerView.Adapter<RecyclerView.ViewHolder>(), ItemClickListener  {
+    private val retry: () -> Unit): RecyclerView.Adapter<RecyclerView.ViewHolder>()  {
 
     var networkState: NetworkState? = NetworkState.LOADING
         set(value){
@@ -28,7 +28,10 @@ class ListingItemAdapter(
             }
         }
 
-    private var items = ArrayList<Item>()
+    private val isLoading: Boolean
+        get() = networkState != NetworkState.LOADED
+
+    private var items = mutableListOf<Item>()
 
     fun clearItems(){
         val itemSize = items.size
@@ -36,24 +39,29 @@ class ListingItemAdapter(
         notifyItemRangeRemoved(0, itemSize)
     }
 
-    fun setItems(items: List<Item>){
+    fun submitList(items: List<Item>){
         val previousSize = this.items.size
         notifyItemRemoved(previousSize)
-        this.items = ArrayList(items)
-        if(previousSize < this.items.size){
-            notifyItemRangeInserted(previousSize, this.items.size - previousSize)
-        } else {
-            notifyDataSetChanged()
-        }
+        this.items = items.toMutableList()
+        notifyDataSetChanged()
     }
 
-    fun updateItem(item: Item, position: Int){
+    fun addItems(items: List<Item>){
+        val previousSize = this.items.size
+        notifyItemRemoved(previousSize)
+        this.items.addAll(items)
+        notifyItemRangeInserted(previousSize, items.size)
+    }
+
+    fun update(item: Item, position: Int){
         items[position] = item
         notifyItemChanged(position)
     }
 
-    private val isLoading: Boolean
-        get() = networkState != NetworkState.LOADED
+    fun removeAt(position: Int){
+        items.removeAt(position)
+        notifyItemRemoved(position)
+    }
 
     override fun getItemCount(): Int = items.size + if(isLoading) 1 else 0
 
@@ -81,11 +89,6 @@ class ListingItemAdapter(
         }
     }
 
-    private val hideItem: (Int) -> Unit = {
-        items.removeAt(it)
-        notifyItemRemoved(it)
-    }
-
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when (getItemViewType(position)) {
             R.layout.item_post -> {
@@ -93,12 +96,7 @@ class ListingItemAdapter(
                     throw IllegalStateException("Post Actions not initialized")
                 }
                 val post = items[position] as Post
-                val postClicked: (Post, Int) -> Unit = { p, adapterPosition ->
-                    itemClicked(p, adapterPosition)
-                }
-                (holder as PostVH).bind(post, postActions,
-                    hideAction = hideItem,
-                    postClicked = postClicked)
+                (holder as PostVH).bind(post, postActions, itemClickListener)
             }
             R.layout.item_comment -> {
                 val comment = items[position] as Comment
@@ -123,10 +121,6 @@ class ListingItemAdapter(
             }
             R.layout.item_network_state -> (holder as NetworkStateItemVH).bindTo(networkState)
         }
-    }
-
-    override fun itemClicked(item: Item, position: Int) {
-        itemClickListener.itemClicked(item, position)
     }
 
 }

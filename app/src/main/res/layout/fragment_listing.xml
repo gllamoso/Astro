@@ -59,10 +59,10 @@
                             android:layout_height="match_parent"
                             android:gravity="center_horizontal|top"
                             android:textColor="@android:color/black"
-                            android:visibility="gone"
                             android:padding="32dp"
                             android:text="@string/nothing_found"
-                            android:elevation="8dp"/>
+                            android:elevation="8dp"
+                            android:visibility="@{(model.networkState.status == Status.RUNNING || (model.items != null &amp;&amp; model.items.size() > 0)) ? View.GONE : View.VISIBLE}"/>
 
                         <androidx.recyclerview.widget.RecyclerView
                             android:id="@+id/list"
@@ -73,7 +73,8 @@
                             app:spanCount="1"
                             tools:itemCount="20"
                             tools:listitem="@layout/item_listing"
-                            android:scrollbars="vertical"/>
+                            android:scrollbars="vertical"
+                            android:visibility="@{(model.items != null &amp;&amp; model.items.size() > 0) ? View.VISIBLE : View.GONE}"/>
 
                     </FrameLayout>
 

@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.subreddits.search
+package dev.gtcl.reddit.ui.fragments.search
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView

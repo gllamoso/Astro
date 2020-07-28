@@ -72,7 +72,7 @@
     </fragment>
     <fragment
         android:id="@+id/searchFragment"
-        android:name="dev.gtcl.reddit.ui.fragments.subreddits.search.SearchFragment"
+        android:name="dev.gtcl.reddit.ui.fragments.search.SearchFragment"
         android:label="SearchFragment" >
         <argument
             android:name="multiSelectMode"
@@ -88,7 +88,7 @@
     </fragment>
     <fragment
         android:id="@+id/multiRedditFragment"
-        android:name="dev.gtcl.reddit.ui.fragments.subreddits.multireddit.MultiRedditFragment"
+        android:name="dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditFragment"
         android:label="MultiRedditFragment" >
         <argument
             android:name="multiReddit"

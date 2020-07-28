@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.subreddits.search
+package dev.gtcl.reddit.ui.fragments.search
 
 import android.content.Context
 import android.content.res.Configuration
@@ -23,7 +23,6 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.databinding.FragmentSearchBinding
-import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.Account
 import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.Subreddit
@@ -34,11 +33,8 @@ import dev.gtcl.reddit.ui.ListingItemAdapter
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.AccountPage
 import dev.gtcl.reddit.ui.fragments.ListingPage
-import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
-import io.noties.markwon.AbstractMarkwonPlugin
-import io.noties.markwon.LinkResolverDef
 import io.noties.markwon.Markwon
-import io.noties.markwon.MarkwonConfiguration
+import kotlinx.android.synthetic.main.fragment_listing.*
 
 
 class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
@@ -60,11 +56,11 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentSearchBinding.inflate(inflater)
-        return binding.root
-    }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
+        if(!model.initialPageLoaded){
+            model.loadPopular()
+        }
+
         setEditTextListener()
         setPopularRecyclerViewAdapter()
         setSearchRecyclerViewAdapter()
@@ -79,6 +75,8 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         if(resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT){
             showKeyboard()
         }
+
+        return binding.root
     }
 
     private fun setEditTextListener(){
@@ -118,12 +116,19 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             adapter = listAdapter
             addOnScrollListener(scrollListener)
         }
-        model.loadMorePopular()
 
         model.popularItems.observe(viewLifecycleOwner, Observer {
-            listAdapter.setItems(it)
+            listAdapter.submitList(it)
             scrollListener.finishedLoading()
             model.initialPageLoaded = true
+        })
+
+        model.morePopularItems.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                scrollListener.finishedLoading()
+                listAdapter.addItems(it)
+                model.morePopularItemsObserved()
+            }
         })
 
         model.lastItemReached.observe(viewLifecycleOwner, Observer {
