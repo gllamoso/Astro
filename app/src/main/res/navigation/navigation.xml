@@ -39,9 +39,7 @@
             app:popExitAnim="@anim/slide_right"/>
         <action
             android:id="@+id/action_viewPagerFragment_to_replyFragment"
-            app:destination="@id/replyFragment"
-            app:enterAnim="@anim/slide_up"
-            app:popExitAnim="@anim/slide_down"/>
+            app:destination="@id/replyFragment"/>
         <action
             android:id="@+id/action_viewPagerFragment_to_createPostFragment"
             app:destination="@id/createPostFragment" />
@@ -102,8 +100,12 @@
         android:name="dev.gtcl.reddit.ui.fragments.reply.ReplyFragment"
         android:label="ReplyFragment" >
         <argument
-            android:name="item"
+            android:name="parent"
             app:argType="dev.gtcl.reddit.models.reddit.listing.Item"
+            />
+        <argument
+            android:name="position"
+            app:argType="integer"
             />
     </fragment>
     <fragment

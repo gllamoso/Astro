@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.models.reddit.AccessToken
+import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.MultiReddit
 import dev.gtcl.reddit.models.reddit.listing.Subreddit
 import dev.gtcl.reddit.network.NetworkState
@@ -13,6 +14,7 @@ import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.repositories.SubredditRepository
 import dev.gtcl.reddit.repositories.UserRepository
 import dev.gtcl.reddit.ui.fragments.ViewPagerPage
+import dev.gtcl.reddit.ui.fragments.comments.CommentsVM
 import kotlinx.coroutines.*
 
 class MainActivityVM(val application: RedditApplication): ViewModel() {
@@ -48,6 +50,10 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
     val openChromeTab: LiveData<String?>
         get() = _openChromeTab
 
+    private val _newReply = MutableLiveData<NewReply?>()
+    val newReply: LiveData<NewReply?>
+        get() = _newReply
+
     fun refreshObserved(){
         _refreshState.value = null
     }
@@ -58,6 +64,10 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
 
     fun newPageObserved(){
         _newPage.value = null
+    }
+
+    fun newReplyObserved(){
+        _newReply.value = null
     }
 
     fun refreshAccessToken(){
@@ -210,10 +220,26 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
         _openChromeTab.value = null
     }
 
+    fun reply(parent: Item, body: String, position: Int){
+        coroutineScope.launch {
+            try{
+                val newReply = listingRepository.addComment(parent.name, body).await().json.data.things[0].data
+                _newReply.value = NewReply(newReply, position)
+            } catch (e: Exception){
+                _errorMessage.value = e.toString()
+            }
+        }
+    }
+
     private suspend fun fetchAccessToken(refreshToken: String): AccessToken {
         return userRepository.getNewAccessToken("Basic ${getEncodedAuthString(application.baseContext)}", refreshToken).await().apply {
             this.refreshToken = refreshToken
         }
     }
+
+    data class NewReply(
+        val item: Item,
+        val position: Int
+    )
 
 }

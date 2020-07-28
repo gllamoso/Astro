@@ -7,7 +7,7 @@ interface CommentActions {
     fun vote(comment: Comment, vote: Vote)
     fun save(comment: Comment)
     fun share(comment: Comment)
-    fun reply(comment: Comment)
+    fun reply(comment: Comment, position: Int)
     fun viewProfile(comment: Comment)
     fun report(comment: Comment)
 }

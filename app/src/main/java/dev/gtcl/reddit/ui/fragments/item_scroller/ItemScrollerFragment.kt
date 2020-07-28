@@ -5,7 +5,6 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -13,6 +12,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
+import androidx.viewpager.widget.ViewPager
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
@@ -28,6 +28,7 @@ import dev.gtcl.reddit.ui.fragments.PostPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
+import dev.gtcl.reddit.ui.fragments.reply.ReplyFragment
 import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.LinkResolverDef
 import io.noties.markwon.Markwon
@@ -254,15 +255,21 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun share(comment: Comment) {
-        TODO("Not yet implemented")
+//        ShareOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
     }
 
-    override fun reply(comment: Comment) {
-        TODO("Not yet implemented")
+    override fun reply(comment: Comment, position: Int) {
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentToReplyFragment(comment, position)
+        )
     }
 
     override fun viewProfile(comment: Comment) {
-        TODO("Not yet implemented")
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                AccountPage(comment.author)
+            )
+        )
     }
 
     override fun report(comment: Comment) {

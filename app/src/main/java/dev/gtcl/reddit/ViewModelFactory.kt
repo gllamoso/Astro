@@ -13,7 +13,6 @@ import dev.gtcl.reddit.ui.fragments.create_post.CreatePostVM
 import dev.gtcl.reddit.ui.fragments.create_post.type.UploadImageVM
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogVM
 import dev.gtcl.reddit.ui.fragments.media.list.item.MediaVM
-import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
 import dev.gtcl.reddit.ui.fragments.signin.SignInVM
 import dev.gtcl.reddit.ui.fragments.splash.SplashVM
 import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsVM
@@ -39,7 +38,6 @@ class ViewModelFactory(private val application: RedditApplication) : ViewModelPr
             modelClass.isAssignableFrom(SubscriptionsVM::class.java) -> SubscriptionsVM(application) as T
             modelClass.isAssignableFrom(SearchVM::class.java) -> SearchVM(application) as T
             modelClass.isAssignableFrom(MultiRedditVM::class.java) -> MultiRedditVM(application) as T
-            modelClass.isAssignableFrom(ReplyVM::class.java) -> ReplyVM(application) as T
             modelClass.isAssignableFrom(CreatePostVM::class.java) -> CreatePostVM(application) as T
             modelClass.isAssignableFrom(UploadImageVM::class.java) -> UploadImageVM(application) as T
             modelClass.isAssignableFrom(MediaVM::class.java) -> MediaVM(

@@ -474,14 +474,6 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
         model.refresh()
     }
 
-    companion object {
-        fun newInstance(listing: ListingType): ListingFragment {
-            return ListingFragment().apply {
-                arguments = bundleOf(LISTING_KEY to listing)
-            }
-        }
-    }
-
     override fun handleLink(link: String) {
         when(link.getUrlType()){
             UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
@@ -491,6 +483,14 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
             UrlType.REDDIT_COMMENTS -> viewPagerModel.newPage(ContinueThreadPage(link))
             UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
+        }
+    }
+
+    companion object {
+        fun newInstance(listing: ListingType): ListingFragment {
+            return ListingFragment().apply {
+                arguments = bundleOf(LISTING_KEY to listing)
+            }
         }
     }
 

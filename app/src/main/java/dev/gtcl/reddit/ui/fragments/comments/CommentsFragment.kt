@@ -34,10 +34,9 @@ import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.*
+import dev.gtcl.reddit.ui.fragments.reply.ReplyFragment
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
-import dev.gtcl.reddit.ui.fragments.media.MediaDialogVM
 import io.noties.markwon.*
-import io.noties.markwon.core.spans.LinkSpan
 
 class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler {
 
@@ -83,6 +82,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         binding = FragmentCommentsBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.model = model
+
+        Log.d("TAE", "Comment Fragment: onCreateView")
 
         initPost()
         initTopBar()
@@ -138,9 +139,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
             override fun onStateChanged(p0: View, newState: Int) {
                 when (newState) {
-                    BottomSheetBehavior.STATE_HIDDEN, BottomSheetBehavior.STATE_COLLAPSED -> viewPagerActions?.enablePagerSwiping(
-                        true
-                    )
+                    BottomSheetBehavior.STATE_HIDDEN, BottomSheetBehavior.STATE_COLLAPSED -> viewPagerActions?.enablePagerSwiping(true)
                     else -> viewPagerActions?.enablePagerSwiping(false)
                 }
             }
@@ -148,11 +147,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
         binding.bottomSheet.toolbar.setOnMenuItemClickListener {
             if (it.itemId == R.id.reply && model.post.value != null) {
-                findNavController().navigate(
-                    ViewPagerFragmentDirections.actionViewPagerFragmentToReplyFragment(
-                        model.post.value!!
-                    )
-                )
+                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToReplyFragment(model.post.value!!, 0))
                 true
             } else {
                 false
@@ -340,11 +335,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         TODO("Not yet implemented")
     }
 
-    override fun reply(comment: Comment) {
+    override fun reply(comment: Comment, position: Int) {
         findNavController().navigate(
             ViewPagerFragmentDirections.actionViewPagerFragmentToReplyFragment(
-                comment
-            )
+                comment, position)
         )
     }
 

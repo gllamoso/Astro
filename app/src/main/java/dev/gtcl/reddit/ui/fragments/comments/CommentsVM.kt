@@ -54,6 +54,10 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
     val loading: LiveData<Boolean>
         get() = _loading
 
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?>
+        get() = _errorMessage
+
     private var playWhenReady = true
     private var currentWindow = 0
     private var playbackPosition = 0.toLong()

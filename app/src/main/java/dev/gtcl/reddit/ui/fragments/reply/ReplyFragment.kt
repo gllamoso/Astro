@@ -1,30 +1,28 @@
 package dev.gtcl.reddit.ui.fragments.reply
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.ViewModelFactory
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentReplyBinding
 import dev.gtcl.reddit.models.reddit.listing.Comment
+import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.Message
 import dev.gtcl.reddit.models.reddit.listing.Post
+import dev.gtcl.reddit.ui.activities.MainActivityVM
+import dev.gtcl.reddit.ui.fragments.create_post.CreatePostFragmentArgs
 
 class ReplyFragment: Fragment() {
 
     private lateinit var binding: FragmentReplyBinding
 
-    private val model: ReplyVM by lazy {
-        val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(ReplyVM::class.java)
-    }
+    private val activityModel: MainActivityVM by activityViewModels()
 
     private val args: ReplyFragmentArgs by navArgs()
 
@@ -43,12 +41,10 @@ class ReplyFragment: Fragment() {
     }
 
     private fun initItem(){
-        val item = args.item
-        when(item){
+        when(val item = args.parent){
             is Post -> {
                 binding.replyToUser = item.author
                 binding.replyToBody = item.title
-
             }
             is Comment -> {
                 binding.replyToUser = item.author
@@ -62,7 +58,6 @@ class ReplyFragment: Fragment() {
                 throw IllegalArgumentException("Unable to reply to the following item type: ${item.kind}")
             }
         }
-        model.setParentId(item.name)
     }
 
     private fun setListeners(){
@@ -72,12 +67,9 @@ class ReplyFragment: Fragment() {
 
         binding.toolbar.setOnMenuItemClickListener {
             val comment = binding.responseText.text.toString()
-            model.addComment(comment)
+            activityModel.reply(args.parent, comment, args.position)
+            findNavController().popBackStack()
             true
         }
-
-        model.response.observe(viewLifecycleOwner, Observer {
-            Log.d("TAE", "Item response: $it")
-        })
     }
 }

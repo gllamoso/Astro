@@ -53,7 +53,7 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
                 popupWindow.dismiss()
             }
             replyButton.root.setOnClickListener {
-                commentActions.reply(comment)
+                commentActions.reply(comment, adapterPosition)
                 popupWindow.dismiss()
             }
             saveButton.root.setOnClickListener {
