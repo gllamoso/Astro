@@ -39,20 +39,10 @@ class ReplyVM(private val application: RedditApplication): AndroidViewModel(appl
         coroutineScope.launch {
             try{
                 val newComment = listingRepository.addComment(parent.name, body).await().json.data.things[0].data
-                val newPosition = if(parent is Comment){
-                    position + 1
-                } else{
-                    position
+                if(parent is Comment && newComment is Comment){
+                    newComment.depth = (parent.depth ?: 0) + 1
                 }
-                val depth = if(parent is Comment){
-                    (parent.depth ?: 0) + 1
-                } else {
-                    0
-                }
-                if(newComment is Comment){
-                    newComment.depth = depth
-                }
-                _newReply.value = NewReply(newComment, newPosition)
+                _newReply.value = NewReply(newComment, position)
             } catch (e: Exception){
                 _errorMessage.value = e.toString()
             }

@@ -353,7 +353,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     override fun reply(comment: Comment, position: Int) {
-        ReplyDialogFragment.newInstance(comment, position).show(childFragmentManager, null)
+        ReplyDialogFragment.newInstance(comment, position + 1).show(childFragmentManager, null)
     }
 
     override fun viewProfile(comment: Comment) {
