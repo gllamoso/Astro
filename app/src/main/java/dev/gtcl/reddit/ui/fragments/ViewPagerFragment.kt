@@ -1,16 +1,13 @@
 package dev.gtcl.reddit.ui.fragments
 
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
-import androidx.browser.customtabs.CustomTabsIntent
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -55,7 +52,6 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentViewpagerBinding.inflate(inflater)
-        pageAdapter = PageAdapter(this)
         setViewPagerAdapter()
         setBackPressedCallback()
         return binding.root
@@ -67,15 +63,32 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
     }
 
     private fun setViewPagerAdapter(){
-        if(model.pages != null && model.pages!!.isNotEmpty()){
-            pageAdapter.setPageStack(model.pages!!)
+        pageAdapter = PageAdapter(this)
+        if(model.pages.isNotEmpty()){
+            pageAdapter.setPageStack(model.pages)
         } else {
             pageAdapter.addPage(args.startingPage)
         }
 
+        model.newPage.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                pageAdapter.addPage(it)
+                navigateNext()
+                model.newPageObserved()
+            }
+        })
+
+        activityModel.newPage.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                model.newPage(it)
+                activityModel.newPageObserved()
+            }
+        })
+
         binding.viewpager.apply {
             adapter = pageAdapter
             isUserInputEnabled = model.isViewPagerSwipeEnabled
+            offscreenPageLimit = 3
             registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
                 override fun onPageScrollStateChanged(state: Int) {
                     super.onPageScrollStateChanged(state)
@@ -90,22 +103,6 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
             setPageTransformer(SlidePageTransformer())
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
-
-        model.newPage.observe(viewLifecycleOwner, Observer {
-            if(it != null){
-                pageAdapter.addPage(it)
-                navigateNext()
-                model.newPageObserved()
-            }
-        })
-
-        activityModel.newPage.observe(viewLifecycleOwner, Observer {
-            if(it != null){
-                pageAdapter.addPage(it)
-                navigateNext()
-                activityModel.newPageObserved()
-            }
-        })
     }
 
     private fun setBackPressedCallback(){
@@ -141,7 +138,7 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
     }
 
     override fun navigateToComments(post: Post, position: Int) {
-        pageAdapter.addPostPage(post, position)
+        pageAdapter.addPage(PostPage(post, position))
         navigateNext()
     }
 

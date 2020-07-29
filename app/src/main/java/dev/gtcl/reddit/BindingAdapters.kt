@@ -298,7 +298,7 @@ fun setMoreCommentText(textView: TextView, item: More){
     if(item.isContinueThreadLink)
         textView.text = textView.resources.getString(R.string.continue_to_thread)
     else
-        textView.text = String.format(textView.resources.getText(R.string.more_replies).toString(), item.queueSize())
+        textView.text = String.format(textView.resources.getText(R.string.more_replies).toString(), item.childrenLeft())
 }
 
 @BindingAdapter("timestamp")

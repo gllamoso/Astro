@@ -3,16 +3,13 @@ package dev.gtcl.reddit.ui.fragments.create_post.type
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.URLUtil
-import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.LinkPost
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.FragmentCreatePostLinkBinding
@@ -47,7 +44,7 @@ class LinkFragment: Fragment() {
     }
 
     private fun initObservers(){
-        model.fetchData.observe(viewLifecycleOwner, Observer {
+        model.fetchInput.observe(viewLifecycleOwner, Observer {
             if(it == true){
                 val text = binding.urlText.text.toString()
                 if(text.isNullOrEmpty()){
@@ -78,6 +75,6 @@ class LinkFragment: Fragment() {
     }
 
     private fun removeObservers(){
-        model.fetchData.removeObservers(viewLifecycleOwner)
+        model.fetchInput.removeObservers(viewLifecycleOwner)
     }
 }

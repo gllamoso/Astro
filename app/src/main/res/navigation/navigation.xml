@@ -37,12 +37,6 @@
             app:destination="@id/multiRedditFragment"
             app:enterAnim="@anim/slide_left"
             app:popExitAnim="@anim/slide_right"/>
-        <action
-            android:id="@+id/action_viewPagerFragment_to_replyFragment"
-            app:destination="@id/replyFragment"/>
-        <action
-            android:id="@+id/action_viewPagerFragment_to_createPostFragment"
-            app:destination="@id/createPostFragment" />
     </fragment>
     <fragment
         android:id="@+id/splashFragment"
@@ -94,27 +88,5 @@
         <action
             android:id="@+id/action_multiRedditFragment_to_searchFragment"
             app:destination="@id/searchFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/replyFragment"
-        android:name="dev.gtcl.reddit.ui.fragments.reply.ReplyFragment"
-        android:label="ReplyFragment" >
-        <argument
-            android:name="parent"
-            app:argType="dev.gtcl.reddit.models.reddit.listing.Item"
-            />
-        <argument
-            android:name="position"
-            app:argType="integer"
-            />
-    </fragment>
-    <fragment
-        android:id="@+id/createPostFragment"
-        android:name="dev.gtcl.reddit.ui.fragments.create_post.CreatePostFragment"
-        android:label="CreatePostFragment" >
-        <argument
-            android:name="subredditName"
-            app:argType="string"
-            app:nullable="true"/>
     </fragment>
 </navigation>

@@ -11,6 +11,7 @@ import android.view.ViewGroup
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -34,8 +35,9 @@ import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.*
-import dev.gtcl.reddit.ui.fragments.reply.ReplyFragment
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
+import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
+import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
 import io.noties.markwon.*
 
 class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler {
@@ -53,6 +55,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     private val activityModel: MainActivityVM by activityViewModels()
 
     private lateinit var binding: FragmentCommentsBinding
+
+    private lateinit var adapter: CommentsAdapter
 
     private var viewPagerActions: ViewPagerActions? = null
 
@@ -82,8 +86,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         binding = FragmentCommentsBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.model = model
-
-        Log.d("TAE", "Comment Fragment: onCreateView")
 
         initPost()
         initTopBar()
@@ -116,7 +118,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     private fun initBottomBarAndCommentsAdapter() {
-        val adapter = CommentsAdapter(markwon,this, this)
+        adapter = CommentsAdapter(markwon,this, this)
         binding.bottomSheet.commentList.adapter = adapter
         model.comments.observe(viewLifecycleOwner, Observer {
             if (it != null) {
@@ -127,7 +129,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         model.moreComments.observe(viewLifecycleOwner, Observer {
             if (it != null) {
                 adapter.addItems(it.position, it.comments)
-                model.clearMoreComments()
+                model.moreCommentsObserved()
+            }
+        })
+
+        model.removeAt.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                adapter.removeAt(it)
+                model.removeAtObserved()
             }
         })
 
@@ -147,11 +156,19 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
         binding.bottomSheet.toolbar.setOnMenuItemClickListener {
             if (it.itemId == R.id.reply && model.post.value != null) {
-                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToReplyFragment(model.post.value!!, 0))
+                ReplyDialogFragment.newInstance(model.post.value!!, 0).show(childFragmentManager, null)
                 true
             } else {
                 false
             }
+        }
+
+        childFragmentManager.setFragmentResultListener(NEW_REPLY_KEY, viewLifecycleOwner){ _, bundle ->
+            val newReply = bundle.get(NEW_REPLY_KEY) as ReplyVM.NewReply
+            val comment = newReply.item
+            val position = newReply.position
+            model.addItems(position, listOf(comment))
+            adapter.addItems(position, listOf(comment))
         }
 
         initBottomBarOnClickListeners(behavior)
@@ -223,20 +240,20 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     private fun initPost() {
         val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
         val url = requireArguments().get(URL_KEY) as String?
-        if (!model.commentsFetched) {
-            if (postPage != null) {
+        if (postPage != null) {
+            if (!model.commentsFetched) {
                 model.setPost(postPage.post)
-                when (postPage.post.postType) {
-                    PostType.IMAGE -> initSubsamplingImageView(postPage.post)
-                    PostType.GIF -> initGifToImageView(postPage.post)
-                    PostType.VIDEO -> initVideoPlayer(postPage.post)
-                    PostType.TEXT -> markwon.setMarkdown(binding.content.contentText, postPage.post.selftext)
-                    PostType.URL -> initUrlPreview(postPage.post)
-                }
-            } else {
-                model.fetchPostAndComments(url!!.replace("http[s]?://www\\.reddit\\.com/".toRegex(), ""))
-                BottomSheetBehavior.from(binding.bottomSheet.bottomSheet).state = BottomSheetBehavior.STATE_EXPANDED
             }
+            when (postPage.post.postType) {
+                PostType.IMAGE -> initSubsamplingImageView(postPage.post)
+                PostType.GIF -> initGifToImageView(postPage.post)
+                PostType.VIDEO -> initVideoPlayer(postPage.post)
+                PostType.TEXT -> markwon.setMarkdown(binding.content.contentText, postPage.post.selftext)
+                PostType.URL -> initUrlPreview(postPage.post)
+            }
+        } else {
+            model.fetchPostAndComments(url!!.replace("http[s]?://www\\.reddit\\.com/".toRegex(), ""))
+            BottomSheetBehavior.from(binding.bottomSheet.bottomSheet).state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
 
@@ -336,10 +353,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     override fun reply(comment: Comment, position: Int) {
-        findNavController().navigate(
-            ViewPagerFragmentDirections.actionViewPagerFragmentToReplyFragment(
-                comment, position)
-        )
+        ReplyDialogFragment.newInstance(comment, position).show(childFragmentManager, null)
     }
 
     override fun viewProfile(comment: Comment) {

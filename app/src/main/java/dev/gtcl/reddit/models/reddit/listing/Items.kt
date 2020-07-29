@@ -1,19 +1,13 @@
 package dev.gtcl.reddit.models.reddit.listing
 
-import android.net.Uri
 import android.os.Parcelable
-import android.util.Log
 import android.webkit.URLUtil
-import androidx.lifecycle.ViewModelProvider
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.database.Subscription
-import dev.gtcl.reddit.network.IMGUR_ALBUM_URL
-import dev.gtcl.reddit.network.IMGUR_GALLERY_URL
-import dev.gtcl.reddit.ui.fragments.comments.CommentsVM
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 import java.util.*
@@ -56,7 +50,7 @@ enum class ItemType {
 data class Comment( // TODO: Add more properties: all_awardings
     override val name: String,
     override val id: String,
-    val depth: Int?,
+    var depth: Int?,
     val author: String,
     @Json(name="author_fullname")
     val authorFullName: String?,
@@ -346,16 +340,15 @@ data class More(
     var count: Int
 ): Item(ItemType.More) {
 
-
     @IgnoredOnParcel
-    private val childrenQueue = LinkedList<String>(children)
+    private var fetchIndex = 0
 
     private fun pollChildren(count: Int): List<String>{
-        val children = ArrayList<String>()
-        while(children.size < count && childrenQueue.isNotEmpty()){
-            children.add(childrenQueue.poll())
+        val list = ArrayList<String>()
+        while(fetchIndex < children.size && list.size < count){
+            list.add(children[fetchIndex++])
         }
-        return children
+        return list
     }
 
     fun pollChildrenAsValidString(count: Int): String{
@@ -371,9 +364,9 @@ data class More(
         return sb.toString()
     }
 
-    fun isChildQueueEmpty(): Boolean = childrenQueue.isEmpty()
+    fun lastChildFetched() = fetchIndex == children.size
 
-    fun queueSize() = childrenQueue.size
+    fun childrenLeft() = children.size - fetchIndex
 
     @IgnoredOnParcel
     val isContinueThreadLink = id == "_"

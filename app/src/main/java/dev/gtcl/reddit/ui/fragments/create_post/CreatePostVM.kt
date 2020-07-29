@@ -1,11 +1,8 @@
 package dev.gtcl.reddit.ui.fragments.create_post
 
 import android.content.Context
-import android.database.Cursor
 import android.net.Uri
 import android.os.Environment
-import android.provider.MediaStore
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -13,6 +10,7 @@ import com.squareup.moshi.JsonDataException
 import dev.gtcl.reddit.PostContent
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
+import dev.gtcl.reddit.models.reddit.NewPostData
 import dev.gtcl.reddit.models.reddit.listing.Flair
 import dev.gtcl.reddit.models.reddit.listing.Rule
 import dev.gtcl.reddit.repositories.ImgurRepository
@@ -35,9 +33,9 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
     private val viewModelJob = Job()
     private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
-    private val _fetchData = MutableLiveData<Boolean?>()
-    val fetchData: LiveData<Boolean?>
-        get() = _fetchData
+    private val _fetchInput = MutableLiveData<Boolean?>()
+    val fetchInput: LiveData<Boolean?>
+        get() = _fetchInput
 
     private val _subredditSuggestions = MutableLiveData<List<String>>()
     val subredditSuggestions: LiveData<List<String>>
@@ -67,17 +65,21 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
     val urlResubmit: LiveData<URL?>
         get() = _urlResubmit
 
-    fun fetchData(){
-        _fetchData.value = true
-    }
-
-    fun dataFetched(){
-        _fetchData.value = null
-    }
+    private val _newPostData = MutableLiveData<NewPostData?>()
+    val newPostData: LiveData<NewPostData?>
+        get() = _newPostData
 
     private val _postContent = MutableLiveData<PostContent?>()
     val postContent: LiveData<PostContent?>
         get() = _postContent
+
+    fun fetchData(){
+        _fetchInput.value = true
+    }
+
+    fun dataFetched(){
+        _fetchInput.value = null
+    }
 
     fun setPostContent(postContent: PostContent){
         _postContent.value = postContent
@@ -85,6 +87,10 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
 
     fun postContentObserved(){
         _postContent.value = null
+    }
+
+    fun newPostObserved(){
+        _newPostData.value = null
     }
 
     fun searchSubreddits(q: String){
@@ -160,7 +166,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
     ){
         coroutineScope.launch {
             try {
-                val test = subredditRepository.submitTextPost(
+                val newPostResponse = subredditRepository.submitTextPost(
                     subreddit,
                     title,
                     text,
@@ -170,13 +176,13 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                 ).await()
 
                 if(!notifications){
-                    val sendNotificationsResponse = subredditRepository.sendRepliesToInbox(test.json.data.name, notifications).await()
+                    val sendNotificationsResponse = subredditRepository.sendRepliesToInbox(newPostResponse.json.data.name, notifications).await()
                     if(!sendNotificationsResponse.isSuccessful){
                         throw HttpException(sendNotificationsResponse)
                     }
                 }
 
-                Log.d("TAE", "Test: $test")
+                _newPostData.value = newPostResponse.json.data
             } catch (e: Exception){
                 _errorMessage.value = e.toString()
             }
@@ -194,7 +200,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
         coroutineScope.launch {
             try{
                 val imgurResponse = imgurRepository.uploadImage(createFile(application ,photo)).await()
-                val test = subredditRepository.submitUrlPost(
+                val newPostResponse = subredditRepository.submitUrlPost(
                     subreddit,
                     title,
                     imgurResponse.data.link,
@@ -205,13 +211,13 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                 ).await()
 
                 if(!notifications){
-                    val sendNotificationsResponse = subredditRepository.sendRepliesToInbox(test.json.data.name, notifications).await()
+                    val sendNotificationsResponse = subredditRepository.sendRepliesToInbox(newPostResponse.json.data.name, notifications).await()
                     if(!sendNotificationsResponse.isSuccessful){
                         throw HttpException(sendNotificationsResponse)
                     }
                 }
 
-                Log.d("TAE", "Test: $test")
+                _newPostData.value = newPostResponse.json.data
             } catch (e: Exception){
                 _errorMessage.value = e.toString()
             }
@@ -229,7 +235,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
         ){
         coroutineScope.launch {
             try {
-                val test = subredditRepository.submitUrlPost(
+                val newPostResponse = subredditRepository.submitUrlPost(
                     subreddit,
                     title,
                     url.toString(),
@@ -240,13 +246,13 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                 ).await()
 
                 if(!notifications){
-                    val sendNotificationsResponse = subredditRepository.sendRepliesToInbox(test.json.data.name, notifications).await()
+                    val sendNotificationsResponse = subredditRepository.sendRepliesToInbox(newPostResponse.json.data.name, notifications).await()
                     if(!sendNotificationsResponse.isSuccessful){
                         throw HttpException(sendNotificationsResponse)
                     }
                 }
 
-                Log.d("TAE", "Test: $test")
+                _newPostData.value = newPostResponse.json.data
             } catch (e: Exception){
                 if(e is JsonDataException && e.localizedMessage.startsWith("Required value 'data' missing")){
                     try{

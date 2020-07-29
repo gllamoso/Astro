@@ -58,6 +58,10 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
+    private val _removeAt = MutableLiveData<Int?>().apply { value = null }
+    val removeAt: LiveData<Int?>
+        get() = _removeAt
+
     private var playWhenReady = true
     private var currentWindow = 0
     private var playbackPosition = 0.toLong()
@@ -91,27 +95,35 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
             return
         }
 
+        val moreItem = _comments.value?.get(position)
+        if(moreItem == null || moreItem !is More){
+            throw IllegalArgumentException("Invalid more item: $moreItem")
+        }
+        val children = moreItem.pollChildrenAsValidString(CHILDREN_PER_FETCH)
+
         coroutineScope.launch {
             _loading.value = true
-            val moreItem = _comments.value?.get(position)
-            if(moreItem == null || moreItem !is More){
-                throw IllegalArgumentException("Invalid more item: $moreItem")
-            }
-            val children = moreItem.pollChildrenAsValidString(CHILDREN_PER_FETCH)
+
             val comments = listingRepository.getMoreComments(children, post.value!!.name, CommentSort.BEST).await().json.data.things.map { it.data }.filter { !(it is More && it.depth == 0) }
+            if(moreItem.lastChildFetched()){
+                _comments.value?.removeAt(position)
+                _removeAt.value = position
+            }
             _moreComments.value = MoreComments(
                 position,
                 comments
             )
-            if(moreItem.isChildQueueEmpty()){
-                _comments.value?.removeAt(position)
-            }
+
             _comments.value?.addAll(position, comments)
             _loading.value = false
         }
     }
 
-    fun clearMoreComments(){
+    fun removeAtObserved(){
+        _removeAt.value = null
+    }
+
+    fun moreCommentsObserved(){
         _moreComments.value = null
     }
 
@@ -166,6 +178,10 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
 
     fun loadingFinished(){
         _loading.value = false
+    }
+
+    fun addItems(position: Int, items: List<Item>){
+        _comments.value?.addAll(position, items)
     }
 
     fun download(){

@@ -5,7 +5,7 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.database.redditDatabase
 import dev.gtcl.reddit.models.reddit.ErrorResponse
-import dev.gtcl.reddit.models.reddit.PostSubmittedResponse
+import dev.gtcl.reddit.models.reddit.NewPostResponse
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.RedditApi
 import kotlinx.coroutines.Deferred
@@ -260,7 +260,7 @@ class SubredditRepository private constructor(private val application: RedditApp
         nsfw: Boolean,
         spoiler: Boolean,
         flair: Flair?
-    ): Deferred<PostSubmittedResponse>{
+    ): Deferred<NewPostResponse>{
         if(application.accessToken == null){
             throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
         }
@@ -288,7 +288,7 @@ class SubredditRepository private constructor(private val application: RedditApp
         spoiler: Boolean,
         flair: Flair?,
         resubmit: Boolean = false
-    ): Deferred<PostSubmittedResponse>{
+    ): Deferred<NewPostResponse>{
         if(application.accessToken == null){
             throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
         }

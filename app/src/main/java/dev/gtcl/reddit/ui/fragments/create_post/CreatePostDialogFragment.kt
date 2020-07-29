@@ -4,36 +4,50 @@ import android.app.AlertDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ArrayAdapter
-import androidx.fragment.app.Fragment
+import androidx.core.os.bundleOf
+import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
-import androidx.navigation.fragment.navArgs
-import com.google.android.material.chip.Chip
+import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.databinding.FragmentCreatePostBinding
+import dev.gtcl.reddit.databinding.FragmentDialogCreatePostBinding
 import dev.gtcl.reddit.models.reddit.listing.Flair
+import dev.gtcl.reddit.ui.fragments.ContinueThreadPage
+import dev.gtcl.reddit.ui.fragments.ViewPagerVM
 import dev.gtcl.reddit.ui.fragments.create_post.flair.FlairSelectionDialogFragment
 import java.util.*
 import kotlin.NoSuchElementException
 
-class CreatePostFragment : Fragment(){
+class CreatePostDialogFragment : DialogFragment(){
 
-    private lateinit var binding: FragmentCreatePostBinding
-
-    private val args: CreatePostFragmentArgs by navArgs()
+    private lateinit var binding: FragmentDialogCreatePostBinding
 
     private val model: CreatePostVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(CreatePostVM::class.java)
+    }
+
+    private val viewPagerModel: ViewPagerVM by lazy {
+        ViewModelProviders.of(requireParentFragment()).get(ViewPagerVM::class.java)
+    }
+
+    override fun onStart() {
+        super.onStart()
+
+        dialog?.let {
+            val width = ViewGroup.LayoutParams.MATCH_PARENT
+            val height = ViewGroup.LayoutParams.MATCH_PARENT
+            it.window?.setLayout(width, height)
+        }
+
+//        dialog?.window?.setBackgroundDrawableResource(android.R.color.black) // This makes the dialog full screen
     }
 
     override fun onCreateView(
@@ -41,7 +55,7 @@ class CreatePostFragment : Fragment(){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentCreatePostBinding.inflate(inflater)
+        binding = FragmentDialogCreatePostBinding.inflate(inflater)
         binding.model = model
         binding.lifecycleOwner = viewLifecycleOwner
         initSubredditText()
@@ -53,7 +67,7 @@ class CreatePostFragment : Fragment(){
     }
 
     private fun initSubredditText(){
-        val subredditName = args.subredditName
+        val subredditName = requireArguments().getString(SUBREDDIT_KEY)
         binding.rulesButton.isEnabled = subredditName != null
         binding.subredditText.setText(subredditName)
         model.searchSubreddits(subredditName ?: "")
@@ -105,7 +119,7 @@ class CreatePostFragment : Fragment(){
         val toolbar = binding.toolbar
 
         toolbar.setNavigationOnClickListener {
-            findNavController().popBackStack()
+            dismiss()
         }
 
         toolbar.setOnMenuItemClickListener {
@@ -271,5 +285,21 @@ class CreatePostFragment : Fragment(){
                 model.urlResubmitObserved()
             }
         })
+
+        model.newPostData.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                viewPagerModel.newPage(ContinueThreadPage(it.url))
+                model.newPostObserved()
+                dismiss()
+            }
+        })
+    }
+
+    companion object{
+        fun newInstance(subredditName: String?): CreatePostDialogFragment {
+            return CreatePostDialogFragment().apply {
+                arguments = bundleOf(SUBREDDIT_KEY to subredditName)
+            }
+        }
     }
 }

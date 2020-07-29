@@ -17,6 +17,7 @@ import dev.gtcl.reddit.ui.fragments.signin.SignInVM
 import dev.gtcl.reddit.ui.fragments.splash.SplashVM
 import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsVM
 import dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditVM
+import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
 import dev.gtcl.reddit.ui.fragments.search.SearchVM
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingListVM
 import java.lang.IllegalArgumentException
@@ -44,6 +45,9 @@ class ViewModelFactory(private val application: RedditApplication) : ViewModelPr
                 application
             ) as T
             modelClass.isAssignableFrom(MediaDialogVM::class.java) -> MediaDialogVM(
+                application
+            ) as T
+            modelClass.isAssignableFrom(ReplyVM::class.java) -> ReplyVM(
                 application
             ) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: $modelClass")

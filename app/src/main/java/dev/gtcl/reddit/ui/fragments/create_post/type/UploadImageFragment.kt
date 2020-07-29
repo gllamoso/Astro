@@ -3,18 +3,15 @@ package dev.gtcl.reddit.ui.fragments.create_post.type
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
-import androidx.core.net.toFile
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
-import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.ImagePost
 import dev.gtcl.reddit.R
@@ -95,7 +92,7 @@ class UploadImageFragment: Fragment() {
     }
 
     private fun initObservers(){
-        parentModel.fetchData.observe(viewLifecycleOwner, Observer {
+        parentModel.fetchInput.observe(viewLifecycleOwner, Observer {
             if(it == true){
                 if(model.uri.value != null){
                     parentModel.setPostContent(
@@ -110,6 +107,6 @@ class UploadImageFragment: Fragment() {
     }
 
     private fun removeObservers(){
-        parentModel.fetchData.removeObservers(viewLifecycleOwner)
+        parentModel.fetchInput.removeObservers(viewLifecycleOwner)
     }
 }

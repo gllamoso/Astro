@@ -1,6 +1,9 @@
 package dev.gtcl.reddit.ui.viewholders
 
 import android.content.Context
+import android.graphics.Color
+import android.graphics.drawable.ColorDrawable
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -93,8 +96,9 @@ class PostVH private constructor(private val binding:ItemPostBinding)
 
         popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
         popupWindow.height = popupBinding.root.measuredHeight
+        popupWindow.elevation = 20F
+        popupWindow.setBackgroundDrawable(ColorDrawable(Color.WHITE))
         popupWindow.showAsDropDown(anchorView)
-        popupWindow.elevation = 10F
         popupBinding.executePendingBindings()
     }
 

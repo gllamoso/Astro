@@ -23,7 +23,7 @@ class MoreVH private constructor(private val binding: ItemMoreCommentBinding): R
                 ViewGroup.LayoutParams.WRAP_CONTENT)
         }
         binding.commentTextView.setOnClickListener {
-           itemClickListener.itemClicked(item, adapterPosition)
+            itemClickListener.itemClicked(item, adapterPosition)
         }
         binding.executePendingBindings()
     }

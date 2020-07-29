@@ -12,7 +12,6 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import androidx.viewpager.widget.ViewPager
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
@@ -28,7 +27,7 @@ import dev.gtcl.reddit.ui.fragments.PostPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
-import dev.gtcl.reddit.ui.fragments.reply.ReplyFragment
+import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
 import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.LinkResolverDef
 import io.noties.markwon.Markwon
@@ -259,9 +258,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun reply(comment: Comment, position: Int) {
-        findNavController().navigate(
-            ViewPagerFragmentDirections.actionViewPagerFragmentToReplyFragment(comment, position)
-        )
+        ReplyDialogFragment.newInstance(comment, position + 1).show(childFragmentManager, null)
     }
 
     override fun viewProfile(comment: Comment) {

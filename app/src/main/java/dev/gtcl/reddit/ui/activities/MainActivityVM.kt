@@ -50,10 +50,6 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
     val openChromeTab: LiveData<String?>
         get() = _openChromeTab
 
-    private val _newReply = MutableLiveData<NewReply?>()
-    val newReply: LiveData<NewReply?>
-        get() = _newReply
-
     fun refreshObserved(){
         _refreshState.value = null
     }
@@ -64,10 +60,6 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
 
     fun newPageObserved(){
         _newPage.value = null
-    }
-
-    fun newReplyObserved(){
-        _newReply.value = null
     }
 
     fun refreshAccessToken(){
@@ -220,26 +212,10 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
         _openChromeTab.value = null
     }
 
-    fun reply(parent: Item, body: String, position: Int){
-        coroutineScope.launch {
-            try{
-                val newReply = listingRepository.addComment(parent.name, body).await().json.data.things[0].data
-                _newReply.value = NewReply(newReply, position)
-            } catch (e: Exception){
-                _errorMessage.value = e.toString()
-            }
-        }
-    }
-
     private suspend fun fetchAccessToken(refreshToken: String): AccessToken {
         return userRepository.getNewAccessToken("Basic ${getEncodedAuthString(application.baseContext)}", refreshToken).await().apply {
             this.refreshToken = refreshToken
         }
     }
-
-    data class NewReply(
-        val item: Item,
-        val position: Int
-    )
 
 }

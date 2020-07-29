@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
-import dev.gtcl.reddit.R
 import dev.gtcl.reddit.TextPost
 import dev.gtcl.reddit.databinding.FragmentCreatePostTextBinding
 import dev.gtcl.reddit.ui.fragments.create_post.CreatePostVM
@@ -40,7 +39,7 @@ class TextFragment: Fragment() {
     }
 
     private fun initObservers(){
-        model.fetchData.observe(viewLifecycleOwner, Observer {
+        model.fetchInput.observe(viewLifecycleOwner, Observer {
             if(it == true){
                 model.setPostContent(TextPost(binding.text.text.toString()))
                 model.dataFetched()
@@ -58,6 +57,6 @@ class TextFragment: Fragment() {
     }
 
     private fun removeObservers(){
-        model.fetchData.removeObservers(viewLifecycleOwner)
+        model.fetchInput.removeObservers(viewLifecycleOwner)
     }
 }

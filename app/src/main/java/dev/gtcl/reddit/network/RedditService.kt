@@ -137,7 +137,7 @@ interface RedditApiService {
         @Query("flair_text") flairText: String?,
         @Query("resubmit") resubmit: Boolean,
         @Query("api_type") apiType: String = "json"
-    ): Deferred<PostSubmittedResponse>
+    ): Deferred<NewPostResponse>
 
     @POST("/api/submit")
     fun submitPostForError(

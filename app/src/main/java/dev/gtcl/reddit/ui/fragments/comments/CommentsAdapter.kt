@@ -12,6 +12,7 @@ import dev.gtcl.reddit.models.reddit.listing.More
 import dev.gtcl.reddit.ui.viewholders.CommentVH
 import dev.gtcl.reddit.ui.viewholders.MoreVH
 import io.noties.markwon.Markwon
+import okhttp3.internal.notify
 
 class CommentsAdapter(private val markwon: Markwon, private val commentActions: CommentActions, private val itemClickListener: ItemClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), ItemClickListener{
 
@@ -23,15 +24,20 @@ class CommentsAdapter(private val markwon: Markwon, private val commentActions: 
     }
 
     fun addItems(position: Int, items: List<Item>){
-        val itemAtPosition = mCommentItems[position]
-        if (itemAtPosition is More && itemAtPosition.isChildQueueEmpty()){
-            mCommentItems.removeAt(position)
-            notifyItemRemoved(position)
-        }
+//        val itemAtPosition = mCommentItems[position]
+//        if (itemAtPosition is More && itemAtPosition.isChildQueueEmpty()){
+//            mCommentItems.removeAt(position)
+//            notifyItemRemoved(position)
+//        }
 
         mCommentItems.addAll(position, items)
         notifyItemRangeInserted(position, items.size)
-        notifyItemRangeChanged(position + items.size, mCommentItems.size - (position + items.size + 1))
+//        notifyItemRangeChanged(position + items.size, mCommentItems.size - (position + items.size + 1))
+    }
+
+    fun removeAt(position: Int){
+        mCommentItems.removeAt(position)
+        notifyItemRemoved(position)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

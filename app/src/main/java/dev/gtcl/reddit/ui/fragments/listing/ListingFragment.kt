@@ -29,6 +29,7 @@ import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.activities.MainDrawerAdapter
 import dev.gtcl.reddit.ui.fragments.*
+import dev.gtcl.reddit.ui.fragments.create_post.CreatePostDialogFragment
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.SortDialogFragment
@@ -265,11 +266,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
                 when (menuItem.itemId) {
                     R.id.post -> {
                         val subredditName = model.subreddit.value?.displayName
-                        findNavController().navigate(
-                            ViewPagerFragmentDirections.actionViewPagerFragmentToCreatePostFragment(
-                                subredditName
-                            )
-                        )
+                        CreatePostDialogFragment.newInstance(subredditName).show(parentFragmentManager, null)
                     }
                 }
                 true

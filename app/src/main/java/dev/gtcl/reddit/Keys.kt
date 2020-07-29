@@ -18,6 +18,7 @@ const val FLAIR_SELECTED_KEY = "flair_selected"
 const val FLAIR_EDIT_KEY = "flair_edit"
 const val ALBUM_KEY = "album"
 const val ITEM_KEY = "item"
+const val NEW_REPLY_KEY = "new_reply"
 
 // For listing fragments
 const val PROFILE_INFO_KEY = "profile_info"
