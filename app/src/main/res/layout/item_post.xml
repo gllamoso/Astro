@@ -38,6 +38,7 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="4dp"
                     android:src="@drawable/ic_bookmark_24dp"
+                    android:tint="@android:color/holo_orange_light"
                     android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />

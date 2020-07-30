@@ -108,15 +108,38 @@
         </com.google.android.material.bottomappbar.BottomAppBar>
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
+            android:id="@+id/bottom_sheet"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginTop="?android:attr/actionBarSize"
-            android:clipToPadding="false">
+            android:clipToPadding="false"
+            tools:visibility="invisible"
+            app:layout_behavior="@string/bottom_sheet_behavior"
+            app:behavior_peekHeight="0dp">
 
-            <include android:id="@+id/bottom_sheet"
-                layout="@layout/layout_bottom_sheet_comments"
-                app:numOfComments="@{model.post.numComments}"
-                tools:visibility="gone" />
+            <com.google.android.material.appbar.AppBarLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <androidx.appcompat.widget.Toolbar
+                    android:id="@+id/comments_toolbar"
+                    android:layout_width="match_parent"
+                    android:layout_height="?android:attr/actionBarSize"
+                    app:title="@string/comments"
+                    app:menu="@menu/comments_sheet_menu"/>
+
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/comment_list"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                android:background="?android:attr/colorBackground"
+                app:spanCount="1"
+                tools:itemCount="10"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

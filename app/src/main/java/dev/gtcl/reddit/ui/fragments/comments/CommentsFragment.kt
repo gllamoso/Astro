@@ -119,7 +119,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     private fun initBottomBarAndCommentsAdapter() {
         adapter = CommentsAdapter(markwon,this, this)
-        binding.bottomSheet.commentList.adapter = adapter
+        binding.commentList.adapter = adapter
         model.comments.observe(viewLifecycleOwner, Observer {
             if (it != null) {
                 adapter.submitList(it)
@@ -140,7 +140,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
         })
 
-        val behavior = BottomSheetBehavior.from(binding.bottomSheet.bottomSheet)
+        val behavior = BottomSheetBehavior.from(binding.bottomSheet)
         behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(p0: View, p1: Float) {
                 viewPagerActions?.enablePagerSwiping(false)
@@ -154,7 +154,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
         })
 
-        binding.bottomSheet.toolbar.setOnMenuItemClickListener {
+        binding.commentsToolbar.setOnMenuItemClickListener {
             if (it.itemId == R.id.reply && model.post.value != null) {
                 ReplyDialogFragment.newInstance(model.post.value!!, 0).show(childFragmentManager, null)
                 true
@@ -253,7 +253,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
         } else {
             model.fetchPostAndComments(url!!.replace("http[s]?://www\\.reddit\\.com/".toRegex(), ""))
-            BottomSheetBehavior.from(binding.bottomSheet.bottomSheet).state = BottomSheetBehavior.STATE_EXPANDED
+            BottomSheetBehavior.from(binding.bottomSheet).state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
 
