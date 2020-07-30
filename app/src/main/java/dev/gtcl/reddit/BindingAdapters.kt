@@ -43,9 +43,9 @@ fun bindImageAndHideIfNull(imgView: ImageView, imgUrl: String?){
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
-//            .apply(
-//                RequestOptions()
-//                    .placeholder(R.drawable.anim_loading)
+            .apply(
+                RequestOptions()
+                    .placeholder(R.color.background))
 //                    .error(R.drawable.ic_broken_image))
             .into(imgView)
     }
@@ -357,7 +357,12 @@ fun setViewColor(view: View, likes: Boolean?){
 
 @BindingAdapter("read")
 fun setTextColor(textView: TextView, isRead: Boolean?){
-    textView.setTextColor(ContextCompat.getColor(textView.context, if(isRead == true) android.R.color.darker_gray else R.color.textColor))
+    if(isRead == true){
+        textView.setTextColor(ContextCompat.getColor(textView.context, android.R.color.darker_gray))
+    } else {
+        textView.setTextColor(textView.context.resolveColorAttr(android.R.attr.textColorPrimary))
+    }
+//    textView.setTextColor(ContextCompat.getColor(textView.context, if(isRead == true) android.R.color.darker_gray else android.R.attr.textColorPrimary))
 }
 
 @BindingAdapter("invert")

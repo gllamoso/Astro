@@ -97,7 +97,6 @@ class PostVH private constructor(private val binding:ItemPostBinding)
         popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
         popupWindow.height = popupBinding.root.measuredHeight
         popupWindow.elevation = 20F
-        popupWindow.setBackgroundDrawable(ColorDrawable(Color.WHITE))
         popupWindow.showAsDropDown(anchorView)
         popupBinding.executePendingBindings()
     }

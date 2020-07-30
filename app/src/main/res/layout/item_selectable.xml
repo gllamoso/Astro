@@ -19,13 +19,13 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:minWidth="200dp"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground">
 
         <LinearLayout
             android:orientation="horizontal"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="?attr/selectableItemBackground"
             android:paddingVertical="12dp"
             android:paddingHorizontal="16dp">
 
@@ -43,10 +43,10 @@
                 android:layout_width="0dp"
                 android:layout_weight="1"
                 android:layout_height="wrap_content"
-                android:textColor="?android:attr/textColorPrimary"
                 android:textSize="16sp"
                 android:text="@{text}"
                 android:maxLines="1"
+                android:textColor="?android:attr/textColorPrimary"
                 tools:text="Upvote" />
 
             <ImageView

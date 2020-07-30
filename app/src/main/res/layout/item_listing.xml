@@ -22,13 +22,13 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             app:listingType="@{listing}"
-            tools:srcCompat="@drawable/ic_reddit_circle"/>
+            android:tint="@color/colorAccent"
+            tools:srcCompat="@drawable/ic_reddit_cricle_24dp"/>
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:textColor="@color/textColor"
             android:paddingStart="16dp"
             android:paddingEnd="16dp"
             app:listingType="@{listing}"

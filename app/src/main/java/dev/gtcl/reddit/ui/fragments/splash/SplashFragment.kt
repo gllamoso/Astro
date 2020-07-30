@@ -34,6 +34,8 @@ class SplashFragment : Fragment(){
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentSplashBinding.inflate(inflater)
+        binding.model = model
+        binding.lifecycleOwner = viewLifecycleOwner
         getUserFromSharedPreferences()
 
         model.ready.observe(viewLifecycleOwner, Observer {

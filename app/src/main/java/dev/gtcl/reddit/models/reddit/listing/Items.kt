@@ -61,6 +61,7 @@ data class Comment( // TODO: Add more properties: all_awardings
     val saved: Boolean?,
     var likes: Boolean?,
     var isPartiallyCollapsed: Boolean = false
+// TODO: is_submitter
 ): Item(ItemType.Comment)
 
 //   _   ___                                               _
@@ -146,7 +147,7 @@ data class Post(
     val preview: Preview?,
     val media: Media?,
     val domain: String
-    // TODO: Add crosspost_parent_list
+    // TODO: Add crosspost_parent_list, is_submitter
 ) : Item(ItemType.Post) {
 
     @IgnoredOnParcel

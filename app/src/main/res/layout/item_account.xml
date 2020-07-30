@@ -30,7 +30,6 @@
             android:layout_weight="1"
             android:maxLines="1"
             android:text="@{account.name}"
-            android:textColor="@color/textColor"
             tools:text="Account Name"
             android:textStyle="bold"/>
 

@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -28,6 +29,7 @@ import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
+import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
 import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.LinkResolverDef
 import io.noties.markwon.Markwon
@@ -314,10 +316,19 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 //    |_____|\__\___|_| |_| |_|  \_____|_|_|\___|_|\_\ |______|_|___/\__\___|_| |_|\___|_|
 
     override fun itemClicked(item: Item, position: Int) {
-        model.addReadItem(item)
-        if(item is Post){
-            viewPagerActions?.navigateToComments(item, position)
+        when(item){
+            is Post -> {
+                model.addReadItem(item)
+                viewPagerActions?.navigateToComments(item, position)
+            }
+            is Message -> {
+                ReplyDialogFragment.newInstance(item, position).show(childFragmentManager, null)
+            }
+            is Comment -> {
+//                viewPagerActions?.navigateToComments()
+            }
         }
+
     }
 
     //     _   _                 _____           _

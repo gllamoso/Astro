@@ -74,7 +74,7 @@ class ListingRepository private constructor(private val application: RedditAppli
     @MainThread
     fun vote(fullname: String, vote: Vote): Deferred<Response<Unit>> {
         if(application.accessToken == null) {
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+            throw NotLoggedInException()
         }
         return RedditApi.oauth.vote(application.accessToken!!.authorizationHeader, fullname, vote.value)
     }
@@ -82,7 +82,7 @@ class ListingRepository private constructor(private val application: RedditAppli
     @MainThread
     fun save(id: String): Deferred<Response<Unit>>{
         if(application.accessToken == null) {
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+            throw NotLoggedInException()
         }
         return RedditApi.oauth.save(application.accessToken!!.authorizationHeader, id)
     }
@@ -90,7 +90,7 @@ class ListingRepository private constructor(private val application: RedditAppli
     @MainThread
     fun unsave(id: String): Deferred<Response<Unit>>{
         if(application.accessToken == null) {
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+            throw NotLoggedInException()
         }
         return RedditApi.oauth.unsave(application.accessToken!!.authorizationHeader, id)
     }
@@ -98,7 +98,7 @@ class ListingRepository private constructor(private val application: RedditAppli
     @MainThread
     fun hide(id: String): Deferred<Response<Unit>>{
         if(application.accessToken == null) {
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+            throw NotLoggedInException()
         }
         return RedditApi.oauth.hide(application.accessToken!!.authorizationHeader, id)
     }
@@ -106,7 +106,7 @@ class ListingRepository private constructor(private val application: RedditAppli
     @MainThread
     fun unhide(id: String): Deferred<Response<Unit>>{
         if(application.accessToken == null) {
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+            throw NotLoggedInException()
         }
         return RedditApi.oauth.unhide(application.accessToken!!.authorizationHeader, id)
     }
@@ -150,11 +150,10 @@ class ListingRepository private constructor(private val application: RedditAppli
 
     @MainThread
     fun addComment(parentName: String, body: String): Deferred<MoreChildrenResponse>{
-        return if(application.accessToken == null){
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
-        } else {
-            RedditApi.oauth.addComment(application.accessToken!!.authorizationHeader, parentName, body)
+        if(application.accessToken == null) {
+            throw NotLoggedInException()
         }
+        return RedditApi.oauth.addComment(application.accessToken!!.authorizationHeader, parentName, body)
     }
 
     companion object{

@@ -68,6 +68,7 @@
     <string name="reply">Reply</string>
     <string name="more_replies"><u>%d more replies</u></string>
     <string name="continue_to_thread"><u>Continue to thread</u></string>
+    <string name="add_response">Add response…</string>
     <string name="add_comment">Add Comment</string>
 
     <!--Post Details-->
@@ -177,9 +178,14 @@
     <string name="subscriptions">Subscriptions</string>
     <string name="more_options">More Options</string>
     <string name="close">Close</string>
-    <string name="user_must_be_logged_in">User must be logged in to do that</string>
     <string name="download_album">Download Album</string>
     <string name="album_name">Album Name</string>
     <string name="unable_to_create_directory">Unable to create directory %s</string>
+
+    <!--Errors-->
+    <string name="user_must_be_logged_in">User must be logged in to do that.</string>
+    <string name="socket_timeout_error">Unable to connect to Reddit at this time. Please retry later.</string>
+    <string name="unknown_host_exception">Please reconnect to the internet.</string>
+    <string name="something_went_wrong">Something went wrong. Please retry later.</string>
 
 </resources>

@@ -26,7 +26,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@color/colorPrimary"
+                android:background="@color/background"
                 app:layout_collapseMode="pin"
                 app:navigationIcon="?homeAsUpIndicator"
                 app:layout_constraintTop_toTopOf="parent"
@@ -38,7 +38,6 @@
                     android:layout_height="wrap_content"
                     android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
                     android:text="@{model.post.subreddit}"
-                    android:textColor="@android:color/white"
                     tools:text="wholesome" />
 
             </androidx.appcompat.widget.Toolbar>
@@ -105,12 +104,13 @@
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="?android:attr/actionBarSize">
+            android:layout_marginTop="?android:attr/actionBarSize"
+            android:clipToPadding="false">
 
             <include android:id="@+id/bottom_sheet"
                 layout="@layout/layout_bottom_sheet_comments"
                 app:numOfComments="@{model.post.numComments}"
-                tools:visibility="gone"/>
+                tools:visibility="gone" />
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

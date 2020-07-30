@@ -77,6 +77,7 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
         )
         popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
         popupWindow.height = popupBinding.root.measuredHeight
+        popupWindow.elevation = 20F
         popupWindow.showAsDropDown(anchorView)
         popupBinding.executePendingBindings()
     }

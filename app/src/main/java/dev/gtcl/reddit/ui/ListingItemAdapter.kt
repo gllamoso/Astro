@@ -53,6 +53,11 @@ class ListingItemAdapter(
         notifyItemRangeInserted(previousSize, items.size)
     }
 
+    fun addItems(position: Int, items: List<Item>){
+        this.items.addAll(position, items)
+        notifyItemRangeInserted(position, items.size)
+    }
+
     fun update(item: Item, position: Int){
         items[position] = item
         notifyItemChanged(position)
@@ -117,7 +122,7 @@ class ListingItemAdapter(
                 if(messageActions == null){
                     throw java.lang.IllegalStateException("Message Actions not initialized")
                 }
-                (holder as MessageVH).bind(message, messageActions)
+                (holder as MessageVH).bind(message, messageActions, itemClickListener)
             }
             R.layout.item_network_state -> (holder as NetworkStateItemVH).bindTo(networkState)
         }

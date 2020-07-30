@@ -18,7 +18,7 @@
         android:checkable="false"/>
     <item
         android:id="@+id/subscriptions"
-        android:icon="@drawable/ic_reddit"
+        android:icon="@drawable/ic_reddit_no_circle_24dp"
         android:title="@string/subscriptions"
         app:showAsAction="always"
         android:checked="false"

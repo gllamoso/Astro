@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.R
@@ -20,8 +21,10 @@ import dev.gtcl.reddit.databinding.FragmentInboxBinding
 import dev.gtcl.reddit.databinding.LayoutNavHeaderBinding
 import dev.gtcl.reddit.models.reddit.listing.Message
 import dev.gtcl.reddit.ui.activities.MainDrawerAdapter
+import dev.gtcl.reddit.ui.fragments.AccountPage
+import dev.gtcl.reddit.ui.fragments.ViewPagerPage
 
-class MessagesFragment: Fragment(), MessageActions, LeftDrawerActions{
+class InboxFragment: Fragment(), MessageActions, LeftDrawerActions{
 
     private lateinit var binding: FragmentInboxBinding
 
@@ -41,7 +44,7 @@ class MessagesFragment: Fragment(), MessageActions, LeftDrawerActions{
     }
 
     private fun setViewPagerAdapter(){
-        binding.viewPager.adapter = MessagesStateAdapter(this)
+        binding.viewPager.adapter = InboxStateAdapter(this)
         TabLayoutMediator(binding.tabLayout, binding.viewPager) { tab, position ->
             tab.text = getText(when(position){
                 0 -> R.string.inbox
@@ -153,15 +156,12 @@ class MessagesFragment: Fragment(), MessageActions, LeftDrawerActions{
 
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
-//        findNavController().navigate(R.id.account_fragment)
+        findNavController().navigate(InboxFragmentDirections.actionInboxFragmentToViewPagerFragment(AccountPage(null)))
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onInboxClicked() {
-        if((activity?.application as RedditApplication).accessToken == null){
-            Snackbar.make(binding.drawerLayout, R.string.please_login, Snackbar.LENGTH_SHORT).show()
-        }
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }
 

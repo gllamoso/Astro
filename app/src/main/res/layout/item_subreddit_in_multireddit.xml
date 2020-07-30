@@ -27,7 +27,8 @@
             android:layout_margin="8dp"
             app:subredditIcon="@{sub.iconImg}"
             app:tint="@{iconTint}"
-            tools:src="@drawable/ic_reddit_circle" />
+            android:tint="@color/colorAccent"
+            tools:src="@drawable/ic_reddit_cricle_24dp" />
 
         <TextView
             android:layout_width="0dp"
@@ -36,7 +37,6 @@
             android:layout_weight="1"
             android:maxLines="1"
             android:text="@{sub.displayName.replaceFirst(&quot;u_&quot;, &quot;u/&quot;)}"
-            android:textColor="@color/textColor"
             tools:text="Subreddit Name" />
 
         <ImageView

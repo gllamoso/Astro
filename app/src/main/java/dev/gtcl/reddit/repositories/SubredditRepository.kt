@@ -92,7 +92,7 @@ class SubredditRepository private constructor(private val application: RedditApp
     @MainThread
     fun getMyMultiReddits(): Deferred<List<MultiRedditChild>> {
         if(application.accessToken == null) {
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+            throw NotLoggedInException()
         }
         return RedditApi.oauth.getMyMultiReddits(application.accessToken!!.authorizationHeader)
     }
@@ -108,32 +108,32 @@ class SubredditRepository private constructor(private val application: RedditApp
 
     @MainThread
     fun deleteMultiReddit(multipath: String): Deferred<Response<Unit>>{
-        if(application.accessToken == null){
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        if(application.accessToken == null) {
+            throw NotLoggedInException()
         }
         return RedditApi.oauth.deleteMultiReddit(application.accessToken!!.authorizationHeader, multipath)
     }
 
     @MainThread
     fun deleteSubredditFromMultiReddit(multipath: String, subreddit: Subreddit): Deferred<Response<Unit>>{
-        if(application.accessToken == null){
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        if(application.accessToken == null) {
+            throw NotLoggedInException()
         }
         return RedditApi.oauth.deleteSubredditInMultiReddit(application.accessToken!!.authorizationHeader, multipath, subreddit.displayName)
     }
 
     @MainThread
     fun updateMulti(multipath: String, model: MultiRedditUpdate): Deferred<MultiRedditChild> {
-        if(application.accessToken == null){
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        if(application.accessToken == null) {
+            throw NotLoggedInException()
         }
         return RedditApi.oauth.updateMulti(application.accessToken!!.authorizationHeader, multipath, model)
     }
 
     @MainThread
     fun createMulti(model: MultiRedditUpdate): Deferred<MultiRedditChild> {
-        if(application.accessToken == null){
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        if(application.accessToken == null) {
+            throw NotLoggedInException()
         }
         return RedditApi.oauth.createMulti(application.accessToken!!.authorizationHeader, model)
     }
@@ -230,8 +230,8 @@ class SubredditRepository private constructor(private val application: RedditApp
 
     @MainThread
     fun subscribe(name: String, subscribe: Boolean): Deferred<Response<Unit>> {
-        if(application.accessToken == null){
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        if(application.accessToken == null) {
+            throw NotLoggedInException()
         }
 
         val action = if(subscribe){
@@ -245,8 +245,8 @@ class SubredditRepository private constructor(private val application: RedditApp
 
     @MainThread
     fun getFlairs(srName: String): Deferred<List<Flair>>{
-        if(application.accessToken == null){
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        if(application.accessToken == null) {
+            throw NotLoggedInException()
         }
 
         return RedditApi.oauth.getFlairs(application.accessToken!!.authorizationHeader, srName)
@@ -261,8 +261,8 @@ class SubredditRepository private constructor(private val application: RedditApp
         spoiler: Boolean,
         flair: Flair?
     ): Deferred<NewPostResponse>{
-        if(application.accessToken == null){
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        if(application.accessToken == null) {
+            throw NotLoggedInException()
         }
         return RedditApi.oauth.submitPost(
             application.accessToken!!.authorizationHeader,
@@ -289,8 +289,8 @@ class SubredditRepository private constructor(private val application: RedditApp
         flair: Flair?,
         resubmit: Boolean = false
     ): Deferred<NewPostResponse>{
-        if(application.accessToken == null){
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        if(application.accessToken == null) {
+            throw NotLoggedInException()
         }
         return RedditApi.oauth.submitPost(
             application.accessToken!!.authorizationHeader,
@@ -316,8 +316,8 @@ class SubredditRepository private constructor(private val application: RedditApp
         spoiler: Boolean,
         flair: Flair?
     ): Deferred<ErrorResponse>{
-        if(application.accessToken == null){
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        if(application.accessToken == null) {
+            throw NotLoggedInException()
         }
         return RedditApi.oauth.submitPostForError(
             application.accessToken!!.authorizationHeader,
@@ -335,8 +335,8 @@ class SubredditRepository private constructor(private val application: RedditApp
 
     @MainThread
     fun sendRepliesToInbox(id: String, state: Boolean): Deferred<Response<Unit>>{
-        if(application.accessToken == null){
-            throw IllegalStateException(application.getString(R.string.user_must_be_logged_in))
+        if(application.accessToken == null) {
+            throw NotLoggedInException()
         }
         return RedditApi.oauth.setSendReplies(
             application.accessToken!!.authorizationHeader,

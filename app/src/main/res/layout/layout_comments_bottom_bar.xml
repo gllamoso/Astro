@@ -23,8 +23,8 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_upvote_24dp"
             android:layout_gravity="center"
+            android:tint="?android:attr/textColorPrimary"
             app:upvote_tint="@{post.likes}"
-            android:tint="@android:color/black"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"/>
 
@@ -39,8 +39,8 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_upvote_24dp"
             android:layout_gravity="center"
+            android:tint="?android:attr/textColorPrimary"
             app:downvote_tint="@{post.likes}"
-            android:tint="@android:color/black"
             android:rotation="180"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"/>
@@ -56,8 +56,8 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_bookmark_24dp"
             android:layout_gravity="center"
+            android:tint="?android:attr/textColorPrimary"
             app:bookmark_tint="@{post.saved}"
-            android:tint="@android:color/black"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"/>
 
@@ -72,7 +72,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_comment_24dp"
             android:layout_gravity="center"
-            android:tint="@android:color/black"
+            android:tint="?android:attr/textColorPrimary"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"/>
 
@@ -87,7 +87,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_more_vert_24dp"
             android:layout_gravity="center"
-            android:tint="@android:color/black"
+            android:tint="?android:attr/textColorPrimary"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"/>
 

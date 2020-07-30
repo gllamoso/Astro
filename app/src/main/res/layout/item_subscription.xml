@@ -29,7 +29,8 @@
             android:layout_margin="8dp"
             app:subscriptionIcon="@{sub}"
             app:tint="@{iconTint}"
-            tools:src="@drawable/ic_reddit_circle" />
+            tools:src="@drawable/ic_reddit_cricle_24dp"
+            tools:tint="@color/colorAccent"/>
 
         <TextView
             android:layout_width="0dp"
@@ -38,7 +39,6 @@
             android:layout_weight="1"
             android:maxLines="1"
             android:text="@{sub.displayName}"
-            android:textColor="@color/textColor"
             tools:text="Subreddit Name" />
 
         <ImageView

@@ -13,6 +13,8 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import java.net.SocketTimeoutException
+import java.net.UnknownHostException
 
 class SplashVM(val application: RedditApplication): ViewModel() {
 
@@ -27,25 +29,33 @@ class SplashVM(val application: RedditApplication): ViewModel() {
     val ready: LiveData<Boolean?>
         get() = _ready
 
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?>
+        get() = _errorMessage
+
     fun readyComplete(){
         _ready.value = null
     }
 
     fun setCurrentUser(account: Account?, saveToPreferences: Boolean){
         coroutineScope.launch {
-            if(account == null) {
-                application.accessToken = null
-                application.currentAccount = null
-            } else {
-                val accessToken = fetchAccessToken(account.refreshToken!!)
-                application.accessToken = accessToken
-                application.currentAccount = userRepository.getAccount(accessToken).await()
-            }
+            try {
+                if(account == null) {
+                    application.accessToken = null
+                    application.currentAccount = null
+                } else {
+                    val accessToken = fetchAccessToken(account.refreshToken!!)
+                    application.accessToken = accessToken
+                    application.currentAccount = userRepository.getAccount(accessToken).await()
+                }
 
-            if(saveToPreferences){
-                saveAccountToPreferences(application.currentAccount)
+                if(saveToPreferences){
+                    saveAccountToPreferences(application.currentAccount)
+                }
+                _ready.value = true
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
             }
-            _ready.value = true
         }
     }
 

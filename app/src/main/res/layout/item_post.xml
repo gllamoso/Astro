@@ -4,25 +4,27 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="post"
             type="dev.gtcl.reddit.models.reddit.listing.Post" />
-        <import type="android.view.View"/>
+
+        <import type="android.view.View" />
     </data>
 
-    <RelativeLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:cardCornerRadius="8dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginBottom="4dp"
             android:layout_marginStart="8dp"
+            android:layout_marginTop="4dp"
             android:layout_marginEnd="8dp"
-            app:cardBackgroundColor="@color/background">
+            android:layout_marginBottom="4dp"
+            app:cardBackgroundColor="@color/background"
+            app:cardCornerRadius="8dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/rootLayout"
@@ -33,101 +35,93 @@
                 <ImageView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_bookmark_24dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="4dp"
-                    android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}" />
+                    android:src="@drawable/ic_bookmark_24dp"
+                    android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
                 <View
                     android:id="@+id/upvote_indicator"
                     android:layout_width="8dp"
                     android:layout_height="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    tools:background="@android:color/holo_orange_dark"
-                    app:likes="@{post.likes}"/>
+                    app:likes="@{post.likes}"
+                    tools:background="@android:color/holo_orange_dark" />
 
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:src="@drawable/ic_hide_24dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginEnd="4dp"
-                    android:visibility="@{post.hidden == true ? View.VISIBLE : View.GONE}" />
-
-                <LinearLayout
-                    android:id="@+id/text"
+                <TextView
+                    android:id="@+id/title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:background="@android:color/transparent"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
+                    android:layout_margin="8dp"
+                    android:text="@{post.title}"
+                    android:textSize="16sp"
+                    app:layout_constraintEnd_toStartOf="@id/frame_layout"
                     app:layout_constraintStart_toEndOf="@id/upvote_indicator"
-                    app:layout_constraintEnd_toStartOf="@id/frame_layout">
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:read="@{post.isRead}"
+                    tools:text="Title"
+                    tools:textColor="@android:color/black" />
 
-                    <TextView
-                        android:id="@+id/title"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="@{post.title}"
-                        android:textColor="?android:attr/textColorPrimary"
-                        android:textSize="16sp"
-                        app:read="@{post.isRead}"
-                        tools:text="Title"
-                        tools:textColor="@android:color/black" />
+                <TextView
+                    android:id="@+id/subreddit_info"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:text="@{String.format(&quot;%s • %s • %s&quot;, post.subreddit, post.author, post.domain)}"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toStartOf="@id/frame_layout"
+                    app:layout_constraintStart_toEndOf="@id/upvote_indicator"
+                    app:layout_constraintTop_toBottomOf="@id/title"
+                    tools:text="r/funny • John Doe • v.redd.it" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        tools:text="r/funny • John Doe • v.redd.it"
-                        android:textSize="12sp"
-                        android:text="@{String.format(&quot;%s • %s • %s&quot;, post.subreddit, post.author, post.domain)}"/>
+                <TextView
+                    android:id="@+id/score_info"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:text="@{String.format(&quot;%s • %s&quot;, String.format(@string/num_points, post.score), String.format(@string/num_comments, post.numComments))}"
+                    android:textSize="12sp"
+                    app:layout_constraintEnd_toStartOf="@id/frame_layout"
+                    app:layout_constraintStart_toEndOf="@id/upvote_indicator"
+                    app:layout_constraintTop_toBottomOf="@id/subreddit_info"
+                    tools:text="99999 score • 99999 comments" />
 
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:textSize="12sp"
-                        tools:text="99999 score • 99999 comments"
-                        android:text="@{String.format(&quot;%s • %s&quot;, String.format(@string/num_points, post.score), String.format(@string/num_comments, post.numComments))}"/>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        tools:text="3 hours ago"
-                        android:textSize="12sp"
-                        app:timestamp="@{post.created}"/>
-
-                </LinearLayout>
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:layout_marginBottom="8dp"
+                    android:textSize="12sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/frame_layout"
+                    app:layout_constraintStart_toEndOf="@id/upvote_indicator"
+                    app:layout_constraintTop_toBottomOf="@id/score_info"
+                    app:timestamp="@{post.created}"
+                    tools:text="3 hours ago" />
 
                 <FrameLayout
                     android:id="@+id/frame_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="4dp"
                     android:layout_marginBottom="8dp"
-                    android:layout_marginTop="8dp"
                     android:background="@android:color/black"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/more_options"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent">
+                    app:layout_constraintTop_toTopOf="parent">
 
                     <ImageView
                         android:id="@+id/thumbnail"
                         android:layout_width="72dp"
                         android:layout_height="72dp"
-                        app:srcCompat="@android:drawable/ic_menu_gallery"
                         android:background="?android:attr/selectableItemBackground"
-                        app:imageUrlAndHideIfNull="@{post.thumbnail}"/>
+                        app:imageUrlAndHideIfNull="@{post.thumbnail}"
+                        app:srcCompat="@android:drawable/ic_menu_gallery" />
 
                 </FrameLayout>
 
@@ -135,17 +129,16 @@
                     android:id="@+id/more_options"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:src="@drawable/ic_more_vert_24dp"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
                     android:layout_marginEnd="4dp"
-                    android:background="?android:attr/selectableItemBackgroundBorderless" />
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_more_vert_24dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.cardview.widget.CardView>
 
-    </RelativeLayout>
-
+    </LinearLayout>
 </layout>

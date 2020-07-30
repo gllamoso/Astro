@@ -5,8 +5,12 @@ import android.net.Uri
 import android.os.Parcelable
 import android.util.Base64
 import android.util.Log
+import android.util.TypedValue
 import android.webkit.URLUtil
 import android.widget.PopupMenu
+import androidx.annotation.AttrRes
+import androidx.annotation.ColorInt
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.MutableLiveData
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
@@ -22,9 +26,11 @@ import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingSubredditPost
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.lang.Exception
+import java.net.SocketTimeoutException
 import java.net.URL
+import java.net.UnknownHostException
 import java.util.*
+import kotlin.Exception
 
 enum class PostSort{
     @SerializedName("best")
@@ -303,7 +309,7 @@ operator fun <T> MutableLiveData<MutableList<T>>.plusAssign(values: List<T>) {
     this.value = value
 }
 
-fun <T> MutableLiveData<MutableList<T>>.removeAt(position: Int){
+fun <T> MutableLiveData<MutableList<T>>.removeItemAt(position: Int){
     val value = this.value ?: mutableListOf()
     value.removeAt(position)
     this.value = value
@@ -383,4 +389,28 @@ fun String.getUrlType(): UrlType{
         REDDIT_COMMENTS_REGEX.matches(this) -> UrlType.REDDIT_COMMENTS
         else -> UrlType.OTHER
     }
+}
+
+@ColorInt
+fun Context.resolveColorAttr(@AttrRes colorAttr: Int): Int {
+    val resolvedAttr = resolveThemeAttr(colorAttr)
+    // resourceId is used if it's a ColorStateList, and data if it's a color reference or a hex color
+    val colorRes = if (resolvedAttr.resourceId != 0) resolvedAttr.resourceId else resolvedAttr.data
+    return ContextCompat.getColor(this, colorRes)
+}
+
+fun Context.resolveThemeAttr(@AttrRes attrRes: Int): TypedValue {
+    val typedValue = TypedValue()
+    theme.resolveAttribute(attrRes, typedValue, true)
+    return typedValue
+}
+
+fun Exception.getErrorMessage(context: Context): String{
+    val errorId = when(this){
+        is SocketTimeoutException -> R.string.socket_timeout_error
+        is UnknownHostException -> R.string.unknown_host_exception
+        is NotLoggedInException -> R.string.user_must_be_logged_in
+        else -> R.string.something_went_wrong
+    }
+    return context.getString(errorId)
 }

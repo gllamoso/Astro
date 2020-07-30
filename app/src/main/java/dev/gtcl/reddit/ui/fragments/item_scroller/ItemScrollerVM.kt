@@ -117,7 +117,7 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
             _refreshState.value = NetworkState.LOADING
             after = null
             _items.value?.clear()
-            loadMore()
+            loadFirsItemsSuspend()
             _refreshState.value = NetworkState.LOADED
         }
     }
@@ -163,6 +163,10 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
 
     fun removeItemAt(position: Int){
         _items.value?.removeAt(position)
+    }
+
+    fun addItemAt(position: Int, item: Item){
+        _items.value?.add(position, item)
     }
 
 }
