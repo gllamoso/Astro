@@ -93,13 +93,19 @@
 
         </LinearLayout>
 
-        <include
+        <com.google.android.material.bottomappbar.BottomAppBar
             android:id="@+id/bottom_bar"
-            android:layout_height="?android:attr/actionBarSize"
             android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
             android:layout_gravity="bottom"
-            app:post="@{model.post}"
-            layout="@layout/layout_comments_bottom_bar" />
+            app:contentInsetStart="0dp">
+
+            <include
+                android:id="@+id/bottom_bar_layout"
+                app:post="@{model.post}"
+                layout="@layout/layout_comments_bottom_bar" />
+
+        </com.google.android.material.bottomappbar.BottomAppBar>
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"

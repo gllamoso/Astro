@@ -176,14 +176,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     private fun initBottomBarOnClickListeners(behavior: BottomSheetBehavior<CoordinatorLayout>) {
 
-        binding.bottomBar.commentsButton.setOnClickListener {
+        binding.bottomBarLayout.commentsButton.setOnClickListener {
             if (model.loading.value == true) {
                 return@setOnClickListener
             }
             behavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
-        binding.bottomBar.upvoteButton.setOnClickListener {
+        binding.bottomBarLayout.upvoteButton.setOnClickListener {
             if (model.loading.value == true) {
                 return@setOnClickListener
             }
@@ -199,11 +199,11 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     Vote.UNVOTE
                 }
                 activityModel.vote(it.name, vote)
-                binding.bottomBar.invalidateAll()
+                binding.bottomBarLayout.invalidateAll()
             }
         }
 
-        binding.bottomBar.downvoteButton.setOnClickListener {
+        binding.bottomBarLayout.downvoteButton.setOnClickListener {
             if (model.loading.value == true) {
                 return@setOnClickListener
             }
@@ -219,18 +219,18 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     Vote.UNVOTE
                 }
                 activityModel.vote(it.name, vote)
-                binding.bottomBar.invalidateAll()
+                binding.bottomBarLayout.invalidateAll()
             }
         }
 
-        binding.bottomBar.saveButton.setOnClickListener {
+        binding.bottomBarLayout.saveButton.setOnClickListener {
             if (model.loading.value == true) {
                 return@setOnClickListener
             }
             model.post.value?.let {
                 it.saved = !it.saved
                 activityModel.save(it.name, it.saved)
-                binding.bottomBar.invalidateAll()
+                binding.bottomBarLayout.invalidateAll()
             }
         }
 
