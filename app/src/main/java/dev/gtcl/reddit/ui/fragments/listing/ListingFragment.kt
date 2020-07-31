@@ -10,6 +10,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -77,7 +78,6 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
         when (childFragment) {
             is SortDialogFragment -> childFragment.setActions(this)
             is TimeDialogFragment -> childFragment.setActions(this)
-            is SubscriptionsDialogFragment -> childFragment.setActions(this, this)
         }
     }
 
@@ -270,6 +270,11 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
                 Toast.makeText(context, it, Toast.LENGTH_LONG).show()
             }
         })
+
+        childFragmentManager.setFragmentResultListener(LISTING_KEY, viewLifecycleOwner){ _, bundle ->
+            val listing = bundle.get(LISTING_KEY) as ListingType
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(listing)))
+        }
     }
 
 //     _____          _                  _   _

@@ -5,16 +5,15 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
-import dev.gtcl.reddit.MULTI_KEY
-import dev.gtcl.reddit.R
-import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.ViewModelFactory
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.ListingTypeClickListener
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.actions.SubscriptionActions
@@ -30,13 +29,6 @@ import dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditDetailsDialogFragmen
 class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActions, ListingTypeClickListener{
 
     private lateinit var binding: FragmentDialogSubscriptionsBinding
-    private var parentListingTypeClickListener: ListingTypeClickListener? = null
-    private var parentSubredditActions: SubredditActions? = null
-
-    fun setActions(listingTypeClickListener: ListingTypeClickListener, subredditActions: SubredditActions){
-        this.parentListingTypeClickListener = listingTypeClickListener
-        this.parentSubredditActions = subredditActions
-    }
 
     private val activityModel: MainActivityVM by activityViewModels()
 
@@ -161,7 +153,8 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
     }
 
     override fun listingTypeClicked(listing: ListingType) {
-        parentListingTypeClickListener?.listingTypeClicked(listing)
+        parentFragmentManager.setFragmentResult(LISTING_KEY, bundleOf(LISTING_KEY to listing))
+        dismiss()
     }
 
 //      _____       _                   _       _   _                            _   _
