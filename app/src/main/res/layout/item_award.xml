@@ -20,7 +20,7 @@
             android:layout_height="40dp"
             android:layout_centerHorizontal="true"
             tools:src="@drawable/ic_best_24dp"
-            app:imageUrl="@{award.icon70}"/>
+            app:loadImage="@{award.icon70}"/>
 
         <TextView
             android:id="@+id/name"

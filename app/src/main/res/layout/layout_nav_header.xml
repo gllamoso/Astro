@@ -24,7 +24,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:scaleType="centerCrop"
-            app:imageUrlAndHideIfNull="@{account.validBannerImg}"/>
+            app:loadImage="@{account.validBannerImg}"/>
 
         <ImageView
             android:id="@+id/avatar"
@@ -35,7 +35,7 @@
             android:elevation="10dp"
             app:layout_constraintVertical_bias="100"
             android:src="@drawable/ic_user_24dp"
-            app:imageUrlAndHideIfNull="@{account.validProfileImg}"
+            app:loadImage="@{account.validProfileImg}"
             app:layout_constraintBottom_toTopOf="@id/name"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"

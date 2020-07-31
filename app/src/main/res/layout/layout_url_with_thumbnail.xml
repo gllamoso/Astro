@@ -57,7 +57,7 @@
                 android:layout_width="72dp"
                 android:layout_height="72dp"
                 android:background="?android:attr/selectableItemBackground"
-                app:imageUrlAndHideIfNull="@{thumbnailUrl}"
+                app:loadImageAndHideIfNull="@{thumbnailUrl}"
                 app:srcCompat="@android:drawable/ic_menu_gallery" />
 
         </FrameLayout>

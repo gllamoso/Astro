@@ -59,6 +59,10 @@ class SplashVM(val application: RedditApplication): ViewModel() {
         }
     }
 
+    fun errorMessageObserved(){
+        _errorMessage.value = null
+    }
+
     private fun saveAccountToPreferences(account: Account?){
         val sharedPrefs = application.getSharedPreferences(application.getString(R.string.preferences_file_key), Context.MODE_PRIVATE)
         with(sharedPrefs.edit()) {

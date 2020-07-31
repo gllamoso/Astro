@@ -36,8 +36,8 @@ import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditSubredditsAdapter
 
 
-@BindingAdapter("imageUrlAndHideIfNull")
-fun bindImageAndHideIfNull(imgView: ImageView, imgUrl: String?){
+@BindingAdapter("loadImageAndHideIfNull")
+fun loadImageAndHideIfNull(imgView: ImageView, imgUrl: String?){
     if(imgUrl != null && imgUrl.startsWith("http")){
         imgView.visibility = View.VISIBLE
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
@@ -52,8 +52,8 @@ fun bindImageAndHideIfNull(imgView: ImageView, imgUrl: String?){
     else imgView.visibility = View.GONE
 }
 
-@BindingAdapter("imageUrl")
-fun bindImage(imgView: ImageView, imgUrl: String?){
+@BindingAdapter("loadImage")
+fun loadImage(imgView: ImageView, imgUrl: String?){
     if(imgUrl == null) return
     if(imgUrl.startsWith("http")){
         imgView.visibility = View.VISIBLE
@@ -91,17 +91,17 @@ fun bindVideo(playerView: PlayerView, post: Post?){
 }
 
 @BindingAdapter("post")
-fun bindImage(subsamplingScaleImageView: SubsamplingScaleImageView, post: Post?){
+fun loadImage(subsamplingScaleImageView: SubsamplingScaleImageView, post: Post?){
     if(post == null || post.postType != PostType.IMAGE) {
         subsamplingScaleImageView.visibility = View.GONE
         return
     }
     subsamplingScaleImageView.visibility = View.VISIBLE
-    bindImage(subsamplingScaleImageView, post.url)
+    loadImage(subsamplingScaleImageView, post.url)
 }
 
 @BindingAdapter("subsampleImage")
-fun bindImage(subsamplingScaleImageView: SubsamplingScaleImageView, imgUrl: String?){
+fun loadImage(subsamplingScaleImageView: SubsamplingScaleImageView, imgUrl: String?){
     Glide.with(subsamplingScaleImageView.context)
         .asBitmap()
         .load(imgUrl)

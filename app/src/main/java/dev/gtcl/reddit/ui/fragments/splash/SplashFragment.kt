@@ -47,6 +47,11 @@ class SplashFragment : Fragment(){
             }
         })
 
+        binding.retryButton.setOnClickListener {
+            model.errorMessageObserved()
+            getUserFromSharedPreferences()
+        }
+
         return binding.root
     }
 
