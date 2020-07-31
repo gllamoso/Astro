@@ -81,12 +81,16 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
 
     fun fetchPostAndComments(permalink: String = post.value!!.permalink){
         coroutineScope.launch {
-            _loading.value = true
-            val commentPage = listingRepository.getPostAndComments(permalink, CommentSort.BEST, pageSize * 3).await()
-            _post.value = commentPage.post
-            _comments.value = commentPage.comments.toMutableList()
-            _commentsFetched = true
-            _loading.value = false
+            try{
+                _loading.value = true
+                val commentPage = listingRepository.getPostAndComments(permalink, CommentSort.BEST, pageSize * 3).await()
+                _post.value = commentPage.post
+                _comments.value = commentPage.comments.toMutableList()
+                _commentsFetched = true
+                _loading.value = false
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
+            }
         }
     }
 
@@ -102,20 +106,24 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
         val children = moreItem.pollChildrenAsValidString(CHILDREN_PER_FETCH)
 
         coroutineScope.launch {
-            _loading.value = true
+            try{
+                _loading.value = true
 
-            val comments = listingRepository.getMoreComments(children, post.value!!.name, CommentSort.BEST).await().json.data.things.map { it.data }.filter { !(it is More && it.depth == 0) }
-            if(moreItem.lastChildFetched()){
-                _comments.value?.removeAt(position)
-                _removeAt.value = position
+                val comments = listingRepository.getMoreComments(children, post.value!!.name, CommentSort.BEST).await().json.data.things.map { it.data }.filter { !(it is More && it.depth == 0) }
+                if(moreItem.lastChildFetched()){
+                    _comments.value?.removeAt(position)
+                    _removeAt.value = position
+                }
+                _moreComments.value = MoreComments(
+                    position,
+                    comments
+                )
+
+                _comments.value?.addAll(position, comments)
+                _loading.value = false
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
             }
-            _moreComments.value = MoreComments(
-                position,
-                comments
-            )
-
-            _comments.value?.addAll(position, comments)
-            _loading.value = false
         }
     }
 
@@ -164,7 +172,7 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
                 prepare(mediaSource, false, false)
                 addListener(object: Player.EventListener{
                     override fun onPlayerError(error: ExoPlaybackException?) {
-                        Log.e("Media", "Exception: $error")
+                        _errorMessage.value = application.getString(R.string.error_with_video_player)
                         if(uri.path != post.previewVideoUrl) {
                             mediaSource = buildMediaSource(application.baseContext, Uri.parse(post.previewVideoUrl))
                             prepare(mediaSource, false, false)
@@ -182,6 +190,10 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
 
     fun addItems(position: Int, items: List<Item>){
         _comments.value?.addAll(position, items)
+    }
+
+    fun errorMessageObserved(){
+        _errorMessage.value = null
     }
 
     fun download(){

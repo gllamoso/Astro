@@ -69,13 +69,6 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
                 listAdapter.clearItems()
                 listAdapter.addItems(it)
                 listingScrollListener.finishedLoading()
-                if(it.isEmpty()){
-                    binding.list.visibility = View.GONE
-                    binding.noResultsText.visibility = View.VISIBLE
-                } else {
-                    binding.list.visibility = View.VISIBLE
-                    binding.noResultsText.visibility = View.GONE
-                }
             }
         })
 

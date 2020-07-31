@@ -24,6 +24,7 @@ import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.Target
 import com.google.android.material.bottomsheet.BottomSheetBehavior
+import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.actions.CommentActions
@@ -58,8 +59,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     private lateinit var adapter: CommentsAdapter
 
-    private var viewPagerActions: ViewPagerActions? = null
-
     private val markwon: Markwon by lazy {
         Markwon.builder(requireContext())
             .usePlugin(object : AbstractMarkwonPlugin() {
@@ -74,10 +73,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             .build()
     }
 
-    fun setActions(viewPagerActions: ViewPagerActions) {
-        this.viewPagerActions = viewPagerActions
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -90,9 +85,19 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         initPost()
         initTopBar()
         initBottomBarAndCommentsAdapter()
+        initOtherObservers()
 
         binding.executePendingBindings()
         return binding.root
+    }
+
+    private fun initOtherObservers() {
+        model.errorMessage.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                Snackbar.make(binding.bottomBar, it, Snackbar.LENGTH_LONG).show()
+                model.errorMessageObserved()
+            }
+        })
     }
 
     override fun onPause() {
@@ -113,7 +118,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     private fun initTopBar() {
         binding.toolbar.setNavigationOnClickListener {
-            viewPagerActions?.navigatePreviousPage()
+            viewPagerModel.navigateToPreviousPage()
         }
     }
 
@@ -121,9 +126,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         adapter = CommentsAdapter(markwon,this, this)
         binding.commentList.adapter = adapter
         model.comments.observe(viewLifecycleOwner, Observer {
-            if (it != null) {
-                adapter.submitList(it)
-            }
+            adapter.submitList(it)
         })
 
         model.moreComments.observe(viewLifecycleOwner, Observer {
@@ -143,14 +146,11 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         val behavior = BottomSheetBehavior.from(binding.bottomSheet)
         behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(p0: View, p1: Float) {
-                viewPagerActions?.enablePagerSwiping(false)
+                viewPagerModel.swipingEnabled(false)
             }
 
             override fun onStateChanged(p0: View, newState: Int) {
-                when (newState) {
-                    BottomSheetBehavior.STATE_HIDDEN, BottomSheetBehavior.STATE_COLLAPSED -> viewPagerActions?.enablePagerSwiping(true)
-                    else -> viewPagerActions?.enablePagerSwiping(false)
-                }
+                viewPagerModel.swipingEnabled(newState == BottomSheetBehavior.STATE_HIDDEN || newState == BottomSheetBehavior.STATE_COLLAPSED)
             }
         })
 
@@ -177,9 +177,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     private fun initBottomBarOnClickListeners(behavior: BottomSheetBehavior<CoordinatorLayout>) {
 
         binding.bottomBarLayout.commentsButton.setOnClickListener {
-            if (model.loading.value == true) {
-                return@setOnClickListener
-            }
             behavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 

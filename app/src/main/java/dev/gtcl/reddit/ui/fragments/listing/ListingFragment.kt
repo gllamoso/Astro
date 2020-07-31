@@ -2,7 +2,6 @@ package dev.gtcl.reddit.ui.fragments.listing
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.PopupMenu
 import android.widget.Toast
@@ -44,8 +43,6 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     ItemClickListener, LeftDrawerActions, SortActions, LinkHandler {
 
     private lateinit var binding: FragmentListingBinding
-    private var viewPagerActions: ViewPagerActions? = null
-    private var navigationActions: NavigationActions? = null
 
     private val model: ListingVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
@@ -74,14 +71,6 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 
     private lateinit var scrollListener: ItemScrollListener
     private lateinit var listAdapter: ListingItemAdapter
-
-    fun setActions(
-        viewPagerActions: ViewPagerActions,
-        navigationActions: NavigationActions
-    ) {
-        this.viewPagerActions = viewPagerActions
-        this.navigationActions = navigationActions
-    }
 
     override fun onAttachFragment(childFragment: Fragment) {
         super.onAttachFragment(childFragment)
@@ -140,7 +129,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 
     private fun setList() {
         scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadMore)
-        listAdapter = ListingItemAdapter(markwon, postActions = this, itemClickListener = this, retry = model::retry)
+        listAdapter = ListingItemAdapter(markwon, postActions = this, expected = ItemType.Post, itemClickListener = this, retry = model::retry)
         binding.list.apply {
             this.adapter = listAdapter
             addOnScrollListener(scrollListener)
@@ -324,7 +313,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     override fun thumbnailClicked(post: Post, position: Int) {
         model.addReadItem(post)
         when (val urlType: UrlType? = post.url?.getUrlType()) {
-            UrlType.OTHER -> navigationActions?.launchWebview(post.url)
+//            UrlType.OTHER -> navigationActions?.launchWebview(post.url)
             null -> throw IllegalArgumentException("Post does not have URL")
             else -> {
                 val mediaType = when (urlType) {
@@ -374,7 +363,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 //                              |___/        |___/|_|
 
     override fun listingTypeClicked(listing: ListingType) {
-        navigationActions?.listingSelected(listing)
+//        navigationActions?.listingSelected(listing)
         for (fragment: Fragment in childFragmentManager.fragments) {
             if (fragment is DialogFragment) {
                 fragment.dismiss()
@@ -391,7 +380,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 
     override fun itemClicked(item: Item, position: Int) {
         if (item is Post) {
-            viewPagerActions?.navigateToComments(item, position)
+            viewPagerModel.newPage(PostPage(item, position))
         }
     }
 
@@ -404,7 +393,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 
     @SuppressLint("RtlHardcoded")
     override fun onAddAccountClicked() {
-        navigationActions?.signInNewAccount()
+//        navigationActions?.signInNewAccount()
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }
 
@@ -437,7 +426,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             Snackbar.make(binding.drawerLayout, R.string.please_login, Snackbar.LENGTH_SHORT)
                 .show()
         } else {
-            navigationActions?.accountSelected(null)
+//            navigationActions?.accountSelected(null)
             binding.drawerLayout.closeDrawer(Gravity.LEFT)
         }
     }
@@ -448,7 +437,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             Snackbar.make(binding.drawerLayout, R.string.please_login, Snackbar.LENGTH_SHORT)
                 .show()
         } else {
-            navigationActions?.messagesSelected()
+//            navigationActions?.messagesSelected()
             binding.drawerLayout.closeDrawer(Gravity.LEFT)
         }
     }

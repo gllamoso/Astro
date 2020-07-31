@@ -28,7 +28,11 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     val subreddit: LiveData<Subreddit?>
         get() = _subreddit
 
-    fun retry() {}
+    private lateinit var retryLambda: () -> Unit
+
+    fun retry() {
+        retryLambda()
+    }
 
     private val _networkState = MutableLiveData<NetworkState>()
     val networkState: LiveData<NetworkState>
@@ -126,7 +130,8 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
                 _lastItemReached.value = items.size < size
                 after = response.data.after
             } catch (e: Exception){
-                _errorMessage.value = e.toString()
+                retryLambda = ::loadFirstItems
+                after = null
             }
             _networkState.postValue(NetworkState.LOADED)
             _refreshState.postValue(NetworkState.LOADED)
@@ -139,7 +144,8 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
             return
         }
         coroutineScope.launch {
-            _networkState.postValue(NetworkState.LOADING)
+            _networkState.value = NetworkState.LOADING
+            val previousAfter = after
             try {
                 // Get listing items
                 val size = pageSize
@@ -151,11 +157,12 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
                 _items.value?.addAll(items)
                 _lastItemReached.value = items.size < size
                 after = response.data.after
+                _networkState.value = NetworkState.LOADED
             } catch (e: Exception){
-                _errorMessage.value = e.toString()
+                after = previousAfter
+                retryLambda = ::loadMore
+                _networkState.value = NetworkState.error(e.getErrorMessage(application))
             }
-            _networkState.postValue(NetworkState.LOADED)
-            _initialPageLoaded = true
         }
     }
 

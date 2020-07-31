@@ -11,7 +11,6 @@ import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.repositories.MessageRepository
 import dev.gtcl.reddit.repositories.SubredditRepository
 import kotlinx.coroutines.*
-import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
 class ItemScrollerVM(application: RedditApplication): AndroidViewModel(application){

@@ -8,7 +8,6 @@ import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.viewholders.NetworkStateItemVH
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.ui.viewholders.TrendingSubredditVH
-import java.util.*
 import kotlin.collections.ArrayList
 import kotlin.collections.HashSet
 
@@ -59,7 +58,7 @@ class TrendingAdapter(private val itemClickListener: ItemClickListener, private 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when(getItemViewType(position)){
             R.layout.item_trending_subreddit -> (holder as TrendingSubredditVH).bind(items[position], subredditActions) { itemClickListener.itemClicked(it, position) }
-            R.layout.item_network_state -> (holder as NetworkStateItemVH).bindTo(networkState)
+            R.layout.item_network_state -> (holder as NetworkStateItemVH).bind(networkState, retry)
         }
 
     }
@@ -67,7 +66,7 @@ class TrendingAdapter(private val itemClickListener: ItemClickListener, private 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(viewType){
             R.layout.item_trending_subreddit -> TrendingSubredditVH.create(parent)
-            R.layout.item_network_state -> NetworkStateItemVH.create(parent, retry)
+            R.layout.item_network_state -> NetworkStateItemVH.create(parent)
             else -> throw IllegalArgumentException("Unknown view type $viewType")
         }
     }

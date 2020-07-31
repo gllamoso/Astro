@@ -111,11 +111,13 @@
             android:id="@+id/bottom_sheet"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginTop="?android:attr/actionBarSize"
+            android:paddingTop="?android:attr/actionBarSize"
+            app:layout_behavior="@string/bottom_sheet_behavior"
             android:clipToPadding="false"
             tools:visibility="invisible"
-            app:layout_behavior="@string/bottom_sheet_behavior"
             app:behavior_peekHeight="0dp">
+
+<!--          -->
 
             <com.google.android.material.appbar.AppBarLayout
                 android:layout_width="match_parent"

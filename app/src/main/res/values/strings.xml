@@ -70,6 +70,8 @@
     <string name="continue_to_thread"><u>Continue to thread</u></string>
     <string name="add_response">Add response…</string>
     <string name="add_comment">Add Comment</string>
+    <string name="fetching_comments">Fetching comments…</string>
+    <string name="no_comments_yet">No comments yet.</string>
 
     <!--Post Details-->
     <string name="num_comments">%s comments</string>
@@ -89,7 +91,6 @@
     <string name="hour_ago">1 hour</string>
     <string name="minutes_ago">%d minutes</string>
     <string name="a_moment_ago">A moment</string>
-    <string name="nothing_found">Nothing found.</string>
 
     <!--Account-->
     <string name="overview">Overview</string>
@@ -181,11 +182,16 @@
     <string name="download_album">Download Album</string>
     <string name="album_name">Album Name</string>
     <string name="unable_to_create_directory">Unable to create directory %s</string>
+    <string name="nothing_found">Nothing found.</string>
+    <string name="no_posts_found">No posts found.</string>
+    <string name="no_comments_found">No comments found.</string>
+    <string name="no_messages_found">No messages found.</string>
 
     <!--Errors-->
     <string name="user_must_be_logged_in">User must be logged in to do that.</string>
     <string name="socket_timeout_error">Unable to connect to Reddit at this time. Please retry later.</string>
     <string name="unknown_host_exception">Please reconnect to the internet.</string>
     <string name="something_went_wrong">Something went wrong. Please retry later.</string>
+    <string name="error_with_video_player">Error with video player</string>
 
 </resources>

@@ -4,7 +4,6 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <import type="dev.gtcl.reddit.network.Status"/>
         <import type="android.view.View"/>
         <variable
             name="model"
@@ -16,34 +15,16 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <FrameLayout
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list"
+            android:tag="recycler_view"
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
-
-            <TextView
-                android:id="@+id/no_results_text"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center_horizontal|top"
-                android:textColor="@android:color/black"
-                android:visibility="@{(model.networkState.status != Status.RUNNING &amp;&amp; model.items != null &amp;&amp; model.items.size() == 0 ? View.VISIBLE : View.GONE)}"
-                android:padding="32dp"
-                android:text="@string/nothing_found"
-                android:elevation="8dp"/>
-
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/list"
-                android:tag="recycler_view"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                tools:itemCount="20"
-                tools:listitem="@layout/item_listing"
-                android:visibility="@{model.items != null &amp;&amp; model.items.size() > 0 ? View.VISIBLE : View.GONE}"
-                android:scrollbars="vertical"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                app:spanCount="1"/>
-
-        </FrameLayout>
+            android:layout_height="match_parent"
+            tools:itemCount="20"
+            tools:listitem="@layout/item_listing"
+            android:scrollbars="vertical"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="1"/>
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 

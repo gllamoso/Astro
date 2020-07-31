@@ -1,7 +1,6 @@
 package dev.gtcl.reddit.ui.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,9 +20,6 @@ import dev.gtcl.reddit.models.reddit.listing.ListingType
 import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.models.reddit.listing.SubscriptionListing
 import dev.gtcl.reddit.ui.activities.MainActivityVM
-import dev.gtcl.reddit.ui.fragments.account.AccountFragment
-import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
-import dev.gtcl.reddit.ui.fragments.listing.ListingFragment
 
 class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
 
@@ -41,19 +37,11 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
     private lateinit var pageAdapter: PageAdapter
     private lateinit var backPressedCallback: OnBackPressedCallback
 
-    override fun onAttachFragment(childFragment: Fragment) {
-        super.onAttachFragment(childFragment)
-        when(childFragment){
-            is ListingFragment -> childFragment.setActions(this, this)
-            is CommentsFragment -> childFragment.setActions(this)
-            is AccountFragment -> childFragment.setActions(this, this)
-        }
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentViewpagerBinding.inflate(inflater)
-        setViewPagerAdapter()
-        setBackPressedCallback()
+        initViewPagerAdapter()
+        initBackPressedCallback()
+        initObservers()
         return binding.root
     }
 
@@ -62,7 +50,7 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
         backPressedCallback.isEnabled = binding.viewpager.currentItem != 0
     }
 
-    private fun setViewPagerAdapter(){
+    private fun initViewPagerAdapter(){
         pageAdapter = PageAdapter(this)
         if(model.pages.isNotEmpty()){
             pageAdapter.setPageStack(model.pages)
@@ -105,13 +93,24 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
         }
     }
 
-    private fun setBackPressedCallback(){
+    private fun initBackPressedCallback(){
         backPressedCallback = object: OnBackPressedCallback(true){
             override fun handleOnBackPressed() {
                 navigatePreviousPage()
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback)
+    }
+
+    private fun initObservers() {
+        model.swipeEnabled.observe(viewLifecycleOwner, Observer {
+            binding.viewpager.isUserInputEnabled = it
+        })
+
+        model.navigateToPreviousPage.observe(viewLifecycleOwner, Observer {
+            navigatePreviousPage()
+            model.navigateToPreviousPageObserved()
+        })
     }
 
     override fun onDestroyView() {

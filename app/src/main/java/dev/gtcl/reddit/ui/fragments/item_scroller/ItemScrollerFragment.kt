@@ -42,9 +42,6 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     private lateinit var scrollListener: ItemScrollListener
     private lateinit var listAdapter: ListingItemAdapter
 
-    private var viewPagerActions: ViewPagerActions? = null
-    private var navigationActions: NavigationActions? = null
-
     val model: ItemScrollerVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(ItemScrollerVM::class.java)
@@ -65,11 +62,6 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     private val activityModel: MainActivityVM by activityViewModels()
-
-    fun setActions(viewPagerActions: ViewPagerActions?, navigationActions: NavigationActions?){
-        this.viewPagerActions = viewPagerActions
-        this.navigationActions = navigationActions
-    }
 
     private fun setListingInfo(){
         val args = requireArguments()
@@ -120,7 +112,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             model.loadFirstItems()
         }
 
-        listAdapter = ListingItemAdapter(markwon, this, this, this, this, this, model::retry)
+        listAdapter = ListingItemAdapter(markwon, this, this, this, this, null,this, model::retry)
         scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadMore)
         binding.list.apply {
             adapter = listAdapter
@@ -212,7 +204,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         model.addReadItem(post)
         Log.d("TAE", "Url clicked: ${post.url}")
         when (val urlType: UrlType? = post.url?.getUrlType()) {
-            UrlType.OTHER -> navigationActions?.launchWebview(post.url)
+            UrlType.OTHER -> activityModel.openChromeTab(post.url)
             null -> throw IllegalArgumentException("Post does not have URL")
             else -> {
                 val mediaType = when (urlType) {
@@ -291,7 +283,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     override fun delete(message: Message) {}
 
     override fun viewProfile(user: String) {
-        navigationActions?.accountSelected(user)
+//        navigationActions?.accountSelected(user)
     }
 
     override fun block(user: String) {}
@@ -319,7 +311,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         when(item){
             is Post -> {
                 model.addReadItem(item)
-                viewPagerActions?.navigateToComments(item, position)
+                activityModel.newPage(PostPage(item, position))
             }
             is Message -> {
                 ReplyDialogFragment.newInstance(item, position).show(childFragmentManager, null)

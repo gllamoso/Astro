@@ -8,6 +8,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
@@ -17,30 +18,21 @@ import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.ListingType
 import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.ui.activities.MainActivityVM
+import dev.gtcl.reddit.ui.fragments.PostPage
+import dev.gtcl.reddit.ui.fragments.ViewPagerVM
 import dev.gtcl.reddit.ui.fragments.item_scroller.ItemScrollerFragment
 
-class AccountFragment : Fragment(), ItemClickListener, LeftDrawerActions, NavigationActions, ViewPagerActions {
+class AccountFragment : Fragment(), LeftDrawerActions, NavigationActions, ViewPagerActions {
 
     private lateinit var binding: FragmentUserBinding
-
-    private var viewPagerActions: ViewPagerActions? = null
-    private var navigationActions: NavigationActions? = null
-
-    fun setActions(viewPagerActions: ViewPagerActions, navigationActions: NavigationActions){
-        this.viewPagerActions = viewPagerActions
-        this.navigationActions = navigationActions
-    }
 
     val model: AccountFragmentVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
         ViewModelProvider(this, viewModelFactory).get(AccountFragmentVM::class.java)
     }
 
-    override fun onAttachFragment(childFragment: Fragment) {
-        super.onAttachFragment(childFragment)
-        when(childFragment){
-            is ItemScrollerFragment -> childFragment.setActions(this, this)
-        }
+    private val viewPagerModel: ViewPagerVM by lazy {
+        ViewModelProviders.of(requireParentFragment()).get(ViewPagerVM::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -97,12 +89,6 @@ class AccountFragment : Fragment(), ItemClickListener, LeftDrawerActions, Naviga
         }
     }
 
-    override fun itemClicked(item: Item, position: Int) {
-        if(item is Post){
-            viewPagerActions?.navigateToComments(item, position)
-        }
-    }
-
 //     _           __ _     _____                                             _   _
 //    | |         / _| |   |  __ \                                  /\       | | (_)
 //    | |     ___| |_| |_  | |  | |_ __ __ ___      _____ _ __     /  \   ___| |_ _  ___  _ __  ___
@@ -111,7 +97,7 @@ class AccountFragment : Fragment(), ItemClickListener, LeftDrawerActions, Naviga
 //    |______\___|_|  \__| |_____/|_|  \__,_| \_/\_/ \___|_|    /_/    \_\___|\__|_|\___/|_| |_|___/
 
     override fun onAddAccountClicked() {
-        navigationActions?.signInNewAccount()
+//        navigationActions?.signInNewAccount()
     }
 
     override fun onRemoveAccountClicked(user: String) {
@@ -131,11 +117,11 @@ class AccountFragment : Fragment(), ItemClickListener, LeftDrawerActions, Naviga
     }
 
     override fun onMyAccountClicked() {
-        navigationActions?.accountSelected(null)
+//        navigationActions?.accountSelected(null)
     }
 
     override fun onInboxClicked() {
-        navigationActions?.messagesSelected()
+//        navigationActions?.messagesSelected()
     }
 
     override fun onSettingsClicked() {
@@ -152,23 +138,24 @@ class AccountFragment : Fragment(), ItemClickListener, LeftDrawerActions, Naviga
 //                         |___/
 
     override fun listingSelected(listing: ListingType) {
-        navigationActions?.listingSelected(listing)
+//        navigationActions?.listingSelected(listing)
     }
 
     override fun accountSelected(user: String?) {
-        navigationActions?.accountSelected(user)
+//        navigationActions?.accountSelected(user)
     }
 
     override fun messagesSelected() {
-        navigationActions?.messagesSelected()
+//        navigationActions?.messagesSelected()
     }
 
     override fun signInNewAccount() {
-        navigationActions?.signInNewAccount()
+//        navigationActions?.signInNewAccount()
     }
 
     override fun launchWebview(url: String) {
-        navigationActions?.launchWebview(url)
+//        navigationActions?.launchWebview(url)
+
     }
 
 //    __      ___               _____                                     _   _
@@ -181,15 +168,15 @@ class AccountFragment : Fragment(), ItemClickListener, LeftDrawerActions, Naviga
 //                                         |___/
 
     override fun enablePagerSwiping(enable: Boolean) {
-        viewPagerActions?.enablePagerSwiping(enable)
+//        viewPagerActions?.enablePagerSwiping(enable)
     }
 
     override fun navigatePreviousPage() {
-        viewPagerActions?.navigatePreviousPage()
+//        viewPagerActions?.navigatePreviousPage()
     }
 
     override fun navigateToComments(post: Post, position: Int) {
-        viewPagerActions?.navigateToComments(post, position)
+//        viewPagerActions?.navigateToComments(post, position)
     }
 
     companion object {
