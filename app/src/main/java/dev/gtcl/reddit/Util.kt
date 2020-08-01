@@ -6,7 +6,7 @@ import android.os.Parcelable
 import android.util.Base64
 import android.util.Log
 import android.util.TypedValue
-import android.webkit.URLUtil
+import android.view.View
 import android.widget.PopupMenu
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
@@ -19,8 +19,10 @@ import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
+import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
+import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingSubredditPost
 import kotlinx.android.parcel.Parcelize
@@ -31,6 +33,10 @@ import java.net.URL
 import java.net.UnknownHostException
 import java.util.*
 import kotlin.Exception
+
+const val REDDIT_CLIENT_ID = "NjgsWrF6i2B0Jw"
+const val REDDIT_REDIRECT_URL = "http://reddit.gtcl.com/redirect"
+const val REDDIT_AUTH_URL = "https://www.reddit.com/api/v1/authorize.compact?client_id=%s&response_type=code&state=%s&redirect_uri=%s&duration=permanent&scope=identity edit flair history modconfig modflair modlog modposts modwiki mysubreddits privatemessages read report save submit subscribe vote wikiedit wikiread"
 
 enum class PostSort{
     @SerializedName("best")
@@ -260,9 +266,8 @@ fun buildMediaSource(context: Context, uri: Uri): MediaSource {
     }
 }
 
-fun getEncodedAuthString(context: Context): String{
-    val clientID = context.getText(R.string.client_id)
-    val authString = "$clientID:"
+fun getEncodedAuthString(): String{
+    val authString = "$REDDIT_CLIENT_ID:"
     return Base64.encodeToString(authString.toByteArray(), Base64.NO_WRAP)
 }
 
@@ -413,4 +418,29 @@ fun Exception.getErrorMessage(context: Context): String{
         else -> R.string.something_went_wrong
     }
     return context.getString(errorId)
+}
+
+enum class LeftDrawerHeader{
+    ACCOUNTS,
+    HOME,
+    MY_ACCOUNT,
+    INBOX,
+    SETTINGS
+}
+
+fun saveAccountToPreferences(context: Context, account: SavedAccount?){
+    val sharedPrefs = context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+    with(sharedPrefs.edit()) {
+        val json = Gson().toJson(account)
+        putString(CURRENT_USER_KEY, json)
+        commit()
+    }
+}
+
+fun rotateView(view: View, rotate: Boolean){
+    view.animate().rotation(if(rotate){
+        180F
+    } else {
+        0F
+    })
 }

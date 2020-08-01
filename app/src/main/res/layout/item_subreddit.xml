@@ -28,14 +28,14 @@
             app:subredditIcon="@{sub.iconImg}"
             app:tint="@{iconTint}"
             android:tint="@color/colorAccent"
-            tools:src="@drawable/ic_reddit_cricle_24dp" />
+            tools:src="@drawable/ic_reddit_circle_24dp" />
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:layout_weight="1"
-            android:maxLines="1"
+            android:singleLine="true"
             android:text="@{sub.displayName}"
             tools:text="Subreddit Name" />
 
@@ -46,7 +46,7 @@
             android:layout_marginEnd="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
-            android:src="@drawable/ic_add_circle_outline_24dp"
+            android:src="@drawable/ic_add_circle_24dp"
             app:added="@{sub.userSubscribed}" />
 
     </LinearLayout>

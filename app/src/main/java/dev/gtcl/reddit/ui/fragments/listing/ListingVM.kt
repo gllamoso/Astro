@@ -28,10 +28,10 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     val subreddit: LiveData<Subreddit?>
         get() = _subreddit
 
-    private lateinit var retryLambda: () -> Unit
+    private lateinit var lastAction: () -> Unit
 
     fun retry() {
-        retryLambda()
+        lastAction()
     }
 
     private val _networkState = MutableLiveData<NetworkState>()
@@ -73,13 +73,17 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     val initialPageLoaded: Boolean
         get() = _initialPageLoaded
 
-    private var _lastItemReached = MutableLiveData<Boolean>().apply { value = false }
+    private val _lastItemReached = MutableLiveData<Boolean>().apply { value = false }
     val lastItemReached: LiveData<Boolean>
         get() = _lastItemReached
 
-    private var _newMultiReddit = MutableLiveData<MultiReddit>()
+    private val _newMultiReddit = MutableLiveData<MultiReddit>()
     val newMultiReddit: LiveData<MultiReddit>
         get() = _newMultiReddit
+
+    private val _leftDrawerExpanded = MutableLiveData<Boolean>()
+    val leftDrawerExpanded: LiveData<Boolean>
+        get() = _leftDrawerExpanded
 
     fun setListingInfo(listingType: ListingType){
         this.listingType = listingType
@@ -87,7 +91,7 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
         fetchSubredditInfo(listingType)
     }
 
-    private fun fetchSubredditInfo(listingType: ListingType){
+    fun fetchSubredditInfo(listingType: ListingType){
         coroutineScope.launch {
             val sub = when(listingType){
                 is SubredditListing -> subredditRepository.getSubreddit(listingType.sub.displayName).await().data
@@ -114,27 +118,27 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     }
 
     fun loadFirstItems(){
-        if(lastItemReached.value == true){
-            return
-        }
         coroutineScope.launch {
-            _networkState.postValue(NetworkState.LOADING)
+            _networkState.value = NetworkState.LOADING
             try {
                 // Get listing items
                 val size = pageSize * 3
-                val response = listingRepository.getListing(listingType, postSort.value!!, time.value, after, size).await()
-                val items = response.data.children.map { it.data }.toMutableList()
-                listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
-                setItemsReadStatus(items, readItemIds)
-                _items.value = items
-                _lastItemReached.value = items.size < size
-                after = response.data.after
+                withContext(Dispatchers.IO){
+                    val response = listingRepository.getListing(listingType, postSort.value!!, time.value, after, size).await()
+                    val items = response.data.children.map { it.data }.toMutableList()
+                    listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
+                    setItemsReadStatus(items, readItemIds)
+                    _items.postValue(items)
+                    _lastItemReached.postValue(items.size < size)
+                    after = response.data.after
+                }
             } catch (e: Exception){
-                retryLambda = ::loadFirstItems
+                lastAction = ::loadFirstItems
                 after = null
+                _networkState.value = NetworkState.error(e.getErrorMessage(application))
             }
-            _networkState.postValue(NetworkState.LOADED)
-            _refreshState.postValue(NetworkState.LOADED)
+            _networkState.value = NetworkState.LOADED
+            _refreshState.value = NetworkState.LOADED
             _initialPageLoaded = true
         }
     }
@@ -149,18 +153,26 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
             try {
                 // Get listing items
                 val size = pageSize
-                val response = listingRepository.getListing(listingType, postSort.value!!, time.value, after, size).await()
-                val items = response.data.children.map { it.data }.toMutableList()
-                listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
-                setItemsReadStatus(items, readItemIds)
-                _moreItems.value = items
-                _items.value?.addAll(items)
-                _lastItemReached.value = items.size < size
-                after = response.data.after
+                withContext(Dispatchers.IO) {
+                    val response = listingRepository.getListing(
+                        listingType,
+                        postSort.value!!,
+                        time.value,
+                        after,
+                        size
+                    ).await()
+                    val items = response.data.children.map { it.data }.toMutableList()
+                    listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
+                    setItemsReadStatus(items, readItemIds)
+                    _moreItems.postValue(items)
+                    _items.value?.addAll(items)
+                    _lastItemReached.postValue(items.size < size)
+                    after = response.data.after
+                }
                 _networkState.value = NetworkState.LOADED
             } catch (e: Exception){
                 after = previousAfter
-                retryLambda = ::loadMore
+                lastAction = ::loadMore
                 _networkState.value = NetworkState.error(e.getErrorMessage(application))
             }
         }
@@ -193,6 +205,14 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
 
     fun updateItem(item: Item, position: Int){
         _items.updateItem(item, position)
+    }
+
+    fun toggleLeftDrawerExpanding(){
+        _leftDrawerExpanded.value = !(_leftDrawerExpanded.value!!)
+    }
+
+    fun setLeftDrawerExpanded(expand: Boolean){
+        _leftDrawerExpanded.value = expand
     }
 
     // Right Side Bar Layout

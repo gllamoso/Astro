@@ -100,7 +100,7 @@ class AccountFragment : Fragment(), LeftDrawerActions, NavigationActions, ViewPa
 //        navigationActions?.signInNewAccount()
     }
 
-    override fun onRemoveAccountClicked(user: String) {
+    override fun onRemoveAccountClicked(account: SavedAccount) {
         TODO("Not yet implemented")
     }
 

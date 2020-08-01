@@ -21,6 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/karma"
+            android:singleLine="true"
             app:layout_constraintEnd_toStartOf="@id/centerLine"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
@@ -30,6 +31,7 @@
             android:id="@+id/totalKarma"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:singleLine="true"
             app:layout_constraintTop_toBottomOf="@id/karmaLabel"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/centerLine"
@@ -41,6 +43,7 @@
             android:id="@+id/linkKarmaCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:singleLine="true"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/commentKarmaCount"
             app:layout_constraintTop_toBottomOf="@id/totalKarma"
@@ -52,6 +55,7 @@
             android:id="@+id/commentKarmaCount"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:singleLine="true"
             app:layout_constraintStart_toEndOf="@id/linkKarmaCount"
             app:layout_constraintEnd_toStartOf="@id/centerLine"
             app:layout_constraintTop_toBottomOf="@id/totalKarma"
@@ -74,6 +78,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/reddit_age"
+            android:singleLine="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/centerLine"
             app:layout_constraintTop_toTopOf="parent"
@@ -89,6 +94,7 @@
             app:timestamp="@{account.created}"
             android:drawableStart="@drawable/ic_cake_24dp"
             android:textSize="20sp"
+            android:singleLine="true"
             tools:text="12 year 6 days"/>
 
     </androidx.constraintlayout.widget.ConstraintLayout>

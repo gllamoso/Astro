@@ -2,6 +2,7 @@ package dev.gtcl.reddit.ui.fragments.signin
 
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -16,9 +17,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import dev.gtcl.reddit.R
-import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.ViewModelFactory
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentSignInBinding
 import dev.gtcl.reddit.models.reddit.listing.FrontPage
 import dev.gtcl.reddit.ui.activities.MainActivityVM
@@ -56,7 +55,7 @@ class SignInFragment : Fragment() {
     }
 
     private fun setWebview(){
-        val url = String.format(getString(R.string.auth_url), getString(R.string.client_id), STATE, getString(R.string.redirect_uri))
+        val url = String.format(REDDIT_AUTH_URL, REDDIT_CLIENT_ID, STATE, REDDIT_REDIRECT_URL)
 
         val backPressedCallback  = object: OnBackPressedCallback(false){
             override fun handleOnBackPressed() {
@@ -84,7 +83,7 @@ class SignInFragment : Fragment() {
         binding.webView.apply {
             webViewClient =
                 NewAccountWebViewClient(
-                    getString(R.string.redirect_uri),
+                    REDDIT_REDIRECT_URL,
                     onNavigateToNewPage,
                     onRedirectUrlFound
                 )

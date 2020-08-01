@@ -9,7 +9,7 @@
         />
     <item
         android:id="@+id/subscriptions"
-        android:icon="@drawable/ic_reddit_no_circle_24dp"
+        android:icon="@drawable/ic_reddit_24dp"
         android:title="@string/subscriptions"
         app:showAsAction="ifRoom"
         android:checked="false"

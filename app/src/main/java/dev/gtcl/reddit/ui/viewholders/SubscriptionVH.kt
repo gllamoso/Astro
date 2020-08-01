@@ -53,8 +53,6 @@ class SubscriptionVH private constructor(private val binding: ItemSubscriptionBi
     }
 
     companion object{
-        fun create(parent: ViewGroup): SubscriptionVH{
-            return SubscriptionVH(ItemSubscriptionBinding.inflate(LayoutInflater.from(parent.context)))
-        }
+        fun create(parent: ViewGroup) = SubscriptionVH(ItemSubscriptionBinding.inflate(LayoutInflater.from(parent.context)))
     }
 }

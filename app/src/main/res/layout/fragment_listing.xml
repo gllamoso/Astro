@@ -16,12 +16,12 @@
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="?android:attr/colorBackground">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:background="?android:attr/colorBackground">
+            android:layout_height="match_parent">
 
             <include
                 android:id="@+id/top_app_bar"
@@ -86,20 +86,19 @@
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-        <ExpandableListView
-            android:id="@+id/expandable_list_view"
-            android:layout_gravity="start"
-            android:layout_width="235dp"
+        <include
+            android:id="@+id/left_drawer_layout"
+            android:layout_width="240dp"
             android:layout_height="match_parent"
-            android:groupIndicator="@android:color/transparent"
-            />
+            android:layout_gravity="start"
+            layout="@layout/layout_left_drawer"/>
 
         <include
-            android:id="@+id/right_side_bar_layout"
+            android:id="@+id/right_drawer_layout"
             android:layout_width="240dp"
             android:layout_height="match_parent"
             android:layout_gravity="end"
-            layout="@layout/layout_side_bar"
+            layout="@layout/layout_right_drawer"
             app:sub="@{model.subreddit}"/>
 
 

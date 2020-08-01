@@ -30,11 +30,12 @@ data class ItemRead(
 
 
 @Entity(tableName = "user_table")
+@Parcelize
 data class SavedAccount(
     @PrimaryKey
     val id: String,
     val name: String,
-    val refreshToken: String?)
+    val refreshToken: String?): Parcelable
 
 //    _____       _                   _       _   _
 //   / ____|     | |                 (_)     | | (_)

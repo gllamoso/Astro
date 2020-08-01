@@ -28,7 +28,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:layout_weight="1"
-            android:maxLines="1"
+            android:singleLine="true"
             android:text="@{account.name}"
             tools:text="Account Name"
             android:textStyle="bold"/>
@@ -40,7 +40,7 @@
             android:layout_marginEnd="8dp"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
-            android:src="@drawable/ic_add_circle_outline_24dp"
+            android:src="@drawable/ic_add_circle_24dp"
             app:added="@{account.subreddit.userSubscribed}" />
 
     </LinearLayout>

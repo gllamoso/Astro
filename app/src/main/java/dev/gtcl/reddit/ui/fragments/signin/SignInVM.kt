@@ -7,10 +7,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
-import dev.gtcl.reddit.CURRENT_USER_KEY
-import dev.gtcl.reddit.R
-import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.getEncodedAuthString
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.models.reddit.AccessToken
 import dev.gtcl.reddit.models.reddit.listing.Account
 import dev.gtcl.reddit.repositories.UserRepository
@@ -80,9 +77,9 @@ class SignInVM(private val application: RedditApplication) : AndroidViewModel(ap
 
     private suspend fun getAccessToken(code: String): AccessToken{
         return userRepository.postCode(
-            "Basic ${getEncodedAuthString(application.baseContext)}",
+            "Basic ${getEncodedAuthString()}",
             code,
-            application.getString(R.string.redirect_uri)
+            REDDIT_REDIRECT_URL
         ).await()
     }
 
@@ -109,7 +106,7 @@ class SignInVM(private val application: RedditApplication) : AndroidViewModel(ap
     }
 
     private fun saveUserToSharedPreferences(account: Account){
-        val sharedPrefs = application.getSharedPreferences(application.getString(R.string.preferences_file_key), Context.MODE_PRIVATE)
+        val sharedPrefs = application.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
         with(sharedPrefs.edit()) {
             val json = Gson().toJson(account)
             putString(CURRENT_USER_KEY, json)

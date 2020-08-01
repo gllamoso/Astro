@@ -40,6 +40,9 @@
         <action
             android:id="@+id/action_viewPagerFragment_to_inboxFragment"
             app:destination="@id/inboxFragment" />
+        <action
+            android:id="@+id/action_viewPagerFragment_to_splashFragment"
+            app:destination="@id/splashFragment" />
     </fragment>
     <fragment
         android:id="@+id/splashFragment"

@@ -6,7 +6,7 @@ import dev.gtcl.reddit.database.SavedAccount
 interface LeftDrawerActions{
     // Accounts
     fun onAddAccountClicked()
-    fun onRemoveAccountClicked(user: String)
+    fun onRemoveAccountClicked(account: SavedAccount)
     fun onAccountClicked(account: SavedAccount)
     fun onLogoutClicked()
 

@@ -32,7 +32,7 @@
                 android:textColor="?android:attr/textColorPrimary"
                 android:textSize="16sp"
                 android:text="@{text}"
-                android:maxLines="1"
+                android:singleLine="true"
                 tools:text="Text" />
 
             <ImageView

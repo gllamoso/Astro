@@ -6,13 +6,11 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.google.gson.Gson
 import dev.gtcl.reddit.*
+import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.models.reddit.AccessToken
 import dev.gtcl.reddit.models.reddit.listing.Account
 import dev.gtcl.reddit.repositories.UserRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 
@@ -37,24 +35,26 @@ class SplashVM(val application: RedditApplication): ViewModel() {
         _ready.value = null
     }
 
-    fun setCurrentUser(account: Account?, saveToPreferences: Boolean){
+    fun setCurrentUser(account: SavedAccount?, saveToPreferences: Boolean){
         coroutineScope.launch {
-            try {
-                if(account == null) {
-                    application.accessToken = null
-                    application.currentAccount = null
-                } else {
-                    val accessToken = fetchAccessToken(account.refreshToken!!)
-                    application.accessToken = accessToken
-                    application.currentAccount = userRepository.getAccount(accessToken).await()
-                }
+            withContext(Dispatchers.IO){
+                try {
+                    if(account == null) {
+                        application.accessToken = null
+                        application.currentAccount = null
+                    } else {
+                        val accessToken = fetchAccessToken(account.refreshToken!!)
+                        application.accessToken = accessToken
+                        application.currentAccount = userRepository.getAccount(accessToken).await()
+                    }
 
-                if(saveToPreferences){
-                    saveAccountToPreferences(application.currentAccount)
+                    if(saveToPreferences){
+                        saveAccountToPreferences(application, account)
+                    }
+                    _ready.postValue(true)
+                } catch (e: Exception){
+                    _errorMessage.postValue(e.getErrorMessage(application))
                 }
-                _ready.value = true
-            } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
             }
         }
     }
@@ -63,17 +63,8 @@ class SplashVM(val application: RedditApplication): ViewModel() {
         _errorMessage.value = null
     }
 
-    private fun saveAccountToPreferences(account: Account?){
-        val sharedPrefs = application.getSharedPreferences(application.getString(R.string.preferences_file_key), Context.MODE_PRIVATE)
-        with(sharedPrefs.edit()) {
-            val json = Gson().toJson(account)
-            putString(CURRENT_USER_KEY, json)
-            commit()
-        }
-    }
-
     private suspend fun fetchAccessToken(refreshToken: String): AccessToken {
-        return userRepository.getNewAccessToken("Basic ${getEncodedAuthString(application.baseContext)}", refreshToken).await().apply {
+        return userRepository.getNewAccessToken("Basic ${getEncodedAuthString()}", refreshToken).await().apply {
             this.refreshToken = refreshToken
         }
     }

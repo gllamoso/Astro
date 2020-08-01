@@ -1,6 +1,5 @@
 <resources>
     <string name="app_name">Reddit</string>
-    <string name="preferences_file_key">Reddit Preference File Key</string>
     <string name="current_user_key">Current User</string>
 
     <!--Post Options-->
@@ -58,11 +57,6 @@
     <string name="logout">Logout</string>
     <string name="add_account">Add account</string>
     <string name="not_logged_in">Not logged in</string>
-
-    <!--Reddit API-->
-    <string name="auth_url">https://www.reddit.com/api/v1/authorize.compact?client_id=%s&amp;response_type=code&amp;state=%s&amp;redirect_uri=%s&amp;duration=permanent&amp;scope=identity edit flair history modconfig modflair modlog modposts modwiki mysubreddits privatemessages read report save submit subscribe vote wikiedit wikiread</string>
-    <string name="client_id">NjgsWrF6i2B0Jw</string>
-    <string name="redirect_uri">http://reddit.gtcl.com/redirect</string>
 
     <!--Comments-->
     <string name="reply">Reply</string>
@@ -186,6 +180,7 @@
     <string name="no_posts_found">No posts found.</string>
     <string name="no_comments_found">No comments found.</string>
     <string name="no_messages_found">No messages found.</string>
+    <string name="guest">Guest</string>
 
     <!--Errors-->
     <string name="user_must_be_logged_in">User must be logged in to do that.</string>

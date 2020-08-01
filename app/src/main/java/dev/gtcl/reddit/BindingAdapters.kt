@@ -54,7 +54,7 @@ fun loadImageAndHideIfNull(imgView: ImageView, imgUrl: String?){
 
 @BindingAdapter("loadImage")
 fun loadImage(imgView: ImageView, imgUrl: String?){
-    if(imgUrl == null) return
+    if(imgUrl.isNullOrBlank()) return
     if(imgUrl.startsWith("http")){
         imgView.visibility = View.VISIBLE
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
@@ -64,6 +64,17 @@ fun loadImage(imgView: ImageView, imgUrl: String?){
 //                    RequestOptions()
 //                        .placeholder(R.drawable.anim_loading)
 //                        .error(R.drawable.ic_broken_image))
+            .into(imgView)
+    }
+}
+
+@BindingAdapter("account_banner")
+fun loadAccountBanner(imgView: ImageView, url: String?){
+    if (url.isNullOrBlank()){
+        imgView.setImageResource(R.drawable.ic_sun_tornado)
+    } else {
+        Glide.with(imgView.context)
+            .load(url)
             .into(imgView)
     }
 }
@@ -134,14 +145,14 @@ fun loadMultiIcon(imgView: ImageView, listingType: ListingType){
 @BindingAdapter("subredditIcon")
 fun loadSubIcon(imgView: ImageView, imgUrl: String?){
     if(imgUrl == null || !imgUrl.startsWith("http")){
-        imgView.setImageResource(R.drawable.ic_reddit_cricle_24dp)
+        imgView.setImageResource(R.drawable.ic_reddit_circle_24dp)
     }
     else {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
             .apply(RequestOptions()
-                .placeholder(R.drawable.ic_reddit_cricle_24dp)
+                .placeholder(R.drawable.ic_reddit_circle_24dp)
                 .circleCrop())
             .into(imgView)
     }
@@ -168,7 +179,7 @@ fun loadSubscriptionIcon(imgView: ImageView, subscription: Subscription){
     val placeHolder = when(subscription.type){
         SubscriptionType.MULTIREDDIT -> R.drawable.ic_collection_24dp
         SubscriptionType.USER -> R.drawable.ic_user_24dp
-        SubscriptionType.SUBREDDIT -> R.drawable.ic_reddit_cricle_24dp
+        SubscriptionType.SUBREDDIT -> R.drawable.ic_reddit_circle_24dp
     }
 
     if(subscription.icon == null || !subscription.icon.startsWith("https", true)){
@@ -217,7 +228,7 @@ fun loadAddedIcon(imgView: ImageView, added: Boolean){
         if(added){
             R.drawable.ic_remove_circle_outline_24dp
         } else {
-            R.drawable.ic_add_circle_outline_24dp
+            R.drawable.ic_add_circle_24dp
         }
     )
 }

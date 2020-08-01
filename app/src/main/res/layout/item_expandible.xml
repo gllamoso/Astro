@@ -6,8 +6,8 @@
 
     <data>
         <variable
-            name="header"
-            type="dev.gtcl.reddit.ui.viewholders.SectionHeader" />
+            name="expandableItem"
+            type="dev.gtcl.reddit.ui.viewholders.ExpandableItem" />
         <variable
             name="showTopDivider"
             type="Boolean" />
@@ -17,8 +17,7 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:background="?attr/selectableItemBackground">
+        android:orientation="vertical">
 
         <View
             android:layout_width="match_parent"
@@ -28,18 +27,21 @@
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:background="?attr/selectableItemBackground">
 
             <TextView
-                android:layout_width="match_parent"
+                android:id="@+id/name"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:text="@{header.name}"
-                android:textStyle="bold"
                 android:padding="16dp"
+                android:text="@{expandableItem.name}"
+                android:textStyle="bold"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/collapse_indicator"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                tools:text="Multi-Reddits"/>
+                tools:text="Multi-Reddits" />
 
             <ImageView
                 android:id="@+id/collapse_indicator"
@@ -50,7 +52,9 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:layout_marginEnd="16dp"
-                app:invert="@{header.isCollapsed}"/>
+                android:visibility="@{expandableItem.expandable ? View.VISIBLE : View.GONE}"
+                app:invert="@{expandableItem.expanded}"
+                tools:src="@drawable/ic_up_no_stem_24dp"/>
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

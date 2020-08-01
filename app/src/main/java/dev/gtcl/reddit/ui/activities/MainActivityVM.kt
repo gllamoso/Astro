@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dev.gtcl.reddit.*
+import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.models.reddit.AccessToken
 import dev.gtcl.reddit.models.reddit.listing.Item
@@ -212,8 +213,16 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
         _openChromeTab.value = null
     }
 
+    fun removeAccount(account: SavedAccount){
+        coroutineScope.launch {
+            withContext(Dispatchers.IO){
+                userRepository.deleteUserInDatabase(account.name)
+            }
+        }
+    }
+
     private suspend fun fetchAccessToken(refreshToken: String): AccessToken {
-        return userRepository.getNewAccessToken("Basic ${getEncodedAuthString(application.baseContext)}", refreshToken).await().apply {
+        return userRepository.getNewAccessToken("Basic ${getEncodedAuthString()}", refreshToken).await().apply {
             this.refreshToken = refreshToken
         }
     }

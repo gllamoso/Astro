@@ -2,6 +2,7 @@ package dev.gtcl.reddit.ui.fragments.listing
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import android.widget.PopupMenu
 import android.widget.Toast
@@ -21,13 +22,11 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.databinding.FragmentListingBinding
-import dev.gtcl.reddit.databinding.LayoutNavHeaderBinding
 import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.activities.MainActivityVM
-import dev.gtcl.reddit.ui.activities.MainDrawerAdapter
 import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.create_post.CreatePostDialogFragment
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
@@ -40,7 +39,7 @@ import io.noties.markwon.LinkResolverDef
 import io.noties.markwon.Markwon
 import io.noties.markwon.MarkwonConfiguration
 
-class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeClickListener,
+class ListingFragment : Fragment(), PostActions, SubredditActions,
     ItemClickListener, LeftDrawerActions, SortActions, LinkHandler {
 
     private lateinit var binding: FragmentListingBinding
@@ -84,6 +83,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     override fun onResume() {
         super.onResume()
         model.syncSubreddit()
+        model.setLeftDrawerExpanded(false)
     }
 
     override fun onCreateView(
@@ -96,23 +96,20 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
         binding.model = model
 
         if (!model.initialPageLoaded) {
-            setListingInfo()
+            val listingType = requireArguments().getParcelable(LISTING_KEY) as ListingType
+            model.setListingInfo(listingType)
+            model.fetchSubredditInfo(listingType)
             model.loadFirstItems()
         }
 
         setSwipeRefresh()
         setList()
         setBottomAppbarClickListeners()
-        setLeftDrawer(inflater)
+        setLeftDrawer()
         setRightDrawer()
         setOtherObservers()
 
         return binding.root
-    }
-
-    private fun setListingInfo() {
-        val listingType = requireArguments().getParcelable(LISTING_KEY) as ListingType
-        model.setListingInfo(listingType)
     }
 
     private fun setSwipeRefresh() {
@@ -170,38 +167,29 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     }
 
     @SuppressLint("RtlHardcoded")
-    private fun setLeftDrawer(inflater: LayoutInflater) {
-        val header = LayoutNavHeaderBinding.inflate(inflater)
-        binding.expandableListView.addHeaderView(header.root)
-        val adapter = MainDrawerAdapter(
-            requireContext(),
-            this
-        )
-
-        binding.expandableListView.setAdapter(adapter)
+    private fun setLeftDrawer() {
+        val leftDrawerAdapter = LeftDrawerAdapter(requireContext(), this, LeftDrawerHeader.HOME)
+        binding.leftDrawerLayout.list.adapter = leftDrawerAdapter
+        binding.leftDrawerLayout.account = (requireActivity().application as RedditApplication).currentAccount
 
         activityModel.allUsers.observe(viewLifecycleOwner, Observer {
-            if (it != null) {
-                adapter.setUsers(it)
-            }
+            leftDrawerAdapter.submitUsers(it)
         })
 
-        header.account = (requireActivity().application as RedditApplication).currentAccount
+        model.leftDrawerExpanded.observe(viewLifecycleOwner, Observer {
+            leftDrawerAdapter.isExpanded = it
+        })
+
+        binding.leftDrawerLayout.banner.setOnClickListener {
+            model.toggleLeftDrawerExpanding()
+        }
 
         binding.topAppBar.toolbar.setNavigationOnClickListener {
             binding.drawerLayout.openDrawer(Gravity.LEFT)
         }
 
-        binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener {
-            override fun onDrawerStateChanged(newState: Int) {}
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
-            override fun onDrawerClosed(drawerView: View) {
-                binding.expandableListView.collapseGroup(0)
-            }
-
-            override fun onDrawerOpened(drawerView: View) {
-                adapter.notifyDataSetInvalidated()
-            }
+        model.leftDrawerExpanded.observe(viewLifecycleOwner, Observer {
+            rotateView(binding.leftDrawerLayout.expandedIndicator, it)
         })
     }
 
@@ -211,10 +199,10 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
             binding.drawerLayout.openDrawer(Gravity.RIGHT)
         }
 
-        binding.rightSideBarLayout.lifecycleOwner = this
+        binding.rightDrawerLayout.lifecycleOwner = this
         model.subreddit.observe(viewLifecycleOwner, Observer { sub ->
             if (sub != null) {
-                binding.rightSideBarLayout.addButton.setOnClickListener {
+                binding.rightDrawerLayout.addButton.setOnClickListener {
                     sub.userSubscribed = sub.userSubscribed != true
                     subscribe(sub, (sub.userSubscribed == true))
                 }
@@ -223,7 +211,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
                     Gravity.RIGHT
                 )
             } else {
-                binding.rightSideBarLayout.addButton.isClickable = false
+                binding.rightDrawerLayout.addButton.isClickable = false
                 binding.drawerLayout.setDrawerLockMode(
                     DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
                     Gravity.RIGHT
@@ -358,23 +346,6 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 //        parentSubredditActions?.subscribe(subreddit, subscribe)
     }
 
-//     _      _     _   _               _______                  _____ _ _      _      _      _     _
-//    | |    (_)   | | (_)             |__   __|                / ____| (_)    | |    | |    (_)   | |
-//    | |     _ ___| |_ _ _ __   __ _     | |_   _ _ __   ___  | |    | |_  ___| | __ | |     _ ___| |_ ___ _ __   ___ _ __
-//    | |    | / __| __| | '_ \ / _` |    | | | | | '_ \ / _ \ | |    | | |/ __| |/ / | |    | / __| __/ _ \ '_ \ / _ \ '__|
-//    | |____| \__ \ |_| | | | | (_| |    | | |_| | |_) |  __/ | |____| | | (__|   <  | |____| \__ \ ||  __/ | | |  __/ |
-//    |______|_|___/\__|_|_| |_|\__, |    |_|\__, | .__/ \___|  \_____|_|_|\___|_|\_\ |______|_|___/\__\___|_| |_|\___|_|
-//                               __/ |        __/ | |
-//                              |___/        |___/|_|
-
-    override fun listingTypeClicked(listing: ListingType) {
-//        navigationActions?.listingSelected(listing)
-        for (fragment: Fragment in childFragmentManager.fragments) {
-            if (fragment is DialogFragment) {
-                fragment.dismiss()
-            }
-        }
-    }
 
 //     _____ _                    _____ _ _      _      _      _     _
 //    |_   _| |                  / ____| (_)    | |    | |    (_)   | |
@@ -398,40 +369,54 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
 
     @SuppressLint("RtlHardcoded")
     override fun onAddAccountClicked() {
-//        navigationActions?.signInNewAccount()
+        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSignInFragment())
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }
 
-    override fun onRemoveAccountClicked(user: String) {
-//                        parentModel.deleteUserFromDatabase(user)
+    override fun onRemoveAccountClicked(account: SavedAccount) {
+        val currentAccount = (requireActivity().application as RedditApplication).currentAccount
+        if(account.id == currentAccount?.id){
+            saveAccountToPreferences(requireContext(), null)
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
+        }
+        activityModel.removeAccount(account)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onAccountClicked(account: SavedAccount) {
-//                        parentModel.setCurrentUser(account, true)
+        val currentAccount = (requireActivity().application as RedditApplication).currentAccount
+        if(account.id != currentAccount?.id){
+            saveAccountToPreferences(requireContext(), account)
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
+        } else {
+            model.toggleLeftDrawerExpanding()
+        }
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onLogoutClicked() {
-//                        parentModel.setCurrentUser(null, true)
+        val currentAccount = (requireActivity().application as RedditApplication).currentAccount
+        if(currentAccount != null){
+            saveAccountToPreferences(requireContext(), null)
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
+        } else {
+            model.toggleLeftDrawerExpanding()
+        }
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onHomeClicked() {
-//                        findNavController().popBackStack(R.id.home_fragment, false)
-//        navigationActions?.homeClicked()
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
         if ((activity?.application as RedditApplication).accessToken == null) {
-            Snackbar.make(binding.drawerLayout, R.string.please_login, Snackbar.LENGTH_SHORT)
-                .show()
+            Snackbar.make(binding.drawerLayout, R.string.please_login, Snackbar.LENGTH_SHORT).show()
         } else {
-//            navigationActions?.accountSelected(null)
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(null)))
             binding.drawerLayout.closeDrawer(Gravity.LEFT)
         }
     }
@@ -439,10 +424,9 @@ class ListingFragment : Fragment(), PostActions, SubredditActions, ListingTypeCl
     @SuppressLint("RtlHardcoded")
     override fun onInboxClicked() {
         if ((activity?.application as RedditApplication).accessToken == null) {
-            Snackbar.make(binding.drawerLayout, R.string.please_login, Snackbar.LENGTH_SHORT)
-                .show()
+            Snackbar.make(binding.drawerLayout, R.string.please_login, Snackbar.LENGTH_SHORT).show()
         } else {
-//            navigationActions?.messagesSelected()
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToInboxFragment())
             binding.drawerLayout.closeDrawer(Gravity.LEFT)
         }
     }

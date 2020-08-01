@@ -29,7 +29,7 @@
             android:layout_margin="8dp"
             app:subscriptionIcon="@{sub}"
             app:tint="@{iconTint}"
-            tools:src="@drawable/ic_reddit_cricle_24dp"
+            tools:src="@drawable/ic_reddit_circle_24dp"
             tools:tint="@color/colorAccent"/>
 
         <TextView
@@ -37,7 +37,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:layout_weight="1"
-            android:maxLines="1"
+            android:singleLine="true"
             android:text="@{sub.displayName}"
             tools:text="Subreddit Name" />
 

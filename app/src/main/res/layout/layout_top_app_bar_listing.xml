@@ -74,7 +74,7 @@
                         android:id="@+id/side_bar_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_reddit_cricle_24dp"
+                        android:src="@drawable/ic_reddit_circle_24dp"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:padding="8dp"
                         android:layout_marginEnd="16dp"

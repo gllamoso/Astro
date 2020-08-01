@@ -2,6 +2,7 @@ package dev.gtcl.reddit.ui.fragments.splash
 
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,10 +11,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.gson.Gson
-import dev.gtcl.reddit.CURRENT_USER_KEY
-import dev.gtcl.reddit.R
-import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.ViewModelFactory
+import dev.gtcl.reddit.*
+import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.databinding.FragmentSplashBinding
 import dev.gtcl.reddit.models.reddit.listing.Account
 import dev.gtcl.reddit.models.reddit.listing.FrontPage
@@ -56,9 +55,9 @@ class SplashFragment : Fragment(){
     }
 
     private fun getUserFromSharedPreferences(){
-        val sharedPref = requireActivity().getSharedPreferences(getString(R.string.preferences_file_key), Context.MODE_PRIVATE)
+        val sharedPref = requireActivity().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
         val userString = sharedPref.getString(CURRENT_USER_KEY, null)
-        val account = Gson().fromJson(userString, Account::class.java)
+        val account = Gson().fromJson(userString, SavedAccount::class.java)
         model.setCurrentUser(account, false)
     }
 }

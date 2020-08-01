@@ -10,19 +10,14 @@ import android.widget.Toast
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.navigation.fragment.findNavController
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.R
-import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.actions.LeftDrawerActions
 import dev.gtcl.reddit.actions.MessageActions
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.databinding.FragmentInboxBinding
-import dev.gtcl.reddit.databinding.LayoutNavHeaderBinding
 import dev.gtcl.reddit.models.reddit.listing.Message
-import dev.gtcl.reddit.ui.activities.MainDrawerAdapter
 import dev.gtcl.reddit.ui.fragments.AccountPage
-import dev.gtcl.reddit.ui.fragments.ViewPagerPage
 
 class InboxFragment: Fragment(), MessageActions, LeftDrawerActions{
 
@@ -39,7 +34,7 @@ class InboxFragment: Fragment(), MessageActions, LeftDrawerActions{
     ): View? {
         binding = FragmentInboxBinding.inflate(inflater)
         setViewPagerAdapter()
-        setLeftDrawer(inflater)
+        setLeftDrawer()
         return binding.root
     }
 
@@ -55,15 +50,11 @@ class InboxFragment: Fragment(), MessageActions, LeftDrawerActions{
         }.attach()
     }
 
-    private fun setLeftDrawer(inflater: LayoutInflater){
-        val header = LayoutNavHeaderBinding.inflate(inflater)
-        binding.expandableListView.addHeaderView(header.root)
-        val adapter = MainDrawerAdapter(
-            requireContext(),
-            this
-        )
+    private fun setLeftDrawer(){
+//        val header = LayoutNavHeaderBinding.inflate(inflater)
+//        binding.expandableListView.addHeaderView(header.root)
 
-        binding.expandableListView.setAdapter(adapter)
+//        binding.expandableListView.setAdapter(adapter)
 
 //        parentModel.allUsers.observe(viewLifecycleOwner, Observer {
 //            adapter.setUsers(it.asAccountDomainModel())
@@ -73,21 +64,21 @@ class InboxFragment: Fragment(), MessageActions, LeftDrawerActions{
 //            header.account = it
 //        })
 
-        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-        binding.toolbar.setNavigationOnClickListener {
-            binding.drawerLayout.openDrawer(Gravity.LEFT)
-        }
-        binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener{
-            override fun onDrawerStateChanged(newState: Int) {}
-            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
-            override fun onDrawerClosed(drawerView: View) {
-                binding.expandableListView.collapseGroup(0)
-            }
-
-            override fun onDrawerOpened(drawerView: View) {
-                adapter.notifyDataSetInvalidated()
-            }
-        })
+//        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+//        binding.toolbar.setNavigationOnClickListener {
+//            binding.drawerLayout.openDrawer(Gravity.LEFT)
+//        }
+//        binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener{
+//            override fun onDrawerStateChanged(newState: Int) {}
+//            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
+//            override fun onDrawerClosed(drawerView: View) {
+//                binding.expandableListView.collapseGroup(0)
+//            }
+//
+//            override fun onDrawerOpened(drawerView: View) {
+//                adapter.notifyDataSetInvalidated()
+//            }
+//        })
     }
 
 //     __  __                                               _   _
@@ -132,7 +123,7 @@ class InboxFragment: Fragment(), MessageActions, LeftDrawerActions{
 //        parentModel.startSignInActivity()
     }
 
-    override fun onRemoveAccountClicked(user: String) {
+    override fun onRemoveAccountClicked(account: SavedAccount) {
 //        parentModel.deleteUserFromDatabase(user)
     }
 

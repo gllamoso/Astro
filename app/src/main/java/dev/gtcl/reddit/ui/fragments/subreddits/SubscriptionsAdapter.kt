@@ -15,8 +15,8 @@ import dev.gtcl.reddit.models.reddit.listing.FrontPage
 import dev.gtcl.reddit.models.reddit.listing.Popular
 import dev.gtcl.reddit.models.reddit.listing.ProfileListing
 import dev.gtcl.reddit.ui.viewholders.ListingVH
-import dev.gtcl.reddit.ui.viewholders.SectionHeader
-import dev.gtcl.reddit.ui.viewholders.SectionHeaderVH
+import dev.gtcl.reddit.ui.viewholders.ExpandableItem
+import dev.gtcl.reddit.ui.viewholders.ExpandableHeaderVH
 import dev.gtcl.reddit.ui.viewholders.SubscriptionVH
 
 class SubscriptionsAdapter(
@@ -38,15 +38,15 @@ class SubscriptionsAdapter(
     // Users
     // - List of Users
 
-    private val favSectionHeader = object: SectionHeader(context.getString(R.string.favorites)){
-        override fun onCollapse(collapse: Boolean) {
+    private val favHeader = object: ExpandableItem(context.getString(R.string.favorites)){
+        override fun onExpand(expand: Boolean) {
             if(favSubs.isEmpty()){
                 return
             }
-            if(collapse){
-                notifyItemRangeRemoved(favHeaderIndex + 1, favSubs.size)
-            } else {
+            if(expand){
                 notifyItemRangeInserted(favHeaderIndex + 1, favSubs.size)
+            } else {
+                notifyItemRangeRemoved(favHeaderIndex + 1, favSubs.size)
             }
         }
     }
@@ -65,29 +65,29 @@ class SubscriptionsAdapter(
             var index = 0
             if(favSubs.isNotEmpty()){
                 index++
-                if(!favSectionHeader.isCollapsed){
+                if(favHeader.expanded){
                     index += favSubs.size
                 }
             }
             return index
         }
-    private val multiSectionHeader = object: SectionHeader(context.getString(R.string.multireddits)){
-        override fun onCollapse(collapse: Boolean) {
-            if(collapse){
-                notifyItemRangeRemoved(multisHeaderIndex + 1, 4 + multis.size)
-            } else {
+    private val multiHeader = object: ExpandableItem(context.getString(R.string.multireddits)){
+        override fun onExpand(expand: Boolean) {
+            if(expand){
                 notifyItemRangeInserted(multisHeaderIndex + 1, 4 + multis.size)
+            } else {
+                notifyItemRangeRemoved(multisHeaderIndex + 1, 4 + multis.size)
             }
         }
     }
     private var multis : MutableList<Subscription> = mutableListOf()
 
-    private val subredditsSectionHeader = object: SectionHeader(context.getString(R.string.subreddits)){
-        override fun onCollapse(collapse: Boolean) {
-            if(collapse){
-                notifyItemRangeRemoved(subredditsHeaderIndex + 1, subreddits.size)
-            } else {
+    private val subsHeader = object: ExpandableItem(context.getString(R.string.subreddits)){
+        override fun onExpand(expand: Boolean) {
+            if(expand){
                 notifyItemRangeInserted(subredditsHeaderIndex + 1, subreddits.size)
+            } else {
+                notifyItemRangeRemoved(subredditsHeaderIndex + 1, subreddits.size)
             }
         }
     }
@@ -97,25 +97,25 @@ class SubscriptionsAdapter(
             var idx = 1 // Multi-Reddit header
             if(favSubs.isNotEmpty()){
                 idx++
-                if(!favSectionHeader.isCollapsed){
+                if(favHeader.expanded){
                     idx += favSubs.size
                 }
             }
-            if(!multiSectionHeader.isCollapsed) {
+            if(multiHeader.expanded) {
                 idx += 4 + multis.size
             }
             return idx
         }
 
-    private val usersSectionHeader = object: SectionHeader(context.getString(R.string.users)){
-        override fun onCollapse(collapse: Boolean) {
+    private val usersHeader = object: ExpandableItem(context.getString(R.string.users)){
+        override fun onExpand(expand: Boolean) {
             if(users.isEmpty()){
                 return
             }
-            if(collapse){
-                notifyItemRangeRemoved(usersHeaderIndex + 1, users.size)
-            } else {
+            if(expand){
                 notifyItemRangeInserted(usersHeaderIndex + 1, users.size)
+            } else {
+                notifyItemRangeRemoved(usersHeaderIndex + 1, users.size)
             }
         }
     }
@@ -129,16 +129,16 @@ class SubscriptionsAdapter(
             var idx = 2 // Multi-Reddits and Subreddits headers
             if(favSubs.isNotEmpty()){
                 idx++
-                if(!favSectionHeader.isCollapsed){
+                if(favHeader.expanded){
                     idx += favSubs.size
                 }
             }
 
-            if(!multiSectionHeader.isCollapsed) {
+            if(multiHeader.expanded) {
                 idx += 4 + multis.size
             }
 
-            if(!subredditsSectionHeader.isCollapsed){
+            if(subsHeader.expanded){
                 idx += subreddits.size
             }
 
@@ -148,11 +148,11 @@ class SubscriptionsAdapter(
     fun setSubscribedSubs(subs: List<Subscription>){
         val previousSize = subreddits.size
         subreddits.clear()
-        if(!subredditsSectionHeader.isCollapsed){
+        if(subsHeader.expanded){
             notifyItemRangeRemoved(subredditsHeaderIndex + 1, previousSize)
         }
         subreddits = subs.toMutableList()
-        if(!subredditsSectionHeader.isCollapsed){
+        if(subsHeader.expanded){
             notifyItemRangeInserted(subredditsHeaderIndex + 1, subreddits.size)
         }
     }
@@ -160,11 +160,11 @@ class SubscriptionsAdapter(
     fun setMultiReddits(multis: List<Subscription>){
         val previousSize = this.multis.size
         this.multis.clear()
-        if(!multiSectionHeader.isCollapsed){
+        if(multiHeader.expanded){
             notifyItemRangeRemoved(multisHeaderIndex + 5, previousSize)
         }
         this.multis = multis.toMutableList()
-        if(!multiSectionHeader.isCollapsed){
+        if(multiHeader.expanded){
             notifyItemRangeInserted(multisHeaderIndex + 5, multis.size)
         }
     }
@@ -173,7 +173,7 @@ class SubscriptionsAdapter(
         val previousSize = this.favSubs.size
         this.favSubs.clear()
         if(previousSize != 0){
-            if(!favSectionHeader.isCollapsed){
+            if(favHeader.expanded){
                 notifyItemRangeRemoved(favHeaderIndex, previousSize + 1)
             } else {
                 notifyItemRemoved(favHeaderIndex)
@@ -182,19 +182,20 @@ class SubscriptionsAdapter(
 
         favSubs = faves.toMutableList()
         if(faves.isNotEmpty()){
-            if(!favSectionHeader.isCollapsed){
+            if(favHeader.expanded){
                 notifyItemRangeInserted(favHeaderIndex, faves.size + 1)
             } else {
                 notifyItemInserted(favHeaderIndex)
             }
         }
+        notifyItemChanged(multisHeaderIndex)
     }
 
     fun setUsers(users: List<Subscription>){
         val previousSize = this.users.size
         this.users.clear()
         if(previousSize != 0){
-            if(!usersSectionHeader.isCollapsed){
+            if(usersHeader.expanded){
                 notifyItemRangeRemoved(usersHeaderIndex, previousSize + 1)
             } else {
                 notifyItemRemoved(usersHeaderIndex)
@@ -202,7 +203,7 @@ class SubscriptionsAdapter(
         }
         this.users = users.toMutableList()
         if(users.isNotEmpty()){
-            if(!usersSectionHeader.isCollapsed){
+            if(usersHeader.expanded){
                 notifyItemRangeInserted(usersHeaderIndex, users.size + 1)
             } else {
                 notifyItemInserted(usersHeaderIndex)
@@ -212,7 +213,7 @@ class SubscriptionsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(viewType){
-            R.layout.item_section_header -> SectionHeaderVH.create(parent)
+            R.layout.item_expandible -> ExpandableHeaderVH.create(parent)
             R.layout.item_listing -> ListingVH.create(parent)
             R.layout.item_subscription -> SubscriptionVH.create(parent)
             else -> throw IllegalArgumentException("Unknown view type $viewType")
@@ -222,9 +223,9 @@ class SubscriptionsAdapter(
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when{
             position > usersHeaderIndex && usersHeaderIndex != -1 -> (holder as SubscriptionVH).bind(users[position - usersHeaderIndex - 1], listingTypeClickListener, this, subscriptionActions)
-            position == usersHeaderIndex -> (holder as SectionHeaderVH).bind(usersSectionHeader)
+            position == usersHeaderIndex -> (holder as ExpandableHeaderVH).bind(usersHeader, position != 0)
             position > subredditsHeaderIndex -> (holder as SubscriptionVH).bind(subreddits[position - subredditsHeaderIndex - 1], listingTypeClickListener, this, subscriptionActions)
-            position == subredditsHeaderIndex -> (holder as SectionHeaderVH).bind(subredditsSectionHeader)
+            position == subredditsHeaderIndex -> (holder as ExpandableHeaderVH).bind(subsHeader, position != 0)
             position > multisHeaderIndex + 4 -> (holder as SubscriptionVH).bind(multis[position - multisHeaderIndex - 4 - 1], listingTypeClickListener, this, subscriptionActions)
             position == multisHeaderIndex + 4 -> (holder as ListingVH).bind(
                 ProfileListing(
@@ -233,9 +234,9 @@ class SubscriptionsAdapter(
             position == multisHeaderIndex + 3 -> (holder as ListingVH).bind(Popular, listingTypeClickListener)
             position == multisHeaderIndex + 2 -> (holder as ListingVH).bind(All, listingTypeClickListener)
             position == multisHeaderIndex + 1 -> (holder as ListingVH).bind(FrontPage, listingTypeClickListener)
-            position == multisHeaderIndex -> (holder as SectionHeaderVH).bind(multiSectionHeader)
+            position == multisHeaderIndex -> (holder as ExpandableHeaderVH).bind(multiHeader, position != 0)
             position > favHeaderIndex -> (holder as SubscriptionVH).bind(favSubs[position - favHeaderIndex -1], listingTypeClickListener, this, subscriptionActions, true)
-            position == favHeaderIndex -> (holder as SectionHeaderVH).bind(favSectionHeader)
+            position == favHeaderIndex -> (holder as ExpandableHeaderVH).bind(favHeader, position != 0)
             else -> throw IllegalArgumentException("Invalid position: $position")
         }
     }
@@ -246,7 +247,7 @@ class SubscriptionsAdapter(
                     || position == multisHeaderIndex
                     || position == favHeaderIndex
                     || position == usersHeaderIndex ->{
-                R.layout.item_section_header
+                R.layout.item_expandible
             }
             position > subredditsHeaderIndex -> {
                 R.layout.item_subscription
@@ -266,17 +267,18 @@ class SubscriptionsAdapter(
     override fun addToFavorites(sub: Subscription) {
         if(favSubs.isEmpty()){
             favSubs.add(sub)
-            val addCount = if(!favSectionHeader.isCollapsed){
+            val addCount = if(favHeader.expanded){
                 2
             } else {
                 1
             }
             notifyItemRangeInserted(favHeaderIndex,addCount)
+            notifyItemChanged(multisHeaderIndex)
         }
         else{
             val addingPosition = binarySearchPreviousHighest(favSubs, sub)
             favSubs.add(addingPosition, sub)
-            if(!favSectionHeader.isCollapsed){
+            if(favHeader.expanded){
                 notifyItemInserted(favHeaderIndex + 1 + addingPosition)
             }
         }
@@ -365,15 +367,16 @@ class SubscriptionsAdapter(
             if(favSubs.size == 1){
                 val headerIndex = favHeaderIndex
                 favSubs.clear()
-                val removalCount = if(!favSectionHeader.isCollapsed){
+                val removalCount = if(favHeader.expanded){
                     2
                 } else {
                     1
                 }
                 notifyItemRangeRemoved(headerIndex, removalCount)
+                notifyItemChanged(multisHeaderIndex)
             } else {
                 favSubs.removeAt(removingPosition)
-                if(!favSectionHeader.isCollapsed){
+                if(favHeader.expanded){
                     notifyItemRemoved(favHeaderIndex + 1 + removingPosition)
                 }
             }
@@ -384,21 +387,21 @@ class SubscriptionsAdapter(
         var count = 0
         if(favSubs.isNotEmpty()){
             count++
-            if(!favSectionHeader.isCollapsed){
+            if(favHeader.expanded){
                 count += favSubs.size
             }
         }
         count++ // MultiReddits header
-        if(!multiSectionHeader.isCollapsed){
+        if(multiHeader.expanded){
             count += 4 + multis.size
         }
         count++ // All Subscriptions header
-        if(!subredditsSectionHeader.isCollapsed){
+        if(subsHeader.expanded){
             count += subreddits.size
         }
         if(users.isNotEmpty()){
             count++
-            if(!usersSectionHeader.isCollapsed){
+            if(usersHeader.expanded){
                 count += users.size
             }
         }
