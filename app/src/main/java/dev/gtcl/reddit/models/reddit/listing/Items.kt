@@ -146,7 +146,12 @@ data class Post(
     val secureMedia: SecureMedia?,
     val preview: Preview?,
     val media: Media?,
-    val domain: String
+    val domain: String,
+    @Json(name = "over_18")
+    var nsfw: Boolean,
+    var spoiler: Boolean,
+    @Json(name = "link_flair_text")
+    var flairText: String?
     // TODO: Add crosspost_parent_list, is_submitter
 ) : Item(ItemType.Post) {
 

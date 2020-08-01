@@ -3,6 +3,7 @@ package dev.gtcl.reddit.ui.viewholders
 import android.content.Context
 import android.graphics.Color
 import android.graphics.drawable.ColorDrawable
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View

@@ -90,6 +90,9 @@ class CommentsMoshiAdapter {
         var preview: Preview? = null
         var media: Media? = null
         var domain: String? = null
+        var nsfw: Boolean? = null
+        var spoiler: Boolean? = null
+        var linkFlairText: String? = null
         while(jsonReader.hasNext()){
             when(jsonReader.nextName()){
                 "name" -> {
@@ -165,6 +168,15 @@ class CommentsMoshiAdapter {
                 "domain" -> {
                     domain = jsonReader.nextString()
                 }
+                "over_18" -> {
+                    nsfw = jsonReader.nextBoolean()
+                }
+                "spoiler" -> {
+                    spoiler = jsonReader.nextBoolean()
+                }
+                "link_flair_text" -> {
+                    linkFlairText = jsonReader.nextString()
+                }
                 else -> {
                     jsonReader.skipValue()
                 }
@@ -192,7 +204,10 @@ class CommentsMoshiAdapter {
             secureMedia = secureMedia,
             preview = preview,
             media = media,
-            domain = domain!!
+            domain = domain!!,
+            nsfw = nsfw!!,
+            spoiler = spoiler!!,
+            flairText = linkFlairText
         )
     }
 
