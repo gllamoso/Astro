@@ -89,6 +89,7 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
                 _commentsFetched = true
                 _loading.value = false
             } catch (e: Exception){
+                Log.e("Error", e.toString())
                 _errorMessage.value = e.getErrorMessage(application)
             }
         }

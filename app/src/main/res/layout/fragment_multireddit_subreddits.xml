@@ -23,7 +23,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:contentInsetStartWithNavigation="0dp"
-                app:navigationIcon="@drawable/ic_back_arrow_surface_color_24dp"
+                app:navigationIcon="@drawable/ic_back_arrow_24"
                 app:title="@{model.multi.displayName}"
                 tools:title="MultiReddit"
                 app:menu="@menu/multireddit_menu"/>
@@ -72,7 +72,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="32dp"
-            android:src="@drawable/ic_add_24dp"/>
+            android:src="@drawable/ic_add_24"/>
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

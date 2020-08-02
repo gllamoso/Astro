@@ -21,6 +21,7 @@ class ViewPagerVM(private val application: RedditApplication): AndroidViewModel(
 
     fun newPage(page: ViewPagerPage){
         _newPage.value = page
+        pages.add(page)
     }
 
     fun newPageObserved(){

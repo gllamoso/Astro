@@ -23,43 +23,43 @@
             <include
                 android:id="@+id/upvote_button"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_upvote_24dp}"
+                app:iconDrawable="@{@drawable/ic_upvote_24}"
                 app:text="@{@string/upvote}"/>
 
             <include
                 android:id="@+id/downvote_button"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_downvote_24dp}"
+                app:iconDrawable="@{@drawable/ic_downvote_24}"
                 app:text="@{@string/downvote}"/>
 
             <include
                 android:id="@+id/reply_button"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_reply_24dp}"
+                app:iconDrawable="@{@drawable/ic_reply_24}"
                 app:text="@{@string/reply}"/>
 
             <include
                 android:id="@+id/save_button"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{comment.saved ? @drawable/ic_remove_circle_outline_24dp : @drawable/ic_bookmark_24dp}"
+                app:iconDrawable="@{comment.saved ? @drawable/ic_remove_circle_outline_24 : @drawable/ic_bookmark_24}"
                 app:text="@{comment.saved ? @string/unsave : @string/save}"/>
 
             <include
                 android:id="@+id/profile_button"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_profile_24dp}"
+                app:iconDrawable="@{@drawable/ic_profile_24}"
                 app:text="@{comment.author}"/>
 
             <include
                 android:id="@+id/share_button"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_share_24dp}"
+                app:iconDrawable="@{@drawable/ic_share_24}"
                 app:text="@{@string/share}"/>
 
             <include
                 android:id="@+id/report_button"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_report_24dp}"
+                app:iconDrawable="@{@drawable/ic_report_24}"
                 app:text="@{@string/report}"/>
 
         </LinearLayout>

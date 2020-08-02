@@ -60,9 +60,24 @@ data class Comment( // TODO: Add more properties: all_awardings
     val created: Long,
     val saved: Boolean?,
     var likes: Boolean?,
+    @Json(name = "author_flair_text")
+    var authorFlairText: String?,
+    val permalink: String,
+    val subreddit: String,
+    @Json(name = "subreddit_name_prefixed")
+    val subredditPrefixed: String,
+    @Json(name = "link_title")
+    val linkTitle: String?,
     var isPartiallyCollapsed: Boolean = false
-// TODO: is_submitter
-): Item(ItemType.Comment)
+): Item(ItemType.Comment) {
+
+    @IgnoredOnParcel
+    var isSubmitter: Boolean = false
+
+    fun checkIfSubmitter(fullId: String?){
+        isSubmitter = authorFullName == fullId
+    }
+}
 
 //   _   ___                                               _
 //  | | |__ \               /\                            | |
@@ -100,6 +115,9 @@ data class Account(
         refreshToken = this.refreshToken
     )
 
+    @IgnoredOnParcel
+    val fullId = "t2_$id"
+
     fun asSubscription(userId: String) = Subscription(
         "${subreddit.name}__${userId}",
         "u_${name}",
@@ -128,7 +146,11 @@ data class Post(
     val title: String,
     val score: Int,
     val author: String,
+    @Json(name = "author_fullname")
+    val authorFullName: String,
     val subreddit: String,
+    @Json(name = "subreddit_name_prefixed")
+    val subredditPrefixed: String,
     @Json(name = "num_comments")
     val numComments: Int,
     @Json(name = "created_utc")
@@ -152,11 +174,18 @@ data class Post(
     var spoiler: Boolean,
     @Json(name = "link_flair_text")
     var flairText: String?
-    // TODO: Add crosspost_parent_list, is_submitter
+    // TODO: Add crosspost_parent_list
 ) : Item(ItemType.Post) {
 
     @IgnoredOnParcel
     var isRead = false
+
+    @IgnoredOnParcel
+    var isSubmitter: Boolean = false
+
+    fun checkIfSubmitter(fullId: String?){
+        isSubmitter = authorFullName == fullId
+    }
 
     @IgnoredOnParcel
     val previewVideoUrl: String?

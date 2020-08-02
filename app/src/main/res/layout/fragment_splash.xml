@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:padding="32dp"
-            android:src="@drawable/ic_mars_transparent"
+            android:src="@drawable/ic_mars_transparent_24"
             android:tint="?android:attr/textColorPrimary"/>
 
         <TextView

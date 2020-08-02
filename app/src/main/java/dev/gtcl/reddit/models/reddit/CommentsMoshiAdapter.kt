@@ -1,9 +1,11 @@
 package dev.gtcl.reddit.models.reddit
 
 import com.squareup.moshi.FromJson
+import com.squareup.moshi.Json
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.ToJson
 import dev.gtcl.reddit.models.reddit.listing.*
+import kotlinx.android.parcel.Parcelize
 import java.lang.RuntimeException
 import java.util.*
 
@@ -76,7 +78,9 @@ class CommentsMoshiAdapter {
         var title: String? = null
         var score: Int? = null
         var author: String? = null
+        var authorFullname: String? = null
         var subreddit: String? = null
+        var subredditPrefixed: String? = null
         var numComments: Int? = null
         var created: Long? = null
         var thumbnail: String? = null
@@ -113,8 +117,14 @@ class CommentsMoshiAdapter {
                 "author" -> {
                     author = jsonReader.nextString()
                 }
+                "author_fullname" -> {
+                    authorFullname = jsonReader.nextString()
+                }
                 "subreddit" -> {
                     subreddit = jsonReader.nextString()
+                }
+                "subreddit_name_prefixed" -> {
+                    subredditPrefixed = jsonReader.nextString()
                 }
                 "num_comments" -> {
                     numComments = jsonReader.nextInt()
@@ -175,7 +185,11 @@ class CommentsMoshiAdapter {
                     spoiler = jsonReader.nextBoolean()
                 }
                 "link_flair_text" -> {
-                    linkFlairText = jsonReader.nextString()
+                    if(jsonReader.peek() != JsonReader.Token.NULL) {
+                        linkFlairText = jsonReader.nextString()
+                    } else {
+                        jsonReader.skipValue()
+                    }
                 }
                 else -> {
                     jsonReader.skipValue()
@@ -190,7 +204,9 @@ class CommentsMoshiAdapter {
             title = title!!,
             score = score!!,
             author = author!!,
+            authorFullName = authorFullname!!,
             subreddit = subreddit!!,
+            subredditPrefixed = subredditPrefixed!!,
             numComments = numComments!!,
             created = created!!,
             thumbnail = thumbnail,
@@ -344,14 +360,20 @@ class CommentsMoshiAdapter {
     private fun addCommentToList(jsonReader: JsonReader, depth: Int, comments: MutableList<Item>){
         jsonReader.beginObject()
         var name: String? = null
-        var authorFullName: String? = null
         var author: String? = null
+        var authorFullName: String? = null
         var body: String? = null
         var score: Int? = null
         var created: Long? = null
-        var likes: Boolean? = null
         var saved: Boolean? = null
+        var likes: Boolean? = null
         var replies: List<Item>? = null
+        var authorFlairText: String? = null
+        var permalink: String? = null
+        var subreddit: String? = null
+        var subredditPrefixed: String? = null
+        var linkTitle: String? = null
+
         while (jsonReader.hasNext()) {
             when (jsonReader.nextName()) {
                 "name" -> {
@@ -387,6 +409,25 @@ class CommentsMoshiAdapter {
                 "saved" -> {
                     saved = jsonReader.nextBoolean()
                 }
+                "author_flair_text" -> {
+                    if(jsonReader.peek() == JsonReader.Token.NULL){
+                        jsonReader.skipValue()
+                    } else {
+                        authorFlairText = jsonReader.nextString()
+                    }
+                }
+                "permalink" -> {
+                    permalink = jsonReader.nextString()
+                }
+                "subreddit" -> {
+                    subreddit = jsonReader.nextString()
+                }
+                "subreddit_name_prefixed" -> {
+                    subredditPrefixed = jsonReader.nextString()
+                }
+                "link_title" -> {
+                    linkTitle = jsonReader.nextString()
+                }
                 else -> {
                     jsonReader.skipValue()
                 }
@@ -403,8 +444,13 @@ class CommentsMoshiAdapter {
             body = body!!,
             score = score!!,
             created = created!!,
+            saved = saved,
             likes =  likes,
-            saved = saved
+            authorFlairText = authorFlairText,
+            permalink = permalink!!,
+            subreddit = subreddit!!,
+            subredditPrefixed = subredditPrefixed!!,
+            linkTitle = linkTitle
         )
 
         comments.add(comment)

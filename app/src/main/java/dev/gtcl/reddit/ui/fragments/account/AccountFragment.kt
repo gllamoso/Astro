@@ -1,12 +1,13 @@
 package dev.gtcl.reddit.ui.fragments.account
 
+import android.content.ClipData
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.tabs.TabLayoutMediator
@@ -14,15 +15,14 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentUserBinding
 import dev.gtcl.reddit.database.SavedAccount
+import dev.gtcl.reddit.models.reddit.listing.Comment
 import dev.gtcl.reddit.models.reddit.listing.Item
-import dev.gtcl.reddit.models.reddit.listing.ListingType
 import dev.gtcl.reddit.models.reddit.listing.Post
-import dev.gtcl.reddit.ui.activities.MainActivityVM
+import dev.gtcl.reddit.ui.fragments.ContinueThreadPage
 import dev.gtcl.reddit.ui.fragments.PostPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerVM
-import dev.gtcl.reddit.ui.fragments.item_scroller.ItemScrollerFragment
 
-class AccountFragment : Fragment(), LeftDrawerActions, NavigationActions, ViewPagerActions {
+class AccountFragment : Fragment(), LeftDrawerActions {
 
     private lateinit var binding: FragmentUserBinding
 
@@ -45,11 +45,11 @@ class AccountFragment : Fragment(), LeftDrawerActions, NavigationActions, ViewPa
         val username = requireArguments().getString(USER_KEY)
         model.setUsername(username)
         model.fetchAccount(username)
-        setupViewPagerAdapter()
+        initViewPagerAdapter()
         return binding.root
     }
 
-    private fun setupViewPagerAdapter(){
+    private fun initViewPagerAdapter(){
         val viewPager = binding.viewPager
         val tabLayout = binding.tabLayout
         val adapter =
@@ -126,57 +126,6 @@ class AccountFragment : Fragment(), LeftDrawerActions, NavigationActions, ViewPa
 
     override fun onSettingsClicked() {
         TODO("Not yet implemented")
-    }
-
-//     _   _             _             _   _                            _   _
-//    | \ | |           (_)           | | (_)                 /\       | | (_)
-//    |  \| | __ ___   ___  __ _  __ _| |_ _  ___  _ __      /  \   ___| |_ _  ___  _ __  ___
-//    | . ` |/ _` \ \ / / |/ _` |/ _` | __| |/ _ \| '_ \    / /\ \ / __| __| |/ _ \| '_ \/ __|
-//    | |\  | (_| |\ V /| | (_| | (_| | |_| | (_) | | | |  / ____ \ (__| |_| | (_) | | | \__ \
-//    |_| \_|\__,_| \_/ |_|\__, |\__,_|\__|_|\___/|_| |_| /_/    \_\___|\__|_|\___/|_| |_|___/
-//                          __/ |
-//                         |___/
-
-    override fun listingSelected(listing: ListingType) {
-//        navigationActions?.listingSelected(listing)
-    }
-
-    override fun accountSelected(user: String?) {
-//        navigationActions?.accountSelected(user)
-    }
-
-    override fun messagesSelected() {
-//        navigationActions?.messagesSelected()
-    }
-
-    override fun signInNewAccount() {
-//        navigationActions?.signInNewAccount()
-    }
-
-    override fun launchWebview(url: String) {
-//        navigationActions?.launchWebview(url)
-
-    }
-
-//    __      ___               _____                                     _   _
-//    \ \    / (_)             |  __ \                          /\       | | (_)
-//     \ \  / / _  _____      _| |__) |_ _  __ _  ___ _ __     /  \   ___| |_ _  ___  _ __  ___
-//      \ \/ / | |/ _ \ \ /\ / /  ___/ _` |/ _` |/ _ \ '__|   / /\ \ / __| __| |/ _ \| '_ \/ __|
-//       \  /  | |  __/\ V  V /| |  | (_| | (_| |  __/ |     / ____ \ (__| |_| | (_) | | | \__ \
-//        \/   |_|\___| \_/\_/ |_|   \__,_|\__, |\___|_|    /_/    \_\___|\__|_|\___/|_| |_|___/
-//                                          __/ |
-//                                         |___/
-
-    override fun enablePagerSwiping(enable: Boolean) {
-//        viewPagerActions?.enablePagerSwiping(enable)
-    }
-
-    override fun navigatePreviousPage() {
-//        viewPagerActions?.navigatePreviousPage()
-    }
-
-    override fun navigateToComments(post: Post, position: Int) {
-//        viewPagerActions?.navigateToComments(post, position)
     }
 
     companion object {

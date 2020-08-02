@@ -24,6 +24,7 @@ import dev.gtcl.reddit.ui.ItemScrollListener
 import dev.gtcl.reddit.ui.ListingItemAdapter
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.AccountPage
+import dev.gtcl.reddit.ui.fragments.ContinueThreadPage
 import dev.gtcl.reddit.ui.fragments.PostPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
@@ -318,6 +319,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             }
             is Comment -> {
 //                viewPagerActions?.navigateToComments()
+                activityModel.newPage(ContinueThreadPage(item.permalink))
             }
         }
 

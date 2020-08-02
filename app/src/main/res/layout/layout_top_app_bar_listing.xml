@@ -18,7 +18,7 @@
         android:id="@+id/app_bar_layout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:stateListAnimator="@drawable/appbar_always_elevated"
+        android:stateListAnimator="@drawable/selector_appbar_always_elevated"
         android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
@@ -47,7 +47,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:navigationIcon="@drawable/ic_menu_24dp"
+                app:navigationIcon="@drawable/ic_menu_24"
                 app:layout_collapseMode="pin"
                 app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed">
 
@@ -74,7 +74,7 @@
                         android:id="@+id/side_bar_button"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_reddit_circle_24dp"
+                        android:src="@drawable/ic_reddit_circle_24"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:padding="8dp"
                         android:layout_marginEnd="16dp"

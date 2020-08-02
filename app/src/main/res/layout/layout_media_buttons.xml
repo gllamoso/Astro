@@ -32,7 +32,7 @@
                 android:id="@+id/comment_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_comment_24dp"
+                android:src="@drawable/ic_comments_24"
                 android:tint="@android:color/white"
                 android:visibility="@{hasPostUrl ? View.VISIBLE : View.GONE}"
                 android:background="?attr/selectableItemBackgroundBorderless"
@@ -48,7 +48,7 @@
                 android:id="@+id/share_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_share_24dp"
+                android:src="@drawable/ic_share_24"
                 android:tint="@android:color/white"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="8dp"/>
@@ -62,7 +62,7 @@
                 android:id="@+id/download_button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_download_24dp"
+                android:src="@drawable/ic_download_24"
                 android:tint="@android:color/white"
                 android:background="?attr/selectableItemBackgroundBorderless"
                 android:padding="8dp"/>

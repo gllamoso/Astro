@@ -27,7 +27,7 @@
                     android:layout_height="?attr/actionBarSize"
                     app:layout_scrollFlags="scroll|enterAlways"
                     app:title="@string/inbox"
-                    app:navigationIcon="@drawable/ic_menu_24dp" />
+                    app:navigationIcon="@drawable/ic_menu_24" />
 
             </com.google.android.material.appbar.AppBarLayout>
 

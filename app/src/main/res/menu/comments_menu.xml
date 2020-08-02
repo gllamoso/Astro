@@ -4,24 +4,24 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/upvote"
-        android:icon="@drawable/ic_upvote_24dp"
+        android:icon="@drawable/ic_upvote_24"
         android:title="@string/upvote"
         app:showAsAction="always"
         />
     <item
         android:id="@+id/downvote"
-        android:icon="@drawable/ic_downvote_24dp"
+        android:icon="@drawable/ic_downvote_24"
         android:title="@string/downvote"
         app:showAsAction="always"
         tools:ignore="AlwaysShowAction" />
     <item
         android:id="@+id/save"
-        android:icon="@drawable/ic_bookmark_24dp"
+        android:icon="@drawable/ic_bookmark_24"
         android:title="@string/save"
         app:showAsAction="always"/>
     <item
         android:id="@+id/comments"
-        android:icon="@drawable/ic_comment_24dp"
+        android:icon="@drawable/ic_comments_24"
         android:title="@string/comments"
         app:showAsAction="ifRoom"/>
 </menu>

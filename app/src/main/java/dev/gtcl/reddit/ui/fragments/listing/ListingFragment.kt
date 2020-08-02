@@ -154,16 +154,6 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
                 binding.list.removeOnScrollListener(scrollListener)
             }
         })
-
-//        parentFragmentManager.setFragmentResultListener(
-//            POST_BUNDLE_KEY,
-//            viewLifecycleOwner
-//        ) { _, bundle ->
-//            val post = bundle.get(POST_KEY) as Post
-//            val position = bundle.get(POSITION_KEY) as Int
-//            model.updateItem(post, position)
-//            adapter.updateItem(post, position)
-//        }
     }
 
     @SuppressLint("RtlHardcoded")
@@ -255,7 +245,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
     private fun setOtherObservers() {
         model.errorMessage.observe(viewLifecycleOwner, Observer {
             if (it != null) {
-                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
             }
         })
 

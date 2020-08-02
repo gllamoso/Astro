@@ -17,21 +17,21 @@
         <include
             android:id="@+id/share_link_layout"
             layout="@layout/item_icon_and_text"
-            app:iconDrawable="@{@drawable/ic_link_24dp}"
+            app:iconDrawable="@{@drawable/ic_link_24}"
             app:title="@{@string/share_link}"
             app:subtext="@{post.url}"/>
 
         <include
             android:id="@+id/share_comments_layout"
             layout="@layout/item_icon_and_text"
-            app:iconDrawable="@{@drawable/ic_comment_24dp}"
+            app:iconDrawable="@{@drawable/ic_comments_24}"
             app:title="@{@string/share_comments}"
             app:subtext="@{post.permalink}"/>
 
         <include
             android:id="@+id/cross_post_layout"
             layout="@layout/item_icon_and_text"
-            app:iconDrawable="@{@drawable/ic_crosspost_24dp}"
+            app:iconDrawable="@{@drawable/ic_crosspost_24}"
             app:title="@{@string/crosspost}"
             app:subtext="@{@string/post_to_subreddit}"/>
 
@@ -43,13 +43,13 @@
         <include
             android:id="@+id/share_title_and_link_layout"
             layout="@layout/item_icon_and_text"
-            app:iconDrawable="@{@drawable/ic_text_24dp}"
+            app:iconDrawable="@{@drawable/ic_text_24}"
             app:title="@{@string/share_title_link}"/>
 
         <include
             android:id="@+id/share_shortlink_layout"
             layout="@layout/item_icon_and_text"
-            app:iconDrawable="@{@drawable/ic_link_24dp}"
+            app:iconDrawable="@{@drawable/ic_link_24}"
             app:title="@{@string/share_shortlink}"
             app:subtext="@{post.getShortLink()}"/>
 

@@ -46,7 +46,7 @@ fun loadImageAndHideIfNull(imgView: ImageView, imgUrl: String?){
             .apply(
                 RequestOptions()
                     .placeholder(R.color.background))
-//                    .error(R.drawable.ic_broken_image))
+//                    .error(R.drawable.ic_broken_image_24))
             .into(imgView)
     }
     else imgView.visibility = View.GONE
@@ -63,7 +63,7 @@ fun loadImage(imgView: ImageView, imgUrl: String?){
 //                .apply(
 //                    RequestOptions()
 //                        .placeholder(R.drawable.anim_loading)
-//                        .error(R.drawable.ic_broken_image))
+//                        .error(R.drawable.ic_broken_image_24))
             .into(imgView)
     }
 }
@@ -133,26 +133,26 @@ class SubsamplingScaleImageViewTarget(view: SubsamplingScaleImageView): CustomVi
 @BindingAdapter("listingType")
 fun loadMultiIcon(imgView: ImageView, listingType: ListingType){
     when(listingType){
-        FrontPage -> imgView.setImageResource(R.drawable.ic_front_page_24dp)
-        All -> imgView.setImageResource(R.drawable.ic_all_24dp)
-        Popular -> imgView.setImageResource(R.drawable.ic_trending_up_24dp)
-        is MultiRedditListing -> imgView.setImageResource(R.drawable.ic_collection_24dp)
+        FrontPage -> imgView.setImageResource(R.drawable.ic_front_page_24)
+        All -> imgView.setImageResource(R.drawable.ic_all_24)
+        Popular -> imgView.setImageResource(R.drawable.ic_trending_up_24)
+        is MultiRedditListing -> imgView.setImageResource(R.drawable.ic_collection_24)
         is SubredditListing -> loadSubIcon(imgView, listingType.sub.iconImg)
-        else -> imgView.setImageResource(R.drawable.ic_bookmark_24dp)
+        else -> imgView.setImageResource(R.drawable.ic_bookmark_24)
     }
 }
 
 @BindingAdapter("subredditIcon")
 fun loadSubIcon(imgView: ImageView, imgUrl: String?){
     if(imgUrl == null || !imgUrl.startsWith("http")){
-        imgView.setImageResource(R.drawable.ic_reddit_circle_24dp)
+        imgView.setImageResource(R.drawable.ic_reddit_circle_24)
     }
     else {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
             .apply(RequestOptions()
-                .placeholder(R.drawable.ic_reddit_circle_24dp)
+                .placeholder(R.drawable.ic_reddit_circle_24)
                 .circleCrop())
             .into(imgView)
     }
@@ -161,14 +161,14 @@ fun loadSubIcon(imgView: ImageView, imgUrl: String?){
 @BindingAdapter("accountIcon")
 fun loadAccountIcon(imgView: ImageView, imgUrl: String?){
     if(imgUrl == null || !imgUrl.startsWith("http")){
-        imgView.setImageResource(R.drawable.ic_profile_24dp)
+        imgView.setImageResource(R.drawable.ic_profile_24)
     }
     else {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
             .apply(RequestOptions()
-                .placeholder(R.drawable.ic_profile_24dp)
+                .placeholder(R.drawable.ic_profile_24)
                 .circleCrop())
             .into(imgView)
     }
@@ -177,9 +177,9 @@ fun loadAccountIcon(imgView: ImageView, imgUrl: String?){
 @BindingAdapter("subscriptionIcon")
 fun loadSubscriptionIcon(imgView: ImageView, subscription: Subscription){
     val placeHolder = when(subscription.type){
-        SubscriptionType.MULTIREDDIT -> R.drawable.ic_collection_24dp
-        SubscriptionType.USER -> R.drawable.ic_user_24dp
-        SubscriptionType.SUBREDDIT -> R.drawable.ic_reddit_circle_24dp
+        SubscriptionType.MULTIREDDIT -> R.drawable.ic_collection_24
+        SubscriptionType.USER -> R.drawable.ic_user_24
+        SubscriptionType.SUBREDDIT -> R.drawable.ic_reddit_circle_24
     }
 
     if(subscription.icon == null || !subscription.icon.startsWith("https", true)){
@@ -198,14 +198,14 @@ fun loadSubscriptionIcon(imgView: ImageView, subscription: Subscription){
 @BindingAdapter("multiRedditIcon")
 fun loadMultiRedditIcon(imgView: ImageView, imgUrl: String?){
     if(imgUrl == null || !imgUrl.startsWith("http")){
-        imgView.setImageResource(R.drawable.ic_collection_24dp)
+        imgView.setImageResource(R.drawable.ic_collection_24)
     }
     else {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
             .apply(RequestOptions()
-                .placeholder(R.drawable.ic_collection_24dp)
+                .placeholder(R.drawable.ic_collection_24)
                 .circleCrop())
             .into(imgView)
     }
@@ -219,16 +219,16 @@ fun setTint(imgView: ImageView, color: Int){
 
 @BindingAdapter("favorite")
 fun loadFavoriteIcon(imgView: ImageView, isFavorite: Boolean){
-    imgView.setImageResource(if(isFavorite) R.drawable.ic_favorite_filled_24dp else R.drawable.ic_favorite_unfilled_24dp)
+    imgView.setImageResource(if(isFavorite) R.drawable.ic_favorite_filled_24 else R.drawable.ic_favorite_unfilled_24)
 }
 
 @BindingAdapter("added")
 fun loadAddedIcon(imgView: ImageView, added: Boolean){
     imgView.setImageResource(
         if(added){
-            R.drawable.ic_remove_circle_outline_24dp
+            R.drawable.ic_remove_circle_outline_24
         } else {
-            R.drawable.ic_add_circle_24dp
+            R.drawable.ic_add_circle_24
         }
     )
 }

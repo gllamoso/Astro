@@ -20,9 +20,7 @@ import androidx.core.app.NotificationManagerCompat
 import androidx.core.content.FileProvider
 import com.arthenica.mobileffmpeg.Config
 import com.arthenica.mobileffmpeg.FFmpeg
-import dev.gtcl.reddit.ALBUM_KEY
 import dev.gtcl.reddit.R
-import dev.gtcl.reddit.URLS_KEY
 import dev.gtcl.reddit.URL_KEY
 import java.io.BufferedInputStream
 import java.io.File
@@ -95,7 +93,7 @@ class DownloadIntentService : JobIntentService(){
     private fun createForegroundNotification(fileName: String): Notification{
         return Notification.Builder(this, JOB_ID.toString())
             .setContentTitle(fileName)
-            .setSmallIcon(R.drawable.ic_download_black_24dp)
+            .setSmallIcon(R.drawable.ic_download_black_24)
             .setContentText(getText(R.string.downloading))
             .setProgress(100, 0, true)
             .build()
@@ -120,7 +118,7 @@ class DownloadIntentService : JobIntentService(){
         return Notification.Builder(this, DOWNLOAD_COMPLETE_CHANNEL_ID.toString())
             .setContentIntent(pendingIntent)
             .setContentTitle(fileName)
-            .setSmallIcon(R.drawable.ic_save_black_24dp)
+            .setSmallIcon(R.drawable.ic_save_24)
             .setContentText(getText(R.string.download_complete))
             .setGroup(DOWNLOAD_GROUP_KEY)
             .setAutoCancel(true)
@@ -142,7 +140,7 @@ class DownloadIntentService : JobIntentService(){
 
         if(count > 1){
             val summaryNotification = NotificationCompat.Builder(this, DOWNLOAD_COMPLETE_CHANNEL_ID.toString())
-                .setSmallIcon(R.drawable.ic_save_black_24dp)
+                .setSmallIcon(R.drawable.ic_save_24)
                 .setGroup(DOWNLOAD_GROUP_KEY)
                 .setGroupSummary(true)
                 .build()

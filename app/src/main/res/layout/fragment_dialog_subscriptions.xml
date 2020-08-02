@@ -16,7 +16,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:title="@string/my_subscriptions"
-                app:navigationIcon="@drawable/ic_back_arrow_text_color_24dp"
+                app:navigationIcon="@drawable/ic_back_arrow_24"
                 app:menu="@menu/subscriptions_menu"/>
 
         </com.google.android.material.appbar.AppBarLayout>

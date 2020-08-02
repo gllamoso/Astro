@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="comment"
+            type="dev.gtcl.reddit.models.reddit.listing.Comment" />
+        <import type="android.view.View" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginVertical="2dp"
+            android:layout_marginHorizontal="4dp"
+            app:cardBackgroundColor="@color/background"
+            app:cardCornerRadius="4dp">
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:background="?android:attr/selectableItemBackground">
+
+                <View
+                    android:id="@+id/upvote_indicator"
+                    android:layout_width="8dp"
+                    android:layout_height="0dp"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:likes="@{comment.likes}"
+                    tools:background="@android:color/holo_orange_dark"/>
+
+                <TextView
+                    android:id="@+id/link_title"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:text="@{comment.linkTitle}"
+                    app:layout_constraintEnd_toStartOf="@id/more_options"
+                    app:layout_constraintStart_toEndOf="@id/upvote_indicator"
+                    app:layout_constraintTop_toTopOf="parent"
+                    tools:text="Post Link Title" />
+
+                <TextView
+                    android:id="@+id/subreddit"
+                    android:singleLine="true"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:textSize="12sp"
+                    android:text="@{comment.subredditPrefixed}"
+                    app:layout_constraintTop_toBottomOf="@id/link_title"
+                    app:layout_constraintStart_toEndOf="@id/upvote_indicator"
+                    app:layout_constraintEnd_toStartOf="@id/more_options"
+                    tools:text="r/funny"/>
+
+                <ImageView
+                    android:id="@+id/comment_icon"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginHorizontal="8dp"
+                    android:layout_marginTop="8dp"
+                    android:src="@drawable/ic_comment_24"
+                    app:layout_constraintStart_toEndOf="@id/upvote_indicator"
+                    app:layout_constraintTop_toBottomOf="@id/subreddit"/>
+
+                <TextView
+                    android:id="@+id/author"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    android:singleLine="true"
+                    android:text="@{comment.author}"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:typeface="normal"
+                    app:layout_constraintBottom_toBottomOf="@id/comment_icon"
+                    app:layout_constraintStart_toEndOf="@id/comment_icon"
+                    app:layout_constraintTop_toTopOf="@id/comment_icon"
+                    tools:text="Author" />
+
+                <ImageView
+                    android:id="@+id/editable_icon"
+                    android:layout_width="18dp"
+                    android:layout_height="18dp"
+                    android:layout_marginEnd="8dp"
+                    android:visibility="@{comment.submitter == true ? View.VISIBLE : View.GONE}"
+                    android:src="@drawable/ic_pencil_24"
+                    android:layout_marginStart="4dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/comment_icon"
+                    app:layout_constraintStart_toEndOf="@+id/author"
+                    app:layout_constraintTop_toTopOf="@+id/comment_icon"/>
+
+                <include
+                    android:id="@+id/author_flair"
+                    layout="@layout/flair_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{comment.authorFlairText != null ? View.VISIBLE : View.GONE}"
+                    app:flairText="@{comment.authorFlairText}"
+                    android:layout_marginStart="4dp"
+                    app:layout_constraintBottom_toBottomOf="@+id/comment_icon"
+                    app:layout_constraintStart_toEndOf="@+id/editable_icon"
+                    app:layout_constraintTop_toTopOf="@+id/comment_icon" />
+
+                <TextView
+                    android:id="@+id/points_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="4dp"
+                    android:singleLine="true"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toEndOf="@id/author_flair"
+                    app:layout_constraintTop_toTopOf="@id/comment_icon"
+                    app:layout_constraintBottom_toBottomOf="@id/comment_icon"
+                    app:points="@{comment.score}"
+                    tools:text="123 points" />
+
+                <TextView
+                    android:id="@+id/timestamp_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginEnd="8dp"
+                    android:singleLine="true"
+                    android:textSize="12sp"
+                    app:layout_constraintStart_toEndOf="@id/points_text"
+                    app:layout_constraintTop_toTopOf="@id/comment_icon"
+                    app:layout_constraintBottom_toBottomOf="@id/comment_icon"
+                    app:timestamp="@{comment.created}"
+                    tools:text="2 hours ago" />
+
+                <TextView
+                    android:id="@+id/body_message"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="8dp"
+                    app:layout_constraintStart_toEndOf="@id/upvote_indicator"
+                    app:layout_constraintEnd_toStartOf="@id/more_options"
+                    app:layout_constraintTop_toBottomOf="@id/comment_icon"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    android:layout_marginBottom="8dp"
+                    tools:text="The lazy brown fox jumped over the lazy dog."/>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginEnd="4dp"
+                    android:src="@drawable/ic_bookmark_24"
+                    android:tint="@android:color/holo_orange_light"
+                    android:visibility="@{comment.saved == true ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+                <ImageView
+                    android:id="@+id/more_options"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:background="?android:attr/selectableItemBackgroundBorderless"
+                    android:src="@drawable/ic_more_vert_24"
+                    android:visibility="@{comment.partiallyCollapsed == true ? View.GONE : View.VISIBLE}"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintTop_toTopOf="parent" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+        </androidx.cardview.widget.CardView>
+
+    </LinearLayout>
+
+</layout>

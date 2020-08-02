@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui
 
-import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
@@ -80,7 +79,7 @@ class ListingItemAdapter(
             else -> {
                 when (val item = items!![position]) {
                     is Post -> R.layout.item_post
-                    is Comment -> R.layout.item_comment
+                    is Comment -> R.layout.item_comment_detailed
                     is Subreddit -> R.layout.item_subreddit
                     is Message -> R.layout.item_message
                     else -> throw InvalidObjectException("Unexpected item found: ${item.javaClass.simpleName} in position $position")
@@ -92,7 +91,7 @@ class ListingItemAdapter(
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
             R.layout.item_post -> PostVH.create(parent)
-            R.layout.item_comment -> CommentVH.create(parent)
+            R.layout.item_comment_detailed -> CommentDetailedVH.create(parent)
             R.layout.item_subreddit -> SubredditVH.create(parent)
             R.layout.item_message -> MessageVH.create(parent)
             R.layout.item_network_state -> NetworkStateItemVH.create(parent)
@@ -110,12 +109,12 @@ class ListingItemAdapter(
                 val post = items!![position] as Post
                 (holder as PostVH).bind(post, postActions, itemClickListener)
             }
-            R.layout.item_comment -> {
+            R.layout.item_comment_detailed -> {
                 val comment = items!![position] as Comment
                 if (commentActions == null) {
                     throw IllegalStateException("Comment Actions not initialized")
                 }
-                (holder as CommentVH).bind(comment, markwon, commentActions, itemClickListener)
+                (holder as CommentDetailedVH).bind(comment, markwon, commentActions, itemClickListener)
             }
             R.layout.item_subreddit -> {
                 val subreddit = items!![position] as Subreddit

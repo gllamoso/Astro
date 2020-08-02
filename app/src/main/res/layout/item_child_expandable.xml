@@ -28,7 +28,7 @@
             android:layout_gravity="center"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
-            android:src="@drawable/ic_remove_circle_outline_24dp" />
+            android:src="@drawable/ic_remove_circle_outline_24" />
 
     </LinearLayout>
 </layout>

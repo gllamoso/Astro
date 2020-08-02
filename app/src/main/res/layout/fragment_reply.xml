@@ -26,7 +26,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:title="@string/reply"
-                app:navigationIcon="@drawable/ic_x_24dp"
+                app:navigationIcon="@drawable/ic_x_24"
                 app:menu="@menu/post_menu"/>
 
         </com.google.android.material.appbar.AppBarLayout>

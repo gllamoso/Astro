@@ -444,3 +444,12 @@ fun rotateView(view: View, rotate: Boolean){
         0F
     })
 }
+
+fun checkItemsIfUser(fullId: String?, items: List<Item>){
+    items.forEach {
+        when(it){
+            is Post -> it.checkIfSubmitter(fullId)
+            is Comment -> it.checkIfSubmitter(fullId)
+        }
+    }
+}

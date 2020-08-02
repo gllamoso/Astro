@@ -3,7 +3,6 @@ package dev.gtcl.reddit.ui.fragments.comments
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -31,7 +30,6 @@ import dev.gtcl.reddit.actions.CommentActions
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.actions.LinkHandler
 import dev.gtcl.reddit.databinding.FragmentCommentsBinding
-import dev.gtcl.reddit.actions.ViewPagerActions
 import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.activities.MainActivityVM

@@ -21,7 +21,7 @@ import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.models.reddit.listing.SubscriptionListing
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 
-class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
+class ViewPagerFragment : Fragment(), NavigationActions {
 
     private lateinit var binding: FragmentViewpagerBinding
 
@@ -61,7 +61,8 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
         model.newPage.observe(viewLifecycleOwner, Observer {
             if(it != null){
                 pageAdapter.addPage(it)
-                navigateNext()
+                val currentPage = binding.viewpager.currentItem
+                binding.viewpager.setCurrentItem(currentPage + 1, true)
                 model.newPageObserved()
             }
         })
@@ -96,7 +97,8 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
     private fun initBackPressedCallback(){
         backPressedCallback = object: OnBackPressedCallback(true){
             override fun handleOnBackPressed() {
-                navigatePreviousPage()
+                val currentPage = binding.viewpager.currentItem
+                binding.viewpager.setCurrentItem(currentPage - 1, true)
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback)
@@ -108,42 +110,12 @@ class ViewPagerFragment : Fragment(), ViewPagerActions, NavigationActions {
         })
 
         model.navigateToPreviousPage.observe(viewLifecycleOwner, Observer {
-            navigatePreviousPage()
-            model.navigateToPreviousPageObserved()
+            if(it != null){
+                val currentPage = binding.viewpager.currentItem
+                binding.viewpager.setCurrentItem(currentPage - 1, true)
+                model.navigateToPreviousPageObserved()
+            }
         })
-    }
-
-    override fun onDestroyView() {
-        super.onDestroyView()
-        model.pages = pageAdapter.getPageStack()
-    }
-
-//    __      ___               _____                                     _   _
-//    \ \    / (_)             |  __ \                          /\       | | (_)
-//     \ \  / / _  _____      _| |__) |_ _  __ _  ___ _ __     /  \   ___| |_ _  ___  _ __  ___
-//      \ \/ / | |/ _ \ \ /\ / /  ___/ _` |/ _` |/ _ \ '__|   / /\ \ / __| __| |/ _ \| '_ \/ __|
-//       \  /  | |  __/\ V  V /| |  | (_| | (_| |  __/ |     / ____ \ (__| |_| | (_) | | | \__ \
-//        \/   |_|\___| \_/\_/ |_|   \__,_|\__, |\___|_|    /_/    \_\___|\__|_|\___/|_| |_|___/
-//                                          __/ |
-//                                         |___/
-
-    override fun enablePagerSwiping(enable: Boolean) {
-        binding.viewpager.isUserInputEnabled = enable
-    }
-
-    override fun navigatePreviousPage() {
-        val currentPage = binding.viewpager.currentItem
-        binding.viewpager.setCurrentItem(currentPage - 1, true)
-    }
-
-    override fun navigateToComments(post: Post, position: Int) {
-        pageAdapter.addPage(PostPage(post, position))
-        navigateNext()
-    }
-
-    private fun navigateNext() {
-        val currentPage = binding.viewpager.currentItem
-        binding.viewpager.setCurrentItem(currentPage + 1, true)
     }
 
 //     _   _             _             _   _                            _   _

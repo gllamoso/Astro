@@ -32,7 +32,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@{leftIcon}"
-            tools:src="@drawable/ic_reddit_circle_24dp"/>
+            tools:src="@drawable/ic_reddit_circle_24"/>
 
         <TextView
             android:id="@+id/title"
@@ -55,7 +55,7 @@
             android:layout_marginStart="8dp"
             android:layout_marginEnd="8dp"
             android:src="@{rightIcon}"
-            tools:src="@drawable/ic_add_circle_24dp"/>
+            tools:src="@drawable/ic_add_circle_24"/>
 
     </LinearLayout>
 

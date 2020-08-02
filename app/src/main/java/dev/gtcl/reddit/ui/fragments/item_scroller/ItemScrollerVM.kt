@@ -13,7 +13,7 @@ import dev.gtcl.reddit.repositories.SubredditRepository
 import kotlinx.coroutines.*
 import kotlin.collections.HashSet
 
-class ItemScrollerVM(application: RedditApplication): AndroidViewModel(application){
+class ItemScrollerVM(private val application: RedditApplication): AndroidViewModel(application){
 
     // Repos
     private val listingRepository = ListingRepository.getInstance(application)
@@ -131,6 +131,8 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
                 else -> throw IllegalStateException("Not enough info to load listing")
             }
             val items = response.data.children.map { it.data }.toMutableList()
+            val currentId = application.currentAccount?.fullId
+            checkItemsIfUser(currentId, items)
             listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
             setItemsReadStatus(items, readItemIds)
             _items.value = items
@@ -151,6 +153,8 @@ class ItemScrollerVM(application: RedditApplication): AndroidViewModel(applicati
                 else -> throw IllegalStateException("Not enough info to load listing")
             }
             val items = response.data.children.map { it.data }.toMutableList()
+            val currentId = application.currentAccount?.fullId
+            checkItemsIfUser(currentId, items)
             _moreItems.value = items
             _items.value?.addAll(items)
             _lastItemReached.value = items.size < size

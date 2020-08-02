@@ -27,8 +27,8 @@
                 android:id="@+id/top_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:navigationIcon="@drawable/ic_back_arrow_surface_color_24dp"
-                android:background="@drawable/transparent_gradient_bottom_to_top"
+                app:navigationIcon="@drawable/ic_back_arrow_24"
+                android:background="@drawable/gradient_transparent_bottom_to_top"
                 android:elevation="1dp"
                 android:visibility="@{activityModel.showUi &amp;&amp; !model.loading ? View.VISIBLE : View.GONE}">
 
@@ -51,7 +51,7 @@
                         android:id="@+id/album_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:src="@drawable/ic_collection_24dp"
+                        android:src="@drawable/ic_collection_24"
                         android:padding="16dp"
                         android:tint="@android:color/white"
                         android:visibility="@{model.mediaItems.size() > 1 ? View.VISIBLE : View.GONE}"/>
@@ -78,7 +78,7 @@
                 android:id="@+id/bottom_bar_controls"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@drawable/transparent_gradient_top_to_bottom"
+                android:background="@drawable/gradient_transparent_top_to_bottom"
                 layout="@layout/layout_media_buttons"
                 app:hasPostUrl="@{model.post != null}"
                 android:layout_gravity="bottom"

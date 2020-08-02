@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui.fragments.listing
 
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -77,10 +78,6 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     val lastItemReached: LiveData<Boolean>
         get() = _lastItemReached
 
-    private val _newMultiReddit = MutableLiveData<MultiReddit>()
-    val newMultiReddit: LiveData<MultiReddit>
-        get() = _newMultiReddit
-
     private val _leftDrawerExpanded = MutableLiveData<Boolean>()
     val leftDrawerExpanded: LiveData<Boolean>
         get() = _leftDrawerExpanded
@@ -126,6 +123,8 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
                 withContext(Dispatchers.IO){
                     val response = listingRepository.getListing(listingType, postSort.value!!, time.value, after, size).await()
                     val items = response.data.children.map { it.data }.toMutableList()
+                    val currentId = application.currentAccount?.fullId
+                    checkItemsIfUser(currentId, items)
                     listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
                     setItemsReadStatus(items, readItemIds)
                     _items.postValue(items)
@@ -135,11 +134,13 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
             } catch (e: Exception){
                 lastAction = ::loadFirstItems
                 after = null
+                Log.d("TAE", "Exception: $e")
                 _networkState.value = NetworkState.error(e.getErrorMessage(application))
+            } finally {
+                _networkState.value = NetworkState.LOADED
+                _refreshState.value = NetworkState.LOADED
+                _initialPageLoaded = after != null
             }
-            _networkState.value = NetworkState.LOADED
-            _refreshState.value = NetworkState.LOADED
-            _initialPageLoaded = true
         }
     }
 
@@ -162,6 +163,8 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
                         size
                     ).await()
                     val items = response.data.children.map { it.data }.toMutableList()
+                    val currentId = application.currentAccount?.fullId
+                    checkItemsIfUser(currentId, items)
                     listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
                     setItemsReadStatus(items, readItemIds)
                     _moreItems.postValue(items)

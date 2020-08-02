@@ -34,7 +34,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@{iconDrawable}"
-                tools:src="@drawable/ic_upvote_24dp"
+                tools:src="@drawable/ic_upvote_24"
                 android:visibility="@{icon != null ? View.VISIBLE : View.GONE}"
                 android:layout_marginEnd="8dp"/>
 
@@ -52,7 +52,7 @@
             <ImageView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_check_24dp"
+                android:src="@drawable/ic_check_24"
                 android:layout_marginStart="8dp"
                 android:visibility="@{isSelected ? View.VISIBLE : View.GONE}"/>
 

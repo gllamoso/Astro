@@ -24,7 +24,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:navigationIcon="@drawable/ic_back_arrow_surface_color_24dp"
+                app:navigationIcon="@drawable/ic_back_arrow_24"
                 app:title="@string/please_login" />
 
         </com.google.android.material.appbar.AppBarLayout>

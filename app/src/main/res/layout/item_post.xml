@@ -7,7 +7,6 @@
         <variable
             name="post"
             type="dev.gtcl.reddit.models.reddit.listing.Post" />
-
         <import type="android.view.View" />
     </data>
 
@@ -18,12 +17,10 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginStart="8dp"
-            android:layout_marginTop="4dp"
-            android:layout_marginEnd="8dp"
-            android:layout_marginBottom="4dp"
+            android:layout_marginVertical="2dp"
+            android:layout_marginHorizontal="4dp"
             app:cardBackgroundColor="@color/background"
-            app:cardCornerRadius="8dp">
+            app:cardCornerRadius="4dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:id="@+id/rootLayout"
@@ -40,6 +37,13 @@
                     app:layout_constraintStart_toEndOf="@id/upvote_indicator"
                     app:layout_constraintTop_toTopOf="parent"
                     android:layout_margin="8dp">
+
+                    <ImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginEnd="8dp"
+                        android:visibility="@{post.submitter == true ? View.VISIBLE : View.GONE}"
+                        android:src="@drawable/ic_pencil_24"/>
 
                     <include
                         layout="@layout/nsfw_icon"
@@ -70,7 +74,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginEnd="4dp"
-                    android:src="@drawable/ic_bookmark_24dp"
+                    android:src="@drawable/ic_bookmark_24"
                     android:tint="@android:color/holo_orange_light"
                     android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}"
                     app:layout_constraintEnd_toEndOf="parent"
@@ -105,8 +109,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="8dp"
-                    android:text="@{String.format(&quot;%s • %s • %s&quot;, post.subreddit, post.author, post.domain)}"
+                    android:text="@{String.format(&quot;%s • %s • %s&quot;, post.subredditPrefixed, post.author, post.domain)}"
                     android:textSize="12sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:singleLine="true"
                     app:layout_constraintEnd_toStartOf="@id/frame_layout"
                     app:layout_constraintStart_toEndOf="@id/upvote_indicator"
                     app:layout_constraintTop_toBottomOf="@id/title"
@@ -117,8 +123,10 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="8dp"
+                    android:textColor="@android:color/darker_gray"
                     android:text="@{String.format(&quot;%s • %s&quot;, String.format(@string/num_points, post.score), String.format(@string/num_comments, post.numComments))}"
                     android:textSize="12sp"
+                    android:singleLine="true"
                     app:layout_constraintEnd_toStartOf="@id/frame_layout"
                     app:layout_constraintStart_toEndOf="@id/upvote_indicator"
                     app:layout_constraintTop_toBottomOf="@id/subreddit_info"
@@ -130,6 +138,8 @@
                     android:layout_marginHorizontal="8dp"
                     android:layout_marginBottom="8dp"
                     android:textSize="12sp"
+                    android:singleLine="true"
+                    android:textColor="@android:color/darker_gray"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/frame_layout"
                     app:layout_constraintStart_toEndOf="@id/upvote_indicator"
@@ -141,9 +151,8 @@
                     android:id="@+id/frame_layout"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
                     android:layout_marginEnd="4dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginVertical="8dp"
                     android:background="@android:color/black"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/more_options"
@@ -165,7 +174,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_more_vert_24dp"
+                    android:src="@drawable/ic_more_vert_24"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />

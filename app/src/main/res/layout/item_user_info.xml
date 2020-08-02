@@ -47,7 +47,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toStartOf="@id/commentKarmaCount"
             app:layout_constraintTop_toBottomOf="@id/totalKarma"
-            android:drawableStart="@drawable/ic_link_24dp"
+            android:drawableStart="@drawable/ic_link_24"
             tools:text="99"
             android:text="@{Integer.toString(account.linkKarma)}"/>
 
@@ -59,7 +59,7 @@
             app:layout_constraintStart_toEndOf="@id/linkKarmaCount"
             app:layout_constraintEnd_toStartOf="@id/centerLine"
             app:layout_constraintTop_toBottomOf="@id/totalKarma"
-            android:drawableStart="@drawable/ic_comment_24dp"
+            android:drawableStart="@drawable/ic_comments_24"
             tools:text="99"
             android:text="@{Integer.toString(account.commentKarma)}"/>
 
@@ -92,7 +92,7 @@
             app:layout_constraintStart_toEndOf="@id/centerLine"
             app:layout_constraintEnd_toEndOf="parent"
             app:timestamp="@{account.created}"
-            android:drawableStart="@drawable/ic_cake_24dp"
+            android:drawableStart="@drawable/ic_cake_24"
             android:textSize="20sp"
             android:singleLine="true"
             tools:text="12 year 6 days"/>

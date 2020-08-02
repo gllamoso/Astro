@@ -4,28 +4,28 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/sort"
-        android:icon="@drawable/ic_sort_24dp"
+        android:icon="@drawable/ic_sort_24"
         android:title="@string/sort"
         app:showAsAction="always"
         android:checked="false"
         android:checkable="false"/>
     <item
         android:id="@+id/reload"
-        android:icon="@drawable/ic_refresh_24dp"
+        android:icon="@drawable/ic_refresh_24"
         android:title="@string/reload"
         app:showAsAction="always"
         android:checked="false"
         android:checkable="false"/>
     <item
         android:id="@+id/subscriptions"
-        android:icon="@drawable/ic_reddit_24dp"
+        android:icon="@drawable/ic_reddit_24"
         android:title="@string/subscriptions"
         app:showAsAction="always"
         android:checked="false"
         android:checkable="false"/>
     <item
         android:id="@+id/more_options"
-        android:icon="@drawable/ic_more_vert_24dp"
+        android:icon="@drawable/ic_more_vert_24"
         android:title="@string/more_options"
         app:showAsAction="always"
         android:checked="false"

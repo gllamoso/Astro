@@ -39,7 +39,7 @@
                 android:id="@+id/edit"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_edit_24dp"
+                android:src="@drawable/ic_pencil_24"
                 android:layout_marginStart="8dp"
                 android:visibility="@{isEditable ? View.VISIBLE : View.GONE}"/>
 

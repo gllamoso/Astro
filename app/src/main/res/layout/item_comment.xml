@@ -5,11 +5,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-
         <variable
             name="comment"
             type="dev.gtcl.reddit.models.reddit.listing.Comment" />
-
+        <variable
+            name="isUser"
+            type="Boolean" />
         <import type="android.view.View" />
     </data>
 
@@ -46,9 +47,9 @@
             android:layout_marginEnd="4dp"
             android:text="@{comment.author}"
             android:textStyle="bold"
+            android:singleLine="true"
             app:layout_constraintStart_toEndOf="@id/indent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0"
             tools:text="CommentAuthor" />
 
         <TextView
@@ -57,7 +58,7 @@
             android:layout_height="wrap_content"
             android:layout_marginHorizontal="4dp"
             android:layout_marginVertical="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:singleLine="true"
             app:layout_constraintStart_toEndOf="@id/author_text"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0"
@@ -71,7 +72,7 @@
             android:layout_marginVertical="8dp"
             android:layout_marginStart="4dp"
             android:layout_marginEnd="8dp"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:singleLine="true"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintHorizontal_bias="0"
             app:layout_constraintStart_toEndOf="@id/points_text"
@@ -86,7 +87,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             android:background="?android:attr/selectableItemBackgroundBorderless"
-            android:src="@drawable/ic_more_vert_24dp"
+            android:src="@drawable/ic_more_vert_24"
             android:visibility="@{comment.partiallyCollapsed == true ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
