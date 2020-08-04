@@ -30,6 +30,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{post.author}"
+                    android:singleLine="true"
                     tools:text="JohnDoe"
                     android:textSize="12sp"
                     android:textStyle="bold"/>
@@ -37,6 +38,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:singleLine="true"
                     android:text=" • "
                     tools:ignore="HardcodedText"
                     android:textSize="12sp"/>
@@ -44,6 +46,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:singleLine="true"
                     app:timestamp="@{post.created}"
                     tools:text="9 hours ago"
                     android:textSize="12sp"/>
@@ -54,7 +57,6 @@
                 android:id="@+id/post_title"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@{post.title}"
                 tools:text="This is a post title and might be multiple lines"
                 android:textColor="?android:attr/colorForeground"
                 android:textSize="18sp"/>
@@ -68,6 +70,7 @@
                     android:id="@+id/num_comments"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:singleLine="true"
                     app:number_of_comments="@{post.numComments}"
                     tools:text="99 comments"
                     android:textSize="12sp"/>
@@ -76,6 +79,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text=" • "
+                    android:singleLine="true"
                     tools:ignore="HardcodedText"
                     android:textSize="12sp"/>
 
@@ -83,6 +87,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{String.format(@string/num_points, post.score)}"
+                    android:singleLine="true"
                     tools:text="12345 points"
                     android:textSize="12sp"/>
 
@@ -90,6 +95,7 @@
                     android:layout_marginLeft="4dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:singleLine="true"
                     app:upvoteRatio="@{post.upvoteRatio}"
                     tools:text="(98% upvote)"
                     tools:ignore="RtlHardcoded"

@@ -72,20 +72,6 @@
     <string name="num_points">%s points</string>
     <string name="upvote_ratio">(%.0f%% upvote)</string>
 
-    <!--Time-->
-    <string name="years_ago">%d years</string>
-    <string name="year_ago">1 year</string>
-    <string name="months_ago">%d months</string>
-    <string name="month_ago">1 month</string>
-    <string name="weeks_ago">%d weeks</string>
-    <string name="week_ago">1 week</string>
-    <string name="days_ago">%d days</string>
-    <string name="day_ago">1 day</string>
-    <string name="hours_ago">%d hours</string>
-    <string name="hour_ago">1 hour</string>
-    <string name="minutes_ago">%d minutes</string>
-    <string name="a_moment_ago">A moment</string>
-
     <!--Account-->
     <string name="overview">Overview</string>
     <string name="about">About</string>
@@ -152,6 +138,7 @@
     <string name="get_notifications">Get notifications</string>
     <string name="nsfw">NSFW</string>
     <string name="spoiler">Spoiler</string>
+    <string name="op">OP</string>
     <string name="flair">Flair</string>
     <string name="select_flair">Select Flair</string>
     <string name="edit_flair">Edit Flair</string>

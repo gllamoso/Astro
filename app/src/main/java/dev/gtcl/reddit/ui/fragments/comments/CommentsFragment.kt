@@ -3,6 +3,7 @@ package dev.gtcl.reddit.ui.fragments.comments
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.text.Html
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -95,6 +96,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 Snackbar.make(binding.bottomBar, it, Snackbar.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }
+        })
+
+        model.post.observe(viewLifecycleOwner, Observer {
+            binding.postLayout.postTitle.text = Html.fromHtml(it.title, Html.FROM_HTML_MODE_COMPACT)
         })
     }
 

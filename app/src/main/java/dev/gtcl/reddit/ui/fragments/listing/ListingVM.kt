@@ -122,9 +122,10 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
                 val size = pageSize * 3
                 withContext(Dispatchers.IO){
                     val response = listingRepository.getListing(listingType, postSort.value!!, time.value, after, size).await()
-                    val items = response.data.children.map { it.data }.toMutableList()
                     val currentId = application.currentAccount?.fullId
-                    checkItemsIfUser(currentId, items)
+                    val items = response.data.children.map { it.data }.toMutableList().apply {
+                        checkIfItemsAreSubmittedByCurrentUser(currentId)
+                    }
                     listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
                     setItemsReadStatus(items, readItemIds)
                     _items.postValue(items)
@@ -134,7 +135,6 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
             } catch (e: Exception){
                 lastAction = ::loadFirstItems
                 after = null
-                Log.d("TAE", "Exception: $e")
                 _networkState.value = NetworkState.error(e.getErrorMessage(application))
             } finally {
                 _networkState.value = NetworkState.LOADED
@@ -162,9 +162,10 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
                         after,
                         size
                     ).await()
-                    val items = response.data.children.map { it.data }.toMutableList()
                     val currentId = application.currentAccount?.fullId
-                    checkItemsIfUser(currentId, items)
+                    val items = response.data.children.map { it.data }.toMutableList().apply {
+                        checkIfItemsAreSubmittedByCurrentUser(currentId)
+                    }
                     listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
                     setItemsReadStatus(items, readItemIds)
                     _moreItems.postValue(items)

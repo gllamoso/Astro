@@ -15,7 +15,25 @@ import java.util.*
 sealed class Item(val kind: ItemType) : Parcelable{
     abstract val id: String?
     abstract val name: String
+    var isCurrentUser = false
     var hiddenPoints = 0 // Hide if > 0
+
+    fun checkIfCurrentUser(userFullName: String){
+        when(this){
+            is Post -> isCurrentUser = this.authorFullName == userFullName
+            is Comment -> isCurrentUser = this.authorFullName == userFullName
+        }
+    }
+}
+
+fun List<Item>.checkIfItemsAreSubmittedByCurrentUser(userFullName: String?){
+    if(userFullName == null){
+        return
+    }
+
+    for(item: Item in this){
+        item.checkIfCurrentUser(userFullName)
+    }
 }
 
 enum class ItemType {
@@ -68,16 +86,10 @@ data class Comment( // TODO: Add more properties: all_awardings
     val subredditPrefixed: String,
     @Json(name = "link_title")
     val linkTitle: String?,
+    @Json(name = "is_submitter")
+    val isSubmitter: Boolean?,
     var isPartiallyCollapsed: Boolean = false
-): Item(ItemType.Comment) {
-
-    @IgnoredOnParcel
-    var isSubmitter: Boolean = false
-
-    fun checkIfSubmitter(fullId: String?){
-        isSubmitter = authorFullName == fullId
-    }
-}
+): Item(ItemType.Comment)
 
 //   _   ___                                               _
 //  | | |__ \               /\                            | |
@@ -147,7 +159,7 @@ data class Post(
     val score: Int,
     val author: String,
     @Json(name = "author_fullname")
-    val authorFullName: String,
+    val authorFullName: String?,
     val subreddit: String,
     @Json(name = "subreddit_name_prefixed")
     val subredditPrefixed: String,
@@ -179,13 +191,6 @@ data class Post(
 
     @IgnoredOnParcel
     var isRead = false
-
-    @IgnoredOnParcel
-    var isSubmitter: Boolean = false
-
-    fun checkIfSubmitter(fullId: String?){
-        isSubmitter = authorFullName == fullId
-    }
 
     @IgnoredOnParcel
     val previewVideoUrl: String?

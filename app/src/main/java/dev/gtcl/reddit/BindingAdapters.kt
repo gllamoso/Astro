@@ -281,29 +281,6 @@ fun setIndentation(linearLayout: LinearLayout, indent: Int){
     }
 }
 
-@SuppressLint("SetTextI18n")
-@BindingAdapter("comment")
-fun setCommentInfo(view: LinearLayout, comment: Comment){
-    view.removeAllViews()
-    val authorTextView = TextView(view.context)
-    authorTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.toFloat())
-    authorTextView.setTypeface(Typeface.DEFAULT_BOLD, Typeface.BOLD)
-    authorTextView.text = comment.author
-    view.addView(authorTextView)
-    if(comment.score != Int.MIN_VALUE && comment.author != "[deleted]"){
-        val scoreTextView = TextView(view.context)
-        scoreTextView.text = " • ${String.format(view.resources.getString(R.string.num_points), comment.score)}"
-        scoreTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.toFloat())
-        view.addView(scoreTextView)
-    }
-    if(comment.author != "[deleted]"){
-        val timeTextView = TextView(view.context)
-        timeTextView.text = " • ${timeSince(view.context, comment.created)}"
-        timeTextView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 12.toFloat())
-        view.addView(timeTextView)
-    }
-}
-
 @BindingAdapter("more_comment")
 fun setMoreCommentText(textView: TextView, item: More){
     if(item.isContinueThreadLink)
@@ -315,9 +292,11 @@ fun setMoreCommentText(textView: TextView, item: More){
 @BindingAdapter("timestamp")
 fun setTimestamp(textView: TextView, time: Long?){
     if(time != null){
-        val timestamp = timeSince(textView.context, time)
+        val timestamp = timeSince(time)
         textView.text = timestamp
-    } else textView.text = ""
+    } else {
+        textView.text = ""
+    }
 }
 
 @BindingAdapter("points")

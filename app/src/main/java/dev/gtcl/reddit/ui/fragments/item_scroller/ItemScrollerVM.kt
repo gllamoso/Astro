@@ -6,6 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.ListingType
+import dev.gtcl.reddit.models.reddit.listing.checkIfItemsAreSubmittedByCurrentUser
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.repositories.MessageRepository
@@ -130,16 +131,17 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
                 ::messageWhere.isInitialized -> messageRepository.getMessages(messageWhere, after, size).await()
                 else -> throw IllegalStateException("Not enough info to load listing")
             }
-            val items = response.data.children.map { it.data }.toMutableList()
             val currentId = application.currentAccount?.fullId
-            checkItemsIfUser(currentId, items)
+            val items = response.data.children.map { it.data }.toMutableList().apply {
+                checkIfItemsAreSubmittedByCurrentUser(currentId)
+            }
             listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
             setItemsReadStatus(items, readItemIds)
             _items.value = items
             _lastItemReached.value = items.size < size
             after = response.data.after
         } catch (e: Exception){
-            _errorMessage.value = e.toString()
+            _errorMessage.value = e.getErrorMessage(application)
         }
     }
 
@@ -152,15 +154,16 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
                 ::messageWhere.isInitialized -> messageRepository.getMessages(messageWhere, after, size).await()
                 else -> throw IllegalStateException("Not enough info to load listing")
             }
-            val items = response.data.children.map { it.data }.toMutableList()
             val currentId = application.currentAccount?.fullId
-            checkItemsIfUser(currentId, items)
+            val items = response.data.children.map { it.data }.toMutableList().apply {
+                checkIfItemsAreSubmittedByCurrentUser(currentId)
+            }
             _moreItems.value = items
             _items.value?.addAll(items)
             _lastItemReached.value = items.size < size
             after = response.data.after
         } catch (e: Exception){
-            _errorMessage.value = e.toString()
+            _errorMessage.value = e.getErrorMessage(application)
         }
     }
 

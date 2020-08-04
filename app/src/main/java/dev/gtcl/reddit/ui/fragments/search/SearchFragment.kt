@@ -49,11 +49,6 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
 
     private val activityModel: MainActivityVM by activityViewModels()
 
-    private val markwon: Markwon by lazy {
-        Markwon.builder(requireContext())
-            .build()
-    }
-
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentSearchBinding.inflate(inflater)
 
@@ -109,7 +104,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
     }
 
     private fun setPopularRecyclerViewAdapter(){
-        val listAdapter = ListingItemAdapter(markwon, subredditActions = this, itemClickListener = this, retry = model::retry)
+        val listAdapter = ListingItemAdapter(markwon = null, subredditActions = this, itemClickListener = this, retry = model::retry)
         val scrollListener = ItemScrollListener(15, binding.popularList.layoutManager as GridLayoutManager, model::loadMorePopular)
         val recycler = binding.popularList
         recycler.apply {

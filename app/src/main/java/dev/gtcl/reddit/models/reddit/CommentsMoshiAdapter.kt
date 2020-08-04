@@ -204,7 +204,7 @@ class CommentsMoshiAdapter {
             title = title!!,
             score = score!!,
             author = author!!,
-            authorFullName = authorFullname!!,
+            authorFullName = authorFullname,
             subreddit = subreddit!!,
             subredditPrefixed = subredditPrefixed!!,
             numComments = numComments!!,
@@ -373,6 +373,7 @@ class CommentsMoshiAdapter {
         var subreddit: String? = null
         var subredditPrefixed: String? = null
         var linkTitle: String? = null
+        var isSubmitter: Boolean? = null
 
         while (jsonReader.hasNext()) {
             when (jsonReader.nextName()) {
@@ -428,6 +429,9 @@ class CommentsMoshiAdapter {
                 "link_title" -> {
                     linkTitle = jsonReader.nextString()
                 }
+                "is_submitter" ->{
+                    isSubmitter = jsonReader.nextBoolean()
+                }
                 else -> {
                     jsonReader.skipValue()
                 }
@@ -450,7 +454,8 @@ class CommentsMoshiAdapter {
             permalink = permalink!!,
             subreddit = subreddit!!,
             subredditPrefixed = subredditPrefixed!!,
-            linkTitle = linkTitle
+            linkTitle = linkTitle,
+            isSubmitter = isSubmitter
         )
 
         comments.add(comment)

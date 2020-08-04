@@ -15,8 +15,10 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
+        android:id="@+id/constraint_layout"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:background="?android:attr/selectableItemBackground">
 
         <LinearLayout
             android:id="@+id/indent"
@@ -38,48 +40,58 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
-        <TextView
-            android:id="@+id/author_text"
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:id="@+id/top_view_group"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:orientation="horizontal"
             android:layout_marginVertical="8dp"
             android:layout_marginStart="8dp"
             android:layout_marginEnd="4dp"
-            android:text="@{comment.author}"
-            android:textStyle="bold"
-            android:singleLine="true"
+            android:gravity="center_vertical|start"
+            app:layout_constraintVertical_bias="0"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/indent"
             app:layout_constraintTop_toTopOf="parent"
-            tools:text="CommentAuthor" />
+            app:layout_constraintEnd_toStartOf="@id/more_options">
 
-        <TextView
-            android:id="@+id/points_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="4dp"
-            android:layout_marginVertical="8dp"
-            android:singleLine="true"
-            app:layout_constraintStart_toEndOf="@id/author_text"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0"
-            app:points="@{comment.score}"
-            tools:text="123 points" />
+            <TextView
+                android:id="@+id/author_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@{comment.author}"
+                android:textStyle="bold"
+                android:singleLine="true"
+                tools:text="CommentAuthor" />
 
-        <TextView
-            android:id="@+id/timestamp_text"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginVertical="8dp"
-            android:layout_marginStart="4dp"
-            android:layout_marginEnd="8dp"
-            android:singleLine="true"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0"
-            app:layout_constraintStart_toEndOf="@id/points_text"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0"
-            app:timestamp="@{comment.created}"
-            tools:text="2 hours ago" />
+            <include
+                android:id="@+id/submitter_icon"
+                layout="@layout/op_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:visibility="@{comment.submitter == true ? View.VISIBLE : View.GONE}"
+                android:src="@drawable/ic_pencil_24" />
+
+            <TextView
+                android:id="@+id/points_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:layout_marginStart="4dp"
+                app:points="@{comment.score}"
+                tools:text="123 points" />
+
+            <TextView
+                android:id="@+id/timestamp_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:layout_marginStart="4dp"
+                app:timestamp="@{comment.created}"
+                tools:text="2 hours ago" />
+
+        </LinearLayout>
 
         <ImageView
             android:id="@+id/more_options"
@@ -105,10 +117,8 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toStartOf="@id/more_options"
             app:layout_constraintStart_toEndOf="@id/indent"
-            app:layout_constraintTop_toBottomOf="@id/author_text"
+            app:layout_constraintTop_toBottomOf="@id/top_view_group"
             tools:text="This is what the comment body will look like. The quick brown fox jumps over the lazy dog." />
-
-        <!--        android:text="@{comment.body}"-->
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 

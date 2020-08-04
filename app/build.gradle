@@ -113,4 +113,7 @@ dependencies {
 
     // Markwon
     implementation "io.noties.markwon:core:4.4.0"
+
+    // Better Link Movement Method
+    implementation 'me.saket:better-link-movement-method:2.2.0'
 }

@@ -1,10 +1,7 @@
 package dev.gtcl.reddit.ui.viewholders
 
 import android.content.Context
-import android.graphics.Color
-import android.graphics.drawable.ColorDrawable
-import android.util.Log
-import android.view.Gravity
+import android.text.Html
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,14 +17,18 @@ import dev.gtcl.reddit.models.reddit.listing.Post
 
 class PostVH private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
+
     fun bind(post: Post, postActions: PostActions, itemClickListener: ItemClickListener) {
         binding.post = post
-        binding.executePendingBindings()
-        binding.rootLayout.setOnClickListener {
+
+        val onPostClicked = View.OnClickListener {
             post.isRead = true
             binding.invalidateAll()
             itemClickListener.itemClicked(post, adapterPosition)
         }
+
+        binding.title.text = Html.fromHtml(post.title, Html.FROM_HTML_MODE_COMPACT)
+        binding.cardView.setOnClickListener(onPostClicked)
 
         binding.thumbnail.setOnClickListener{
             post.isRead = true
@@ -35,9 +36,15 @@ class PostVH private constructor(private val binding:ItemPostBinding)
             postActions.thumbnailClicked(post, adapterPosition)
         }
 
+        if(post.flairText != null){
+            binding.flairLayout.textView.text = Html.fromHtml(post.flairText!!, Html.FROM_HTML_MODE_COMPACT)
+        }
+
         binding.moreOptions.setOnClickListener {
             showPopupWindow(post, postActions, it)
         }
+
+        binding.executePendingBindings()
     }
 
     private fun showPopupWindow(post: Post, postActions: PostActions, anchorView: View){

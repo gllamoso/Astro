@@ -296,7 +296,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
     override fun thumbnailClicked(post: Post, position: Int) {
         model.addReadItem(post)
         when (val urlType: UrlType? = post.url?.getUrlType()) {
-//            UrlType.OTHER -> navigationActions?.launchWebview(post.url)
+            UrlType.OTHER -> activityModel.openChromeTab(post.url)
             null -> throw IllegalArgumentException("Post does not have URL")
             else -> {
                 val mediaType = when (urlType) {

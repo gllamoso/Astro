@@ -13,7 +13,7 @@ import java.io.InvalidObjectException
 import kotlin.math.max
 
 class ListingItemAdapter(
-    private val markwon: Markwon,
+    private val markwon: Markwon?,
     private val postActions: PostActions? = null,
     private val subredditActions: SubredditActions? = null,
     private val messageActions: MessageActions? = null,

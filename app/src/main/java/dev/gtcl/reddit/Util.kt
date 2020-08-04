@@ -178,42 +178,36 @@ const val SECONDS_IN_DAY = 86_400.toLong()
 const val SECONDS_IN_HOUR = 3_600.toLong()
 const val SECONDS_IN_MINUTE = 60.toLong()
 
-fun timeSince(context: Context, seconds: Long): String{
+fun timeSince(seconds: Long): String{
     val timeNow = System.currentTimeMillis()/1000 // Instant.now().epochTime for API 26
     val secondsAgo = timeNow - seconds
 
     return when{
         secondsAgo > SECONDS_IN_YEAR -> {
             val years = secondsAgo/SECONDS_IN_YEAR
-            if(years > 1) String.format(context.getString(R.string.years_ago), years)
-            else context.getString(R.string.year_ago)
+            "${years}y"
         }
         secondsAgo > SECONDS_IN_MONTH -> {
             val months = secondsAgo/SECONDS_IN_MONTH
-            if(months > 1) String.format(context.getString(R.string.months_ago), months)
-            else context.getString(R.string.month_ago)
+            "${months}mo"
         }
         secondsAgo > SECONDS_IN_WEEK -> {
             val weeks = secondsAgo/SECONDS_IN_WEEK
-            if(weeks > 1) String.format(context.getString(R.string.weeks_ago), weeks)
-            else context.getString(R.string.week_ago)
+            "${weeks}w"
         }
         secondsAgo > SECONDS_IN_DAY -> {
             val days = secondsAgo/SECONDS_IN_DAY
-            if(days > 1) String.format(context.getString(R.string.days_ago), days)
-            else context.getString(R.string.day_ago)
+            "${days}d"
         }
         secondsAgo > SECONDS_IN_HOUR -> {
             val hours = secondsAgo/SECONDS_IN_HOUR
-            if(hours > 1) String.format(context.getString(R.string.hours_ago), hours)
-            else context.getString(R.string.hour_ago)
+            "${hours}h"
         }
         secondsAgo > SECONDS_IN_MINUTE -> {
             val minutes = secondsAgo/SECONDS_IN_MINUTE
-            if(minutes > 1) String.format(context.getString(R.string.minutes_ago), minutes)
-            else context.getString(R.string.a_moment_ago)
+            "${minutes}m"
         }
-        else -> context.getString(R.string.a_moment_ago)
+        else -> "1m"
     }
 }
 
@@ -443,13 +437,4 @@ fun rotateView(view: View, rotate: Boolean){
     } else {
         0F
     })
-}
-
-fun checkItemsIfUser(fullId: String?, items: List<Item>){
-    items.forEach {
-        when(it){
-            is Post -> it.checkIfSubmitter(fullId)
-            is Comment -> it.checkIfSubmitter(fullId)
-        }
-    }
 }

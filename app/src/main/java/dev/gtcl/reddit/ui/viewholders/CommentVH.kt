@@ -13,11 +13,12 @@ import dev.gtcl.reddit.databinding.ItemCommentBinding
 import dev.gtcl.reddit.databinding.LayoutPopupCommentOptionsBinding
 import dev.gtcl.reddit.models.reddit.listing.Comment
 import io.noties.markwon.Markwon
+import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
 class CommentVH private constructor(private val binding: ItemCommentBinding): RecyclerView.ViewHolder(binding.root) {
     fun bind(comment: Comment, markwon: Markwon, commentActions: CommentActions, itemClickListener: ItemClickListener){
         binding.comment = comment
-        itemView.setOnClickListener {
+        binding.constraintLayout.setOnClickListener {
             itemClickListener.itemClicked(comment, adapterPosition)
         }
         if(comment.hiddenPoints > 0){
@@ -33,10 +34,12 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
         binding.moreOptions.setOnClickListener {
             showPopupWindow(comment, commentActions, it)
         }
-        markwon.setMarkdown(binding.bodyMessage, comment.body)
-        binding.bodyMessage.setOnClickListener {
-            itemClickListener.itemClicked(comment, adapterPosition)
+        binding.bodyMessage.apply {
+            movementMethod = BetterLinkMovementMethod.getInstance()
+            isClickable = false
+            isLongClickable = false
         }
+        markwon.setMarkdown(binding.bodyMessage, comment.body)
         binding.executePendingBindings()
     }
 

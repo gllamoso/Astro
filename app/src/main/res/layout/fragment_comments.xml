@@ -72,7 +72,7 @@
                         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
                         <include
-                            android:id="@+id/post"
+                            android:id="@+id/post_layout"
                             layout="@layout/layout_post_in_comments"
                             app:post="@{model.post}"/>
 
