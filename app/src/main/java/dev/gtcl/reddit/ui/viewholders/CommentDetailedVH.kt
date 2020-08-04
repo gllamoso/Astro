@@ -31,11 +31,6 @@ class CommentDetailedVH private constructor(private val binding: ItemCommentDeta
         if(markwon == null){
             binding.bodyMessage.text = Html.fromHtml(comment.body, Html.FROM_HTML_MODE_COMPACT)
         } else {
-            binding.bodyMessage.apply {
-                movementMethod = BetterLinkMovementMethod.getInstance()
-                isClickable = false
-                isLongClickable = false
-            }
             markwon.setMarkdown(binding.bodyMessage, comment.body)
         }
         if(comment.authorFlairText != null){

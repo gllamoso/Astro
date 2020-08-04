@@ -8,6 +8,7 @@ import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
@@ -39,6 +40,8 @@ import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
 import io.noties.markwon.*
+import io.noties.markwon.movement.MovementMethodPlugin
+import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
 class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler {
 
@@ -68,7 +71,16 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                         }
                     })
                 }
+
+                override fun afterSetText(textView: TextView) {
+                    super.afterSetText(textView)
+                    textView.apply {
+                        isClickable = false
+                        isLongClickable = false
+                    }
+                }
             })
+            .usePlugin(MovementMethodPlugin.create(BetterLinkMovementMethod.getInstance()))
             .build()
     }
 

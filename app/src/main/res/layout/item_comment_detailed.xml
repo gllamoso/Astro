@@ -142,7 +142,6 @@
                     android:layout_marginHorizontal="8dp"
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="8dp"
-                    android:background="@null"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/more_options"
                     app:layout_constraintStart_toEndOf="@id/upvote_indicator"

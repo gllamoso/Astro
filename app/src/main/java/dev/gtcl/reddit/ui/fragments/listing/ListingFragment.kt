@@ -5,6 +5,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.PopupMenu
+import android.widget.TextView
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
@@ -38,6 +39,8 @@ import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.LinkResolverDef
 import io.noties.markwon.Markwon
 import io.noties.markwon.MarkwonConfiguration
+import io.noties.markwon.movement.MovementMethodPlugin
+import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
 class ListingFragment : Fragment(), PostActions, SubredditActions,
     ItemClickListener, LeftDrawerActions, SortActions, LinkHandler {
@@ -65,7 +68,16 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
                         }
                     })
                 }
+
+                override fun afterSetText(textView: TextView) {
+                    super.afterSetText(textView)
+                    textView.apply {
+                        isClickable = false
+                        isLongClickable = false
+                    }
+                }
             })
+            .usePlugin(MovementMethodPlugin.create(BetterLinkMovementMethod.getInstance()))
             .build()
     }
 

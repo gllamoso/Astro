@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -34,6 +35,7 @@ import io.noties.markwon.LinkResolverDef
 import io.noties.markwon.Markwon
 import io.noties.markwon.MarkwonConfiguration
 import io.noties.markwon.movement.MovementMethodPlugin
+import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
 open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, MessageActions, SubredditActions, ItemClickListener, LinkHandler{
 
@@ -58,7 +60,15 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                     })
                 }
 
+                override fun afterSetText(textView: TextView) {
+                    super.afterSetText(textView)
+                    textView.apply {
+                        isClickable = false
+                        isLongClickable = false
+                    }
+                }
             })
+            .usePlugin(MovementMethodPlugin.create(BetterLinkMovementMethod.getInstance()))
             .build()
     }
 

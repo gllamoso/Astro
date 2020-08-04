@@ -34,11 +34,6 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
         binding.moreOptions.setOnClickListener {
             showPopupWindow(comment, commentActions, it)
         }
-        binding.bodyMessage.apply {
-            movementMethod = BetterLinkMovementMethod.getInstance()
-            isClickable = false
-            isLongClickable = false
-        }
         markwon.setMarkdown(binding.bodyMessage, comment.body)
         binding.executePendingBindings()
     }
