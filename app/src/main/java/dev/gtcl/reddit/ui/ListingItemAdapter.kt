@@ -128,7 +128,7 @@ class ListingItemAdapter(
                 if (messageActions == null) {
                     throw java.lang.IllegalStateException("Message Actions not initialized")
                 }
-                (holder as MessageVH).bind(message, messageActions, itemClickListener)
+                (holder as MessageVH).bind(message, markwon, messageActions, itemClickListener)
             }
             R.layout.item_network_state -> (holder as NetworkStateItemVH).bind(networkState, retry)
             R.layout.item_no_items_found -> (holder as NoItemFoundVH).bind(expected)

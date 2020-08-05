@@ -12,6 +12,7 @@
             name="isUser"
             type="Boolean" />
         <import type="android.view.View" />
+        <import type="dev.gtcl.reddit.UtilKt"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
@@ -79,17 +80,26 @@
                 android:layout_height="wrap_content"
                 android:singleLine="true"
                 android:layout_marginStart="4dp"
-                app:points="@{comment.score}"
-                tools:text="123 points" />
+                android:textColor="@android:color/darker_gray"
+                android:text="@{UtilKt.numFormatted(comment.score)}"
+                tools:text="999" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:text=" • "
+                android:textColor="@android:color/darker_gray"
+                tools:ignore="HardcodedText" />
 
             <TextView
                 android:id="@+id/timestamp_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
-                android:layout_marginStart="4dp"
+                android:textColor="@android:color/darker_gray"
                 app:timestamp="@{comment.created}"
-                tools:text="2 hours ago" />
+                tools:text="2h" />
 
         </LinearLayout>
 

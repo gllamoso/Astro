@@ -175,5 +175,6 @@
     <string name="unknown_host_exception">Please reconnect to the internet.</string>
     <string name="something_went_wrong">Something went wrong. Please retry later.</string>
     <string name="error_with_video_player">Error with video player</string>
+    <string name="error_in_json_parsing">Error in JSON Parsing.</string>
 
 </resources>

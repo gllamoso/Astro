@@ -6,6 +6,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.fragments.account.AccountFragment
 import dev.gtcl.reddit.ui.fragments.comments.CommentsFragment
+import dev.gtcl.reddit.ui.fragments.inbox.InboxFragment
 import dev.gtcl.reddit.ui.fragments.listing.ListingFragment
 import kotlinx.android.parcel.Parcelize
 
@@ -20,6 +21,7 @@ class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
             is AccountPage -> AccountFragment.newInstance(pageType.user)
             is PostPage -> CommentsFragment.newInstance(pageType)
             is ContinueThreadPage -> CommentsFragment.newInstance(pageType.url)
+            InboxPage -> InboxFragment.newInstance()
         }
     }
 
@@ -33,8 +35,6 @@ class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
         pageStack.subList(currentPage + 1, pageStack.size).clear()
         notifyItemRangeRemoved(pageStack.lastIndex + 1, itemsRemoved)
     }
-
-    fun getPageStack(): MutableList<ViewPagerPage> = pageStack
 
     fun setPageStack(pages: MutableList<ViewPagerPage>){
         pageStack = pages
@@ -60,3 +60,5 @@ class PostPage(
 class ContinueThreadPage(
     val url: String
 ): ViewPagerPage()
+@Parcelize
+object InboxPage : ViewPagerPage()

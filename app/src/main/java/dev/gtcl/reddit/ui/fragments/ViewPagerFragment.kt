@@ -140,7 +140,7 @@ class ViewPagerFragment : Fragment(), NavigationActions {
     }
 
     override fun messagesSelected() {
-        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToInboxFragment())
+        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(InboxPage))
     }
 
     override fun signInNewAccount() {

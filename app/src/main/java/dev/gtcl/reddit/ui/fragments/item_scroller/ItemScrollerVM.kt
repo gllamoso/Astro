@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui.fragments.item_scroller
 
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -89,7 +90,6 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
             _networkState.value = NetworkState.LOADING
             loadFirsItemsSuspend()
             _networkState.value = NetworkState.LOADED
-            _initialPageLoaded = true
         }
     }
 
@@ -140,7 +140,9 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
             _items.value = items
             _lastItemReached.value = items.size < size
             after = response.data.after
+            _initialPageLoaded = true
         } catch (e: Exception){
+            Log.d("TAE", "Exception: $e")
             _errorMessage.value = e.getErrorMessage(application)
         }
     }

@@ -276,6 +276,28 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
 //
 
     override fun vote(post: Post, vote: Vote) {
+        when(vote){
+            Vote.UPVOTE -> {
+                when(post.likes){
+                    true -> post.score--
+                    false -> post.score += 2
+                    null -> post.score++
+                }
+            }
+            Vote.DOWNVOTE -> {
+                when(post.likes){
+                    true -> post.score -= 2
+                    false -> post.score ++
+                    null -> post.score--
+                }
+            }
+            Vote.UNVOTE -> {
+                when(post.likes){
+                    true -> post.score--
+                    false -> post.score++
+                }
+            }
+        }
         activityModel.vote(post.name, vote)
     }
 
@@ -428,7 +450,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
         if ((activity?.application as RedditApplication).accessToken == null) {
             Snackbar.make(binding.drawerLayout, R.string.please_login, Snackbar.LENGTH_SHORT).show()
         } else {
-            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToInboxFragment())
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(InboxPage))
             binding.drawerLayout.closeDrawer(Gravity.LEFT)
         }
     }

@@ -22,6 +22,7 @@ import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
+import com.squareup.moshi.JsonDataException
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingSubredditPost
@@ -409,13 +410,13 @@ fun Exception.getErrorMessage(context: Context): String{
         is SocketTimeoutException -> R.string.socket_timeout_error
         is UnknownHostException -> R.string.unknown_host_exception
         is NotLoggedInException -> R.string.user_must_be_logged_in
+        is JsonDataException -> R.string.error_in_json_parsing
         else -> R.string.something_went_wrong
     }
     return context.getString(errorId)
 }
 
 enum class LeftDrawerHeader{
-    ACCOUNTS,
     HOME,
     MY_ACCOUNT,
     INBOX,

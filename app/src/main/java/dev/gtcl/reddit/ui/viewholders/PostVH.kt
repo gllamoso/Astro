@@ -2,6 +2,7 @@ package dev.gtcl.reddit.ui.viewholders
 
 import android.content.Context
 import android.text.Html
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -21,14 +22,12 @@ class PostVH private constructor(private val binding:ItemPostBinding)
     fun bind(post: Post, postActions: PostActions, itemClickListener: ItemClickListener) {
         binding.post = post
 
-        val onPostClicked = View.OnClickListener {
+        binding.title.text = Html.fromHtml(post.title, Html.FROM_HTML_MODE_COMPACT)
+        binding.cardView.setOnClickListener{
             post.isRead = true
             binding.invalidateAll()
             itemClickListener.itemClicked(post, adapterPosition)
         }
-
-        binding.title.text = Html.fromHtml(post.title, Html.FROM_HTML_MODE_COMPACT)
-        binding.cardView.setOnClickListener(onPostClicked)
 
         binding.thumbnail.setOnClickListener{
             post.isRead = true

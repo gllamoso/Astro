@@ -8,6 +8,8 @@
             name="post"
             type="dev.gtcl.reddit.models.reddit.listing.Post" />
         <import type="android.view.View" />
+        <import type="dev.gtcl.reddit.UtilKt"/>
+        <import type="androidx.core.content.ContextCompat"/>
     </data>
 
     <LinearLayout
@@ -18,8 +20,7 @@
             android:id="@+id/card_view"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="4dp"
-            android:layout_marginHorizontal="4dp"
+            android:layout_margin="4dp"
             app:cardBackgroundColor="@color/background"
             android:foreground="?android:attr/selectableItemBackground"
             app:cardCornerRadius="4dp">
@@ -34,16 +35,18 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
+                    android:gravity="center_vertical"
                     app:layout_constraintEnd_toStartOf="@+id/frame_layout"
-                    app:layout_constraintStart_toEndOf="@id/upvote_indicator"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    android:layout_margin="8dp">
+                    android:layout_marginHorizontal="8dp"
+                    android:layout_marginTop="8dp">
 
                     <include
                         layout="@layout/nsfw_icon"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
-                        android:layout_marginEnd="8dp"
+                        android:layout_marginEnd="4dp"
                         android:visibility="@{post.nsfw == true ? View.VISIBLE : View.GONE}"/>
 
                     <include
@@ -51,7 +54,7 @@
                         android:visibility="@{post.spoiler == true ? View.VISIBLE : View.GONE}"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
-                        android:layout_marginEnd="8dp"/>
+                        android:layout_marginEnd="4dp"/>
 
                     <include
                         android:id="@+id/flair_layout"
@@ -59,30 +62,16 @@
                         android:visibility="@{post.flairText != null ? View.VISIBLE : View.GONE}"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
-                        android:layout_marginEnd="8dp"/>
+                        android:layout_marginEnd="4dp"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_bookmark_24"
+                        android:tint="@android:color/holo_orange_light"
+                        android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}" />
 
                 </LinearLayout>
-
-                <ImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/ic_bookmark_24"
-                    android:tint="@android:color/holo_orange_light"
-                    android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
-
-                <View
-                    android:id="@+id/upvote_indicator"
-                    android:layout_width="8dp"
-                    android:layout_height="0dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:likes="@{post.likes}"
-                    tools:background="@android:color/holo_orange_dark" />
 
                 <TextView
                     android:id="@+id/title"
@@ -91,53 +80,129 @@
                     android:textSize="16sp"
                     android:layout_marginHorizontal="8dp"
                     app:layout_constraintEnd_toStartOf="@id/frame_layout"
-                    app:layout_constraintStart_toEndOf="@id/upvote_indicator"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tags_group"
-                    app:read="@{post.isRead}"
-                    tools:text="Title" />
+                    tools:text="Title"
+                    app:read="@{post.isRead}"/>
 
-                <TextView
-                    android:id="@+id/subreddit_info"
+                <LinearLayout
+                    android:id="@+id/post_info1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:orientation="horizontal"
                     android:layout_marginHorizontal="8dp"
-                    android:text="@{String.format(&quot;%s • %s • %s&quot;, post.subredditPrefixed, post.author, post.domain)}"
-                    android:textSize="12sp"
-                    android:textColor="@android:color/darker_gray"
-                    android:singleLine="true"
-                    app:layout_constraintEnd_toStartOf="@id/frame_layout"
-                    app:layout_constraintStart_toEndOf="@id/upvote_indicator"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/title"
-                    tools:text="r/funny • John Doe • v.redd.it" />
+                    app:layout_constraintEnd_toStartOf="@id/frame_layout">
 
-                <TextView
-                    android:id="@+id/score_info"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{post.subredditPrefixed}"
+                        android:textSize="12sp"
+                        android:textColor="@android:color/darker_gray"
+                        android:singleLine="true"
+                        tools:text="r/funny" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="12sp"
+                        android:text=" • "
+                        android:singleLine="true"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{post.author}"
+                        android:textSize="12sp"
+                        android:textColor="@android:color/darker_gray"
+                        android:singleLine="true"
+                        tools:text="User123" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="12sp"
+                        android:text=" • "
+                        android:singleLine="true"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{post.domain}"
+                        android:textSize="12sp"
+                        android:textColor="@android:color/darker_gray"
+                        android:singleLine="true"
+                        tools:text="i.redd.it" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/post_info2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:orientation="horizontal"
                     android:layout_marginHorizontal="8dp"
-                    android:textColor="@android:color/darker_gray"
-                    android:text="@{String.format(&quot;%s • %s&quot;, String.format(@string/num_points, post.score), String.format(@string/num_comments, post.numComments))}"
-                    android:textSize="12sp"
-                    android:singleLine="true"
+                    app:layout_constraintVertical_bias="0"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/post_info1"
                     app:layout_constraintEnd_toStartOf="@id/frame_layout"
-                    app:layout_constraintStart_toEndOf="@id/upvote_indicator"
-                    app:layout_constraintTop_toBottomOf="@id/subreddit_info"
-                    tools:text="99999 score • 99999 comments" />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="8dp"
-                    android:layout_marginBottom="8dp"
-                    android:textSize="12sp"
-                    android:singleLine="true"
-                    android:textColor="@android:color/darker_gray"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/frame_layout"
-                    app:layout_constraintStart_toEndOf="@id/upvote_indicator"
-                    app:layout_constraintTop_toBottomOf="@id/score_info"
-                    app:timestamp="@{post.created}"
-                    tools:text="3 hours ago" />
+                    android:layout_marginBottom="8dp">
+
+                    <TextView
+                        android:id="@+id/score_info"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@{post.likes == null ? @android:color/darker_gray : post.likes == true ? @android:color/holo_orange_dark : @android:color/holo_blue_dark}"
+                        android:text="@{UtilKt.numFormatted(post.score)}"
+                        android:textSize="12sp"
+                        android:singleLine="true"
+                        tools:textColor="@android:color/holo_orange_dark"
+                        tools:text="9k" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="12sp"
+                        android:text=" • "
+                        android:singleLine="true"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="@{String.format(@string/num_comments, UtilKt.numFormatted(post.numComments))}"
+                        android:textSize="12sp"
+                        android:textColor="@android:color/darker_gray"
+                        android:singleLine="true"
+                        tools:text="9k comments" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="12sp"
+                        android:text=" • "
+                        android:singleLine="true"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:singleLine="true"
+                        android:textColor="@android:color/darker_gray"
+                        android:text="@{UtilKt.timeSince(post.created)}"
+                        tools:text="3h" />
+
+                </LinearLayout>
 
                 <FrameLayout
                     android:id="@+id/frame_layout"
@@ -165,6 +230,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
+                    android:layout_marginVertical="8dp"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_more_vert_24"
                     app:layout_constraintBottom_toBottomOf="parent"

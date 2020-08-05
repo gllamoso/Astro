@@ -452,6 +452,7 @@ class CommentsMoshiAdapter {
             likes =  likes,
             authorFlairText = authorFlairText,
             permalink = permalink!!,
+            context = null,
             subreddit = subreddit!!,
             subredditPrefixed = subredditPrefixed!!,
             linkTitle = linkTitle,

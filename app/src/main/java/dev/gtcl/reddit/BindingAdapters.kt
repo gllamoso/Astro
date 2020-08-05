@@ -299,13 +299,6 @@ fun setTimestamp(textView: TextView, time: Long?){
     }
 }
 
-@BindingAdapter("points")
-fun setPoints(textView: TextView, points: Long){
-    val pointsFormatted = numFormatted(points)
-    val pointsText = textView.resources.getString(R.string.num_points)
-    textView.text = String.format(pointsText, pointsFormatted)
-}
-
 @BindingAdapter("upvoteRatio")
 fun setUpvoteRatio(textView: TextView, upvoteRatio: Double?){
     if(upvoteRatio != null){
@@ -352,7 +345,6 @@ fun setTextColor(textView: TextView, isRead: Boolean?){
     } else {
         textView.setTextColor(textView.context.resolveColorAttr(android.R.attr.textColorPrimary))
     }
-//    textView.setTextColor(ContextCompat.getColor(textView.context, if(isRead == true) android.R.color.darker_gray else android.R.attr.textColorPrimary))
 }
 
 @BindingAdapter("invert")

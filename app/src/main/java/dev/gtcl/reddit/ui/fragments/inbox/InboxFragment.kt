@@ -18,6 +18,7 @@ import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.databinding.FragmentInboxBinding
 import dev.gtcl.reddit.models.reddit.listing.Message
 import dev.gtcl.reddit.ui.fragments.AccountPage
+import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 
 class InboxFragment: Fragment(), MessageActions, LeftDrawerActions{
 
@@ -147,7 +148,7 @@ class InboxFragment: Fragment(), MessageActions, LeftDrawerActions{
 
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
-        findNavController().navigate(InboxFragmentDirections.actionInboxFragmentToViewPagerFragment(AccountPage(null)))
+        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(null)))
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }
 
@@ -160,5 +161,9 @@ class InboxFragment: Fragment(), MessageActions, LeftDrawerActions{
     override fun onSettingsClicked() {
         Toast.makeText(context, "Settings", Toast.LENGTH_LONG).show()
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
+    }
+
+    companion object{
+        fun newInstance() = InboxFragment()
     }
 }

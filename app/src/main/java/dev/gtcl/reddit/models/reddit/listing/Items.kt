@@ -80,7 +80,8 @@ data class Comment( // TODO: Add more properties: all_awardings
     var likes: Boolean?,
     @Json(name = "author_flair_text")
     var authorFlairText: String?,
-    val permalink: String,
+    val permalink: String?,
+    val context: String?,
     val subreddit: String,
     @Json(name = "subreddit_name_prefixed")
     val subredditPrefixed: String,
@@ -156,7 +157,7 @@ data class Post(
     override val id: String = name.replace("t3_", ""),
     var saved: Boolean,
     val title: String,
-    val score: Int,
+    var score: Int,
     val author: String,
     @Json(name = "author_fullname")
     val authorFullName: String?,

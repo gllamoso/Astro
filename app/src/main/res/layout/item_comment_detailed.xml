@@ -9,6 +9,7 @@
             name="comment"
             type="dev.gtcl.reddit.models.reddit.listing.Comment" />
         <import type="android.view.View" />
+        <import type="dev.gtcl.reddit.UtilKt"/>
     </data>
 
     <LinearLayout
@@ -18,8 +19,7 @@
         <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginVertical="4dp"
-            android:layout_marginHorizontal="4dp"
+            android:layout_margin="4dp"
             app:cardBackgroundColor="@color/background"
             app:cardCornerRadius="8dp">
 
@@ -30,15 +30,76 @@
                 android:background="?android:attr/selectableItemBackground"
                 android:clickable="true">
 
-                <View
-                    android:id="@+id/upvote_indicator"
-                    android:layout_width="8dp"
-                    android:layout_height="0dp"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                <LinearLayout
+                    android:id="@+id/top_linear_layout"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginTop="8dp"
+                    android:gravity="center_vertical|start"
+                    android:orientation="horizontal"
+                    app:layout_constraintEnd_toStartOf="@id/more_options"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:likes="@{comment.likes}"
-                    tools:background="@android:color/holo_orange_dark"/>
+                    app:layout_constraintTop_toTopOf="parent">
+
+                    <ImageView
+                        android:id="@+id/comment_icon"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_comment_24"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <ImageView
+                        android:id="@+id/bookmark"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:src="@drawable/ic_bookmark_24"
+                        android:tint="@android:color/holo_orange_light"
+                        android:visibility="@{comment.saved == true ? View.VISIBLE : View.GONE}" />
+
+                    <TextView
+                        android:id="@+id/author"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:singleLine="true"
+                        android:text="@{comment.author}"
+                        android:textStyle="bold"
+                        tools:text="Author" />
+
+                    <TextView
+                        android:id="@+id/points_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:singleLine="true"
+                        android:text="@{UtilKt.numFormatted(comment.score)}"
+                        android:textColor="@{comment.likes == null ? @android:color/darker_gray : comment.likes == true ? @android:color/holo_orange_dark : @android:color/holo_blue_dark}"
+                        tools:text="1"
+                        tools:textColor="@android:color/darker_gray"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:text=" • "
+                        android:textColor="@android:color/darker_gray"
+                        tools:ignore="HardcodedText" />
+
+                    <TextView
+                        android:id="@+id/timestamp_text"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        app:timestamp="@{comment.created}"
+                        android:textColor="@android:color/darker_gray"
+                        tools:text="2h" />
+
+                </LinearLayout>
+
 
                 <TextView
                     android:id="@+id/link_title"
@@ -47,10 +108,10 @@
                     android:textSize="12sp"
                     android:text="@{comment.linkTitle}"
                     tools:text="Post Link Title"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginHorizontal="8dp"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintStart_toEndOf="@id/upvote_indicator"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="4dp"
+                    app:layout_constraintTop_toBottomOf="@id/top_linear_layout"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/more_options"/>
 
                 <TextView
@@ -62,9 +123,10 @@
                     android:text="@{comment.subredditPrefixed}"
                     tools:text="r/funny"
                     android:layout_marginTop="2dp"
-                    android:layout_marginHorizontal="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="4dp"
                     app:layout_constraintTop_toBottomOf="@id/link_title"
-                    app:layout_constraintStart_toEndOf="@id/upvote_indicator"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/more_options"/>
 
                 <LinearLayout
@@ -72,36 +134,19 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:orientation="horizontal"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginHorizontal="8dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="4dp"
                     android:gravity="start|center_vertical"
-                    app:layout_constraintStart_toEndOf="@id/upvote_indicator"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/subreddit"
                     app:layout_constraintEnd_toStartOf="@id/more_options">
 
-                    <ImageView
-                        android:id="@+id/comment_icon"
-                        android:layout_width="18dp"
-                        android:layout_height="18dp"
-                        android:src="@drawable/ic_comment_24"/>
-
-                    <TextView
-                        android:id="@+id/author"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:layout_marginStart="4dp"
-                        android:text="@{comment.author}"
-                        android:textSize="12sp"
-                        android:textStyle="bold"
-                        tools:text="Author" />
-
                     <include
-                        android:id="@+id/oc_flair"
+                        android:id="@+id/op_flair"
                         layout="@layout/op_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
                         android:visibility="@{comment.submitter == true ? View.VISIBLE : View.GONE}" />
 
                     <include
@@ -112,26 +157,6 @@
                         android:layout_marginStart="4dp"
                         android:visibility="@{comment.authorFlairText != null ? View.VISIBLE : View.GONE}" />
 
-                    <TextView
-                        android:id="@+id/points_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:singleLine="true"
-                        android:textSize="12sp"
-                        app:points="@{comment.score}"
-                        tools:text="123 points" />
-
-                    <TextView
-                        android:id="@+id/timestamp_text"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:singleLine="true"
-                        android:textSize="12sp"
-                        app:timestamp="@{comment.created}"
-                        tools:text="2 hours ago" />
-
                 </LinearLayout>
 
                 <TextView
@@ -139,26 +164,15 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
-                    android:layout_marginHorizontal="8dp"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginEnd="4dp"
                     android:layout_marginTop="4dp"
                     android:layout_marginBottom="8dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/more_options"
-                    app:layout_constraintStart_toEndOf="@id/upvote_indicator"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/comment_info_group"
                     tools:text="The lazy brown fox jumped over the lazy dog." />
-
-                <ImageView
-                    android:id="@+id/bookmark"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:layout_marginEnd="4dp"
-                    android:src="@drawable/ic_bookmark_24"
-                    android:tint="@android:color/holo_orange_light"
-                    android:visibility="@{comment.saved == true ? View.VISIBLE : View.GONE}"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
 
                 <ImageView
                     android:id="@+id/more_options"
@@ -167,13 +181,12 @@
                     android:layout_marginEnd="4dp"
                     android:layout_marginBottom="8dp"
                     android:layout_marginTop="8dp"
-                    app:layout_constraintVertical_bias="0"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_more_vert_24"
                     android:visibility="@{comment.partiallyCollapsed == true ? View.GONE : View.VISIBLE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/bookmark" />
+                    app:layout_constraintTop_toTopOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

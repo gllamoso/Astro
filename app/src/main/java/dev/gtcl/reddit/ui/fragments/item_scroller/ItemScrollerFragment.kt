@@ -329,7 +329,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             }
             is Comment -> {
 //                viewPagerActions?.navigateToComments()
-                activityModel.newPage(ContinueThreadPage(item.permalink))
+                activityModel.newPage(ContinueThreadPage(item.permalink ?: item.context ?: throw IllegalArgumentException("Comment has no permalink or context link")))
             }
         }
 

@@ -38,9 +38,6 @@
             app:enterAnim="@anim/slide_left"
             app:popExitAnim="@anim/slide_right"/>
         <action
-            android:id="@+id/action_viewPagerFragment_to_inboxFragment"
-            app:destination="@id/inboxFragment" />
-        <action
             android:id="@+id/action_viewPagerFragment_to_splashFragment"
             app:destination="@id/splashFragment" />
     </fragment>
@@ -94,20 +91,5 @@
         <action
             android:id="@+id/action_multiRedditFragment_to_searchFragment"
             app:destination="@id/searchFragment" />
-    </fragment>
-    <fragment
-        android:id="@+id/inboxFragment"
-        android:name="dev.gtcl.reddit.ui.fragments.inbox.InboxFragment"
-        android:label="InboxFragment">
-        <action
-            android:id="@+id/action_inboxFragment_to_viewPagerFragment"
-            app:destination="@id/viewPagerFragment"
-            app:popUpTo="@id/inboxFragment"
-            app:popUpToInclusive="true"/>
-        <action
-            android:id="@+id/action_inboxFragment_to_signInFragment"
-            app:destination="@id/signInFragment"
-            app:popUpTo="@id/inboxFragment"
-            app:popUpToInclusive="true"/>
     </fragment>
 </navigation>
