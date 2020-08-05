@@ -81,11 +81,7 @@
             <com.google.android.material.tabs.TabLayout
                 android:id="@+id/tab_layout"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:tabSelectedTextColor="@android:color/white"
-                app:tabIndicatorColor="@color/colorAccent"
-                app:tabMode="scrollable"
-                android:background="@color/colorPrimary"/>
+                android:layout_height="wrap_content"/>
 
             <androidx.viewpager2.widget.ViewPager2
                 android:id="@+id/view_pager"

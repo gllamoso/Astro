@@ -16,10 +16,7 @@
             <com.google.android.material.appbar.AppBarLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:theme="@android:style/ThemeOverlay.Material.Dark.ActionBar"
                 app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior">
-
-                <!--            android:theme="@android:style/ThemeOverlay.Material.Dark.ActionBar"-->
 
                 <androidx.appcompat.widget.Toolbar
                     android:id="@+id/toolbar"
@@ -29,30 +26,38 @@
                     app:title="@string/inbox"
                     app:navigationIcon="@drawable/ic_menu_24" />
 
+                <com.google.android.material.tabs.TabLayout
+                    android:id="@+id/tab_layout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    app:tabMode="fixed"
+                    app:tabGravity="fill"
+                    app:layout_scrollFlags="scroll|enterAlways"/>
+
             </com.google.android.material.appbar.AppBarLayout>
 
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/tab_layout"
-                    android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    app:tabSelectedTextColor="@android:color/white"
-                    app:tabIndicatorColor="@color/colorAccent"
-                    app:tabGravity="fill"
-                    android:background="@color/colorPrimary"/>
 
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/view_pager"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
-                    android:layout_weight="1"/>
+                    android:layout_height="match_parent" />
 
             </LinearLayout>
+
+            <com.google.android.material.floatingactionbutton.FloatingActionButton
+                android:id="@+id/fab"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom|end"
+                android:src="@drawable/ic_pencil_24"
+                app:backgroundTint="@color/colorAccent"
+                app:tint="@android:color/white"
+                android:layout_margin="16dp"
+                app:layout_behavior="dev.gtcl.reddit.ui.BottomFabBehavior"/>
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
