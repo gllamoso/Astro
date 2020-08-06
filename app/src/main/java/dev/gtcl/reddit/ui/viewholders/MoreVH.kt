@@ -12,16 +12,6 @@ import dev.gtcl.reddit.models.reddit.listing.More
 class MoreVH private constructor(private val binding: ItemMoreCommentBinding): RecyclerView.ViewHolder(binding.root) {
     fun bind(item: More, itemClickListener: ItemClickListener){
         binding.more = item
-        if(item.hiddenPoints > 0){
-            itemView.visibility = View.GONE
-            itemView.layoutParams = RecyclerView.LayoutParams(0,0)
-        }
-        else {
-            itemView.visibility = View.VISIBLE
-            itemView.layoutParams = RecyclerView.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
         binding.commentTextView.setOnClickListener {
             itemClickListener.itemClicked(item, adapterPosition)
         }

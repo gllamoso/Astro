@@ -19,6 +19,8 @@ import kotlin.math.max
 
 class CommentsAdapter(private val markwon: Markwon, private val commentActions: CommentActions, private val itemClickListener: ItemClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), ItemClickListener{
 
+    private val map = HashMap<String, List<Item>>()
+
     private var comments: MutableList<Item>? = null
 
     fun submitList(items: List<Item>?){
@@ -86,27 +88,33 @@ class CommentsAdapter(private val markwon: Markwon, private val commentActions: 
     override fun itemClicked(item: Item, position: Int) {
         val itemInPosition = comments?.get(position)
         if(itemInPosition is Comment){
-            val collapse = !(comments?.get(position) as Comment).isPartiallyCollapsed
-            (comments!![position] as Comment).isPartiallyCollapsed = collapse
-            val depth = itemInPosition.depth ?: 0
-            var i = position
-            while(++i < itemCount - 1){
-                val currItem = comments!![i]
-                val itemDepth = when(currItem){
-                    is Comment -> currItem.depth ?: 0
-                    is More -> currItem.depth
-                    else -> 0
+            val collapse = !(comments!![position] as Comment).isCollapsed
+            (comments!![position] as Comment).isCollapsed = collapse
+            if(collapse){
+                val depth = itemInPosition.depth ?: 0
+                var i = position
+                while(++i < itemCount - 1){
+                    val itemDepth = when(val currItem = comments!![i]){
+                        is Comment -> currItem.depth ?: 0
+                        is More -> currItem.depth
+                        else -> 0
+                    }
+                    if(itemDepth <= depth){
+                        break
+                    }
                 }
-                if(itemDepth <= depth){
-                    break
+                if(i - 1 > position){
+                    val listToHide = comments!!.subList(position + 1, i - 1).toList()
+                    map[itemInPosition.id] = listToHide
+                    notifyItemRangeRemoved(position + 1, listToHide.size)
                 }
-                currItem.hiddenPoints += if(collapse){
-                    1
-                } else {
-                    -1
-                }
+            } else {
+                val hiddenItems = map[itemInPosition.id]!!
+                comments!!.addAll(position + 1, hiddenItems)
+                notifyItemRangeInserted(position + 1, hiddenItems.size)
+                map.remove(itemInPosition.id)
             }
-            notifyItemRangeChanged(position, i - position)
+            notifyItemChanged(position)
         } else if(itemInPosition is More) {
             itemClickListener.itemClicked(item, position)
         }

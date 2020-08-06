@@ -21,16 +21,6 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
         binding.constraintLayout.setOnClickListener {
             itemClickListener.itemClicked(comment, adapterPosition)
         }
-        if(comment.hiddenPoints > 0){
-            itemView.visibility = View.GONE
-            itemView.layoutParams = RecyclerView.LayoutParams(0,0)
-        }
-        else {
-            itemView.visibility = View.VISIBLE
-            itemView.layoutParams = RecyclerView.LayoutParams(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT)
-        }
         binding.moreOptions.setOnClickListener {
             showPopupWindow(comment, commentActions, it)
         }

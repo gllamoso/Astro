@@ -183,7 +183,7 @@
                     android:layout_marginTop="8dp"
                     android:background="?android:attr/selectableItemBackgroundBorderless"
                     android:src="@drawable/ic_more_vert_24"
-                    android:visibility="@{comment.partiallyCollapsed == true ? View.GONE : View.VISIBLE}"
+                    android:visibility="@{comment.collapsed == true ? View.GONE : View.VISIBLE}"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent" />

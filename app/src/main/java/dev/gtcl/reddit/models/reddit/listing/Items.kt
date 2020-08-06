@@ -16,7 +16,6 @@ sealed class Item(val kind: ItemType) : Parcelable{
     abstract val id: String?
     abstract val name: String
     var isCurrentUser = false
-    var hiddenPoints = 0 // Hide if > 0
 
     fun checkIfCurrentUser(userFullName: String){
         when(this){
@@ -89,7 +88,7 @@ data class Comment( // TODO: Add more properties: all_awardings
     val linkTitle: String?,
     @Json(name = "is_submitter")
     val isSubmitter: Boolean?,
-    var isPartiallyCollapsed: Boolean = false
+    var isCollapsed: Boolean = false
 ): Item(ItemType.Comment)
 
 //   _   ___                                               _

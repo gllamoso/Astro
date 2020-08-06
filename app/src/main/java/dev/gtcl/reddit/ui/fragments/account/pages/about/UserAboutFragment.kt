@@ -11,11 +11,11 @@ import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.USER_KEY
 import dev.gtcl.reddit.ViewModelFactory
-import dev.gtcl.reddit.databinding.FragmentUserAboutBinding
+import dev.gtcl.reddit.databinding.FragmentAccountAboutBinding
 
 class UserAboutFragment : Fragment() {
 
-    private lateinit var binding: FragmentUserAboutBinding
+    private lateinit var binding: FragmentAccountAboutBinding
 
     val model: UserAboutVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
@@ -23,7 +23,7 @@ class UserAboutFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentUserAboutBinding.inflate(inflater)
+        binding = FragmentAccountAboutBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.model = model
         val user = arguments?.getString(USER_KEY)

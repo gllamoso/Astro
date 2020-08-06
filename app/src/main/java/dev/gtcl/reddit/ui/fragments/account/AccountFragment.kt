@@ -11,13 +11,13 @@ import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
-import dev.gtcl.reddit.databinding.FragmentUserBinding
+import dev.gtcl.reddit.databinding.FragmentAccountBinding
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.ui.fragments.ViewPagerVM
 
 class AccountFragment : Fragment(), LeftDrawerActions {
 
-    private lateinit var binding: FragmentUserBinding
+    private lateinit var binding: FragmentAccountBinding
 
     val model: AccountFragmentVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
@@ -29,7 +29,7 @@ class AccountFragment : Fragment(), LeftDrawerActions {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentUserBinding.inflate(inflater)
+        binding = FragmentAccountBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.model = model
         binding.toolbar.setNavigationOnClickListener {
