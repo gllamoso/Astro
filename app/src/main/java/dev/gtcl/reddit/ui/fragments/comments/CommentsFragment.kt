@@ -381,11 +381,29 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     override fun itemClicked(item: Item, position: Int) {
-        if (item is More) {
-            if (item.isContinueThreadLink) {
-                viewPagerModel.newPage(ContinueThreadPage("${model.post.value!!.permalink}${item.parentId.replace("t1_", "")}"))
-            } else {
-                model.fetchMoreComments(position)
+        when(item) {
+            is More -> {
+                if (item.isContinueThreadLink) {
+                    viewPagerModel.newPage(ContinueThreadPage("${model.post.value!!.permalink}${item.parentId.replace("t1_", "")}"))
+                } else {
+                    model.fetchMoreComments(position)
+                }
+            }
+            is Comment -> {
+                val collapse = !item.isCollapsed
+                item.isCollapsed = collapse
+                adapter.notifyItemChanged(position)
+                if(collapse){
+                    val hideSize = model.hideItems(position)
+                    if(hideSize != 0){
+                        adapter.removeRange(position + 1, hideSize)
+                    }
+                } else {
+                    val unhideItems = model.unhideItems(position)
+                    if(unhideItems.isNotEmpty()){
+                        adapter.addItems(position + 1, unhideItems)
+                    }
+                }
             }
         }
     }

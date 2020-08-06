@@ -17,9 +17,7 @@ import dev.gtcl.reddit.ui.viewholders.NoItemFoundVH
 import io.noties.markwon.Markwon
 import kotlin.math.max
 
-class CommentsAdapter(private val markwon: Markwon, private val commentActions: CommentActions, private val itemClickListener: ItemClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(), ItemClickListener{
-
-    private val map = HashMap<String, List<Item>>()
+class CommentsAdapter(private val markwon: Markwon, private val commentActions: CommentActions, private val itemClickListener: ItemClickListener) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
     private var comments: MutableList<Item>? = null
 
@@ -40,17 +38,24 @@ class CommentsAdapter(private val markwon: Markwon, private val commentActions: 
     }
 
     fun addItems(position: Int, items: List<Item>){
-        if(comments != null){
-            comments!!.addAll(position, items)
+        comments?.let {
+            it.addAll(position, items)
             notifyItemRangeInserted(position, items.size)
         }
     }
 
     fun removeAt(position: Int){
-        if(comments != null){
-            comments!!.removeAt(position)
+        comments?.let {
+            it.removeAt(position)
             notifyItemRemoved(position)
         }
+    }
+
+    fun removeRange(position: Int, size: Int){
+        for(i in 1..size){
+            comments!!.removeAt(position)
+        }
+        notifyItemRangeRemoved(position, size)
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -65,8 +70,8 @@ class CommentsAdapter(private val markwon: Markwon, private val commentActions: 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         when(val viewType = getItemViewType(position)){
-            R.layout.item_more_comment -> (holder as MoreVH).bind(comments!![position] as More, this)
-            R.layout.item_comment -> (holder as CommentVH).bind(comments!![position] as Comment, markwon, commentActions, this)
+            R.layout.item_more_comment -> (holder as MoreVH).bind(comments!![position] as More, itemClickListener)
+            R.layout.item_comment -> (holder as CommentVH).bind(comments!![position] as Comment, markwon, commentActions, itemClickListener)
             R.layout.item_network_state -> (holder as NetworkStateItemVH).bind(NetworkState.LOADING){}
             R.layout.item_no_items_found -> (holder as NoItemFoundVH).bind(ItemType.Comment)
             else -> throw IllegalArgumentException("Unknown view type $viewType")
@@ -84,40 +89,5 @@ class CommentsAdapter(private val markwon: Markwon, private val commentActions: 
     }
 
     override fun getItemCount(): Int = max(comments?.size ?: 1, 1)
-
-    override fun itemClicked(item: Item, position: Int) {
-        val itemInPosition = comments?.get(position)
-        if(itemInPosition is Comment){
-            val collapse = !(comments!![position] as Comment).isCollapsed
-            (comments!![position] as Comment).isCollapsed = collapse
-            if(collapse){
-                val depth = itemInPosition.depth ?: 0
-                var i = position
-                while(++i < itemCount - 1){
-                    val itemDepth = when(val currItem = comments!![i]){
-                        is Comment -> currItem.depth ?: 0
-                        is More -> currItem.depth
-                        else -> 0
-                    }
-                    if(itemDepth <= depth){
-                        break
-                    }
-                }
-                if(i - 1 > position){
-                    val listToHide = comments!!.subList(position + 1, i - 1).toList()
-                    map[itemInPosition.id] = listToHide
-                    notifyItemRangeRemoved(position + 1, listToHide.size)
-                }
-            } else {
-                val hiddenItems = map[itemInPosition.id]!!
-                comments!!.addAll(position + 1, hiddenItems)
-                notifyItemRangeInserted(position + 1, hiddenItems.size)
-                map.remove(itemInPosition.id)
-            }
-            notifyItemChanged(position)
-        } else if(itemInPosition is More) {
-            itemClickListener.itemClicked(item, position)
-        }
-    }
 
 }

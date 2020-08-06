@@ -34,6 +34,8 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
     private var viewModelJob = Job()
     private var coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
 
+    private val hiddenItemsMap = HashMap<String, List<Item>>()
+
     private var _commentsFetched = false
     val commentsFetched: Boolean
         get() = _commentsFetched
@@ -195,6 +197,48 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
 
     fun errorMessageObserved(){
         _errorMessage.value = null
+    }
+
+    fun hideItems(position: Int): Int{
+        val itemInPosition = comments.value!![position]
+        val depth = when(val currItem = comments.value!![position]){
+            is Comment -> currItem.depth ?: 0
+            is More -> currItem.depth
+            else -> 0
+        }
+        var i = position
+        while(++i < comments.value!!.size - 1){
+            val currDepth = when(val currItem = comments.value!![i]){
+                is Comment -> currItem.depth ?: 0
+                is More -> currItem.depth
+                else -> 0
+            }
+            if(currDepth <= depth){
+                break
+            }
+        }
+        return if(i - 1 > position){
+            val listToHide = comments.value!!.subList(position + 1, i).toList()
+            for(j in listToHide.indices){
+                comments.value!!.removeAt(position + 1)
+            }
+            hiddenItemsMap[itemInPosition.name] = listToHide
+            listToHide.size
+        } else {
+            0
+        }
+    }
+
+    fun unhideItems(position: Int): List<Item>{
+        val itemInPosition = comments.value!![position]
+        val hiddenItems = hiddenItemsMap[itemInPosition.name]
+        return if(hiddenItems != null){
+            comments.value!!.addAll(position + 1, hiddenItems)
+            hiddenItemsMap.remove(itemInPosition.name)
+            hiddenItems
+        } else {
+            listOf()
+        }
     }
 
     fun download(){
