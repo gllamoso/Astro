@@ -34,6 +34,8 @@ import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.ItemAwardBinding
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditSubredditsAdapter
+import java.text.SimpleDateFormat
+import java.util.*
 
 
 @BindingAdapter("loadImageAndHideIfNull")
@@ -297,6 +299,12 @@ fun setTimestamp(textView: TextView, time: Long?){
     } else {
         textView.text = ""
     }
+}
+
+@BindingAdapter("secondsToDate")
+fun secondsToDate(textView: TextView, time: Long){
+    val simpleDateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.ROOT)
+    textView.text = simpleDateFormat.format(1000L * time)
 }
 
 @BindingAdapter("upvoteRatio")

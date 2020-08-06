@@ -41,7 +41,7 @@ class UserAboutVM(val application: RedditApplication) : AndroidViewModel(applica
 
     // Awards
     private val trophyListing = MutableLiveData<TrophyListingResponse>()
-    val awards = Transformations.map(trophyListing){ it.data.trophies.map { trophy -> trophy.data } }
+    val awards = Transformations.map(trophyListing){ it.data.trophies.map { trophy -> trophy.data } }!!
 
     fun fetchAwards(){
         coroutineScope.launch {

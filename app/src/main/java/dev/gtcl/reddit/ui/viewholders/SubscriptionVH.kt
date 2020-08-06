@@ -9,6 +9,7 @@ import dev.gtcl.reddit.actions.SubscriptionActions
 import dev.gtcl.reddit.actions.SubscriptionAdapterActions
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.ItemSubscriptionBinding
+import dev.gtcl.reddit.models.reddit.listing.ProfileListing
 import dev.gtcl.reddit.models.reddit.listing.SubscriptionListing
 
 class SubscriptionVH private constructor(private val binding: ItemSubscriptionBinding): RecyclerView.ViewHolder(binding.root){
@@ -23,9 +24,7 @@ class SubscriptionVH private constructor(private val binding: ItemSubscriptionBi
         binding.sub = sub
         binding.root.setOnClickListener {
             listingTypeClickListener.listingTypeClicked(
-                SubscriptionListing(
-                    sub
-                )
+                SubscriptionListing(sub)
             )
         }
 

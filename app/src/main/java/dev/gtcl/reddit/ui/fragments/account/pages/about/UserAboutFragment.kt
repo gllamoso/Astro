@@ -6,6 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.USER_KEY
@@ -28,6 +29,12 @@ class UserAboutFragment : Fragment() {
         val user = arguments?.getString(USER_KEY)
         model.fetchAccount(user)
         model.fetchAwards()
+
+        val adapter = AwardsAdapter()
+        model.awards.observe(viewLifecycleOwner, Observer {
+            adapter.submitList(it)
+        })
+        binding.awardsList.adapter = adapter
         return binding.root
     }
 

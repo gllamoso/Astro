@@ -7,6 +7,7 @@
         <variable
             name="model"
             type="dev.gtcl.reddit.ui.fragments.account.AccountFragmentVM" />
+        <import type="android.view.View"/>
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
@@ -30,11 +31,12 @@
                 android:fitsSystemWindows="true"
                 app:title="@{model.account.name}"
                 app:expandedTitleTextAppearance="@style/CollapsingToolbarLayoutExpandedTextStyle"
-                app:expandedTitleGravity="top|start"
+                app:expandedTitleGravity="top|center"
                 app:expandedTitleMarginTop="16dp"
-                app:expandedTitleMarginStart="76dp"
                 app:scrimVisibleHeightTrigger="156dp"
                 tools:title="User">
+<!--                app:expandedTitleGravity="top|start"-->
+<!--                app:expandedTitleMarginStart="76dp"-->
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
@@ -50,24 +52,44 @@
                         app:layout_constraintBottom_toBottomOf="parent"
                         tools:src="@android:color/darker_gray" />
 
-                    <TextView
-                        android:id="@+id/user_name_text_expanded"
+                    <LinearLayout
+                        android:id="@+id/user_name_panel_expanded"
                         android:layout_width="match_parent"
                         android:layout_height="64dp"
+                        android:orientation="vertical"
                         android:background="#80000000"
-                        android:gravity="center_vertical"
                         android:paddingHorizontal="32dp"
-                        android:text="@{model.account.name}"
-                        android:textColor="@android:color/white"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        tools:text="User" />
+                        android:gravity="center_vertical"
+                        app:layout_constraintBottom_toBottomOf="parent">
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:singleLine="true"
+                            android:textStyle="bold"
+                            android:gravity="center_vertical"
+                            android:text="@{model.account.name}"
+                            android:textColor="@android:color/white"
+                            tools:text="User" />
+
+                        <TextView
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:singleLine="true"
+                            android:gravity="center_vertical"
+                            android:text="@{model.account.subreddit.title}"
+                            android:textColor="@android:color/white"
+                            android:visibility="@{model.account.subreddit.title.empty ? View.GONE : View.VISIBLE}"
+                            tools:text="Display Name" />
+
+                    </LinearLayout>
 
                     <View
                         android:id="@+id/profile_picture_anchor"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintBottom_toTopOf="@id/user_name_text_expanded"
+                        app:layout_constraintBottom_toTopOf="@id/user_name_panel_expanded"
                         android:layout_marginBottom="16dp"/>
 
                     <ImageView

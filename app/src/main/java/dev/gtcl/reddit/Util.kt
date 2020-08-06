@@ -181,35 +181,41 @@ const val SECONDS_IN_MINUTE = 60.toLong()
 
 fun timeSince(seconds: Long): String{
     val timeNow = System.currentTimeMillis()/1000 // Instant.now().epochTime for API 26
-    val secondsAgo = timeNow - seconds
+    var secondsAgo = timeNow - seconds
 
-    return when{
-        secondsAgo > SECONDS_IN_YEAR -> {
-            val years = secondsAgo/SECONDS_IN_YEAR
-            "${years}y"
-        }
+    val sb = StringBuilder()
+
+    if(secondsAgo > SECONDS_IN_YEAR){
+        val years = secondsAgo/SECONDS_IN_YEAR
+        secondsAgo %= SECONDS_IN_YEAR
+        sb.append("${years}y ")
+    }
+
+    when{
         secondsAgo > SECONDS_IN_MONTH -> {
             val months = secondsAgo/SECONDS_IN_MONTH
-            "${months}mo"
+            sb.append("${months}mo")
         }
         secondsAgo > SECONDS_IN_WEEK -> {
             val weeks = secondsAgo/SECONDS_IN_WEEK
-            "${weeks}w"
+            sb.append("${weeks}w")
         }
         secondsAgo > SECONDS_IN_DAY -> {
             val days = secondsAgo/SECONDS_IN_DAY
-            "${days}d"
+            sb.append("${days}d")
         }
         secondsAgo > SECONDS_IN_HOUR -> {
             val hours = secondsAgo/SECONDS_IN_HOUR
-            "${hours}h"
+            sb.append("${hours}h")
         }
         secondsAgo > SECONDS_IN_MINUTE -> {
             val minutes = secondsAgo/SECONDS_IN_MINUTE
-            "${minutes}m"
+            sb.append("${minutes}m")
         }
-        else -> "1m"
+        else -> sb.append("1m")
     }
+
+    return sb.toString()
 }
 
 fun numFormatted(num: Long): String{

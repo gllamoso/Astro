@@ -1,13 +1,11 @@
 package dev.gtcl.reddit.ui.fragments.account
 
-import android.content.ClipData
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.tabs.TabLayoutMediator
@@ -15,11 +13,6 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentUserBinding
 import dev.gtcl.reddit.database.SavedAccount
-import dev.gtcl.reddit.models.reddit.listing.Comment
-import dev.gtcl.reddit.models.reddit.listing.Item
-import dev.gtcl.reddit.models.reddit.listing.Post
-import dev.gtcl.reddit.ui.fragments.ContinueThreadPage
-import dev.gtcl.reddit.ui.fragments.PostPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerVM
 
 class AccountFragment : Fragment(), LeftDrawerActions {

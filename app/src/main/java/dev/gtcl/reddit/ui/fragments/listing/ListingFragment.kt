@@ -22,6 +22,7 @@ import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.database.SavedAccount
+import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.FragmentListingBinding
 import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.models.reddit.MediaURL
@@ -263,7 +264,11 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
 
         childFragmentManager.setFragmentResultListener(LISTING_KEY, viewLifecycleOwner){ _, bundle ->
             val listing = bundle.get(LISTING_KEY) as ListingType
-            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(listing)))
+            if(listing is SubscriptionListing && listing.subscription.type == SubscriptionType.USER){
+                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(listing.subscription.displayName)))
+            } else {
+                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(listing)))
+            }
         }
     }
 

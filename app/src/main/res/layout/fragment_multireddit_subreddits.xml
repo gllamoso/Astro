@@ -51,6 +51,7 @@
                 android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="1"
+                tools:listitem="@layout/item_listing"
                 android:visibility="@{model.subreddits.isEmpty() ? View.GONE : View.VISIBLE}"
                 app:subredditsInMultireddit="@{model.subreddits}"
                 />

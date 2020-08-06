@@ -342,6 +342,14 @@ data class Subreddit(
             SubscriptionType.USER
         }
     )
+
+    fun getDisplayNameFormatted(): String{
+        return if(displayName.startsWith("u_")){
+            "u/${displayName.removePrefix("u_")}"
+        } else {
+            displayName
+        }
+    }
 }
 
 fun List<Subreddit>.asSubscriptions(userId: String) = map { it.asSubscription(userId) }
