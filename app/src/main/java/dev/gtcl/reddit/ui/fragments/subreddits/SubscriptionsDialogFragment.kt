@@ -12,6 +12,7 @@ import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.ListingTypeClickListener
@@ -43,6 +44,9 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
         dialog?.let {
             val bottomSheet = it.findViewById<View>(R.id.design_bottom_sheet)
             bottomSheet.layoutParams.height = ViewGroup.LayoutParams.MATCH_PARENT
+            val behavior = BottomSheetBehavior.from(bottomSheet)
+            behavior.peekHeight = resources.displayMetrics.heightPixels
+            view?.requestLayout()
         }
     }
 
