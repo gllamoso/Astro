@@ -7,103 +7,198 @@
         <variable
             name="post"
             type="dev.gtcl.reddit.models.reddit.listing.Post" />
+        <import type="android.view.View" />
+        <import type="dev.gtcl.reddit.UtilKt"/>
+        <import type="androidx.core.content.ContextCompat"/>
     </data>
 
     <androidx.cardview.widget.CardView
         android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:elevation="4dp">
+        app:cardBackgroundColor="?android:attr/colorBackground"
+        android:foreground="?android:attr/selectableItemBackground">
 
-        <LinearLayout
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/rootLayout"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:padding="16dp">
+            android:layout_height="wrap_content">
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/tags_group"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginTop="8dp">
+
+                <include
+                    layout="@layout/nsfw_icon"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:visibility="@{post.nsfw == true ? View.VISIBLE : View.GONE}"/>
+
+                <include
+                    layout="@layout/spoiler_icon"
+                    android:visibility="@{post.spoiler == true ? View.VISIBLE : View.GONE}"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginEnd="4dp"/>
+
+                <include
+                    android:id="@+id/flair_layout"
+                    layout="@layout/flair_icon"
+                    android:visibility="@{post.flairText != null ? View.VISIBLE : View.GONE}"
+                    android:layout_height="wrap_content"
+                    android:layout_width="wrap_content"
+                    android:layout_marginEnd="4dp"/>
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_bookmark_24"
+                    android:tint="@android:color/holo_orange_light"
+                    android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}"
+                    android:layout_marginEnd="4dp"/>
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:textSize="16sp"
+                android:layout_marginHorizontal="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/tags_group"
+                tools:text="Title"/>
+
+            <LinearLayout
+                android:id="@+id/post_info1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginHorizontal="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/title"
+                app:layout_constraintEnd_toEndOf="parent">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@{post.subredditPrefixed}"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/darker_gray"
+                    android:singleLine="true"
+                    tools:text="r/funny" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="12sp"
+                    android:text=" • "
+                    android:singleLine="true"
+                    tools:ignore="HardcodedText" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{post.author}"
-                    android:singleLine="true"
-                    tools:text="JohnDoe"
                     android:textSize="12sp"
-                    android:textStyle="bold"/>
+                    android:textColor="@android:color/darker_gray"
+                    android:singleLine="true"
+                    tools:text="User123" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:singleLine="true"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="12sp"
                     android:text=" • "
-                    tools:ignore="HardcodedText"
-                    android:textSize="12sp"/>
+                    android:singleLine="true"
+                    tools:ignore="HardcodedText" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="@{post.domain}"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/darker_gray"
                     android:singleLine="true"
-                    app:timestamp="@{post.created}"
-                    tools:text="9 hours ago"
-                    android:textSize="12sp"/>
+                    tools:text="i.redd.it" />
 
             </LinearLayout>
-
-            <TextView
-                android:id="@+id/post_title"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                tools:text="This is a post title and might be multiple lines"
-                android:textColor="?android:attr/colorForeground"
-                android:textSize="18sp"/>
 
             <LinearLayout
-                android:layout_width="match_parent"
+                android:id="@+id/post_info2"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:layout_marginHorizontal="8dp"
+                app:layout_constraintVertical_bias="0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/post_info1"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:layout_marginBottom="8dp">
 
                 <TextView
-                    android:id="@+id/num_comments"
+                    android:id="@+id/score_info"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@{post.likes == null ? @android:color/darker_gray : post.likes == true ? @android:color/holo_orange_dark : @android:color/holo_blue_dark}"
+                    android:text="@{UtilKt.numFormatted(post.score)}"
+                    android:textSize="12sp"
                     android:singleLine="true"
-                    app:number_of_comments="@{post.numComments}"
-                    tools:text="99 comments"
-                    android:textSize="12sp"/>
+                    tools:textColor="@android:color/holo_orange_dark"
+                    tools:text="9k" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="12sp"
                     android:text=" • "
                     android:singleLine="true"
-                    tools:ignore="HardcodedText"
-                    android:textSize="12sp"/>
+                    tools:ignore="HardcodedText" />
 
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="@{String.format(@string/num_points, post.score)}"
+                    android:text="@{String.format(@string/num_comments, UtilKt.numFormatted(post.numComments))}"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/darker_gray"
                     android:singleLine="true"
-                    tools:text="12345 points"
-                    android:textSize="12sp"/>
+                    tools:text="9k comments" />
 
                 <TextView
-                    android:layout_marginLeft="4dp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="12sp"
+                    android:text=" • "
                     android:singleLine="true"
-                    app:upvoteRatio="@{post.upvoteRatio}"
-                    tools:text="(98% upvote)"
-                    tools:ignore="RtlHardcoded"
-                    android:textSize="12sp"/>
+                    tools:ignore="HardcodedText" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:singleLine="true"
+                    android:textColor="@android:color/darker_gray"
+                    android:text="@{UtilKt.timeSince(post.created)}"
+                    tools:text="3h" />
 
             </LinearLayout>
 
-        </LinearLayout>
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
     </androidx.cardview.widget.CardView>
 

@@ -244,7 +244,17 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
             is MultiRedditListing -> listingType.multiReddit.displayName
             is SubredditListing -> listingType.displayName
             is SubscriptionListing -> listingType.subscription.displayName
-            is ProfileListing -> listingType.info.name
+            is ProfileListing -> {
+                when(listingType.info){
+                    ProfileInfo.OVERVIEW -> application.getString(R.string.overview)
+                    ProfileInfo.SUBMITTED -> application.getString(R.string.submitted)
+                    ProfileInfo.COMMENTS -> application.getString(R.string.comments)
+                    ProfileInfo.UPVOTED -> application.getString(R.string.upvoted)
+                    ProfileInfo.DOWNVOTED -> application.getString(R.string.downvoted)
+                    ProfileInfo.HIDDEN -> application.getString(R.string.hidden)
+                    ProfileInfo.SAVED -> application.getString(R.string.saved)
+                }
+            }
         }
     }
 

@@ -101,8 +101,6 @@ enum class ProfileInfo {
     HIDDEN,
     @SerializedName("saved")
     SAVED,
-    @SerializedName("gilded")
-    GILDED
 }
 
 enum class SubredditWhere{

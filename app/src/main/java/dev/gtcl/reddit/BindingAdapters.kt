@@ -253,7 +253,6 @@ fun loadListingText(txtView: TextView, listingType: ListingType?){
                 ProfileInfo.DOWNVOTED -> context.getText(R.string.downvoted)
                 ProfileInfo.HIDDEN -> context.getText(R.string.hidden)
                 ProfileInfo.SAVED -> context.getText(R.string.saved)
-                ProfileInfo.GILDED -> context.getText(R.string.gilded)
             }
             is SubscriptionListing -> it.subscription.name
         }

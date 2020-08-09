@@ -1,0 +1,244 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="post"
+            type="dev.gtcl.reddit.models.reddit.listing.Post" />
+        <variable
+            name="moreOptions"
+            type="Boolean" />
+        <import type="android.view.View" />
+        <import type="dev.gtcl.reddit.UtilKt" />
+        <import type="androidx.core.content.ContextCompat" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:id="@+id/card_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground"
+        app:cardBackgroundColor="?android:attr/colorBackgroundFloating">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/rootLayout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <FrameLayout
+                android:id="@+id/frame_layout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginVertical="8dp"
+                android:layout_marginStart="8dp"
+                android:background="@android:color/black"
+                app:layout_constraintVertical_bias="0"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:id="@+id/thumbnail"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:background="?android:attr/selectableItemBackground"
+                    app:loadImageAndHideIfNull="@{post.thumbnail}"
+                    app:srcCompat="@android:drawable/ic_menu_gallery" />
+
+            </FrameLayout>
+
+            <LinearLayout
+                android:id="@+id/tags_group"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginTop="8dp"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/frame_layout"
+                app:layout_constraintTop_toTopOf="parent">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_crosspost_24"
+                    android:tint="@android:color/holo_blue_bright"
+                    android:layout_marginEnd="4dp" />
+
+                <include
+                    layout="@layout/nsfw_icon_small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:visibility="@{post.nsfw == true ? View.VISIBLE : View.GONE}" />
+
+                <include
+                    layout="@layout/spoiler_icon_small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:visibility="@{post.spoiler == true ? View.VISIBLE : View.GONE}" />
+
+                <include
+                    android:id="@+id/flair_layout"
+                    layout="@layout/flair_icon_small"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:visibility="@{post.flairText != null ? View.VISIBLE : View.GONE}" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginEnd="4dp"
+                    android:src="@drawable/ic_bookmark_24"
+                    android:tint="@android:color/holo_orange_light"
+                    android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/title"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/frame_layout"
+                app:layout_constraintTop_toBottomOf="@id/tags_group"
+                app:read="@{post.isRead}"
+                tools:text="Title" />
+
+            <LinearLayout
+                android:id="@+id/post_info1"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:orientation="horizontal"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/frame_layout"
+                app:layout_constraintTop_toBottomOf="@id/title">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:text="@{post.subredditPrefixed}"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="10sp"
+                    tools:text="r/funny"
+                    tools:ignore="SmallSp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:text=" • "
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="10sp"
+                    tools:ignore="HardcodedText,SmallSp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:text="@{post.author}"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="10sp"
+                    tools:text="User123"
+                    tools:ignore="SmallSp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:text=" • "
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="10sp"
+                    tools:ignore="HardcodedText,SmallSp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:text="@{post.domain}"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="10sp"
+                    tools:text="i.redd.it"
+                    tools:ignore="SmallSp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/post_info2"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_marginHorizontal="8dp"
+                android:layout_marginBottom="8dp"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toEndOf="@id/frame_layout"
+                app:layout_constraintTop_toBottomOf="@id/post_info1"
+                app:layout_constraintVertical_bias="0">
+
+                <TextView
+                    android:id="@+id/score_info"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:text="@{UtilKt.numFormatted(post.score)}"
+                    android:textColor="@{post.likes == null ? @android:color/darker_gray : post.likes == true ? @android:color/holo_orange_dark : @android:color/holo_blue_dark}"
+                    android:textSize="10sp"
+                    tools:text="9k"
+                    tools:textColor="@android:color/holo_orange_dark"
+                    tools:ignore="SmallSp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:text=" • "
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="10sp"
+                    tools:ignore="HardcodedText,SmallSp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:text="@{String.format(@string/num_comments, UtilKt.numFormatted(post.numComments))}"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="10sp"
+                    tools:text="9k comments"
+                    tools:ignore="SmallSp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:text=" • "
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="10sp"
+                    tools:ignore="HardcodedText,SmallSp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:text="@{UtilKt.timeSince(post.created)}"
+                    android:textColor="@android:color/darker_gray"
+                    android:textSize="10sp"
+                    tools:text="3h"
+                    tools:ignore="SmallSp" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>

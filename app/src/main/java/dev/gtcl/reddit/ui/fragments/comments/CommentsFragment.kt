@@ -4,6 +4,7 @@ import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.text.Html
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -110,8 +111,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
         })
 
-        model.post.observe(viewLifecycleOwner, Observer {
-            binding.postLayout.postTitle.text = Html.fromHtml(it.title, Html.FROM_HTML_MODE_COMPACT)
+        model.post.observe(viewLifecycleOwner, Observer { post ->
+            binding.postLayout.title.text = Html.fromHtml(post.title, Html.FROM_HTML_MODE_COMPACT)
+            if(post.crosspostParentList != null){
+                binding.crossPostLayout.title.text = Html.fromHtml(post.crosspostParentList[0].title, Html.FROM_HTML_MODE_COMPACT)
+                binding.crossPostLayout.cardView.setOnClickListener {
+                    viewPagerModel.newPage(PostPage(post.crosspostParentList[0], -1))
+                }
+            }
         })
     }
 

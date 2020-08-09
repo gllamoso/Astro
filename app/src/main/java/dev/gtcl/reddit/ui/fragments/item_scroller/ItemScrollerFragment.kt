@@ -71,11 +71,6 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     private val activityModel: MainActivityVM by activityViewModels()
 
-    override fun onResume() {
-        super.onResume()
-        listAdapter.notifyDataSetChanged()
-    }
-
     private fun setListingInfo(){
         val args = requireArguments()
         when{
@@ -329,7 +324,6 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             is Post -> {
                 model.addReadItem(item)
                 activityModel.newPage(PostPage(item, position))
-                Log.d("TAE", "Parent size: ${item.crosspostParentList?.size}")
             }
             is Message -> {
                 ReplyDialogFragment.newInstance(item, position).show(childFragmentManager, null)

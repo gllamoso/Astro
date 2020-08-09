@@ -76,6 +76,16 @@
                             app:post="@{model.post}"/>
 
                         <include
+                            android:id="@+id/cross_post_layout"
+                            layout="@layout/layout_crosspost"
+                            android:layout_height="wrap_content"
+                            android:layout_width="match_parent"
+                            android:layout_margin="8dp"
+                            app:post="@{model.post.crosspostParentList != null ? model.post.crosspostParentList.get(0) : null}"
+                            app:moreOptions="@{false}"
+                            android:visibility="@{model.post.crosspostParentList != null &amp;&amp; !model.post.crosspostParentList.empty ? View.VISIBLE : View.GONE}"/>
+
+                        <include
                             android:id="@+id/content"
                             layout="@layout/layout_comments_content"
                             app:post="@{model.post}"/>
@@ -115,8 +125,6 @@
             android:clipToPadding="false"
             tools:visibility="invisible"
             app:behavior_peekHeight="0dp">
-
-<!--          -->
 
             <com.google.android.material.appbar.AppBarLayout
                 android:layout_width="match_parent"

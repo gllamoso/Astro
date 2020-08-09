@@ -62,9 +62,8 @@ class AccountFragment : Fragment(), LeftDrawerActions {
                     5 -> R.string.hidden
                     6 -> R.string.upvoted
                     7 -> R.string.downvoted
-                    8 -> R.string.gilded
-                    9 -> R.string.friends
-                    10 -> R.string.blocked
+                    8 -> R.string.friends
+                    9 -> R.string.blocked
                     else -> throw NoSuchElementException("No such tab in the following position: $position")
                 })
             }.attach()
@@ -75,7 +74,6 @@ class AccountFragment : Fragment(), LeftDrawerActions {
                     1 -> R.string.overview
                     2 -> R.string.posts
                     3 -> R.string.comments
-                    4 -> R.string.gilded
                     else -> throw NoSuchElementException("No such tab in the following position: $position")
                 })
             }.attach()
