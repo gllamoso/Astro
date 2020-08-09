@@ -229,7 +229,7 @@ class CreatePostDialogFragment : DialogFragment(){
 
         model.postContent.observe(viewLifecycleOwner, Observer { postContent ->
             postContent?.let {
-                val sub = binding.subredditText.text.toString()
+                val sub = binding.subredditText.text.toString().trim()
                 val title = binding.titleText.text.toString()
                 when(it){
                     is TextPost -> {

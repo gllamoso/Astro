@@ -17,7 +17,6 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_sort_24"
             android:layout_gravity="center"
-            android:tint="?android:attr/textColorPrimary"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"/>
 
@@ -32,7 +31,6 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_refresh_24"
             android:layout_gravity="center"
-            android:tint="?android:attr/textColorPrimary"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"/>
 
@@ -47,7 +45,6 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_reddit_24"
             android:layout_gravity="center"
-            android:tint="?android:attr/textColorPrimary"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"/>
 
@@ -62,7 +59,6 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_more_vert_24"
             android:layout_gravity="center"
-            android:tint="?android:attr/textColorPrimary"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"/>
 

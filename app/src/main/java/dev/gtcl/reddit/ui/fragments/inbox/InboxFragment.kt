@@ -1,7 +1,10 @@
 package dev.gtcl.reddit.ui.fragments.inbox
 
 import android.annotation.SuppressLint
+import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
@@ -9,9 +12,10 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayoutMediator
-import dev.gtcl.reddit.R
+import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.LeftDrawerActions
 import dev.gtcl.reddit.actions.MessageActions
 import dev.gtcl.reddit.database.SavedAccount
@@ -19,6 +23,7 @@ import dev.gtcl.reddit.databinding.FragmentInboxBinding
 import dev.gtcl.reddit.models.reddit.listing.Message
 import dev.gtcl.reddit.ui.fragments.AccountPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
+import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
 
 class InboxFragment: Fragment(), MessageActions, LeftDrawerActions{
 
@@ -36,6 +41,23 @@ class InboxFragment: Fragment(), MessageActions, LeftDrawerActions{
         binding = FragmentInboxBinding.inflate(inflater)
         setViewPagerAdapter()
         setLeftDrawer()
+
+        binding.fab.setOnClickListener {
+            ComposeDialogFragment.newInstance().show(childFragmentManager, null)
+        }
+
+        childFragmentManager.setFragmentResultListener(DRAFT_KEY, viewLifecycleOwner){_, bundle ->
+            AlertDialog.Builder(requireContext())
+                .setMessage(getString(R.string.save_draft_question))
+                .setPositiveButton(R.string.save){ _, _ ->
+                    saveDraft(bundle)
+                }
+                .setNegativeButton(R.string.discard){ _, _ ->
+                    clearSharedPreferenceDraft()
+                }
+                .show()
+        }
+
         return binding.root
     }
 
@@ -161,6 +183,29 @@ class InboxFragment: Fragment(), MessageActions, LeftDrawerActions{
     override fun onSettingsClicked() {
         Toast.makeText(context, "Settings", Toast.LENGTH_LONG).show()
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
+    }
+
+    private fun clearSharedPreferenceDraft(){
+        val sharedPrefs = requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+        with(sharedPrefs.edit()) {
+            remove(TO_KEY)
+            remove(SUBJECT_KEY)
+            remove(MESSAGE_KEY)
+            commit()
+        }
+    }
+
+    private fun saveDraft(bundle: Bundle){
+        val to = bundle.getString(TO_KEY)
+        val subject = bundle.getString(SUBJECT_KEY)
+        val message = bundle.getString(MESSAGE_KEY)
+        val sharedPrefs = requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+        with(sharedPrefs.edit()) {
+            putString(TO_KEY, to)
+            putString(SUBJECT_KEY, subject)
+            putString(MESSAGE_KEY, message)
+            commit()
+        }
     }
 
     companion object{

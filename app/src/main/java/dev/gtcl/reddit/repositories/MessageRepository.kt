@@ -7,6 +7,7 @@ import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.models.reddit.listing.ListingResponse
 import dev.gtcl.reddit.network.RedditApi
 import kotlinx.coroutines.Deferred
+import retrofit2.Response
 
 class MessageRepository private constructor(private val application: RedditApplication){
 
@@ -15,6 +16,13 @@ class MessageRepository private constructor(private val application: RedditAppli
             throw NotLoggedInException()
         }
         return RedditApi.oauth.getMessages(application.accessToken!!.authorizationHeader, where, after, limit)
+    }
+
+    fun sendMessage(to: String, subject: String, markdown: String): Deferred<Response<Unit>>{
+        if(application.accessToken == null){
+            throw NotLoggedInException()
+        }
+        return RedditApi.oauth.sendMessage(application.accessToken!!.authorizationHeader, to, subject, markdown)
     }
 
     companion object{

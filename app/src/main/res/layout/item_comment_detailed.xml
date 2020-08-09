@@ -20,7 +20,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
-            app:cardBackgroundColor="@color/background"
+            app:cardBackgroundColor="?android:attr/colorBackground"
             app:cardCornerRadius="8dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
@@ -51,15 +51,6 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <ImageView
-                        android:id="@+id/bookmark"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
-                        android:src="@drawable/ic_bookmark_24"
-                        android:tint="@android:color/holo_orange_light"
-                        android:visibility="@{comment.saved == true ? View.VISIBLE : View.GONE}" />
-
                     <TextView
                         android:id="@+id/author"
                         android:layout_width="wrap_content"
@@ -69,6 +60,14 @@
                         android:text="@{comment.author}"
                         android:textStyle="bold"
                         tools:text="Author" />
+
+                    <include
+                        android:id="@+id/op_flair"
+                        layout="@layout/op_icon"
+                        android:layout_marginStart="4dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="@{comment.submitter == true ? View.VISIBLE : View.GONE}" />
 
                     <TextView
                         android:id="@+id/points_text"
@@ -143,19 +142,20 @@
                     app:layout_constraintEnd_toStartOf="@id/more_options">
 
                     <include
-                        android:id="@+id/op_flair"
-                        layout="@layout/op_icon"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:visibility="@{comment.submitter == true ? View.VISIBLE : View.GONE}" />
-
-                    <include
                         android:id="@+id/author_flair"
                         layout="@layout/flair_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginStart="4dp"
                         android:visibility="@{comment.authorFlairText != null ? View.VISIBLE : View.GONE}" />
+
+                    <ImageView
+                        android:id="@+id/bookmark"
+                        android:layout_marginStart="4dp"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_bookmark_24"
+                        android:tint="@android:color/holo_orange_light"
+                        android:visibility="@{comment.saved == true ? View.VISIBLE : View.GONE}" />
 
                 </LinearLayout>
 

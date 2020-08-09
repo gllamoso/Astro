@@ -20,6 +20,11 @@ const val ALBUM_KEY = "album"
 const val ITEM_KEY = "item"
 const val NEW_REPLY_KEY = "new_reply"
 const val PREFERENCES_KEY = "Reddit Preference File Key" // TODO: Rename
+// Draft
+const val DRAFT_KEY = "draft"
+const val TO_KEY = "to"
+const val SUBJECT_KEY = "subject"
+const val MESSAGE_KEY = "message"
 
 // For listing fragments
 const val PROFILE_INFO_KEY = "profile_info"

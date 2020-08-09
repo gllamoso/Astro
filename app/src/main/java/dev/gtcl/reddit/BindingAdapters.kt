@@ -45,9 +45,10 @@ fun loadImageAndHideIfNull(imgView: ImageView, imgUrl: String?){
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
-            .apply(
-                RequestOptions()
-                    .placeholder(R.color.background))
+//            .apply(
+//                RequestOptions()
+//                    .placeholder(R.drawable.))
+//                    .placeholder(R.color.background))
 //                    .error(R.drawable.ic_broken_image_24))
             .into(imgView)
     }

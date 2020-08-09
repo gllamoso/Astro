@@ -10,7 +10,7 @@
     <LinearLayout android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="horizontal"
-        android:background="@color/background">
+        android:background="?android:attr/colorBackground">
 
         <View
             android:layout_width="0dp"
@@ -23,7 +23,6 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_upvote_24"
             android:layout_gravity="center"
-            android:tint="?android:attr/textColorPrimary"
             app:upvote_tint="@{post.likes}"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"/>
@@ -39,7 +38,6 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_upvote_24"
             android:layout_gravity="center"
-            android:tint="?android:attr/textColorPrimary"
             app:downvote_tint="@{post.likes}"
             android:rotation="180"
             android:background="?attr/selectableItemBackgroundBorderless"
@@ -56,7 +54,6 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_bookmark_24"
             android:layout_gravity="center"
-            android:tint="?android:attr/textColorPrimary"
             app:bookmark_tint="@{post.saved}"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"/>
@@ -72,7 +69,6 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_comments_24"
             android:layout_gravity="center"
-            android:tint="?android:attr/textColorPrimary"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"/>
 
@@ -87,7 +83,6 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_more_vert_24"
             android:layout_gravity="center"
-            android:tint="?android:attr/textColorPrimary"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"/>
 

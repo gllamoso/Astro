@@ -2,7 +2,6 @@ package dev.gtcl.reddit.ui.fragments.splash
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,7 +13,6 @@ import com.google.gson.Gson
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.databinding.FragmentSplashBinding
-import dev.gtcl.reddit.models.reddit.listing.Account
 import dev.gtcl.reddit.models.reddit.listing.FrontPage
 import dev.gtcl.reddit.ui.fragments.ListingPage
 
@@ -35,7 +33,7 @@ class SplashFragment : Fragment(){
         binding = FragmentSplashBinding.inflate(inflater)
         binding.model = model
         binding.lifecycleOwner = viewLifecycleOwner
-        getUserFromSharedPreferences()
+        setUserFromSharedPreferences()
 
         model.ready.observe(viewLifecycleOwner, Observer {
             if(it != null){
@@ -48,13 +46,13 @@ class SplashFragment : Fragment(){
 
         binding.retryButton.setOnClickListener {
             model.errorMessageObserved()
-            getUserFromSharedPreferences()
+            setUserFromSharedPreferences()
         }
 
         return binding.root
     }
 
-    private fun getUserFromSharedPreferences(){
+    private fun setUserFromSharedPreferences(){
         val sharedPref = requireActivity().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
         val userString = sharedPref.getString(CURRENT_USER_KEY, null)
         val account = Gson().fromJson(userString, SavedAccount::class.java)

@@ -15,9 +15,10 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
+                android:background="@android:color/transparent"
                 app:title="@string/my_subscriptions"
                 app:navigationIcon="@drawable/ic_back_arrow_24"
-                app:menu="@menu/subscriptions_menu"/>
+                app:menu="@menu/subscriptions_menu" />
 
         </com.google.android.material.appbar.AppBarLayout>
 

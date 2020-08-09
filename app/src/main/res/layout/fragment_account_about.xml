@@ -57,8 +57,8 @@
                 android:gravity="center_vertical">
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
                     android:tint="@android:color/darker_gray"
                     android:src="@drawable/ic_link_24"/>
 
@@ -73,8 +73,8 @@
                     android:text="@{String.format(&quot;%,d&quot;, model.account.linkKarma)}"/>
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
                     android:layout_marginStart="4dp"
                     android:tint="@android:color/darker_gray"
                     android:src="@drawable/ic_comments_24"/>
@@ -142,8 +142,8 @@
                 app:layout_constraintEnd_toEndOf="parent">
 
                 <ImageView
-                    android:layout_width="20dp"
-                    android:layout_height="20dp"
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
                     android:tint="@android:color/darker_gray"
                     android:src="@drawable/ic_cake_24"/>
 

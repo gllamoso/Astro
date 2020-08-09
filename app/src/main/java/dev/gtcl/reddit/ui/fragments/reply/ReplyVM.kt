@@ -31,6 +31,10 @@ class ReplyVM(private val application: RedditApplication): AndroidViewModel(appl
     val errorMessage: LiveData<String>
         get() = _errorMessage
 
+    private val _isLoading = MutableLiveData<Boolean>().apply { value = false }
+    val isLoading: LiveData<Boolean>
+        get() = _isLoading
+
     fun newReplyObserved(){
         _newReply.value = null
     }
@@ -38,6 +42,7 @@ class ReplyVM(private val application: RedditApplication): AndroidViewModel(appl
     fun reply(parent: Item, body: String, position: Int){
         coroutineScope.launch {
             try{
+                _isLoading.value = true
                 val newComment = listingRepository.addComment(parent.name, body).await().json.data.things[0].data
                 if(parent is Comment && newComment is Comment){
                     newComment.depth = (parent.depth ?: 0) + 1
@@ -45,6 +50,8 @@ class ReplyVM(private val application: RedditApplication): AndroidViewModel(appl
                 _newReply.value = NewReply(newComment, position)
             } catch (e: Exception){
                 _errorMessage.value = e.toString()
+            } finally {
+                _isLoading.value = false
             }
         }
     }

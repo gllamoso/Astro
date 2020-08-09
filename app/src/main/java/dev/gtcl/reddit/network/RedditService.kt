@@ -316,11 +316,19 @@ interface RedditApiService {
 
     @GET("/message/{where}")
     fun getMessages(
-        @Header("Authorization") authorization: String? = null,
+        @Header("Authorization") authorization: String,
         @Path("where") where: MessageWhere,
         @Query("after") after: String? = null,
         @Query("limit") limit: Int? = null
     ): Deferred<ListingResponse>
+
+    @POST("/api/compose")
+    fun sendMessage(
+        @Header("Authorization") authorization: String,
+        @Query("to") to: String,
+        @Query("subject") subject: String,
+        @Query("text") markdown: String
+    ): Deferred<Response<Unit>>
 
 //                                  _
 //        /\                       | |

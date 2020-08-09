@@ -11,6 +11,7 @@ import dev.gtcl.reddit.ui.fragments.item_scroller.ItemScrollerVM
 import dev.gtcl.reddit.ui.fragments.account.pages.about.UserAboutVM
 import dev.gtcl.reddit.ui.fragments.create_post.CreatePostVM
 import dev.gtcl.reddit.ui.fragments.create_post.type.UploadImageVM
+import dev.gtcl.reddit.ui.fragments.inbox.ComposeVM
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogVM
 import dev.gtcl.reddit.ui.fragments.media.list.item.MediaVM
 import dev.gtcl.reddit.ui.fragments.signin.SignInVM
@@ -48,6 +49,9 @@ class ViewModelFactory(private val application: RedditApplication) : ViewModelPr
                 application
             ) as T
             modelClass.isAssignableFrom(ReplyVM::class.java) -> ReplyVM(
+                application
+            ) as T
+            modelClass.isAssignableFrom(ComposeVM::class.java) -> ComposeVM(
                 application
             ) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: $modelClass")

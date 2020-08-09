@@ -26,7 +26,6 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                android:background="@color/background"
                 app:layout_collapseMode="pin"
                 app:navigationIcon="?homeAsUpIndicator"
                 app:layout_constraintTop_toTopOf="parent"
