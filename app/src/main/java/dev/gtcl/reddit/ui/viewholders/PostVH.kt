@@ -13,7 +13,7 @@ import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.databinding.ItemPostBinding
 import dev.gtcl.reddit.actions.PostActions
-import dev.gtcl.reddit.databinding.LayoutPopupPostOptionsBinding
+import dev.gtcl.reddit.databinding.PopupPostOptionsBinding
 import dev.gtcl.reddit.models.reddit.listing.Post
 
 class PostVH private constructor(private val binding:ItemPostBinding)
@@ -48,7 +48,7 @@ class PostVH private constructor(private val binding:ItemPostBinding)
 
     private fun showPopupWindow(post: Post, postActions: PostActions, anchorView: View){
         val inflater = anchorView.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val popupBinding = LayoutPopupPostOptionsBinding.inflate(inflater)
+        val popupBinding = PopupPostOptionsBinding.inflate(inflater)
         val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
         popupBinding.apply {
             this.post = post
@@ -89,6 +89,10 @@ class PostVH private constructor(private val binding:ItemPostBinding)
             hideButton.root.setOnClickListener {
                 post.hidden = !post.hidden
                 postActions.hide(post, adapterPosition)
+                popupWindow.dismiss()
+            }
+            subredditButton.root.setOnClickListener {
+                postActions.subredditSelected(post.subreddit)
                 popupWindow.dismiss()
             }
             reportButton.root.setOnClickListener {

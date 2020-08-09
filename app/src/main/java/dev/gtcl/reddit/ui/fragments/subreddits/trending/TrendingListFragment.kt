@@ -131,7 +131,7 @@ class TrendingListFragment : Fragment(), SubredditActions, ItemClickListener{
         if(item is Subreddit){
             parentListingTypeClickListener?.listingTypeClicked(
                 SubredditListing(
-                    item
+                    item.displayName
                 )
             )
         }

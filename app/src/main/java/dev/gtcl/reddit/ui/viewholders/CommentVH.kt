@@ -10,7 +10,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.actions.CommentActions
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.databinding.ItemCommentBinding
-import dev.gtcl.reddit.databinding.LayoutPopupCommentOptionsBinding
+import dev.gtcl.reddit.databinding.PopupCommentOptionsBinding
 import dev.gtcl.reddit.models.reddit.listing.Comment
 import io.noties.markwon.Markwon
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
@@ -30,7 +30,7 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
 
     private fun showPopupWindow(comment: Comment, commentActions: CommentActions, anchorView: View){
         val inflater = anchorView.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val popupBinding = LayoutPopupCommentOptionsBinding.inflate(inflater)
+        val popupBinding = PopupCommentOptionsBinding.inflate(inflater)
         val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
         popupBinding.apply {
             this.comment = comment

@@ -15,7 +15,7 @@ object Popular: ListingType()
 @Parcelize
 class MultiRedditListing(val multiReddit: MultiReddit): ListingType()
 @Parcelize
-class SubredditListing(val sub: Subreddit): ListingType()
+class SubredditListing(val displayName: String): ListingType()
 @Parcelize
 class SubscriptionListing(val subscription: Subscription): ListingType()
 @Parcelize

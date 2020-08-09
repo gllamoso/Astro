@@ -193,7 +193,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
                 findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(AccountPage(item.name)))
             } else {
                 findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(ListingPage(
-                    SubredditListing(item as Subreddit)
+                    SubredditListing((item as Subreddit).displayName)
                 )))
             }
             hideKeyboard()

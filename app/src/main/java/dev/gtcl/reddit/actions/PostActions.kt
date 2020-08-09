@@ -8,6 +8,7 @@ interface PostActions {
     fun share(post: Post)
     fun viewProfile(post: Post)
     fun save(post: Post)
+    fun subredditSelected(sub: String)
     fun hide(post: Post, position: Int)
     fun report(post: Post)
     fun thumbnailClicked(post: Post, position: Int)

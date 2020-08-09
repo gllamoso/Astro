@@ -152,11 +152,8 @@ class TrendingListVM(application: RedditApplication): AndroidViewModel(applicati
     }
 
     companion object{
-        private val TRENDING_SUBREDDIT = Subreddit("", "trendingsubreddits", "", "", "", false, "", "")
         private val TRENDING_LISTING =
-            SubredditListing(
-                TRENDING_SUBREDDIT
-            )
+            SubredditListing("trendingsubreddits")
         private val SORT = PostSort.NEW
         private const val PAGE_SIZE = 7
     }

@@ -29,10 +29,6 @@ class InboxFragment: Fragment(), MessageActions, LeftDrawerActions{
 
     private lateinit var binding: FragmentInboxBinding
 
-//    private val parentModel: MainActivityViewModel by lazy {
-//        (activity as MainActivity).model
-//    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

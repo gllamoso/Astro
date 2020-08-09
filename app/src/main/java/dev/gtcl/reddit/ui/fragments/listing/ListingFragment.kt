@@ -2,14 +2,12 @@ package dev.gtcl.reddit.ui.fragments.listing
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.PopupMenu
 import android.widget.TextView
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
-import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
@@ -22,7 +20,6 @@ import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.database.SavedAccount
-import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.FragmentListingBinding
 import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.models.reddit.MediaURL
@@ -115,17 +112,17 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
             model.loadFirstItems()
         }
 
-        setSwipeRefresh()
-        setList()
-        setBottomAppbarClickListeners()
-        setLeftDrawer()
-        setRightDrawer()
-        setOtherObservers()
+        initSwipeRefresh()
+        initList()
+        initBottomAppbarClickListeners()
+        initLeftDrawer()
+        initRightDrawer()
+        initOtherObservers()
 
         return binding.root
     }
 
-    private fun setSwipeRefresh() {
+    private fun initSwipeRefresh() {
         binding.swipeRefresh.setOnRefreshListener {
             model.refresh()
         }
@@ -137,7 +134,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
         })
     }
 
-    private fun setList() {
+    private fun initList() {
         scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadMore)
         listAdapter = ListingItemAdapter(markwon, postActions = this, expected = ItemType.Post, itemClickListener = this, retry = model::retry)
         binding.list.apply {
@@ -170,7 +167,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
     }
 
     @SuppressLint("RtlHardcoded")
-    private fun setLeftDrawer() {
+    private fun initLeftDrawer() {
         val leftDrawerAdapter = LeftDrawerAdapter(requireContext(), this, LeftDrawerHeader.HOME)
         binding.leftDrawerLayout.list.adapter = leftDrawerAdapter
         binding.leftDrawerLayout.account = (requireActivity().application as RedditApplication).currentAccount
@@ -197,7 +194,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
     }
 
     @SuppressLint("RtlHardcoded")
-    private fun setRightDrawer() {
+    private fun initRightDrawer() {
         binding.topAppBar.sideBarButton.setOnClickListener {
             binding.drawerLayout.openDrawer(Gravity.RIGHT)
         }
@@ -223,7 +220,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
         })
     }
 
-    private fun setBottomAppbarClickListeners() {
+    private fun initBottomAppbarClickListeners() {
 
         binding.bottomBarLayout.sortButton.setOnClickListener {
             SortDialogFragment.newInstance(model.postSort.value!!, model.time.value)
@@ -255,7 +252,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
         }
     }
 
-    private fun setOtherObservers() {
+    private fun initOtherObservers() {
         model.errorMessage.observe(viewLifecycleOwner, Observer {
             if (it != null) {
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
@@ -320,6 +317,16 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
 
     override fun save(post: Post) {
         activityModel.save(post.name, post.saved)
+    }
+
+    override fun subredditSelected(sub: String) {
+        model.listingType.let {
+            if(it is SubredditListing && it.displayName == sub){
+                return
+            }
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(SubredditListing(sub))))
+        }
+
     }
 
     override fun hide(post: Post, position: Int) {

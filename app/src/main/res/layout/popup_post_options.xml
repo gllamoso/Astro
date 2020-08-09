@@ -57,6 +57,12 @@
                 app:text="@{post.hidden ? @string/unhide : @string/hide}"/>
 
             <include
+                android:id="@+id/subreddit_button"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_reddit_circle_24}"
+                app:text="@{post.subreddit}"/>
+
+            <include
                 android:id="@+id/report_button"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_report_24}"

@@ -140,8 +140,7 @@ fun loadMultiIcon(imgView: ImageView, listingType: ListingType){
         All -> imgView.setImageResource(R.drawable.ic_all_24)
         Popular -> imgView.setImageResource(R.drawable.ic_trending_up_24)
         is MultiRedditListing -> imgView.setImageResource(R.drawable.ic_collection_24)
-        is SubredditListing -> loadSubIcon(imgView, listingType.sub.iconImg)
-        else -> imgView.setImageResource(R.drawable.ic_bookmark_24)
+        else -> imgView.setImageResource(R.drawable.ic_reddit_circle_24)
     }
 }
 
@@ -245,7 +244,7 @@ fun loadListingText(txtView: TextView, listingType: ListingType?){
             All -> context.getText(R.string.all)
             Popular -> context.getText(R.string.popular_tab_label)
             is MultiRedditListing -> it.multiReddit.name
-            is SubredditListing -> it.sub.displayName
+            is SubredditListing -> it.displayName
             is ProfileListing -> when(it.info){
                 ProfileInfo.OVERVIEW -> context.getText(R.string.overview)
                 ProfileInfo.SUBMITTED -> context.getText(R.string.submitted)

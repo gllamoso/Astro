@@ -23,10 +23,7 @@ import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.ItemScrollListener
 import dev.gtcl.reddit.ui.ListingItemAdapter
 import dev.gtcl.reddit.ui.activities.MainActivityVM
-import dev.gtcl.reddit.ui.fragments.AccountPage
-import dev.gtcl.reddit.ui.fragments.ContinueThreadPage
-import dev.gtcl.reddit.ui.fragments.PostPage
-import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
+import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
@@ -90,7 +87,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                 model.user = user
             }
             args.getSerializable(SUBREDDIT_KEY) != null -> {
-                val subreddit = args.getParcelable<Subreddit>(SUBREDDIT_KEY)!!
+                val subreddit = args.getString(SUBREDDIT_KEY)!!
                 val postSort = args.getSerializable(POST_SORT_KEY) as PostSort
                 val time = args.getSerializable(TIME_KEY) as Time?
                 val pageSize = args.getInt(PAGE_SIZE_KEY)
@@ -198,6 +195,10 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     override fun save(post: Post) {
         activityModel.save(post.name, post.saved)
+    }
+
+    override fun subredditSelected(sub: String) {
+        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(SubredditListing(sub))))
     }
 
     override fun hide(post: Post, position: Int) {
@@ -352,7 +353,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             return fragment
         }
 
-        fun newInstance(subreddit: Subreddit, postSort: PostSort, time: Time?, pageSize: Int, useTrendingAdapter: Boolean = false): ItemScrollerFragment {
+        fun newInstance(subreddit: String, postSort: PostSort, time: Time?, pageSize: Int, useTrendingAdapter: Boolean = false): ItemScrollerFragment {
             val fragment =
                 ItemScrollerFragment()
             val args = bundleOf(SUBREDDIT_KEY to subreddit, POST_SORT_KEY to postSort, TIME_KEY to time, PAGE_SIZE_KEY to pageSize, USE_TRENDING_ADAPTER_KEY to useTrendingAdapter)

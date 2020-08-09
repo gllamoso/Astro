@@ -46,9 +46,9 @@ class ListingRepository private constructor(private val application: RedditAppli
                     RedditApi.base.getMultiRedditListing(null , listingType.multiReddit.path.removePrefix("/"), sort, t, after, pageSize)
                 }
             is SubredditListing -> if (accessToken != null) {
-                    RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, listingType.sub.displayName, sort, t, after, pageSize)
+                    RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, listingType.displayName, sort, t, after, pageSize)
                 } else {
-                    RedditApi.base.getPostsFromSubreddit(null, listingType.sub.displayName, sort, t, after, pageSize)
+                    RedditApi.base.getPostsFromSubreddit(null, listingType.displayName, sort, t, after, pageSize)
                 }
             is ProfileListing -> if(accessToken != null){
                     RedditApi.oauth.getPostsFromUser(accessToken.authorizationHeader, userName!!, listingType.info, after, pageSize)

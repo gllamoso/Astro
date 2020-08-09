@@ -54,7 +54,7 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     private val readItemIds = HashSet<String>()
     private var after: String? = null
 
-    private lateinit var listingType: ListingType
+    lateinit var listingType: ListingType
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String>
@@ -91,7 +91,7 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     fun fetchSubredditInfo(listingType: ListingType){
         coroutineScope.launch {
             val sub = when(listingType){
-                is SubredditListing -> subredditRepository.getSubreddit(listingType.sub.displayName).await().data
+                is SubredditListing -> subredditRepository.getSubreddit(listingType.displayName).await().data
                 is SubscriptionListing -> {
                     val subscription = listingType.subscription
                     if(subscription.type == SubscriptionType.SUBREDDIT){
@@ -242,7 +242,7 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
             is All -> application.getString(R.string.all)
             is Popular -> application.getString(R.string.popular_tab_label)
             is MultiRedditListing -> listingType.multiReddit.displayName
-            is SubredditListing -> listingType.sub.displayName
+            is SubredditListing -> listingType.displayName
             is SubscriptionListing -> listingType.subscription.displayName
             is ProfileListing -> listingType.info.name
         }
