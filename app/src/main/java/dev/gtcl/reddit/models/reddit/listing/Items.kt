@@ -80,6 +80,8 @@ data class Comment( // TODO: Add more properties: all_awardings
     @Json(name = "author_flair_text")
     var authorFlairText: String?,
     val permalink: String?,
+    @Json(name = "link_permalink")
+    val linkPermalink: String?,
     val context: String?,
     val subreddit: String,
     @Json(name = "subreddit_name_prefixed")
@@ -188,7 +190,6 @@ data class Post(
     var flairText: String?,
     @Json(name = "crosspost_parent_list")
     val crosspostParentList: List<Post>?
-    // TODO: Add crosspost_parent_list
 ) : Item(ItemType.Post) {
 
     @IgnoredOnParcel

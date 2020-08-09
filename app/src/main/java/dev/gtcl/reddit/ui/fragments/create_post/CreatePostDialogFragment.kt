@@ -288,7 +288,7 @@ class CreatePostDialogFragment : DialogFragment(){
 
         model.newPostData.observe(viewLifecycleOwner, Observer {
             if(it != null){
-                viewPagerModel.newPage(ContinueThreadPage(it.url))
+                viewPagerModel.newPage(ContinueThreadPage(it.url, null, false))
                 model.newPostObserved()
                 dismiss()
             }

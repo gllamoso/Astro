@@ -52,6 +52,10 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
     val moreComments: LiveData<MoreComments?>
         get() = _moreComments
 
+    private val _allCommentsFetched = MutableLiveData<Boolean>()
+    val allCommentsFetched: LiveData<Boolean>
+        get() = _allCommentsFetched
+
     private val _loading = MutableLiveData<Boolean>().apply { value = true }
     val loading: LiveData<Boolean>
         get() = _loading
@@ -86,6 +90,7 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
             try{
                 _loading.value = true
                 val commentPage = listingRepository.getPostAndComments(permalink, CommentSort.BEST, pageSize * 3).await()
+                _allCommentsFetched.value = permalink == post.value?.permalink
                 _post.value = commentPage.post
                 _comments.value = commentPage.comments.toMutableList()
                 _commentsFetched = true
@@ -200,13 +205,14 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
     }
 
     fun hideItems(position: Int): Int{
-        val itemInPosition = comments.value!![position]
-        val depth = when(val currItem = comments.value!![position]){
+        val positionOffset = position + if(allCommentsFetched.value == false) -1 else 0
+        val itemInPosition = comments.value!![positionOffset]
+        val depth = when(val currItem = comments.value!![positionOffset]){
             is Comment -> currItem.depth ?: 0
             is More -> currItem.depth
             else -> 0
         }
-        var i = position
+        var i = positionOffset
         while(++i < comments.value!!.size - 1){
             val currDepth = when(val currItem = comments.value!![i]){
                 is Comment -> currItem.depth ?: 0
@@ -217,10 +223,10 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
                 break
             }
         }
-        return if(i - 1 > position){
-            val listToHide = comments.value!!.subList(position + 1, i).toList()
+        return if(i - 1 > positionOffset){
+            val listToHide = comments.value!!.subList(positionOffset + 1, i).toList()
             for(j in listToHide.indices){
-                comments.value!!.removeAt(position + 1)
+                comments.value!!.removeAt(positionOffset + 1)
             }
             hiddenItemsMap[itemInPosition.name] = listToHide
             listToHide.size
@@ -230,10 +236,11 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
     }
 
     fun unhideItems(position: Int): List<Item>{
-        val itemInPosition = comments.value!![position]
+        val positionOffset = position + if(allCommentsFetched.value == false) -1 else 0
+        val itemInPosition = comments.value!![positionOffset]
         val hiddenItems = hiddenItemsMap[itemInPosition.name]
         return if(hiddenItems != null){
-            comments.value!!.addAll(position + 1, hiddenItems)
+            comments.value!!.addAll(positionOffset + 1, hiddenItems)
             hiddenItemsMap.remove(itemInPosition.name)
             hiddenItems
         } else {

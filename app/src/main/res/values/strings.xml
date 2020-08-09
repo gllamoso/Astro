@@ -67,6 +67,8 @@
     <string name="add_comment">Add Comment</string>
     <string name="fetching_comments">Fetching comments…</string>
     <string name="no_comments_yet">No comments yet.</string>
+    <string name="view_all_comments">View all comments</string>
+    <string name="you_are_viewing_a_single_thread">You are viewing a single thread</string>
 
     <!--Post Details-->
     <string name="num_comments">%s comments</string>

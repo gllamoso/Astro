@@ -145,8 +145,19 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     private fun initBottomBarAndCommentsAdapter() {
-        adapter = CommentsAdapter(markwon,this, this)
+        val fullContextLink = requireArguments().getString(FULL_CONTEXT_URL_KEY, null)
+        val onViewAllClick: (() -> Unit)? = if(fullContextLink != null){
+            { model.fetchPostAndComments(fullContextLink) }
+        } else {
+            null
+        }
+        adapter = CommentsAdapter(markwon, this, this, onViewAllClick)
         binding.commentList.adapter = adapter
+
+        model.allCommentsFetched.observe(viewLifecycleOwner, Observer {
+            adapter.allCommentsRetrieved = it
+        })
+
         model.comments.observe(viewLifecycleOwner, Observer {
             adapter.submitList(it)
         })
@@ -271,7 +282,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 PostType.URL -> initUrlPreview(postPage.post)
             }
         } else {
-            model.fetchPostAndComments(url!!.replace("http[s]?://www\\.reddit\\.com/".toRegex(), ""))
+            model.fetchPostAndComments(url!!)
             BottomSheetBehavior.from(binding.bottomSheet).state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
@@ -391,7 +402,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         when(item) {
             is More -> {
                 if (item.isContinueThreadLink) {
-                    viewPagerModel.newPage(ContinueThreadPage("${model.post.value!!.permalink}${item.parentId.replace("t1_", "")}"))
+                    viewPagerModel.newPage(ContinueThreadPage("${model.post.value!!.permalink}${item.parentId.replace("t1_", "")}", null, true))
                 } else {
                     model.fetchMoreComments(position)
                 }
@@ -415,6 +426,18 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         }
     }
 
+    override fun handleLink(link: String) {
+        when(link.getUrlType()){
+            UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
+            UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
+            UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
+            UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
+            UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
+            UrlType.REDDIT_COMMENTS -> viewPagerModel.newPage(ContinueThreadPage(link, null, true))
+            UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
+        }
+    }
+
     companion object {
         fun newInstance(postPage: PostPage): CommentsFragment {
             val fragment = CommentsFragment()
@@ -423,23 +446,11 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             return fragment
         }
 
-        fun newInstance(url: String): CommentsFragment {
+        fun newInstance(url: String, fullContextLink: String?, expandReplies: Boolean): CommentsFragment {
             val fragment = CommentsFragment()
-            val args = bundleOf(URL_KEY to url)
+            val args = bundleOf(URL_KEY to url, FULL_CONTEXT_URL_KEY to fullContextLink, EXPAND_REPLIES_KEY to expandReplies)
             fragment.arguments = args
             return fragment
-        }
-    }
-
-    override fun handleLink(link: String) {
-        when(link.getUrlType()){
-            UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
-            UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
-            UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
-            UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
-            UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
-            UrlType.REDDIT_COMMENTS -> viewPagerModel.newPage(ContinueThreadPage(link))
-            UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
         }
     }
 }

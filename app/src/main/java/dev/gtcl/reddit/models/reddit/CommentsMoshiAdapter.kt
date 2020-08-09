@@ -380,6 +380,7 @@ class CommentsMoshiAdapter {
         var replies: List<Item>? = null
         var authorFlairText: String? = null
         var permalink: String? = null
+        var linkPermalink: String? = null
         var subreddit: String? = null
         var subredditPrefixed: String? = null
         var linkTitle: String? = null
@@ -430,6 +431,9 @@ class CommentsMoshiAdapter {
                 "permalink" -> {
                     permalink = jsonReader.nextString()
                 }
+                "link_permalink" -> {
+                    linkPermalink = jsonReader.nextString()
+                }
                 "subreddit" -> {
                     subreddit = jsonReader.nextString()
                 }
@@ -462,6 +466,7 @@ class CommentsMoshiAdapter {
             likes =  likes,
             authorFlairText = authorFlairText,
             permalink = permalink!!,
+            linkPermalink = linkPermalink,
             context = null,
             subreddit = subreddit!!,
             subredditPrefixed = subredditPrefixed!!,

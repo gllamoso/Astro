@@ -20,7 +20,7 @@ class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
             is ListingPage -> ListingFragment.newInstance(pageType.listingType)
             is AccountPage -> AccountFragment.newInstance(pageType.user)
             is PostPage -> CommentsFragment.newInstance(pageType)
-            is ContinueThreadPage -> CommentsFragment.newInstance(pageType.url)
+            is ContinueThreadPage -> CommentsFragment.newInstance(pageType.url, pageType.fullContextUrl, pageType.expandReplies)
             InboxPage -> InboxFragment.newInstance()
         }
     }
@@ -58,7 +58,9 @@ class PostPage(
 ): ViewPagerPage()
 @Parcelize
 class ContinueThreadPage(
-    val url: String
+    val url: String,
+    val fullContextUrl: String?,
+    val expandReplies: Boolean
 ): ViewPagerPage()
 @Parcelize
 object InboxPage : ViewPagerPage()
