@@ -71,6 +71,11 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     private val activityModel: MainActivityVM by activityViewModels()
 
+    override fun onResume() {
+        super.onResume()
+        listAdapter.notifyDataSetChanged()
+    }
+
     private fun setListingInfo(){
         val args = requireArguments()
         when{

@@ -37,7 +37,11 @@ class ListingItemAdapter(
     fun submitList(items: List<Item>?) {
         notifyItemRangeRemoved(0, itemCount)
         this.items = items?.toMutableList()
-        notifyItemRangeInserted(0, max(items?.size ?: 0, 1))
+        if(items.isNullOrEmpty()){
+            notifyItemChanged(0)
+        } else {
+            notifyItemRangeInserted(0, items.size)
+        }
     }
 
     fun addItems(items: List<Item>) {
@@ -59,7 +63,7 @@ class ListingItemAdapter(
     }
 
     override fun getItemCount(): Int{
-        return if(items == null){
+        return if(items.isNullOrEmpty()){
             1
         } else {
             items!!.size + if (networkState.status == Status.RUNNING || networkState.status == Status.FAILED) 1 else 0
