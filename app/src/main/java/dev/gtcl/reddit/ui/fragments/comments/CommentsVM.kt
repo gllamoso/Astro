@@ -96,18 +96,17 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
                 _commentsFetched = true
                 _loading.value = false
             } catch (e: Exception){
-                Log.e("Error", e.toString())
                 _errorMessage.value = e.getErrorMessage(application)
             }
         }
     }
 
     fun fetchMoreComments(position: Int){
-        if(_loading.value == true){
+        val positionOffset = position + if(allCommentsFetched.value == false) -1 else 0
+        if(_loading.value == true || position == -1) {
             return
         }
-
-        val moreItem = _comments.value?.get(position)
+        val moreItem = _comments.value?.get(positionOffset)
         if(moreItem == null || moreItem !is More){
             throw IllegalArgumentException("Invalid more item: $moreItem")
         }
@@ -116,10 +115,9 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
         coroutineScope.launch {
             try{
                 _loading.value = true
-
                 val comments = listingRepository.getMoreComments(children, post.value!!.name, CommentSort.BEST).await().json.data.things.map { it.data }.filter { !(it is More && it.depth == 0) }
                 if(moreItem.lastChildFetched()){
-                    _comments.value?.removeAt(position)
+                    _comments.value?.removeAt(positionOffset)
                     _removeAt.value = position
                 }
                 _moreComments.value = MoreComments(
@@ -127,7 +125,7 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
                     comments
                 )
 
-                _comments.value?.addAll(position, comments)
+                _comments.value?.addAll(positionOffset, comments)
                 _loading.value = false
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
@@ -180,7 +178,7 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
                 prepare(mediaSource, false, false)
                 addListener(object: Player.EventListener{
                     override fun onPlayerError(error: ExoPlaybackException?) {
-                        _errorMessage.value = application.getString(R.string.error_with_video_player)
+//                        _errorMessage.value = application.getString(R.string.error_with_video_player)
                         if(uri.path != post.previewVideoUrl) {
                             mediaSource = buildMediaSource(application.baseContext, Uri.parse(post.previewVideoUrl))
                             prepare(mediaSource, false, false)

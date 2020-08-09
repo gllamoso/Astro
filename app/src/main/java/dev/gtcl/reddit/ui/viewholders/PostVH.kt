@@ -22,7 +22,6 @@ class PostVH private constructor(private val binding:ItemPostBinding)
     fun bind(post: Post, postActions: PostActions, itemClickListener: ItemClickListener) {
         binding.post = post
 
-        binding.title.text = Html.fromHtml(post.title, Html.FROM_HTML_MODE_COMPACT)
         binding.cardView.setOnClickListener{
             post.isRead = true
             binding.invalidateAll()
@@ -33,10 +32,6 @@ class PostVH private constructor(private val binding:ItemPostBinding)
             post.isRead = true
             binding.invalidateAll()
             postActions.thumbnailClicked(post, adapterPosition)
-        }
-
-        if(post.flairText != null){
-            binding.flairLayout.textView.text = Html.fromHtml(post.flairText!!, Html.FROM_HTML_MODE_COMPACT)
         }
 
         binding.moreOptions.setOnClickListener {

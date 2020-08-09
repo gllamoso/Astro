@@ -3,8 +3,6 @@ package dev.gtcl.reddit.ui.fragments.comments
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.text.Html
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -112,12 +110,31 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         })
 
         model.post.observe(viewLifecycleOwner, Observer { post ->
-            binding.postLayout.title.text = Html.fromHtml(post.title, Html.FROM_HTML_MODE_COMPACT)
             if(post.crosspostParentList != null){
-                binding.crossPostLayout.title.text = Html.fromHtml(post.crosspostParentList[0].title, Html.FROM_HTML_MODE_COMPACT)
                 binding.crossPostLayout.cardView.setOnClickListener {
                     viewPagerModel.newPage(PostPage(post.crosspostParentList[0], -1))
                 }
+            }
+        })
+
+        binding.swipeRefresh.setOnRefreshListener {
+            val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
+            if(postPage != null){
+                model.fetchPostAndComments()
+            } else {
+                val url = requireArguments().getString(URL_KEY)
+                val fullContextLink = requireArguments().getString(FULL_CONTEXT_URL_KEY, null)
+                if(model.allCommentsFetched.value == true){
+                    model.fetchPostAndComments(fullContextLink)
+                } else {
+                    model.fetchPostAndComments(url!!)
+                }
+            }
+        }
+
+        model.loading.observe(viewLifecycleOwner, Observer {
+            if(it == false){
+                binding.swipeRefresh.isRefreshing = false
             }
         })
     }
@@ -146,11 +163,16 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     private fun initBottomBarAndCommentsAdapter() {
         val fullContextLink = requireArguments().getString(FULL_CONTEXT_URL_KEY, null)
-        val onViewAllClick: (() -> Unit)? = if(fullContextLink != null){
-            { model.fetchPostAndComments(fullContextLink) }
-        } else {
-            null
-        }
+        val onViewAllClick: (() -> Unit)? =
+            if(fullContextLink != null){
+                {
+                    if(model.loading.value != true){
+                        model.fetchPostAndComments(fullContextLink)
+                    }
+                }
+            } else {
+                null
+            }
         adapter = CommentsAdapter(markwon, this, this, onViewAllClick)
         binding.commentList.adapter = adapter
 

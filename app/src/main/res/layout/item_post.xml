@@ -62,6 +62,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
+                        app:charSequence="@{post.flairTextFormatted}"
                         android:visibility="@{post.flairText != null ? View.VISIBLE : View.GONE}" />
 
                     <ImageView
@@ -87,6 +88,7 @@
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="8dp"
                     android:textSize="16sp"
+                    android:text="@{post.titleFormatted}"
                     app:layout_constraintEnd_toStartOf="@id/frame_layout"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tags_group"

@@ -86,6 +86,7 @@
                 <include
                     android:id="@+id/flair_layout"
                     layout="@layout/flair_icon_small"
+                    app:charSequence="@{post.flairTextFormatted}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginEnd="4dp"
@@ -106,6 +107,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
+                android:text="@{post.titleFormatted}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/frame_layout"
                 app:layout_constraintTop_toBottomOf="@id/tags_group"

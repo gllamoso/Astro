@@ -39,7 +39,6 @@ class CommentsAdapter(private val markwon: Markwon, private val commentActions: 
             if(comments.isNullOrEmpty()){
                 notifyItemChanged(0 + offset)
             } else {
-                Log.d("TAE", "Test")
                 notifyItemRemoved(0 + offset)
                 notifyItemRangeInserted(0 + offset, max(items?.size ?: 1, 1))
             }

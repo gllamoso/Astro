@@ -27,14 +27,8 @@ class CommentDetailedVH private constructor(private val binding: ItemCommentDeta
         binding.moreOptions.setOnClickListener {
             showPopupWindow(comment, commentActions, it)
         }
-        if(markwon == null){
-            binding.bodyMessage.text = Html.fromHtml(comment.body, Html.FROM_HTML_MODE_COMPACT)
-        } else {
-            markwon.setMarkdown(binding.bodyMessage, comment.body)
-        }
-        if(comment.authorFlairText != null){
-            binding.authorFlair.textView.text = Html.fromHtml(comment.authorFlairText!!, Html.FROM_HTML_MODE_COMPACT)
-        }
+        markwon?.setMarkdown(binding.bodyMessage, comment.body)
+
         binding.executePendingBindings()
     }
 

@@ -146,6 +146,7 @@
                         layout="@layout/flair_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        app:charSequence="@{comment.authorFlairTextFormatted}"
                         android:visibility="@{comment.authorFlairText != null ? View.VISIBLE : View.GONE}" />
 
                     <ImageView
@@ -164,6 +165,7 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:textSize="16sp"
+                    android:text="@{comment.bodyFormatted}"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="4dp"
                     android:layout_marginTop="4dp"

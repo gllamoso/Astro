@@ -1,6 +1,9 @@
 package dev.gtcl.reddit.models.reddit.listing
 
 import android.os.Parcelable
+import android.text.Html
+import android.text.Spannable
+import android.text.Spanned
 import android.webkit.URLUtil
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
@@ -91,7 +94,19 @@ data class Comment( // TODO: Add more properties: all_awardings
     @Json(name = "is_submitter")
     val isSubmitter: Boolean?,
     var isCollapsed: Boolean = false
-): Item(ItemType.Comment)
+): Item(ItemType.Comment){
+
+    @IgnoredOnParcel
+    val bodyFormatted: CharSequence = Html.fromHtml(body, Html.FROM_HTML_MODE_COMPACT)
+
+    @IgnoredOnParcel
+    val authorFlairTextFormatted: CharSequence? =
+        if(authorFlairText != null){
+            Html.fromHtml(authorFlairText, Html.FROM_HTML_MODE_COMPACT)
+        } else {
+            null
+        }
+}
 
 //   _   ___                                               _
 //  | | |__ \               /\                            | |
@@ -208,6 +223,17 @@ data class Post(
 
     @IgnoredOnParcel
     val shortLink = "http://redd.it/$id"
+
+    @IgnoredOnParcel
+    val flairTextFormatted: CharSequence? =
+        if(flairText != null){
+            Html.fromHtml(flairText, Html.FROM_HTML_MODE_COMPACT)
+        } else {
+            null
+        }
+
+    @IgnoredOnParcel
+    val titleFormatted: CharSequence = Html.fromHtml(title, Html.FROM_HTML_MODE_COMPACT)
 
     @IgnoredOnParcel
     val postType: PostType
