@@ -69,7 +69,15 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_bookmark_24"
                         android:tint="@android:color/holo_orange_light"
-                        android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}" />
+                        android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}"
+                        android:layout_marginEnd="4dp"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_crosspost_24"
+                        android:tint="@android:color/holo_blue_bright"
+                        android:visibility="@{post.crosspostParentList != null &amp;&amp; post.crosspostParentList.size() > 0 ? View.VISIBLE : View.GONE}" />
 
                 </LinearLayout>
 

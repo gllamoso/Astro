@@ -97,6 +97,7 @@ class CommentsMoshiAdapter {
         var nsfw: Boolean? = null
         var spoiler: Boolean? = null
         var linkFlairText: String? = null
+        var crossPostParentList: MutableList<Post>? = null
         while(jsonReader.hasNext()){
             when(jsonReader.nextName()){
                 "name" -> {
@@ -191,6 +192,14 @@ class CommentsMoshiAdapter {
                         jsonReader.skipValue()
                     }
                 }
+                "crosspost_parent_list" -> {
+                    jsonReader.beginArray()
+                    crossPostParentList = mutableListOf()
+                    while(jsonReader.peek() != JsonReader.Token.END_ARRAY){
+                        crossPostParentList.add(getPostFromData(jsonReader))
+                    }
+                    jsonReader.endArray()
+                }
                 else -> {
                     jsonReader.skipValue()
                 }
@@ -223,7 +232,8 @@ class CommentsMoshiAdapter {
             domain = domain!!,
             nsfw = nsfw!!,
             spoiler = spoiler!!,
-            flairText = linkFlairText
+            flairText = linkFlairText,
+            crosspostParentList = crossPostParentList
         )
     }
 

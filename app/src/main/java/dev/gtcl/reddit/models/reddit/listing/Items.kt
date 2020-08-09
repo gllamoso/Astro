@@ -185,7 +185,9 @@ data class Post(
     var nsfw: Boolean,
     var spoiler: Boolean,
     @Json(name = "link_flair_text")
-    var flairText: String?
+    var flairText: String?,
+    @Json(name = "crosspost_parent_list")
+    val crosspostParentList: List<Post>?
     // TODO: Add crosspost_parent_list
 ) : Item(ItemType.Post) {
 

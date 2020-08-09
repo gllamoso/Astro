@@ -329,6 +329,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             is Post -> {
                 model.addReadItem(item)
                 activityModel.newPage(PostPage(item, position))
+                Log.d("TAE", "Parent size: ${item.crosspostParentList?.size}")
             }
             is Message -> {
                 ReplyDialogFragment.newInstance(item, position).show(childFragmentManager, null)
