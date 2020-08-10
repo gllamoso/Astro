@@ -98,6 +98,7 @@ class CommentsMoshiAdapter {
         var spoiler: Boolean? = null
         var linkFlairText: String? = null
         var crossPostParentList: MutableList<Post>? = null
+        var gildings: Gildings? = null
         while(jsonReader.hasNext()){
             when(jsonReader.nextName()){
                 "name" -> {
@@ -200,6 +201,13 @@ class CommentsMoshiAdapter {
                     }
                     jsonReader.endArray()
                 }
+                "gildings" -> {
+                    if(jsonReader.peek() != JsonReader.Token.NULL) {
+                        gildings = getGildings(jsonReader)
+                    } else {
+                        jsonReader.skipValue()
+                    }
+                }
                 else -> {
                     jsonReader.skipValue()
                 }
@@ -233,7 +241,8 @@ class CommentsMoshiAdapter {
             nsfw = nsfw!!,
             spoiler = spoiler!!,
             flairText = linkFlairText,
-            crosspostParentList = crossPostParentList
+            crosspostParentList = crossPostParentList,
+            gildings = gildings
         )
     }
 
@@ -307,6 +316,30 @@ class CommentsMoshiAdapter {
         jsonReader.endObject()
 
         return Preview(videoPreview)
+    }
+
+    private fun getGildings(jsonReader: JsonReader): Gildings {
+        var silver: Int? = null
+        var gold: Int? = null
+        var platinum: Int? = null
+
+        jsonReader.beginObject()
+        while(jsonReader.hasNext()){
+            when(jsonReader.nextName()){
+                "gid_1" -> {
+                    silver = jsonReader.nextInt()
+                }
+                "gid_2" -> {
+                    gold = jsonReader.nextInt()
+                }
+                "gid_3" -> {
+                    platinum = jsonReader.nextInt()
+                }
+            }
+        }
+        jsonReader.endObject()
+
+        return Gildings(silver, gold, platinum)
     }
 
     // COMMENTS

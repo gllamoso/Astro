@@ -204,7 +204,8 @@ data class Post(
     @Json(name = "link_flair_text")
     var flairText: String?,
     @Json(name = "crosspost_parent_list")
-    val crosspostParentList: List<Post>?
+    val crosspostParentList: List<Post>?,
+    val gildings: Gildings?
 ) : Item(ItemType.Post) {
 
     @IgnoredOnParcel
@@ -292,7 +293,17 @@ data class Media(
 data class RedditVideo(
     @Json(name = "hls_url")
     val hlsUrl: String
-) : Parcelable
+): Parcelable
+
+@Parcelize
+data class Gildings(
+    @Json(name = "gid_1")
+    val silver: Int?,
+    @Json(name = "gid_2")
+    val gold: Int?,
+    @Json(name = "gid_3")
+    val platinum: Int?
+): Parcelable
 
 //   _   _  _              __  __
 //  | | | || |            |  \/  |
