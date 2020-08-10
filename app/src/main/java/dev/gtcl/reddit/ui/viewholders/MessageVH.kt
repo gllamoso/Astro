@@ -15,7 +15,12 @@ class MessageVH private constructor(private val binding: ItemMessageBinding): Re
         binding.root.setOnClickListener {
             itemClickListener.itemClicked(message, adapterPosition)
         }
-        markwon?.setMarkdown(binding.messageBody, message.body)
+        if(markwon != null){
+            markwon.setMarkdown(binding.messageBody, message.body)
+        } else {
+            binding.messageBody.text = message.bodyFormatted
+        }
+
         binding.executePendingBindings()
     }
 

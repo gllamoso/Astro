@@ -1,6 +1,8 @@
 package dev.gtcl.reddit.ui.fragments.item_scroller
 
 import android.os.Bundle
+import android.text.Spanned
+import android.text.util.Linkify
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -31,6 +33,7 @@ import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.LinkResolverDef
 import io.noties.markwon.Markwon
 import io.noties.markwon.MarkwonConfiguration
+import io.noties.markwon.linkify.LinkifyPlugin
 import io.noties.markwon.movement.MovementMethodPlugin
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
@@ -65,6 +68,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                     }
                 }
             })
+            .usePlugin(LinkifyPlugin.create(Linkify.WEB_URLS))
             .usePlugin(MovementMethodPlugin.create(BetterLinkMovementMethod.getInstance()))
             .build()
     }

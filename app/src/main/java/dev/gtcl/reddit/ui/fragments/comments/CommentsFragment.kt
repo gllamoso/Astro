@@ -3,6 +3,8 @@ package dev.gtcl.reddit.ui.fragments.comments
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.text.Spanned
+import android.text.util.Linkify
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -39,6 +41,7 @@ import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
 import io.noties.markwon.*
+import io.noties.markwon.linkify.LinkifyPlugin
 import io.noties.markwon.movement.MovementMethodPlugin
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
@@ -79,6 +82,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     }
                 }
             })
+            .usePlugin(LinkifyPlugin.create(Linkify.WEB_URLS))
             .usePlugin(MovementMethodPlugin.create(BetterLinkMovementMethod.getInstance()))
             .build()
     }

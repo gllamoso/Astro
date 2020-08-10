@@ -2,6 +2,7 @@ package dev.gtcl.reddit.ui.fragments.listing
 
 import android.annotation.SuppressLint
 import android.os.Bundle
+import android.text.util.Linkify
 import android.view.*
 import android.widget.PopupMenu
 import android.widget.TextView
@@ -37,6 +38,7 @@ import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.LinkResolverDef
 import io.noties.markwon.Markwon
 import io.noties.markwon.MarkwonConfiguration
+import io.noties.markwon.linkify.LinkifyPlugin
 import io.noties.markwon.movement.MovementMethodPlugin
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
@@ -75,6 +77,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
                     }
                 }
             })
+            .usePlugin(LinkifyPlugin.create(Linkify.WEB_URLS))
             .usePlugin(MovementMethodPlugin.create(BetterLinkMovementMethod.getInstance()))
             .build()
     }

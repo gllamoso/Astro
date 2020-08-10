@@ -320,7 +320,11 @@ data class Message(
     val new: Boolean,
     @Json(name = "subreddit_name_prefixed")
     val subredditNamePrefixed: String?
-) : Item(ItemType.Message)
+) : Item(ItemType.Message){
+
+    @IgnoredOnParcel
+    val bodyFormatted: CharSequence = Html.fromHtml(body, Html.FROM_HTML_MODE_COMPACT)
+}
 
 //   _   _____             _____       _                  _     _ _ _
 //  | | | ____|           / ____|     | |                | |   | (_) |

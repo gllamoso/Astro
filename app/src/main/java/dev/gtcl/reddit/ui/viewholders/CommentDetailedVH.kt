@@ -27,7 +27,11 @@ class CommentDetailedVH private constructor(private val binding: ItemCommentDeta
         binding.moreOptions.setOnClickListener {
             showPopupWindow(comment, commentActions, it)
         }
-        markwon?.setMarkdown(binding.bodyMessage, comment.body)
+        if(markwon != null){
+            markwon.setMarkdown(binding.bodyMessage, comment.body)
+        } else {
+            binding.bodyMessage.text = comment.bodyFormatted
+        }
 
         binding.executePendingBindings()
     }
