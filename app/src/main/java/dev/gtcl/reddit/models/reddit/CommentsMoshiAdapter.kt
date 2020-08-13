@@ -418,6 +418,7 @@ class CommentsMoshiAdapter {
         var subredditPrefixed: String? = null
         var linkTitle: String? = null
         var isSubmitter: Boolean? = null
+        val authorFlairRichtext = mutableListOf<AuthorFlairRichtext>()
 
         while (jsonReader.hasNext()) {
             when (jsonReader.nextName()) {
@@ -461,6 +462,13 @@ class CommentsMoshiAdapter {
                         authorFlairText = jsonReader.nextString()
                     }
                 }
+                "author_flair_richtext" -> {
+                    jsonReader.beginArray()
+                    while(jsonReader.hasNext()){
+                        authorFlairRichtext.add(getAuthorFlairRichtext(jsonReader))
+                    }
+                    jsonReader.endArray()
+                }
                 "permalink" -> {
                     permalink = jsonReader.nextString()
                 }
@@ -498,6 +506,7 @@ class CommentsMoshiAdapter {
             saved = saved,
             likes =  likes,
             authorFlairText = authorFlairText,
+            authorFlairRichtext = authorFlairRichtext,
             permalink = permalink!!,
             linkPermalink = linkPermalink,
             context = null,
@@ -555,6 +564,27 @@ class CommentsMoshiAdapter {
             children = children,
             count = count!!
         )
+    }
+
+    private fun getAuthorFlairRichtext(jsonReader: JsonReader): AuthorFlairRichtext{
+        jsonReader.beginObject()
+        var tag: String? = null
+        var type: String? = null
+        var text: String? = null
+        var url: String? = null
+
+        while(jsonReader.hasNext()){
+            when(val field = jsonReader.nextName()){
+                "a" -> tag = jsonReader.nextString()
+                "e" -> type = jsonReader.nextString()
+                "t" -> text = jsonReader.nextString()
+                "u" -> url = jsonReader.nextString()
+                else -> throw IllegalArgumentException("Invalid Author Richtext Field: $field")
+            }
+        }
+
+        jsonReader.endObject()
+        return AuthorFlairRichtext(tag, type!!, text, url)
     }
 
 }

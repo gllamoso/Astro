@@ -33,8 +33,8 @@
                 app:expandedTitleTextAppearance="@style/CollapsingToolbarLayoutExpandedTextStyle"
                 app:expandedTitleGravity="top|center"
                 app:expandedTitleMarginTop="16dp"
-                app:scrimVisibleHeightTrigger="156dp"
                 tools:title="User">
+<!--                app:scrimVisibleHeightTrigger="156dp"-->
 <!--                app:expandedTitleGravity="top|start"-->
 <!--                app:expandedTitleMarginStart="76dp"-->
 
@@ -135,8 +135,8 @@
                     android:id="@+id/tab_layout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    app:tabGravity="center"
-                    app:tabMode="scrollable"
+                    app:tabGravity="fill"
+                    app:tabMode="auto"
                     app:layout_collapseMode="pin"/>
 
             </androidx.cardview.widget.CardView>

@@ -142,8 +142,7 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
             after = response.data.after
             _initialPageLoaded = true
         } catch (e: Exception){
-            Log.d("TAE", "Exception: $e")
-            _errorMessage.value = e.getErrorMessage(application)
+            _networkState.value = NetworkState.error(e.getErrorMessage(application))
         }
     }
 
@@ -165,7 +164,7 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
             _lastItemReached.value = items.size < size
             after = response.data.after
         } catch (e: Exception){
-            _errorMessage.value = e.getErrorMessage(application)
+            _networkState.value = NetworkState.error(e.getErrorMessage(application))
         }
     }
 

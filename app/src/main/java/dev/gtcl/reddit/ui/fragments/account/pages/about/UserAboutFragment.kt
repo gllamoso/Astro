@@ -8,6 +8,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.USER_KEY
 import dev.gtcl.reddit.ViewModelFactory
@@ -34,6 +35,14 @@ class UserAboutFragment : Fragment() {
         model.awards.observe(viewLifecycleOwner, Observer {
             adapter.submitList(it)
         })
+
+        model.errorMessage.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                model.errorMessageObserved()
+            }
+        })
+
         binding.awardsList.adapter = adapter
         return binding.root
     }

@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="dev.gtcl.reddit.models.reddit.UserType"/>
+        <import type="android.view.View"/>
+        <variable
+            name="userType"
+            type="dev.gtcl.reddit.models.reddit.UserType" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorBackgroundFloating"
+        app:cardCornerRadius="8dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/view_profile"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_profile_24}"
+                app:text="@{@string/view_profile}"/>
+
+            <include
+                android:id="@+id/message"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_inbox_24}"
+                app:text="@{@string/message}"
+                android:visibility="@{userType == UserType.FRIEND ? View.VISIBLE : View.GONE}"/>
+
+            <include
+                android:id="@+id/remove"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_delete_24}"
+                app:text="@{userType == UserType.FRIEND ? @string/unfriend : @string/unblock}"/>
+
+        </LinearLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+
+</layout>

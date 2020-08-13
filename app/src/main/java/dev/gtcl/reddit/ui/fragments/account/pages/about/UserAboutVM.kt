@@ -4,7 +4,10 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
+import com.squareup.moshi.JsonDataException
+import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
+import dev.gtcl.reddit.getErrorMessage
 import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.models.reddit.listing.Account
 import dev.gtcl.reddit.models.reddit.listing.TrophyListingResponse
@@ -27,15 +30,32 @@ class UserAboutVM(val application: RedditApplication) : AndroidViewModel(applica
     val account: LiveData<Account>
         get() = _account
 
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?>
+        get() = _errorMessage
+
     private var username: String? = null
+
+    fun errorMessageObserved(){
+        _errorMessage.value = null
+    }
 
     fun fetchAccount(user: String?){
         username = user
         coroutineScope.launch {
-            if(user != null)
-                _account.value = userRepository.getAccountInfo(user).await().data
-            else
-                _account.value = userRepository.getCurrentAccountInfo().await()
+            try {
+                if (user != null) {
+                    _account.value = userRepository.getAccountInfo(user).await().data
+                } else {
+                    _account.value = userRepository.getCurrentAccountInfo().await()
+                }
+            } catch (e: Exception){
+                _errorMessage.value = if(e is JsonDataException){
+                    application.getString(R.string.account_error)
+                } else {
+                    e.getErrorMessage(application)
+                }
+            }
         }
     }
 
@@ -45,7 +65,15 @@ class UserAboutVM(val application: RedditApplication) : AndroidViewModel(applica
 
     fun fetchAwards(){
         coroutineScope.launch {
-            trophyListing.value = listingRepository.getAwards(username ?: application.currentAccount!!.name).await()
+            try {
+                trophyListing.value = listingRepository.getAwards(username ?: application.currentAccount!!.name).await()
+            } catch (e: Exception){
+                _errorMessage.value = if(e is JsonDataException){
+                    application.getString(R.string.account_error)
+                } else {
+                    e.getErrorMessage(application)
+                }
+            }
         }
     }
 }

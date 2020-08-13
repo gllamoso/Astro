@@ -53,13 +53,18 @@ class ComposeDialogFragment : DialogFragment(){
         binding.lifecycleOwner = viewLifecycleOwner
 
         if(!model.initialized){
-            val sharedPrefs = requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
-            val to = sharedPrefs.getString(TO_KEY, "")
-            val subject = sharedPrefs.getString(SUBJECT_KEY, "")
-            val message = sharedPrefs.getString(MESSAGE_KEY, "")
-            binding.toText.setText(to)
-            binding.subjectText.setText(subject)
-            binding.messageText.setText(message)
+            val user = arguments?.getString(USER_KEY)
+            if(user != null){
+                binding.toText.setText(user)
+            } else {
+                val sharedPrefs = requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+                val to = sharedPrefs.getString(TO_KEY, "")
+                val subject = sharedPrefs.getString(SUBJECT_KEY, "")
+                val message = sharedPrefs.getString(MESSAGE_KEY, "")
+                binding.toText.setText(to)
+                binding.subjectText.setText(subject)
+                binding.messageText.setText(message)
+            }
         }
 
         binding.toolbar.setNavigationOnClickListener {
@@ -191,6 +196,10 @@ class ComposeDialogFragment : DialogFragment(){
     }
 
     companion object{
-        fun newInstance(): ComposeDialogFragment = ComposeDialogFragment()
+        fun newInstance(user: String? = null): ComposeDialogFragment{
+            return ComposeDialogFragment().apply {
+                arguments = bundleOf(USER_KEY to user)
+            }
+        }
     }
 }

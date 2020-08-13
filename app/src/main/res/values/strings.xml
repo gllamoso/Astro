@@ -84,11 +84,16 @@
     <string name="hidden">Hidden</string>
     <string name="upvoted">Upvoted</string>
     <string name="downvoted">Downvoted</string>
+    <string name="gilded">Gilded</string>
     <string name="friends">Friends</string>
     <string name="blocked">Blocked</string>
     <string name="karma">Karma</string>
     <string name="reddit_age">Reddit Age</string>
     <string name="profile">Profile</string>
+    <string name="unfriend">Unfriend</string>
+    <string name="unblock">Unblock</string>
+    <string name="view_profile">View Profile</string>
+    <string name="account_error">Unable to retrieve account. User may have been removed.</string>
 
     <!--Share-->
     <string name="share_link">Share link</string>

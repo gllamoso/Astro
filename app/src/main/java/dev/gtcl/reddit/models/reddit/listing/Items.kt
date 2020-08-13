@@ -15,45 +15,52 @@ import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 import java.util.*
 
-sealed class Item(val kind: ItemType) : Parcelable{
+sealed class Item(val kind: ItemType) : Parcelable {
     abstract val id: String?
     abstract val name: String
     var isCurrentUser = false
 
-    fun checkIfCurrentUser(userFullName: String){
-        when(this){
+    fun checkIfCurrentUser(userFullName: String) {
+        when (this) {
             is Post -> isCurrentUser = this.authorFullName == userFullName
             is Comment -> isCurrentUser = this.authorFullName == userFullName
         }
     }
 }
 
-fun List<Item>.checkIfItemsAreSubmittedByCurrentUser(userFullName: String?){
-    if(userFullName == null){
+fun List<Item>.checkIfItemsAreSubmittedByCurrentUser(userFullName: String?) {
+    if (userFullName == null) {
         return
     }
 
-    for(item: Item in this){
+    for (item: Item in this) {
         item.checkIfCurrentUser(userFullName)
     }
 }
 
 enum class ItemType {
-    @Json(name="t1")
+    @Json(name = "t1")
     Comment,
-    @Json(name="t2")
+
+    @Json(name = "t2")
     Account,
-    @Json(name="t3")
+
+    @Json(name = "t3")
     Post,
-    @Json(name="t4")
+
+    @Json(name = "t4")
     Message,
-    @Json(name="t5")
+
+    @Json(name = "t5")
     Subreddit,
-    @Json(name="t6")
+
+    @Json(name = "t6")
     Award,
-    @Json(name="more")
+
+    @Json(name = "more")
     More,
-    @Json(name="LabeledMulti")
+
+    @Json(name = "LabeledMulti")
     MultiReddit
 }
 
@@ -72,16 +79,18 @@ data class Comment( // TODO: Add more properties: all_awardings
     override val id: String,
     var depth: Int?,
     val author: String,
-    @Json(name="author_fullname")
+    @Json(name = "author_fullname")
     val authorFullName: String?,
     val body: String,
     val score: Int,
-    @Json(name="created_utc")
+    @Json(name = "created_utc")
     val created: Long,
     val saved: Boolean?,
     var likes: Boolean?,
     @Json(name = "author_flair_text")
-    var authorFlairText: String?,
+    val authorFlairText: String?,
+    @Json(name = "author_flair_richtext")
+    val authorFlairRichtext: List<AuthorFlairRichtext>,
     val permalink: String?,
     @Json(name = "link_permalink")
     val linkPermalink: String?,
@@ -94,19 +103,51 @@ data class Comment( // TODO: Add more properties: all_awardings
     @Json(name = "is_submitter")
     val isSubmitter: Boolean?,
     var isCollapsed: Boolean = false
-): Item(ItemType.Comment){
+) : Item(ItemType.Comment) {
 
     @IgnoredOnParcel
     val bodyFormatted: CharSequence = Html.fromHtml(body, Html.FROM_HTML_MODE_COMPACT)
 
-    @IgnoredOnParcel
-    val authorFlairTextFormatted: CharSequence? =
-        if(authorFlairText != null){
-            Html.fromHtml(authorFlairText, Html.FROM_HTML_MODE_COMPACT)
-        } else {
-            null
+    val authorFlairTextFormatted: CharSequence?
+        get() {
+            if (authorFlairRichtext.isNotEmpty()) {
+                for (flair: AuthorFlairRichtext in authorFlairRichtext) {
+                    if (flair.text != null) {
+                        return Html.fromHtml(flair.text, Html.FROM_HTML_MODE_COMPACT)
+                    }
+                }
+                return null
+            }
+
+            return if (authorFlairText != null) {
+                Html.fromHtml(authorFlairText, Html.FROM_HTML_MODE_COMPACT)
+            } else {
+                null
+            }
+        }
+
+    val authorFlairEmoji: String?
+        get() {
+            for (flair: AuthorFlairRichtext in authorFlairRichtext) {
+                if (flair.url != null) {
+                    return flair.url
+                }
+            }
+            return null
         }
 }
+
+@Parcelize
+data class AuthorFlairRichtext(
+    @Json(name = "a")
+    val tag: String?,
+    @Json(name = "e")
+    val type: String,
+    @Json(name = "t")
+    val text: String?,
+    @Json(name = "u")
+    val url: String?
+) : Parcelable
 
 //   _   ___                                               _
 //  | | |__ \               /\                            | |
@@ -124,7 +165,7 @@ data class Account(
     @Json(name = "comment_karma") val commentKarma: Int,
     @Json(name = "created_utc") val created: Long,
     val subreddit: Subreddit,
-    // Additional field
+    @Json(name = "is_friend") var isFriend: Boolean?,
     var refreshToken: String?
 ) : Item(ItemType.Account) {
 
@@ -227,7 +268,7 @@ data class Post(
 
     @IgnoredOnParcel
     val flairTextFormatted: CharSequence? =
-        if(flairText != null){
+        if (flairText != null) {
             Html.fromHtml(flairText, Html.FROM_HTML_MODE_COMPACT)
         } else {
             null
@@ -238,34 +279,41 @@ data class Post(
 
     @IgnoredOnParcel
     val postType: PostType
-        get(){
-            return when{
+        get() {
+            return when {
                 isSelf -> {
-                    if(URLUtil.isValidUrl(selftext)){
+                    if (URLUtil.isValidUrl(selftext)) {
                         PostType.TEXT_URL
-                    } else{
+                    } else {
                         PostType.TEXT
                     }
                 }
                 GIF_REGEX.matches(url ?: "") -> PostType.GIF
                 IMAGE_REGEX.matches(url ?: "") -> PostType.IMAGE
-                previewVideoUrl != null || GFYCAT_REGEX.matches(url ?: "") || HLS_REGEX.matches(url ?: "") || GIFV_REGEX.matches(url ?: "") -> PostType.VIDEO
+                previewVideoUrl != null || GFYCAT_REGEX.matches(url ?: "") || HLS_REGEX.matches(
+                    url ?: ""
+                ) || GIFV_REGEX.matches(url ?: "") -> PostType.VIDEO
                 else -> PostType.URL
             }
         }
 }
 
-enum class PostType{
+enum class PostType {
     @SerializedName("self")
     TEXT,
+
     @SerializedName("self_url")
     TEXT_URL,
+
     @SerializedName("image")
     IMAGE,
+
     @SerializedName("videogif")
     GIF,
+
     @SerializedName("video")
     VIDEO,
+
     @SerializedName("link")
     URL
 }
@@ -287,13 +335,13 @@ data class SecureMedia(
 data class Media(
     @Json(name = "reddit_video")
     val redditVideo: RedditVideo?
-): Parcelable
+) : Parcelable
 
 @Parcelize
 data class RedditVideo(
     @Json(name = "hls_url")
     val hlsUrl: String
-): Parcelable
+) : Parcelable
 
 @Parcelize
 data class Gildings(
@@ -303,7 +351,7 @@ data class Gildings(
     val gold: Int?,
     @Json(name = "gid_3")
     val platinum: Int?
-): Parcelable
+) : Parcelable
 
 //   _   _  _              __  __
 //  | | | || |            |  \/  |
@@ -331,7 +379,7 @@ data class Message(
     val new: Boolean,
     @Json(name = "subreddit_name_prefixed")
     val subredditNamePrefixed: String?
-) : Item(ItemType.Message){
+) : Item(ItemType.Message) {
 
     @IgnoredOnParcel
     val bodyFormatted: CharSequence = Html.fromHtml(body, Html.FROM_HTML_MODE_COMPACT)
@@ -362,12 +410,12 @@ data class Subreddit(
     val url: String
 ) : Item(ItemType.Subreddit) {
     @IgnoredOnParcel
-    override val id = name.replace("t5_","")
+    override val id = name.replace("t5_", "")
 
     @IgnoredOnParcel
     private var isFavorite = false
 
-    fun setFavorite(favorite: Boolean){
+    fun setFavorite(favorite: Boolean) {
         this.isFavorite = favorite
     }
 
@@ -379,15 +427,15 @@ data class Subreddit(
         iconImg?.toValidImgUrl(),
         url,
         isFavorite,
-        if(url.startsWith("/r/", true)){
+        if (url.startsWith("/r/", true)) {
             SubscriptionType.SUBREDDIT
         } else {
             SubscriptionType.USER
         }
     )
 
-    fun getDisplayNameFormatted(): String{
-        return if(displayName.startsWith("u_")){
+    fun getDisplayNameFormatted(): String {
+        return if (displayName.startsWith("u_")) {
             "u/${displayName.removePrefix("u_")}"
         } else {
             displayName
@@ -413,7 +461,7 @@ data class Award(
     override val id: String?,
     @Json(name = "icon_70") val icon70: String,
     @Json(name = "icon_40") val icon40: String
-) : Parcelable, Item(ItemType.Award){
+) : Parcelable, Item(ItemType.Award) {
 }
 
 //                                        __  __
@@ -430,27 +478,27 @@ data class More(
     @Json(name = "parent_id") val parentId: String,
     val children: List<String>,
     var count: Int
-): Item(ItemType.More) {
+) : Item(ItemType.More) {
 
     @IgnoredOnParcel
     private var fetchIndex = 0
 
-    private fun pollChildren(count: Int): List<String>{
+    private fun pollChildren(count: Int): List<String> {
         val list = ArrayList<String>()
-        while(fetchIndex < children.size && list.size < count){
+        while (fetchIndex < children.size && list.size < count) {
             list.add(children[fetchIndex++])
         }
         return list
     }
 
-    fun pollChildrenAsValidString(count: Int): String{
+    fun pollChildrenAsValidString(count: Int): String {
         val sb = StringBuilder()
         val children = pollChildren(count)
-        for(child in children){
+        for (child in children) {
             sb.append("$child,")
         }
         val lastCommaIndex = sb.lastIndexOf(",")
-        if(lastCommaIndex > 0 && lastCommaIndex < sb.length){
+        if (lastCommaIndex > 0 && lastCommaIndex < sb.length) {
             sb.deleteCharAt(lastCommaIndex)
         }
         return sb.toString()
@@ -486,33 +534,34 @@ data class MultiReddit(
     @Json(name = "icon_url")
     val iconUrl: String,
     val visibility: Visibility,
-    @Json(name = "description_md")val description: String
-): Item(ItemType.MultiReddit) {
+    @Json(name = "description_md") val description: String
+) : Item(ItemType.MultiReddit) {
     @IgnoredOnParcel
     override val id = ""
 
     @IgnoredOnParcel
     private var isFavorite = false
-    fun setFavorite(favorite: Boolean){
+    fun setFavorite(favorite: Boolean) {
         this.isFavorite = favorite
     }
 
     fun asSubscription() = Subscription(
-        "${name}__${ownerId.replace("t2_","")}",
+        "${name}__${ownerId.replace("t2_", "")}",
         name,
         displayName,
-        ownerId.replace("t2_",""),
+        ownerId.replace("t2_", ""),
         iconUrl,
         path,
         isFavorite,
-        SubscriptionType.MULTIREDDIT)
+        SubscriptionType.MULTIREDDIT
+    )
 }
 
 @Parcelize
 data class SubredditData(
     val name: String,
     val data: Subreddit?
-): Parcelable
+) : Parcelable
 
 @Parcelize
 data class MultiRedditUpdate(
@@ -522,7 +571,7 @@ data class MultiRedditUpdate(
     @SerializedName("key_color") val keyColor: String? = null,
     val subreddits: List<SubredditData>? = null,
     val visibility: Visibility? = null
-): Parcelable {
+) : Parcelable {
     override fun toString(): String = Gson().toJson(this)
 }
 

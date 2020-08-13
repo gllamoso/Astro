@@ -245,15 +245,17 @@ fun loadListingText(txtView: TextView, listingType: ListingType?){
             Popular -> context.getText(R.string.popular_tab_label)
             is MultiRedditListing -> it.multiReddit.name
             is SubredditListing -> it.displayName
-            is ProfileListing -> when(it.info){
-                ProfileInfo.OVERVIEW -> context.getText(R.string.overview)
-                ProfileInfo.SUBMITTED -> context.getText(R.string.submitted)
-                ProfileInfo.COMMENTS -> context.getText(R.string.comments)
-                ProfileInfo.UPVOTED -> context.getText(R.string.upvoted)
-                ProfileInfo.DOWNVOTED -> context.getText(R.string.downvoted)
-                ProfileInfo.HIDDEN -> context.getText(R.string.hidden)
-                ProfileInfo.SAVED -> context.getText(R.string.saved)
+            is ProfileListing -> context.getText(when(it.info){
+                ProfileInfo.OVERVIEW -> R.string.overview
+                ProfileInfo.SUBMITTED -> R.string.submitted
+                ProfileInfo.COMMENTS -> R.string.comments
+                ProfileInfo.UPVOTED -> R.string.upvoted
+                ProfileInfo.DOWNVOTED -> R.string.downvoted
+                ProfileInfo.HIDDEN -> R.string.hidden
+                ProfileInfo.SAVED -> R.string.saved
+                ProfileInfo.GILDED -> R.string.gilded
             }
+            )
             is SubscriptionListing -> it.subscription.name
         }
     }

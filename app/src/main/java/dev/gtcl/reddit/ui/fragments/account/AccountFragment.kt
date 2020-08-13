@@ -1,18 +1,25 @@
 package dev.gtcl.reddit.ui.fragments.account
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.setFragmentResultListener
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentAccountBinding
 import dev.gtcl.reddit.database.SavedAccount
+import dev.gtcl.reddit.models.reddit.User
+import dev.gtcl.reddit.ui.fragments.AccountPage
+import dev.gtcl.reddit.ui.fragments.ViewPagerPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerVM
 
 class AccountFragment : Fragment(), LeftDrawerActions {
@@ -39,6 +46,26 @@ class AccountFragment : Fragment(), LeftDrawerActions {
         model.setUsername(username)
         model.fetchAccount(username)
         initViewPagerAdapter()
+
+        model.errorMessage.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                model.errorMessageObserved()
+                binding.viewPager.adapter = null
+            }
+        })
+
+        binding.profilePicture.setOnClickListener {
+            username?.let {
+//                model.addUser(it)
+                model.blockUser(it)
+            }
+        }
+
+        model.account.observe(viewLifecycleOwner, Observer {
+            Log.d("TAE", "Account: $it")
+        })
+
         return binding.root
     }
 
@@ -62,8 +89,9 @@ class AccountFragment : Fragment(), LeftDrawerActions {
                     5 -> R.string.hidden
                     6 -> R.string.upvoted
                     7 -> R.string.downvoted
-                    8 -> R.string.friends
-                    9 -> R.string.blocked
+                    8 -> R.string.gilded
+                    9 -> R.string.friends
+                    10 -> R.string.blocked
                     else -> throw NoSuchElementException("No such tab in the following position: $position")
                 })
             }.attach()
@@ -74,6 +102,7 @@ class AccountFragment : Fragment(), LeftDrawerActions {
                     1 -> R.string.overview
                     2 -> R.string.posts
                     3 -> R.string.comments
+                    4 -> R.string.gilded
                     else -> throw NoSuchElementException("No such tab in the following position: $position")
                 })
             }.attach()

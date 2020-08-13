@@ -37,7 +37,7 @@ import kotlin.Exception
 
 const val REDDIT_CLIENT_ID = "NjgsWrF6i2B0Jw"
 const val REDDIT_REDIRECT_URL = "http://reddit.gtcl.com/redirect"
-const val REDDIT_AUTH_URL = "https://www.reddit.com/api/v1/authorize.compact?client_id=%s&response_type=code&state=%s&redirect_uri=%s&duration=permanent&scope=identity edit flair history modconfig modflair modlog modposts modwiki mysubreddits privatemessages read report save submit subscribe vote wikiedit wikiread"
+const val REDDIT_AUTH_URL = "https://www.reddit.com/api/v1/authorize.compact?client_id=%s&response_type=code&state=%s&redirect_uri=%s&duration=permanent&scope=account identity edit flair history modconfig modflair modlog modposts modwiki mysubreddits privatemessages read report save submit subscribe vote wikiedit wikiread"
 
 enum class PostSort{
     @SerializedName("best")
@@ -101,6 +101,8 @@ enum class ProfileInfo {
     HIDDEN,
     @SerializedName("saved")
     SAVED,
+    @SerializedName("gilded")
+    GILDED
 }
 
 enum class SubredditWhere{

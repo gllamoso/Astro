@@ -11,7 +11,7 @@ import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.SubredditRepository
 import kotlinx.coroutines.*
 
-class ListingVM(val application: RedditApplication): AndroidViewModel(application) {
+class ListingVM(val application: RedditApplication) : AndroidViewModel(application) {
 
     // Repos
     private val listingRepository = ListingRepository.getInstance(application)
@@ -82,19 +82,20 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
     val leftDrawerExpanded: LiveData<Boolean>
         get() = _leftDrawerExpanded
 
-    fun setListingInfo(listingType: ListingType){
+    fun setListingInfo(listingType: ListingType) {
         this.listingType = listingType
         _title.value = getTitle(listingType)
         fetchSubredditInfo(listingType)
     }
 
-    fun fetchSubredditInfo(listingType: ListingType){
+    fun fetchSubredditInfo(listingType: ListingType) {
         coroutineScope.launch {
-            val sub = when(listingType){
-                is SubredditListing -> subredditRepository.getSubreddit(listingType.displayName).await().data
+            val sub = when (listingType) {
+                is SubredditListing -> subredditRepository.getSubreddit(listingType.displayName)
+                    .await().data
                 is SubscriptionListing -> {
                     val subscription = listingType.subscription
-                    if(subscription.type == SubscriptionType.SUBREDDIT){
+                    if (subscription.type == SubscriptionType.SUBREDDIT) {
                         subredditRepository.getSubreddit(subscription.displayName).await().data
                     } else {
                         null
@@ -103,25 +104,31 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
                 else -> null
             }
             _subreddit.value = sub
-            if(sub != null){
+            if (sub != null) {
                 syncSubredditWithDatabase()
             }
         }
     }
 
-    fun setSort(postSort: PostSort, time: Time? = null){
+    fun setSort(postSort: PostSort, time: Time? = null) {
         _postSort.value = postSort
         _time.value = time
     }
 
-    fun loadFirstItems(){
+    fun loadFirstItems() {
         coroutineScope.launch {
             _networkState.value = NetworkState.LOADING
             try {
                 // Get listing items
                 val size = pageSize * 3
-                withContext(Dispatchers.IO){
-                    val response = listingRepository.getListing(listingType, postSort.value!!, time.value, after, size).await()
+                withContext(Dispatchers.IO) {
+                    val response = listingRepository.getListing(
+                        listingType,
+                        postSort.value!!,
+                        time.value,
+                        after,
+                        size
+                    ).await()
                     val currentId = application.currentAccount?.fullId
                     val items = response.data.children.map { it.data }.toMutableList().apply {
                         checkIfItemsAreSubmittedByCurrentUser(currentId)
@@ -132,7 +139,7 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
                     _lastItemReached.postValue(items.size < size)
                     after = response.data.after
                 }
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 lastAction = ::loadFirstItems
                 after = null
                 _networkState.value = NetworkState.error(e.getErrorMessage(application))
@@ -144,8 +151,8 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
         }
     }
 
-    fun loadMore(){
-        if(lastItemReached.value == true){
+    fun loadMore() {
+        if (lastItemReached.value == true) {
             return
         }
         coroutineScope.launch {
@@ -174,7 +181,7 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
                     after = response.data.after
                 }
                 _networkState.value = NetworkState.LOADED
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 after = previousAfter
                 lastAction = ::loadMore
                 _networkState.value = NetworkState.error(e.getErrorMessage(application))
@@ -182,11 +189,11 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
         }
     }
 
-    fun moreItemsObserved(){
+    fun moreItemsObserved() {
         _moreItems.value = null
     }
 
-    fun refresh(){
+    fun refresh() {
         coroutineScope.launch {
             _refreshState.value = NetworkState.LOADING
             after = null
@@ -196,38 +203,38 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
         }
     }
 
-    fun removeItemAt(position: Int){
+    fun removeItemAt(position: Int) {
         _items.value?.removeAt(position)
     }
 
-    fun addReadItem(item: Item){
+    fun addReadItem(item: Item) {
         readItemIds.add(item.name)
         coroutineScope.launch {
             listingRepository.addReadItem(item)
         }
     }
 
-    fun updateItem(item: Item, position: Int){
+    fun updateItem(item: Item, position: Int) {
         _items.updateItem(item, position)
     }
 
-    fun toggleLeftDrawerExpanding(){
+    fun toggleLeftDrawerExpanding() {
         _leftDrawerExpanded.value = !(_leftDrawerExpanded.value!!)
     }
 
-    fun setLeftDrawerExpanded(expand: Boolean){
+    fun setLeftDrawerExpanded(expand: Boolean) {
         _leftDrawerExpanded.value = expand
     }
 
     // Right Side Bar Layout
-    fun syncSubreddit(){
+    fun syncSubreddit() {
         coroutineScope.launch {
             syncSubredditWithDatabase()
         }
     }
 
-    private suspend fun syncSubredditWithDatabase(){
-        withContext(Dispatchers.IO){
+    private suspend fun syncSubredditWithDatabase() {
+        withContext(Dispatchers.IO) {
             val subreddit = subreddit.value ?: return@withContext
             val subscription = subredditRepository.getMySubscription(subreddit.name)
             subreddit.userSubscribed = subscription != null
@@ -236,8 +243,8 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
         }
     }
 
-    private fun getTitle(listingType: ListingType): String{
-        return when(listingType){
+    private fun getTitle(listingType: ListingType): String {
+        return when (listingType) {
             is FrontPage -> application.getString(R.string.frontpage)
             is All -> application.getString(R.string.all)
             is Popular -> application.getString(R.string.popular_tab_label)
@@ -245,15 +252,18 @@ class ListingVM(val application: RedditApplication): AndroidViewModel(applicatio
             is SubredditListing -> listingType.displayName
             is SubscriptionListing -> listingType.subscription.displayName
             is ProfileListing -> {
-                when(listingType.info){
-                    ProfileInfo.OVERVIEW -> application.getString(R.string.overview)
-                    ProfileInfo.SUBMITTED -> application.getString(R.string.submitted)
-                    ProfileInfo.COMMENTS -> application.getString(R.string.comments)
-                    ProfileInfo.UPVOTED -> application.getString(R.string.upvoted)
-                    ProfileInfo.DOWNVOTED -> application.getString(R.string.downvoted)
-                    ProfileInfo.HIDDEN -> application.getString(R.string.hidden)
-                    ProfileInfo.SAVED -> application.getString(R.string.saved)
-                }
+                application.getString(
+                    when (listingType.info) {
+                        ProfileInfo.OVERVIEW -> R.string.overview
+                        ProfileInfo.SUBMITTED -> R.string.submitted
+                        ProfileInfo.COMMENTS -> R.string.comments
+                        ProfileInfo.UPVOTED -> R.string.upvoted
+                        ProfileInfo.DOWNVOTED -> R.string.downvoted
+                        ProfileInfo.GILDED -> R.string.gilded
+                        ProfileInfo.HIDDEN -> R.string.hidden
+                        ProfileInfo.SAVED -> R.string.saved
+                    }
+                )
             }
         }
     }

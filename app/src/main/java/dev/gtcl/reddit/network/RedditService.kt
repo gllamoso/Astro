@@ -47,6 +47,44 @@ interface RedditApiService {
         @Header("Authorization") authorization: String
     ): Deferred<Account>
 
+    @GET("/prefs/friends")
+    fun getFriends(
+        @Header("Authorization") authorization: String
+    ): Deferred<List<UserList>>
+
+    @PUT("/api/v1/me/friends/{username}")
+    fun addFriend(
+        @Header("Authorization") authorization: String,
+        @Path("username") username: String,
+        @Query("json", encoded = true) friendRequest: FriendRequest
+    ): Deferred<User>
+
+    @DELETE("/api/v1/me/friends/{username}")
+    fun removeFriend(
+        @Header("Authorization") authorization: String,
+        @Path("username") username: String,
+        @Query("json", encoded = true) friendRequest: FriendRequest
+    ): Deferred<Response<Unit>>
+
+    @GET("/prefs/blocked")
+    fun getBlocked(
+        @Header("Authorization") authorization: String
+    ): Deferred<UserList>
+
+    @POST("/api/block_user")
+    fun blockUser(
+        @Header("Authorization") authorization: String,
+        @Query("name") name: String
+    ): Deferred<Response<Unit>>
+
+    @POST("/r/all/api/unfriend")
+    fun unblockUser(
+        @Header("Authorization") authorization: String,
+        @Query("container") currentUserFullId: String,
+        @Query("name") userToUnblock: String,
+        @Query("type") type: String = "enemy"
+    ): Deferred<Response<Unit>>
+
     @GET("/user/{user}/about/.json")
     fun getUserInfo(
         @Header("Authorization") authorization: String?,

@@ -1,16 +1,20 @@
 package dev.gtcl.reddit.repositories
 
 import androidx.annotation.MainThread
-import dev.gtcl.reddit.R
+import dev.gtcl.reddit.NotLoggedInException
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.network.RedditApi
 import dev.gtcl.reddit.database.redditDatabase
 import dev.gtcl.reddit.models.reddit.AccessToken
+import dev.gtcl.reddit.models.reddit.FriendRequest
+import dev.gtcl.reddit.models.reddit.User
+import dev.gtcl.reddit.models.reddit.UserList
 import dev.gtcl.reddit.models.reddit.listing.Account
 import dev.gtcl.reddit.models.reddit.listing.AccountChild
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import retrofit2.Response
 
 class UserRepository private constructor(val application: RedditApplication) { // TODO: Delete
     private val database = redditDatabase(application)
@@ -44,6 +48,54 @@ class UserRepository private constructor(val application: RedditApplication) { /
         else{
             RedditApi.base.getUserInfo(null, username)
         }
+    }
+
+    @MainThread
+    fun getFriends(): Deferred<List<UserList>>{
+        if(application.accessToken == null){
+            throw NotLoggedInException()
+        }
+        return RedditApi.oauth.getFriends(application.accessToken!!.authorizationHeader)
+    }
+
+    @MainThread
+    fun addFriend(username: String): Deferred<User>{
+        if(application.accessToken == null){
+            throw NotLoggedInException()
+        }
+        return RedditApi.oauth.addFriend(application.accessToken!!.authorizationHeader, username, FriendRequest(username))
+    }
+
+    @MainThread
+    fun removeFriend(username: String): Deferred<Response<Unit>>{
+        if(application.accessToken == null){
+            throw NotLoggedInException()
+        }
+        return RedditApi.oauth.removeFriend(application.accessToken!!.authorizationHeader, username, FriendRequest(username))
+    }
+
+    @MainThread
+    fun getBlocked(): Deferred<UserList>{
+        if(application.accessToken == null){
+            throw NotLoggedInException()
+        }
+        return RedditApi.oauth.getBlocked(application.accessToken!!.authorizationHeader)
+    }
+
+    @MainThread
+    fun blockUser(username: String): Deferred<Response<Unit>>{
+        if(application.accessToken == null){
+            throw NotLoggedInException()
+        }
+        return RedditApi.oauth.blockUser(application.accessToken!!.authorizationHeader, username)
+    }
+
+    @MainThread
+    fun unblockUser(username: String): Deferred<Response<Unit>>{
+        if(application.accessToken == null || application.currentAccount == null){
+            throw NotLoggedInException()
+        }
+        return RedditApi.oauth.unblockUser(application.accessToken!!.authorizationHeader, application.currentAccount!!.fullId, username)
     }
 
     // --- DATABASE

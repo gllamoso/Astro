@@ -9,6 +9,8 @@ import dev.gtcl.reddit.ui.fragments.comments.CommentsVM
 import dev.gtcl.reddit.ui.fragments.listing.ListingVM
 import dev.gtcl.reddit.ui.fragments.item_scroller.ItemScrollerVM
 import dev.gtcl.reddit.ui.fragments.account.pages.about.UserAboutVM
+import dev.gtcl.reddit.ui.fragments.account.pages.blocked.BlockedVM
+import dev.gtcl.reddit.ui.fragments.account.pages.friends.FriendsVM
 import dev.gtcl.reddit.ui.fragments.create_post.CreatePostVM
 import dev.gtcl.reddit.ui.fragments.create_post.type.UploadImageVM
 import dev.gtcl.reddit.ui.fragments.inbox.ComposeVM
@@ -42,18 +44,12 @@ class ViewModelFactory(private val application: RedditApplication) : ViewModelPr
             modelClass.isAssignableFrom(MultiRedditVM::class.java) -> MultiRedditVM(application) as T
             modelClass.isAssignableFrom(CreatePostVM::class.java) -> CreatePostVM(application) as T
             modelClass.isAssignableFrom(UploadImageVM::class.java) -> UploadImageVM(application) as T
-            modelClass.isAssignableFrom(MediaVM::class.java) -> MediaVM(
-                application
-            ) as T
-            modelClass.isAssignableFrom(MediaDialogVM::class.java) -> MediaDialogVM(
-                application
-            ) as T
-            modelClass.isAssignableFrom(ReplyVM::class.java) -> ReplyVM(
-                application
-            ) as T
-            modelClass.isAssignableFrom(ComposeVM::class.java) -> ComposeVM(
-                application
-            ) as T
+            modelClass.isAssignableFrom(MediaVM::class.java) -> MediaVM(application) as T
+            modelClass.isAssignableFrom(MediaDialogVM::class.java) -> MediaDialogVM(application) as T
+            modelClass.isAssignableFrom(ReplyVM::class.java) -> ReplyVM(application) as T
+            modelClass.isAssignableFrom(ComposeVM::class.java) -> ComposeVM(application) as T
+            modelClass.isAssignableFrom(FriendsVM::class.java) -> FriendsVM(application) as T
+            modelClass.isAssignableFrom(BlockedVM::class.java) -> BlockedVM(application) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: $modelClass")
         }
     }
