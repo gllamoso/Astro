@@ -11,7 +11,6 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
-import kotlin.IllegalStateException
 
 const val GUEST_ID = "guest"
 
@@ -21,10 +20,10 @@ class ListingRepository private constructor(private val application: RedditAppli
 
     // --- NETWORK
     @MainThread
-    fun getListing(listingType: ListingType, sort: PostSort, t: Time? = null, after: String?, pageSize: Int, user: String? = null): Deferred<ListingResponse>{
+    fun getListing(listing: Listing, sort: PostSort, t: Time? = null, after: String?, pageSize: Int, user: String? = null): Deferred<ListingResponse>{
         val accessToken = application.accessToken
         val userName = user ?: application.currentAccount?.name
-        return when(listingType){
+        return when(listing){
             FrontPage -> if(accessToken != null) {
                     RedditApi.oauth.getPostFromFrontPage(accessToken.authorizationHeader, sort, t, after, pageSize)
                 } else {
@@ -41,30 +40,30 @@ class ListingRepository private constructor(private val application: RedditAppli
                     RedditApi.base.getPostsFromSubreddit(null, "popular", sort, t, after, pageSize)
                 }
             is MultiRedditListing -> if(accessToken != null){
-                    RedditApi.oauth.getMultiRedditListing(accessToken.authorizationHeader, listingType.multiReddit.path.removePrefix("/"), sort, t, after, pageSize)
+                    RedditApi.oauth.getMultiRedditListing(accessToken.authorizationHeader, listing.multiReddit.path.removePrefix("/"), sort, t, after, pageSize)
                 } else {
-                    RedditApi.base.getMultiRedditListing(null , listingType.multiReddit.path.removePrefix("/"), sort, t, after, pageSize)
+                    RedditApi.base.getMultiRedditListing(null , listing.multiReddit.path.removePrefix("/"), sort, t, after, pageSize)
                 }
             is SubredditListing -> if (accessToken != null) {
-                    RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, listingType.displayName, sort, t, after, pageSize)
+                    RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, listing.displayName, sort, t, after, pageSize)
                 } else {
-                    RedditApi.base.getPostsFromSubreddit(null, listingType.displayName, sort, t, after, pageSize)
+                    RedditApi.base.getPostsFromSubreddit(null, listing.displayName, sort, t, after, pageSize)
                 }
             is ProfileListing -> if(accessToken != null){
-                    RedditApi.oauth.getPostsFromUser(accessToken.authorizationHeader, userName!!, listingType.info, after, pageSize)
+                    RedditApi.oauth.getPostsFromUser(accessToken.authorizationHeader, userName!!, listing.info, after, pageSize)
                 } else {
-                RedditApi.base.getPostsFromUser(null, userName!!, listingType.info, after, pageSize)
+                RedditApi.base.getPostsFromUser(null, userName!!, listing.info, after, pageSize)
             }
             is SubscriptionListing -> {
                 if(accessToken != null){
-                    when(listingType.subscription.type){
-                        SubscriptionType.SUBREDDIT, SubscriptionType.USER -> RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, listingType.subscription.name, sort, t, after, pageSize)
-                        SubscriptionType.MULTIREDDIT ->  RedditApi.oauth.getMultiRedditListing(accessToken.authorizationHeader, listingType.subscription.url.removePrefix("/"), sort, t, after, pageSize)
+                    when(listing.subscription.type){
+                        SubscriptionType.SUBREDDIT, SubscriptionType.USER -> RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, listing.subscription.name, sort, t, after, pageSize)
+                        SubscriptionType.MULTIREDDIT ->  RedditApi.oauth.getMultiRedditListing(accessToken.authorizationHeader, listing.subscription.url.removePrefix("/"), sort, t, after, pageSize)
                     }
                 } else {
-                    when(listingType.subscription.type){
-                        SubscriptionType.SUBREDDIT, SubscriptionType.USER -> RedditApi.base.getPostsFromSubreddit(null, listingType.subscription.name, sort, t, after, pageSize)
-                        SubscriptionType.MULTIREDDIT ->  RedditApi.base.getMultiRedditListing(null, listingType.subscription.url.removePrefix("/"), sort, t, after, pageSize)
+                    when(listing.subscription.type){
+                        SubscriptionType.SUBREDDIT, SubscriptionType.USER -> RedditApi.base.getPostsFromSubreddit(null, listing.subscription.name, sort, t, after, pageSize)
+                        SubscriptionType.MULTIREDDIT ->  RedditApi.base.getMultiRedditListing(null, listing.subscription.url.removePrefix("/"), sort, t, after, pageSize)
                     }
                 }
             }

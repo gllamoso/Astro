@@ -7,7 +7,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -16,11 +15,10 @@ import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.ListingTypeClickListener
-import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.actions.SubscriptionActions
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.FragmentDialogSubscriptionsBinding
-import dev.gtcl.reddit.models.reddit.listing.ListingType
+import dev.gtcl.reddit.models.reddit.listing.Listing
 import dev.gtcl.reddit.models.reddit.listing.MultiRedditUpdate
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.activities.MainActivityVM
@@ -156,7 +154,7 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
         })
     }
 
-    override fun listingTypeClicked(listing: ListingType) {
+    override fun listingTypeClicked(listing: Listing) {
         parentFragmentManager.setFragmentResult(LISTING_KEY, bundleOf(LISTING_KEY to listing))
         dismiss()
     }

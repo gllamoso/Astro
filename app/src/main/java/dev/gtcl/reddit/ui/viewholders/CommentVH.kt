@@ -1,11 +1,16 @@
 package dev.gtcl.reddit.ui.viewholders
 
 import android.content.Context
+import android.text.Html
+import android.text.SpannableString
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import android.widget.RelativeLayout
+import android.widget.TextView
+import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.actions.CommentActions
 import dev.gtcl.reddit.actions.ItemClickListener
@@ -24,7 +29,13 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
         binding.moreOptions.setOnClickListener {
             showPopupWindow(comment, commentActions, it)
         }
+//        markwon.setMarkdown(binding.bodyMessage, comment.body)
+//        markwon.setMarkdown(binding.bodyMessage, comment.bodyHtml)
+//        Log.d("TAE", "Body HTML: ${comment.bodyHtml}")
+//        markwon.setMarkdown(binding.bodyMessage, "<enhance start=\"5\" end=\"12\">This is text that must be enhanced, at least a part of it</enhance>")
         markwon.setMarkdown(binding.bodyMessage, comment.body)
+//        val text = SpannableString(HtmlCompat.fromHtml(comment.bodyHtml, HtmlCompat.FROM_HTML_MODE_LEGACY))
+//        binding.bodyMessage.setText(text, TextView.BufferType.SPANNABLE)
         binding.executePendingBindings()
     }
 

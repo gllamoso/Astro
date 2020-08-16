@@ -70,6 +70,7 @@ dependencies {
     // glide for images
     implementation 'com.github.bumptech.glide:glide:4.11.0'
     kapt 'com.github.bumptech.glide:compiler:4.11.0'
+    implementation 'jp.wasabeef:glide-transformations:4.1.0'
 
     // Room dependency
     def room_version = "2.2.5"
@@ -112,8 +113,10 @@ dependencies {
     implementation "com.android.support:customtabs:28.0.0"
 
     // Markwon
-    implementation "io.noties.markwon:core:4.5.0"
-    implementation "io.noties.markwon:linkify:4.5.0"
+    implementation "io.noties.markwon:core:4.5.1"
+    implementation "io.noties.markwon:linkify:4.5.1"
+//    implementation "io.noties.markwon:html:4.5.1"
+    implementation "io.noties.markwon:ext-tables:4.5.1"
 
     // Better Link Movement Method
     implementation 'me.saket:better-link-movement-method:2.2.0'

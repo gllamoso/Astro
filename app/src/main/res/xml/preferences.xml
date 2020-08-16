@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory
+        android:title="@string/post_settings_title">
+
+        <SwitchPreferenceCompat
+            android:key="nsfw"
+            android:title="@string/nsfw_title"
+            android:summary="@string/nsfw_summary"/>
+
+        <SwitchPreferenceCompat
+            android:key="blur_nsfw_thumbnail"
+            android:title="Blur NSFW thumbnails"
+            android:dependency="nsfw"/>
+
+        <SwitchPreference
+            android:key="blur_spoiler_thumbnail"
+            android:title="@string/blur_spoiler_title"/>
+
+        <ListPreference
+            android:key="default_post_sort"
+            android:title="@string/default_post_sort_title"
+            app:useSimpleSummaryProvider="true"
+            android:entries="@array/post_sort_entries"
+            android:entryValues="@array/post_sort_entries"
+            android:defaultValue="@string/order_hot"
+            android:dialogTitle="@string/default_post_sort_title"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/comment_settings_title">
+
+        <SwitchPreferenceCompat
+            android:key="auto_play"
+            android:title="@string/autoplay_media"/>
+
+        <ListPreference
+            android:key="default_comment_sort"
+            android:title="@string/default_comment_sorting_title"
+            app:useSimpleSummaryProvider="true"
+            android:entries="@array/comment_sort_entries"
+            android:entryValues="@array/comment_sort_entries"
+            android:defaultValue="@string/order_best"
+            android:dialogTitle="Dialog Title List Preference"/>
+
+    </PreferenceCategory>
+
+</PreferenceScreen>

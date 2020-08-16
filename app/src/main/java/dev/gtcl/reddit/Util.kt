@@ -3,6 +3,7 @@ package dev.gtcl.reddit
 import android.content.Context
 import android.net.Uri
 import android.os.Parcelable
+import android.text.util.Linkify
 import android.util.Base64
 import android.util.Log
 import android.util.TypedValue
@@ -24,11 +25,17 @@ import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonDataException
 import dev.gtcl.reddit.database.SavedAccount
+import dev.gtcl.reddit.markdown.CustomMarkwonPlugin
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingSubredditPost
+import io.noties.markwon.Markwon
+import io.noties.markwon.ext.tables.TablePlugin
+import io.noties.markwon.linkify.LinkifyPlugin
+import io.noties.markwon.movement.MovementMethodPlugin
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import me.saket.bettermovementmethod.BetterLinkMovementMethod
 import java.net.SocketTimeoutException
 import java.net.URL
 import java.net.UnknownHostException
@@ -291,14 +298,6 @@ suspend fun setItemsReadStatus(items: List<Item>, readIds: HashSet<String>){
     }
 }
 
-suspend fun setSubs(items: List<Item>, subscribedSubsHash: HashSet<String>){
-    withContext(Dispatchers.Default){
-        for(item: Item in items.filterIsInstance<Subreddit>()){
-            (item as Subreddit).userSubscribed = subscribedSubsHash.contains(item.displayName)
-        }
-    }
-}
-
 suspend fun setSubsAndFavoritesInTrendingPost(items: List<TrendingSubredditPost>, subscribedSubsHash: HashSet<String>){
     withContext(Dispatchers.Default){
         for(item: TrendingSubredditPost in items){
@@ -444,4 +443,39 @@ fun rotateView(view: View, rotate: Boolean){
     } else {
         0F
     })
+}
+
+
+fun createMarkwonInstance(context: Context, handleLink: (String) -> Unit): Markwon{
+    return Markwon.builder(context)
+        .usePlugin(TablePlugin.create(context))
+        .usePlugin(CustomMarkwonPlugin(handleLink))
+        .usePlugin(LinkifyPlugin.create(Linkify.WEB_URLS))
+        .usePlugin(MovementMethodPlugin.create(BetterLinkMovementMethod.getInstance()))
+        .build()
+}
+
+fun getListingTitle(context: Context, listing: Listing): String {
+    return when (listing) {
+        is FrontPage -> context.getString(R.string.frontpage)
+        is All -> context.getString(R.string.all)
+        is Popular -> context.getString(R.string.popular_tab_label)
+        is MultiRedditListing -> listing.multiReddit.displayName
+        is SubredditListing -> listing.displayName
+        is SubscriptionListing -> listing.subscription.displayName
+        is ProfileListing -> {
+            context.getString(
+                when (listing.info) {
+                    ProfileInfo.OVERVIEW -> R.string.overview
+                    ProfileInfo.SUBMITTED -> R.string.submitted
+                    ProfileInfo.COMMENTS -> R.string.comments
+                    ProfileInfo.UPVOTED -> R.string.upvoted
+                    ProfileInfo.DOWNVOTED -> R.string.downvoted
+                    ProfileInfo.GILDED -> R.string.gilded
+                    ProfileInfo.HIDDEN -> R.string.hidden
+                    ProfileInfo.SAVED -> R.string.saved
+                }
+            )
+        }
+    }
 }

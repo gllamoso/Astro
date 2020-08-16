@@ -10,7 +10,6 @@ import dev.gtcl.reddit.network.Status
 import dev.gtcl.reddit.ui.viewholders.*
 import io.noties.markwon.Markwon
 import java.io.InvalidObjectException
-import kotlin.math.max
 
 class ListingItemAdapter(
     private val markwon: Markwon?,
@@ -28,9 +27,13 @@ class ListingItemAdapter(
     var networkState: NetworkState = NetworkState.LOADING
         set(value){
             val addNetworkStateView = (networkState == NetworkState.LOADED && (value.status == Status.FAILED || value.status == Status.RUNNING))
+            val error = (networkState == NetworkState.LOADING && value.status == Status.FAILED)
             field = value
             if(addNetworkStateView){
                 notifyItemInserted(items?.size ?: 0)
+            }
+            if(error){
+                notifyItemChanged(items?.size ?: 0)
             }
         }
 
@@ -73,7 +76,7 @@ class ListingItemAdapter(
     override fun getItemViewType(position: Int): Int {
         return when{
             items.isNullOrEmpty() -> {
-                if(items?.isEmpty() == true)  {
+                if(items?.isEmpty() == true && networkState == NetworkState.LOADED)  {
                     R.layout.item_no_items_found
                 } else {
                     R.layout.item_network_state

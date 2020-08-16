@@ -39,7 +39,14 @@
             app:popExitAnim="@anim/slide_right"/>
         <action
             android:id="@+id/action_viewPagerFragment_to_splashFragment"
-            app:destination="@id/splashFragment" />
+            app:destination="@id/splashFragment"
+            app:enterAnim="@anim/slide_left"
+            app:popExitAnim="@anim/slide_right"/>
+        <action
+            android:id="@+id/action_viewPagerFragment_to_settingsFragment"
+            app:destination="@id/settingsFragment"
+            app:enterAnim="@anim/slide_left"
+            app:popExitAnim="@anim/slide_right"/>
     </fragment>
     <fragment
         android:id="@+id/splashFragment"
@@ -92,4 +99,8 @@
             android:id="@+id/action_multiRedditFragment_to_searchFragment"
             app:destination="@id/searchFragment" />
     </fragment>
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="dev.gtcl.reddit.ui.fragments.settings.SettingsFragment"
+        android:label="SettingsFragment" />
 </navigation>

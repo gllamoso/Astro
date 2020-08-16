@@ -23,8 +23,11 @@
     <string name="order_rising">Rising</string>
     <string name="sort_posts_by">Sort posts by</string>
     <string name="sort">Sort</string>
+    <string name="order_old">Old</string>
+    <string name="order_qanda">Q&amp;A</string>
+    <string name="order_random">Random</string>
 
-    <!--Posts From Fragment-->
+    <!--Time Fragment-->
     <string name="posts_from">Posts from</string>
     <string name="past_hour">Past hour</string>
     <string name="past_24_hours">Past 24 hours</string>
@@ -190,5 +193,42 @@
     <string name="something_went_wrong">Something went wrong. Please retry later.</string>
     <string name="error_with_video_player">Error with video player</string>
     <string name="error_in_json_parsing">Error in JSON Parsing.</string>
+
+    <!--Settings-->
+    <string name="post_settings_title">Post Settings</string>
+    <string name="nsfw_title">Show NSFW</string>
+    <string name="nsfw_summary">Show posts with NSFW (Not Safe For Work) tag</string>
+    <string name="blur_spoiler_title">Blur Spoiler Thumbnails</string>
+    <string name="default_post_sort_title">Default Post Sorting</string>
+    <string-array name="post_sort_entries">
+        <item>@string/order_best</item>
+        <item>@string/order_hot</item>
+        <item>@string/order_new</item>
+        <item>@string/order_rising</item>
+        <item>Controversial - Hour</item>
+        <item>Controversial - Day</item>
+        <item>Controversial - Week</item>
+        <item>Controversial - Month</item>
+        <item>Controversial - All time</item>
+        <item>Top - Hour</item>
+        <item>Top - Day</item>
+        <item>Top - Week</item>
+        <item>Top - Month</item>
+        <item>Top - Year</item>
+        <item>Top - All time</item>
+    </string-array>
+
+    <string name="comment_settings_title">Comment Settings</string>
+    <string name="autoplay_media">Autoplay Media</string>
+    <string name="default_comment_sorting_title">Default Comment Sorting</string>
+    <string-array name="comment_sort_entries">
+        <item>@string/order_best</item>
+        <item>@string/order_top</item>
+        <item>@string/order_new</item>
+        <item>@string/order_controversial</item>
+        <item>@string/order_old</item>
+        <item>@string/order_qanda</item>
+        <item>@string/order_random</item>
+    </string-array>
 
 </resources>

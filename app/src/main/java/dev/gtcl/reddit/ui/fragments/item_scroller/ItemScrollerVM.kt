@@ -1,12 +1,11 @@
 package dev.gtcl.reddit.ui.fragments.item_scroller
 
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.models.reddit.listing.Item
-import dev.gtcl.reddit.models.reddit.listing.ListingType
+import dev.gtcl.reddit.models.reddit.listing.Listing
 import dev.gtcl.reddit.models.reddit.listing.checkIfItemsAreSubmittedByCurrentUser
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.ListingRepository
@@ -65,9 +64,9 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
         TODO()
     }
 
-    private lateinit var listingType: ListingType
-    fun setListingInfo(listingType: ListingType, postSort: PostSort, t: Time?, pageSize: Int){
-        this.listingType = listingType
+    private lateinit var listing: Listing
+    fun setListingInfo(listing: Listing, postSort: PostSort, t: Time?, pageSize: Int){
+        this.listing = listing
         this.postSort = postSort
         this.t = t
         this.pageSize = pageSize
@@ -126,7 +125,7 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
         try {
             val size = pageSize * 3
             val response = when{
-                ::listingType.isInitialized -> listingRepository.getListing(listingType, postSort, t, after, size, user).await()
+                ::listing.isInitialized -> listingRepository.getListing(listing, postSort, t, after, size, user).await()
                 ::subredditWhere.isInitialized -> subredditRepository.getSubredditsListing(subredditWhere, after, size).await()
                 ::messageWhere.isInitialized -> messageRepository.getMessages(messageWhere, after, size).await()
                 else -> throw IllegalStateException("Not enough info to load listing")
@@ -150,7 +149,7 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
         try {
             val size = pageSize
             val response = when{
-                ::listingType.isInitialized -> listingRepository.getListing(listingType, postSort, t, after, size, user).await()
+                ::listing.isInitialized -> listingRepository.getListing(listing, postSort, t, after, size, user).await()
                 ::subredditWhere.isInitialized -> subredditRepository.getSubredditsListing(subredditWhere, after, size).await()
                 ::messageWhere.isInitialized -> messageRepository.getMessages(messageWhere, after, size).await()
                 else -> throw IllegalStateException("Not enough info to load listing")

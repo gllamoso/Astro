@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.fragments.listing
 
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,6 +10,7 @@ import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.SubredditRepository
 import kotlinx.coroutines.*
 
+const val PAGE_SIZE = 15
 class ListingVM(val application: RedditApplication) : AndroidViewModel(application) {
 
     // Repos
@@ -39,10 +39,6 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
     val networkState: LiveData<NetworkState>
         get() = _networkState
 
-    private val _refreshState = MutableLiveData<NetworkState>()
-    val refreshState: LiveData<NetworkState>
-        get() = _refreshState
-
     private val _items = MutableLiveData<MutableList<Item>>()
     val items: LiveData<MutableList<Item>>
         get() = _items
@@ -53,8 +49,6 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
 
     private val readItemIds = HashSet<String>()
     private var after: String? = null
-
-    lateinit var listingType: ListingType
 
     private val _errorMessage = MutableLiveData<String>()
     val errorMessage: LiveData<String>
@@ -68,11 +62,9 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
     val time: LiveData<Time?>
         get() = _time
 
-    private var pageSize = 15
-
-    private var _initialPageLoaded = false
-    val initialPageLoaded: Boolean
-        get() = _initialPageLoaded
+    private var _firstPageLoaded = false
+    val firstPageLoaded: Boolean
+        get() = _firstPageLoaded
 
     private val _lastItemReached = MutableLiveData<Boolean>().apply { value = false }
     val lastItemReached: LiveData<Boolean>
@@ -82,32 +74,28 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
     val leftDrawerExpanded: LiveData<Boolean>
         get() = _leftDrawerExpanded
 
-    fun setListingInfo(listingType: ListingType) {
-        this.listingType = listingType
-        _title.value = getTitle(listingType)
-        fetchSubredditInfo(listingType)
-    }
+    var showNsfw: Boolean = false
 
-    fun fetchSubredditInfo(listingType: ListingType) {
+    private lateinit var _listing: Listing
+    val listing: Listing
+        get() = _listing
+
+    fun fetchSubreddit(displayName: String){
         coroutineScope.launch {
-            val sub = when (listingType) {
-                is SubredditListing -> subredditRepository.getSubreddit(listingType.displayName)
+            try{
+                val sub = subredditRepository.getSubreddit(displayName)
                     .await().data
-                is SubscriptionListing -> {
-                    val subscription = listingType.subscription
-                    if (subscription.type == SubscriptionType.SUBREDDIT) {
-                        subredditRepository.getSubreddit(subscription.displayName).await().data
-                    } else {
-                        null
-                    }
-                }
-                else -> null
-            }
-            _subreddit.value = sub
-            if (sub != null) {
-                syncSubredditWithDatabase()
+                _subreddit.value = sub
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
             }
         }
+
+    }
+
+    fun setListing(listing: Listing){
+        _listing = listing
+        _title.value = getListingTitle(application, listing)
     }
 
     fun setSort(postSort: PostSort, time: Time? = null) {
@@ -115,38 +103,59 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
         _time.value = time
     }
 
-    fun loadFirstItems() {
+    fun fetchFirstPage() {
         coroutineScope.launch {
-            _networkState.value = NetworkState.LOADING
             try {
                 // Get listing items
-                val size = pageSize * 3
+                val firstPageSize = PAGE_SIZE * 3
                 withContext(Dispatchers.IO) {
-                    val response = listingRepository.getListing(
-                        listingType,
-                        postSort.value!!,
-                        time.value,
-                        after,
-                        size
-                    ).await()
-                    val currentId = application.currentAccount?.fullId
-                    val items = response.data.children.map { it.data }.toMutableList().apply {
-                        checkIfItemsAreSubmittedByCurrentUser(currentId)
+                    _firstPageLoaded = false
+                    _networkState.postValue(NetworkState.LOADING)
+                    after = null
+
+                    val firstPageItems = mutableListOf<Item>()
+                    var emptyItemsCount = 0
+                    while(firstPageItems.size < firstPageSize && emptyItemsCount < 3){
+                        val response = listingRepository.getListing(
+                            listing,
+                            postSort.value!!,
+                            time.value,
+                            after,
+                            if(firstPageItems.size > (firstPageSize * 2 / 3)) PAGE_SIZE else firstPageSize
+                        ).await()
+                        after = response.data.after
+
+                        if(response.data.children.isNullOrEmpty()){
+                            _lastItemReached.postValue(true)
+                            break
+                        } else {
+                            val items = response.data.children.map { it.data }.filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList().apply {
+                                checkIfItemsAreSubmittedByCurrentUser(application.currentAccount?.fullId)
+                            }
+                            if(items.isNullOrEmpty()){
+                                emptyItemsCount++
+                            } else {
+                                firstPageItems.addAll(items)
+                            }
+                        }
                     }
-                    listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
-                    setItemsReadStatus(items, readItemIds)
-                    _items.postValue(items)
-                    _lastItemReached.postValue(items.size < size)
-                    after = response.data.after
+
+                    if(emptyItemsCount >= 3){ // Show no items if there are 3 results of empty items
+                        _lastItemReached.postValue(true)
+                        _items.postValue(mutableListOf())
+                    } else {
+                        listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
+                        setItemsReadStatus(firstPageItems, readItemIds)
+                        _items.postValue(firstPageItems)
+                    }
+
+                    _networkState.postValue(NetworkState.LOADED)
+                    _firstPageLoaded = true
                 }
             } catch (e: Exception) {
-                lastAction = ::loadFirstItems
+                lastAction = ::fetchFirstPage
                 after = null
                 _networkState.value = NetworkState.error(e.getErrorMessage(application))
-            } finally {
-                _networkState.value = NetworkState.LOADED
-                _refreshState.value = NetworkState.LOADED
-                _initialPageLoaded = after != null
             }
         }
     }
@@ -156,31 +165,47 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
             return
         }
         coroutineScope.launch {
-            _networkState.value = NetworkState.LOADING
             val previousAfter = after
             try {
-                // Get listing items
-                val size = pageSize
                 withContext(Dispatchers.IO) {
-                    val response = listingRepository.getListing(
-                        listingType,
-                        postSort.value!!,
-                        time.value,
-                        after,
-                        size
-                    ).await()
-                    val currentId = application.currentAccount?.fullId
-                    val items = response.data.children.map { it.data }.toMutableList().apply {
-                        checkIfItemsAreSubmittedByCurrentUser(currentId)
+                    _networkState.postValue(NetworkState.LOADING)
+                    val moreItems = mutableListOf<Item>()
+                    var emptyItemsCount = 0
+                    while(moreItems.size < PAGE_SIZE && emptyItemsCount < 3){
+                        val response = listingRepository.getListing(
+                            listing,
+                            postSort.value!!,
+                            time.value,
+                            after,
+                            PAGE_SIZE
+                        ).await()
+
+                        after = response.data.after
+
+                        if(response.data.children.isNullOrEmpty()){
+                            _lastItemReached.postValue(true)
+                            break
+                        } else {
+                            val items = response.data.children.map { it.data }.filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList().apply {
+                                checkIfItemsAreSubmittedByCurrentUser(application.currentAccount?.fullId)
+                            }
+                            if(items.isNullOrEmpty()){
+                                emptyItemsCount++
+                            } else {
+                                moreItems.addAll(items)
+                            }
+                        }
                     }
-                    listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
-                    setItemsReadStatus(items, readItemIds)
-                    _moreItems.postValue(items)
-                    _items.value?.addAll(items)
-                    _lastItemReached.postValue(items.size < size)
-                    after = response.data.after
+
+                    if(emptyItemsCount >= 3){
+                        _lastItemReached.postValue(true)
+                    }
+
+                    setItemsReadStatus(moreItems, readItemIds)
+                    _moreItems.postValue(moreItems)
+                    _items.value?.addAll(moreItems)
+                    _networkState.postValue(NetworkState.LOADED)
                 }
-                _networkState.value = NetworkState.LOADED
             } catch (e: Exception) {
                 after = previousAfter
                 lastAction = ::loadMore
@@ -191,16 +216,6 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
 
     fun moreItemsObserved() {
         _moreItems.value = null
-    }
-
-    fun refresh() {
-        coroutineScope.launch {
-            _refreshState.value = NetworkState.LOADING
-            after = null
-            _items.value?.clear()
-            _lastItemReached.value = false
-            loadFirstItems()
-        }
     }
 
     fun removeItemAt(position: Int) {
@@ -224,48 +239,6 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
 
     fun setLeftDrawerExpanded(expand: Boolean) {
         _leftDrawerExpanded.value = expand
-    }
-
-    // Right Side Bar Layout
-    fun syncSubreddit() {
-        coroutineScope.launch {
-            syncSubredditWithDatabase()
-        }
-    }
-
-    private suspend fun syncSubredditWithDatabase() {
-        withContext(Dispatchers.IO) {
-            val subreddit = subreddit.value ?: return@withContext
-            val subscription = subredditRepository.getMySubscription(subreddit.name)
-            subreddit.userSubscribed = subscription != null
-            subreddit.setFavorite(subscription?.isFavorite ?: false)
-            _subreddit.postValue(subreddit)
-        }
-    }
-
-    private fun getTitle(listingType: ListingType): String {
-        return when (listingType) {
-            is FrontPage -> application.getString(R.string.frontpage)
-            is All -> application.getString(R.string.all)
-            is Popular -> application.getString(R.string.popular_tab_label)
-            is MultiRedditListing -> listingType.multiReddit.displayName
-            is SubredditListing -> listingType.displayName
-            is SubscriptionListing -> listingType.subscription.displayName
-            is ProfileListing -> {
-                application.getString(
-                    when (listingType.info) {
-                        ProfileInfo.OVERVIEW -> R.string.overview
-                        ProfileInfo.SUBMITTED -> R.string.submitted
-                        ProfileInfo.COMMENTS -> R.string.comments
-                        ProfileInfo.UPVOTED -> R.string.upvoted
-                        ProfileInfo.DOWNVOTED -> R.string.downvoted
-                        ProfileInfo.GILDED -> R.string.gilded
-                        ProfileInfo.HIDDEN -> R.string.hidden
-                        ProfileInfo.SAVED -> R.string.saved
-                    }
-                )
-            }
-        }
     }
 
 }

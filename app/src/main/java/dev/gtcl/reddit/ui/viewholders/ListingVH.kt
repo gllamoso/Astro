@@ -4,14 +4,14 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemListingBinding
-import dev.gtcl.reddit.models.reddit.listing.ListingType
+import dev.gtcl.reddit.models.reddit.listing.Listing
 import dev.gtcl.reddit.actions.ListingTypeClickListener
 
 class ListingVH private constructor(private val binding: ItemListingBinding): RecyclerView.ViewHolder(binding.root) {
-    fun bind(listingType: ListingType, listingTypeClickListener: ListingTypeClickListener){
-        binding.listing = listingType
+    fun bind(listing: Listing, listingTypeClickListener: ListingTypeClickListener){
+        binding.listing = listing
         binding.root.setOnClickListener {
-            listingTypeClickListener.listingTypeClicked(listingType)
+            listingTypeClickListener.listingTypeClicked(listing)
         }
         binding.executePendingBindings()
     }

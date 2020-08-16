@@ -2,11 +2,9 @@ package dev.gtcl.reddit.ui.fragments.listing
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.text.util.Linkify
+import android.util.Log
 import android.view.*
 import android.widget.PopupMenu
-import android.widget.TextView
-import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -16,6 +14,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
@@ -26,6 +25,7 @@ import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.NetworkState
+import dev.gtcl.reddit.network.Status
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.create_post.CreatePostDialogFragment
@@ -34,15 +34,9 @@ import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.SortDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.TimeDialogFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsDialogFragment
-import io.noties.markwon.AbstractMarkwonPlugin
-import io.noties.markwon.LinkResolverDef
 import io.noties.markwon.Markwon
-import io.noties.markwon.MarkwonConfiguration
-import io.noties.markwon.linkify.LinkifyPlugin
-import io.noties.markwon.movement.MovementMethodPlugin
-import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
-class ListingFragment : Fragment(), PostActions, SubredditActions,
+class ListingFragment : Fragment(), PostActions, CommentActions, SubredditActions,
     ItemClickListener, LeftDrawerActions, SortActions, LinkHandler {
 
     private lateinit var binding: FragmentListingBinding
@@ -59,27 +53,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
     private val activityModel: MainActivityVM by activityViewModels()
 
     private val markwon: Markwon by lazy {
-        Markwon.builder(requireContext())
-            .usePlugin(object : AbstractMarkwonPlugin() {
-                override fun configureConfiguration(builder: MarkwonConfiguration.Builder) {
-                    builder.linkResolver(object : LinkResolverDef() {
-                        override fun resolve(view: View, link: String) {
-                            handleLink(link)
-                        }
-                    })
-                }
-
-                override fun afterSetText(textView: TextView) {
-                    super.afterSetText(textView)
-                    textView.apply {
-                        isClickable = false
-                        isLongClickable = false
-                    }
-                }
-            })
-            .usePlugin(LinkifyPlugin.create(Linkify.WEB_URLS))
-            .usePlugin(MovementMethodPlugin.create(BetterLinkMovementMethod.getInstance()))
-            .build()
+        createMarkwonInstance(requireContext(), ::handleLink)
     }
 
     private lateinit var scrollListener: ItemScrollListener
@@ -95,7 +69,6 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
 
     override fun onResume() {
         super.onResume()
-        model.syncSubreddit()
         model.setLeftDrawerExpanded(false)
     }
 
@@ -108,16 +81,11 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
         binding.lifecycleOwner = viewLifecycleOwner
         binding.model = model
 
-        if (!model.initialPageLoaded) {
-            val listingType = requireArguments().getParcelable(LISTING_KEY) as ListingType
-            model.setListingInfo(listingType)
-            model.fetchSubredditInfo(listingType)
-            model.loadFirstItems()
+        if (!model.firstPageLoaded) {
+            initData()
         }
-
-        initSwipeRefresh()
-        initList()
-        initBottomAppbarClickListeners()
+        initScroller()
+        initBottomBar()
         initLeftDrawer()
         initRightDrawer()
         initOtherObservers()
@@ -125,21 +93,26 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
         return binding.root
     }
 
-    private fun initSwipeRefresh() {
-        binding.swipeRefresh.setOnRefreshListener {
-            model.refresh()
-        }
-
-        model.refreshState.observe(viewLifecycleOwner, Observer {
-            if (it == NetworkState.LOADED) {
-                binding.swipeRefresh.isRefreshing = false
+    private fun initData(){
+        val listing = requireArguments().getParcelable(LISTING_KEY) as Listing
+        model.setListing(listing)
+        when(listing){
+            is SubredditListing -> model.fetchSubreddit(listing.displayName)
+            is SubscriptionListing -> {
+                if(listing.subscription.type == SubscriptionType.SUBREDDIT){
+                    model.fetchSubreddit(listing.subscription.displayName)
+                }
             }
-        })
+        }
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val showNsfw = sharedPref.getBoolean("nsfw", true)
+        model.showNsfw = showNsfw
+        model.fetchFirstPage()
     }
 
-    private fun initList() {
+    private fun initScroller() {
         scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadMore)
-        listAdapter = ListingItemAdapter(markwon, postActions = this, expected = ItemType.Post, itemClickListener = this, retry = model::retry)
+        listAdapter = ListingItemAdapter(markwon, postActions = this, commentActions = this, expected = ItemType.Post, itemClickListener = this, retry = model::retry)
         binding.list.apply {
             this.adapter = listAdapter
             addOnScrollListener(scrollListener)
@@ -160,6 +133,9 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
 
         model.networkState.observe(viewLifecycleOwner, Observer {
             listAdapter.networkState = it
+            if (it == NetworkState.LOADED || it.status == Status.FAILED) {
+                binding.swipeRefresh.isRefreshing = false
+            }
         })
 
         model.lastItemReached.observe(viewLifecycleOwner, Observer {
@@ -223,7 +199,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
         })
     }
 
-    private fun initBottomAppbarClickListeners() {
+    private fun initBottomBar() {
 
         binding.bottomBarLayout.sortButton.setOnClickListener {
             SortDialogFragment.newInstance(model.postSort.value!!, model.time.value)
@@ -235,7 +211,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
         }
 
         binding.bottomBarLayout.refreshButton.setOnClickListener {
-            model.refresh()
+            initData()
         }
 
         binding.bottomBarLayout.moreOptionsButton.setOnClickListener {
@@ -262,8 +238,12 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
             }
         })
 
+        binding.swipeRefresh.setOnRefreshListener {
+            initData()
+        }
+
         childFragmentManager.setFragmentResultListener(LISTING_KEY, viewLifecycleOwner){ _, bundle ->
-            val listing = bundle.get(LISTING_KEY) as ListingType
+            val listing = bundle.get(LISTING_KEY) as Listing
             if(listing is SubscriptionListing && listing.subscription.type == SubscriptionType.USER){
                 findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(listing.subscription.displayName)))
             } else {
@@ -323,13 +303,12 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
     }
 
     override fun subredditSelected(sub: String) {
-        model.listingType.let {
+        model.listing.let {
             if(it is SubredditListing && it.displayName == sub){
                 return
             }
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(SubredditListing(sub))))
         }
-
     }
 
     override fun hide(post: Post, position: Int) {
@@ -373,6 +352,38 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
         }
     }
 
+//      _____                                     _                  _   _
+//     / ____|                                   | |       /\       | | (_)
+//    | |     ___  _ __ ___  _ __ ___   ___ _ __ | |_     /  \   ___| |_ _  ___  _ __  ___
+//    | |    / _ \| '_ ` _ \| '_ ` _ \ / _ \ '_ \| __|   / /\ \ / __| __| |/ _ \| '_ \/ __|
+//    | |___| (_) | | | | | | | | | | |  __/ | | | |_   / ____ \ (__| |_| | (_) | | | \__ \
+//     \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
+
+
+    override fun vote(comment: Comment, vote: Vote) {
+        TODO("Not yet implemented")
+    }
+
+    override fun save(comment: Comment) {
+        TODO("Not yet implemented")
+    }
+
+    override fun share(comment: Comment) {
+        TODO("Not yet implemented")
+    }
+
+    override fun reply(comment: Comment, position: Int) {
+        TODO("Not yet implemented")
+    }
+
+    override fun viewProfile(comment: Comment) {
+        TODO("Not yet implemented")
+    }
+
+    override fun report(comment: Comment) {
+        TODO("Not yet implemented")
+    }
+
 //      _____       _                  _     _ _ _                  _   _
 //     / ____|     | |                | |   | (_) |       /\       | | (_)
 //    | (___  _   _| |__  _ __ ___  __| | __| |_| |_     /  \   ___| |_ _  ___  _ __  ___
@@ -395,6 +406,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
 
     override fun itemClicked(item: Item, position: Int) {
         if (item is Post) {
+            model.addReadItem(item)
             viewPagerModel.newPage(PostPage(item, position))
         }
     }
@@ -472,7 +484,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
 
     @SuppressLint("RtlHardcoded")
     override fun onSettingsClicked() {
-        Toast.makeText(context, "Settings", Toast.LENGTH_LONG).show()
+        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSettingsFragment())
         binding.drawerLayout.closeDrawer(Gravity.LEFT)
     }
 
@@ -485,7 +497,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
 
     override fun sortSelected(sort: PostSort, time: Time?) {
         model.setSort(sort, time)
-        model.refresh()
+        model.fetchFirstPage()
     }
 
     override fun handleLink(link: String) {
@@ -502,7 +514,7 @@ class ListingFragment : Fragment(), PostActions, SubredditActions,
     }
 
     companion object {
-        fun newInstance(listing: ListingType): ListingFragment {
+        fun newInstance(listing: Listing): ListingFragment {
             return ListingFragment().apply {
                 arguments = bundleOf(LISTING_KEY to listing)
             }

@@ -1,7 +1,7 @@
 package dev.gtcl.reddit.actions
 
-import dev.gtcl.reddit.models.reddit.listing.ListingType
+import dev.gtcl.reddit.models.reddit.listing.Listing
 
 interface ListingTypeClickListener{
-    fun listingTypeClicked(listing: ListingType)
+    fun listingTypeClicked(listing: Listing)
 }

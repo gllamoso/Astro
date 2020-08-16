@@ -1,14 +1,20 @@
 package dev.gtcl.reddit.ui.viewholders
 
 import android.content.Context
+import android.net.Uri
 import android.text.Html
 import android.util.Log
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.URLUtil
 import android.widget.PopupWindow
 import android.widget.RelativeLayout
+import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.Glide
+import com.bumptech.glide.request.RequestOptions
 import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.databinding.ItemPostBinding
@@ -28,17 +34,41 @@ class PostVH private constructor(private val binding:ItemPostBinding)
             itemClickListener.itemClicked(post, adapterPosition)
         }
 
-        binding.thumbnail.setOnClickListener{
-            post.isRead = true
-            binding.invalidateAll()
-            postActions.thumbnailClicked(post, adapterPosition)
-        }
+        setThumbnail(post, postActions)
 
         binding.moreOptions.setOnClickListener {
             showPopupWindow(post, postActions, it)
         }
 
         binding.executePendingBindings()
+    }
+
+    private fun setThumbnail(post: Post, postActions: PostActions){
+        val thumbnailUrl = post.thumbnail
+        if(thumbnailUrl != null && URLUtil.isValidUrl(thumbnailUrl) && Patterns.WEB_URL.matcher(thumbnailUrl).matches()){
+            binding.frameLayout.visibility = View.VISIBLE
+            binding.thumbnail.setOnClickListener{
+                post.isRead = true
+                binding.invalidateAll()
+                postActions.thumbnailClicked(post, adapterPosition)
+            }
+
+            Glide.with(binding.root.context)
+                .load(thumbnailUrl).apply {
+//                    if(post.spoiler){
+//                        apply(RequestOptions.bitmapTransform(BlurTransformation()))
+//                    }
+                }.into(binding.thumbnail)
+//            .apply(RequestOptions.bitmapTransform(BlurTransformation()))
+//            .apply(
+//                RequestOptions()
+//                    .placeholder(R.drawable.))
+//                    .placeholder(R.color.background))
+//                    .error(R.drawable.ic_broken_image_24))=
+
+        } else {
+            binding.frameLayout.visibility = View.GONE
+        }
     }
 
     private fun showPopupWindow(post: Post, postActions: PostActions, anchorView: View){

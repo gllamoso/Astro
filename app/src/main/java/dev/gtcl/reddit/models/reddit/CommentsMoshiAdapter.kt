@@ -406,6 +406,7 @@ class CommentsMoshiAdapter {
         var author: String? = null
         var authorFullName: String? = null
         var body: String? = null
+        var bodyHtml: String? = null
         var score: Int? = null
         var created: Long? = null
         var saved: Boolean? = null
@@ -433,6 +434,9 @@ class CommentsMoshiAdapter {
                 }
                 "body" -> {
                     body = jsonReader.nextString()
+                }
+                "body_html" -> {
+                    bodyHtml = jsonReader.nextString()
                 }
                 "score" -> {
                     score = jsonReader.nextInt()
@@ -501,6 +505,7 @@ class CommentsMoshiAdapter {
             author = author!!,
             authorFullName = authorFullName,
             body = body!!,
+            bodyHtml = bodyHtml!!,
             score = score!!,
             created = created!!,
             saved = saved,

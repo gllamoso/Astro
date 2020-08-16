@@ -17,7 +17,7 @@ class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
 
     override fun createFragment(position: Int): Fragment {
         return when(val pageType = pageStack[position]){
-            is ListingPage -> ListingFragment.newInstance(pageType.listingType)
+            is ListingPage -> ListingFragment.newInstance(pageType.listing)
             is AccountPage -> AccountFragment.newInstance(pageType.user)
             is PostPage -> CommentsFragment.newInstance(pageType)
             is ContinueThreadPage -> CommentsFragment.newInstance(pageType.url, pageType.fullContextUrl, pageType.expandReplies)
@@ -45,7 +45,7 @@ class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
 sealed class ViewPagerPage: Parcelable
 @Parcelize
 class ListingPage(
-    val listingType: ListingType
+    val listing: Listing
 ): ViewPagerPage()
 @Parcelize
 class AccountPage(

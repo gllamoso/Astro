@@ -1,18 +1,18 @@
 package dev.gtcl.reddit
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.Point
-import android.graphics.Typeface
 import android.graphics.drawable.Drawable
 import android.net.Uri
+import android.util.Patterns
 import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.webkit.URLUtil
 import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
@@ -40,11 +40,12 @@ import java.util.*
 
 @BindingAdapter("loadImageAndHideIfNull")
 fun loadImageAndHideIfNull(imgView: ImageView, imgUrl: String?){
-    if(imgUrl != null && imgUrl.startsWith("http")){
+    if(imgUrl != null && URLUtil.isValidUrl(imgUrl) && Patterns.WEB_URL.matcher(imgUrl).matches()) {
         imgView.visibility = View.VISIBLE
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
+//            .apply(RequestOptions.bitmapTransform(BlurTransformation()))
 //            .apply(
 //                RequestOptions()
 //                    .placeholder(R.drawable.))
@@ -52,7 +53,9 @@ fun loadImageAndHideIfNull(imgView: ImageView, imgUrl: String?){
 //                    .error(R.drawable.ic_broken_image_24))
             .into(imgView)
     }
-    else imgView.visibility = View.GONE
+    else {
+        imgView.visibility = View.GONE
+    }
 }
 
 @BindingAdapter("loadImage")
@@ -134,8 +137,8 @@ class SubsamplingScaleImageViewTarget(view: SubsamplingScaleImageView): CustomVi
 }
 
 @BindingAdapter("listingType")
-fun loadMultiIcon(imgView: ImageView, listingType: ListingType){
-    when(listingType){
+fun loadMultiIcon(imgView: ImageView, listing: Listing){
+    when(listing){
         FrontPage -> imgView.setImageResource(R.drawable.ic_front_page_24)
         All -> imgView.setImageResource(R.drawable.ic_all_24)
         Popular -> imgView.setImageResource(R.drawable.ic_trending_up_24)
@@ -236,9 +239,9 @@ fun loadAddedIcon(imgView: ImageView, added: Boolean){
 }
 
 @BindingAdapter("listingType")
-fun loadListingText(txtView: TextView, listingType: ListingType?){
+fun loadListingText(txtView: TextView, listing: Listing?){
     val context = txtView.context
-    listingType?.let {
+    listing?.let {
         txtView.text = when(it){
             FrontPage -> context.getText(R.string.frontpage)
             All -> context.getText(R.string.all)
@@ -262,9 +265,9 @@ fun loadListingText(txtView: TextView, listingType: ListingType?){
 }
 
 @BindingAdapter("listingType")
-fun setVisibility(viewGroup: ViewGroup, listingType: ListingType?) {
-    if (listingType == null) return
-    viewGroup.visibility = if (listingType is SubredditListing) View.VISIBLE else View.GONE
+fun setVisibility(viewGroup: ViewGroup, listing: Listing?) {
+    if (listing == null) return
+    viewGroup.visibility = if (listing is SubredditListing) View.VISIBLE else View.GONE
 }
 
 @BindingAdapter("indent")

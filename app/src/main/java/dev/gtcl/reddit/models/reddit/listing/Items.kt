@@ -82,6 +82,8 @@ data class Comment( // TODO: Add more properties: all_awardings
     @Json(name = "author_fullname")
     val authorFullName: String?,
     val body: String,
+    @Json(name = "body_html")
+    val bodyHtml: String,
     val score: Int,
     @Json(name = "created_utc")
     val created: Long,
@@ -90,7 +92,7 @@ data class Comment( // TODO: Add more properties: all_awardings
     @Json(name = "author_flair_text")
     val authorFlairText: String?,
     @Json(name = "author_flair_richtext")
-    val authorFlairRichtext: List<AuthorFlairRichtext>,
+    val authorFlairRichtext: List<AuthorFlairRichtext>?,
     val permalink: String?,
     @Json(name = "link_permalink")
     val linkPermalink: String?,
@@ -110,7 +112,7 @@ data class Comment( // TODO: Add more properties: all_awardings
 
     val authorFlairTextFormatted: CharSequence?
         get() {
-            if (authorFlairRichtext.isNotEmpty()) {
+            if (!authorFlairRichtext.isNullOrEmpty()) {
                 for (flair: AuthorFlairRichtext in authorFlairRichtext) {
                     if (flair.text != null) {
                         return Html.fromHtml(flair.text, Html.FROM_HTML_MODE_COMPACT)
@@ -128,6 +130,10 @@ data class Comment( // TODO: Add more properties: all_awardings
 
     val authorFlairEmoji: String?
         get() {
+            if(authorFlairRichtext.isNullOrEmpty()){
+                return null
+            }
+
             for (flair: AuthorFlairRichtext in authorFlairRichtext) {
                 if (flair.url != null) {
                     return flair.url

@@ -16,8 +16,7 @@ import androidx.viewpager2.widget.ViewPager2
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentViewpagerBinding
-import dev.gtcl.reddit.models.reddit.listing.ListingType
-import dev.gtcl.reddit.models.reddit.listing.Post
+import dev.gtcl.reddit.models.reddit.listing.Listing
 import dev.gtcl.reddit.models.reddit.listing.SubscriptionListing
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 
@@ -42,6 +41,10 @@ class ViewPagerFragment : Fragment(), NavigationActions {
         initViewPagerAdapter()
         initBackPressedCallback()
         initObservers()
+
+//        val test = PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("dropdown", "Invalid!")
+//        Log.d("TAE", "Dropdown value: $test")
+
         return binding.root
     }
 
@@ -127,7 +130,7 @@ class ViewPagerFragment : Fragment(), NavigationActions {
 //                          __/ |
 //                         |___/
 
-    override fun listingSelected(listing: ListingType) {
+    override fun listingSelected(listing: Listing) {
         if(listing is SubscriptionListing && listing.subscription.type == SubscriptionType.USER){
             accountSelected(listing.subscription.displayName)
         } else {

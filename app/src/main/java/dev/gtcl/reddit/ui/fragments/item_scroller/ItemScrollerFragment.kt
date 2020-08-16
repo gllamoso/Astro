@@ -1,6 +1,7 @@
 package dev.gtcl.reddit.ui.fragments.item_scroller
 
 import android.os.Bundle
+import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.util.Linkify
 import android.util.Log
@@ -33,8 +34,12 @@ import io.noties.markwon.AbstractMarkwonPlugin
 import io.noties.markwon.LinkResolverDef
 import io.noties.markwon.Markwon
 import io.noties.markwon.MarkwonConfiguration
+import io.noties.markwon.core.spans.LinkSpan
+import io.noties.markwon.core.spans.TextViewSpan
+import io.noties.markwon.ext.tables.TablePlugin
 import io.noties.markwon.linkify.LinkifyPlugin
 import io.noties.markwon.movement.MovementMethodPlugin
+import io.noties.markwon.utils.NoCopySpannableFactory
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
 open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, MessageActions, SubredditActions, ItemClickListener, LinkHandler{
@@ -50,27 +55,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     private val markwon: Markwon by lazy {
-        Markwon.builder(requireContext())
-            .usePlugin(object : AbstractMarkwonPlugin() {
-                override fun configureConfiguration(builder: MarkwonConfiguration.Builder) {
-                    builder.linkResolver(object : LinkResolverDef() {
-                        override fun resolve(view: View, link: String) {
-                            handleLink(link)
-                        }
-                    })
-                }
-
-                override fun afterSetText(textView: TextView) {
-                    super.afterSetText(textView)
-                    textView.apply {
-                        isClickable = false
-                        isLongClickable = false
-                    }
-                }
-            })
-            .usePlugin(LinkifyPlugin.create(Linkify.WEB_URLS))
-            .usePlugin(MovementMethodPlugin.create(BetterLinkMovementMethod.getInstance()))
-            .build()
+        createMarkwonInstance(requireContext(), ::handleLink)
     }
 
     private val activityModel: MainActivityVM by activityViewModels()
