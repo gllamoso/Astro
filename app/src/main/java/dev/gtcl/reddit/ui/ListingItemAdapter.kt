@@ -18,6 +18,8 @@ class ListingItemAdapter(
     private val messageActions: MessageActions? = null,
     private val commentActions: CommentActions? = null,
     private val expected: ItemType? = null,
+    private val blurNsfw: Boolean = false,
+    private val blurSpoiler: Boolean = true,
     private val itemClickListener: ItemClickListener,
     private val retry: () -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -114,7 +116,7 @@ class ListingItemAdapter(
                     throw IllegalStateException("Post Actions not initialized")
                 }
                 val post = items!![position] as Post
-                (holder as PostVH).bind(post, postActions, itemClickListener)
+                (holder as PostVH).bind(post, postActions, blurNsfw, blurSpoiler, itemClickListener)
             }
             R.layout.item_comment_detailed -> {
                 val comment = items!![position] as Comment

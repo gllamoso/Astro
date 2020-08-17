@@ -21,11 +21,12 @@ import dev.gtcl.reddit.databinding.ItemPostBinding
 import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.databinding.PopupPostOptionsBinding
 import dev.gtcl.reddit.models.reddit.listing.Post
+import jp.wasabeef.glide.transformations.BlurTransformation
 
 class PostVH private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(post: Post, postActions: PostActions, itemClickListener: ItemClickListener) {
+    fun bind(post: Post, postActions: PostActions, blurNsfw: Boolean, blurSpoiler: Boolean, itemClickListener: ItemClickListener) {
         binding.post = post
 
         binding.cardView.setOnClickListener{
@@ -34,7 +35,7 @@ class PostVH private constructor(private val binding:ItemPostBinding)
             itemClickListener.itemClicked(post, adapterPosition)
         }
 
-        setThumbnail(post, postActions)
+        setThumbnail(post, blurNsfw, blurSpoiler, postActions)
 
         binding.moreOptions.setOnClickListener {
             showPopupWindow(post, postActions, it)
@@ -43,7 +44,7 @@ class PostVH private constructor(private val binding:ItemPostBinding)
         binding.executePendingBindings()
     }
 
-    private fun setThumbnail(post: Post, postActions: PostActions){
+    private fun setThumbnail(post: Post, blurNsfw: Boolean, blurSpoiler: Boolean, postActions: PostActions){
         val thumbnailUrl = post.thumbnail
         if(thumbnailUrl != null && URLUtil.isValidUrl(thumbnailUrl) && Patterns.WEB_URL.matcher(thumbnailUrl).matches()){
             binding.frameLayout.visibility = View.VISIBLE
@@ -55,17 +56,10 @@ class PostVH private constructor(private val binding:ItemPostBinding)
 
             Glide.with(binding.root.context)
                 .load(thumbnailUrl).apply {
-//                    if(post.spoiler){
-//                        apply(RequestOptions.bitmapTransform(BlurTransformation()))
-//                    }
+                    if((post.spoiler && blurSpoiler) || (post.nsfw && blurNsfw)){
+                        apply(RequestOptions.bitmapTransform(BlurTransformation()))
+                    }
                 }.into(binding.thumbnail)
-//            .apply(RequestOptions.bitmapTransform(BlurTransformation()))
-//            .apply(
-//                RequestOptions()
-//                    .placeholder(R.drawable.))
-//                    .placeholder(R.color.background))
-//                    .error(R.drawable.ic_broken_image_24))=
-
         } else {
             binding.frameLayout.visibility = View.GONE
         }

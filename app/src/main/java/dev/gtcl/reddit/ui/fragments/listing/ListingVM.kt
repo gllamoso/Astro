@@ -1,8 +1,10 @@
 package dev.gtcl.reddit.ui.fragments.listing
 
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.preference.PreferenceManager
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.repositories.ListingRepository
@@ -31,10 +33,6 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
 
     private lateinit var lastAction: () -> Unit
 
-    fun retry() {
-        lastAction()
-    }
-
     private val _networkState = MutableLiveData<NetworkState>()
     val networkState: LiveData<NetworkState>
         get() = _networkState
@@ -54,7 +52,7 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
     val errorMessage: LiveData<String>
         get() = _errorMessage
 
-    private val _postSort = MutableLiveData<PostSort>().apply { value = PostSort.HOT }
+    private val _postSort = MutableLiveData<PostSort>()
     val postSort: LiveData<PostSort>
         get() = _postSort
 
@@ -74,11 +72,92 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
     val leftDrawerExpanded: LiveData<Boolean>
         get() = _leftDrawerExpanded
 
-    var showNsfw: Boolean = false
+    private val showNsfw: Boolean
+
+    init {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(application)
+        val showNsfw = sharedPref.getBoolean("nsfw", true)
+        val defaultSort = sharedPref.getString("default_post_sort", application.getString(R.string.order_hot))
+        val sortArray = application.resources.getStringArray(R.array.post_sort_entries)
+        this.showNsfw = showNsfw
+        val postSort: PostSort
+        val time: Time?
+        when(sortArray.indexOf(defaultSort)){
+            1 -> {
+                postSort = PostSort.HOT
+                time = null
+            }
+            2 -> {
+                postSort = PostSort.NEW
+                time = null
+            }
+            3 -> {
+                postSort = PostSort.RISING
+                time = null
+            }
+            4 -> {
+                postSort = PostSort.CONTROVERSIAL
+                time = Time.HOUR
+            }
+            5 -> {
+                postSort = PostSort.CONTROVERSIAL
+                time = Time.DAY
+            }
+            6 -> {
+                postSort = PostSort.CONTROVERSIAL
+                time = Time.WEEK
+            }
+            7 -> {
+                postSort = PostSort.CONTROVERSIAL
+                time = Time.MONTH
+            }
+            8 -> {
+                postSort = PostSort.CONTROVERSIAL
+                time = Time.YEAR
+            }
+            9 -> {
+                postSort = PostSort.CONTROVERSIAL
+                time = Time.ALL
+            }
+            10 -> {
+                postSort = PostSort.TOP
+                time = Time.HOUR
+            }
+            11 -> {
+                postSort = PostSort.TOP
+                time = Time.DAY
+            }
+            12 -> {
+                postSort = PostSort.TOP
+                time = Time.WEEK
+            }
+            13 -> {
+                postSort = PostSort.TOP
+                time = Time.MONTH
+            }
+            14 -> {
+                postSort = PostSort.TOP
+                time = Time.YEAR
+            }
+            15 -> {
+                postSort = PostSort.TOP
+                time = Time.ALL
+            }
+            else ->{
+                postSort = PostSort.BEST
+                time = null
+            }
+        }
+        setSort(postSort, time)
+    }
 
     private lateinit var _listing: Listing
     val listing: Listing
         get() = _listing
+
+    fun retry() {
+        lastAction()
+    }
 
     fun fetchSubreddit(displayName: String){
         coroutineScope.launch {
@@ -87,6 +166,7 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
                     .await().data
                 _subreddit.value = sub
             } catch (e: Exception){
+                Log.d("TAE", "Exception in fetch subreddit: $e")
                 _errorMessage.value = e.getErrorMessage(application)
             }
         }
@@ -119,12 +199,13 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
                     val firstPageItems = mutableListOf<Item>()
                     var emptyItemsCount = 0
                     while(firstPageItems.size < firstPageSize && emptyItemsCount < 3){
+                        val retrieveSize = if(firstPageItems.size > (firstPageSize * 2 / 3)) PAGE_SIZE else firstPageSize
                         val response = listingRepository.getListing(
                             listing,
                             postSort.value!!,
                             time.value,
                             after,
-                            if(firstPageItems.size > (firstPageSize * 2 / 3)) PAGE_SIZE else firstPageSize
+                            retrieveSize
                         ).await()
                         after = response.data.after
 
@@ -139,6 +220,11 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
                                 emptyItemsCount++
                             } else {
                                 firstPageItems.addAll(items)
+                            }
+
+                            if(after == null){
+                                _lastItemReached.postValue(true)
+                                break
                             }
                         }
                     }
@@ -156,6 +242,7 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
                     _firstPageLoaded = true
                 }
             } catch (e: Exception) {
+                Log.d("TAE", "Exception in fetch first page: $e")
                 lastAction = ::fetchFirstPage
                 after = null
                 _networkState.value = NetworkState.error(e.getErrorMessage(application))
@@ -196,6 +283,11 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
                                 emptyItemsCount++
                             } else {
                                 moreItems.addAll(items)
+                            }
+
+                            if(after == null){
+                                _lastItemReached.postValue(true)
+                                break
                             }
                         }
                     }

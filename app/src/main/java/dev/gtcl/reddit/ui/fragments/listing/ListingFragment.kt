@@ -2,8 +2,11 @@ package dev.gtcl.reddit.ui.fragments.listing
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
-import android.view.*
+import android.util.TypedValue
+import android.view.Gravity
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.PopupMenu
 import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
@@ -21,11 +24,13 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.databinding.FragmentListingBinding
-import dev.gtcl.reddit.ui.*
 import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.network.Status
+import dev.gtcl.reddit.ui.ItemScrollListener
+import dev.gtcl.reddit.ui.LeftDrawerAdapter
+import dev.gtcl.reddit.ui.ListingItemAdapter
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.create_post.CreatePostDialogFragment
@@ -35,6 +40,7 @@ import dev.gtcl.reddit.ui.fragments.misc.SortDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.TimeDialogFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsDialogFragment
 import io.noties.markwon.Markwon
+
 
 class ListingFragment : Fragment(), PostActions, CommentActions, SubredditActions,
     ItemClickListener, LeftDrawerActions, SortActions {
@@ -107,15 +113,15 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             }
             else -> model.setSubreddit(null)
         }
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val showNsfw = sharedPref.getBoolean("nsfw", true)
-        model.showNsfw = showNsfw
         model.fetchFirstPage()
     }
 
     private fun initScroller() {
         scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadMore)
-        listAdapter = ListingItemAdapter(markwon, postActions = this, commentActions = this, expected = ItemType.Post, itemClickListener = this, retry = model::retry)
+        val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val blurNsfw = preferences.getBoolean("blur_nsfw_thumbnail", false)
+        val blurSpoiler = preferences.getBoolean("blur_spoiler_thumbnail", true)
+        listAdapter = ListingItemAdapter(markwon, postActions = this, commentActions = this, expected = ItemType.Post, blurNsfw = blurNsfw, blurSpoiler = blurSpoiler, itemClickListener = this, retry = model::retry)
         binding.list.apply {
             this.adapter = listAdapter
             addOnScrollListener(scrollListener)
@@ -204,6 +210,11 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                     DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
                     Gravity.RIGHT
                 )
+                binding.topAppBar.collapsingToolbarLayout.contentScrim = null
+                val typedValue = TypedValue()
+                val theme = requireContext().theme
+                theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
+                binding.topAppBar.toolbar.setBackgroundColor(typedValue.data)
             }
         })
     }

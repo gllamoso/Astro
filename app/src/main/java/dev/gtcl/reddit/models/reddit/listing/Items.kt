@@ -411,6 +411,8 @@ data class Subreddit(
     val communityIcon: String?,
     @Json(name = "banner_img")
     val bannerImg: String?,
+    @Json(name = "banner_background_image")
+    val bannerBackgroundImg: String?,
     @Json(name = "user_is_subscriber")
     var userSubscribed: Boolean?,
     @Json(name = "public_description")
@@ -445,6 +447,17 @@ data class Subreddit(
         !communityIcon.isNullOrBlank() -> communityIcon.toValidImgUrl()
         else -> null
     }
+
+    @IgnoredOnParcel
+    val banner: String?
+        get(){
+            return when{
+                !bannerImg.isNullOrBlank() -> bannerImg.toValidImgUrl()
+                !bannerBackgroundImg.isNullOrBlank() -> bannerBackgroundImg.toValidImgUrl()
+                else -> null
+            }
+        }
+
 }
 
 fun List<Subreddit>.asSubscriptions(userId: String) = map { it.asSubscription(userId) }

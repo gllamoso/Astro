@@ -15,6 +15,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
@@ -108,8 +109,10 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             setListingInfo()
             model.loadFirstItems()
         }
-
-        listAdapter = ListingItemAdapter(markwon, this, this, this, this, null,this, model::retry)
+        val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
+        val blurNsfw = preferences.getBoolean("blur_nsfw_thumbnail", false)
+        val blurSpoiler = preferences.getBoolean("blur_spoiler_thumbnail", true)
+        listAdapter = ListingItemAdapter(markwon, this, this, this, this, null, blurNsfw, blurSpoiler, this, model::retry)
         scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadMore)
         binding.list.apply {
             adapter = listAdapter
