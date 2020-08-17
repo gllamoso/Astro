@@ -81,7 +81,7 @@
                         android:padding="8dp"
                         android:layout_marginEnd="16dp"
                         android:visibility="@{subreddit == null ? View.GONE : View.VISIBLE}"
-                        app:subredditIcon="@{subreddit.iconImg}"/>
+                        app:subredditIcon="@{subreddit.icon}"/>
 
                 </LinearLayout>
 

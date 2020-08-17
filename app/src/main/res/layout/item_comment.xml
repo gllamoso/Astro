@@ -67,7 +67,7 @@
 
             <include
                 android:id="@+id/submitter_icon"
-                layout="@layout/op_icon"
+                layout="@layout/icon_op"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="4dp"

@@ -90,7 +90,10 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
                 _errorMessage.value = e.getErrorMessage(application)
             }
         }
+    }
 
+    fun setSubreddit(sub: Subreddit?){
+        _subreddit.value = sub
     }
 
     fun setListing(listing: Listing){

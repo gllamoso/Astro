@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -16,11 +17,13 @@ import androidx.viewpager2.widget.ViewPager2
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentViewpagerBinding
+import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.Listing
 import dev.gtcl.reddit.models.reddit.listing.SubscriptionListing
 import dev.gtcl.reddit.ui.activities.MainActivityVM
+import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 
-class ViewPagerFragment : Fragment(), NavigationActions {
+class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 
     private lateinit var binding: FragmentViewpagerBinding
 
@@ -41,9 +44,6 @@ class ViewPagerFragment : Fragment(), NavigationActions {
         initViewPagerAdapter()
         initBackPressedCallback()
         initObservers()
-
-//        val test = PreferenceManager.getDefaultSharedPreferences(requireContext()).getString("dropdown", "Invalid!")
-//        Log.d("TAE", "Dropdown value: $test")
 
         return binding.root
     }
@@ -119,6 +119,13 @@ class ViewPagerFragment : Fragment(), NavigationActions {
                 model.navigateToPreviousPageObserved()
             }
         })
+
+        model.linkClicked.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                handleLink(it)
+                model.linkObserved()
+            }
+        })
     }
 
 //     _   _             _             _   _                            _   _
@@ -152,6 +159,19 @@ class ViewPagerFragment : Fragment(), NavigationActions {
 
     override fun launchWebview(url: String) {
         activityModel.openChromeTab(url)
+    }
+
+
+    override fun handleLink(link: String) {
+        when(link.getUrlType()){
+            UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
+            UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
+            UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
+            UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
+            UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
+            UrlType.REDDIT_COMMENTS -> model.newPage(ContinueThreadPage(link, null, true))
+            UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
+        }
     }
 
 }

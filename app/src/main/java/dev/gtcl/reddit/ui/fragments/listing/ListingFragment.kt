@@ -37,7 +37,7 @@ import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsDialogFragment
 import io.noties.markwon.Markwon
 
 class ListingFragment : Fragment(), PostActions, CommentActions, SubredditActions,
-    ItemClickListener, LeftDrawerActions, SortActions, LinkHandler {
+    ItemClickListener, LeftDrawerActions, SortActions {
 
     private lateinit var binding: FragmentListingBinding
 
@@ -53,7 +53,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     private val activityModel: MainActivityVM by activityViewModels()
 
     private val markwon: Markwon by lazy {
-        createMarkwonInstance(requireContext(), ::handleLink)
+        createMarkwonInstance(requireContext(), viewPagerModel::linkClicked)
     }
 
     private lateinit var scrollListener: ItemScrollListener
@@ -79,6 +79,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     ): View? {
         binding = FragmentListingBinding.inflate(inflater)
         binding.lifecycleOwner = viewLifecycleOwner
+        binding.rightDrawerLayout.lifecycleOwner = viewLifecycleOwner
         binding.model = model
 
         if (!model.firstPageLoaded) {
@@ -90,6 +91,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         initRightDrawer()
         initOtherObservers()
 
+        binding.executePendingBindings()
         return binding.root
     }
 
@@ -103,6 +105,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                     model.fetchSubreddit(listing.subscription.displayName)
                 }
             }
+            else -> model.setSubreddit(null)
         }
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val showNsfw = sharedPref.getBoolean("nsfw", true)
@@ -143,6 +146,10 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                 binding.list.removeOnScrollListener(scrollListener)
             }
         })
+
+        binding.swipeRefresh.setOnRefreshListener {
+            initData()
+        }
     }
 
     @SuppressLint("RtlHardcoded")
@@ -181,16 +188,18 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         binding.rightDrawerLayout.lifecycleOwner = this
         model.subreddit.observe(viewLifecycleOwner, Observer { sub ->
             if (sub != null) {
-                binding.rightDrawerLayout.addButton.setOnClickListener {
+                binding.rightDrawerLayout.subscribeToggle.background.setOnClickListener {
                     sub.userSubscribed = sub.userSubscribed != true
+                    binding.rightDrawerLayout.invalidateAll()
                     subscribe(sub, (sub.userSubscribed == true))
                 }
                 binding.drawerLayout.setDrawerLockMode(
                     DrawerLayout.LOCK_MODE_UNLOCKED,
                     Gravity.RIGHT
                 )
+                markwon.setMarkdown(binding.rightDrawerLayout.publicDescription, sub.publicDescription + "\n\n" + sub.description)
             } else {
-                binding.rightDrawerLayout.addButton.isClickable = false
+                binding.rightDrawerLayout.subscribeToggle.background.isClickable = false
                 binding.drawerLayout.setDrawerLockMode(
                     DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
                     Gravity.RIGHT
@@ -231,16 +240,15 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         }
     }
 
+    @SuppressLint("WrongConstant")
     private fun initOtherObservers() {
         model.errorMessage.observe(viewLifecycleOwner, Observer {
             if (it != null) {
+                binding.drawerLayout.closeDrawer(Gravity.START)
+                binding.drawerLayout.closeDrawer(Gravity.END)
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
             }
         })
-
-        binding.swipeRefresh.setOnRefreshListener {
-            initData()
-        }
 
         childFragmentManager.setFragmentResultListener(LISTING_KEY, viewLifecycleOwner){ _, bundle ->
             val listing = bundle.get(LISTING_KEY) as Listing
@@ -393,7 +401,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 //
 
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-//        parentSubredditActions?.subscribe(subreddit, subscribe)
+        activityModel.subscribe(subreddit, subscribe)
     }
 
 
@@ -498,19 +506,6 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     override fun sortSelected(sort: PostSort, time: Time?) {
         model.setSort(sort, time)
         model.fetchFirstPage()
-    }
-
-    override fun handleLink(link: String) {
-        when(link.getUrlType()){
-            UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
-            UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
-            UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
-            UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
-            UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
-//            UrlType.REDDIT_COMMENTS -> viewPagerModel.newPage(ContinueThreadPage(link))
-            UrlType.REDDIT_COMMENTS -> TODO("Need to be implemented")
-            UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
-        }
     }
 
     companion object {

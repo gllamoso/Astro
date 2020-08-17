@@ -24,6 +24,10 @@ class ViewPagerVM(private val application: RedditApplication): AndroidViewModel(
         pages.add(page)
     }
 
+    private val _linkClicked = MutableLiveData<String?>()
+    val linkClicked: LiveData<String?>
+        get() = _linkClicked
+
     fun newPageObserved(){
         _newPage.value = null
     }
@@ -38,5 +42,13 @@ class ViewPagerVM(private val application: RedditApplication): AndroidViewModel(
 
     fun swipingEnabled(enabled: Boolean){
         _swipingEnabled.value = enabled
+    }
+
+    fun linkClicked(link: String){
+        _linkClicked.value = link
+    }
+
+    fun linkObserved(){
+        _linkClicked.value = null
     }
 }

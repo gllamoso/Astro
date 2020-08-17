@@ -64,7 +64,7 @@
 
                     <include
                         android:id="@+id/op_flair"
-                        layout="@layout/op_icon"
+                        layout="@layout/icon_op"
                         android:layout_marginEnd="4dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -152,7 +152,7 @@
 
                     <include
                         android:id="@+id/author_flair"
-                        layout="@layout/flair_icon"
+                        layout="@layout/icon_flair"
                         android:layout_marginEnd="4dp"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"

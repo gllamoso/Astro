@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="isSubscribed"
+            type="Boolean" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:id="@+id/background"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="4dp"
+        android:foreground="?android:attr/selectableItemBackground"
+        app:strokeWidth="1dp"
+        app:strokeColor="@android:color/darker_gray"
+        app:cardElevation="4dp">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center"
+            android:paddingVertical="4dp"
+            android:paddingHorizontal="8dp">
+
+            <ImageView
+                android:layout_width="12dp"
+                android:layout_height="12dp"
+                android:src="@{isSubscribed ? @drawable/ic_added_24 : @drawable/ic_add_circle_24}"
+                tools:src="@drawable/ic_added_24"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:text="@{isSubscribed ? @string/subscribed : @string/subscribe}"
+                android:layout_marginStart="4dp"
+                tools:text="Subscribed"/>
+
+        </LinearLayout>
+
+
+    </com.google.android.material.card.MaterialCardView>
+
+</layout>

@@ -3,6 +3,7 @@ package dev.gtcl.reddit.ui.fragments.create_post
 import android.app.AlertDialog
 import android.os.Bundle
 import android.text.Editable
+import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View

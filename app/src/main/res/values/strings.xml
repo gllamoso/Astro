@@ -169,11 +169,13 @@
     <string name="retry">Retry</string>
     <string name="my_subscriptions">My Subscriptions</string>
     <string name="sync_subscriptions">Sync Subscriptions</string>
+    <string name="subscribe">Subscribe</string>
+    <string name="subscribed">Subscribed</string>
+    <string name="subscriptions">Subscriptions</string>
     <string name="done">Done</string>
     <string name="send">Send</string>
     <string name="edit">Edit</string>
     <string name="reload">Reload</string>
-    <string name="subscriptions">Subscriptions</string>
     <string name="more_options">More Options</string>
     <string name="close">Close</string>
     <string name="download_album">Download Album</string>

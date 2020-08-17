@@ -17,8 +17,6 @@ class TrendingSubredditPost(val post: Post){
     var dateString = "NOT FOUND"
     lateinit var subs : List<Subreddit>
 //    private val titles = arrayOf("","","","","")
-//    val subAgeAndCount = arrayOf("","","","","") // TODO: Add to view
-//    val descriptions = arrayOf("","","","","") // TODO: Add to view
 
     init {
         if(post.selftext.isNotEmpty()) {
@@ -26,7 +24,7 @@ class TrendingSubredditPost(val post: Post){
             dateString = "${dateStringTemp[1]}/${dateStringTemp[2]}/${dateStringTemp[0]}"
             val titlesSequence = TITLE_REGEX.findAll(post.selftext).map { it.value.replace("##", "").replace("(\\s)*\\*\\*".toRegex(), "").replace("/r/", "") }
 //            val ageAndSubsSequence = AGE_AND_SUBS_REGEX.findAll(post.selftext).map { it.value }
-//            val subsAndDescSequence = SUBS_AND_DESC_REGEX.findAll(post.selftext).map { it.value } // TODO: update
+//            val subsAndDescSequence = SUBS_AND_DESC_REGEX.findAll(post.selftext).map { it.value }
 
 //            for(i in titles.indices){
 //                titles[i] = titlesSequence.elementAtOrElse(i) {""}
@@ -35,7 +33,7 @@ class TrendingSubredditPost(val post: Post){
 //            }
             val subsTemp = ArrayList<Subreddit>()
             for(x in 0 until 5){
-                subsTemp.add(Subreddit("",titlesSequence.elementAtOrElse(x){""},"", "", "", null,"", ""))
+//                subsTemp.add(Subreddit("",titlesSequence.elementAtOrElse(x){""},"", "", "", ", null,"", "", ""))
             }
             subs = subsTemp
         }

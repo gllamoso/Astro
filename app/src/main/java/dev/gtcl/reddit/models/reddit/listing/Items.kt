@@ -4,6 +4,7 @@ import android.os.Parcelable
 import android.text.Html
 import android.text.Spannable
 import android.text.Spanned
+import android.util.Log
 import android.webkit.URLUtil
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
@@ -405,32 +406,30 @@ data class Subreddit(
     val displayName: String,
     @Json(name = "icon_img")
     val iconImg: String?,
-    @Json(name = "title")
     val title: String,
+    @Json(name = "community_icon")
+    val communityIcon: String?,
     @Json(name = "banner_img")
     val bannerImg: String?,
     @Json(name = "user_is_subscriber")
     var userSubscribed: Boolean?,
     @Json(name = "public_description")
     val publicDescription: String,
+    val description: String,
     val url: String
 ) : Item(ItemType.Subreddit) {
     @IgnoredOnParcel
     override val id = name.replace("t5_", "")
 
     @IgnoredOnParcel
-    private var isFavorite = false
-
-    fun setFavorite(favorite: Boolean) {
-        this.isFavorite = favorite
-    }
+    var isFavorite = false
 
     fun asSubscription(userId: String) = Subscription(
         "${name}__${userId}",
         displayName,
         displayName.removePrefix("u_"),
         userId,
-        iconImg?.toValidImgUrl(),
+        icon,
         url,
         isFavorite,
         if (url.startsWith("/r/", true)) {
@@ -440,12 +439,11 @@ data class Subreddit(
         }
     )
 
-    fun getDisplayNameFormatted(): String {
-        return if (displayName.startsWith("u_")) {
-            "u/${displayName.removePrefix("u_")}"
-        } else {
-            displayName
-        }
+    @IgnoredOnParcel
+    val icon: String? = when {
+        !iconImg.isNullOrBlank() -> iconImg.toValidImgUrl()
+        !communityIcon.isNullOrBlank() -> communityIcon.toValidImgUrl()
+        else -> null
     }
 }
 

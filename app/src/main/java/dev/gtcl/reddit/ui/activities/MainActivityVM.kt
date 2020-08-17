@@ -79,9 +79,11 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
                     if(application.accessToken == null) {
                         subredditRepository.deleteAllMySubscriptions()
                         val subs = subredditRepository.getMySubreddits(100, null).await().data.children.map { it.data as Subreddit }
-                        for(sub: Subreddit in subs)
-                            if(favSubs.contains(sub.displayName))
-                                sub.setFavorite(true)
+                        for(sub: Subreddit in subs){
+                            if(favSubs.contains(sub.displayName)){
+                                sub.isFavorite = true
+                            }
+                        }
                         subredditRepository.insertSubreddits(subs)
                     }
                     else {
@@ -93,8 +95,9 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
                             subs = subredditRepository.getMySubreddits(100, after = lastSub.name).await().data.children.map { it.data as Subreddit }
                         }
                         for(sub: Subreddit in allSubs) {
-                            if (favSubs.contains(sub.displayName))
-                                sub.setFavorite(true)
+                            if (favSubs.contains(sub.displayName)){
+                                sub.isFavorite = true
+                            }
                         }
                         val favMultireddits = subredditRepository.getMyFavoriteSubscriptions(SubscriptionType.MULTIREDDIT).map { it.name }.toHashSet()
                         val multiReddits = subredditRepository.getMyMultiReddits().await().map { it.data }

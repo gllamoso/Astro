@@ -306,7 +306,7 @@ suspend fun setSubsAndFavoritesInTrendingPost(items: List<TrendingSubredditPost>
     }
 }
 
-fun String.toValidImgUrl(): String? = "http.+\\.(png|jpg)".toRegex().find(this)?.value
+fun String.toValidImgUrl(): String? = IMAGE_REGEX.find(this)?.value
 
 operator fun <T> MutableLiveData<MutableList<T>>.plusAssign(values: List<T>) {
     val value = this.value ?: arrayListOf()

@@ -43,14 +43,14 @@
                     app:layout_constraintTop_toTopOf="parent">
 
                     <include
-                        layout="@layout/nsfw_icon"
+                        layout="@layout/icon_nsfw"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:visibility="@{post.nsfw == true ? View.VISIBLE : View.GONE}" />
 
                     <include
-                        layout="@layout/spoiler_icon"
+                        layout="@layout/icon_spoiler"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
@@ -58,7 +58,7 @@
 
                     <include
                         android:id="@+id/flair_layout"
-                        layout="@layout/flair_icon"
+                        layout="@layout/icon_flair"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
