@@ -8,6 +8,7 @@ import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.SubscriptionType
 import dev.gtcl.reddit.database.Subscription
+import dev.gtcl.reddit.models.reddit.listing.MultiReddit
 import dev.gtcl.reddit.models.reddit.listing.MultiRedditUpdate
 import dev.gtcl.reddit.repositories.SubredditRepository
 import kotlinx.android.synthetic.main.item_post.view.*
@@ -29,21 +30,9 @@ class SubscriptionsVM(private val application: RedditApplication): AndroidViewMo
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
-    private val _subreddits = MutableLiveData<List<Subscription>?>()
-    val subreddits: LiveData<List<Subscription>?>
-        get() = _subreddits
-
-    private val _multireddits = MutableLiveData<List<Subscription>?>()
-    val multireddits: LiveData<List<Subscription>?>
-        get() = _multireddits
-
-    private val _users = MutableLiveData<List<Subscription>?>()
-    val users: LiveData<List<Subscription>?>
-        get() = _users
-
-    private val _favorites = MutableLiveData<List<Subscription>?>()
-    val favorites: LiveData<List<Subscription>?>
-        get() = _favorites
+    private val _subscriptions = MutableLiveData<Subscriptions?>()
+    val subscriptions: LiveData<Subscriptions?>
+        get() = _subscriptions
 
     private val _editSubscription = MutableLiveData<Subscription?>()
     val editSubscription: LiveData<Subscription?>
@@ -51,27 +40,16 @@ class SubscriptionsVM(private val application: RedditApplication): AndroidViewMo
 
     fun fetchSubscriptions(){
         coroutineScope.launch {
-            _favorites.value = subredditRepository.getMyFavoriteSubscriptions()
-            _subreddits.value = subredditRepository.getMySubscriptions(SubscriptionType.SUBREDDIT)
-            _multireddits.value = subredditRepository.getMySubscriptions(SubscriptionType.MULTIREDDIT)
-            _users.value = subredditRepository.getMySubscriptions(SubscriptionType.USER)
+            val favorites = subredditRepository.getMyFavoriteSubscriptions()
+            val multiReddits = subredditRepository.getMySubscriptions(SubscriptionType.MULTIREDDIT)
+            val subreddits = subredditRepository.getMySubscriptions(SubscriptionType.SUBREDDIT)
+            val users = subredditRepository.getMySubscriptions(SubscriptionType.USER)
+            _subscriptions.value = Subscriptions(favorites, multiReddits, subreddits, users)
         }
     }
 
-    fun subredditsObserved(){
-        _subreddits.value = null
-    }
-
-    fun multiredditsObserved(){
-        _multireddits.value = null
-    }
-
-    fun usersObserved(){
-        _users.value = null
-    }
-
-    fun favoritesObserved(){
-        _favorites.value = null
+    fun subscriptionsObserved(){
+        _subscriptions.value = null
     }
 
     fun errorMessageObserved(){
@@ -95,3 +73,10 @@ class SubscriptionsVM(private val application: RedditApplication): AndroidViewMo
     }
 
 }
+
+data class Subscriptions(
+    val favorites: List<Subscription>,
+    val multiReddits: List<Subscription>,
+    val subreddits: List<Subscription>,
+    val users: List<Subscription>
+)

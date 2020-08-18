@@ -145,70 +145,12 @@ class SubscriptionsAdapter(
             return idx
         }
 
-    fun setSubscribedSubs(subs: List<Subscription>){
-        val previousSize = subreddits.size
-        subreddits.clear()
-        if(subsHeader.expanded){
-            notifyItemRangeRemoved(subredditsHeaderIndex + 1, previousSize)
-        }
-        subreddits = subs.toMutableList()
-        if(subsHeader.expanded){
-            notifyItemRangeInserted(subredditsHeaderIndex + 1, subreddits.size)
-        }
-    }
-
-    fun setMultiReddits(multis: List<Subscription>){
-        val previousSize = this.multis.size
-        this.multis.clear()
-        if(multiHeader.expanded){
-            notifyItemRangeRemoved(multisHeaderIndex + 5, previousSize)
-        }
+    fun setSubscriptions(favorites: List<Subscription>, multis: List<Subscription>, subs: List<Subscription>, users: List<Subscription>){
+        this.favSubs = favorites.toMutableList()
         this.multis = multis.toMutableList()
-        if(multiHeader.expanded){
-            notifyItemRangeInserted(multisHeaderIndex + 5, multis.size)
-        }
-    }
-
-    fun setFavorites(faves: List<Subscription>){
-        val previousSize = this.favSubs.size
-        this.favSubs.clear()
-        if(previousSize != 0){
-            if(favHeader.expanded){
-                notifyItemRangeRemoved(favHeaderIndex, previousSize + 1)
-            } else {
-                notifyItemRemoved(favHeaderIndex)
-            }
-        }
-
-        favSubs = faves.toMutableList()
-        if(faves.isNotEmpty()){
-            if(favHeader.expanded){
-                notifyItemRangeInserted(favHeaderIndex, faves.size + 1)
-            } else {
-                notifyItemInserted(favHeaderIndex)
-            }
-        }
-        notifyItemChanged(multisHeaderIndex)
-    }
-
-    fun setUsers(users: List<Subscription>){
-        val previousSize = this.users.size
-        this.users.clear()
-        if(previousSize != 0){
-            if(usersHeader.expanded){
-                notifyItemRangeRemoved(usersHeaderIndex, previousSize + 1)
-            } else {
-                notifyItemRemoved(usersHeaderIndex)
-            }
-        }
+        this.subreddits = subs.toMutableList()
         this.users = users.toMutableList()
-        if(users.isNotEmpty()){
-            if(usersHeader.expanded){
-                notifyItemRangeInserted(usersHeaderIndex, users.size + 1)
-            } else {
-                notifyItemInserted(usersHeaderIndex)
-            }
-        }
+        notifyDataSetChanged()
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {

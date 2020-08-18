@@ -1,10 +1,13 @@
 package dev.gtcl.reddit.ui.fragments.subreddits
 
 import android.app.AlertDialog
+import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupWindow
+import android.widget.RelativeLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
@@ -18,11 +21,14 @@ import dev.gtcl.reddit.actions.ListingTypeClickListener
 import dev.gtcl.reddit.actions.SubscriptionActions
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.FragmentDialogSubscriptionsBinding
+import dev.gtcl.reddit.databinding.PopupListingOptionsBinding
+import dev.gtcl.reddit.databinding.PopupSubscriptionOptionsBinding
 import dev.gtcl.reddit.models.reddit.listing.Listing
 import dev.gtcl.reddit.models.reddit.listing.MultiRedditUpdate
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
+import dev.gtcl.reddit.ui.fragments.create_post.CreatePostDialogFragment
 import dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditDetailsDialogFragment
 
 class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActions, ListingTypeClickListener{
@@ -75,32 +81,10 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
             }
         })
 
-        model.favorites.observe(viewLifecycleOwner, Observer {
+        model.subscriptions.observe(viewLifecycleOwner, Observer {
             if(it != null){
-                adapter.setFavorites(it)
-                binding.recyclerView.scrollToPosition(0)
-                model.favoritesObserved()
-            }
-        })
-
-        model.multireddits.observe(viewLifecycleOwner, Observer {
-            if(it != null){
-                adapter.setMultiReddits(it)
-                model.multiredditsObserved()
-            }
-        })
-
-        model.subreddits.observe(viewLifecycleOwner, Observer {
-            if(it != null){
-                adapter.setSubscribedSubs(it)
-                model.subredditsObserved()
-            }
-        })
-
-        model.users.observe(viewLifecycleOwner, Observer {
-            if(it != null){
-                adapter.setUsers(it)
-                model.usersObserved()
+                adapter.setSubscriptions(it.favorites, it.multiReddits, it.subreddits, it.users)
+                model.subscriptionsObserved()
             }
         })
 
@@ -114,20 +98,36 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
             dismiss()
         }
 
-        binding.toolbar.setOnMenuItemClickListener {
-            when(it.itemId){
-                R.id.search ->  {
-                    findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSearchFragment(false))
-                    dismiss()
-                }
-                R.id.sync -> activityModel.syncSubscriptionsWithReddit()
-                R.id.createMulti -> {
-                    MultiRedditDetailsDialogFragment
-                        .newInstance(null)
-                        .show(childFragmentManager, null)
+        binding.search.setOnClickListener {
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSearchFragment(false))
+            dismiss()
+        }
+
+        binding.sync.setOnClickListener {
+            activityModel.syncSubscriptionsWithReddit()
+        }
+
+        binding.moreOptions.setOnClickListener {
+            val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+            val popupBinding = PopupSubscriptionOptionsBinding.inflate(inflater)
+            val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
+            popupBinding.apply {
+                createMulti.root.setOnClickListener {
+                    MultiRedditDetailsDialogFragment.newInstance(null).show(childFragmentManager, null)
+                    popupWindow.dismiss()
                 }
             }
-            true
+
+            popupBinding.root.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+
+            popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
+            popupWindow.height = popupBinding.root.measuredHeight
+            popupWindow.elevation = 20F
+            popupWindow.showAsDropDown(it)
+            popupBinding.executePendingBindings()
         }
 
         model.errorMessage.observe(viewLifecycleOwner, Observer {

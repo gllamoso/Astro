@@ -182,8 +182,7 @@ data class Account(
     }
 
     fun getValidBannerImg(): String {
-        val imgRegex = "http.+\\.(png|jpg|gif)".toRegex()
-        return imgRegex.find(subreddit.bannerImg ?: "")?.value ?: ""
+        return IMAGE_REGEX.find(subreddit.bannerImg ?: "")?.value ?: ""
     }
 
     fun asDbModel() = SavedAccount(

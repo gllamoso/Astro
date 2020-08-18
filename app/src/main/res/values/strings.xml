@@ -41,7 +41,7 @@
     <string name="trending_tab_label">Trending</string>
     <string name="popular_tab_label">Popular</string>
     <string name="search_tab_label">Search</string>
-    <string name="search">Search…</string>
+    <string name="search_hint">Search…</string>
     <string name="subreddits">Subreddits</string>
     <string name="subreddit">Subreddit</string>
 

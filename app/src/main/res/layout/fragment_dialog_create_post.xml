@@ -22,7 +22,7 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:menu="@menu/post_menu"
+                app:menu="@menu/send"
                 app:navigationIcon="@drawable/ic_back_arrow_24"
                 app:title="@string/create_post" />
 

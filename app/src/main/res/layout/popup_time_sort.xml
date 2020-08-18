@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="time"
+            type="dev.gtcl.reddit.Time" />
+        <import type="dev.gtcl.reddit.Time"/>
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorBackgroundFloating"
+        app:cardCornerRadius="8dp">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <include
+                android:id="@+id/hour"
+                layout="@layout/item_selectable"
+                app:text="@{@string/past_hour}"
+                app:isSelected="@{time == Time.HOUR}"/>
+
+            <include
+                android:id="@+id/day"
+                layout="@layout/item_selectable"
+                app:text="@{@string/past_24_hours}"
+                app:isSelected="@{time == Time.DAY}"/>
+
+            <include
+                android:id="@+id/week"
+                layout="@layout/item_selectable"
+                app:text="@{@string/past_week}"
+                app:isSelected="@{time == Time.WEEK}"/>
+
+            <include
+                android:id="@+id/month"
+                layout="@layout/item_selectable"
+                app:text="@{@string/past_month}"
+                app:isSelected="@{time == Time.MONTH}"/>
+
+            <include
+                android:id="@+id/year"
+                layout="@layout/item_selectable"
+                app:text="@{@string/past_year}"
+                app:isSelected="@{time == Time.YEAR}"/>
+
+            <include
+                android:id="@+id/all"
+                layout="@layout/item_selectable"
+                app:text="@{@string/all_time}"
+                app:isSelected="@{time == Time.ALL}"/>
+
+        </LinearLayout>
+
+    </androidx.cardview.widget.CardView>
+
+</layout>

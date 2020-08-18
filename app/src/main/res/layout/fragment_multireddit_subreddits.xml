@@ -26,7 +26,7 @@
                 app:navigationIcon="@drawable/ic_back_arrow_24"
                 app:title="@{model.multi.displayName}"
                 tools:title="MultiReddit"
-                app:menu="@menu/multireddit_menu"/>
+                app:menu="@menu/edit"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 

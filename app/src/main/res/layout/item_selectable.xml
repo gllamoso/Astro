@@ -46,7 +46,6 @@
                 android:textSize="16sp"
                 android:text="@{text}"
                 android:singleLine="true"
-                android:textColor="?android:attr/textColorPrimary"
                 tools:text="Upvote" />
 
             <ImageView

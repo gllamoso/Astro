@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
@@ -28,11 +29,15 @@ class ListingItemAdapter(
 
     var networkState: NetworkState = NetworkState.LOADING
         set(value){
-            val addNetworkStateView = (networkState == NetworkState.LOADED && (value.status == Status.FAILED || value.status == Status.RUNNING))
-            val error = (networkState == NetworkState.LOADING && value.status == Status.FAILED)
+            val loading = (networkState == NetworkState.LOADED && (value.status == Status.FAILED || value.status == Status.RUNNING))
+            val error = ((networkState == NetworkState.LOADING && value.status == Status.FAILED) || (networkState.status == Status.FAILED && value == NetworkState.LOADING))
             field = value
-            if(addNetworkStateView){
-                notifyItemInserted(items?.size ?: 0)
+            if(loading){
+                if(items?.size ?: 0 == 0){
+                    notifyItemChanged(0)
+                } else {
+                    notifyItemInserted(items?.size ?: 0)
+                }
             }
             if(error){
                 notifyItemChanged(items?.size ?: 0)

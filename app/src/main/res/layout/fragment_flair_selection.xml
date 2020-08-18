@@ -27,7 +27,7 @@
                     android:layout_height="?attr/actionBarSize"
                     app:title="@{subName}"
                     tools:title="Subreddit"
-                    app:menu="@menu/close_menu"/>
+                    app:menu="@menu/close"/>
 
             </com.google.android.material.appbar.AppBarLayout>
 

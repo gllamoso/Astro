@@ -20,7 +20,7 @@
             android:layout_height="?attr/actionBarSize"
             app:title="@{flair.text}"
             tools:title="@string/flair"
-            app:menu="@menu/close_menu"
+            app:menu="@menu/close"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 

@@ -26,7 +26,7 @@
                 android:layout_height="?attr/actionBarSize"
                 app:title="@string/message"
                 app:navigationIcon="@drawable/ic_x_24"
-                app:menu="@menu/post_menu"/>
+                app:menu="@menu/send"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 

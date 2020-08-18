@@ -11,6 +11,7 @@ import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.SubredditRepository
 import kotlinx.coroutines.*
+import retrofit2.HttpException
 
 const val PAGE_SIZE = 15
 class ListingVM(val application: RedditApplication) : AndroidViewModel(application) {
@@ -166,7 +167,6 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
                     .await().data
                 _subreddit.value = sub
             } catch (e: Exception){
-                Log.d("TAE", "Exception in fetch subreddit: $e")
                 _errorMessage.value = e.getErrorMessage(application)
             }
         }
@@ -193,6 +193,7 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
                 val firstPageSize = PAGE_SIZE * 3
                 withContext(Dispatchers.IO) {
                     _firstPageLoaded = false
+                    _lastItemReached.postValue(false)
                     _networkState.postValue(NetworkState.LOADING)
                     after = null
 
@@ -242,7 +243,6 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
                     _firstPageLoaded = true
                 }
             } catch (e: Exception) {
-                Log.d("TAE", "Exception in fetch first page: $e")
                 lastAction = ::fetchFirstPage
                 after = null
                 _networkState.value = NetworkState.error(e.getErrorMessage(application))

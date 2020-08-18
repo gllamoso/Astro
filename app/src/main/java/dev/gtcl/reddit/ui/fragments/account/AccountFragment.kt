@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -18,11 +19,13 @@ import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentAccountBinding
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.models.reddit.User
+import dev.gtcl.reddit.models.reddit.listing.Subreddit
+import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.AccountPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerVM
 
-class AccountFragment : Fragment(), LeftDrawerActions {
+class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
 
     private lateinit var binding: FragmentAccountBinding
 
@@ -34,6 +37,8 @@ class AccountFragment : Fragment(), LeftDrawerActions {
     private val viewPagerModel: ViewPagerVM by lazy {
         ViewModelProviders.of(requireParentFragment()).get(ViewPagerVM::class.java)
     }
+
+    private val activityModel: MainActivityVM by activityViewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentAccountBinding.inflate(inflater)
@@ -55,16 +60,12 @@ class AccountFragment : Fragment(), LeftDrawerActions {
             }
         })
 
-        binding.profilePicture.setOnClickListener {
-            username?.let {
-//                model.addUser(it)
-                model.blockUser(it)
-            }
+        binding.subscribeToggle.root.setOnClickListener {
+            val sub = model.account.value?.subreddit ?: return@setOnClickListener
+            sub.userSubscribed = sub.userSubscribed != true
+            binding.invalidateAll()
+            subscribe(sub, (sub.userSubscribed == true))
         }
-
-        model.account.observe(viewLifecycleOwner, Observer {
-            Log.d("TAE", "Account: $it")
-        })
 
         return binding.root
     }
@@ -146,6 +147,18 @@ class AccountFragment : Fragment(), LeftDrawerActions {
 
     override fun onSettingsClicked() {
         TODO("Not yet implemented")
+    }
+
+//      _____       _                  _     _ _ _                  _   _
+//     / ____|     | |                | |   | (_) |       /\       | | (_)
+//    | (___  _   _| |__  _ __ ___  __| | __| |_| |_     /  \   ___| |_ _  ___  _ __  ___
+//     \___ \| | | | '_ \| '__/ _ \/ _` |/ _` | | __|   / /\ \ / __| __| |/ _ \| '_ \/ __|
+//     ____) | |_| | |_) | | |  __/ (_| | (_| | | |_   / ____ \ (__| |_| | (_) | | | \__ \
+//    |_____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
+//
+
+    override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
+        activityModel.subscribe(subreddit, subscribe)
     }
 
     companion object {
