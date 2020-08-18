@@ -24,6 +24,12 @@ class CommentDetailedVH private constructor(private val binding: ItemCommentDeta
         binding.constraintLayout.setOnClickListener{
             itemClickListener.itemClicked(comment, adapterPosition)
         }
+
+        binding.constraintLayout.setOnLongClickListener {
+            binding.moreOptions.callOnClick()
+            true
+        }
+
         binding.moreOptions.setOnClickListener {
             showPopupWindow(comment, commentActions, it)
         }

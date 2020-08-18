@@ -35,6 +35,11 @@ class PostVH private constructor(private val binding:ItemPostBinding)
             itemClickListener.itemClicked(post, adapterPosition)
         }
 
+        binding.cardView.setOnLongClickListener {
+            binding.moreOptions.callOnClick()
+            true
+        }
+
         setThumbnail(post, blurNsfw, blurSpoiler, postActions)
 
         binding.moreOptions.setOnClickListener {
