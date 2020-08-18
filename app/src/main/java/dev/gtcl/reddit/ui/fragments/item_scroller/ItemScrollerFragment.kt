@@ -1,14 +1,10 @@
 package dev.gtcl.reddit.ui.fragments.item_scroller
 
 import android.os.Bundle
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.util.Linkify
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -24,6 +20,7 @@ import dev.gtcl.reddit.databinding.FragmentItemScrollerBinding
 import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.NetworkState
+import dev.gtcl.reddit.network.Status
 import dev.gtcl.reddit.ui.ItemScrollListener
 import dev.gtcl.reddit.ui.ListingItemAdapter
 import dev.gtcl.reddit.ui.activities.MainActivityVM
@@ -31,17 +28,7 @@ import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
-import io.noties.markwon.AbstractMarkwonPlugin
-import io.noties.markwon.LinkResolverDef
 import io.noties.markwon.Markwon
-import io.noties.markwon.MarkwonConfiguration
-import io.noties.markwon.core.spans.LinkSpan
-import io.noties.markwon.core.spans.TextViewSpan
-import io.noties.markwon.ext.tables.TablePlugin
-import io.noties.markwon.linkify.LinkifyPlugin
-import io.noties.markwon.movement.MovementMethodPlugin
-import io.noties.markwon.utils.NoCopySpannableFactory
-import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
 open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, MessageActions, SubredditActions, ItemClickListener, LinkHandler{
 
@@ -61,7 +48,27 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     private val activityModel: MainActivityVM by activityViewModels()
 
-    private fun setListingInfo(){
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+        binding = FragmentItemScrollerBinding.inflate(inflater)
+        binding.model = model
+        binding.lifecycleOwner = viewLifecycleOwner
+
+        if(!model.initialPageLoaded){
+            initData()
+        }
+
+        initScroller()
+        initOtherObservers()
+
+        return binding.root
+    }
+
+    private fun initData(){
+        initListingInfo()
+        model.fetchFirstPage()
+    }
+
+    private fun initListingInfo(){
         val args = requireArguments()
         when{
             args.getSerializable(PROFILE_INFO_KEY) != null -> {
@@ -100,68 +107,64 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentItemScrollerBinding.inflate(inflater)
-        binding.model = model
-        binding.lifecycleOwner = viewLifecycleOwner
-
-        if(!model.initialPageLoaded){
-            setListingInfo()
-            model.loadFirstItems()
-        }
+    private fun initScroller(){
+        scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadMore)
         val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val blurNsfw = preferences.getBoolean("blur_nsfw_thumbnail", false)
         val blurSpoiler = preferences.getBoolean("blur_spoiler_thumbnail", true)
-        listAdapter = ListingItemAdapter(markwon, this, this, this, this, null, blurNsfw, blurSpoiler, this, model::retry)
-        scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadMore)
+        listAdapter = ListingItemAdapter(markwon, postActions = this, commentActions = this, expected = ItemType.Post, blurNsfw = blurNsfw, blurSpoiler = blurSpoiler, itemClickListener = this){
+            binding.list.apply {
+                removeOnScrollListener(scrollListener)
+                addOnScrollListener(scrollListener)
+                model.retry()
+            }
+        }
         binding.list.apply {
-            adapter = listAdapter
+            this.adapter = listAdapter
             addOnScrollListener(scrollListener)
         }
-        setSwipeRefresh()
-        setObservers()
 
-        return binding.root
-    }
-
-    private fun setObservers(){
         model.items.observe(viewLifecycleOwner, Observer {
-            listAdapter.submitList(it)
             scrollListener.finishedLoading()
+            listAdapter.submitList(it)
         })
 
         model.moreItems.observe(viewLifecycleOwner, Observer {
             if(it != null){
-                listAdapter.addItems(it)
                 scrollListener.finishedLoading()
+                listAdapter.addItems(it)
                 model.moreItemsObserved()
             }
         })
 
         model.networkState.observe(viewLifecycleOwner, Observer {
             listAdapter.networkState = it
+            if (it == NetworkState.LOADED || it.status == Status.FAILED) {
+                binding.swipeRefresh.isRefreshing = false
+            }
         })
 
         model.lastItemReached.observe(viewLifecycleOwner, Observer {
-            if(it == true){
+            if (it == true) {
                 binding.list.removeOnScrollListener(scrollListener)
             }
         })
 
-        model.errorMessage.observe(viewLifecycleOwner, Observer {
-            Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
-        })
+        binding.swipeRefresh.setOnRefreshListener {
+            if(model.networkState.value == NetworkState.LOADING){
+                binding.swipeRefresh.isRefreshing = false
+                return@setOnRefreshListener
+            }
+
+            binding.list.removeOnScrollListener(scrollListener)
+            binding.list.addOnScrollListener(scrollListener)
+            initData()
+        }
     }
 
-    private fun setSwipeRefresh(){
-        binding.swipeRefresh.setOnRefreshListener {
-            model.refresh()
-        }
-
-        model.refreshState.observe(viewLifecycleOwner, Observer {
-            if(it == NetworkState.LOADED){
-                binding.swipeRefresh.isRefreshing = false
-            }
+    private fun initOtherObservers(){
+        model.errorMessage.observe(viewLifecycleOwner, Observer {
+            Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
         })
     }
 

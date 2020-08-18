@@ -26,12 +26,6 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
     val title: LiveData<String>
         get() = _title
 
-    private val _subreddit = MutableLiveData<Subreddit?>()
-    val subreddit: LiveData<Subreddit?>
-        get() = _subreddit
-
-    private lateinit var lastAction: () -> Unit
-
     private val _networkState = MutableLiveData<NetworkState>()
     val networkState: LiveData<NetworkState>
         get() = _networkState
@@ -43,6 +37,12 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
     private val _moreItems = MutableLiveData<List<Item>?>()
     val moreItems: LiveData<List<Item>?>
         get() = _moreItems
+
+    private val _subreddit = MutableLiveData<Subreddit?>()
+    val subreddit: LiveData<Subreddit?>
+        get() = _subreddit
+
+    private lateinit var lastAction: () -> Unit
 
     private val readItemIds = HashSet<String>()
     private var after: String? = null
