@@ -161,6 +161,16 @@ interface RedditApiService {
         @Query("limit") limit: Int
     ): Deferred<ListingResponse>
 
+    @GET("/search.json")
+    fun searchPosts(
+        @Header("Authorization") authorization: String?,
+        @Query("q") query: String,
+        @Query("sort") sort: PostSort,
+        @Query("t") time: Time?,
+        @Query("after") after: String? = null,
+        @Query("limit") limit: Int
+    ): Deferred<ListingResponse>
+
     @POST("/api/submit")
     fun submitPost(
         @Header("Authorization") authorization: String,

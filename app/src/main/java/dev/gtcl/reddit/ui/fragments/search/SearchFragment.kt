@@ -11,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
+import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -23,18 +24,13 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.databinding.FragmentSearchBinding
-import dev.gtcl.reddit.models.reddit.listing.Account
-import dev.gtcl.reddit.models.reddit.listing.Item
-import dev.gtcl.reddit.models.reddit.listing.Subreddit
-import dev.gtcl.reddit.models.reddit.listing.SubredditListing
+import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.ItemScrollListener
 import dev.gtcl.reddit.ui.ListingItemAdapter
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.AccountPage
 import dev.gtcl.reddit.ui.fragments.ListingPage
-import io.noties.markwon.Markwon
-import kotlinx.android.synthetic.main.fragment_listing.*
 
 
 class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
@@ -64,7 +60,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         if(args.multiSelectMode){
             setMultiSelect()
         } else {
-            binding.fab.visibility = View.GONE
+            setPostSearch()
         }
 
         if(resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT){
@@ -166,6 +162,8 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             model.removeSelectedItem(it)
         }
 
+        binding.searchText.imeOptions = EditorInfo.IME_ACTION_DONE
+
         binding.selectedItemsRecyclerView.adapter = adapter
 
         model.selectedItems.observe(viewLifecycleOwner, Observer {
@@ -176,6 +174,22 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             val navController = findNavController()
             navController.previousBackStackEntry?.savedStateHandle?.set(SELECTED_SUBREDDITS_KEY, model.selectedItems.value?.toList() ?: listOf())
             navController.popBackStack()
+        }
+    }
+
+    private fun setPostSearch(){
+        binding.fab.visibility = View.GONE
+        binding.searchText.imeOptions = EditorInfo.IME_ACTION_SEARCH
+        binding.searchText.setOnEditorActionListener { textView, _, _ ->
+            val query = textView.text.toString()
+            findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(ListingPage(SearchListing(query))))
+            hideKeyboard()
+            true
+        }
+        binding.searchIcon.setOnClickListener {
+            val query = binding.searchText.text.toString()
+            findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(ListingPage(SearchListing(query))))
+            hideKeyboard()
         }
     }
 

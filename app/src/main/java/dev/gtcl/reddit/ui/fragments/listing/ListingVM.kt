@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.fragments.listing
 
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -11,7 +10,6 @@ import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.SubredditRepository
 import kotlinx.coroutines.*
-import retrofit2.HttpException
 
 const val PAGE_SIZE = 15
 class ListingVM(val application: RedditApplication) : AndroidViewModel(application) {
@@ -73,84 +71,7 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
     val leftDrawerExpanded: LiveData<Boolean>
         get() = _leftDrawerExpanded
 
-    private val showNsfw: Boolean
-
-    init {
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(application)
-        val showNsfw = sharedPref.getBoolean("nsfw", true)
-        val defaultSort = sharedPref.getString("default_post_sort", application.getString(R.string.order_hot))
-        val sortArray = application.resources.getStringArray(R.array.post_sort_entries)
-        this.showNsfw = showNsfw
-        val postSort: PostSort
-        val time: Time?
-        when(sortArray.indexOf(defaultSort)){
-            1 -> {
-                postSort = PostSort.HOT
-                time = null
-            }
-            2 -> {
-                postSort = PostSort.NEW
-                time = null
-            }
-            3 -> {
-                postSort = PostSort.RISING
-                time = null
-            }
-            4 -> {
-                postSort = PostSort.CONTROVERSIAL
-                time = Time.HOUR
-            }
-            5 -> {
-                postSort = PostSort.CONTROVERSIAL
-                time = Time.DAY
-            }
-            6 -> {
-                postSort = PostSort.CONTROVERSIAL
-                time = Time.WEEK
-            }
-            7 -> {
-                postSort = PostSort.CONTROVERSIAL
-                time = Time.MONTH
-            }
-            8 -> {
-                postSort = PostSort.CONTROVERSIAL
-                time = Time.YEAR
-            }
-            9 -> {
-                postSort = PostSort.CONTROVERSIAL
-                time = Time.ALL
-            }
-            10 -> {
-                postSort = PostSort.TOP
-                time = Time.HOUR
-            }
-            11 -> {
-                postSort = PostSort.TOP
-                time = Time.DAY
-            }
-            12 -> {
-                postSort = PostSort.TOP
-                time = Time.WEEK
-            }
-            13 -> {
-                postSort = PostSort.TOP
-                time = Time.MONTH
-            }
-            14 -> {
-                postSort = PostSort.TOP
-                time = Time.YEAR
-            }
-            15 -> {
-                postSort = PostSort.TOP
-                time = Time.ALL
-            }
-            else ->{
-                postSort = PostSort.BEST
-                time = null
-            }
-        }
-        setSort(postSort, time)
-    }
+    private var showNsfw: Boolean = false
 
     private lateinit var _listing: Listing
     val listing: Listing
@@ -179,6 +100,87 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
     fun setListing(listing: Listing){
         _listing = listing
         _title.value = getListingTitle(application, listing)
+
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(application)
+        val showNsfw = sharedPref.getBoolean("nsfw", true)
+        val defaultSort = sharedPref.getString("default_post_sort", application.getString(R.string.order_hot))
+        val sortArray = application.resources.getStringArray(R.array.post_sort_entries)
+        this.showNsfw = showNsfw
+        val postSort: PostSort
+        val time: Time?
+        if(listing is SearchListing){
+            postSort = PostSort.RELEVANCE
+            time = Time.ALL
+        } else {
+            when(sortArray.indexOf(defaultSort)){
+                1 -> {
+                    postSort = PostSort.HOT
+                    time = null
+                }
+                2 -> {
+                    postSort = PostSort.NEW
+                    time = null
+                }
+                3 -> {
+                    postSort = PostSort.RISING
+                    time = null
+                }
+                4 -> {
+                    postSort = PostSort.CONTROVERSIAL
+                    time = Time.HOUR
+                }
+                5 -> {
+                    postSort = PostSort.CONTROVERSIAL
+                    time = Time.DAY
+                }
+                6 -> {
+                    postSort = PostSort.CONTROVERSIAL
+                    time = Time.WEEK
+                }
+                7 -> {
+                    postSort = PostSort.CONTROVERSIAL
+                    time = Time.MONTH
+                }
+                8 -> {
+                    postSort = PostSort.CONTROVERSIAL
+                    time = Time.YEAR
+                }
+                9 -> {
+                    postSort = PostSort.CONTROVERSIAL
+                    time = Time.ALL
+                }
+                10 -> {
+                    postSort = PostSort.TOP
+                    time = Time.HOUR
+                }
+                11 -> {
+                    postSort = PostSort.TOP
+                    time = Time.DAY
+                }
+                12 -> {
+                    postSort = PostSort.TOP
+                    time = Time.WEEK
+                }
+                13 -> {
+                    postSort = PostSort.TOP
+                    time = Time.MONTH
+                }
+                14 -> {
+                    postSort = PostSort.TOP
+                    time = Time.YEAR
+                }
+                15 -> {
+                    postSort = PostSort.TOP
+                    time = Time.ALL
+                }
+                else ->{
+                    postSort = PostSort.BEST
+                    time = null
+                }
+            }
+        }
+
+        setSort(postSort, time)
     }
 
     fun setSort(postSort: PostSort, time: Time? = null) {

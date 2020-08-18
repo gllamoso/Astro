@@ -287,13 +287,7 @@ data class Post(
     val postType: PostType
         get() {
             return when {
-                isSelf -> {
-                    if (URLUtil.isValidUrl(selftext)) {
-                        PostType.TEXT_URL
-                    } else {
-                        PostType.TEXT
-                    }
-                }
+                isSelf -> PostType.TEXT
                 GIF_REGEX.matches(url ?: "") -> PostType.GIF
                 IMAGE_REGEX.matches(url ?: "") -> PostType.IMAGE
                 previewVideoUrl != null || GFYCAT_REGEX.matches(url ?: "") || HLS_REGEX.matches(
@@ -307,19 +301,12 @@ data class Post(
 enum class PostType {
     @SerializedName("self")
     TEXT,
-
-    @SerializedName("self_url")
-    TEXT_URL,
-
     @SerializedName("image")
     IMAGE,
-
     @SerializedName("videogif")
     GIF,
-
     @SerializedName("video")
     VIDEO,
-
     @SerializedName("link")
     URL
 }

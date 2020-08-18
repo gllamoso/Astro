@@ -59,8 +59,8 @@
             android:layout_height="wrap_content"
             layout="@layout/layout_url_with_thumbnail"
             app:thumbnailUrl="@{post.thumbnail}"
-            app:url="@{(post.postType == PostType.TEXT_URL) ? post.selftext : post.url}"
-            android:visibility="@{(post.postType == PostType.URL || post.postType == PostType.TEXT_URL) ? View.VISIBLE : View.GONE}"/>
+            app:url="@{post.url}"
+            android:visibility="@{(post.postType == PostType.URL) ? View.VISIBLE : View.GONE}"/>
 
     </FrameLayout>
 

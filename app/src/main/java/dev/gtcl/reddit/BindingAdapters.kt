@@ -246,6 +246,7 @@ fun loadListingText(txtView: TextView, listing: Listing?){
             FrontPage -> context.getText(R.string.frontpage)
             All -> context.getText(R.string.all)
             Popular -> context.getText(R.string.popular_tab_label)
+            is SearchListing -> String.format(context.getString(R.string.search_title), it.query)
             is MultiRedditListing -> it.multiReddit.name
             is SubredditListing -> it.displayName
             is ProfileListing -> context.getText(when(it.info){

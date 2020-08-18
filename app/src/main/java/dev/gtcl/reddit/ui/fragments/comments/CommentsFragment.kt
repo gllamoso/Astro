@@ -42,11 +42,6 @@ import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
 import io.noties.markwon.*
-import io.noties.markwon.ext.tables.TablePlugin
-import io.noties.markwon.linkify.LinkifyPlugin
-import io.noties.markwon.movement.MovementMethodPlugin
-import io.noties.markwon.utils.NoCopySpannableFactory
-import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
 class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler {
 
@@ -97,10 +92,20 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         })
 
         model.post.observe(viewLifecycleOwner, Observer { post ->
-            if(post.crosspostParentList != null){
-                binding.crossPostLayout.cardView.setOnClickListener {
-                    viewPagerModel.newPage(PostPage(post.crosspostParentList[0], -1))
+            if(!model.contentInitialized){
+                if(post.crosspostParentList != null){
+                    binding.crossPostLayout.cardView.setOnClickListener {
+                        viewPagerModel.newPage(PostPage(post.crosspostParentList[0], -1))
+                    }
                 }
+                when (post.postType) {
+                    PostType.IMAGE -> initSubsamplingImageView(post)
+                    PostType.GIF -> initGifToImageView(post)
+                    PostType.VIDEO -> initVideoPlayer(post)
+                    PostType.TEXT -> markwon.setMarkdown(binding.content.contentText, post.selftext)
+                    PostType.URL -> initUrlPreview(post)
+                }
+                model.contentInitialized = true
             }
         })
 
@@ -124,6 +129,11 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 binding.swipeRefresh.isRefreshing = false
             }
         })
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        model.contentInitialized = false
     }
 
     override fun onPause() {
@@ -282,13 +292,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         if (postPage != null) {
             if (!model.commentsFetched) {
                 model.setPost(postPage.post)
-            }
-            when (postPage.post.postType) {
-                PostType.IMAGE -> initSubsamplingImageView(postPage.post)
-                PostType.GIF -> initGifToImageView(postPage.post)
-                PostType.VIDEO -> initVideoPlayer(postPage.post)
-                PostType.TEXT -> markwon.setMarkdown(binding.content.contentText, postPage.post.selftext)
-                PostType.URL -> initUrlPreview(postPage.post)
             }
         } else {
             model.fetchPostAndComments(url!!)

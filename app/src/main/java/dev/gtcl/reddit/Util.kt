@@ -58,7 +58,12 @@ enum class PostSort{
     @SerializedName("controversial")
     CONTROVERSIAL,
     @SerializedName("rising")
-    RISING
+    RISING,
+    // USED FOR SEARCH
+    @SerializedName("relevance")
+    RELEVANCE,
+    @SerializedName("comments")
+    COMMENTS
 }
 
 enum class CommentSort{
@@ -460,6 +465,7 @@ fun getListingTitle(context: Context, listing: Listing): String {
         is FrontPage -> context.getString(R.string.frontpage)
         is All -> context.getString(R.string.all)
         is Popular -> context.getString(R.string.popular_tab_label)
+        is SearchListing -> String.format(context.getString(R.string.search_title), listing.query)
         is MultiRedditListing -> listing.multiReddit.displayName
         is SubredditListing -> listing.displayName
         is SubscriptionListing -> listing.subscription.displayName

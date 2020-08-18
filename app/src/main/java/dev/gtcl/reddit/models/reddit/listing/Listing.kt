@@ -13,6 +13,8 @@ object All: Listing()
 @Parcelize
 object Popular: Listing()
 @Parcelize
+class SearchListing(val query: String): Listing()
+@Parcelize
 class MultiRedditListing(val multiReddit: MultiReddit): Listing()
 @Parcelize
 class SubredditListing(val displayName: String): Listing()

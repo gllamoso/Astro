@@ -80,6 +80,8 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
 
     private val pageSize = 15
 
+    var contentInitialized = false
+
     fun setPost(post: Post){
         _post.value = post
         fetchPostAndComments(post.permalink)

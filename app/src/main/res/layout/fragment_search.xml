@@ -30,15 +30,18 @@
                         android:layout_weight="1"
                         android:layout_height="match_parent"
                         android:maxLines="1"
-                        android:imeOptions="actionDone"
+                        android:imeOptions="actionSearch"
                         android:inputType="text"
                         android:hint="@string/search_hint"
                         android:background="@android:color/transparent"/>
 
                     <ImageView
+                        android:id="@+id/search_icon"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
+                        android:padding="2dp"
                         android:src="@drawable/ic_search_24"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
                         android:layout_margin="16dp"/>
 
                 </LinearLayout>

@@ -20,34 +20,41 @@ class ListingRepository private constructor(private val application: RedditAppli
 
     // --- NETWORK
     @MainThread
-    fun getListing(listing: Listing, sort: PostSort, t: Time? = null, after: String?, pageSize: Int, user: String? = null): Deferred<ListingResponse>{
+    fun getListing(listing: Listing, postSort: PostSort, t: Time? = null, after: String?, pageSize: Int, user: String? = null): Deferred<ListingResponse>{
         val accessToken = application.accessToken
         val userName = user ?: application.currentAccount?.name
         return when(listing){
             FrontPage -> if(accessToken != null) {
-                    RedditApi.oauth.getPostFromFrontPage(accessToken.authorizationHeader, sort, t, after, pageSize)
+                    RedditApi.oauth.getPostFromFrontPage(accessToken.authorizationHeader,
+                        postSort, t, after, pageSize)
                 } else {
-                    RedditApi.base.getPostFromFrontPage(null, sort, t, after, pageSize)
+                    RedditApi.base.getPostFromFrontPage(null, postSort, t, after, pageSize)
                 }
             All -> if(accessToken != null) {
-                    RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, "all", sort, t, after, pageSize)
+                    RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, "all",
+                        postSort, t, after, pageSize)
                 } else {
-                    RedditApi.base.getPostsFromSubreddit(null, "all", sort, t, after, pageSize)
+                    RedditApi.base.getPostsFromSubreddit(null, "all", postSort, t, after, pageSize)
                 }
             Popular -> if(accessToken != null) {
-                    RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, "popular", sort, t, after, pageSize)
+                    RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, "popular", postSort, t, after, pageSize)
                 } else {
-                    RedditApi.base.getPostsFromSubreddit(null, "popular", sort, t, after, pageSize)
+                    RedditApi.base.getPostsFromSubreddit(null, "popular", postSort, t, after, pageSize)
+                }
+            is SearchListing -> if(accessToken != null){
+                    RedditApi.oauth.searchPosts(accessToken.authorizationHeader, listing.query, postSort, t, after, pageSize)
+                } else {
+                    RedditApi.base.searchPosts(null, listing.query, postSort, t, after, pageSize)
                 }
             is MultiRedditListing -> if(accessToken != null){
-                    RedditApi.oauth.getMultiRedditListing(accessToken.authorizationHeader, listing.multiReddit.path.removePrefix("/"), sort, t, after, pageSize)
+                    RedditApi.oauth.getMultiRedditListing(accessToken.authorizationHeader, listing.multiReddit.path.removePrefix("/"), postSort, t, after, pageSize)
                 } else {
-                    RedditApi.base.getMultiRedditListing(null , listing.multiReddit.path.removePrefix("/"), sort, t, after, pageSize)
+                    RedditApi.base.getMultiRedditListing(null , listing.multiReddit.path.removePrefix("/"), postSort, t, after, pageSize)
                 }
             is SubredditListing -> if (accessToken != null) {
-                    RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, listing.displayName, sort, t, after, pageSize)
+                    RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, listing.displayName, postSort, t, after, pageSize)
                 } else {
-                    RedditApi.base.getPostsFromSubreddit(null, listing.displayName, sort, t, after, pageSize)
+                    RedditApi.base.getPostsFromSubreddit(null, listing.displayName, postSort, t, after, pageSize)
                 }
             is ProfileListing -> if(accessToken != null){
                     RedditApi.oauth.getPostsFromUser(accessToken.authorizationHeader, userName!!, listing.info, after, pageSize)
@@ -57,13 +64,13 @@ class ListingRepository private constructor(private val application: RedditAppli
             is SubscriptionListing -> {
                 if(accessToken != null){
                     when(listing.subscription.type){
-                        SubscriptionType.SUBREDDIT, SubscriptionType.USER -> RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, listing.subscription.name, sort, t, after, pageSize)
-                        SubscriptionType.MULTIREDDIT ->  RedditApi.oauth.getMultiRedditListing(accessToken.authorizationHeader, listing.subscription.url.removePrefix("/"), sort, t, after, pageSize)
+                        SubscriptionType.SUBREDDIT, SubscriptionType.USER -> RedditApi.oauth.getPostsFromSubreddit(accessToken.authorizationHeader, listing.subscription.name, postSort, t, after, pageSize)
+                        SubscriptionType.MULTIREDDIT ->  RedditApi.oauth.getMultiRedditListing(accessToken.authorizationHeader, listing.subscription.url.removePrefix("/"), postSort, t, after, pageSize)
                     }
                 } else {
                     when(listing.subscription.type){
-                        SubscriptionType.SUBREDDIT, SubscriptionType.USER -> RedditApi.base.getPostsFromSubreddit(null, listing.subscription.name, sort, t, after, pageSize)
-                        SubscriptionType.MULTIREDDIT ->  RedditApi.base.getMultiRedditListing(null, listing.subscription.url.removePrefix("/"), sort, t, after, pageSize)
+                        SubscriptionType.SUBREDDIT, SubscriptionType.USER -> RedditApi.base.getPostsFromSubreddit(null, listing.subscription.name, postSort, t, after, pageSize)
+                        SubscriptionType.MULTIREDDIT ->  RedditApi.base.getMultiRedditListing(null, listing.subscription.url.removePrefix("/"), postSort, t, after, pageSize)
                     }
                 }
             }
