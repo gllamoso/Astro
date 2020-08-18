@@ -13,9 +13,11 @@ import android.view.View
 
 val SPOILER_REGEX = ">!.+!<".toRegex()
 val STRIKETHROUGH_REGEX = "~~.+~~".toRegex()
+val NONSENSE_TEXT_REGEX = "^&#x200B;$".toRegex(RegexOption.MULTILINE)
 class MarkdownToSpannable{
     companion object{
         fun setSpannableStringBuilder(context: Context, spannableStringBuilder: SpannableStringBuilder, defaultTextColor: Int){
+            removeNonsenseText(spannableStringBuilder)
             setSpoilersInMarkdown(
                 context,
                 spannableStringBuilder,
@@ -82,6 +84,16 @@ class MarkdownToSpannable{
                 spannableStringBuilder.delete(start, start + 2)
                 spannableStringBuilder.setSpan(StrikethroughSpan(), start, end - 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 match = STRIKETHROUGH_REGEX.find(spannableStringBuilder)
+            }
+        }
+
+        private fun removeNonsenseText(spannableStringBuilder: SpannableStringBuilder){
+            var match = NONSENSE_TEXT_REGEX.find(spannableStringBuilder)
+            while(match != null){
+                val start = match.range.first
+                val end = match.range.last
+                spannableStringBuilder.delete(start, end + 1)
+                match = NONSENSE_TEXT_REGEX.find(spannableStringBuilder)
             }
         }
     }

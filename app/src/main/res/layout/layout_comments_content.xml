@@ -28,7 +28,7 @@
             android:id="@+id/player_view"
             android:layout_width="match_parent"
             android:layout_height="525dp"
-            app:setViewSize="@{70}"
+            app:viewSize="@{70}"
             android:padding="8dp"
             android:visibility="@{post.postType == PostType.VIDEO ? View.VISIBLE : View.GONE}"
             app:use_controller="true"
@@ -40,7 +40,7 @@
             android:id="@+id/image_view"
             android:layout_width="match_parent"
             android:layout_height="525dp"
-            app:setViewSize="@{70}"
+            app:viewSize="@{70}"
             android:padding="8dp"
             android:visibility="@{post.postType == PostType.GIF ? View.VISIBLE : View.GONE}"/>
 
@@ -50,7 +50,7 @@
             android:layout_height="match_parent"
             android:visibility="@{post.postType == PostType.IMAGE ? View.VISIBLE : View.GONE}"
             app:tileBackgroundColor="@android:color/transparent"
-            app:setViewSize="@{70}"
+            app:viewSize="@{70}"
             app:zoomEnabled="true"/>
 
         <include

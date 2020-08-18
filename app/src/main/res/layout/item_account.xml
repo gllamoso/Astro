@@ -21,7 +21,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
-            android:src="@drawable/ic_profile_24" />
+            app:accountIcon="@{account.validProfileImg}"/>
 
         <TextView
             android:layout_width="0dp"
@@ -29,9 +29,8 @@
             android:layout_margin="8dp"
             android:layout_weight="1"
             android:singleLine="true"
-            android:text="@{account.name}"
-            tools:text="Account Name"
-            android:textStyle="bold"/>
+            android:text="@{account.subreddit.displayNamePrefixed}"
+            tools:text="Account Name"/>
 
         <ImageView
             android:id="@+id/add_button"

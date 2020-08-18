@@ -81,6 +81,8 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         binding.model = model
 
         if (!model.firstPageLoaded) {
+            val listing = requireArguments().getParcelable(LISTING_KEY) as Listing
+            model.setListing(listing)
             initData()
         }
         initScroller()
@@ -94,9 +96,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     private fun initData(){
-        val listing = requireArguments().getParcelable(LISTING_KEY) as Listing
-        model.setListing(listing)
-        when(listing){
+        when(val listing = requireArguments().getParcelable(LISTING_KEY) as Listing){
             is SubredditListing -> model.fetchSubreddit(listing.displayName)
             is SubscriptionListing -> {
                 if(listing.subscription.type == SubscriptionType.SUBREDDIT){
@@ -230,7 +230,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             val currentSort = model.postSort.value!!
             val currentTime = model.time.value
             val onSortSelected: (PostSort) -> Unit = { postSortSelected ->
-                if(postSortSelected == PostSort.TOP || postSortSelected == PostSort.CONTROVERSIAL){
+                if(model.listing is SearchListing || postSortSelected == PostSort.TOP || postSortSelected == PostSort.CONTROVERSIAL){
                     val time = if(currentSort == postSortSelected) currentTime else null
                     showTimePopup(anchor, time){ timeSortSelected ->
                         model.setSort(postSortSelected, timeSortSelected)
@@ -241,7 +241,11 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                     model.fetchFirstPage()
                 }
             }
-            showSortPopup(anchor, currentSort, onSortSelected)
+            if(model.listing is SearchListing){
+                showSearchSortPopup(anchor, currentSort, onSortSelected)
+            } else {
+                showPostSortPopup(anchor, currentSort, onSortSelected)
+            }
         }
 
         binding.bottomBarLayout.subredditButton.setOnClickListener {
@@ -523,7 +527,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 //               | |         | |
 //               |_|         |_|
 
-    private fun showSortPopup(anchor: View, currentSort: PostSort, onSortSelected: (PostSort) -> Unit){
+    private fun showPostSortPopup(anchor: View, currentSort: PostSort, onSortSelected: (PostSort) -> Unit){
         val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupPostSortBinding.inflate(inflater)
         val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
@@ -553,6 +557,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                 onSortSelected(PostSort.RISING)
                 popupWindow.dismiss()
             }
+            executePendingBindings()
         }
 
         popupBinding.root.measure(
@@ -563,7 +568,46 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
         popupWindow.height = popupBinding.root.measuredHeight
         popupWindow.elevation = 20F
-        popupBinding.executePendingBindings()
+        popupWindow.showAsDropDown(anchor)
+    }
+
+    private fun showSearchSortPopup(anchor: View, currentSort: PostSort, onSortSelected: (PostSort) -> Unit){
+        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val popupBinding = PopupSearchSortBinding.inflate(inflater)
+        val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
+        popupBinding.apply {
+            sort = currentSort
+            mostRelevant.root.setOnClickListener {
+                onSortSelected(PostSort.RELEVANCE)
+                popupWindow.dismiss()
+            }
+            hot.root.setOnClickListener {
+                onSortSelected(PostSort.HOT)
+                popupWindow.dismiss()
+            }
+            newSort.root.setOnClickListener {
+                onSortSelected(PostSort.NEW)
+                popupWindow.dismiss()
+            }
+            top.root.setOnClickListener {
+                onSortSelected(PostSort.TOP)
+                popupWindow.dismiss()
+            }
+            commentCountSort.root.setOnClickListener {
+                onSortSelected(PostSort.COMMENTS)
+                popupWindow.dismiss()
+            }
+            executePendingBindings()
+        }
+
+        popupBinding.root.measure(
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
+
+        popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
+        popupWindow.height = popupBinding.root.measuredHeight
+        popupWindow.elevation = 20F
         popupWindow.showAsDropDown(anchor)
     }
 
@@ -597,6 +641,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                 onTimeSelected(Time.ALL)
                 popupWindow.dismiss()
             }
+            executePendingBindings()
         }
 
         popupBinding.root.measure(
@@ -607,7 +652,6 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
         popupWindow.height = popupBinding.root.measuredHeight
         popupWindow.elevation = 20F
-        popupBinding.executePendingBindings()
         popupWindow.showAsDropDown(anchor)
     }
 

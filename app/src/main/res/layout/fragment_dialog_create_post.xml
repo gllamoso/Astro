@@ -135,7 +135,7 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@{model.flair != null ? model.flair.text : @string/no_flair}"
-                            app:chip_is_checked="@{model.flair != null}"
+                            app:chipIsChecked="@{model.flair != null}"
                             tools:text="@string/flair"/>
 
                     </com.google.android.material.chip.ChipGroup>
@@ -157,7 +157,7 @@
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tab_layout"
-                    app:setViewSize="@{60}" />
+                    app:viewSize="@{60}" />
 
             </LinearLayout>
 

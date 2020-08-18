@@ -22,11 +22,11 @@
             android:layout_height="wrap_content">
 
             <include
-                android:id="@+id/best"
+                android:id="@+id/most_relevant"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_rocket_24}"
-                app:text="@{@string/order_best}"
-                app:isSelected="@{sort == PostSort.BEST}"/>
+                app:text="@{@string/order_most_relevant}"
+                app:isSelected="@{sort == PostSort.RELEVANCE}"/>
 
             <include
                 android:id="@+id/hot"
@@ -50,18 +50,11 @@
                 app:isSelected="@{sort == PostSort.TOP}"/>
 
             <include
-                android:id="@+id/controversial"
+                android:id="@+id/comment_count_sort"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_controversial_24}"
-                app:text="@{@string/order_controversial}"
-                app:isSelected="@{sort == PostSort.CONTROVERSIAL}"/>
-
-            <include
-                android:id="@+id/rising"
-                layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_trending_up_24}"
-                app:text="@{@string/order_rising}"
-                app:isSelected="@{sort == PostSort.RISING}"/>
+                app:iconDrawable="@{@drawable/ic_comments_24}"
+                app:text="@{@string/order_comment_count}"
+                app:isSelected="@{sort == PostSort.COMMENTS}"/>
 
         </LinearLayout>
 

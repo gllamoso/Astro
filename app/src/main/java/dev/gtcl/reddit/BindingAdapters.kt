@@ -74,8 +74,8 @@ fun loadImage(imgView: ImageView, imgUrl: String?){
     }
 }
 
-@BindingAdapter("account_banner")
-fun loadAccountBanner(imgView: ImageView, url: String?){
+@BindingAdapter("banner")
+fun loadBanner(imgView: ImageView, url: String?){
     if (url.isNullOrBlank()){
         imgView.setImageResource(R.drawable.ic_sun_tornado)
     } else {
@@ -288,7 +288,7 @@ fun setIndentation(linearLayout: LinearLayout, indent: Int){
     }
 }
 
-@BindingAdapter("more_comment")
+@BindingAdapter("moreComment")
 fun setMoreCommentText(textView: TextView, item: More){
     if(item.isContinueThreadLink)
         textView.text = textView.resources.getString(R.string.continue_to_thread)
@@ -319,7 +319,7 @@ fun setUpvoteRatio(textView: TextView, upvoteRatio: Double?){
     } else textView.text = ""
 }
 
-@BindingAdapter("setViewSize")
+@BindingAdapter("viewSize")
 fun setViewSize(view: View, percentOfDeviceHeight: Int){
     val wm = view.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
     val display = wm.defaultDisplay
@@ -380,13 +380,13 @@ fun bindRecyclerViewForMultiReddit(recyclerView: RecyclerView, data: MutableList
     adapter.submitList(data)
 }
 
-@BindingAdapter("number_of_comments")
+@BindingAdapter("commentsCount")
 fun formatComments(textView: TextView, num: Int){
     val numFormatted = numFormatted(num.toLong())
     textView.text = String.format(textView.context.getText(R.string.num_comments).toString(), numFormatted)
 }
 
-@BindingAdapter("upvote_tint")
+@BindingAdapter("upvoteTint")
 fun applyUpvoteTint(imageView: ImageView, likes: Boolean?){
     when(likes){
         true -> imageView.setColorFilter(ContextCompat.getColor(imageView.context, android.R.color.holo_orange_dark))
@@ -394,7 +394,7 @@ fun applyUpvoteTint(imageView: ImageView, likes: Boolean?){
     }
 }
 
-@BindingAdapter("downvote_tint")
+@BindingAdapter("downvoteTint")
 fun applyDownvoteTint(imageView: ImageView, likes: Boolean?){
     when(likes){
         false -> imageView.setColorFilter(ContextCompat.getColor(imageView.context, android.R.color.holo_blue_dark))
@@ -402,7 +402,7 @@ fun applyDownvoteTint(imageView: ImageView, likes: Boolean?){
     }
 }
 
-@BindingAdapter("bookmark_tint")
+@BindingAdapter("bookmarkTint")
 fun applyBookmarkTint(imageView: ImageView, bookmarked: Boolean){
     when(bookmarked){
         true -> imageView.setColorFilter(ContextCompat.getColor(imageView.context, android.R.color.holo_orange_light))
@@ -410,7 +410,7 @@ fun applyBookmarkTint(imageView: ImageView, bookmarked: Boolean){
     }
 }
 
-@BindingAdapter("chip_is_checked")
+@BindingAdapter("chipIsChecked")
 fun checkChip(chip: Chip, check: Boolean){
     chip.isChecked = check
 }

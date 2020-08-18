@@ -23,7 +23,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_upvote_24"
             android:layout_gravity="center"
-            app:upvote_tint="@{post.likes}"
+            app:upvoteTint="@{post.likes}"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"/>
 
@@ -38,7 +38,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_upvote_24"
             android:layout_gravity="center"
-            app:downvote_tint="@{post.likes}"
+            app:downvoteTint="@{post.likes}"
             android:rotation="180"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"/>
@@ -54,7 +54,7 @@
             android:layout_height="wrap_content"
             android:src="@drawable/ic_bookmark_24"
             android:layout_gravity="center"
-            app:bookmark_tint="@{post.saved}"
+            app:bookmarkTint="@{post.saved}"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"/>
 

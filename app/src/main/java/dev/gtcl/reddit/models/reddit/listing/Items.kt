@@ -390,6 +390,8 @@ data class Subreddit(
     override val name: String,
     @Json(name = "display_name")
     val displayName: String,
+    @Json(name = "display_name_prefixed")
+    val displayNamePrefixed: String,
     @Json(name = "icon_img")
     val iconImg: String?,
     val title: String,

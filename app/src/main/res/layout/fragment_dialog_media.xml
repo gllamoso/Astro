@@ -51,7 +51,7 @@
                         android:id="@+id/album_icon"
                         android:layout_width="wrap_content"
                         android:layout_height="match_parent"
-                        android:src="@drawable/ic_collection_24"
+                        android:src="@drawable/ic_baseline_art_track_24"
                         android:padding="16dp"
                         android:tint="@android:color/white"
                         android:visibility="@{model.mediaItems.size() > 1 ? View.VISIBLE : View.GONE}"/>

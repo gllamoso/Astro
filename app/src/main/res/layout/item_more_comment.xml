@@ -37,7 +37,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@id/indent"
             app:layout_constraintTop_toTopOf="parent"
-            app:more_comment="@{more}"
+            app:moreComment="@{more}"
             tools:text="99 more replies" />
 
 

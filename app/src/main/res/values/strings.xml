@@ -14,14 +14,15 @@
     <string name="unhide">Unhide</string>
     <string name="report">Report</string>
 
-    <!--Sort Fragment-->
+    <!--Sort-->
     <string name="order_best">Best</string>
     <string name="order_hot">Hot</string>
     <string name="order_new">New</string>
     <string name="order_top">Top</string>
     <string name="order_controversial">Controversial</string>
     <string name="order_rising">Rising</string>
-    <string name="sort_posts_by">Sort posts by</string>
+    <string name="order_most_relevant">Most relevant</string>
+    <string name="order_comment_count">Comment count</string>
     <string name="sort">Sort</string>
     <string name="order_old">Old</string>
     <string name="order_qanda">Q&amp;A</string>
