@@ -15,7 +15,7 @@
         android:layout_height="wrap_content"
         app:cardCornerRadius="4dp"
         android:foreground="?android:attr/selectableItemBackground"
-        app:strokeWidth="0.5dp"
+        app:strokeWidth="1dp"
         app:strokeColor="@android:color/darker_gray">
 
         <LinearLayout

@@ -2,6 +2,7 @@ package dev.gtcl.reddit.ui.fragments.media
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.*
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
@@ -11,6 +12,7 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
+import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentDialogMediaBinding
 import dev.gtcl.reddit.models.reddit.MediaURL
@@ -49,12 +51,21 @@ class MediaDialogFragment : DialogFragment(){
         binding.model = model
         binding.activityModel = activityModel
         activityModel.showUi(true)
-        model.setMedia(requireArguments().get(MEDIA_KEY) as MediaURL)
+        if(!model.mediaInitialized && model.isLoading.value != true){
+            model.setMedia(requireArguments().get(MEDIA_KEY) as MediaURL)
+        }
 
         initAdapters()
         initWindowBackground()
         initTopbar()
         initBottomBar()
+
+        model.errorMessage.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                model.errorMessageObserved()
+            }
+        })
 
         return binding.root
     }

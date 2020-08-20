@@ -88,7 +88,7 @@
                         <include
                             android:id="@+id/content"
                             layout="@layout/layout_comments_content"
-                            app:post="@{model.post}"/>
+                            app:model="@{model}"/>
 
                         <View
                             android:layout_width="match_parent"

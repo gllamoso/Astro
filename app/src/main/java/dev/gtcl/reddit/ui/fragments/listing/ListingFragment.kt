@@ -360,6 +360,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                     UrlType.IMGUR_ALBUM -> MediaType.IMGUR_ALBUM
                     UrlType.GIF -> MediaType.GIF
                     UrlType.GFYCAT -> MediaType.GFYCAT
+                    UrlType.REDGIFS -> MediaType.REDGIFS
                     UrlType.IMAGE -> MediaType.PICTURE
                     UrlType.HLS, UrlType.GIFV, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> MediaType.VIDEO
                     else -> throw IllegalArgumentException("Invalid media type: $urlType")
@@ -369,7 +370,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                     else -> post.url
                 }
                 val backupUrl = when (mediaType) {
-                    MediaType.GFYCAT -> post.previewVideoUrl
+                    MediaType.GFYCAT, MediaType.REDGIFS -> post.previewVideoUrl
                     else -> null
                 }
                 val dialog = MediaDialogFragment.newInstance(

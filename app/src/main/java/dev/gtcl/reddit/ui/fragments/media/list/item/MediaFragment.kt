@@ -47,7 +47,7 @@ class MediaFragment : Fragment(){
         when(mediaURL.mediaType){
             MediaType.GIF -> initGifToImageView()
             MediaType.PICTURE -> initSubsamplingImageView()
-            MediaType.VIDEO, MediaType.GFYCAT -> initVideoPlayer()
+            MediaType.VIDEO, MediaType.GFYCAT, MediaType.REDGIFS -> initVideoPlayer()
             else -> throw IllegalStateException("Invalid media type: ${mediaURL.mediaType}")
         }
 
@@ -73,9 +73,10 @@ class MediaFragment : Fragment(){
     private fun initSubsamplingImageView(){
         binding.playerController.hide()
         model.mediaURL.observe(viewLifecycleOwner, Observer {
+            val url = it.url.replace("http://", "https://")
             Glide.with(requireContext())
                 .asBitmap()
-                .load(it.url)
+                .load(url)
                 .addListener(object : RequestListener<Bitmap> {
                     override fun onLoadFailed(
                         e: GlideException?,
@@ -112,8 +113,9 @@ class MediaFragment : Fragment(){
 
         binding.playerController.hide()
         model.mediaURL.observe(viewLifecycleOwner, Observer {
+            val url = it.url.replace("http://", "https://")
             Glide.with(requireContext())
-                .load(it.url)
+                .load(url)
                 .addListener(object: RequestListener<Drawable> {
                     override fun onLoadFailed(
                         e: GlideException?,

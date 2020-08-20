@@ -178,9 +178,11 @@ enum class Visibility{
 
 enum class MediaType{
     PICTURE,
+    IMGUR_PICTURE,
     GIF,
     VIDEO,
     GFYCAT,
+    REDGIFS,
     IMGUR_ALBUM
 }
 
@@ -355,17 +357,19 @@ fun PopupMenu.forceIcons(){
     }
 }
 
-sealed class PostContent(val postType: PostType)
-class TextPost(val body: String): PostContent(PostType.TEXT)
-class ImagePost(val uri: Uri): PostContent(PostType.IMAGE)
-class LinkPost(val url: URL): PostContent(PostType.URL)
+sealed class PostContent
+class TextPost(val body: String): PostContent()
+class ImagePost(val uri: Uri): PostContent()
+class LinkPost(val url: URL): PostContent()
 
-val IMGUR_GALLERY_REGEX = "http[s]?://(m.)?imgur\\.com/gallery/\\w+".toRegex()
-val IMGUR_ALBUM_REGEX = "http[s]?://(m.)?imgur\\.com/a/\\w+".toRegex()
+val IMGUR_GALLERY_REGEX = "http[s]?://(m.)?imgur\\.com/gallery/[A-Za-z0-9]+".toRegex()
+val IMGUR_ALBUM_REGEX = "http[s]?://(m.)?imgur\\.com/a/[A-Za-z0-9]+".toRegex()
+val IMGUR_IMAGE_REGEX = "http[s]?://(m.)?imgur\\.com/[A-Za-z0-9]+".toRegex()
 val IMAGE_REGEX = "http[s]?://.+\\.(jpg|png|svg)".toRegex()
 val GIF_REGEX = "http[s]?://.+\\.gif".toRegex()
 val GIFV_REGEX = "http[s]?://.+\\.gifv".toRegex()
 val GFYCAT_REGEX =  "http[s]?://(www\\.)?gfycat.com/\\w+".toRegex()
+val REDGIFS_REGEX = "http[s]?://(www\\.)?redgifs.com/watch/\\w+".toRegex()
 val HLS_REGEX = "http[s]?://.+/HLSPlaylist\\.m3u8.*".toRegex()
 val REDDIT_VIDEO_REGEX = "http[s]?://v.redd.it/\\w+".toRegex()
 val STANDARD_VIDEO = "http[s]?://.+\\.(mp4)".toRegex()
@@ -377,27 +381,43 @@ enum class UrlType: Parcelable {
     GIF,
     GIFV,
     GFYCAT,
+    REDGIFS,
     HLS,
     REDDIT_VIDEO,
     STANDARD_VIDEO,
     IMGUR_ALBUM,
+    IMGUR_IMAGE,
     REDDIT_COMMENTS,
     OTHER
 }
 
-
-fun String.getUrlType(): UrlType{
+fun String.getUrlType(): UrlType?{
     return when{
         IMGUR_ALBUM_REGEX.matches(this) or IMGUR_GALLERY_REGEX.matches(this) -> UrlType.IMGUR_ALBUM
-        IMAGE_REGEX.matches(this) -> UrlType.IMAGE
+        IMGUR_URL_REGEX.matches(this) -> UrlType.IMGUR_IMAGE
+        IMAGE_REGEX.matches(this) or IMGUR_IMAGE_REGEX.matches(this) -> UrlType.IMAGE
         GIF_REGEX.matches(this) -> UrlType.GIF
         GIFV_REGEX.matches(this) -> UrlType.GIFV
         GFYCAT_REGEX.matches(this) -> UrlType.GFYCAT
+        REDGIFS_REGEX.matches(this) -> UrlType.REDGIFS
         HLS_REGEX.matches(this) -> UrlType.HLS
         REDDIT_VIDEO_REGEX.matches(this) -> UrlType.REDDIT_VIDEO
         STANDARD_VIDEO.matches(this) -> UrlType.STANDARD_VIDEO
         REDDIT_COMMENTS_REGEX.matches(this) -> UrlType.REDDIT_COMMENTS
         else -> UrlType.OTHER
+    }
+}
+
+val IMGUR_URL_REGEX = "http[s]?://(m\\.)?imgur\\.com/\\w+".toRegex()
+const val IMGUR_GALLERY_URL = "https://imgur.com/gallery/"
+const val IMGUR_ALBUM_URL = "https://imgur.com/a/"
+const val IMGUR_URL = "https://imgur.com/"
+
+fun String.getImgurHashFromUrl(): String?{
+    return when(this.getUrlType()){
+        UrlType.IMGUR_ALBUM -> this.replace(IMGUR_ALBUM_URL, "").replace(IMGUR_GALLERY_URL, "")
+        UrlType.IMGUR_IMAGE -> this.replace(IMGUR_URL, "")
+        else -> null
     }
 }
 

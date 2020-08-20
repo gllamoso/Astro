@@ -112,7 +112,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val blurNsfw = preferences.getBoolean("blur_nsfw_thumbnail", false)
         val blurSpoiler = preferences.getBoolean("blur_spoiler_thumbnail", true)
-        listAdapter = ListingItemAdapter(markwon, postActions = this, commentActions = this, expected = ItemType.Post, blurNsfw = blurNsfw, blurSpoiler = blurSpoiler, itemClickListener = this){
+        listAdapter = ListingItemAdapter(markwon, postActions = this, commentActions = this, messageActions = this, expected = ItemType.Post, blurNsfw = blurNsfw, blurSpoiler = blurSpoiler, itemClickListener = this){
             binding.list.apply {
                 removeOnScrollListener(scrollListener)
                 addOnScrollListener(scrollListener)
@@ -209,15 +209,16 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     override fun thumbnailClicked(post: Post, position: Int) {
         model.addReadItem(post)
-        Log.d("TAE", "Url clicked: ${post.url}")
         when (val urlType: UrlType? = post.url?.getUrlType()) {
             UrlType.OTHER -> activityModel.openChromeTab(post.url)
             null -> throw IllegalArgumentException("Post does not have URL")
             else -> {
                 val mediaType = when (urlType) {
                     UrlType.IMGUR_ALBUM -> MediaType.IMGUR_ALBUM
+                    UrlType.IMGUR_IMAGE -> MediaType.IMGUR_PICTURE
                     UrlType.GIF -> MediaType.GIF
                     UrlType.GFYCAT -> MediaType.GFYCAT
+                    UrlType.REDGIFS -> MediaType.REDGIFS
                     UrlType.IMAGE -> MediaType.PICTURE
                     UrlType.HLS, UrlType.GIFV, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> MediaType.VIDEO
                     else -> throw IllegalArgumentException("Invalid media type: $urlType")
@@ -227,7 +228,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                     else -> post.url
                 }
                 val backupUrl = when (mediaType) {
-                    MediaType.GFYCAT -> post.previewVideoUrl
+                    MediaType.GFYCAT, MediaType.REDGIFS -> post.previewVideoUrl
                     else -> null
                 }
                 val dialog = MediaDialogFragment.newInstance(

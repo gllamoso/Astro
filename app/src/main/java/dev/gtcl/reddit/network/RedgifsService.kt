@@ -4,43 +4,26 @@ import android.util.Log
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
-import dev.gtcl.reddit.models.imgur.ImgurResponse
+import dev.gtcl.reddit.models.gfycat.GfycatResponse
 import kotlinx.coroutines.Deferred
 import okhttp3.HttpUrl.Companion.toHttpUrl
-import okhttp3.MultipartBody
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
-import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
-import retrofit2.http.*
+import retrofit2.http.GET
+import retrofit2.http.Path
 
-const val CLIENT_ID = "f6d367a7352ac18"
-interface ImgurService {
+interface RedgifsService {
 
-    @Multipart
-    @POST("/3/upload")
-    fun uploadImage(
-        @Header("Authorization") authorization: String = "Client-ID $CLIENT_ID",
-        @Part body: MultipartBody.Part
-    ): Deferred<ImgurResponse>
-
-    @GET("/3/album/{albumHash}")
-    fun getAlbumImages(
-        @Header("Authorization") authorization: String = "Client-ID $CLIENT_ID",
-        @Path("albumHash") albumHash: String
-    ): Deferred<ImgurResponse>
-
-    @GET("/3/image/{imageHash}")
-    fun getImage(
-        @Header("Authorization") authorization: String = "Client-ID $CLIENT_ID",
-        @Path("imageHash") imageHash: String
-    ): Deferred<ImgurResponse>
+    @GET("v1/gfycats/{gfyid}")
+    fun getGfycatInfo(
+        @Path("gfyid") gfyid: String
+    ): Deferred<GfycatResponse>
 
     companion object{
-        private val URL = "https://api.imgur.com/".toHttpUrl()
-
-        fun create(): ImgurService{
+        private const val URL = "https://api.redgifs.com/"
+        fun create(): RedgifsService {
             val logger = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger{
                 override fun log(message: String) {
                     Log.d("API", message)
@@ -57,20 +40,21 @@ interface ImgurService {
                 .build()
 
             return Retrofit.Builder()
-                .baseUrl(URL)
+                .baseUrl(URL.toHttpUrl())
                 .client(client)
+                .addConverterFactory(EnumConverterFactory)
                 .addConverterFactory(MoshiConverterFactory.create(moshi))
-                .addConverterFactory(GsonConverterFactory.create())
                 .addCallAdapterFactory(CoroutineCallAdapterFactory())
                 .build()
-                .create(ImgurService::class.java)
+                .create(RedgifsService::class.java)
         }
     }
-
 }
 
-object ImgurApi{
-    val retrofit : ImgurService by lazy{
-        ImgurService.create()
+
+
+object RedgifsApi {
+    val retrofit : RedgifsService by lazy {
+        RedgifsService.create()
     }
 }

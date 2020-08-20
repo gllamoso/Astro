@@ -2,10 +2,6 @@ package dev.gtcl.reddit.models.reddit.listing
 
 import android.os.Parcelable
 import android.text.Html
-import android.text.Spannable
-import android.text.Spanned
-import android.util.Log
-import android.webkit.URLUtil
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
@@ -265,6 +261,7 @@ data class Post(
                 secureMedia?.redditVideo != null -> secureMedia.redditVideo.hlsUrl
                 media?.redditVideo != null -> media.redditVideo.hlsUrl
                 preview?.redditVideo != null -> preview.redditVideo.hlsUrl
+                crosspostParentList?.get(0)?.previewVideoUrl != null -> crosspostParentList[0].previewVideoUrl
                 else -> null
             }
         }
@@ -284,29 +281,12 @@ data class Post(
     val titleFormatted: CharSequence = Html.fromHtml(title, Html.FROM_HTML_MODE_COMPACT)
 
     @IgnoredOnParcel
-    val postType: PostType
-        get() {
-            return when {
-                isSelf -> PostType.TEXT
-                GIF_REGEX.matches(url ?: "") -> PostType.GIF
-                IMAGE_REGEX.matches(url ?: "") -> PostType.IMAGE
-                previewVideoUrl != null || GFYCAT_REGEX.matches(url ?: "") || HLS_REGEX.matches(
-                    url ?: ""
-                ) || GIFV_REGEX.matches(url ?: "") -> PostType.VIDEO
-                else -> PostType.URL
-            }
-        }
+    val urlType = url?.getUrlType()
 }
 
 enum class PostType {
     @SerializedName("self")
     TEXT,
-    @SerializedName("image")
-    IMAGE,
-    @SerializedName("videogif")
-    GIF,
-    @SerializedName("video")
-    VIDEO,
     @SerializedName("link")
     URL
 }

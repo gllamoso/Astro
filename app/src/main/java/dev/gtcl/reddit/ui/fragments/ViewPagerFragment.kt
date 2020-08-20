@@ -7,7 +7,6 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -171,6 +170,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
             UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
             UrlType.REDDIT_COMMENTS -> model.newPage(ContinueThreadPage(link, null, true))
             UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
+            UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_PICTURE)).show(childFragmentManager, null)
         }
     }
 

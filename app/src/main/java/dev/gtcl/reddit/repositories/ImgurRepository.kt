@@ -21,6 +21,9 @@ class ImgurRepository private constructor(){
     @MainThread
     fun getAlbumImages(albumHash: String): Deferred<ImgurResponse> = ImgurApi.retrofit.getAlbumImages(albumHash = albumHash)
 
+    @MainThread
+    fun getImage(imageHash: String): Deferred<ImgurResponse> = ImgurApi.retrofit.getImage(imageHash = imageHash)
+
     companion object{
         private lateinit var INSTANCE: ImgurRepository
         fun getInstance(): ImgurRepository{

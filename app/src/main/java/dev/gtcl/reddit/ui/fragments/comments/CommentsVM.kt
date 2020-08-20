@@ -14,10 +14,14 @@ import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.download.DownloadIntentService
 import dev.gtcl.reddit.models.gfycat.GfyItem
+import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.MoreComments
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.repositories.GfycatRepository
+import dev.gtcl.reddit.repositories.ImgurRepository
+import dev.gtcl.reddit.ui.fragments.PostPage
+import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -29,6 +33,7 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
     // Repos
     private val listingRepository = ListingRepository.getInstance(application)
     private val gfycatRepository = GfycatRepository.getInstance()
+    private val imgurRepository = ImgurRepository.getInstance()
 
     // Scopes
     private var viewModelJob = Job()
@@ -68,15 +73,13 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
     val removeAt: LiveData<Int?>
         get() = _removeAt
 
-    private var playWhenReady = true
-    private var currentWindow = 0
-    private var playbackPosition = 0.toLong()
-
-    private var gfyItem: GfyItem? = null
-
-    private val _player = MutableLiveData<SimpleExoPlayer?>()
-    val player: LiveData<SimpleExoPlayer?>
-        get() = _player
+    private val _mediaItems = MutableLiveData<List<MediaURL>?>().apply { value = null }
+    val mediaItems: LiveData<List<MediaURL>?>
+        get() = _mediaItems
+//
+//    private var playWhenReady = true
+//    private var currentWindow = 0
+//    private var playbackPosition = 0.toLong()
 
     private val pageSize = 15
 
@@ -144,52 +147,52 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
     }
 
     fun initializePlayer(post: Post){
-        if(player.value != null) {
-            return
-        }
-        if(_post.value == null) {
-            throw IllegalStateException("Post has not been initialized")
-        }
-        coroutineScope.launch {
-            val trackSelector = DefaultTrackSelector()
-            trackSelector.setParameters(trackSelector.buildUponParameters().setMaxVideoSizeSd())
-            val urlType = (post.url ?: "").getUrlType()
-            val url = when(urlType){
-                UrlType.GIFV, UrlType.GFYCAT, UrlType.HLS -> post.url
-                else -> post.previewVideoUrl
-            }
-            var uri = Uri.parse(url)
-            if(urlType == UrlType.GFYCAT) {
-                try {
-                    gfyItem = gfycatRepository.getGfycatInfo(
-                        url!!.replace("http[s]?://gfycat.com/".toRegex(), ""))
-                        .await()
-                        .gfyItem
-                    uri = Uri.parse(gfyItem!!.mobileUrl)
-                }
-                catch (e: Exception){
-                    uri = Uri.parse(post.previewVideoUrl)
-                }
-            }
-            var mediaSource = buildMediaSource(application.baseContext, uri)
-            val player = ExoPlayerFactory.newSimpleInstance(application.baseContext, trackSelector)
-            player!!.apply {
-                repeatMode = Player.REPEAT_MODE_ONE
-                playWhenReady = this@CommentsVM.playWhenReady
-                seekTo(currentWindow, playbackPosition)
-                prepare(mediaSource, false, false)
-                addListener(object: Player.EventListener{
-                    override fun onPlayerError(error: ExoPlaybackException?) {
-//                        _errorMessage.value = application.getString(R.string.error_with_video_player)
-                        if(uri.path != post.previewVideoUrl) {
-                            mediaSource = buildMediaSource(application.baseContext, Uri.parse(post.previewVideoUrl))
-                            prepare(mediaSource, false, false)
-                        }
-                    }
-                })
-            }
-            _player.value = player
-        }
+//        if(player.value != null) {
+//            return
+//        }
+//        if(_post.value == null) {
+//            throw IllegalStateException("Post has not been initialized")
+//        }
+//        coroutineScope.launch {
+//            val trackSelector = DefaultTrackSelector()
+//            trackSelector.setParameters(trackSelector.buildUponParameters().setMaxVideoSizeSd())
+//            val urlType = (post.url ?: "").getUrlType()
+//            val url = when(urlType){
+//                UrlType.GIFV, UrlType.GFYCAT, UrlType.HLS -> post.url
+//                else -> post.previewVideoUrl
+//            }
+//            var uri = Uri.parse(url)
+//            if(urlType == UrlType.GFYCAT) {
+//                try {
+//                    gfyItem = gfycatRepository.getGfycatInfo(
+//                        url!!.replace("http[s]?://gfycat.com/".toRegex(), ""))
+//                        .await()
+//                        .gfyItem
+//                    uri = Uri.parse(gfyItem!!.mobileUrl)
+//                }
+//                catch (e: Exception){
+//                    uri = Uri.parse(post.previewVideoUrl)
+//                }
+//            }
+//            var mediaSource = buildMediaSource(application.baseContext, uri)
+//            val player = ExoPlayerFactory.newSimpleInstance(application.baseContext, trackSelector)
+//            player!!.apply {
+//                repeatMode = Player.REPEAT_MODE_ONE
+//                playWhenReady = this@CommentsVM.playWhenReady
+//                seekTo(currentWindow, playbackPosition)
+//                prepare(mediaSource, false, false)
+//                addListener(object: Player.EventListener{
+//                    override fun onPlayerError(error: ExoPlaybackException?) {
+////                        _errorMessage.value = application.getString(R.string.error_with_video_player)
+//                        if(uri.path != post.previewVideoUrl) {
+//                            mediaSource = buildMediaSource(application.baseContext, Uri.parse(post.previewVideoUrl))
+//                            prepare(mediaSource, false, false)
+//                        }
+//                    }
+//                })
+//            }
+//            _player.value = player
+//        }
     }
 
     fun loadingFinished(){
@@ -248,26 +251,134 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
         }
     }
 
-    fun download(){
-        if(_post.value == null) {
-            return
+    fun fetchMediaItems(post: Post){
+
+        coroutineScope.launch {
+            try{
+                _loading.value = true
+                _mediaItems.value = when(post.urlType){
+                    UrlType.IMAGE -> {
+                        listOf(MediaURL(post.url!!, MediaType.PICTURE))
+                    }
+                    UrlType.GIF -> {
+                        listOf(MediaURL(post.url!!, MediaType.GIF))
+                    }
+                    UrlType.HLS, UrlType.GIFV, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> {
+                        listOf(MediaURL(post.previewVideoUrl!!, MediaType.VIDEO))
+                    }
+                    UrlType.GFYCAT -> {
+                        val videoUrl = gfycatRepository.getGfycatInfo(
+                            post.url!!.replace("http[s]?://gfycat.com/".toRegex(), ""))
+                            .await()
+                            .gfyItem
+                            .mobileUrl
+                        listOf(MediaURL(videoUrl, MediaType.VIDEO, post.previewVideoUrl))
+                    }
+                    UrlType.REDGIFS -> {
+                        val videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(
+                            post.url!!.replace("http[s]?://(www\\.)?redgifs.com/watch/".toRegex(), ""))
+                            .await()
+                            .gfyItem
+                            .mobileUrl
+                        listOf(MediaURL(videoUrl, MediaType.VIDEO, post.previewVideoUrl))
+                    }
+                    UrlType.IMGUR_ALBUM -> {
+                        val album = imgurRepository.getAlbumImages(post.url!!.getImgurHashFromUrl()!!).await().data.images!!
+                        album.map {
+                            val mediaType = when {
+                                it.type.startsWith("video") -> {
+                                    MediaType.VIDEO
+                                }
+                                it.type.startsWith("image/gif") -> {
+                                    MediaType.GIF
+                                }
+                                else -> {
+                                    MediaType.PICTURE
+                                }
+                            }
+                            MediaURL(it.link, mediaType)
+                        }
+                    }
+                    UrlType.IMGUR_IMAGE -> {
+                        val imgurData = imgurRepository.getImage(post.url!!.getImgurHashFromUrl()!!).await().data
+                        val mediaType = when {
+                            imgurData.type?.startsWith("video") ?: false -> {
+                                MediaType.VIDEO
+                            }
+                            imgurData.type?.startsWith("image/gif") ?: false -> {
+                                MediaType.GIF
+                            }
+                            else -> {
+                                MediaType.PICTURE
+                            }
+                        }
+                        listOf(MediaURL(imgurData.link, mediaType))
+                    }
+                    else -> {
+                        listOf()
+                    }
+                }
+
+                _loading.value = false
+            } catch (e: Exception) {
+                _errorMessage.value = e.getErrorMessage(application)
+            }
         }
-        DownloadIntentService.enqueueWork(application.applicationContext, gfyItem?.mp4Url ?: _post.value!!.url!!)
-        Toast.makeText(application, application.getText(R.string.downloading), Toast.LENGTH_SHORT).show()
+
+
+
+//        MediaType.GIF -> initGifToImageView()
+//        MediaType.PICTURE -> initSubsamplingImageView()
+//        MediaType.VIDEO, MediaType.GFYCAT -> initVideoPlayer()
+
+
+//        UrlType.OTHER -> activityModel.openChromeTab(post.url)
+//        null -> throw IllegalArgumentException("Post does not have URL")
+//        else -> {
+//            val mediaType = when (urlType) {
+//                UrlType.IMGUR_ALBUM -> MediaType.IMGUR_ALBUM
+//                UrlType.GIF -> MediaType.GIF
+//                UrlType.GFYCAT -> MediaType.GFYCAT
+//                UrlType.IMAGE -> MediaType.PICTURE
+//                UrlType.HLS, UrlType.GIFV, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> MediaType.VIDEO
+//                else -> throw IllegalArgumentException("Invalid media type: $urlType")
+//            }
+//            val url = when (mediaType) {
+//                MediaType.VIDEO -> post.previewVideoUrl!!
+//                else -> post.url
+//            }
+//            val backupUrl = when (mediaType) {
+//                MediaType.GFYCAT -> post.previewVideoUrl
+//                else -> null
+//            }
+//            val dialog = MediaDialogFragment.newInstance(
+//                MediaURL(url, mediaType, backupUrl),
+//                PostPage(post, position)
+//            )
+//            dialog.show(parentFragmentManager, null)
+//        }
     }
 
-    fun pausePlayer(){
-        _player.value?.let{
-            currentWindow = it.currentWindowIndex
-            playbackPosition = it.currentPosition
-            playWhenReady = false
-            it.playWhenReady = false
-        }
-    }
-
-    override fun onCleared() {
-        super.onCleared()
-        _player.value?.release()
-        _player.value = null
-    }
+//    fun download(){
+//        if(_post.value == null) {
+//            return
+//        }
+//        DownloadIntentService.enqueueWork(application.applicationContext, gfyItem?.mp4Url ?: _post.value!!.url!!)
+//        Toast.makeText(application, application.getText(R.string.downloading), Toast.LENGTH_SHORT).show()
+//    }
+//
+//    fun pausePlayer(){
+//        _player.value?.let{
+//            currentWindow = it.currentWindowIndex
+//            playbackPosition = it.currentPosition
+//            playWhenReady = false
+//            it.playWhenReady = false
+//        }
+//    }
+//
+//    override fun onCleared() {
+//        super.onCleared()
+//        _player.value?.release()
+//        _player.value = null
+//    }
 }

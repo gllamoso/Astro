@@ -62,13 +62,21 @@ class MediaVM(private val application: RedditApplication): AndroidViewModel(appl
                 val trackSelector = DefaultTrackSelector()
                 trackSelector.setParameters(trackSelector.buildUponParameters().setMaxVideoSizeSd())
                 var videoUri: Uri = Uri.parse(mediaURL.url)
-                if(mediaURL.mediaType == MediaType.GFYCAT){
+                if(mediaURL.mediaType == MediaType.GFYCAT || mediaURL.mediaType == MediaType.REDGIFS){
                     try{
-                        val videoUrl = gfycatRepository
-                            .getGfycatInfo(mediaURL.url.replace("http[s]?://gfycat.com/".toRegex(), ""))
-                            .await()
-                            .gfyItem
-                            .mp4Url
+                        val videoUrl = if(mediaURL.mediaType == MediaType.GFYCAT) {
+                            gfycatRepository
+                                .getGfycatInfo(mediaURL.url.replace("http[s]?://gfycat.com/".toRegex(), ""))
+                                .await()
+                                .gfyItem
+                                .mobileUrl
+                        } else {
+                            gfycatRepository.getGfycatInfoFromRedgifs(
+                                mediaURL.url.replace("http[s]?://(www\\.)?redgifs.com/watch/".toRegex(), ""))
+                                .await()
+                                .gfyItem
+                                .mobileUrl
+                        }
                         videoUri = Uri.parse(videoUrl)
                     } catch (e: Exception){
                         if(mediaURL.backupUrl != null){

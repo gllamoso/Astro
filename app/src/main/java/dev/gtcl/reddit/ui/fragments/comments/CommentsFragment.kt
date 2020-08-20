@@ -3,14 +3,11 @@ package dev.gtcl.reddit.ui.fragments.comments
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.text.SpannableStringBuilder
-import android.text.Spanned
-import android.text.util.Linkify
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.activityViewModels
@@ -19,6 +16,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -39,6 +37,7 @@ import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
+import dev.gtcl.reddit.ui.fragments.media.list.MediaListFragmentAdapter
 import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
 import io.noties.markwon.*
@@ -74,7 +73,9 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         binding.lifecycleOwner = this
         binding.model = model
 
-        initPost()
+        if(!model.commentsFetched){
+            initPost()
+        }
         initTopBar()
         initBottomBarAndCommentsAdapter()
         initOtherObservers()
@@ -98,14 +99,26 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                         viewPagerModel.newPage(PostPage(post.crosspostParentList[0], -1))
                     }
                 }
-                when (post.postType) {
-                    PostType.IMAGE -> initSubsamplingImageView(post)
-                    PostType.GIF -> initGifToImageView(post)
-                    PostType.VIDEO -> initVideoPlayer(post)
-                    PostType.TEXT -> markwon.setMarkdown(binding.content.contentText, post.selftext)
-                    PostType.URL -> initUrlPreview(post)
+                when{
+                    post.isSelf -> markwon.setMarkdown(binding.content.contentText, post.selftext)
+                    else -> {
+                        when(post.url?.getUrlType()){
+                            UrlType.OTHER -> initUrlPreview(post.url)
+                            else -> model.fetchMediaItems(post)
+                        }
+                    }
                 }
                 model.contentInitialized = true
+            }
+        })
+
+        model.mediaItems.observe(viewLifecycleOwner, Observer {
+            if(it != null && binding.content.viewPager.adapter == null){
+                val adapter = MediaListFragmentAdapter(this, it)
+                binding.content.viewPager.apply {
+                    this.adapter = adapter
+                    (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+                }
             }
         })
 
@@ -136,21 +149,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         model.contentInitialized = false
     }
 
-    override fun onPause() {
-        super.onPause()
-        val position = arguments?.get(POSITION_KEY)
-        val post = model.post.value.apply {
-            this?.isRead = true
-        }
-//        parentFragmentManager.setFragmentResult(POST_BUNDLE_KEY, bundleOf(POST_KEY to post, POSITION_KEY to position))
-    }
-
-    override fun onStop() {
-        super.onStop()
-        if (!requireActivity().isChangingConfigurations) {
-            model.pausePlayer()
-        }
-    }
 
     private fun initTopBar() {
         binding.toolbar.setNavigationOnClickListener {
@@ -290,90 +288,28 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
         val url = requireArguments().get(URL_KEY) as String?
         if (postPage != null) {
-            if (!model.commentsFetched) {
-                model.setPost(postPage.post)
-            }
+            model.setPost(postPage.post)
         } else {
             model.fetchPostAndComments(url!!)
             BottomSheetBehavior.from(binding.bottomSheet).state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
 
-    private fun initSubsamplingImageView(post: Post) {
-        Glide.with(requireContext())
-            .asBitmap()
-            .load(post.url)
-            .addListener(object : RequestListener<Bitmap> {
-                override fun onLoadFailed(
-                    e: GlideException?,
-                    model: Any?,
-                    target: Target<Bitmap>?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    this@CommentsFragment.model.loadingFinished()
-                    return false
-                }
-
-                override fun onResourceReady(
-                    resource: Bitmap?,
-                    model: Any?,
-                    target: Target<Bitmap>?,
-                    dataSource: DataSource?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    this@CommentsFragment.model.loadingFinished()
-                    return false
-                }
-
-            })
-            .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
-            .into(SubsamplingScaleImageViewTarget(binding.content.scaleImageView))
-    }
-
-    private fun initGifToImageView(post: Post) {
-        Glide.with(requireContext())
-            .load(post.url)
-            .addListener(object : RequestListener<Drawable> {
-                override fun onLoadFailed(
-                    e: GlideException?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    this@CommentsFragment.model.loadingFinished()
-                    return false
-                }
-
-                override fun onResourceReady(
-                    resource: Drawable?,
-                    model: Any?,
-                    target: Target<Drawable>?,
-                    dataSource: DataSource?,
-                    isFirstResource: Boolean
-                ): Boolean {
-                    this@CommentsFragment.model.loadingFinished()
-                    return false
-                }
-
-            })
-            .into(binding.content.imageView)
-    }
-
-    private fun initUrlPreview(post: Post){
+    private fun initUrlPreview(url: String){
         binding.content.thumbnailWithUrlLayout.root.setOnClickListener {
-            handleLink(post.url ?: "")
+            handleLink(url)
         }
     }
 
-    private fun initVideoPlayer(post: Post) {
-        model.initializePlayer(post)
-        model.player.observe(viewLifecycleOwner, Observer { simpleExoPlayer ->
-            if (simpleExoPlayer != null) {
-                binding.content.playerView.player = simpleExoPlayer
-                model.loadingFinished()
-            }
-        })
-    }
+//    private fun initVideoPlayer(post: Post) {
+//        model.initializePlayer(post)
+//        model.player.observe(viewLifecycleOwner, Observer { simpleExoPlayer ->
+//            if (simpleExoPlayer != null) {
+//                binding.content.playerView.player = simpleExoPlayer
+//                model.loadingFinished()
+//            }
+//        })
+//    }
 
 //      _____                                     _                  _   _
 //     / ____|                                   | |       /\       | | (_)
@@ -447,6 +383,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
             UrlType.REDDIT_COMMENTS -> viewPagerModel.newPage(ContinueThreadPage(link, null, true))
             UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
+            UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_PICTURE)).show(childFragmentManager, null)
         }
     }
 

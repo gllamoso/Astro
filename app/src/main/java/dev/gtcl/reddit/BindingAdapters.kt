@@ -98,25 +98,6 @@ fun bindUriToImage(imgView: ImageView, uri: Uri?){
         .into(imgView)
 }
 
-@BindingAdapter("post")
-fun bindVideo(playerView: PlayerView, post: Post?){
-    if(post == null || post.postType != PostType.VIDEO){
-        playerView.visibility = View.GONE
-        return
-    }
-    playerView.visibility = View.VISIBLE
-}
-
-@BindingAdapter("post")
-fun loadImage(subsamplingScaleImageView: SubsamplingScaleImageView, post: Post?){
-    if(post == null || post.postType != PostType.IMAGE) {
-        subsamplingScaleImageView.visibility = View.GONE
-        return
-    }
-    subsamplingScaleImageView.visibility = View.VISIBLE
-    loadImage(subsamplingScaleImageView, post.url)
-}
-
 @BindingAdapter("subsampleImage")
 fun loadImage(subsamplingScaleImageView: SubsamplingScaleImageView, imgUrl: String?){
     Glide.with(subsamplingScaleImageView.context)

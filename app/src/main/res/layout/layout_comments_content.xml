@@ -5,62 +5,44 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+<!--        <variable-->
+<!--            name="post"-->
+<!--            type="dev.gtcl.reddit.models.reddit.listing.Post" />-->
         <variable
-            name="post"
-            type="dev.gtcl.reddit.models.reddit.listing.Post" />
-        <import type="dev.gtcl.reddit.models.reddit.listing.PostType"/>
+            name="model"
+            type="dev.gtcl.reddit.ui.fragments.comments.CommentsVM" />
         <import type="android.view.View"/>
+        <import type="dev.gtcl.reddit.UrlType"/>
     </data>
 
     <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@{post.postType == PostType.TEXT || post.postType == PostType.URL ? @android:color/transparent : @android:color/black}">
+        android:background="@{model.post.self || model.post.urlType == UrlType.OTHER ? @android:color/transparent : @android:color/black}">
 
         <TextView
             android:id="@+id/content_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp"
-            android:visibility="@{post.postType == PostType.TEXT ? View.VISIBLE : View.GONE}"/>
-
-        <com.google.android.exoplayer2.ui.PlayerView
-            android:id="@+id/player_view"
-            android:layout_width="match_parent"
-            android:layout_height="525dp"
-            app:viewSize="@{70}"
-            android:padding="8dp"
-            android:visibility="@{post.postType == PostType.VIDEO ? View.VISIBLE : View.GONE}"
-            app:use_controller="true"
-            app:surface_type="texture_view"
-            app:show_buffering="always"
-            app:resize_mode="fit"/>
-
-        <ImageView
-            android:id="@+id/image_view"
-            android:layout_width="match_parent"
-            android:layout_height="525dp"
-            app:viewSize="@{70}"
-            android:padding="8dp"
-            android:visibility="@{post.postType == PostType.GIF ? View.VISIBLE : View.GONE}"/>
-
-        <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-            android:id="@+id/scale_image_view"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="@{post.postType == PostType.IMAGE ? View.VISIBLE : View.GONE}"
-            app:tileBackgroundColor="@android:color/transparent"
-            app:viewSize="@{70}"
-            app:zoomEnabled="true"/>
+            android:visibility="@{model.post.self ? View.VISIBLE : View.GONE}"/>
 
         <include
             android:id="@+id/thumbnail_with_url_layout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             layout="@layout/layout_url_with_thumbnail"
-            app:thumbnailUrl="@{post.thumbnail}"
-            app:url="@{post.url}"
-            android:visibility="@{(post.postType == PostType.URL) ? View.VISIBLE : View.GONE}"/>
+            app:thumbnailUrl="@{model.post.thumbnail}"
+            app:url="@{model.post.url}"
+            android:visibility="@{(model.post.urlType == UrlType.OTHER) ? View.VISIBLE : View.GONE}"/>
+
+        <androidx.viewpager2.widget.ViewPager2
+            android:id="@+id/view_pager"
+            android:layout_width="match_parent"
+            android:layout_height="525dp"
+            android:orientation="vertical"
+            app:viewSize="@{70}"
+            android:visibility="@{model.mediaItems != null ? View.VISIBLE : View.GONE}"/>
 
     </FrameLayout>
 

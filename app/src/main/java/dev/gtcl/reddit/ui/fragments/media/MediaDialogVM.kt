@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui.fragments.media
 
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
@@ -8,6 +9,7 @@ import dev.gtcl.reddit.MediaType
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.download.DownloadIntentService
+import dev.gtcl.reddit.getErrorMessage
 import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.repositories.GfycatRepository
@@ -39,34 +41,86 @@ class MediaDialogVM(private val application: RedditApplication): AndroidViewMode
     val itemPosition : LiveData<Int>
         get() = _itemPosition
 
-    private val _isLoading = MutableLiveData<Boolean>().apply { value = true }
+    private val _isLoading = MutableLiveData<Boolean>().apply { value = false }
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 
+    private var _mediaInitialized = false
+    val mediaInitialized: Boolean
+        get() = _mediaInitialized
+
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?>
+        get() = _errorMessage
+
     fun setMedia(mediaURL: MediaURL){
         coroutineScope.launch {
-            _isLoading.value = true
-            if(mediaURL.mediaType == MediaType.IMGUR_ALBUM){
-                val album = imgurRepository.getAlbumImages(mediaURL.imgurHash).await().data.images!!
-                _mediaItems.value = album.map {
-                    val mediaType = when {
-                        it.type.startsWith("video") -> {
-                            MediaType.VIDEO
-                        }
-                        it.type.startsWith("image/gif") -> {
-                            MediaType.GIF
-                        }
-                        else -> {
-                            MediaType.PICTURE
+            try{
+                _isLoading.value = true
+                _mediaItems.value = when(mediaURL.mediaType){
+                    MediaType.IMGUR_ALBUM -> {
+                        val album = imgurRepository.getAlbumImages(mediaURL.imgurHash!!).await().data.images!!
+                        album.map {
+                            val mediaType = when {
+                                it.type.startsWith("video") -> {
+                                    MediaType.VIDEO
+                                }
+                                it.type.startsWith("image/gif") -> {
+                                    MediaType.GIF
+                                }
+                                else -> {
+                                    MediaType.PICTURE
+                                }
+                            }
+                            MediaURL(it.link, mediaType)
                         }
                     }
-                    MediaURL(it.link, mediaType)
+                    MediaType.IMGUR_PICTURE -> {
+                        val imgurData = imgurRepository.getImage(mediaURL.imgurHash!!).await().data
+                        val mediaType = when {
+                            imgurData.type?.startsWith("video") ?: false -> {
+                                MediaType.VIDEO
+                            }
+                            imgurData.type?.startsWith("image/gif") ?: false -> {
+                                MediaType.GIF
+                            }
+                            else -> {
+                                MediaType.PICTURE
+                            }
+                        }
+                        listOf(MediaURL(imgurData.link, mediaType))
+                    }
+                    MediaType.GFYCAT -> {
+                        val videoUrl = gfycatRepository.getGfycatInfo(
+                            mediaURL.url.replace("http[s]?://gfycat.com/".toRegex(), ""))
+                            .await()
+                            .gfyItem
+                            .mobileUrl
+                        listOf(MediaURL(videoUrl, MediaType.VIDEO, mediaURL.backupUrl))
+                    }
+                    MediaType.REDGIFS -> {
+                        val videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(
+                            mediaURL.url.replace("http[s]?://(www\\.)?redgifs.com/watch/".toRegex(), ""))
+                            .await()
+                            .gfyItem
+                            .mobileUrl
+                        listOf(MediaURL(videoUrl, MediaType.VIDEO, mediaURL.backupUrl))
+                    }
+                    else -> {
+                        listOf(mediaURL)
+                    }
                 }
-            } else {
-                _mediaItems.value = listOf(mediaURL)
+                _mediaInitialized = true
+                _isLoading.value = false
+            } catch (e: Exception) {
+                _errorMessage.value = e.getErrorMessage(application)
             }
-            _isLoading.value = false
+
         }
+    }
+
+    fun errorMessageObserved(){
+        _errorMessage.value = null
     }
 
     fun setPost(post: Post?){
