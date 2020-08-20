@@ -42,10 +42,6 @@ class MediaVM(private val application: RedditApplication): AndroidViewModel(appl
     val player: LiveData<SimpleExoPlayer?>
         get() = _player
 
-    private val _playerControllerView = MutableLiveData<WeakReference<PlayerControlView>?>()
-    val playerControllerView: LiveData<WeakReference<PlayerControlView>?>
-        get() = _playerControllerView
-
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?>
         get() = _errorMessage
@@ -90,7 +86,7 @@ class MediaVM(private val application: RedditApplication): AndroidViewModel(appl
                 val player = ExoPlayerFactory.newSimpleInstance(application.baseContext, trackSelector)
                 player!!.apply {
                     repeatMode = Player.REPEAT_MODE_ONE
-                    playWhenReady = true
+                    playWhenReady = false
                     seekTo(0, 0)
                     prepare(mediaSource, false, false)
                     addListener(object: Player.EventListener{
@@ -124,6 +120,9 @@ class MediaVM(private val application: RedditApplication): AndroidViewModel(appl
     fun setLoadingState(loading: Boolean){
         _isLoading.value = loading
     }
+
+    val playerIsPlaying: Boolean
+        get() = _player.value?.isPlaying ?: false
 
     override fun onCleared() {
         super.onCleared()

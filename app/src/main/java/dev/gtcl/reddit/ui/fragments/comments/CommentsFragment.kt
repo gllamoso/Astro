@@ -1,15 +1,15 @@
 package dev.gtcl.reddit.ui.fragments.comments
 
-import android.graphics.Bitmap
-import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.os.bundleOf
+import androidx.core.view.GravityCompat
+import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
@@ -17,13 +17,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.DataSource
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.load.engine.GlideException
-import com.bumptech.glide.request.RequestListener
-import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.Target
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
@@ -37,12 +31,13 @@ import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
+import dev.gtcl.reddit.ui.fragments.media.list.MediaListAdapter
 import dev.gtcl.reddit.ui.fragments.media.list.MediaListFragmentAdapter
 import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
 import io.noties.markwon.*
 
-class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler {
+class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler, DrawerLayout.DrawerListener {
 
     private val model: CommentsVM by lazy {
         val viewModelFactory =
@@ -76,79 +71,20 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         if(!model.commentsFetched){
             initPost()
         }
+        initPostObservers()
         initTopBar()
         initBottomBarAndCommentsAdapter()
+        initMedia()
         initOtherObservers()
 
         binding.executePendingBindings()
         return binding.root
     }
 
-    private fun initOtherObservers() {
-        model.errorMessage.observe(viewLifecycleOwner, Observer {
-            if(it != null){
-                Snackbar.make(binding.bottomBar, it, Snackbar.LENGTH_LONG).show()
-                model.errorMessageObserved()
-            }
-        })
-
-        model.post.observe(viewLifecycleOwner, Observer { post ->
-            if(!model.contentInitialized){
-                if(post.crosspostParentList != null){
-                    binding.crossPostLayout.cardView.setOnClickListener {
-                        viewPagerModel.newPage(PostPage(post.crosspostParentList[0], -1))
-                    }
-                }
-                when{
-                    post.isSelf -> markwon.setMarkdown(binding.content.contentText, post.selftext)
-                    else -> {
-                        when(post.url?.getUrlType()){
-                            UrlType.OTHER -> initUrlPreview(post.url)
-                            else -> model.fetchMediaItems(post)
-                        }
-                    }
-                }
-                model.contentInitialized = true
-            }
-        })
-
-        model.mediaItems.observe(viewLifecycleOwner, Observer {
-            if(it != null && binding.content.viewPager.adapter == null){
-                val adapter = MediaListFragmentAdapter(this, it)
-                binding.content.viewPager.apply {
-                    this.adapter = adapter
-                    (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
-                }
-            }
-        })
-
-        binding.swipeRefresh.setOnRefreshListener {
-            val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
-            if(postPage != null){
-                model.fetchPostAndComments()
-            } else {
-                val url = requireArguments().getString(URL_KEY)
-                val fullContextLink = requireArguments().getString(FULL_CONTEXT_URL_KEY, null)
-                if(model.allCommentsFetched.value == true){
-                    model.fetchPostAndComments(fullContextLink)
-                } else {
-                    model.fetchPostAndComments(url!!)
-                }
-            }
-        }
-
-        model.loading.observe(viewLifecycleOwner, Observer {
-            if(it == false){
-                binding.swipeRefresh.isRefreshing = false
-            }
-        })
-    }
-
     override fun onDestroyView() {
         super.onDestroyView()
         model.contentInitialized = false
     }
-
 
     private fun initTopBar() {
         binding.toolbar.setNavigationOnClickListener {
@@ -295,21 +231,119 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         }
     }
 
+    private fun initPostObservers(){
+        model.post.observe(viewLifecycleOwner, Observer { post ->
+            if(!model.contentInitialized){
+                if(post.crosspostParentList != null){
+                    binding.crossPostLayout.cardView.setOnClickListener {
+                        viewPagerModel.newPage(PostPage(post.crosspostParentList[0], -1))
+                    }
+                }
+                when{
+                    post.isSelf -> markwon.setMarkdown(binding.content.contentText, post.selftext)
+                    else -> {
+                        when(post.url?.getUrlType()){
+                            UrlType.OTHER -> initUrlPreview(post.url)
+                            else -> model.fetchMediaItems(post)
+                        }
+                    }
+                }
+                model.contentInitialized = true
+            }
+        })
+    }
+
     private fun initUrlPreview(url: String){
         binding.content.thumbnailWithUrlLayout.root.setOnClickListener {
             handleLink(url)
         }
     }
 
-//    private fun initVideoPlayer(post: Post) {
-//        model.initializePlayer(post)
-//        model.player.observe(viewLifecycleOwner, Observer { simpleExoPlayer ->
-//            if (simpleExoPlayer != null) {
-//                binding.content.playerView.player = simpleExoPlayer
-//                model.loadingFinished()
-//            }
-//        })
-//    }
+    private fun initMedia(){
+        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+        model.mediaItems.observe(viewLifecycleOwner, Observer {
+//            if(it != null && binding.content.viewPager.adapter == null){
+            if(it != null){
+                val adapter = MediaListFragmentAdapter(this, it)
+                binding.content.viewPager.apply {
+                    if(this.adapter == null){
+                        this.adapter = adapter
+                    }
+                    (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+                    if(it.size > 1){
+                        registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
+                            override fun onPageScrollStateChanged(state: Int) {
+                                super.onPageScrollStateChanged(state)
+                                if(state == ViewPager2.SCROLL_STATE_IDLE){
+                                    binding.content.previousButton.visibility = if(currentItem == 0) View.GONE else View.VISIBLE
+                                    binding.content.nextButton.visibility = if(currentItem == it.size - 1) View.GONE else View.VISIBLE
+                                }
+                            }
+                        })
+
+                        binding.content.previousButton.visibility = if(currentItem == 0) View.GONE else View.VISIBLE
+                        binding.content.nextButton.visibility = if(currentItem == it.size - 1) View.GONE else View.VISIBLE
+                    }
+                }
+
+                if(it.size > 1){
+                    binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                    binding.drawerLayout.addDrawerListener(this)
+
+                    val mediaListAdapter =
+                        MediaListAdapter { position ->
+                            binding.content.viewPager.currentItem = position
+                            binding.drawerLayout.closeDrawer(GravityCompat.END)
+                        }
+                    mediaListAdapter.submitList(it)
+                    binding.albumThumbnails.adapter = mediaListAdapter
+
+                    binding.mediaListIcon.setOnClickListener {
+                        binding.drawerLayout.openDrawer(GravityCompat.END)
+                    }
+
+                    binding.content.previousButton.setOnClickListener {
+                        binding.content.viewPager.currentItem -= 1
+                    }
+
+                    binding.content.nextButton.setOnClickListener {
+                        binding.content.viewPager.currentItem += 1
+                    }
+
+                }
+            }
+        })
+    }
+
+    private fun initOtherObservers() {
+        model.errorMessage.observe(viewLifecycleOwner, Observer {
+            if(it != null){
+                Snackbar.make(binding.bottomBar, it, Snackbar.LENGTH_LONG).show()
+                model.errorMessageObserved()
+            }
+        })
+
+        binding.swipeRefresh.setOnRefreshListener {
+            val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
+            if(postPage != null){
+                model.fetchPostAndComments()
+            } else {
+                val url = requireArguments().getString(URL_KEY)
+                val fullContextLink = requireArguments().getString(FULL_CONTEXT_URL_KEY, null)
+                if(model.allCommentsFetched.value == true){
+                    model.fetchPostAndComments(fullContextLink)
+                } else {
+                    model.fetchPostAndComments(url!!)
+                }
+            }
+        }
+
+        model.loading.observe(viewLifecycleOwner, Observer {
+            if(it == false){
+                binding.swipeRefresh.isRefreshing = false
+            }
+        })
+    }
 
 //      _____                                     _                  _   _
 //     / ____|                                   | |       /\       | | (_)
@@ -386,6 +420,27 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_PICTURE)).show(childFragmentManager, null)
         }
     }
+
+//     _____                                             _   _
+//    |  __ \                                  /\       | | (_)
+//    | |  | |_ __ __ ___      _____ _ __     /  \   ___| |_ _  ___  _ __  ___
+//    | |  | | '__/ _` \ \ /\ / / _ \ '__|   / /\ \ / __| __| |/ _ \| '_ \/ __|
+//    | |__| | | | (_| |\ V  V /  __/ |     / ____ \ (__| |_| | (_) | | | \__ \
+//    |_____/|_|  \__,_| \_/\_/ \___|_|    /_/    \_\___|\__|_|\___/|_| |_|___/
+//
+
+
+    override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
+
+    override fun onDrawerOpened(drawerView: View) {
+        viewPagerModel.swipingEnabled(false)
+    }
+
+    override fun onDrawerClosed(drawerView: View) {
+        viewPagerModel.swipingEnabled(true)
+    }
+
+    override fun onDrawerStateChanged(newState: Int) {}
 
     companion object {
         fun newInstance(postPage: PostPage): CommentsFragment {

@@ -29,6 +29,7 @@
                         android:layout_weight="1"
                         android:layout_height="match_parent"
                         android:text="@string/my_subscriptions"
+                        android:singleLine="true"
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:gravity="center_vertical"/>
 

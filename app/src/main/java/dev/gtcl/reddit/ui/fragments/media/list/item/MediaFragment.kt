@@ -56,20 +56,6 @@ class MediaFragment : Fragment(){
         return binding.root
     }
 
-    override fun onPause() {
-        super.onPause()
-        if(!requireActivity().isChangingConfigurations){
-            model.pausePlayer()
-        }
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if(requireActivity().isChangingConfigurations){
-            model.resumePlayer()
-        }
-    }
-
     private fun initSubsamplingImageView(){
         binding.playerController.hide()
         model.mediaURL.observe(viewLifecycleOwner, Observer {

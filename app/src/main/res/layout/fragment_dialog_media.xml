@@ -93,7 +93,7 @@
             android:layout_height="match_parent"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:layout_gravity="end"
-            android:background="?android:attr/colorBackgroundFloating"
+            android:background="@android:color/black"
             android:orientation="vertical"
             android:scrollbars="vertical"
             />

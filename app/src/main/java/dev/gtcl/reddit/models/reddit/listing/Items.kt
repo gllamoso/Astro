@@ -468,8 +468,12 @@ data class More(
     @IgnoredOnParcel
     private var fetchIndex = 0
 
+    @IgnoredOnParcel
+    private var previousFetchIndex = 0
+
     private fun pollChildren(count: Int): List<String> {
         val list = ArrayList<String>()
+        previousFetchIndex = fetchIndex
         while (fetchIndex < children.size && list.size < count) {
             list.add(children[fetchIndex++])
         }
@@ -489,9 +493,15 @@ data class More(
         return sb.toString()
     }
 
-    fun lastChildFetched() = fetchIndex == children.size
+    fun undoChildrenPoll(){
+        fetchIndex = previousFetchIndex
+    }
 
-    fun childrenLeft() = children.size - fetchIndex
+    val lastChildFetched: Boolean
+        get() = fetchIndex == children.size
+
+    val childrenLeft: Int
+        get() = children.size - fetchIndex
 
     @IgnoredOnParcel
     val isContinueThreadLink = id == "_"

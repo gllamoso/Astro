@@ -13,145 +13,186 @@
         <import type="android.view.View"/>
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/drawer_layout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?android:attr/colorBackground">
-
-        <com.google.android.material.appbar.AppBarLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:layout_collapseMode="pin"
-                app:navigationIcon="?homeAsUpIndicator"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <TextView
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
-                    android:text="@{model.post.subreddit}"
-                    tools:text="wholesome" />
-
-            </androidx.appcompat.widget.Toolbar>
-
-        </com.google.android.material.appbar.AppBarLayout>
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-            <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                android:id="@+id/swipe_refresh"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <androidx.core.widget.NestedScrollView
-                    android:id="@+id/nested_scroll_view"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:scrollbars="vertical">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-                        <include
-                            android:id="@+id/post_layout"
-                            layout="@layout/layout_post_in_comments"
-                            app:post="@{model.post}"/>
-
-                        <include
-                            android:id="@+id/cross_post_layout"
-                            layout="@layout/layout_crosspost"
-                            android:layout_height="wrap_content"
-                            android:layout_width="match_parent"
-                            android:layout_margin="8dp"
-                            app:post="@{model.post.crosspostParentList != null ? model.post.crosspostParentList.get(0) : null}"
-                            app:moreOptions="@{false}"
-                            android:visibility="@{model.post.crosspostParentList != null &amp;&amp; !model.post.crosspostParentList.empty ? View.VISIBLE : View.GONE}"/>
-
-                        <include
-                            android:id="@+id/content"
-                            layout="@layout/layout_comments_content"
-                            app:model="@{model}"/>
-
-                        <View
-                            android:layout_width="match_parent"
-                            android:layout_height="?android:attr/actionBarSize"/>
-
-                    </LinearLayout>
-
-                </androidx.core.widget.NestedScrollView>
-
-            </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-        </LinearLayout>
-
-        <com.google.android.material.bottomappbar.BottomAppBar
-            android:id="@+id/bottom_bar"
-            android:layout_width="match_parent"
-            android:layout_height="?android:attr/actionBarSize"
-            android:layout_gravity="bottom"
-            app:contentInsetStart="0dp">
-
-            <include
-                android:id="@+id/bottom_bar_layout"
-                app:post="@{model.post}"
-                layout="@layout/layout_comments_bottom_bar" />
-
-        </com.google.android.material.bottomappbar.BottomAppBar>
+        >
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
-            android:id="@+id/bottom_sheet"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:paddingTop="?android:attr/actionBarSize"
-            app:layout_behavior="@string/bottom_sheet_behavior"
-            android:clipToPadding="false"
-            tools:visibility="invisible"
-            app:behavior_peekHeight="0dp">
+            android:background="?android:attr/colorBackground">
 
             <com.google.android.material.appbar.AppBarLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <androidx.appcompat.widget.Toolbar
-                    android:id="@+id/comments_toolbar"
+                    android:id="@+id/toolbar"
                     android:layout_width="match_parent"
-                    android:layout_height="?android:attr/actionBarSize"
-                    app:title="@string/comments"
-                    app:menu="@menu/comments_sheet_menu"/>
+                    android:layout_height="?attr/actionBarSize"
+                    app:layout_collapseMode="pin"
+                    app:navigationIcon="?homeAsUpIndicator"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical">
+
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_height="wrap_content"
+                            android:layout_weight="1"
+                            android:singleLine="true"
+                            android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+                            android:text="@{model.post.subreddit}"
+                            tools:text="wholesome" />
+
+                        <ImageView
+                            android:id="@+id/media_list_icon"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:src="@drawable/ic_baseline_art_track_24"
+                            android:background="?android:attr/selectableItemBackgroundBorderless"
+                            android:padding="2dp"
+                            android:visibility="@{model.mediaItems != null &amp;&amp; model.mediaItems.size() > 1 ? View.VISIBLE : View.GONE}"
+                            android:layout_marginVertical="8dp"
+                            android:layout_marginStart="8dp"
+                            android:layout_marginEnd="16dp"/>
+
+                    </LinearLayout>
+
+                </androidx.appcompat.widget.Toolbar>
 
             </com.google.android.material.appbar.AppBarLayout>
 
-            <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/comment_list"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
-                android:background="?android:attr/colorBackground"
-                app:spanCount="1"
-                tools:itemCount="10"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior"
-                />
+                android:orientation="vertical"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+                <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+                    android:id="@+id/swipe_refresh"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <androidx.core.widget.NestedScrollView
+                        android:id="@+id/nested_scroll_view"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:scrollbars="vertical">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:orientation="vertical"
+                            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+                            <include
+                                android:id="@+id/post_layout"
+                                layout="@layout/layout_post_in_comments"
+                                app:post="@{model.post}"/>
+
+                            <include
+                                android:id="@+id/cross_post_layout"
+                                layout="@layout/layout_crosspost"
+                                android:layout_height="wrap_content"
+                                android:layout_width="match_parent"
+                                android:layout_margin="8dp"
+                                app:post="@{model.post.crosspostParentList != null ? model.post.crosspostParentList.get(0) : null}"
+                                app:moreOptions="@{false}"
+                                android:visibility="@{model.post.crosspostParentList != null &amp;&amp; !model.post.crosspostParentList.empty ? View.VISIBLE : View.GONE}"/>
+
+                            <include
+                                android:id="@+id/content"
+                                layout="@layout/layout_comments_content"
+                                app:model="@{model}"/>
+
+                            <View
+                                android:layout_width="match_parent"
+                                android:layout_height="?android:attr/actionBarSize"/>
+
+                        </LinearLayout>
+
+                    </androidx.core.widget.NestedScrollView>
+
+                </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
+            </LinearLayout>
+
+            <com.google.android.material.bottomappbar.BottomAppBar
+                android:id="@+id/bottom_bar"
+                android:layout_width="match_parent"
+                android:layout_height="?android:attr/actionBarSize"
+                android:layout_gravity="bottom"
+                app:contentInsetStart="0dp">
+
+                <include
+                    android:id="@+id/bottom_bar_layout"
+                    app:post="@{model.post}"
+                    layout="@layout/layout_comments_bottom_bar" />
+
+            </com.google.android.material.bottomappbar.BottomAppBar>
+
+            <androidx.coordinatorlayout.widget.CoordinatorLayout
+                android:id="@+id/bottom_sheet"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:paddingTop="?android:attr/actionBarSize"
+                app:layout_behavior="@string/bottom_sheet_behavior"
+                android:clipToPadding="false"
+                tools:visibility="invisible"
+                app:behavior_peekHeight="0dp">
+
+                <com.google.android.material.appbar.AppBarLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <androidx.appcompat.widget.Toolbar
+                        android:id="@+id/comments_toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="?android:attr/actionBarSize"
+                        app:title="@string/comments"
+                        app:menu="@menu/comments_sheet_menu"/>
+
+                </com.google.android.material.appbar.AppBarLayout>
+
+                <androidx.recyclerview.widget.RecyclerView
+                    android:id="@+id/comment_list"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                    android:background="?android:attr/colorBackground"
+                    app:spanCount="1"
+                    tools:itemCount="10"
+                    app:layout_behavior="@string/appbar_scrolling_view_behavior"
+                    />
+
+            </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/album_thumbnails"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+            android:layout_gravity="end"
+            android:background="?android:attr/colorBackgroundFloating"
+            android:orientation="vertical"
+            android:scrollbars="vertical"
+            />
+
+    </androidx.drawerlayout.widget.DrawerLayout>
 
 </layout>
