@@ -7,6 +7,7 @@
         <variable
             name="post"
             type="dev.gtcl.reddit.models.reddit.listing.Post" />
+        <import type="android.view.View"/>
     </data>
 
     <LinearLayout
@@ -15,21 +16,24 @@
         android:orientation="vertical">
 
         <include
-            android:id="@+id/share_link_layout"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/link"
+            android:visibility="@{post.url != null ? View.VISIBLE : View.GONE}"
             layout="@layout/item_icon_and_text"
             app:iconDrawable="@{@drawable/ic_link_24}"
             app:title="@{@string/share_link}"
-            app:subtext="@{post.url}"/>
+            app:subtext="@{post.url != null ? post.url : &quot;&quot;}"/>
 
         <include
-            android:id="@+id/share_comments_layout"
+            android:id="@+id/comments"
             layout="@layout/item_icon_and_text"
             app:iconDrawable="@{@drawable/ic_comments_24}"
             app:title="@{@string/share_comments}"
-            app:subtext="@{post.permalink}"/>
+            app:subtext="@{post.permalinkWithRedditDomain}"/>
 
         <include
-            android:id="@+id/cross_post_layout"
+            android:id="@+id/crosspost"
             layout="@layout/item_icon_and_text"
             app:iconDrawable="@{@drawable/ic_crosspost_24}"
             app:title="@{@string/crosspost}"
@@ -41,17 +45,17 @@
             android:background="@android:color/darker_gray"/>
 
         <include
-            android:id="@+id/share_title_and_link_layout"
+            android:id="@+id/title_and_link"
             layout="@layout/item_icon_and_text"
             app:iconDrawable="@{@drawable/ic_text_24}"
             app:title="@{@string/share_title_link}"/>
 
         <include
-            android:id="@+id/share_shortlink_layout"
+            android:id="@+id/shortlink"
             layout="@layout/item_icon_and_text"
             app:iconDrawable="@{@drawable/ic_link_24}"
             app:title="@{@string/share_shortlink}"
-            app:subtext="@{post.getShortLink()}"/>
+            app:subtext="@{post.shortLink}"/>
 
     </LinearLayout>
 </layout>

@@ -92,7 +92,7 @@ data class Comment( // TODO: Add more properties: all_awardings
     val authorFlairText: String?,
     @Json(name = "author_flair_richtext")
     val authorFlairRichtext: List<AuthorFlairRichtext>?,
-    val permalink: String?,
+    val permalink: String,
     @Json(name = "link_permalink")
     val linkPermalink: String?,
     val context: String?,
@@ -108,6 +108,9 @@ data class Comment( // TODO: Add more properties: all_awardings
 
     @IgnoredOnParcel
     val bodyFormatted: CharSequence = Html.fromHtml(body, Html.FROM_HTML_MODE_COMPACT)
+
+    @IgnoredOnParcel
+    val permalinkWithRedditDomain = "https://www.reddit.com$permalink"
 }
 
 @Parcelize
@@ -237,7 +240,7 @@ data class Post(
         }
 
     @IgnoredOnParcel
-    val shortLink = "http://redd.it/$id"
+    val shortLink = "https://redd.it/$id"
 
     @IgnoredOnParcel
     val flairTextFormatted: CharSequence? =
@@ -246,6 +249,9 @@ data class Post(
         } else {
             null
         }
+
+    @IgnoredOnParcel
+    val permalinkWithRedditDomain = "https://www.reddit.com$permalink"
 
     @IgnoredOnParcel
     val titleFormatted: CharSequence = Html.fromHtml(title, Html.FROM_HTML_MODE_COMPACT)

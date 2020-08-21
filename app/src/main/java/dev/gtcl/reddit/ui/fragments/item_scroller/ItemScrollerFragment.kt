@@ -1,7 +1,6 @@
 package dev.gtcl.reddit.ui.fragments.item_scroller
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,7 +25,7 @@ import dev.gtcl.reddit.ui.ListingItemAdapter
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
-import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
+import dev.gtcl.reddit.ui.fragments.misc.SharePostOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
 import io.noties.markwon.Markwon
 
@@ -181,7 +180,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun share(post: Post) {
-        ShareOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
+        SharePostOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
     }
 
     override fun viewProfile(post: Post) {

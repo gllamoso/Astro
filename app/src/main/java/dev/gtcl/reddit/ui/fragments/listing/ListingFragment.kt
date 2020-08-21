@@ -37,7 +37,7 @@ import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.create_post.CreatePostDialogFragment
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
-import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
+import dev.gtcl.reddit.ui.fragments.misc.SharePostOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsDialogFragment
 import io.noties.markwon.Markwon
 
@@ -316,7 +316,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun share(post: Post) {
-        ShareOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
+        SharePostOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
     }
 
     override fun viewProfile(post: Post) {

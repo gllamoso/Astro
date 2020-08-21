@@ -106,6 +106,7 @@
     <string name="crosspost">Crosspost</string>
     <string name="share_title_link">Share title + link</string>
     <string name="share_shortlink">Share shortlink</string>
+    <string name="share_text">Share Text</string>
     <string name="post_to_subreddit">Post to Subreddit</string>
 
     <!--Media-->

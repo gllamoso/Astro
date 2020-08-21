@@ -36,7 +36,8 @@ import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.media.list.MediaListAdapter
 import dev.gtcl.reddit.ui.fragments.media.list.MediaListFragmentAdapter
-import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
+import dev.gtcl.reddit.ui.fragments.misc.ShareCommentOptionsDialogFragment
+import dev.gtcl.reddit.ui.fragments.misc.SharePostOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
 import io.noties.markwon.*
@@ -392,7 +393,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     override fun share(comment: Comment) {
-//        ShareOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
+        ShareCommentOptionsDialogFragment.newInstance(comment).show(parentFragmentManager, null)
     }
 
     override fun reply(comment: Comment, position: Int) {
@@ -559,7 +560,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 popupWindow.dismiss()
             }
             shareButton.root.setOnClickListener {
-                ShareOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
+                SharePostOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
                 popupWindow.dismiss()
             }
             reportButton.root.setOnClickListener {

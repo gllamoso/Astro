@@ -3,6 +3,7 @@ package dev.gtcl.reddit
 const val POST_KEY = "post"
 const val POST_PAGE_KEY = "post_page"
 const val POSITION_KEY = "position"
+const val COMMENT_KEY = "comment"
 const val SUBREDDIT_KEY = "subreddit"
 const val URL_KEY = "url"
 const val FULL_CONTEXT_URL_KEY = "full_context"
