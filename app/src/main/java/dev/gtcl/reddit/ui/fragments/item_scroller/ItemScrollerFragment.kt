@@ -200,6 +200,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         activityModel.hide(post.name, post.hidden)
         if(post.hidden){
             model.removeItemAt(position)
+            listAdapter.removeAt(position)
         }
     }
 

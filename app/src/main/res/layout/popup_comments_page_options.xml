@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="post"
+            type="dev.gtcl.reddit.models.reddit.listing.Post" />
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorBackgroundFloating"
+        app:cardCornerRadius="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/profile_button"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_profile_24}"
+                app:text="@{post.author}"/>
+
+            <include
+                android:id="@+id/subreddit_button"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_reddit_circle_24}"
+                app:text="@{post.subreddit}"/>
+
+            <include
+                android:id="@+id/hide_button"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{post.hidden ? @drawable/ic_unhide_24 : @drawable/ic_hide_24}"
+                app:text="@{post.hidden ? @string/unhide : @string/hide}"/>
+
+            <include
+                android:id="@+id/share_button"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_share_24}"
+                app:text="@{@string/share}"/>
+
+            <include
+                android:id="@+id/report_button"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_report_24}"
+                app:text="@{@string/report}"/>
+
+        </LinearLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+
+</layout>

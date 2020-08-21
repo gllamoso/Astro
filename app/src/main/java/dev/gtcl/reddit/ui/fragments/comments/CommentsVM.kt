@@ -1,8 +1,10 @@
 package dev.gtcl.reddit.ui.fragments.comments
 
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.preference.PreferenceManager
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.MoreComments
@@ -53,6 +55,10 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
     val loading: LiveData<Boolean>
         get() = _loading
 
+    private val _commentSort = MutableLiveData<CommentSort>()
+    val commentSort: LiveData<CommentSort>
+        get() = _commentSort
+
     private val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?>
         get() = _errorMessage
@@ -69,22 +75,44 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
 
     var contentInitialized = false
 
-    fun setPost(post: Post){
-        _post.value = post
-        fetchPostAndComments(post.permalink)
+    init {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(application)
+        val defaultSort = sharedPref.getString("default_comment_sort", application.getString(R.string.order_best))
+        val sortArray = application.resources.getStringArray(R.array.comment_sort_entries)
+        _commentSort.value = when(sortArray.indexOf(defaultSort)){
+            1 -> CommentSort.TOP
+            2 -> CommentSort.NEW
+            3 -> CommentSort.CONTROVERSIAL
+            4 -> CommentSort.OLD
+            5 -> CommentSort.QA
+            6 -> CommentSort.RANDOM
+            else -> CommentSort.BEST
+        }
     }
 
-    fun fetchPostAndComments(permalink: String = post.value!!.permalink){
+    fun setPost(post: Post){
+        _post.value = post
+        fetchComments(post.permalink)
+    }
+
+    fun setCommentSort(sort: CommentSort){
+        _commentSort.value = sort
+    }
+
+    fun fetchComments(permalink: String = post.value!!.permalink, refreshPost: Boolean = true){
         coroutineScope.launch {
             try{
                 _loading.value = true
-                val commentPage = listingRepository.getPostAndComments(permalink, CommentSort.BEST, pageSize * 3).await()
+                val commentPage = listingRepository.getPostAndComments(permalink, _commentSort.value!!, pageSize * 3).await()
                 _allCommentsFetched.value = permalink == post.value?.permalink
-                _post.value = commentPage.post
+                if(refreshPost){
+                    _post.value = commentPage.post
+                }
                 _comments.value = commentPage.comments.toMutableList()
                 _commentsFetched = true
                 _loading.value = false
             } catch (e: Exception){
+                Log.d("TAE", "Exception: $e")
                 _errorMessage.value = e.getErrorMessage(application)
             }
         }
@@ -103,7 +131,7 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
             val children = moreItem.pollChildrenAsValidString(CHILDREN_PER_FETCH)
             try{
                 _loading.value = true
-                val comments = listingRepository.getMoreComments(children, post.value!!.name, CommentSort.BEST).await().json.data.things.map { it.data }.filter { !(it is More && it.depth == 0) }
+                val comments = listingRepository.getMoreComments(children, post.value!!.name, _commentSort.value!!).await().json.data.things.map { it.data }.filter { !(it is More && it.depth == 0) }
                 if(moreItem.lastChildFetched){
                     _comments.value?.removeAt(positionOffset)
                     _removeAt.value = position
@@ -187,7 +215,7 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
         coroutineScope.launch {
             try {
                 _loading.value = true
-                _mediaItems.value = when (post.urlType) {
+                _mediaItems.value = when (val urlType = post.urlType) {
                     UrlType.IMAGE -> {
                         listOf(MediaURL(post.url!!, MediaType.PICTURE))
                     }
@@ -195,7 +223,16 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
                         listOf(MediaURL(post.url!!, MediaType.GIF))
                     }
                     UrlType.HLS, UrlType.GIFV, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> {
-                        listOf(MediaURL(post.previewVideoUrl!!, MediaType.VIDEO))
+                        if(post.previewVideoUrl != null){
+                            listOf(MediaURL(post.previewVideoUrl!!, MediaType.VIDEO))
+                        } else {
+                            val url = if(urlType == UrlType.GIFV) {
+                                post.url!!.replace(".gifv", ".mp4")
+                            } else {
+                                post.url!!
+                            }
+                            listOf(MediaURL(url, MediaType.VIDEO))
+                        }
                     }
                     UrlType.GFYCAT -> {
                         val videoUrl = gfycatRepository.getGfycatInfo(

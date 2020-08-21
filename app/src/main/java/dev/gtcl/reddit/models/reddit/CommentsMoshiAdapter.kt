@@ -408,6 +408,7 @@ class CommentsMoshiAdapter {
         var body: String? = null
         var bodyHtml: String? = null
         var score: Int? = null
+        var scoreHidden: Boolean? = null
         var created: Long? = null
         var saved: Boolean? = null
         var likes: Boolean? = null
@@ -440,6 +441,9 @@ class CommentsMoshiAdapter {
                 }
                 "score" -> {
                     score = jsonReader.nextInt()
+                }
+                "score_hidden" -> {
+                    scoreHidden = jsonReader.nextBoolean()
                 }
                 "created_utc" -> {
                     created = jsonReader.nextLong()
@@ -507,8 +511,9 @@ class CommentsMoshiAdapter {
             body = body!!,
             bodyHtml = bodyHtml!!,
             score = score!!,
+            scoreHidden = scoreHidden!!,
             created = created!!,
-            saved = saved,
+            saved = saved!!,
             likes =  likes,
             authorFlairText = authorFlairText,
             authorFlairRichtext = authorFlairRichtext,

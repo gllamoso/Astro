@@ -61,33 +61,54 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{comment.author}"
+                android:layout_marginEnd="4dp"
+                android:textSize="12sp"
                 android:textStyle="bold"
                 android:singleLine="true"
                 tools:text="CommentAuthor" />
 
             <include
                 android:id="@+id/submitter_icon"
-                layout="@layout/icon_op"
+                layout="@layout/icon_op_small"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
+                android:layout_marginEnd="4dp"
                 android:visibility="@{comment.submitter == true ? View.VISIBLE : View.GONE}"
                 android:src="@drawable/ic_pencil_24" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:orientation="horizontal"
+                android:layout_marginEnd="4dp"
+                android:visibility="@{comment.authorFlairRichtext != null ? View.VISIBLE : View.GONE}"
+                app:flairListSmall="@{comment.authorFlairRichtext}"
+                tools:visibility="gone"/>
+
+            <ImageView
+                android:layout_width="18dp"
+                android:layout_height="18dp"
+                android:layout_marginEnd="4dp"
+                android:src="@drawable/ic_bookmark_24"
+                android:tint="@android:color/holo_orange_light"
+                android:visibility="@{comment.saved == true ? View.VISIBLE : View.GONE}"/>
 
             <TextView
                 android:id="@+id/points_text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
-                android:layout_marginStart="4dp"
-                android:textColor="@android:color/darker_gray"
-                android:text="@{UtilKt.numFormatted(comment.score)}"
-                tools:text="999" />
+                android:textSize="12sp"
+                android:textColor="@{comment.likes == null ? @android:color/darker_gray : comment.likes == true ? @android:color/holo_orange_dark : @android:color/holo_blue_dark}"
+                android:text="@{comment.scoreHidden ? &quot;?&quot; : UtilKt.numFormatted(comment.score)}"
+                tools:text="999"
+                tools:textColor="@android:color/darker_gray"/>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
+                android:textSize="12sp"
                 android:text=" • "
                 android:textColor="@android:color/darker_gray"
                 tools:ignore="HardcodedText" />
@@ -97,6 +118,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
+                android:textSize="12sp"
+                android:layout_marginEnd="4dp"
                 android:textColor="@android:color/darker_gray"
                 app:timestamp="@{comment.created}"
                 tools:text="2h" />

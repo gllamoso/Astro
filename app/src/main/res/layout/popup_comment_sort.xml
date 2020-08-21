@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="sort"
+            type="dev.gtcl.reddit.CommentSort" />
+        <import type="dev.gtcl.reddit.CommentSort"/>
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorBackgroundFloating"
+        app:cardCornerRadius="4dp">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <include
+                android:id="@+id/best"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_rocket_24}"
+                app:text="@{@string/order_best}"
+                app:isSelected="@{sort == CommentSort.BEST}"/>
+
+            <include
+                android:id="@+id/top"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_upvote_24}"
+                app:text="@{@string/order_top}"
+                app:isSelected="@{sort == CommentSort.TOP}"/>
+
+            <include
+                android:id="@+id/new_sort"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_new_24}"
+                app:text="@{@string/order_new}"
+                app:isSelected="@{sort == CommentSort.NEW}"/>
+
+            <include
+                android:id="@+id/controversial"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_controversial_24}"
+                app:text="@{@string/order_controversial}"
+                app:isSelected="@{sort == CommentSort.CONTROVERSIAL}"/>
+
+            <include
+                android:id="@+id/old"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_baseline_history_24}"
+                app:text="@{@string/order_old}"
+                app:isSelected="@{sort == CommentSort.OLD}"/>
+
+            <include
+                android:id="@+id/random"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_crosspost_24}"
+                app:text="@{@string/order_random}"
+                app:isSelected="@{sort == CommentSort.RANDOM}"/>
+
+            <include
+                android:id="@+id/qa"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_comments_24}"
+                app:text="@{@string/order_qanda}"
+                app:isSelected="@{sort == CommentSort.QA}"/>
+
+        </LinearLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+</layout>

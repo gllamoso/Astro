@@ -34,10 +34,6 @@
     <PreferenceCategory
         android:title="@string/comment_settings_title">
 
-        <SwitchPreferenceCompat
-            android:key="auto_play"
-            android:title="@string/autoplay_media"/>
-
         <ListPreference
             android:key="default_comment_sort"
             android:title="@string/default_comment_sorting_title"

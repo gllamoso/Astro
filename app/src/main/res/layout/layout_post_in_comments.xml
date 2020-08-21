@@ -67,6 +67,13 @@
                     android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}"
                     android:layout_marginEnd="4dp"/>
 
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_hide_24"
+                    android:visibility="@{post.hidden == true ? View.VISIBLE : View.GONE}"
+                    android:layout_marginEnd="4dp"/>
+
             </LinearLayout>
 
             <TextView

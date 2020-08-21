@@ -74,9 +74,8 @@
                         android:id="@+id/points_text"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
                         android:singleLine="true"
-                        android:text="@{UtilKt.numFormatted(comment.score)}"
+                        android:text="@{comment.scoreHidden ? &quot;?&quot; : UtilKt.numFormatted(comment.score)}"
                         android:textColor="@{comment.likes == null ? @android:color/darker_gray : comment.likes == true ? @android:color/holo_orange_dark : @android:color/holo_blue_dark}"
                         tools:text="1"
                         tools:textColor="@android:color/darker_gray"/>
@@ -143,21 +142,14 @@
                     app:layout_constraintTop_toBottomOf="@id/subreddit"
                     app:layout_constraintEnd_toStartOf="@id/more_options">
 
-                    <ImageView
-                        android:layout_width="24dp"
-                        android:layout_height="24dp"
-                        android:layout_marginEnd="4dp"
-                        app:loadImageAndHideIfNull="@{comment.authorFlairEmoji}"
-                        tools:src="@drawable/ic_profile_24"/>
-
-                    <include
-                        android:id="@+id/author_flair"
-                        layout="@layout/icon_flair"
-                        android:layout_marginEnd="4dp"
+                    <LinearLayout
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        app:charSequence="@{comment.authorFlairTextFormatted}"
-                        android:visibility="@{comment.authorFlairTextFormatted != null &amp;&amp; comment.authorFlairTextFormatted.length() > 0 ? View.VISIBLE : View.GONE}" />
+                        android:layout_height="match_parent"
+                        android:orientation="horizontal"
+                        android:layout_marginEnd="4dp"
+                        android:visibility="@{comment.authorFlairRichtext != null ? View.VISIBLE : View.GONE}"
+                        app:flairList="@{comment.authorFlairRichtext}"
+                        tools:visibility="gone"/>
 
                     <ImageView
                         android:id="@+id/bookmark"

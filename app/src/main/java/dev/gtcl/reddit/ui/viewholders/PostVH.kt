@@ -35,11 +35,6 @@ class PostVH private constructor(private val binding:ItemPostBinding)
             itemClickListener.itemClicked(post, adapterPosition)
         }
 
-        binding.cardView.setOnLongClickListener {
-            binding.moreOptions.callOnClick()
-            true
-        }
-
         setThumbnail(post, blurNsfw, blurSpoiler, postActions)
 
         binding.moreOptions.setOnClickListener {
@@ -113,6 +108,7 @@ class PostVH private constructor(private val binding:ItemPostBinding)
             hideButton.root.setOnClickListener {
                 post.hidden = !post.hidden
                 postActions.hide(post, adapterPosition)
+                binding.invalidateAll()
                 popupWindow.dismiss()
             }
             subredditButton.root.setOnClickListener {

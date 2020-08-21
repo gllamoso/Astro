@@ -1,11 +1,13 @@
 package dev.gtcl.reddit.ui.fragments.comments
 
+import android.content.Context
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.appcompat.app.ActionBarDrawerToggle
+import android.widget.PopupWindow
+import android.widget.RelativeLayout
 import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
@@ -21,11 +23,12 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.R
 import dev.gtcl.reddit.actions.CommentActions
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.actions.LinkHandler
 import dev.gtcl.reddit.databinding.FragmentCommentsBinding
+import dev.gtcl.reddit.databinding.PopupCommentSortBinding
+import dev.gtcl.reddit.databinding.PopupCommentsPageOptionsBinding
 import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.activities.MainActivityVM
@@ -33,6 +36,7 @@ import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.media.list.MediaListAdapter
 import dev.gtcl.reddit.ui.fragments.media.list.MediaListFragmentAdapter
+import dev.gtcl.reddit.ui.fragments.misc.ShareOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
 import io.noties.markwon.*
@@ -98,7 +102,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             if(fullContextLink != null){
                 {
                     if(model.loading.value != true){
-                        model.fetchPostAndComments(fullContextLink)
+                        model.fetchComments(fullContextLink)
                     }
                 }
             } else {
@@ -140,12 +144,15 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
         })
 
-        binding.commentsToolbar.setOnMenuItemClickListener {
-            if (it.itemId == R.id.reply && model.post.value != null) {
-                ReplyDialogFragment.newInstance(model.post.value!!, 0).show(childFragmentManager, null)
-                true
-            } else {
-                false
+        binding.replyButton.setOnClickListener {
+            ReplyDialogFragment.newInstance(model.post.value!!, 0).show(childFragmentManager, null)
+        }
+
+        binding.sortButton.setOnClickListener {
+            val currentSort = model.commentSort.value!!
+            showCommentSortPopup(it, currentSort){ sort ->
+                model.setCommentSort(sort)
+                model.fetchComments(refreshPost = false)
             }
         }
 
@@ -217,6 +224,9 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
         }
 
+        binding.bottomBarLayout.moreOptionsButton.setOnClickListener {
+            showMoreOptions(it)
+        }
 
     }
 
@@ -226,7 +236,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         if (postPage != null) {
             model.setPost(postPage.post)
         } else {
-            model.fetchPostAndComments(url!!)
+            model.fetchComments(url!!)
             BottomSheetBehavior.from(binding.bottomSheet).state = BottomSheetBehavior.STATE_EXPANDED
         }
     }
@@ -262,13 +272,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     private fun initMedia(){
         binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
         model.mediaItems.observe(viewLifecycleOwner, Observer {
-//            if(it != null && binding.content.viewPager.adapter == null){
             if(it != null){
                 val adapter = MediaListFragmentAdapter(this, it)
                 binding.content.viewPager.apply {
-                    if(this.adapter == null){
-                        this.adapter = adapter
-                    }
+                    this.adapter = adapter
                     (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
                     if(it.size > 1){
                         registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
@@ -326,14 +333,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         binding.swipeRefresh.setOnRefreshListener {
             val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
             if(postPage != null){
-                model.fetchPostAndComments()
+                model.fetchComments()
             } else {
                 val url = requireArguments().getString(URL_KEY)
                 val fullContextLink = requireArguments().getString(FULL_CONTEXT_URL_KEY, null)
                 if(model.allCommentsFetched.value == true){
-                    model.fetchPostAndComments(fullContextLink)
+                    model.fetchComments(fullContextLink)
                 } else {
-                    model.fetchPostAndComments(url!!)
+                    model.fetchComments(url!!)
                 }
             }
         }
@@ -353,15 +360,39 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 //    \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 
     override fun vote(comment: Comment, vote: Vote) {
-        TODO("Not yet implemented")
+        if(!comment.scoreHidden){
+            when(vote){
+                Vote.UPVOTE -> {
+                    when(comment.likes){
+                        true -> comment.score--
+                        false -> comment.score += 2
+                        null -> comment.score++
+                    }
+                }
+                Vote.DOWNVOTE -> {
+                    when(comment.likes){
+                        true -> comment.score -= 2
+                        false -> comment.score++
+                        null -> comment.score--
+                    }
+                }
+                Vote.UNVOTE -> {
+                    when(comment.likes){
+                        true -> comment.score--
+                        false -> comment.score++
+                    }
+                }
+            }
+        }
+        activityModel.vote(comment.name, vote)
     }
 
     override fun save(comment: Comment) {
-        TODO("Not yet implemented")
+        activityModel.save(comment.name, comment.saved)
     }
 
     override fun share(comment: Comment) {
-        TODO("Not yet implemented")
+//        ShareOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
     }
 
     override fun reply(comment: Comment, position: Int) {
@@ -377,7 +408,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     override fun report(comment: Comment) {
-        TODO("Not yet implemented")
+//        ShareOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
     }
 
     override fun itemClicked(item: Item, position: Int) {
@@ -414,10 +445,12 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
             UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
             UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
+            UrlType.REDGIFS -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.REDGIFS)).show(childFragmentManager, null)
             UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
             UrlType.REDDIT_COMMENTS -> viewPagerModel.newPage(ContinueThreadPage(link, null, true))
             UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
             UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_PICTURE)).show(childFragmentManager, null)
+            null -> TODO()
         }
     }
 
@@ -441,6 +474,111 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     override fun onDrawerStateChanged(newState: Int) {}
+
+    //     _____                         __          ___           _
+//    |  __ \                        \ \        / (_)         | |
+//    | |__) |__  _ __  _   _ _ __    \ \  /\  / / _ _ __   __| | _____      _____
+//    |  ___/ _ \| '_ \| | | | '_ \    \ \/  \/ / | | '_ \ / _` |/ _ \ \ /\ / / __|
+//    | |  | (_) | |_) | |_| | |_) |    \  /\  /  | | | | | (_| | (_) \ V  V /\__ \
+//    |_|   \___/| .__/ \__,_| .__/      \/  \/   |_|_| |_|\__,_|\___/ \_/\_/ |___/
+//               | |         | |
+//               |_|         |_|
+
+    private fun showCommentSortPopup(anchor: View, commentSort: CommentSort, onSortSelected: (CommentSort) -> Unit){
+        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val popupBinding = PopupCommentSortBinding.inflate(inflater)
+        val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
+        popupBinding.apply {
+            sort = commentSort
+            best.root.setOnClickListener {
+                onSortSelected(CommentSort.BEST)
+                popupWindow.dismiss()
+            }
+            top.root.setOnClickListener {
+                onSortSelected(CommentSort.TOP)
+                popupWindow.dismiss()
+            }
+            newSort.root.setOnClickListener {
+                onSortSelected(CommentSort.NEW)
+                popupWindow.dismiss()
+            }
+            controversial.root.setOnClickListener {
+                onSortSelected(CommentSort.CONTROVERSIAL)
+                popupWindow.dismiss()
+            }
+            old.root.setOnClickListener {
+                onSortSelected(CommentSort.OLD)
+                popupWindow.dismiss()
+            }
+            random.root.setOnClickListener {
+                onSortSelected(CommentSort.RANDOM)
+                popupWindow.dismiss()
+            }
+            qa.root.setOnClickListener {
+                onSortSelected(CommentSort.QA)
+                popupWindow.dismiss()
+            }
+
+            executePendingBindings()
+        }
+
+        popupBinding.root.measure(
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
+
+        popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
+        popupWindow.height = popupBinding.root.measuredHeight
+        popupWindow.elevation = 20F
+        popupWindow.showAsDropDown(anchor)
+    }
+
+    private fun showMoreOptions(anchor: View){
+        if(model.post.value == null){
+            return
+        }
+
+        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val popupBinding = PopupCommentsPageOptionsBinding.inflate(inflater)
+        val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
+        popupBinding.apply {
+            val post = model.post.value!!
+            this.post = post
+            profileButton.root.setOnClickListener {
+                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(post.author)))
+                popupWindow.dismiss()
+            }
+            subredditButton.root.setOnClickListener {
+                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(SubredditListing(post.subreddit))))
+                popupWindow.dismiss()
+            }
+            hideButton.root.setOnClickListener {
+                post.hidden = !post.hidden
+                binding.invalidateAll()
+                activityModel.hide(post.name, post.hidden)
+                popupWindow.dismiss()
+            }
+            shareButton.root.setOnClickListener {
+                ShareOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
+                popupWindow.dismiss()
+            }
+            reportButton.root.setOnClickListener {
+                popupWindow.dismiss()
+            }
+
+            executePendingBindings()
+        }
+
+        popupBinding.root.measure(
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
+
+        popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
+        popupWindow.height = popupBinding.root.measuredHeight
+        popupWindow.elevation = 20F
+        popupWindow.showAsDropDown(anchor)
+    }
 
     companion object {
         fun newInstance(postPage: PostPage): CommentsFragment {

@@ -19,6 +19,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.view.marginEnd
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -31,6 +32,8 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.material.chip.Chip
 import dev.gtcl.reddit.database.Subscription
+import dev.gtcl.reddit.databinding.IconFlairBinding
+import dev.gtcl.reddit.databinding.IconFlairSmallBinding
 import dev.gtcl.reddit.databinding.ItemAwardBinding
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditSubredditsAdapter
@@ -313,25 +316,6 @@ fun setViewSize(view: View, percentOfDeviceHeight: Int){
     view.layoutParams = layoutParams
 }
 
-@BindingAdapter("awards")
-fun setAwardImages(layout: GridLayout, awards: List<Award>?){
-    if(awards.isNullOrEmpty()) return
-    for(award: Award in awards){
-        val binding = ItemAwardBinding.inflate(LayoutInflater.from(layout.context))
-        binding.award = award
-        layout.addView(binding.root)
-    }
-}
-
-@BindingAdapter("likes")
-fun setViewColor(view: View, likes: Boolean?){
-    when(likes){
-        null -> view.setBackgroundColor(Color.TRANSPARENT)
-        true -> view.setBackgroundColor(ContextCompat.getColor(view.context, android.R.color.holo_orange_dark))
-        false -> view.setBackgroundColor(ContextCompat.getColor(view.context, android.R.color.holo_blue_dark))
-    }
-}
-
 @BindingAdapter("read")
 fun setTextColor(textView: TextView, isRead: Boolean?){
     if(isRead == true){
@@ -361,12 +345,6 @@ fun bindRecyclerViewForMultiReddit(recyclerView: RecyclerView, data: MutableList
     adapter.submitList(data)
 }
 
-@BindingAdapter("commentsCount")
-fun formatComments(textView: TextView, num: Int){
-    val numFormatted = numFormatted(num.toLong())
-    textView.text = String.format(textView.context.getText(R.string.num_comments).toString(), numFormatted)
-}
-
 @BindingAdapter("upvoteTint")
 fun applyUpvoteTint(imageView: ImageView, likes: Boolean?){
     when(likes){
@@ -394,4 +372,62 @@ fun applyBookmarkTint(imageView: ImageView, bookmarked: Boolean){
 @BindingAdapter("chipIsChecked")
 fun checkChip(chip: Chip, check: Boolean){
     chip.isChecked = check
+}
+
+@BindingAdapter("flairListSmall")
+fun addSmallFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?){
+    viewGroup.removeAllViews()
+    if(!list.isNullOrEmpty()){
+        val context = viewGroup.context
+        val imgViewSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 18f, context.resources.displayMetrics).toInt()
+        val margin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, context.resources.displayMetrics).toInt()
+        val layoutInflater = LayoutInflater.from(context)
+        for(flair in list){
+            val view =
+                if(!flair.url.isNullOrBlank()){
+                    ImageView(context).apply {
+                        layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
+                            marginEnd = margin
+                        }
+                        loadImage(this, flair.url)
+                    }
+                } else {
+                    IconFlairSmallBinding.inflate(layoutInflater).apply {
+                        charSequence = flair.text.toString()
+                        executePendingBindings()
+                    }.root
+                }
+
+            viewGroup.addView(view)
+        }
+    }
+}
+
+@BindingAdapter("flairList")
+fun addFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?){
+    viewGroup.removeAllViews()
+    if(!list.isNullOrEmpty()){
+        val context = viewGroup.context
+        val imgViewSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, context.resources.displayMetrics).toInt()
+        val margin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, context.resources.displayMetrics).toInt()
+        val layoutInflater = LayoutInflater.from(context)
+        for(flair in list){
+            val view =
+                if(!flair.url.isNullOrBlank()){
+                    ImageView(context).apply {
+                        layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
+                            marginEnd = margin
+                        }
+                        loadImage(this, flair.url)
+                    }
+                } else {
+                    IconFlairBinding.inflate(layoutInflater).apply {
+                        charSequence = flair.text.toString()
+                        executePendingBindings()
+                    }.root
+                }
+
+            viewGroup.addView(view)
+        }
+    }
 }

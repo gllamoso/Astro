@@ -12,6 +12,7 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.RecyclerView
+import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.actions.CommentActions
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.databinding.ItemCommentBinding
@@ -29,13 +30,7 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
         binding.moreOptions.setOnClickListener {
             showPopupWindow(comment, commentActions, it)
         }
-//        markwon.setMarkdown(binding.bodyMessage, comment.body)
-//        markwon.setMarkdown(binding.bodyMessage, comment.bodyHtml)
-//        Log.d("TAE", "Body HTML: ${comment.bodyHtml}")
-//        markwon.setMarkdown(binding.bodyMessage, "<enhance start=\"5\" end=\"12\">This is text that must be enhanced, at least a part of it</enhance>")
         markwon.setMarkdown(binding.bodyMessage, comment.body)
-//        val text = SpannableString(HtmlCompat.fromHtml(comment.bodyHtml, HtmlCompat.FROM_HTML_MODE_LEGACY))
-//        binding.bodyMessage.setText(text, TextView.BufferType.SPANNABLE)
         binding.executePendingBindings()
     }
 
@@ -46,9 +41,23 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
         popupBinding.apply {
             this.comment = comment
             upvoteButton.root.setOnClickListener {
+                commentActions.vote(comment, if(comment.likes == true) Vote.UNVOTE else Vote.UPVOTE)
+                comment.likes = if(comment.likes == true) {
+                    null
+                } else {
+                    true
+                }
+                binding.invalidateAll()
                 popupWindow.dismiss()
             }
             downvoteButton.root.setOnClickListener {
+                commentActions.vote(comment, if(comment.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
+                comment.likes = if(comment.likes == false) {
+                    null
+                } else {
+                    false
+                }
+                binding.invalidateAll()
                 popupWindow.dismiss()
             }
             replyButton.root.setOnClickListener {
@@ -56,6 +65,9 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
                 popupWindow.dismiss()
             }
             saveButton.root.setOnClickListener {
+                comment.saved = !comment.saved
+                commentActions.save(comment)
+                binding.invalidateAll()
                 popupWindow.dismiss()
             }
             profileButton.root.setOnClickListener {
@@ -63,9 +75,11 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
                 popupWindow.dismiss()
             }
             shareButton.root.setOnClickListener {
+                commentActions.share(comment)
                 popupWindow.dismiss()
             }
             reportButton.root.setOnClickListener {
+                commentActions.report(comment)
                 popupWindow.dismiss()
             }
         }

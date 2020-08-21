@@ -232,7 +232,7 @@ fun timeSince(seconds: Long): String{
     return sb.toString()
 }
 
-fun numFormatted(num: Long): String{
+fun numFormatted(num: Int): String{
     val sb = StringBuilder()
     when {
         num >= 1_000_000 -> {

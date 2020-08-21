@@ -81,10 +81,12 @@ data class Comment( // TODO: Add more properties: all_awardings
     val body: String,
     @Json(name = "body_html")
     val bodyHtml: String,
-    val score: Int,
+    var score: Int,
+    @Json(name = "score_hidden")
+    var scoreHidden: Boolean,
     @Json(name = "created_utc")
     val created: Long,
-    val saved: Boolean?,
+    var saved: Boolean,
     var likes: Boolean?,
     @Json(name = "author_flair_text")
     val authorFlairText: String?,
@@ -106,38 +108,6 @@ data class Comment( // TODO: Add more properties: all_awardings
 
     @IgnoredOnParcel
     val bodyFormatted: CharSequence = Html.fromHtml(body, Html.FROM_HTML_MODE_COMPACT)
-
-    val authorFlairTextFormatted: CharSequence?
-        get() {
-            if (!authorFlairRichtext.isNullOrEmpty()) {
-                for (flair: AuthorFlairRichtext in authorFlairRichtext) {
-                    if (flair.text != null) {
-                        return Html.fromHtml(flair.text, Html.FROM_HTML_MODE_COMPACT)
-                    }
-                }
-                return null
-            }
-
-            return if (authorFlairText != null) {
-                Html.fromHtml(authorFlairText, Html.FROM_HTML_MODE_COMPACT)
-            } else {
-                null
-            }
-        }
-
-    val authorFlairEmoji: String?
-        get() {
-            if(authorFlairRichtext.isNullOrEmpty()){
-                return null
-            }
-
-            for (flair: AuthorFlairRichtext in authorFlairRichtext) {
-                if (flair.url != null) {
-                    return flair.url
-                }
-            }
-            return null
-        }
 }
 
 @Parcelize

@@ -85,7 +85,7 @@
 
                 <include
                     android:id="@+id/flair_layout"
-                    layout="@layout/icon_flair_small"
+                    layout="@layout/icon_flair"
                     app:charSequence="@{post.flairTextFormatted}"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -99,6 +99,13 @@
                     android:src="@drawable/ic_bookmark_24"
                     android:tint="@android:color/holo_orange_light"
                     android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}" />
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:layout_marginEnd="4dp"
+                    android:src="@drawable/ic_hide_24"
+                    android:visibility="@{post.hidden == true ? View.VISIBLE : View.GONE}" />
 
             </LinearLayout>
 
