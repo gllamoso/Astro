@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.fragments.comments
 
-import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R

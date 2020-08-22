@@ -184,6 +184,7 @@ interface RedditApiService {
         @Query("flair_id") flairId: String?,
         @Query("flair_text") flairText: String?,
         @Query("resubmit") resubmit: Boolean,
+        @Query("crosspost_fullname") crosspostFullname: String? = null,
         @Query("api_type") apiType: String = "json"
     ): Deferred<NewPostResponse>
 

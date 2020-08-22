@@ -104,15 +104,14 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
             try{
                 _loading.value = true
                 val commentPage = listingRepository.getPostAndComments(permalink, _commentSort.value!!, pageSize * 3).await()
-                _allCommentsFetched.value = permalink == post.value?.permalink
                 if(refreshPost){
                     _post.value = commentPage.post
                 }
+                _allCommentsFetched.value = permalink.endsWith(commentPage.post.permalink)
                 _comments.value = commentPage.comments.toMutableList()
                 _commentsFetched = true
                 _loading.value = false
             } catch (e: Exception){
-                Log.d("TAE", "Exception: $e")
                 _errorMessage.value = e.getErrorMessage(application)
             }
         }

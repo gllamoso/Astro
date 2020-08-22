@@ -9,15 +9,16 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import dev.gtcl.reddit.POST_KEY
 import dev.gtcl.reddit.R
-import dev.gtcl.reddit.databinding.FragmentSharePostOptionsBinding
+import dev.gtcl.reddit.databinding.FragmentDialogSharePostOptionsBinding
 import dev.gtcl.reddit.models.reddit.listing.Post
+import dev.gtcl.reddit.ui.fragments.create_post.CreatePostDialogFragment
 
 class SharePostOptionsDialogFragment : DialogFragment(){
 
-    private lateinit var binding: FragmentSharePostOptionsBinding
+    private lateinit var binding: FragmentDialogSharePostOptionsBinding
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
-        binding = FragmentSharePostOptionsBinding.inflate(inflater)
+        binding = FragmentDialogSharePostOptionsBinding.inflate(inflater)
         val post = requireArguments().getParcelable(POST_KEY) as Post
         binding.post = post
         initClickListeners(post)
@@ -44,9 +45,11 @@ class SharePostOptionsDialogFragment : DialogFragment(){
             dismiss()
         }
 
-        binding.crosspost.root.setOnClickListener {
-            TODO()
-            dismiss()
+        if(post.isCrosspostable){
+            binding.crosspost.root.setOnClickListener {
+                CreatePostDialogFragment.newInstance(post).show(parentFragmentManager, null)
+                dismiss()
+            }
         }
 
         binding.titleAndLink.root.setOnClickListener {

@@ -9,20 +9,19 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import dev.gtcl.reddit.COMMENT_KEY
 import dev.gtcl.reddit.R
-import dev.gtcl.reddit.databinding.FragmentShareCommentOptionsBinding
+import dev.gtcl.reddit.databinding.FragmentDialogShareCommentOptionsBinding
 import dev.gtcl.reddit.models.reddit.listing.Comment
-import dev.gtcl.reddit.models.reddit.listing.Post
 
 class ShareCommentOptionsDialogFragment: DialogFragment() {
 
-    private lateinit var binding: FragmentShareCommentOptionsBinding
+    private lateinit var binding: FragmentDialogShareCommentOptionsBinding
 
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentShareCommentOptionsBinding.inflate(inflater)
+        binding = FragmentDialogShareCommentOptionsBinding.inflate(inflater)
         val comment = requireArguments().getParcelable(COMMENT_KEY) as Comment
         initClickListeners(comment)
         return binding.root

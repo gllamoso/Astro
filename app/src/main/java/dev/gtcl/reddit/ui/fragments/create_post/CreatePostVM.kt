@@ -3,6 +3,7 @@ package dev.gtcl.reddit.ui.fragments.create_post
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,8 +11,10 @@ import com.squareup.moshi.JsonDataException
 import dev.gtcl.reddit.PostContent
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
+import dev.gtcl.reddit.getErrorMessage
 import dev.gtcl.reddit.models.reddit.NewPostData
 import dev.gtcl.reddit.models.reddit.listing.Flair
+import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.models.reddit.listing.Rule
 import dev.gtcl.reddit.repositories.ImgurRepository
 import dev.gtcl.reddit.repositories.SubredditRepository
@@ -57,8 +60,8 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
     val flair: LiveData<Flair?>
         get() = _flair
 
-    private val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<String>
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?>
         get() = _errorMessage
 
     private val _urlResubmit = MutableLiveData<URL?>()
@@ -125,7 +128,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                     sb.toString()
                 }
             } catch (e: Exception){
-                _errorMessage.value = e.toString()
+                _errorMessage.value = e.getErrorMessage(application)
             }
         }
     }
@@ -138,7 +141,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                 if(e is HttpException && e.code() == 403){
                     _flairs.value = listOf()
                 } else {
-                    _errorMessage.value = e.toString()
+                    _errorMessage.value = e.getErrorMessage(application)
                 }
             }
         }
@@ -184,7 +187,8 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
 
                 _newPostData.value = newPostResponse.json.data
             } catch (e: Exception){
-                _errorMessage.value = e.toString()
+                Log.d("TAE", "Exception 1: $e")
+                _errorMessage.value = e.getErrorMessage(application)
             }
         }
     }
@@ -219,7 +223,8 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
 
                 _newPostData.value = newPostResponse.json.data
             } catch (e: Exception){
-                _errorMessage.value = e.toString()
+                Log.d("TAE", "Exception 2: $e")
+                _errorMessage.value = e.getErrorMessage(application)
             }
         }
     }
@@ -274,14 +279,53 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                         _errorMessage.value = application.getString(R.string.unable_fetch_error)
                     }
                 } else {
-                    _errorMessage.value = e.toString()
+                    Log.d("TAE", "Exception 3: $e")
+                    _errorMessage.value = e.getErrorMessage(application)
                 }
             }
         }
     }
 
+    fun submitCrosspost(subreddit: String,
+                        title: String,
+                        notifications: Boolean,
+                        nsfw: Boolean,
+                        spoiler: Boolean,
+                        crossPost: Post){
+
+        coroutineScope.launch {
+            try {
+                val newPostResponse = subredditRepository.submitCrosspost(
+                    subreddit,
+                    title,
+                    nsfw,
+                    spoiler,
+                    _flair.value,
+                    crossPost
+                ).await()
+
+                if(!notifications){
+                    val sendNotificationsResponse = subredditRepository.sendRepliesToInbox(newPostResponse.json.data.name, notifications).await()
+                    if(!sendNotificationsResponse.isSuccessful){
+                        throw HttpException(sendNotificationsResponse)
+                    }
+                }
+
+                _newPostData.value = newPostResponse.json.data
+            } catch (e: Exception){
+                Log.d("TAE", "Exception 4: $e")
+                _errorMessage.value = e.getErrorMessage(application)
+            }
+        }
+
+    }
+
     fun urlResubmitObserved(){
         _urlResubmit.value = null
+    }
+
+    fun errorMessageobserved(){
+        _errorMessage.value = null
     }
 
     companion object{

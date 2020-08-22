@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -22,6 +23,7 @@ import dev.gtcl.reddit.models.reddit.User
 import dev.gtcl.reddit.models.reddit.listing.Subreddit
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.AccountPage
+import dev.gtcl.reddit.ui.fragments.ContinueThreadPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerVM
 
@@ -65,6 +67,10 @@ class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
             sub.userSubscribed = sub.userSubscribed != true
             binding.invalidateAll()
             subscribe(sub, (sub.userSubscribed == true))
+        }
+
+        childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner){ _, bundle ->
+            viewPagerModel.newPage(ContinueThreadPage(bundle.getString(URL_KEY)!!, null, false))
         }
 
         return binding.root

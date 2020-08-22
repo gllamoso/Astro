@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.repositories
 
+import android.util.Log
 import androidx.annotation.MainThread
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.ItemRead
@@ -138,10 +139,11 @@ class ListingRepository private constructor(private val application: RedditAppli
 
     // --- COMMENTS
     fun getPostAndComments(permalink: String, sort: CommentSort = CommentSort.BEST, limit: Int = 15): Deferred<CommentPage>{
+        val linkWithoutDomain = permalink.replace("http[s]?://www\\.reddit\\.com/".toRegex(), "")
         return if(application.accessToken == null) {
-            RedditApi.base.getPostAndComments(null, "$permalink.json", sort, limit)
+            RedditApi.base.getPostAndComments(null, "$linkWithoutDomain.json", sort, limit)
         } else {
-            RedditApi.oauth.getPostAndComments(application.accessToken!!.authorizationHeader, "$permalink.json", sort, limit)
+            RedditApi.oauth.getPostAndComments(application.accessToken!!.authorizationHeader, "$linkWithoutDomain.json", sort, limit)
         }
     }
 

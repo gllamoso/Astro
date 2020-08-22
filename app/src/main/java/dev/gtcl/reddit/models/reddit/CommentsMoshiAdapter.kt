@@ -98,6 +98,7 @@ class CommentsMoshiAdapter {
         var spoiler: Boolean? = null
         var linkFlairText: String? = null
         var crossPostParentList: MutableList<Post>? = null
+        var crosspostable: Boolean? = null
         var gildings: Gildings? = null
         while(jsonReader.hasNext()){
             when(jsonReader.nextName()){
@@ -201,6 +202,9 @@ class CommentsMoshiAdapter {
                     }
                     jsonReader.endArray()
                 }
+                "is_crosspostable" -> {
+                    crosspostable = jsonReader.nextBoolean()
+                }
                 "gildings" -> {
                     if(jsonReader.peek() != JsonReader.Token.NULL) {
                         gildings = getGildings(jsonReader)
@@ -242,6 +246,7 @@ class CommentsMoshiAdapter {
             spoiler = spoiler!!,
             flairText = linkFlairText,
             crosspostParentList = crossPostParentList,
+            isCrosspostable = crosspostable!!,
             gildings = gildings
         )
     }

@@ -7,6 +7,8 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -25,6 +27,7 @@ import dev.gtcl.reddit.ui.ListingItemAdapter
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
+import dev.gtcl.reddit.ui.fragments.misc.ShareCommentOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.SharePostOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
 import io.noties.markwon.Markwon
@@ -165,6 +168,10 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         model.errorMessage.observe(viewLifecycleOwner, Observer {
             Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
         })
+
+        childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner){ _, bundle ->
+            parentFragment?.setFragmentResult(URL_KEY, bundle)
+        }
     }
 
 //     _____          _                  _   _
@@ -245,18 +252,42 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 //    | |     ___  _ __ ___  _ __ ___   ___ _ __ | |_     /  \   ___| |_ _  ___  _ __  ___
 //    | |    / _ \| '_ ` _ \| '_ ` _ \ / _ \ '_ \| __|   / /\ \ / __| __| |/ _ \| '_ \/ __|
 //    | |___| (_) | | | | | | | | | | |  __/ | | | |_   / ____ \ (__| |_| | (_) | | | \__ \
-//     \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
+//    \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 
     override fun vote(comment: Comment, vote: Vote) {
-        TODO("Not yet implemented")
+        if(!comment.scoreHidden){
+            when(vote){
+                Vote.UPVOTE -> {
+                    when(comment.likes){
+                        true -> comment.score--
+                        false -> comment.score += 2
+                        null -> comment.score++
+                    }
+                }
+                Vote.DOWNVOTE -> {
+                    when(comment.likes){
+                        true -> comment.score -= 2
+                        false -> comment.score++
+                        null -> comment.score--
+                    }
+                }
+                Vote.UNVOTE -> {
+                    when(comment.likes){
+                        true -> comment.score--
+                        false -> comment.score++
+                    }
+                }
+            }
+        }
+        activityModel.vote(comment.name, vote)
     }
 
     override fun save(comment: Comment) {
-        TODO("Not yet implemented")
+        activityModel.save(comment.name, comment.saved)
     }
 
     override fun share(comment: Comment) {
-//        ShareOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
+        ShareCommentOptionsDialogFragment.newInstance(comment).show(parentFragmentManager, null)
     }
 
     override fun reply(comment: Comment, position: Int) {
@@ -272,7 +303,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun report(comment: Comment) {
-        TODO("Not yet implemented")
+//        ShareOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
     }
 
 //     __  __                                               _   _
@@ -325,7 +356,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                 ReplyDialogFragment.newInstance(item, position).show(childFragmentManager, null)
             }
             is Comment -> {
-                val permalink = item.permalink ?: item.context ?: throw IllegalArgumentException("Comment has no permalink or context link")
+                val permalink = item.permalink
                 val linkPermalink = item.linkPermalink?.replace("http[s]?://www\\.reddit\\.com".toRegex(), "")
                 activityModel.newPage(ContinueThreadPage(permalink, linkPermalink, true))
             }
@@ -333,7 +364,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     }
 
-    //     _   _                 _____           _
+//     _   _                 _____           _
 //    | \ | |               |_   _|         | |
 //    |  \| | _____      __   | |  _ __  ___| |_ __ _ _ __   ___ ___
 //    | . ` |/ _ \ \ /\ / /   | | | '_ \/ __| __/ _` | '_ \ / __/ _ \

@@ -3,7 +3,6 @@ package dev.gtcl.reddit.ui.fragments.create_post
 import android.app.AlertDialog
 import android.os.Bundle
 import android.text.Editable
-import android.text.SpannableStringBuilder
 import android.text.TextWatcher
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +11,8 @@ import android.widget.ArrayAdapter
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentResultListener
+import androidx.fragment.app.setFragmentResult
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -20,6 +21,7 @@ import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentDialogCreatePostBinding
 import dev.gtcl.reddit.models.reddit.listing.Flair
+import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.ui.fragments.ContinueThreadPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerVM
 import dev.gtcl.reddit.ui.fragments.create_post.flair.FlairSelectionDialogFragment
@@ -35,20 +37,13 @@ class CreatePostDialogFragment : DialogFragment(){
         ViewModelProvider(this, viewModelFactory).get(CreatePostVM::class.java)
     }
 
-    private val viewPagerModel: ViewPagerVM by lazy {
-        ViewModelProviders.of(requireParentFragment()).get(ViewPagerVM::class.java)
-    }
-
     override fun onStart() {
         super.onStart()
 
-        dialog?.let {
-            val width = ViewGroup.LayoutParams.MATCH_PARENT
-            val height = ViewGroup.LayoutParams.MATCH_PARENT
-            it.window?.setLayout(width, height)
-        }
+        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
 
 //        dialog?.window?.setBackgroundDrawableResource(android.R.color.black) // This makes the dialog full screen
+
     }
 
     override fun onCreateView(
@@ -60,10 +55,16 @@ class CreatePostDialogFragment : DialogFragment(){
         binding.model = model
         binding.lifecycleOwner = viewLifecycleOwner
         initSubredditText()
-        initViewPagerAdapter()
+        val crossPost = arguments?.get(POST_KEY) as Post?
+        if(crossPost != null){
+            initCrosspost(crossPost)
+        } else {
+            initViewPagerAdapter()
+        }
         initToolbar()
         initObservers()
 
+        binding.invalidateAll()
         return binding.root
     }
 
@@ -116,6 +117,12 @@ class CreatePostDialogFragment : DialogFragment(){
         }.attach()
     }
 
+    private fun initCrosspost(post: Post){
+        binding.crossPost = post
+        binding.nsfwChip.isChecked = post.nsfw
+        binding.spoilerChip.isChecked = post.spoiler
+    }
+
     private fun initToolbar(){
         val toolbar = binding.toolbar
 
@@ -126,26 +133,37 @@ class CreatePostDialogFragment : DialogFragment(){
         toolbar.setOnMenuItemClickListener {
             when(it.itemId){
                 R.id.send -> {
-                    var fetchData = true
+                    var valid = true
 
                     if(binding.subredditText.text.isNullOrEmpty()){
                         binding.subredditTextInputLayout.error = getText(R.string.required)
-                        fetchData = false
+                        valid = false
                     } else if(model.subredditValid.value != true){
                         binding.subredditTextInputLayout.error = getText(R.string.invalid)
-                        fetchData = false
+                        valid = false
                     }
 
                     if(binding.titleText.text.isNullOrEmpty()){
                         binding.titleTextInputLayout.error = getText(R.string.required)
-                        fetchData = false
+                        valid = false
                     } else if(binding.titleText.text.toString().length > 300){
                         binding.titleTextInputLayout.error = getText(R.string.invalid)
-                        fetchData = false
+                        valid = false
                     }
 
-                    if(fetchData){
-                        model.fetchData()
+                    if(valid){
+                        val crossPost = arguments?.get(POST_KEY) as Post?
+                        if(crossPost != null){
+                            val sub = binding.subredditText.text.toString().trim()
+                            val title = binding.titleText.text.toString()
+                            val notifications = binding.getNotificationsChip.isChecked
+                            val nsfw = binding.nsfwChip.isChecked
+                            val spoiler = binding.spoilerChip.isChecked
+                            model.submitCrosspost(sub, title, notifications, nsfw, spoiler, crossPost)
+                        } else {
+                            model.fetchData()
+                        }
+
                     }
                 }
             }
@@ -164,7 +182,10 @@ class CreatePostDialogFragment : DialogFragment(){
         })
 
         model.errorMessage.observe(viewLifecycleOwner, Observer {
-            Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+            if(it != null){
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                model.errorMessageobserved()
+            }
         })
 
         model.rules.observe(viewLifecycleOwner, Observer {
@@ -232,33 +253,36 @@ class CreatePostDialogFragment : DialogFragment(){
             postContent?.let {
                 val sub = binding.subredditText.text.toString().trim()
                 val title = binding.titleText.text.toString()
+                val notifications = binding.getNotificationsChip.isChecked
+                val nsfw = binding.nsfwChip.isChecked
+                val spoiler = binding.spoilerChip.isChecked
                 when(it){
                     is TextPost -> {
                         model.submitTextPost(
                             sub,
                             title,
                             it.body,
-                            binding.getNotificationsChip.isChecked,
-                            binding.nsfwChip.isChecked,
-                            binding.spoilerChip.isChecked)
+                            notifications,
+                            nsfw,
+                            spoiler)
                     }
                     is ImagePost ->{
                         model.submitPhotoPost(
                             sub,
                             title,
                             it.uri,
-                            binding.getNotificationsChip.isChecked,
-                            binding.nsfwChip.isChecked,
-                            binding.spoilerChip.isChecked)
+                            notifications,
+                            nsfw,
+                            spoiler)
                     }
                     is LinkPost -> {
                         model.submitUrlPost(
                             sub,
                             title,
                             it.url,
-                            binding.getNotificationsChip.isChecked,
-                            binding.nsfwChip.isChecked,
-                            binding.spoilerChip.isChecked)
+                            notifications,
+                            nsfw,
+                            spoiler)
                     }
                 }
                 model.postContentObserved()
@@ -289,7 +313,7 @@ class CreatePostDialogFragment : DialogFragment(){
 
         model.newPostData.observe(viewLifecycleOwner, Observer {
             if(it != null){
-                viewPagerModel.newPage(ContinueThreadPage(it.url, null, false))
+                parentFragmentManager.setFragmentResult(URL_KEY, bundleOf(URL_KEY to it.url))
                 model.newPostObserved()
                 dismiss()
             }
@@ -300,6 +324,12 @@ class CreatePostDialogFragment : DialogFragment(){
         fun newInstance(subredditName: String?): CreatePostDialogFragment {
             return CreatePostDialogFragment().apply {
                 arguments = bundleOf(SUBREDDIT_KEY to subredditName)
+            }
+        }
+
+        fun newInstance(crossPost: Post): CreatePostDialogFragment{
+            return CreatePostDialogFragment().apply {
+                arguments = bundleOf(POST_KEY to crossPost)
             }
         }
     }

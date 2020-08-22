@@ -33,8 +33,11 @@
             app:subtext="@{post.permalinkWithRedditDomain}"/>
 
         <include
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
             android:id="@+id/crosspost"
             layout="@layout/item_icon_and_text"
+            android:visibility="@{post.crosspostable ? View.VISIBLE : View.GONE}"
             app:iconDrawable="@{@drawable/ic_crosspost_24}"
             app:title="@{@string/crosspost}"
             app:subtext="@{@string/post_to_subreddit}"/>

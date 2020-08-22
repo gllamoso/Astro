@@ -8,6 +8,7 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
@@ -126,6 +127,11 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
                 model.linkObserved()
             }
         })
+
+        childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner){ _, bundle ->
+            val url = bundle.getString(URL_KEY)!!
+            model.newPage(ContinueThreadPage(url, null, false))
+        }
     }
 
 //     _   _             _             _   _                            _   _

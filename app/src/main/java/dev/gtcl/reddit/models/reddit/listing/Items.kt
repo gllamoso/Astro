@@ -221,6 +221,8 @@ data class Post(
     var flairText: String?,
     @Json(name = "crosspost_parent_list")
     val crosspostParentList: List<Post>?,
+    @Json(name = "is_crosspostable")
+    val isCrosspostable: Boolean,
     val gildings: Gildings?
 ) : Item(ItemType.Post) {
 
@@ -264,7 +266,9 @@ enum class PostType {
     @SerializedName("self")
     TEXT,
     @SerializedName("link")
-    URL
+    URL,
+    @SerializedName("crosspost")
+    CROSSPOST
 }
 
 // Reddit API Response

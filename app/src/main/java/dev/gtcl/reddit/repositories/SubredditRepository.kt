@@ -308,6 +308,34 @@ class SubredditRepository private constructor(private val application: RedditApp
     }
 
     @MainThread
+    fun submitCrosspost(
+        subreddit: String,
+        title: String,
+        nsfw: Boolean,
+        spoiler: Boolean,
+        flair: Flair?,
+        crosspost: Post
+    ): Deferred<NewPostResponse>{
+        if(application.accessToken == null) {
+            throw NotLoggedInException()
+        }
+        return RedditApi.oauth.submitPost(
+            application.accessToken!!.authorizationHeader,
+            subreddit,
+            PostType.CROSSPOST,
+            title,
+            null,
+            null,
+            nsfw,
+            spoiler,
+            flair?.id,
+            flair?.text,
+            false,
+            crosspostFullname = crosspost.name
+        )
+    }
+
+    @MainThread
     fun submitUrlPostForErrors(
         subreddit: String,
         title: String,
