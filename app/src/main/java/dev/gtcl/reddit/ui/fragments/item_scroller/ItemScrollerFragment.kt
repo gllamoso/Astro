@@ -30,6 +30,7 @@ import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.ShareCommentOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.SharePostOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
+import dev.gtcl.reddit.ui.fragments.report.ReportDialogFragment
 import io.noties.markwon.Markwon
 
 open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, MessageActions, SubredditActions, ItemClickListener, LinkHandler{
@@ -172,6 +173,14 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner){ _, bundle ->
             parentFragment?.setFragmentResult(URL_KEY, bundle)
         }
+
+        childFragmentManager.setFragmentResultListener(REPORT_KEY, viewLifecycleOwner){ _, bundle ->
+            val  position = bundle.getInt(POSITION_KEY, -1)
+            if(position != -1){
+                model.removeItemAt(position)
+                listAdapter.removeAt(position)
+            }
+        }
     }
 
 //     _____          _                  _   _
@@ -183,6 +192,28 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 //
 
     override fun vote(post: Post, vote: Vote) {
+        when(vote){
+            Vote.UPVOTE -> {
+                when(post.likes){
+                    true -> post.score--
+                    false -> post.score += 2
+                    null -> post.score++
+                }
+            }
+            Vote.DOWNVOTE -> {
+                when(post.likes){
+                    true -> post.score -= 2
+                    false -> post.score ++
+                    null -> post.score--
+                }
+            }
+            Vote.UNVOTE -> {
+                when(post.likes){
+                    true -> post.score--
+                    false -> post.score++
+                }
+            }
+        }
         activityModel.vote(post.name, vote)
     }
 
@@ -210,8 +241,8 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         }
     }
 
-    override fun report(post: Post) {
-        TODO("Implement reporting")
+    override fun report(post: Post, position: Int) {
+        ReportDialogFragment.newInstance(post, position).show(childFragmentManager, null)
     }
 
     override fun thumbnailClicked(post: Post, position: Int) {
@@ -302,8 +333,8 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         )
     }
 
-    override fun report(comment: Comment) {
-//        ShareOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
+    override fun report(comment: Comment, position: Int) {
+        ReportDialogFragment.newInstance(comment, position).show(childFragmentManager, null)
     }
 
 //     __  __                                               _   _
@@ -416,6 +447,9 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
             UrlType.REDDIT_COMMENTS -> TODO("Need to be implemented")
             UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
+            UrlType.REDGIFS -> TODO()
+            UrlType.IMGUR_IMAGE -> TODO()
+            null -> TODO()
         }
     }
 

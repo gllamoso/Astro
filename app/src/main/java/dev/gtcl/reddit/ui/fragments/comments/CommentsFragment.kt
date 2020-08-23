@@ -41,6 +41,7 @@ import dev.gtcl.reddit.ui.fragments.misc.ShareCommentOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.SharePostOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
 import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
+import dev.gtcl.reddit.ui.fragments.report.ReportDialogFragment
 import io.noties.markwon.*
 
 class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler, DrawerLayout.DrawerListener {
@@ -352,6 +353,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 binding.swipeRefresh.isRefreshing = false
             }
         })
+
+        childFragmentManager.setFragmentResultListener(REPORT_KEY, viewLifecycleOwner){ _, bundle ->
+            val  position = bundle.getInt(POSITION_KEY, -1)
+            if(position == -1 && model.post.value != null){
+                model.post.value!!.hidden = true
+                binding.postLayout.invalidateAll()
+            }
+        }
     }
 
 //      _____                                     _                  _   _
@@ -409,8 +418,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         )
     }
 
-    override fun report(comment: Comment) {
-//        ShareOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
+    override fun report(comment: Comment, position: Int) {
+        ReportDialogFragment.newInstance(comment, position).show(childFragmentManager, null)
     }
 
     override fun itemClicked(item: Item, position: Int) {
@@ -565,6 +574,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 popupWindow.dismiss()
             }
             reportButton.root.setOnClickListener {
+                ReportDialogFragment.newInstance(post).show(childFragmentManager, null)
                 popupWindow.dismiss()
             }
 

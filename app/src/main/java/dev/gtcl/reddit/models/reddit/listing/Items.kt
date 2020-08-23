@@ -15,24 +15,6 @@ import java.util.*
 sealed class Item(val kind: ItemType) : Parcelable {
     abstract val id: String?
     abstract val name: String
-    var isCurrentUser = false
-
-    fun checkIfCurrentUser(userFullName: String) {
-        when (this) {
-            is Post -> isCurrentUser = this.authorFullName == userFullName
-            is Comment -> isCurrentUser = this.authorFullName == userFullName
-        }
-    }
-}
-
-fun List<Item>.checkIfItemsAreSubmittedByCurrentUser(userFullName: String?) {
-    if (userFullName == null) {
-        return
-    }
-
-    for (item: Item in this) {
-        item.checkIfCurrentUser(userFullName)
-    }
 }
 
 enum class ItemType {

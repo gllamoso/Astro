@@ -10,6 +10,6 @@ interface PostActions {
     fun save(post: Post)
     fun subredditSelected(sub: String)
     fun hide(post: Post, position: Int)
-    fun report(post: Post)
+    fun report(post: Post, position: Int)
     fun thumbnailClicked(post: Post, position: Int)
 }

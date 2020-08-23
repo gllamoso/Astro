@@ -11,20 +11,16 @@ import android.widget.ArrayAdapter
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.FragmentResultListener
-import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentDialogCreatePostBinding
 import dev.gtcl.reddit.models.reddit.listing.Flair
 import dev.gtcl.reddit.models.reddit.listing.Post
-import dev.gtcl.reddit.ui.fragments.ContinueThreadPage
-import dev.gtcl.reddit.ui.fragments.ViewPagerVM
 import dev.gtcl.reddit.ui.fragments.create_post.flair.FlairSelectionDialogFragment
+import dev.gtcl.reddit.ui.fragments.rules.RulesDialogFragment
 import java.util.*
 import kotlin.NoSuchElementException
 
@@ -98,7 +94,7 @@ class CreatePostDialogFragment : DialogFragment(){
         })
 
         binding.rulesButton.setOnClickListener {
-            model.fetchRules(binding.subredditText.text.toString())
+            RulesDialogFragment.newInstance(binding.subredditText.text.toString()).show(childFragmentManager, null)
         }
     }
 
@@ -184,18 +180,7 @@ class CreatePostDialogFragment : DialogFragment(){
         model.errorMessage.observe(viewLifecycleOwner, Observer {
             if(it != null){
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
-                model.errorMessageobserved()
-            }
-        })
-
-        model.rules.observe(viewLifecycleOwner, Observer {
-            if(it != null){
-                val builder = AlertDialog.Builder(requireContext())
-                builder.setTitle(R.string.rules)
-                builder.setMessage(it)
-                builder.setPositiveButton(R.string.done) { dialog, _ -> dialog?.dismiss() }
-                builder.create().show()
-                model.rulesObserved()
+                model.errorMessageObserved()
             }
         })
 

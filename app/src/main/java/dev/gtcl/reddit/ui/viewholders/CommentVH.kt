@@ -79,7 +79,7 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
                 popupWindow.dismiss()
             }
             reportButton.root.setOnClickListener {
-                commentActions.report(comment)
+                commentActions.report(comment, adapterPosition)
                 popupWindow.dismiss()
             }
         }

@@ -8,7 +8,6 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.Listing
 import dev.gtcl.reddit.models.reddit.listing.Post
-import dev.gtcl.reddit.models.reddit.listing.checkIfItemsAreSubmittedByCurrentUser
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.ListingRepository
 import dev.gtcl.reddit.repositories.MessageRepository
@@ -135,9 +134,7 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
                             _lastItemReached.postValue(true)
                             break
                         } else {
-                            val items = response.data.children.map { it.data }.filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList().apply {
-                                checkIfItemsAreSubmittedByCurrentUser(application.currentAccount?.fullId)
-                            }
+                            val items = response.data.children.map { it.data }.filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList()
                             if(items.isNullOrEmpty()){
                                 emptyItemsCount++
                             } else {
@@ -196,9 +193,7 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
                             _lastItemReached.postValue(true)
                             break
                         } else {
-                            val items = response.data.children.map { it.data }.filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList().apply {
-                                checkIfItemsAreSubmittedByCurrentUser(application.currentAccount?.fullId)
-                            }
+                            val items = response.data.children.map { it.data }.filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList()
                             if(items.isNullOrEmpty()){
                                 emptyItemsCount++
                             } else {

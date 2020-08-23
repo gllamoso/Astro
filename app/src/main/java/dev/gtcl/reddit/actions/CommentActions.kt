@@ -9,5 +9,5 @@ interface CommentActions {
     fun share(comment: Comment)
     fun reply(comment: Comment, position: Int)
     fun viewProfile(comment: Comment)
-    fun report(comment: Comment)
+    fun report(comment: Comment, position: Int)
 }

@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui.activities
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -112,7 +113,7 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
                         subredditRepository.insertMultiReddits(multiReddits)
                     }
                 } catch(e: Exception) {
-                    _errorMessage.postValue(e.toString())
+                    _errorMessage.postValue(e.getErrorMessage(application))
                 } finally {
                     _refreshState.postValue(NetworkState.LOADED)
                 }
@@ -122,20 +123,24 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
 
     fun unsubscribe(subscription: Subscription){
         coroutineScope.launch {
-            if (subscription.type == SubscriptionType.USER || subscription.type == SubscriptionType.SUBREDDIT) {
-                val response = subredditRepository.subscribe(subscription, false).await()
-                if(response.code() == 200 || response.code() == 404){
-                    subredditRepository.deleteSubscription(subscription)
+            try{
+                if (subscription.type == SubscriptionType.USER || subscription.type == SubscriptionType.SUBREDDIT) {
+                    val response = subredditRepository.subscribe(subscription, false).await()
+                    if(response.code() == 200 || response.code() == 404){
+                        subredditRepository.deleteSubscription(subscription)
+                    } else {
+                        throw Exception()
+                    }
                 } else {
-                    _errorMessage.value = response.message()
+                    val response = subredditRepository.deleteMultiReddit(subscription.url.removePrefix("/")).await()
+                    if(response.code() == 200 || response.code() == 404){
+                        subredditRepository.deleteSubscription(subscription)
+                    } else {
+                        throw Exception()
+                    }
                 }
-            } else {
-                val response = subredditRepository.deleteMultiReddit(subscription.url.removePrefix("/")).await()
-                if(response.code() == 200 || response.code() == 404){
-                    subredditRepository.deleteSubscription(subscription)
-                } else {
-                    _errorMessage.value = response.message()
-                }
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
             }
         }
     }
@@ -148,56 +153,88 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
 
     fun subscribe(subreddit: Subreddit, subscribe: Boolean){
         coroutineScope.launch {
-            val response = subredditRepository.subscribe(subreddit, subscribe).await()
-            if(response.code() == 200 || (!subscribe && response.code() == 404)){
-                if(subscribe){
-                    subredditRepository.insertSubreddit(subreddit)
+            try{
+                val response = subredditRepository.subscribe(subreddit, subscribe).await()
+                if(response.code() == 200 || (!subscribe && response.code() == 404)){
+                    if(subscribe){
+                        subredditRepository.insertSubreddit(subreddit)
+                    } else {
+                        subredditRepository.deleteSubscription(subreddit)
+                    }
                 } else {
-                    subredditRepository.deleteSubscription(subreddit)
+                   throw Exception()
                 }
-            } else {
-                _errorMessage.value = response.message()
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
             }
         }
     }
 
     fun vote(thingId: String, vote: Vote){
         coroutineScope.launch {
-            val response = listingRepository.vote(thingId, vote).await()
-            if (response.code() != 200) {
-                _errorMessage.value = response.message()
+            try {
+                val response = listingRepository.vote(thingId, vote).await()
+                if (response.code() != 200) {
+                    throw Exception()
+                }
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
             }
+
         }
     }
 
     fun save(thingId: String, save: Boolean){
         coroutineScope.launch {
-            val response = if(save){
-                listingRepository.save(thingId).await()
-            } else {
-                listingRepository.unsave(thingId).await()
-            }
-            if(response.code() != 200){
-                _errorMessage.value = response.message()
+            try {
+                val response = if(save){
+                    listingRepository.save(thingId).await()
+                } else {
+                    listingRepository.unsave(thingId).await()
+                }
+                if(response.code() != 200){
+                    throw Exception()
+                }
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
             }
         }
     }
 
     fun hide(thingId: String, hide: Boolean){
         coroutineScope.launch {
-            val response = if(hide){
-                listingRepository.hide(thingId).await()
-            } else {
-                listingRepository.unhide(thingId).await()
-            }
-            if(response.code() != 200){
-                _errorMessage.value = response.message()
+            try {
+                val response = if(hide){
+                    listingRepository.hide(thingId).await()
+                } else {
+                    listingRepository.unhide(thingId).await()
+                }
+                if(response.code() != 200){
+                    throw Exception()
+                }
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
             }
         }
     }
 
-    fun report(){
-        TODO("Implement Reporting")
+    fun report(thingId: String, rule: String, ruleType: RuleType){
+        coroutineScope.launch {
+            try {
+                val response = when(ruleType){
+                    RuleType.RULE -> listingRepository.report(thingId, ruleReason = rule).await()
+                    RuleType.SITE_RULE -> listingRepository.report(thingId, siteReason = rule).await()
+                    RuleType.OTHER -> listingRepository.report(thingId, otherReason = rule).await()
+                }
+
+                if(response.code() != 200){
+                    throw Exception()
+                }
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
+            }
+
+        }
     }
 
     fun showUi(show: Boolean){

@@ -6,13 +6,13 @@ import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.database.redditDatabase
 import dev.gtcl.reddit.models.reddit.ErrorResponse
 import dev.gtcl.reddit.models.reddit.NewPostResponse
+import dev.gtcl.reddit.models.reddit.RulesResponse
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.RedditApi
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
-import kotlin.IllegalStateException
 
 class SubredditRepository private constructor(private val application: RedditApplication){
     private val database = redditDatabase(application)

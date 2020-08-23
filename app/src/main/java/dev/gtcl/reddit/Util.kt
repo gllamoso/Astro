@@ -176,6 +176,17 @@ enum class Visibility{
     HIDDEN
 }
 
+enum class RuleType{
+    RULE,
+    SITE_RULE,
+    OTHER
+}
+
+data class RuleData(
+    val rule: String,
+    val type: RuleType
+)
+
 enum class MediaType{
     PICTURE,
     IMGUR_PICTURE,

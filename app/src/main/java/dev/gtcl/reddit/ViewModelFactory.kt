@@ -21,6 +21,8 @@ import dev.gtcl.reddit.ui.fragments.splash.SplashVM
 import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsVM
 import dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditVM
 import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
+import dev.gtcl.reddit.ui.fragments.report.ReportVM
+import dev.gtcl.reddit.ui.fragments.rules.RulesVM
 import dev.gtcl.reddit.ui.fragments.search.SearchVM
 import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingListVM
 import java.lang.IllegalArgumentException
@@ -50,6 +52,8 @@ class ViewModelFactory(private val application: RedditApplication) : ViewModelPr
             modelClass.isAssignableFrom(ComposeVM::class.java) -> ComposeVM(application) as T
             modelClass.isAssignableFrom(FriendsVM::class.java) -> FriendsVM(application) as T
             modelClass.isAssignableFrom(BlockedVM::class.java) -> BlockedVM(application) as T
+            modelClass.isAssignableFrom(ReportVM::class.java) -> ReportVM(application) as T
+            modelClass.isAssignableFrom(RulesVM::class.java) -> RulesVM(application) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: $modelClass")
         }
     }

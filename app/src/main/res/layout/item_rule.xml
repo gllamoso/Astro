@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+    
+    <data>
+        <variable
+            name="rule"
+            type="dev.gtcl.reddit.models.reddit.Rule" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingHorizontal="16dp"
+        android:paddingVertical="8dp">
+        
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@{rule.shortName}"
+            android:textAppearance="@android:style/TextAppearance.DeviceDefault.Widget.ActionMode.Title"
+            tools:text="Rule 1: No photos"/>
+        
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:ruleType="@{rule.kind}"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12sp"
+            tools:text="Posts and comments"/>
+        
+        <TextView
+            android:id="@+id/rule_description"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            tools:text="Rule description"/>
+
+    </LinearLayout>
+    
+</layout>

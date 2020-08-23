@@ -109,6 +109,12 @@
     <string name="share_text">Share Text</string>
     <string name="post_to_subreddit">Post to Subreddit</string>
 
+    <!--Report-->
+    <string name="report_dialog_title">Which rule does this break?</string>
+    <string name="cancel">Cancel</string>
+    <string name="other_rule_broken_description">Describe rule broken</string>
+    <string name="posts_and_comments">Posts and comments</string>
+
     <!--Media-->
     <string name="download_image_description">Downloading image…</string>
     <string name="share_subject_message">Check this out</string>
@@ -189,6 +195,7 @@
     <string name="no_comments_found">No comments found.</string>
     <string name="no_messages_found">No messages found.</string>
     <string name="guest">Guest</string>
+    <string name="other">Other</string>
 
     <!--Errors-->
     <string name="user_does_not_exist">User does not exist</string>

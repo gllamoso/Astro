@@ -216,9 +216,7 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
                             _lastItemReached.postValue(true)
                             break
                         } else {
-                            val items = response.data.children.map { it.data }.filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList().apply {
-                                checkIfItemsAreSubmittedByCurrentUser(application.currentAccount?.fullId)
-                            }
+                            val items = response.data.children.map { it.data }.filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList()
                             if(items.isNullOrEmpty()){
                                 emptyItemsCount++
                             } else {
@@ -278,9 +276,7 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
                             _lastItemReached.postValue(true)
                             break
                         } else {
-                            val items = response.data.children.map { it.data }.filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList().apply {
-                                checkIfItemsAreSubmittedByCurrentUser(application.currentAccount?.fullId)
-                            }
+                            val items = response.data.children.map { it.data }.filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList()
                             if(items.isNullOrEmpty()){
                                 emptyItemsCount++
                             } else {

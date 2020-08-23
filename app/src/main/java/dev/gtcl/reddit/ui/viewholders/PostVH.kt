@@ -116,7 +116,7 @@ class PostVH private constructor(private val binding:ItemPostBinding)
                 popupWindow.dismiss()
             }
             reportButton.root.setOnClickListener {
-                postActions.report(post)
+                postActions.report(post, adapterPosition)
                 popupWindow.dismiss()
             }
         }

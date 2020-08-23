@@ -13,13 +13,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.webkit.URLUtil
-import android.widget.GridLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.core.view.marginEnd
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -29,12 +27,11 @@ import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-import com.google.android.exoplayer2.ui.PlayerView
 import com.google.android.material.chip.Chip
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.IconFlairBinding
 import dev.gtcl.reddit.databinding.IconFlairSmallBinding
-import dev.gtcl.reddit.databinding.ItemAwardBinding
+import dev.gtcl.reddit.models.reddit.RuleFor
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditSubredditsAdapter
 import java.text.SimpleDateFormat
@@ -429,5 +426,15 @@ fun addFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?){
 
             viewGroup.addView(view)
         }
+    }
+}
+
+@BindingAdapter("ruleType")
+fun setRuleTypeText(textView: TextView, ruleFor: RuleFor){
+    val context = textView.context!!
+    textView.text = when(ruleFor){
+        RuleFor.POST -> context.getText(R.string.posts)
+        RuleFor.COMMENT -> context.getText(R.string.comments)
+        RuleFor.ALL -> context.getText(R.string.posts_and_comments)
     }
 }

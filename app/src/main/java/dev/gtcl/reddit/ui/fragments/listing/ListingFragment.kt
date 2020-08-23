@@ -3,6 +3,7 @@ package dev.gtcl.reddit.ui.fragments.listing
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -38,6 +39,7 @@ import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.create_post.CreatePostDialogFragment
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.SharePostOptionsDialogFragment
+import dev.gtcl.reddit.ui.fragments.report.ReportDialogFragment
 import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsDialogFragment
 import io.noties.markwon.Markwon
 
@@ -279,6 +281,14 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                 findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(listing)))
             }
         }
+
+        childFragmentManager.setFragmentResultListener(REPORT_KEY, viewLifecycleOwner){ _, bundle ->
+            val  position = bundle.getInt(POSITION_KEY, -1)
+            if(position != -1){
+                model.removeItemAt(position)
+                listAdapter.removeAt(position)
+            }
+        }
     }
 
 //     _____          _                  _   _
@@ -346,8 +356,8 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         listAdapter.removeAt(position)
     }
 
-    override fun report(post: Post) {
-        TODO("Implement reporting")
+    override fun report(post: Post, position: Int) {
+        ReportDialogFragment.newInstance(post, position).show(childFragmentManager, null)
     }
 
     override fun thumbnailClicked(post: Post, position: Int) {
@@ -410,8 +420,8 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         TODO("Not yet implemented")
     }
 
-    override fun report(comment: Comment) {
-        TODO("Not yet implemented")
+    override fun report(comment: Comment, position: Int) {
+        ReportDialogFragment.newInstance(comment, position).show(childFragmentManager, null)
     }
 
 //      _____       _                  _     _ _ _                  _   _

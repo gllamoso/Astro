@@ -12,6 +12,7 @@ import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
+import retrofit2.http.Query
 
 const val GUEST_ID = "guest"
 
@@ -116,6 +117,14 @@ class ListingRepository private constructor(private val application: RedditAppli
             throw NotLoggedInException()
         }
         return RedditApi.oauth.unhide(application.accessToken!!.authorizationHeader, id)
+    }
+
+    @MainThread
+    fun report(id: String, ruleReason: String? = null, siteReason: String? = null, otherReason: String? = null): Deferred<Response<Unit>>{
+        if(application.accessToken == null){
+            throw NotLoggedInException()
+        }
+        return RedditApi.oauth.report(application.accessToken!!.authorizationHeader, id, ruleReason, siteReason, otherReason)
     }
 
 

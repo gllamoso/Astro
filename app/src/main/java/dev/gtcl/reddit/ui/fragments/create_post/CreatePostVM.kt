@@ -3,7 +3,6 @@ package dev.gtcl.reddit.ui.fragments.create_post
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -15,7 +14,6 @@ import dev.gtcl.reddit.getErrorMessage
 import dev.gtcl.reddit.models.reddit.NewPostData
 import dev.gtcl.reddit.models.reddit.listing.Flair
 import dev.gtcl.reddit.models.reddit.listing.Post
-import dev.gtcl.reddit.models.reddit.listing.Rule
 import dev.gtcl.reddit.repositories.ImgurRepository
 import dev.gtcl.reddit.repositories.SubredditRepository
 import kotlinx.coroutines.*
@@ -24,7 +22,6 @@ import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
 import java.net.URL
-
 
 class CreatePostVM(private val application: RedditApplication): AndroidViewModel(application){
 
@@ -47,10 +44,6 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
     private val _subredditValid = MutableLiveData<Boolean>()
     val subredditValid: LiveData<Boolean>
         get() = _subredditValid
-
-    private val _rules = MutableLiveData<String?>().apply { value = null }
-    val rules: LiveData<String?>
-        get() = _rules
 
     private val _flairs = MutableLiveData<List<Flair>?>().apply { value = null }
     val flairs: LiveData<List<Flair>?>
@@ -113,26 +106,6 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
         }
     }
 
-    fun fetchRules(displayName: String){
-        coroutineScope.launch {
-            try{
-                val rules = subredditRepository.getRules(displayName).await().rules
-                val sb = StringBuilder()
-                for(rule: Rule in rules){
-                    sb.append("${rule.shortName}\n")
-                    sb.append("${rule.description}\n\n")
-                }
-                _rules.value = if(sb.isEmpty()){
-                    application.getString(R.string.no_rules_found)
-                } else {
-                    sb.toString()
-                }
-            } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
-            }
-        }
-    }
-
     fun fetchFlairs(srName: String){
         coroutineScope.launch {
             try{
@@ -149,10 +122,6 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
 
     fun flairsObserved(){
         _flairs.value = null
-    }
-
-    fun rulesObserved(){
-        _rules.value = null
     }
 
     fun selectFlair(flair: Flair?){
@@ -187,7 +156,6 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
 
                 _newPostData.value = newPostResponse.json.data
             } catch (e: Exception){
-                Log.d("TAE", "Exception 1: $e")
                 _errorMessage.value = e.getErrorMessage(application)
             }
         }
@@ -223,7 +191,6 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
 
                 _newPostData.value = newPostResponse.json.data
             } catch (e: Exception){
-                Log.d("TAE", "Exception 2: $e")
                 _errorMessage.value = e.getErrorMessage(application)
             }
         }
@@ -279,7 +246,6 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                         _errorMessage.value = application.getString(R.string.unable_fetch_error)
                     }
                 } else {
-                    Log.d("TAE", "Exception 3: $e")
                     _errorMessage.value = e.getErrorMessage(application)
                 }
             }
@@ -313,7 +279,6 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
 
                 _newPostData.value = newPostResponse.json.data
             } catch (e: Exception){
-                Log.d("TAE", "Exception 4: $e")
                 _errorMessage.value = e.getErrorMessage(application)
             }
         }
@@ -324,7 +289,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
         _urlResubmit.value = null
     }
 
-    fun errorMessageobserved(){
+    fun errorMessageObserved(){
         _errorMessage.value = null
     }
 

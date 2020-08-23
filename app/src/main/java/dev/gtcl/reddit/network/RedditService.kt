@@ -122,6 +122,49 @@ interface RedditApiService {
         @Query("id") id: String
     ): Deferred<Response<Unit>>
 
+    @POST("/api/spoiler")
+    fun markSpoiler(
+        @Header("Authorization") authorization: String,
+        @Query("id") id: String
+    ): Deferred<Response<Unit>>
+
+    @POST("/api/unspoiler")
+    fun markAsNonSpoiler(
+        @Header("Authorization") authorization: String,
+        @Query("id") id: String
+    ): Deferred<Response<Unit>>
+
+    @POST("/api/marknsfw")
+    fun markNsfw(
+        @Header("Authorization") authorization: String,
+        @Query("id") id: String
+    ): Deferred<Response<Unit>>
+
+    @POST("/api/unmarknsfw")
+    fun unmarkNsfw(
+        @Header("Authorization") authorization: String,
+        @Query("id") id: String
+    ): Deferred<Response<Unit>>
+
+    @POST("api/selectflair")
+    fun selectFlair(
+        @Header("Authorization") authorization: String,
+        @Query("link") id: String,
+        @Query("text") text: String,
+        @Query("flair_template_id") flairTemplateId: String,
+        @Query("api_type") apiType: String? = "json"
+    ): Deferred<Response<Unit>>
+
+    @POST("api/report")
+    fun report(
+        @Header("Authorization") authorization: String,
+        @Query("thing_id") thingId: String,
+        @Query("rule_reason") ruleReason: String? = null,
+        @Query("site_reason") siteReason: String? = null,
+        @Query("other_reason") otherReason: String? = null,
+        @Query("api_type") apiType: String? = "json"
+    ): Deferred<Response<Unit>>
+
 //     _____          _
 //    |  __ \        | |
 //    | |__) |__  ___| |_ ___

@@ -19,6 +19,8 @@ const val ITEM_KEY = "item"
 const val NEW_REPLY_KEY = "new_reply"
 const val PREFERENCES_KEY = "Reddit Preference File Key" // TODO: Rename
 const val EXPAND_REPLIES_KEY = "expand"
+const val RULE_KEY = "rule"
+const val REPORT_KEY = "report"
 // Draft
 const val DRAFT_KEY = "draft"
 const val TO_KEY = "to"
