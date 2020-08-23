@@ -1,5 +1,6 @@
 package dev.gtcl.reddit.ui.fragments.comments
 
+import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
@@ -29,7 +30,7 @@ class CommentsAdapter(private val markwon: Markwon, private val commentActions: 
 
     fun submitList(items: List<Item>?){
         val offset = if(allCommentsRetrieved) 0 else 1
-        if(comments != null){
+        if(!comments.isNullOrEmpty()){
             notifyItemRangeRemoved(0 + offset, comments!!.size)
             comments = items?.toMutableList()
             notifyItemRangeInserted(0 + offset, max(items?.size ?: 1, 1))
