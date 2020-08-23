@@ -16,8 +16,12 @@ import android.webkit.URLUtil
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.annotation.IdRes
+import androidx.annotation.Nullable
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.view.children
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
@@ -34,6 +38,7 @@ import dev.gtcl.reddit.databinding.IconFlairSmallBinding
 import dev.gtcl.reddit.models.reddit.RuleFor
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditSubredditsAdapter
+import java.lang.reflect.Field
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -437,4 +442,21 @@ fun setRuleTypeText(textView: TextView, ruleFor: RuleFor){
         RuleFor.COMMENT -> context.getText(R.string.comments)
         RuleFor.ALL -> context.getText(R.string.posts_and_comments)
     }
+}
+
+@Nullable
+@Throws(
+    IllegalAccessException::class,
+    NoSuchFieldException::class
+)
+fun getMenuItemView(toolbar: Toolbar?, @IdRes menuItemId: Int): View? {
+    val mMenuView: Field = Toolbar::class.java.getDeclaredField("mMenuView")
+    mMenuView.isAccessible = true
+    val menuView: Any? = mMenuView.get(toolbar)
+    (menuView as ViewGroup).children.forEach {
+        if(it.id == menuItemId) {
+            return it
+        }
+    }
+    return null
 }

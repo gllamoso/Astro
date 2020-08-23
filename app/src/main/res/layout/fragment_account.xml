@@ -132,7 +132,8 @@
                     android:background="@android:color/transparent"
                     app:layout_collapseMode="pin"
                     app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
-                    app:navigationIcon="@drawable/ic_menu_24" />
+                    app:navigationIcon="@drawable/ic_menu_24"
+                    app:menu="@menu/more_options"/>
 
             </com.google.android.material.appbar.CollapsingToolbarLayout>
 

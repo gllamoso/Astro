@@ -59,9 +59,6 @@ class BlockedVM(private val application: RedditApplication): AndroidViewModel(ap
             try{
                 val username = _blocked.value!![position].name
                 val response = userRepository.unblockUser(username).await()
-                if(!response.isSuccessful){
-                    throw Exception()
-                }
                 _removeAt.value = position
             }catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)

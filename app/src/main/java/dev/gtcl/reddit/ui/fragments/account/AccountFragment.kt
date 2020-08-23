@@ -1,14 +1,16 @@
 package dev.gtcl.reddit.ui.fragments.account
 
+import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.PopupWindow
+import android.widget.RelativeLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResult
 import androidx.fragment.app.setFragmentResultListener
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
@@ -19,12 +21,11 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
 import dev.gtcl.reddit.databinding.FragmentAccountBinding
 import dev.gtcl.reddit.database.SavedAccount
-import dev.gtcl.reddit.models.reddit.User
+import dev.gtcl.reddit.databinding.PopupAccountActionsBinding
+import dev.gtcl.reddit.models.reddit.listing.Account
 import dev.gtcl.reddit.models.reddit.listing.Subreddit
 import dev.gtcl.reddit.ui.activities.MainActivityVM
-import dev.gtcl.reddit.ui.fragments.AccountPage
 import dev.gtcl.reddit.ui.fragments.ContinueThreadPage
-import dev.gtcl.reddit.ui.fragments.ViewPagerPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerVM
 
 class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
@@ -73,6 +74,15 @@ class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
             viewPagerModel.newPage(ContinueThreadPage(bundle.getString(URL_KEY)!!, null, false))
         }
 
+        binding.toolbar.setOnMenuItemClickListener {
+            val account = model.account.value
+            if(account != null){
+                val anchor = getMenuItemView(binding.toolbar, R.id.more_options)
+                showAccountActionsPopup(anchor!!, account)
+            }
+            true
+        }
+
         return binding.root
     }
 
@@ -114,6 +124,39 @@ class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
                 })
             }.attach()
         }
+    }
+
+    private fun showAccountActionsPopup(anchor: View, account: Account){
+        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val popupBinding = PopupAccountActionsBinding.inflate(inflater)
+        val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
+        popupBinding.apply {
+            this.account = account
+            friend.root.setOnClickListener {
+                account.isFriend = !(account.isFriend ?: false)
+                if(account.isFriend == true){
+                    model.addFriend(account.name)
+                } else {
+                    model.unfriend(account.name)
+                }
+                popupWindow.dismiss()
+            }
+            block.root.setOnClickListener {
+                model.blockUser(account.name)
+                popupWindow.dismiss()
+            }
+            executePendingBindings()
+        }
+
+        popupBinding.root.measure(
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+        )
+
+        popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
+        popupWindow.height = popupBinding.root.measuredHeight
+        popupWindow.elevation = 20F
+        popupWindow.showAsDropDown(anchor)
     }
 
 //     _           __ _     _____                                             _   _

@@ -27,15 +27,3 @@ enum class UserType{
 data class FriendRequest(val name: String){
     override fun toString(): String = Gson().toJson(this)
 }
-
-//@Parcelize
-//data class MultiRedditUpdate(
-//    @SerializedName("description_md") val description: String? = null,
-//    @SerializedName("display_name") val displayName: String? = null,
-//    @SerializedName("icon_img") val iconImg: String? = null,
-//    @SerializedName("key_color") val keyColor: String? = null,
-//    val subreddits: List<SubredditData>? = null,
-//    val visibility: Visibility? = null
-//): Parcelable {
-//    override fun toString(): String = Gson().toJson(this)
-//}

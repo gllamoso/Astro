@@ -59,12 +59,8 @@ class FriendsVM(private val application: RedditApplication): AndroidViewModel(ap
         coroutineScope.launch {
             try{
                 val removeResult = userRepository.removeFriend(_friends.value!![position].name).await()
-                if(removeResult.isSuccessful){
-                    _friends.value!!.removeAt(position)
-                    _removeAt.value = position
-                } else {
-                    throw Exception()
-                }
+                _friends.value!!.removeAt(position)
+                _removeAt.value = position
             }catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
             }

@@ -66,11 +66,20 @@ class AccountFragmentVM(val application: RedditApplication): ViewModel() {
         }
     }
 
-    fun addUser(username: String){
+    fun addFriend(username: String){
         coroutineScope.launch {
             try {
-                val test = userRepository.addFriend(username).await()
-                Log.d("TAE", "Add: $test")
+                val response = userRepository.addFriend(username).await()
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
+            }
+        }
+    }
+
+    fun unfriend(username: String){
+        coroutineScope.launch {
+            try{
+                val response = userRepository.removeFriend(username).await()
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
             }
@@ -81,9 +90,6 @@ class AccountFragmentVM(val application: RedditApplication): ViewModel() {
         coroutineScope.launch {
             try {
                 val response = userRepository.blockUser(username).await()
-                if(!response.isSuccessful){
-                    throw Exception()
-                }
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
             }
@@ -94,9 +100,6 @@ class AccountFragmentVM(val application: RedditApplication): ViewModel() {
         coroutineScope.launch {
             try {
                 val response = userRepository.unblockUser(username).await()
-                if(!response.isSuccessful){
-                    throw Exception()
-                }
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
             }

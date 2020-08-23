@@ -7,8 +7,8 @@
         <import type="dev.gtcl.reddit.models.reddit.UserType"/>
         <import type="android.view.View"/>
         <variable
-            name="userType"
-            type="dev.gtcl.reddit.models.reddit.UserType" />
+            name="account"
+            type="dev.gtcl.reddit.models.reddit.listing.Account" />
     </data>
 
     <androidx.cardview.widget.CardView
@@ -23,23 +23,16 @@
             android:orientation="vertical">
 
             <include
-                android:id="@+id/view_profile"
+                android:id="@+id/friend"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_profile_24}"
-                app:text="@{@string/view_profile}"/>
+                app:iconDrawable="@{account.isFriend() ? @drawable/ic_remove_circle_outline_24 : @drawable/ic_baseline_person_add_24}"
+                app:text="@{account.isFriend() ? @string/unfriend : @string/add_friend}"/>
 
             <include
-                android:id="@+id/message"
+                android:id="@+id/block"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_inbox_24}"
-                app:text="@{@string/message}"
-                android:visibility="@{userType == UserType.FRIEND ? View.VISIBLE : View.GONE}"/>
-
-            <include
-                android:id="@+id/remove"
-                layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_remove_circle_outline_24}"
-                app:text="@{userType == UserType.FRIEND ? @string/unfriend : @string/unblock}"/>
+                app:iconDrawable="@{@drawable/ic_baseline_block_24}"
+                app:text="@{@string/block}"/>
 
         </LinearLayout>
 

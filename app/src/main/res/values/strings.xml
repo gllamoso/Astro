@@ -95,10 +95,12 @@
     <string name="karma">Karma</string>
     <string name="reddit_age">Reddit Age</string>
     <string name="profile">Profile</string>
-    <string name="unfriend">Unfriend</string>
-    <string name="unblock">Unblock</string>
     <string name="view_profile">View Profile</string>
     <string name="account_error">Unable to retrieve account. User may have been removed.</string>
+    <string name="add_friend">Add friend</string>
+    <string name="block">Block</string>
+    <string name="unfriend">Unfriend</string>
+    <string name="unblock">Unblock</string>
 
     <!--Share-->
     <string name="share_link">Share link</string>
