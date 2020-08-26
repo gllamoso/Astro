@@ -2,7 +2,6 @@ package dev.gtcl.reddit.ui.fragments.signin
 
 import android.content.Context
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -10,7 +9,7 @@ import com.google.gson.Gson
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.models.reddit.AccessToken
 import dev.gtcl.reddit.models.reddit.listing.Account
-import dev.gtcl.reddit.repositories.UserRepository
+import dev.gtcl.reddit.repositories.reddit.UserRepository
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.IllegalArgumentException

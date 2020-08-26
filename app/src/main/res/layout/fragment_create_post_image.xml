@@ -12,7 +12,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         tools:ignore="RtlHardcoded">
 
         <Button
@@ -44,7 +44,7 @@
         <FrameLayout
             android:id="@+id/image_preview_layout"
             android:layout_width="match_parent"
-            android:layout_height="0dp"
+            android:layout_height="wrap_content"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -67,7 +67,8 @@
             <ImageView
                 android:id="@+id/image_preview"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="240dp"
                 android:layout_margin="8dp"
                 android:elevation="5dp"
                 app:uri="@{model.uri}"/>

@@ -40,4 +40,9 @@
         <item name="android:background">?android:attr/colorBackground</item>
     </style>
 
+    <style name="CustomChipChoice" parent="@style/Widget.MaterialComponents.Chip.Choice">
+        <item name="chipBackgroundColor">@color/background_color_chip_state_list</item>
+        <item name="android:textColor">@android:color/white</item>
+    </style>
+
 </resources>

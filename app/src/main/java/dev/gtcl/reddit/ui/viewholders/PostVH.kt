@@ -1,17 +1,12 @@
 package dev.gtcl.reddit.ui.viewholders
 
 import android.content.Context
-import android.net.Uri
-import android.text.Html
-import android.util.Log
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.URLUtil
 import android.widget.PopupWindow
-import android.widget.RelativeLayout
-import androidx.core.net.toUri
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.request.RequestOptions
@@ -21,12 +16,13 @@ import dev.gtcl.reddit.databinding.ItemPostBinding
 import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.databinding.PopupPostOptionsBinding
 import dev.gtcl.reddit.models.reddit.listing.Post
+import dev.gtcl.reddit.showAsDropdown
 import jp.wasabeef.glide.transformations.BlurTransformation
 
 class PostVH private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(post: Post, postActions: PostActions, blurNsfw: Boolean, blurSpoiler: Boolean, itemClickListener: ItemClickListener) {
+    fun bind(post: Post, postActions: PostActions, blurNsfw: Boolean, blurSpoiler: Boolean, userId: String?, itemClickListener: ItemClickListener) {
         binding.post = post
 
         binding.cardView.setOnClickListener{
@@ -38,7 +34,7 @@ class PostVH private constructor(private val binding:ItemPostBinding)
         setThumbnail(post, blurNsfw, blurSpoiler, postActions)
 
         binding.moreOptions.setOnClickListener {
-            showPopupWindow(post, postActions, it)
+            showPopupWindow(post, postActions, (post.authorFullName == userId && userId != null), it)
         }
 
         binding.executePendingBindings()
@@ -65,12 +61,29 @@ class PostVH private constructor(private val binding:ItemPostBinding)
         }
     }
 
-    private fun showPopupWindow(post: Post, postActions: PostActions, anchorView: View){
-        val inflater = anchorView.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private fun showPopupWindow(post: Post, postActions: PostActions, createdFromUser: Boolean, anchor: View){
+        val inflater = anchor.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupPostOptionsBinding.inflate(inflater)
-        val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
+        val popupWindow = PopupWindow()
         popupBinding.apply {
             this.post = post
+            this.createdFromUser = createdFromUser
+            if(createdFromUser){
+                if(post.isSelf){
+                    editButton.root.setOnClickListener {
+                        postActions.edit(post, adapterPosition)
+                        popupWindow.dismiss()
+                    }
+                }
+                manageButton.root.setOnClickListener {
+                    postActions.manage(post, adapterPosition)
+                    popupWindow.dismiss()
+                }
+                deleteButton.root.setOnClickListener {
+                    postActions.delete(post, adapterPosition)
+                    popupWindow.dismiss()
+                }
+            }
             upvoteButton.root.setOnClickListener {
                 postActions.vote(post, if(post.likes == true) Vote.UNVOTE else Vote.UPVOTE)
                 post.likes = if(post.likes == true) {
@@ -119,17 +132,14 @@ class PostVH private constructor(private val binding:ItemPostBinding)
                 postActions.report(post, adapterPosition)
                 popupWindow.dismiss()
             }
+            executePendingBindings()
+            root.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
         }
-        popupBinding.root.measure(
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-        )
 
-        popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
-        popupWindow.height = popupBinding.root.measuredHeight
-        popupWindow.elevation = 20F
-        popupWindow.showAsDropDown(anchorView)
-        popupBinding.executePendingBindings()
+        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
     }
 
     companion object {

@@ -1,18 +1,13 @@
 package dev.gtcl.reddit.ui.fragments.splash
 
-import android.content.Context
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
-import com.google.gson.Gson
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.models.reddit.AccessToken
-import dev.gtcl.reddit.models.reddit.listing.Account
-import dev.gtcl.reddit.repositories.UserRepository
+import dev.gtcl.reddit.repositories.reddit.UserRepository
 import kotlinx.coroutines.*
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 
 class SplashVM(val application: RedditApplication): ViewModel() {
 

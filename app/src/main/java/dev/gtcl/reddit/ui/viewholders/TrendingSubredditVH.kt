@@ -6,7 +6,7 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemTrendingSubredditBinding
 import dev.gtcl.reddit.actions.SubredditActions
 import dev.gtcl.reddit.models.reddit.listing.Subreddit
-import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingSubredditPost
+import dev.gtcl.reddit.ui.fragments.subscriptions.trending.TrendingSubredditPost
 
 class TrendingSubredditVH private constructor(private val binding: ItemTrendingSubredditBinding) :
     RecyclerView.ViewHolder(binding.root) {

@@ -7,6 +7,10 @@
         <variable
             name="post"
             type="dev.gtcl.reddit.models.reddit.listing.Post" />
+        <variable
+            name="createdFromUser"
+            type="Boolean" />
+        <import type="android.view.View"/>
     </data>
 
     <androidx.cardview.widget.CardView
@@ -19,6 +23,33 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical">
+
+            <include
+                android:id="@+id/edit_button"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:visibility="@{createdFromUser &amp;&amp; post.self ? View.VISIBLE : View.GONE}"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_pencil_24}"
+                app:text="@{@string/edit}"/>
+
+            <include
+                android:id="@+id/manage_button"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:visibility="@{createdFromUser ? View.VISIBLE : View.GONE}"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_baseline_check_box_24}"
+                app:text="@{@string/manage}"/>
+
+            <include
+                android:id="@+id/delete_button"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:visibility="@{createdFromUser ? View.VISIBLE : View.GONE}"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_delete_24}"
+                app:text="@{@string/delete}"/>
 
             <include
                 android:id="@+id/upvote_button"

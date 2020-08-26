@@ -10,4 +10,6 @@ interface CommentActions {
     fun reply(comment: Comment, position: Int)
     fun viewProfile(comment: Comment)
     fun report(comment: Comment, position: Int)
+    fun edit(comment: Comment, position: Int)
+    fun delete(comment: Comment, position: Int)
 }

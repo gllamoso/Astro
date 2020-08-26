@@ -13,18 +13,20 @@ import dev.gtcl.reddit.ui.fragments.account.pages.blocked.BlockedVM
 import dev.gtcl.reddit.ui.fragments.account.pages.friends.FriendsVM
 import dev.gtcl.reddit.ui.fragments.create_post.CreatePostVM
 import dev.gtcl.reddit.ui.fragments.create_post.type.UploadImageVM
+import dev.gtcl.reddit.ui.fragments.flair.FlairListVM
 import dev.gtcl.reddit.ui.fragments.inbox.ComposeVM
+import dev.gtcl.reddit.ui.fragments.manage.ManagePostVM
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogVM
 import dev.gtcl.reddit.ui.fragments.media.list.item.MediaVM
 import dev.gtcl.reddit.ui.fragments.signin.SignInVM
 import dev.gtcl.reddit.ui.fragments.splash.SplashVM
-import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsVM
+import dev.gtcl.reddit.ui.fragments.subscriptions.SubscriptionsVM
 import dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditVM
-import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
+import dev.gtcl.reddit.ui.fragments.reply_or_edit.ReplyOrEditVM
 import dev.gtcl.reddit.ui.fragments.report.ReportVM
 import dev.gtcl.reddit.ui.fragments.rules.RulesVM
 import dev.gtcl.reddit.ui.fragments.search.SearchVM
-import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingListVM
+import dev.gtcl.reddit.ui.fragments.subscriptions.trending.TrendingListVM
 import java.lang.IllegalArgumentException
 
 @Suppress("UNCHECKED_CAST")
@@ -48,12 +50,14 @@ class ViewModelFactory(private val application: RedditApplication) : ViewModelPr
             modelClass.isAssignableFrom(UploadImageVM::class.java) -> UploadImageVM(application) as T
             modelClass.isAssignableFrom(MediaVM::class.java) -> MediaVM(application) as T
             modelClass.isAssignableFrom(MediaDialogVM::class.java) -> MediaDialogVM(application) as T
-            modelClass.isAssignableFrom(ReplyVM::class.java) -> ReplyVM(application) as T
+            modelClass.isAssignableFrom(ReplyOrEditVM::class.java) -> ReplyOrEditVM(application) as T
             modelClass.isAssignableFrom(ComposeVM::class.java) -> ComposeVM(application) as T
             modelClass.isAssignableFrom(FriendsVM::class.java) -> FriendsVM(application) as T
             modelClass.isAssignableFrom(BlockedVM::class.java) -> BlockedVM(application) as T
             modelClass.isAssignableFrom(ReportVM::class.java) -> ReportVM(application) as T
             modelClass.isAssignableFrom(RulesVM::class.java) -> RulesVM(application) as T
+            modelClass.isAssignableFrom(FlairListVM::class.java) -> FlairListVM(application) as T
+            modelClass.isAssignableFrom(ManagePostVM::class.java) -> ManagePostVM() as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: $modelClass")
         }
     }

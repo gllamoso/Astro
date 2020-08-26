@@ -15,7 +15,8 @@ import dev.gtcl.reddit.models.reddit.NewPostData
 import dev.gtcl.reddit.models.reddit.listing.Flair
 import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.repositories.ImgurRepository
-import dev.gtcl.reddit.repositories.SubredditRepository
+import dev.gtcl.reddit.repositories.reddit.MiscRepository
+import dev.gtcl.reddit.repositories.reddit.SubredditRepository
 import kotlinx.coroutines.*
 import retrofit2.HttpException
 import java.io.File
@@ -28,6 +29,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
     // Repos
     private val imgurRepository = ImgurRepository.getInstance()
     private val subredditRepository = SubredditRepository.getInstance(application)
+    private val miscRepository = MiscRepository.getInstance(application)
 
     // Scopes
     private val viewModelJob = Job()
@@ -44,10 +46,6 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
     private val _subredditValid = MutableLiveData<Boolean>()
     val subredditValid: LiveData<Boolean>
         get() = _subredditValid
-
-    private val _flairs = MutableLiveData<List<Flair>?>().apply { value = null }
-    val flairs: LiveData<List<Flair>?>
-        get() = _flairs
 
     private val _flair = MutableLiveData<Flair?>().apply { value = null }
     val flair: LiveData<Flair?>
@@ -106,24 +104,6 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
         }
     }
 
-    fun fetchFlairs(srName: String){
-        coroutineScope.launch {
-            try{
-                _flairs.value = subredditRepository.getFlairs(srName).await()
-            } catch (e: Exception){
-                if(e is HttpException && e.code() == 403){
-                    _flairs.value = listOf()
-                } else {
-                    _errorMessage.value = e.getErrorMessage(application)
-                }
-            }
-        }
-    }
-
-    fun flairsObserved(){
-        _flairs.value = null
-    }
-
     fun selectFlair(flair: Flair?){
         _flair.value = flair
     }
@@ -148,7 +128,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                 ).await()
 
                 if(!notifications){
-                    val sendNotificationsResponse = subredditRepository.sendRepliesToInbox(newPostResponse.json.data.name, notifications).await()
+                    val sendNotificationsResponse = miscRepository.sendRepliesToInbox(newPostResponse.json.data.name, notifications).await()
                     if(!sendNotificationsResponse.isSuccessful){
                         throw HttpException(sendNotificationsResponse)
                     }
@@ -183,7 +163,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                 ).await()
 
                 if(!notifications){
-                    val sendNotificationsResponse = subredditRepository.sendRepliesToInbox(newPostResponse.json.data.name, notifications).await()
+                    val sendNotificationsResponse = miscRepository.sendRepliesToInbox(newPostResponse.json.data.name, notifications).await()
                     if(!sendNotificationsResponse.isSuccessful){
                         throw HttpException(sendNotificationsResponse)
                     }
@@ -218,7 +198,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                 ).await()
 
                 if(!notifications){
-                    val sendNotificationsResponse = subredditRepository.sendRepliesToInbox(newPostResponse.json.data.name, notifications).await()
+                    val sendNotificationsResponse = miscRepository.sendRepliesToInbox(newPostResponse.json.data.name, notifications).await()
                     if(!sendNotificationsResponse.isSuccessful){
                         throw HttpException(sendNotificationsResponse)
                     }
@@ -271,7 +251,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                 ).await()
 
                 if(!notifications){
-                    val sendNotificationsResponse = subredditRepository.sendRepliesToInbox(newPostResponse.json.data.name, notifications).await()
+                    val sendNotificationsResponse = miscRepository.sendRepliesToInbox(newPostResponse.json.data.name, notifications).await()
                     if(!sendNotificationsResponse.isSuccessful){
                         throw HttpException(sendNotificationsResponse)
                     }

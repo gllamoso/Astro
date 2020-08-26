@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.subreddits
+package dev.gtcl.reddit.ui.fragments.subscriptions
 
 import android.content.Context
 import android.view.ViewGroup

@@ -1,11 +1,9 @@
-package dev.gtcl.reddit.models.reddit
+package dev.gtcl.reddit.network
 
 import com.squareup.moshi.FromJson
-import com.squareup.moshi.Json
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.ToJson
 import dev.gtcl.reddit.models.reddit.listing.*
-import kotlinx.android.parcel.Parcelize
 import java.lang.RuntimeException
 import java.util.*
 
@@ -97,9 +95,15 @@ class CommentsMoshiAdapter {
         var nsfw: Boolean? = null
         var spoiler: Boolean? = null
         var linkFlairText: String? = null
+        var linkFlairTemplateId: String? = null
         var crossPostParentList: MutableList<Post>? = null
         var crosspostable: Boolean? = null
         var gildings: Gildings? = null
+        var sendReplies: Boolean? = null
+        var canModPost: Boolean? = null
+        var stickied: Boolean? = null
+        var pinned: Boolean? = null
+        var locked: Boolean? = null
         while(jsonReader.hasNext()){
             when(jsonReader.nextName()){
                 "name" -> {
@@ -194,6 +198,9 @@ class CommentsMoshiAdapter {
                         jsonReader.skipValue()
                     }
                 }
+                "link_flair_template_id" -> {
+                    linkFlairTemplateId = jsonReader.nextString()
+                }
                 "crosspost_parent_list" -> {
                     jsonReader.beginArray()
                     crossPostParentList = mutableListOf()
@@ -211,6 +218,21 @@ class CommentsMoshiAdapter {
                     } else {
                         jsonReader.skipValue()
                     }
+                }
+                "send_replies" -> {
+                    sendReplies = jsonReader.nextBoolean()
+                }
+                "can_mod_post" -> {
+                    canModPost = jsonReader.nextBoolean()
+                }
+                "stickied" -> {
+                    stickied = jsonReader.nextBoolean()
+                }
+                "pinned" -> {
+                    pinned = jsonReader.nextBoolean()
+                }
+                "locked" -> {
+                    locked = jsonReader.nextBoolean()
                 }
                 else -> {
                     jsonReader.skipValue()
@@ -245,9 +267,15 @@ class CommentsMoshiAdapter {
             nsfw = nsfw!!,
             spoiler = spoiler!!,
             flairText = linkFlairText,
+            linkFlairTemplateId = linkFlairTemplateId,
             crosspostParentList = crossPostParentList,
             isCrosspostable = crosspostable!!,
-            gildings = gildings
+            gildings = gildings,
+            sendReplies = sendReplies!!,
+            canModPost = canModPost!!,
+            stickied = stickied!!,
+            pinned = pinned!!,
+            locked = locked!!
         )
     }
 
@@ -408,8 +436,10 @@ class CommentsMoshiAdapter {
     private fun addCommentToList(jsonReader: JsonReader, depth: Int, comments: MutableList<Item>){
         jsonReader.beginObject()
         var name: String? = null
+        var id: String? = null
         var author: String? = null
         var authorFullName: String? = null
+        var authorCakeday: Boolean? = null
         var body: String? = null
         var bodyHtml: String? = null
         var score: Int? = null
@@ -419,12 +449,17 @@ class CommentsMoshiAdapter {
         var likes: Boolean? = null
         var replies: List<Item>? = null
         var authorFlairText: String? = null
+        var gildings: Gildings? = null
         var permalink: String? = null
         var linkPermalink: String? = null
+        var parentId: String? = null
+        var context: String? = null
         var subreddit: String? = null
         var subredditPrefixed: String? = null
         var linkTitle: String? = null
         var isSubmitter: Boolean? = null
+        var locked: Boolean? = null
+        var stickied: Boolean? = null
         val authorFlairRichtext = mutableListOf<AuthorFlairRichtext>()
 
         while (jsonReader.hasNext()) {
@@ -432,11 +467,17 @@ class CommentsMoshiAdapter {
                 "name" -> {
                     name = jsonReader.nextString()
                 }
+                "id" -> {
+                    id = jsonReader.nextString()
+                }
                 "author" -> {
                     author = jsonReader.nextString()
                 }
                 "author_fullname" -> {
                     authorFullName = jsonReader.nextString()
+                }
+                "author_cakeday" -> {
+                    authorCakeday = jsonReader.nextBoolean()
                 }
                 "body" -> {
                     body = jsonReader.nextString()
@@ -482,11 +523,28 @@ class CommentsMoshiAdapter {
                     }
                     jsonReader.endArray()
                 }
+                "gildings" -> {
+                    if(jsonReader.peek() != JsonReader.Token.NULL) {
+                        gildings = getGildings(jsonReader)
+                    } else {
+                        jsonReader.skipValue()
+                    }
+                }
                 "permalink" -> {
                     permalink = jsonReader.nextString()
                 }
                 "link_permalink" -> {
                     linkPermalink = jsonReader.nextString()
+                }
+                "context" -> {
+                    if(jsonReader.peek() != JsonReader.Token.NULL) {
+                        context = jsonReader.nextString()
+                    } else {
+                        jsonReader.skipValue()
+                    }
+                }
+                "parent_id" -> {
+                    parentId = jsonReader.nextString()
                 }
                 "subreddit" -> {
                     subreddit = jsonReader.nextString()
@@ -500,6 +558,12 @@ class CommentsMoshiAdapter {
                 "is_submitter" ->{
                     isSubmitter = jsonReader.nextBoolean()
                 }
+                "locked" -> {
+                    locked = jsonReader.nextBoolean()
+                }
+                "stickied" -> {
+                    stickied = jsonReader.nextBoolean()
+                }
                 else -> {
                     jsonReader.skipValue()
                 }
@@ -509,26 +573,31 @@ class CommentsMoshiAdapter {
 
         val comment = Comment(
             name = name!!,
-            id = "",
+            id = id ?: "",
             depth = depth,
             author = author!!,
             authorFullName = authorFullName,
+            authorCakeday = authorCakeday,
             body = body!!,
             bodyHtml = bodyHtml!!,
             score = score!!,
-            scoreHidden = scoreHidden!!,
+            scoreHidden = scoreHidden,
             created = created!!,
-            saved = saved!!,
+            saved = saved,
             likes =  likes,
             authorFlairText = authorFlairText,
             authorFlairRichtext = authorFlairRichtext,
+            gildings = gildings,
             permalink = permalink!!,
             linkPermalink = linkPermalink,
-            context = null,
+            context = context,
+            parentId = parentId,
             subreddit = subreddit!!,
             subredditPrefixed = subredditPrefixed!!,
             linkTitle = linkTitle,
-            isSubmitter = isSubmitter
+            isSubmitter = isSubmitter,
+            locked = locked,
+            stickied = stickied
         )
 
         comments.add(comment)

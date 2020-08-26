@@ -1,18 +1,16 @@
-package dev.gtcl.reddit.repositories
+package dev.gtcl.reddit.repositories.reddit
 
-import android.util.Log
 import androidx.annotation.MainThread
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.ItemRead
 import dev.gtcl.reddit.database.redditDatabase
 import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.models.reddit.listing.*
+import dev.gtcl.reddit.network.CommentPage
 import dev.gtcl.reddit.network.RedditApi
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import retrofit2.Response
-import retrofit2.http.Query
 
 const val GUEST_ID = "guest"
 
@@ -80,58 +78,11 @@ class ListingRepository private constructor(private val application: RedditAppli
     }
 
     @MainThread
-    fun vote(fullname: String, vote: Vote): Deferred<Response<Unit>> {
+    fun getMessages(where: MessageWhere, after: String? = null, limit: Int? = null): Deferred<ListingResponse>{
         if(application.accessToken == null) {
             throw NotLoggedInException()
         }
-        return RedditApi.oauth.vote(application.accessToken!!.authorizationHeader, fullname, vote.value)
-    }
-
-    @MainThread
-    fun save(id: String): Deferred<Response<Unit>>{
-        if(application.accessToken == null) {
-            throw NotLoggedInException()
-        }
-        return RedditApi.oauth.save(application.accessToken!!.authorizationHeader, id)
-    }
-
-    @MainThread
-    fun unsave(id: String): Deferred<Response<Unit>>{
-        if(application.accessToken == null) {
-            throw NotLoggedInException()
-        }
-        return RedditApi.oauth.unsave(application.accessToken!!.authorizationHeader, id)
-    }
-
-    @MainThread
-    fun hide(id: String): Deferred<Response<Unit>>{
-        if(application.accessToken == null) {
-            throw NotLoggedInException()
-        }
-        return RedditApi.oauth.hide(application.accessToken!!.authorizationHeader, id)
-    }
-
-    @MainThread
-    fun unhide(id: String): Deferred<Response<Unit>>{
-        if(application.accessToken == null) {
-            throw NotLoggedInException()
-        }
-        return RedditApi.oauth.unhide(application.accessToken!!.authorizationHeader, id)
-    }
-
-    @MainThread
-    fun report(id: String, ruleReason: String? = null, siteReason: String? = null, otherReason: String? = null): Deferred<Response<Unit>>{
-        if(application.accessToken == null){
-            throw NotLoggedInException()
-        }
-        return RedditApi.oauth.report(application.accessToken!!.authorizationHeader, id, ruleReason, siteReason, otherReason)
-    }
-
-
-    @MainThread
-    fun getAwards(user: String): Deferred<TrophyListingResponse>{
-        return if(application.accessToken == null) RedditApi.base.getAwards(null, user)
-            else RedditApi.oauth.getAwards(application.accessToken!!.authorizationHeader, user)
+        return RedditApi.oauth.getMessages(application.accessToken!!.authorizationHeader, where, after, limit)
     }
 
     // --- DATABASE
@@ -163,14 +114,6 @@ class ListingRepository private constructor(private val application: RedditAppli
         } else {
             RedditApi.oauth.getMoreComments(application.accessToken!!.authorizationHeader, children, linkId, sort = sort)
         }
-    }
-
-    @MainThread
-    fun addComment(parentName: String, body: String): Deferred<MoreChildrenResponse>{
-        if(application.accessToken == null) {
-            throw NotLoggedInException()
-        }
-        return RedditApi.oauth.addComment(application.accessToken!!.authorizationHeader, parentName, body)
     }
 
     companion object{

@@ -6,9 +6,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.models.reddit.listing.*
-import dev.gtcl.reddit.repositories.ListingRepository
+import dev.gtcl.reddit.repositories.reddit.ListingRepository
 import dev.gtcl.reddit.network.NetworkState
-import dev.gtcl.reddit.repositories.SubredditRepository
+import dev.gtcl.reddit.repositories.reddit.SubredditRepository
 import kotlinx.coroutines.*
 
 const val PAGE_SIZE = 15
@@ -322,8 +322,8 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
         }
     }
 
-    fun updateItem(item: Item, position: Int) {
-        _items.updateItem(item, position)
+    fun updateItemAt(position: Int, item: Item) {
+        _items.value?.set(position, item)
     }
 
     fun toggleLeftDrawerExpanding() {

@@ -19,7 +19,7 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentDialogCreatePostBinding
 import dev.gtcl.reddit.models.reddit.listing.Flair
 import dev.gtcl.reddit.models.reddit.listing.Post
-import dev.gtcl.reddit.ui.fragments.create_post.flair.FlairSelectionDialogFragment
+import dev.gtcl.reddit.ui.fragments.flair.FlairListDialogFragment
 import dev.gtcl.reddit.ui.fragments.rules.RulesDialogFragment
 import java.util.*
 import kotlin.NoSuchElementException
@@ -35,11 +35,8 @@ class CreatePostDialogFragment : DialogFragment(){
 
     override fun onStart() {
         super.onStart()
-
         dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
-
 //        dialog?.window?.setBackgroundDrawableResource(android.R.color.black) // This makes the dialog full screen
-
     }
 
     override fun onCreateView(
@@ -81,8 +78,7 @@ class CreatePostDialogFragment : DialogFragment(){
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 model.searchSubreddits(s.toString())
                 timer.cancel()
-                binding.flairChip.text = getString(R.string.flair)
-                binding.flairChip.isChecked = false
+                model.selectFlair(null)
                 timer = Timer().apply {
                     schedule(object: TimerTask(){
                         override fun run() {
@@ -207,32 +203,16 @@ class CreatePostDialogFragment : DialogFragment(){
             }
         })
 
+        childFragmentManager.setFragmentResultListener(FLAIR_SELECTED_KEY, viewLifecycleOwner, FragmentResultListener { _, result ->
+            model.selectFlair(result.get(FLAIRS_KEY) as Flair?)
+        })
+
         binding.flairChip.setOnClickListener {
-            binding.flairChip.isChecked = false
+            binding.flairChip.isChecked = model.flair.value != null
             if(model.subredditValid.value == true){
-                model.fetchFlairs(binding.subredditText.text.toString())
-
-                childFragmentManager.setFragmentResultListener(FLAIR_SELECTED_KEY, viewLifecycleOwner, FragmentResultListener { _, result ->
-                    model.selectFlair(result.get(FLAIRS_KEY) as Flair?)
-                })
-
-                childFragmentManager.setFragmentResultListener(FLAIR_EDIT_KEY, viewLifecycleOwner, FragmentResultListener { _, result ->
-                    model.selectFlair(result.get(FLAIRS_KEY) as Flair)
-                })
+                FlairListDialogFragment.newInstance(binding.subredditText.text.toString()).show(childFragmentManager, null)
             }
         }
-
-        model.flairs.observe(viewLifecycleOwner, Observer {
-            if(it != null && model.subredditValid.value == true){
-                if(it.isNotEmpty()){
-                    FlairSelectionDialogFragment.newInstance(it, binding.subredditText.text.toString()).show(childFragmentManager, null)
-                } else {
-                    Snackbar.make(binding.root, getString(R.string.no_flair_found), Snackbar.LENGTH_LONG).show()
-                }
-                model.flairsObserved()
-                binding.flairChip.isChecked = false
-            }
-        })
 
         model.postContent.observe(viewLifecycleOwner, Observer { postContent ->
             postContent?.let {

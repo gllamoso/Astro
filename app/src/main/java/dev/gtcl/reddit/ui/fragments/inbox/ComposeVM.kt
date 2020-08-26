@@ -1,15 +1,12 @@
 package dev.gtcl.reddit.ui.fragments.inbox
 
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.getErrorMessage
-import dev.gtcl.reddit.models.reddit.listing.Item
-import dev.gtcl.reddit.repositories.MessageRepository
-import dev.gtcl.reddit.repositories.UserRepository
+import dev.gtcl.reddit.repositories.reddit.MiscRepository
+import dev.gtcl.reddit.repositories.reddit.UserRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,7 +17,7 @@ class ComposeVM(private val application: RedditApplication): AndroidViewModel(ap
 
     // Repos
     private val userRepository = UserRepository.getInstance(application)
-    private val messageRepository = MessageRepository.getInstance(application)
+    private val miscRepository = MiscRepository.getInstance(application)
 
     // Scopes
     private val viewModelJob = Job()
@@ -61,7 +58,7 @@ class ComposeVM(private val application: RedditApplication): AndroidViewModel(ap
                     _isLoading.value
                     return@launch
                 }
-                val result = messageRepository.sendMessage(to, subject, markdown).await()
+                val result = miscRepository.sendMessage(to, subject, markdown).await()
                 if(result.isSuccessful){
                     _messageSent.value = true
                 } else {

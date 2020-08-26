@@ -1,17 +1,19 @@
 package dev.gtcl.reddit.ui.fragments.item_scroller
 
+import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
 import dev.gtcl.reddit.*
+import dev.gtcl.reddit.models.reddit.listing.Flair
 import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.Listing
 import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.network.NetworkState
-import dev.gtcl.reddit.repositories.ListingRepository
-import dev.gtcl.reddit.repositories.MessageRepository
-import dev.gtcl.reddit.repositories.SubredditRepository
+import dev.gtcl.reddit.repositories.reddit.ListingRepository
+import dev.gtcl.reddit.repositories.reddit.MiscRepository
+import dev.gtcl.reddit.repositories.reddit.SubredditRepository
 import kotlinx.coroutines.*
 import kotlin.collections.HashSet
 
@@ -21,7 +23,7 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
     // Repos
     private val listingRepository = ListingRepository.getInstance(application)
     private val subredditRepository = SubredditRepository.getInstance(application)
-    private val messageRepository = MessageRepository.getInstance(application)
+    private val miscRepository = MiscRepository.getInstance(application)
 
     // Scopes
     private var viewModelJob = Job()
@@ -62,10 +64,6 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
 
     private var showNsfw: Boolean = false
 
-    private var _firstPageLoaded = false
-    val firstPageLoaded: Boolean
-        get() = _firstPageLoaded
-
     fun retry(){
         lastAction()
     }
@@ -95,8 +93,6 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
     private fun initNsfwValue(){
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(application)
         val showNsfw = sharedPref.getBoolean("nsfw", true)
-        val defaultSort = sharedPref.getString("default_post_sort", application.getString(R.string.order_hot))
-        val sortArray = application.resources.getStringArray(R.array.post_sort_entries)
         this.showNsfw = showNsfw
     }
 
@@ -113,7 +109,6 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
                 // Get listing items
                 val firstPageSize = dev.gtcl.reddit.ui.fragments.listing.PAGE_SIZE * 3
                 withContext(Dispatchers.IO) {
-                    _firstPageLoaded = false
                     _lastItemReached.postValue(false)
                     _networkState.postValue(NetworkState.LOADING)
                     after = null
@@ -125,7 +120,7 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
                         val response = when{
                             ::listing.isInitialized -> listingRepository.getListing(listing, postSort, t, after, retrieveSize, user).await()
                             ::subredditWhere.isInitialized -> subredditRepository.getSubredditsListing(subredditWhere, after, retrieveSize).await()
-                            ::messageWhere.isInitialized -> messageRepository.getMessages(messageWhere, after, retrieveSize).await()
+                            ::messageWhere.isInitialized -> listingRepository.getMessages(messageWhere, after, retrieveSize).await()
                             else -> throw IllegalStateException("Not enough info to load listing")
                         }
                         after = response.data.after
@@ -158,9 +153,9 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
                     }
 
                     _networkState.postValue(NetworkState.LOADED)
-                    _firstPageLoaded = true
                 }
             } catch (e: Exception) {
+                Log.d("TAE", "Exception: $e")
                 lastAction = ::fetchFirstPage
                 after = null
                 _networkState.value = NetworkState.error(e.getErrorMessage(application))
@@ -183,7 +178,7 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
                         val response = when{
                             ::listing.isInitialized -> listingRepository.getListing(listing, postSort, t, after, PAGE_SIZE, user).await()
                             ::subredditWhere.isInitialized -> subredditRepository.getSubredditsListing(subredditWhere, after, PAGE_SIZE).await()
-                            ::messageWhere.isInitialized -> messageRepository.getMessages(messageWhere, after, PAGE_SIZE).await()
+                            ::messageWhere.isInitialized -> listingRepository.getMessages(messageWhere, after, PAGE_SIZE).await()
                             else -> throw IllegalStateException("Not enough info to load listing")
                         }
 
@@ -234,6 +229,10 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
 
     fun addItemAt(position: Int, item: Item){
         _items.value?.add(position, item)
+    }
+
+    fun updateItemAt(position: Int, item: Item){
+        _items.value?.set(position, item)
     }
 
 }

@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.create_post.flair
+package dev.gtcl.reddit.ui.fragments.flair
 
 import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
@@ -23,7 +23,7 @@ class FlairListAdapter(private val flairSelectionListener: FlairSelectionListene
     }
 
     interface FlairSelectionListener{
-        fun onSelect(flair: Flair?)
+        fun onSelect(flair: Flair)
         fun onEdit(flair: Flair)
     }
 }

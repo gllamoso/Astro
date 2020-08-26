@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.activities
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
@@ -8,15 +7,16 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.models.reddit.AccessToken
-import dev.gtcl.reddit.models.reddit.listing.Item
+import dev.gtcl.reddit.models.reddit.listing.Flair
 import dev.gtcl.reddit.models.reddit.listing.MultiReddit
+import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.models.reddit.listing.Subreddit
 import dev.gtcl.reddit.network.NetworkState
-import dev.gtcl.reddit.repositories.ListingRepository
-import dev.gtcl.reddit.repositories.SubredditRepository
-import dev.gtcl.reddit.repositories.UserRepository
+import dev.gtcl.reddit.repositories.reddit.ListingRepository
+import dev.gtcl.reddit.repositories.reddit.MiscRepository
+import dev.gtcl.reddit.repositories.reddit.SubredditRepository
+import dev.gtcl.reddit.repositories.reddit.UserRepository
 import dev.gtcl.reddit.ui.fragments.ViewPagerPage
-import dev.gtcl.reddit.ui.fragments.comments.CommentsVM
 import kotlinx.coroutines.*
 
 class MainActivityVM(val application: RedditApplication): ViewModel() {
@@ -24,7 +24,7 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
     // Repos
     private val userRepository = UserRepository.getInstance(application)
     private val subredditRepository = SubredditRepository.getInstance(application)
-    private val listingRepository = ListingRepository.getInstance(application)
+    private val miscRepository = MiscRepository.getInstance(application)
 
     // Scopes
     private val viewModelJob = Job()
@@ -155,7 +155,7 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
         coroutineScope.launch {
             try{
                 val response = subredditRepository.subscribe(subreddit, subscribe).await()
-                if(response.code() == 200 || (!subscribe && response.code() == 404)){
+                if(response.isSuccessful || (!subscribe && !response.isSuccessful)){
                     if(subscribe){
                         subredditRepository.insertSubreddit(subreddit)
                     } else {
@@ -173,8 +173,8 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
     fun vote(thingId: String, vote: Vote){
         coroutineScope.launch {
             try {
-                val response = listingRepository.vote(thingId, vote).await()
-                if (response.code() != 200) {
+                val response = miscRepository.vote(thingId, vote).await()
+                if (!response.isSuccessful) {
                     throw Exception()
                 }
             } catch (e: Exception){
@@ -188,11 +188,11 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
         coroutineScope.launch {
             try {
                 val response = if(save){
-                    listingRepository.save(thingId).await()
+                    miscRepository.save(thingId).await()
                 } else {
-                    listingRepository.unsave(thingId).await()
+                    miscRepository.unsave(thingId).await()
                 }
-                if(response.code() != 200){
+                if(!response.isSuccessful){
                     throw Exception()
                 }
             } catch (e: Exception){
@@ -205,11 +205,11 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
         coroutineScope.launch {
             try {
                 val response = if(hide){
-                    listingRepository.hide(thingId).await()
+                    miscRepository.hide(thingId).await()
                 } else {
-                    listingRepository.unhide(thingId).await()
+                    miscRepository.unhide(thingId).await()
                 }
-                if(response.code() != 200){
+                if(!response.isSuccessful){
                     throw Exception()
                 }
             } catch (e: Exception){
@@ -222,9 +222,9 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
         coroutineScope.launch {
             try {
                 val response = when(ruleType){
-                    RuleType.RULE -> listingRepository.report(thingId, ruleReason = rule).await()
-                    RuleType.SITE_RULE -> listingRepository.report(thingId, siteReason = rule).await()
-                    RuleType.OTHER -> listingRepository.report(thingId, otherReason = rule).await()
+                    RuleType.RULE -> miscRepository.report(thingId, ruleReason = rule).await()
+                    RuleType.SITE_RULE -> miscRepository.report(thingId, siteReason = rule).await()
+                    RuleType.OTHER -> miscRepository.report(thingId, otherReason = rule).await()
                 }
 
                 if(response.code() != 200){
@@ -234,6 +234,57 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
                 _errorMessage.value = e.getErrorMessage(application)
             }
 
+        }
+    }
+
+    fun delete(thingId: String){
+        coroutineScope.launch {
+            try{
+                val response = miscRepository.delete(thingId).await()
+                if(!response.isSuccessful){
+                    throw Exception()
+                }
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
+            }
+        }
+    }
+
+    fun updatePost(post: Post, nsfw: Boolean, spoiler: Boolean, getNotifications: Boolean, flair: Flair?){
+        coroutineScope.launch {
+            try{
+                val prevNsfw = post.nsfw
+                val prevSpoiler = post.spoiler
+                val prevGetNotifications = post.sendReplies
+                val prevFlairText = post.flairText
+                val prevFlairTemplateId = post.linkFlairTemplateId
+
+                post.apply {
+                    this.nsfw = nsfw
+                    this.spoiler = spoiler
+                    this.sendReplies = getNotifications
+                    this.flairText = flair?.text
+                    this.linkFlairTemplateId = flair?.id
+                }
+
+                if(prevNsfw != nsfw){
+                    miscRepository.markNsfw(post.name, nsfw).await()
+                }
+
+                if(prevSpoiler != spoiler){
+                    miscRepository.markSpoiler(post.name, spoiler).await()
+                }
+
+                if(prevGetNotifications != getNotifications){
+                    miscRepository.sendRepliesToInbox(post.name, getNotifications).await()
+                }
+
+                if(prevFlairTemplateId != flair?.id || prevFlairText != flair?.text){
+                    miscRepository.setFlair(post.name, flair).await()
+                }
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
+            }
         }
     }
 

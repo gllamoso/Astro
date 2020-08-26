@@ -1,6 +1,5 @@
-package dev.gtcl.reddit.ui.fragments.subreddits
+package dev.gtcl.reddit.ui.fragments.subscriptions
 
-import android.util.Log
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,10 +7,8 @@ import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.SubscriptionType
 import dev.gtcl.reddit.database.Subscription
-import dev.gtcl.reddit.models.reddit.listing.MultiReddit
 import dev.gtcl.reddit.models.reddit.listing.MultiRedditUpdate
-import dev.gtcl.reddit.repositories.SubredditRepository
-import kotlinx.android.synthetic.main.item_post.view.*
+import dev.gtcl.reddit.repositories.reddit.SubredditRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

@@ -9,7 +9,7 @@ import dev.gtcl.reddit.models.reddit.listing.MultiReddit
 import dev.gtcl.reddit.models.reddit.listing.MultiRedditUpdate
 import dev.gtcl.reddit.models.reddit.listing.Subreddit
 import dev.gtcl.reddit.models.reddit.listing.SubredditData
-import dev.gtcl.reddit.repositories.SubredditRepository
+import dev.gtcl.reddit.repositories.reddit.SubredditRepository
 import kotlinx.coroutines.*
 import retrofit2.HttpException
 

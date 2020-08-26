@@ -7,9 +7,9 @@ import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.models.reddit.MediaURL
-import dev.gtcl.reddit.models.reddit.MoreComments
+import dev.gtcl.reddit.network.MoreComments
 import dev.gtcl.reddit.models.reddit.listing.*
-import dev.gtcl.reddit.repositories.ListingRepository
+import dev.gtcl.reddit.repositories.reddit.ListingRepository
 import dev.gtcl.reddit.repositories.GfycatRepository
 import dev.gtcl.reddit.repositories.ImgurRepository
 import kotlinx.coroutines.CoroutineScope
@@ -92,7 +92,6 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
 
     fun setPost(post: Post){
         _post.value = post
-        fetchComments(post.permalink)
     }
 
     fun setCommentSort(sort: CommentSort){
@@ -107,6 +106,8 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
                 if(refreshPost){
                     _post.value = commentPage.post
                 }
+                Log.d("TAE", "Permalink: $permalink")
+                Log.d("TAE", "CommentPagePostPermalink: ${commentPage.post.permalink}")
                 _allCommentsFetched.value = permalink.endsWith(commentPage.post.permalink)
                 _comments.value = commentPage.comments.toMutableList()
                 _commentsFetched = true
@@ -174,7 +175,7 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
             else -> 0
         }
         var i = positionOffset
-        while(++i < comments.value!!.size - 1){
+        while(i++ < comments.value!!.size - 1){
             val currDepth = when(val currItem = comments.value!![i]){
                 is Comment -> currItem.depth ?: 0
                 is More -> currItem.depth
@@ -209,8 +210,15 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
         }
     }
 
-    fun fetchMediaItems(post: Post) {
+    fun removeCommentAt(position: Int){
+        comments.value?.removeAt(position)
+    }
 
+    fun setCommentAt(comment: Comment, position: Int){
+        _comments.value?.set(position, comment)
+    }
+
+    fun fetchMediaItems(post: Post) {
         coroutineScope.launch {
             try {
                 _loading.value = true

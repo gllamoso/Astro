@@ -28,7 +28,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:menu="@menu/send"
-                app:navigationIcon="@drawable/ic_back_arrow_24"
+                app:navigationIcon="@drawable/ic_x_24"
                 app:title="@{crossPost == null ? @string/create_post : @string/crosspost}" />
 
         </androidx.cardview.widget.CardView>
@@ -116,32 +116,32 @@
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/get_notifications_chip"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
+                            style="@style/CustomChipChoice"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/get_notifications" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/nsfw_chip"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
+                            style="@style/CustomChipChoice"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/nsfw" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/spoiler_chip"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
+                            style="@style/CustomChipChoice"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/spoiler" />
 
                         <com.google.android.material.chip.Chip
                             android:id="@+id/flair_chip"
-                            style="@style/Widget.MaterialComponents.Chip.Choice"
+                            style="@style/CustomChipChoice"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:text="@{model.flair != null ? model.flair.text : @string/no_flair}"
-                            app:chipIsChecked="@{model.flair != null}"
+                            android:text="@string/no_flair"
+                            app:flair="@{model.flair}"
                             tools:text="@string/flair"/>
 
                     </com.google.android.material.chip.ChipGroup>
@@ -159,12 +159,11 @@
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/view_pager"
                     android:layout_width="match_parent"
-                    android:layout_height="0dp"
+                    android:layout_height="wrap_content"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/tab_layout"
-                    app:viewSize="@{60}"
                     android:visibility="@{crossPost == null ? View.VISIBLE : View.GONE}"/>
 
                 <include

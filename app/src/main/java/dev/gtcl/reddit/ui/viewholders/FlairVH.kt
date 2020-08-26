@@ -5,7 +5,7 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.databinding.ItemEditableBinding
 import dev.gtcl.reddit.models.reddit.listing.Flair
-import dev.gtcl.reddit.ui.fragments.create_post.flair.FlairListAdapter
+import dev.gtcl.reddit.ui.fragments.flair.FlairListAdapter
 
 class FlairVH private constructor(private val binding: ItemEditableBinding): RecyclerView.ViewHolder(binding.root){
 

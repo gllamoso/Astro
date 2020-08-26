@@ -5,7 +5,6 @@ import android.content.DialogInterface
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -14,17 +13,13 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.google.android.material.snackbar.Snackbar
-import com.google.gson.Gson
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.database.SavedAccount
-import dev.gtcl.reddit.databinding.FragmentDialogComposeBinding
-import dev.gtcl.reddit.ui.fragments.reply.ReplyVM
+import dev.gtcl.reddit.databinding.FragmentDialogComposeMessageBinding
 
 class ComposeDialogFragment : DialogFragment(){
 
-    private lateinit var binding: FragmentDialogComposeBinding
+    private lateinit var binding: FragmentDialogComposeMessageBinding
 
     private val model: ComposeVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
@@ -48,7 +43,7 @@ class ComposeDialogFragment : DialogFragment(){
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        binding = FragmentDialogComposeBinding.inflate(inflater)
+        binding = FragmentDialogComposeMessageBinding.inflate(inflater)
         binding.model = model
         binding.lifecycleOwner = viewLifecycleOwner
 

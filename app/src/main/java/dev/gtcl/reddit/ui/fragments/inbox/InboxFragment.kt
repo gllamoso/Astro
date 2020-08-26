@@ -4,13 +4,11 @@ import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.setFragmentResultListener
 import androidx.navigation.fragment.findNavController
@@ -23,7 +21,6 @@ import dev.gtcl.reddit.databinding.FragmentInboxBinding
 import dev.gtcl.reddit.models.reddit.listing.Message
 import dev.gtcl.reddit.ui.fragments.AccountPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
-import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
 
 class InboxFragment: Fragment(), MessageActions, LeftDrawerActions{
 

@@ -1,6 +1,7 @@
 package dev.gtcl.reddit.actions
 
 import dev.gtcl.reddit.Vote
+import dev.gtcl.reddit.models.reddit.listing.Comment
 import dev.gtcl.reddit.models.reddit.listing.Post
 
 interface PostActions {
@@ -12,4 +13,7 @@ interface PostActions {
     fun hide(post: Post, position: Int)
     fun report(post: Post, position: Int)
     fun thumbnailClicked(post: Post, position: Int)
+    fun edit(post: Post, position: Int)
+    fun manage(post: Post, position: Int)
+    fun delete(post: Post, position: Int)
 }

@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.repositories
+package dev.gtcl.reddit.repositories.reddit
 
 import androidx.annotation.MainThread
 import dev.gtcl.reddit.NotLoggedInException

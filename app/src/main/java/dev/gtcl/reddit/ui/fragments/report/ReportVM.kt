@@ -8,7 +8,7 @@ import dev.gtcl.reddit.models.reddit.RuleFor
 import dev.gtcl.reddit.models.reddit.listing.Comment
 import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.Post
-import dev.gtcl.reddit.repositories.SubredditRepository
+import dev.gtcl.reddit.repositories.reddit.SubredditRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job

@@ -7,7 +7,7 @@ import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.getErrorMessage
 import dev.gtcl.reddit.models.reddit.User
 import dev.gtcl.reddit.network.NetworkState
-import dev.gtcl.reddit.repositories.UserRepository
+import dev.gtcl.reddit.repositories.reddit.UserRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -58,7 +58,7 @@ class FriendsVM(private val application: RedditApplication): AndroidViewModel(ap
         }
         coroutineScope.launch {
             try{
-                val removeResult = userRepository.removeFriend(_friends.value!![position].name).await()
+                userRepository.removeFriend(_friends.value!![position].name).await()
                 _friends.value!!.removeAt(position)
                 _removeAt.value = position
             }catch (e: Exception){

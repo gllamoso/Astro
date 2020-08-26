@@ -122,18 +122,6 @@ interface RedditApiService {
         @Query("id") id: String
     ): Deferred<Response<Unit>>
 
-    @POST("/api/spoiler")
-    fun markSpoiler(
-        @Header("Authorization") authorization: String,
-        @Query("id") id: String
-    ): Deferred<Response<Unit>>
-
-    @POST("/api/unspoiler")
-    fun markAsNonSpoiler(
-        @Header("Authorization") authorization: String,
-        @Query("id") id: String
-    ): Deferred<Response<Unit>>
-
     @POST("/api/marknsfw")
     fun markNsfw(
         @Header("Authorization") authorization: String,
@@ -146,13 +134,16 @@ interface RedditApiService {
         @Query("id") id: String
     ): Deferred<Response<Unit>>
 
-    @POST("api/selectflair")
-    fun selectFlair(
+    @POST("/api/spoiler")
+    fun markSpoiler(
         @Header("Authorization") authorization: String,
-        @Query("link") id: String,
-        @Query("text") text: String,
-        @Query("flair_template_id") flairTemplateId: String,
-        @Query("api_type") apiType: String? = "json"
+        @Query("id") id: String
+    ): Deferred<Response<Unit>>
+
+    @POST("/api/unspoiler")
+    fun unmarkSpoiler(
+        @Header("Authorization") authorization: String,
+        @Query("id") id: String
     ): Deferred<Response<Unit>>
 
     @POST("api/report")
@@ -163,6 +154,20 @@ interface RedditApiService {
         @Query("site_reason") siteReason: String? = null,
         @Query("other_reason") otherReason: String? = null,
         @Query("api_type") apiType: String? = "json"
+    ): Deferred<Response<Unit>>
+
+    @POST("api/editusertext")
+    fun editText(
+        @Header("Authorization") authorization: String,
+        @Query("thing_id") thingId: String,
+        @Query("text") text: String,
+        @Query("api_type") apiType: String = "json"
+    ): Deferred<MoreChildrenResponse>
+
+    @POST("api/del")
+    fun deleteThing(
+        @Header("Authorization") authorization: String,
+        @Query("id") thingId: String
     ): Deferred<Response<Unit>>
 
 //     _____          _
@@ -441,6 +446,15 @@ interface RedditApiService {
 //    |  __| | |/ _` | | '__/ __|
 //    | |    | | (_| | | |  \__ \
 //    |_|    |_|\__,_|_|_|  |___/
+
+    @POST("api/selectflair")
+    fun setFlair(
+        @Header("Authorization") authorization: String,
+        @Query("link") id: String,
+        @Query("text") text: String?,
+        @Query("flair_template_id") flairTemplateId: String?,
+        @Query("api_type") apiType: String? = "json"
+    ): Deferred<Response<Unit>>
 
     @GET("/r/{displayName}/api/link_flair.json")
     fun getFlairs(

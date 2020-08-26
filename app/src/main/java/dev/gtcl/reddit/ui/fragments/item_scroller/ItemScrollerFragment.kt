@@ -1,6 +1,7 @@
 package dev.gtcl.reddit.ui.fragments.item_scroller
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,10 +27,11 @@ import dev.gtcl.reddit.ui.ItemScrollListener
 import dev.gtcl.reddit.ui.ListingItemAdapter
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.*
+import dev.gtcl.reddit.ui.fragments.manage.ManagePostDialogFragment
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.ShareCommentOptionsDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.SharePostOptionsDialogFragment
-import dev.gtcl.reddit.ui.fragments.reply.ReplyDialogFragment
+import dev.gtcl.reddit.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.reddit.ui.fragments.report.ReportDialogFragment
 import io.noties.markwon.Markwon
 
@@ -115,7 +117,17 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val blurNsfw = preferences.getBoolean("blur_nsfw_thumbnail", false)
         val blurSpoiler = preferences.getBoolean("blur_spoiler_thumbnail", true)
-        listAdapter = ListingItemAdapter(markwon, postActions = this, commentActions = this, messageActions = this, expected = ItemType.Post, blurNsfw = blurNsfw, blurSpoiler = blurSpoiler, itemClickListener = this){
+        val currentAccount = (requireActivity().application as RedditApplication).currentAccount
+        listAdapter = ListingItemAdapter(
+            markwon,
+            postActions = this,
+            commentActions = this,
+            messageActions = this,
+            expected = ItemType.Post,
+            blurNsfw = blurNsfw,
+            blurSpoiler = blurSpoiler,
+            itemClickListener = this,
+            userId = currentAccount?.fullId){
             binding.list.apply {
                 removeOnScrollListener(scrollListener)
                 addOnScrollListener(scrollListener)
@@ -171,7 +183,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         })
 
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner){ _, bundle ->
-            parentFragment?.setFragmentResult(URL_KEY, bundle)
+            handleLink(bundle.getString(URL_KEY) ?: "")
         }
 
         childFragmentManager.setFragmentResultListener(REPORT_KEY, viewLifecycleOwner){ _, bundle ->
@@ -179,6 +191,27 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             if(position != -1){
                 model.removeItemAt(position)
                 listAdapter.removeAt(position)
+            }
+        }
+
+        childFragmentManager.setFragmentResultListener(MANAGE_POST_KEY, viewLifecycleOwner){ _, bundle ->
+            val position = bundle.getInt(POST_KEY)
+            val nsfw = bundle.getBoolean(NSFW_KEY)
+            val spoiler = bundle.getBoolean(SPOILER_KEY)
+            val getNotification = bundle.getBoolean(GET_NOTIFICATIONS_KEY)
+            val flair = bundle.get(FLAIRS_KEY) as Flair?
+            val post = model.items.value!![position] as Post
+            activityModel.updatePost(post, nsfw, spoiler, getNotification, flair)
+            listAdapter.notifyItemChanged(position)
+        }
+
+        childFragmentManager.setFragmentResultListener(NEW_REPLY_KEY, viewLifecycleOwner){ _, bundle ->
+            val item = bundle.get(ITEM_KEY) as Item
+            val position = bundle.getInt(POSITION_KEY)
+            val reply = bundle.getBoolean(NEW_REPLY_KEY)
+            if(!reply) {
+                model.updateItemAt(position, item)
+                listAdapter.updateAt(position, item)
             }
         }
     }
@@ -278,6 +311,20 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         }
     }
 
+    override fun edit(post: Post, position: Int) {
+        ReplyOrEditDialogFragment.newInstance(post, position, false).show(childFragmentManager, null)
+    }
+
+    override fun manage(post: Post, position: Int) {
+        ManagePostDialogFragment.newInstance(post, position).show(childFragmentManager, null)
+    }
+
+    override fun delete(post: Post, position: Int) {
+        activityModel.delete(post.name)
+        model.removeItemAt(position)
+        listAdapter.removeAt(position)
+    }
+
 //      _____                                     _                  _   _
 //     / ____|                                   | |       /\       | | (_)
 //    | |     ___  _ __ ___  _ __ ___   ___ _ __ | |_     /  \   ___| |_ _  ___  _ __  ___
@@ -286,7 +333,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 //    \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 
     override fun vote(comment: Comment, vote: Vote) {
-        if(!comment.scoreHidden){
+        if(comment.scoreHidden != true){
             when(vote){
                 Vote.UPVOTE -> {
                     when(comment.likes){
@@ -314,7 +361,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun save(comment: Comment) {
-        activityModel.save(comment.name, comment.saved)
+        activityModel.save(comment.name, comment.saved == true)
     }
 
     override fun share(comment: Comment) {
@@ -322,7 +369,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun reply(comment: Comment, position: Int) {
-        ReplyDialogFragment.newInstance(comment, position + 1).show(childFragmentManager, null)
+        ReplyOrEditDialogFragment.newInstance(comment, position + 1, true).show(childFragmentManager, null)
     }
 
     override fun viewProfile(comment: Comment) {
@@ -335,6 +382,16 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     override fun report(comment: Comment, position: Int) {
         ReportDialogFragment.newInstance(comment, position).show(childFragmentManager, null)
+    }
+
+    override fun edit(comment: Comment, position: Int) {
+        ReplyOrEditDialogFragment.newInstance(comment, position, false).show(childFragmentManager, null)
+    }
+
+    override fun delete(comment: Comment, position: Int) {
+        activityModel.delete(comment.name)
+        model.removeItemAt(position)
+        listAdapter.removeAt(position)
     }
 
 //     __  __                                               _   _
@@ -384,12 +441,27 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                 activityModel.newPage(PostPage(item, position))
             }
             is Message -> {
-                ReplyDialogFragment.newInstance(item, position).show(childFragmentManager, null)
+                ReplyOrEditDialogFragment.newInstance(item, position, true).show(childFragmentManager, null)
             }
             is Comment -> {
                 val permalink = item.permalink
-                val linkPermalink = item.linkPermalink?.replace("http[s]?://www\\.reddit\\.com".toRegex(), "")
-                activityModel.newPage(ContinueThreadPage(permalink, linkPermalink, true))
+                if(!permalink.isNullOrBlank()){
+                    val linkPermalink = item.linkPermalink?.replace("http[s]?://www\\.reddit\\.com".toRegex(), "")
+                    activityModel.newPage(ContinueThreadPage(permalink , linkPermalink, true))
+                } else {
+                    val context = item.context
+                    if(context.isNullOrBlank()){
+                        throw Exception("Comment has no permalink or context: $item")
+                    }
+                    val regex = "/[a-z0-9]+/\\?context=[0-9]+".toRegex()
+                    val linkPermalink = context.replace(regex, "/")
+                    val newPermalink = if(item.parentId?.startsWith("t1_") == true){
+                        context.replace(regex, item.parentId.replace("t1_", "/"))
+                    } else {
+                        context
+                    }
+                    activityModel.newPage(ContinueThreadPage(newPermalink, linkPermalink, true))
+                }
             }
         }
 
@@ -445,11 +517,11 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
             UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
             UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
-            UrlType.REDDIT_COMMENTS -> TODO("Need to be implemented")
+            UrlType.REDDIT_COMMENTS -> activityModel.newPage(ContinueThreadPage(link, null, true))
             UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
-            UrlType.REDGIFS -> TODO()
-            UrlType.IMGUR_IMAGE -> TODO()
-            null -> TODO()
+            UrlType.REDGIFS -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.REDGIFS)).show(childFragmentManager, null)
+            UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_PICTURE)).show(childFragmentManager, null)
+            null -> throw IllegalArgumentException("Unable to determine link type: $link")
         }
     }
 

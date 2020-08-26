@@ -62,18 +62,9 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
             pageAdapter.addPage(args.startingPage)
         }
 
-        model.newPage.observe(viewLifecycleOwner, Observer {
-            if(it != null){
-                pageAdapter.addPage(it)
-                val currentPage = binding.viewpager.currentItem
-                binding.viewpager.setCurrentItem(currentPage + 1, true)
-                model.newPageObserved()
-            }
-        })
-
         activityModel.newPage.observe(viewLifecycleOwner, Observer {
             if(it != null){
-                model.newPage(it)
+                newPage(it)
                 activityModel.newPageObserved()
             }
         })
@@ -130,7 +121,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner){ _, bundle ->
             val url = bundle.getString(URL_KEY)!!
-            model.newPage(ContinueThreadPage(url, null, false))
+            newPage(ContinueThreadPage(url, null, false))
         }
     }
 
@@ -167,6 +158,12 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
         activityModel.openChromeTab(url)
     }
 
+    private fun newPage(page: ViewPagerPage){
+        pageAdapter.addPage(page)
+        model.pages.add(page)
+        val currentPage = binding.viewpager.currentItem
+        binding.viewpager.setCurrentItem(currentPage + 1, true)
+    }
 
     override fun handleLink(link: String) {
         when(link.getUrlType()){
@@ -175,7 +172,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
             UrlType.GIFV, UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
             UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
             UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
-            UrlType.REDDIT_COMMENTS -> model.newPage(ContinueThreadPage(link, null, true))
+            UrlType.REDDIT_COMMENTS -> newPage(ContinueThreadPage(link, null, true))
             UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
             UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_PICTURE)).show(childFragmentManager, null)
         }

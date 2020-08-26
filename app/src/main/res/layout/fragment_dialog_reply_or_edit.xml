@@ -12,7 +12,7 @@
             type="String" />
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.fragments.reply.ReplyVM" />
+            type="dev.gtcl.reddit.ui.fragments.reply_or_edit.ReplyOrEditVM" />
         <import type="android.view.View"/>
     </data>
 
@@ -30,9 +30,10 @@
                 android:id="@+id/toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:title="@string/reply"
+                app:title="@{replyToBody != null ? @string/reply : @string/edit}"
                 app:navigationIcon="@drawable/ic_x_24"
-                app:menu="@menu/send"/>
+                app:menu="@menu/send"
+                tools:title="@string/reply"/>
 
         </com.google.android.material.appbar.AppBarLayout>
 
@@ -67,6 +68,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@{replyToBody}"
+                android:visibility="@{replyToBody != null &amp;&amp; !replyToBody.empty ? View.VISIBLE : View.GONE}"
                 android:scrollbars="vertical"
                 tools:text="Text body"
                 android:maxLines="10"/>
@@ -76,7 +78,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
-                android:hint="@string/add_response"
+                android:hint="@{replyToBody != null ? @string/add_response : @string/edit}"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox">
 
                 <com.google.android.material.textfield.TextInputEditText

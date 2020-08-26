@@ -2,12 +2,10 @@ package dev.gtcl.reddit.ui.fragments.account
 
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
-import android.widget.RelativeLayout
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -70,10 +68,6 @@ class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
             subscribe(sub, (sub.userSubscribed == true))
         }
 
-        childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner){ _, bundle ->
-            viewPagerModel.newPage(ContinueThreadPage(bundle.getString(URL_KEY)!!, null, false))
-        }
-
         binding.toolbar.setOnMenuItemClickListener {
             val account = model.account.value
             if(account != null){
@@ -129,7 +123,7 @@ class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
     private fun showAccountActionsPopup(anchor: View, account: Account){
         val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupAccountActionsBinding.inflate(inflater)
-        val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
+        val popupWindow = PopupWindow()
         popupBinding.apply {
             this.account = account
             friend.root.setOnClickListener {
@@ -146,17 +140,13 @@ class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
                 popupWindow.dismiss()
             }
             executePendingBindings()
+            root.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
         }
 
-        popupBinding.root.measure(
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-        )
-
-        popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
-        popupWindow.height = popupBinding.root.measuredHeight
-        popupWindow.elevation = 20F
-        popupWindow.showAsDropDown(anchor)
+        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
     }
 
 //     _           __ _     _____                                             _   _

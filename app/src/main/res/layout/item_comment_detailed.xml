@@ -31,7 +31,7 @@
                 android:clickable="true">
 
                 <LinearLayout
-                    android:id="@+id/top_linear_layout"
+                    android:id="@+id/top_view_group"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
@@ -62,6 +62,14 @@
                         android:textStyle="bold"
                         tools:text="Author" />
 
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:visibility="@{comment.authorCakeday == true ? View.VISIBLE : View.GONE}"
+                        android:layout_marginEnd="4dp"
+                        android:src="@drawable/ic_cake_24"
+                        android:tint="@android:color/holo_orange_dark"/>
+
                     <include
                         android:id="@+id/op_flair"
                         layout="@layout/icon_op"
@@ -75,7 +83,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:singleLine="true"
-                        android:text="@{comment.scoreHidden ? &quot;?&quot; : UtilKt.numFormatted(comment.score)}"
+                        android:text="@{comment.scoreHidden == true ? &quot;?&quot; : UtilKt.numFormatted(comment.score)}"
                         android:textColor="@{comment.likes == null ? @android:color/darker_gray : comment.likes == true ? @android:color/holo_orange_dark : @android:color/holo_blue_dark}"
                         tools:text="1"
                         tools:textColor="@android:color/darker_gray"/>
@@ -100,17 +108,80 @@
 
                 </LinearLayout>
 
+                <LinearLayout
+                    android:id="@+id/gildings_view_group"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:layout_marginHorizontal="8dp"
+                    android:gravity="center_vertical"
+                    android:layout_marginBottom="8dp"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/more_options"
+                    app:layout_constraintTop_toBottomOf="@id/top_view_group"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintVertical_bias="0">
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_reddit_silver"
+                        android:visibility="@{comment.gildings != null &amp;&amp; comment.gildings.silver != null ? View.VISIBLE : View.GONE}"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:text="@{(comment.gildings != null &amp;&amp; comment.gildings.silver != null ? comment.gildings.silver : 0).toString()}"
+                        android:textColor="#919191"
+                        android:layout_marginEnd="4dp"
+                        android:visibility="@{comment.gildings != null &amp;&amp; comment.gildings.silver != null ? View.VISIBLE : View.GONE}"
+                        tools:text="99"/>
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_reddit_gold"
+                        android:visibility="@{comment.gildings != null &amp;&amp; comment.gildings.gold != null ? View.VISIBLE : View.GONE}"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:text="@{(comment.gildings != null &amp;&amp; comment.gildings.gold != null ? comment.gildings.gold : 0).toString()}"
+                        android:textColor="#ffd54f"
+                        android:layout_marginEnd="4dp"
+                        android:visibility="@{comment.gildings != null &amp;&amp; comment.gildings.gold != null ? View.VISIBLE : View.GONE}"
+                        tools:text="99"/>
+
+                    <ImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:src="@drawable/ic_reddit_platinum"
+                        android:visibility="@{comment.gildings != null &amp;&amp; comment.gildings.platinum != null ? View.VISIBLE : View.GONE}"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="12sp"
+                        android:text="@{(comment.gildings != null &amp;&amp; comment.gildings.platinum != null ? comment.gildings.platinum : 0).toString()}"
+                        android:textColor="#00bfa5"
+                        android:layout_marginEnd="4dp"
+                        android:visibility="@{comment.gildings != null &amp;&amp; comment.gildings.platinum != null ? View.VISIBLE : View.GONE}"
+                        tools:text="99"/>
+
+                </LinearLayout>
 
                 <TextView
                     android:id="@+id/link_title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:textSize="12sp"
-                    android:text="@{comment.linkTitle}"
+                    android:text="@{comment.linkTitleFormatted}"
                     tools:text="Post Link Title"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="4dp"
-                    app:layout_constraintTop_toBottomOf="@id/top_linear_layout"
+                    app:layout_constraintTop_toBottomOf="@id/gildings_view_group"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toStartOf="@id/more_options"/>
 
@@ -159,6 +230,22 @@
                         android:src="@drawable/ic_bookmark_24"
                         android:tint="@android:color/holo_orange_light"
                         android:visibility="@{comment.saved == true ? View.VISIBLE : View.GONE}" />
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:src="@drawable/ic_baseline_lock_24"
+                        android:tint="@android:color/holo_red_light"
+                        android:visibility="@{comment.locked == true ? View.VISIBLE : View.GONE}"/>
+
+                    <ImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:src="@drawable/ic_pin_24"
+                        android:tint="@android:color/holo_green_light"
+                        android:visibility="@{comment.stickied == true ? View.VISIBLE : View.GONE}"/>
 
                 </LinearLayout>
 

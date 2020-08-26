@@ -1,15 +1,14 @@
-package dev.gtcl.reddit.ui.fragments.subreddits.trending
+package dev.gtcl.reddit.ui.fragments.subscriptions.trending
 
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.models.reddit.listing.Post
-import dev.gtcl.reddit.models.reddit.listing.Subreddit
 import dev.gtcl.reddit.models.reddit.listing.SubredditListing
 import dev.gtcl.reddit.network.NetworkState
-import dev.gtcl.reddit.repositories.ListingRepository
-import dev.gtcl.reddit.repositories.SubredditRepository
+import dev.gtcl.reddit.repositories.reddit.ListingRepository
+import dev.gtcl.reddit.repositories.reddit.SubredditRepository
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.collections.ArrayList

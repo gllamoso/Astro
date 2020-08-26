@@ -74,6 +74,22 @@
                     android:visibility="@{post.hidden == true ? View.VISIBLE : View.GONE}"
                     android:layout_marginEnd="4dp"/>
 
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:src="@drawable/ic_pin_24"
+                    android:tint="@android:color/holo_green_light"
+                    android:visibility="@{post.pinned == true || post.stickied == true ? View.VISIBLE : View.GONE}" />
+
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginEnd="4dp"
+                    android:src="@drawable/ic_baseline_lock_24"
+                    android:tint="@android:color/holo_red_light"
+                    android:visibility="@{post.locked == true ? View.VISIBLE : View.GONE}" />
+
             </LinearLayout>
 
             <TextView
@@ -204,6 +220,69 @@
                     android:textColor="@android:color/darker_gray"
                     android:text="@{UtilKt.timeSince(post.created)}"
                     tools:text="3h" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal"
+                android:layout_marginHorizontal="8dp"
+                android:gravity="center_vertical"
+                android:layout_marginBottom="8dp"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/post_info2"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintVertical_bias="0">
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_reddit_silver"
+                    android:visibility="@{post.gildings != null &amp;&amp; post.gildings.silver != null ? View.VISIBLE : View.GONE}"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:text="@{(post.gildings != null &amp;&amp; post.gildings.silver != null ? post.gildings.silver : 0).toString()}"
+                    android:textColor="#919191"
+                    android:layout_marginEnd="4dp"
+                    android:visibility="@{post.gildings != null &amp;&amp; post.gildings.silver != null ? View.VISIBLE : View.GONE}"
+                    tools:text="99"/>
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_reddit_gold"
+                    android:visibility="@{post.gildings != null &amp;&amp; post.gildings.gold != null ? View.VISIBLE : View.GONE}"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:text="@{(post.gildings != null &amp;&amp; post.gildings.gold != null ? post.gildings.gold : 0).toString()}"
+                    android:textColor="#ffd54f"
+                    android:layout_marginEnd="4dp"
+                    android:visibility="@{post.gildings != null &amp;&amp; post.gildings.gold != null ? View.VISIBLE : View.GONE}"
+                    tools:text="99"/>
+
+                <ImageView
+                    android:layout_width="16dp"
+                    android:layout_height="16dp"
+                    android:src="@drawable/ic_reddit_platinum"
+                    android:visibility="@{post.gildings != null &amp;&amp; post.gildings.platinum != null ? View.VISIBLE : View.GONE}"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:text="@{(post.gildings != null &amp;&amp; post.gildings.platinum != null ? post.gildings.platinum : 0).toString()}"
+                    android:textColor="#00bfa5"
+                    android:layout_marginEnd="4dp"
+                    android:visibility="@{post.gildings != null &amp;&amp; post.gildings.platinum != null ? View.VISIBLE : View.GONE}"
+                    tools:text="99"/>
 
             </LinearLayout>
 

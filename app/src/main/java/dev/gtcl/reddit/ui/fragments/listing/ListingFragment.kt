@@ -3,14 +3,12 @@ package dev.gtcl.reddit.ui.fragments.listing
 import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
-import android.util.Log
 import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
-import android.widget.RelativeLayout
 import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -37,10 +35,12 @@ import dev.gtcl.reddit.ui.ListingItemAdapter
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.*
 import dev.gtcl.reddit.ui.fragments.create_post.CreatePostDialogFragment
+import dev.gtcl.reddit.ui.fragments.manage.ManagePostDialogFragment
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.reddit.ui.fragments.misc.SharePostOptionsDialogFragment
+import dev.gtcl.reddit.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.reddit.ui.fragments.report.ReportDialogFragment
-import dev.gtcl.reddit.ui.fragments.subreddits.SubscriptionsDialogFragment
+import dev.gtcl.reddit.ui.fragments.subscriptions.SubscriptionsDialogFragment
 import io.noties.markwon.Markwon
 
 
@@ -115,7 +115,16 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val blurNsfw = preferences.getBoolean("blur_nsfw_thumbnail", false)
         val blurSpoiler = preferences.getBoolean("blur_spoiler_thumbnail", true)
-        listAdapter = ListingItemAdapter(markwon, postActions = this, commentActions = this, expected = ItemType.Post, blurNsfw = blurNsfw, blurSpoiler = blurSpoiler, itemClickListener = this){
+        val currentAccount = (requireActivity().application as RedditApplication).currentAccount
+        listAdapter = ListingItemAdapter(
+            markwon,
+            postActions = this,
+            commentActions = this,
+            expected = ItemType.Post,
+            blurNsfw = blurNsfw,
+            blurSpoiler = blurSpoiler,
+            itemClickListener = this,
+            userId = currentAccount?.fullId){
             binding.list.apply {
                 removeOnScrollListener(scrollListener)
                 addOnScrollListener(scrollListener)
@@ -289,6 +298,27 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                 listAdapter.removeAt(position)
             }
         }
+
+        childFragmentManager.setFragmentResultListener(MANAGE_POST_KEY, viewLifecycleOwner){ _, bundle ->
+            val position = bundle.getInt(POST_KEY)
+            val nsfw = bundle.getBoolean(NSFW_KEY)
+            val spoiler = bundle.getBoolean(SPOILER_KEY)
+            val getNotification = bundle.getBoolean(GET_NOTIFICATIONS_KEY)
+            val flair = bundle.get(FLAIRS_KEY) as Flair?
+            val post = model.items.value!![position] as Post
+            activityModel.updatePost(post, nsfw, spoiler, getNotification, flair)
+            listAdapter.notifyItemChanged(position)
+        }
+
+        childFragmentManager.setFragmentResultListener(NEW_REPLY_KEY, viewLifecycleOwner){ _, bundle ->
+            val item = bundle.get(ITEM_KEY) as Item
+            val position = bundle.getInt(POSITION_KEY)
+            val reply = bundle.getBoolean(NEW_REPLY_KEY)
+            if(!reply) {
+                model.updateItemAt(position, item)
+                listAdapter.updateAt(position, item)
+            }
+        }
     }
 
 //     _____          _                  _   _
@@ -392,6 +422,20 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         }
     }
 
+    override fun edit(post: Post, position: Int) {
+        ReplyOrEditDialogFragment.newInstance(post, position, false).show(childFragmentManager, null)
+    }
+
+    override fun manage(post: Post, position: Int) {
+        ManagePostDialogFragment.newInstance(post, position).show(childFragmentManager, null)
+    }
+
+    override fun delete(post: Post, position: Int) {
+        activityModel.delete(post.name)
+        model.removeItemAt(position)
+        listAdapter.removeAt(position)
+    }
+
 //      _____                                     _                  _   _
 //     / ____|                                   | |       /\       | | (_)
 //    | |     ___  _ __ ___  _ __ ___   ___ _ __ | |_     /  \   ___| |_ _  ___  _ __  ___
@@ -424,6 +468,16 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         ReportDialogFragment.newInstance(comment, position).show(childFragmentManager, null)
     }
 
+    override fun edit(comment: Comment, position: Int) {
+        ReplyOrEditDialogFragment.newInstance(comment, position, false).show(childFragmentManager, null)
+    }
+
+    override fun delete(comment: Comment, position: Int) {
+        activityModel.delete(comment.name)
+        model.removeItemAt(position)
+        listAdapter.removeAt(position)
+    }
+
 //      _____       _                  _     _ _ _                  _   _
 //     / ____|     | |                | |   | (_) |       /\       | | (_)
 //    | (___  _   _| |__  _ __ ___  __| | __| |_| |_     /  \   ___| |_ _  ___  _ __  ___
@@ -447,7 +501,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     override fun itemClicked(item: Item, position: Int) {
         if (item is Post) {
             model.addReadItem(item)
-            viewPagerModel.newPage(PostPage(item, position))
+            activityModel.newPage(PostPage(item, position))
         }
     }
 
@@ -541,7 +595,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     private fun showPostSortPopup(anchor: View, currentSort: PostSort, onSortSelected: (PostSort) -> Unit){
         val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupPostSortBinding.inflate(inflater)
-        val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
+        val popupWindow = PopupWindow()
         popupBinding.apply {
             sort = currentSort
             best.root.setOnClickListener {
@@ -569,23 +623,19 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                 popupWindow.dismiss()
             }
             executePendingBindings()
+            root.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
         }
 
-        popupBinding.root.measure(
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-        )
-
-        popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
-        popupWindow.height = popupBinding.root.measuredHeight
-        popupWindow.elevation = 20F
-        popupWindow.showAsDropDown(anchor)
+        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
     }
 
     private fun showSearchSortPopup(anchor: View, currentSort: PostSort, onSortSelected: (PostSort) -> Unit){
         val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupSearchSortBinding.inflate(inflater)
-        val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
+        val popupWindow = PopupWindow()
         popupBinding.apply {
             sort = currentSort
             mostRelevant.root.setOnClickListener {
@@ -609,23 +659,19 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                 popupWindow.dismiss()
             }
             executePendingBindings()
+            root.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
         }
 
-        popupBinding.root.measure(
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-        )
-
-        popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
-        popupWindow.height = popupBinding.root.measuredHeight
-        popupWindow.elevation = 20F
-        popupWindow.showAsDropDown(anchor)
+        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
     }
 
     private fun showTimePopup(anchor: View, currentTimeSort: Time?, onTimeSelected: (Time) -> Unit){
         val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupTimeSortBinding.inflate(inflater)
-        val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
+        val popupWindow = PopupWindow()
         popupBinding.apply {
             time = currentTimeSort
             hour.root.setOnClickListener {
@@ -653,23 +699,19 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                 popupWindow.dismiss()
             }
             executePendingBindings()
+            root.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
         }
 
-        popupBinding.root.measure(
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-        )
-
-        popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
-        popupWindow.height = popupBinding.root.measuredHeight
-        popupWindow.elevation = 20F
-        popupWindow.showAsDropDown(anchor)
+        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
     }
 
     private fun showMoreOptionsPopup(anchor: View){
         val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupListingOptionsBinding.inflate(inflater)
-        val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
+        val popupWindow = PopupWindow()
         popupBinding.apply {
             createPost.root.setOnClickListener {
                 val subredditName = model.subreddit.value?.displayName
@@ -688,18 +730,13 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                 onInboxClicked()
                 popupWindow.dismiss()
             }
+            executePendingBindings()
+            root.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
         }
-
-        popupBinding.root.measure(
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-            View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-        )
-
-        popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
-        popupWindow.height = popupBinding.root.measuredHeight
-        popupWindow.elevation = 20F
-        popupWindow.showAsDropDown(anchor)
-        popupBinding.executePendingBindings()
+        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
     }
 
     companion object {

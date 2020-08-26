@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui.fragments.comments
 
-import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
@@ -15,7 +14,12 @@ import dev.gtcl.reddit.ui.viewholders.*
 import io.noties.markwon.Markwon
 import kotlin.math.max
 
-class CommentsAdapter(private val markwon: Markwon, private val commentActions: CommentActions, private val itemClickListener: ItemClickListener, private val onViewAllClick: (() -> Unit)?) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+class CommentsAdapter(
+    private val markwon: Markwon,
+    private val commentActions: CommentActions,
+    private val itemClickListener: ItemClickListener,
+    private val userId: String?,
+    private val onViewAllClick: (() -> Unit)?) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
     var allCommentsRetrieved: Boolean = onViewAllClick == null
         set(value){
@@ -31,23 +35,23 @@ class CommentsAdapter(private val markwon: Markwon, private val commentActions: 
     fun submitList(items: List<Item>?){
         val offset = if(allCommentsRetrieved) 0 else 1
         if(!comments.isNullOrEmpty()){
-            notifyItemRangeRemoved(0 + offset, comments!!.size)
+            notifyItemRangeRemoved(offset, comments!!.size)
             comments = items?.toMutableList()
-            notifyItemRangeInserted(0 + offset, max(items?.size ?: 1, 1))
+            notifyItemRangeInserted(offset, max(items?.size ?: 1, 1))
         } else {
             comments = items?.toMutableList()
-            if(comments.isNullOrEmpty()){
-                notifyItemChanged(0 + offset)
-            } else {
-                notifyItemRemoved(0 + offset)
-                notifyItemRangeInserted(0 + offset, max(items?.size ?: 1, 1))
-            }
+            notifyItemRemoved(offset)
+            notifyItemRangeInserted(offset, max(items?.size ?: 1, 1))
         }
     }
 
     fun addItems(position: Int, items: List<Item>){
+        val offset = if(allCommentsRetrieved) 0 else 1
+        if(comments.isNullOrEmpty()){
+            notifyItemRemoved(offset)
+        }
         comments?.let {
-            it.addAll(position, items)
+            it.addAll(position - offset, items)
             notifyItemRangeInserted(position, items.size)
         }
     }
@@ -60,10 +64,19 @@ class CommentsAdapter(private val markwon: Markwon, private val commentActions: 
     }
 
     fun removeRange(position: Int, size: Int){
+        val offset = if(allCommentsRetrieved) 0 else 1
         for(i in 1..size){
-            comments!!.removeAt(position)
+            comments!!.removeAt(position - offset)
         }
         notifyItemRangeRemoved(position, size)
+    }
+
+    fun updateAt(item: Item, position: Int){
+        val offset = if(allCommentsRetrieved) 0 else 1
+        comments?.let {
+            it[position] = item
+            notifyItemChanged(position - offset)
+        }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
@@ -82,7 +95,7 @@ class CommentsAdapter(private val markwon: Markwon, private val commentActions: 
         when(val viewType = getItemViewType(position)){
             R.layout.item_view_all_comments -> (holder as ViewAllCommentsVH).bind(onViewAllClick!!)
             R.layout.item_more_comment -> (holder as MoreVH).bind(comments!![position + offset] as More, itemClickListener)
-            R.layout.item_comment -> (holder as CommentVH).bind(comments!![position + offset] as Comment, markwon, commentActions, itemClickListener)
+            R.layout.item_comment -> (holder as CommentVH).bind(comments!![position + offset] as Comment, markwon, commentActions, userId, itemClickListener)
             R.layout.item_network_state -> (holder as NetworkStateItemVH).bind(NetworkState.LOADING){}
             R.layout.item_no_items_found -> (holder as NoItemFoundVH).bind(ItemType.Comment)
             else -> throw IllegalArgumentException("Unknown view type $viewType")

@@ -53,31 +53,36 @@ enum class ItemType {
 //   \__|_|           \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__|
 
 @Parcelize
-data class Comment( // TODO: Add more properties: all_awardings
+data class Comment(
     override val name: String,
     override val id: String,
     var depth: Int?,
     val author: String,
     @Json(name = "author_fullname")
     val authorFullName: String?,
+    @Json(name = "author_cakeday")
+    val authorCakeday: Boolean?,
     val body: String,
     @Json(name = "body_html")
     val bodyHtml: String,
     var score: Int,
     @Json(name = "score_hidden")
-    var scoreHidden: Boolean,
+    var scoreHidden: Boolean?,
     @Json(name = "created_utc")
     val created: Long,
-    var saved: Boolean,
+    var saved: Boolean?,
     var likes: Boolean?,
     @Json(name = "author_flair_text")
     val authorFlairText: String?,
     @Json(name = "author_flair_richtext")
     val authorFlairRichtext: List<AuthorFlairRichtext>?,
-    val permalink: String,
+    val gildings: Gildings?,
+    val permalink: String?,
     @Json(name = "link_permalink")
     val linkPermalink: String?,
     val context: String?,
+    @Json(name = "parent_id")
+    val parentId: String?,
     val subreddit: String,
     @Json(name = "subreddit_name_prefixed")
     val subredditPrefixed: String,
@@ -85,14 +90,26 @@ data class Comment( // TODO: Add more properties: all_awardings
     val linkTitle: String?,
     @Json(name = "is_submitter")
     val isSubmitter: Boolean?,
+    val stickied: Boolean?,
+    val locked: Boolean?,
     var isCollapsed: Boolean = false
 ) : Item(ItemType.Comment) {
+
+    @IgnoredOnParcel
+    val linkTitleFormatted: CharSequence? = if (linkTitle != null) {
+        Html.fromHtml(linkTitle, Html.FROM_HTML_MODE_COMPACT)
+    } else {
+        null
+    }
 
     @IgnoredOnParcel
     val bodyFormatted: CharSequence = Html.fromHtml(body, Html.FROM_HTML_MODE_COMPACT)
 
     @IgnoredOnParcel
     val permalinkWithRedditDomain = "https://www.reddit.com$permalink"
+
+    @IgnoredOnParcel
+    val deleted = author == "[deleted]"
 }
 
 @Parcelize
@@ -201,11 +218,21 @@ data class Post(
     var spoiler: Boolean,
     @Json(name = "link_flair_text")
     var flairText: String?,
+    @Json(name = "link_flair_template_id")
+    var linkFlairTemplateId: String?,
     @Json(name = "crosspost_parent_list")
     val crosspostParentList: List<Post>?,
     @Json(name = "is_crosspostable")
     val isCrosspostable: Boolean,
-    val gildings: Gildings?
+    val gildings: Gildings?,
+    @Json(name = "send_replies")
+    var sendReplies: Boolean,
+    @Json(name = "can_mod_post")
+    val canModPost: Boolean,
+    @Json(name = "stickied")
+    val stickied: Boolean,
+    val pinned: Boolean,
+    val locked: Boolean
 ) : Item(ItemType.Post) {
 
     @IgnoredOnParcel
@@ -227,11 +254,13 @@ data class Post(
     val shortLink = "https://redd.it/$id"
 
     @IgnoredOnParcel
-    val flairTextFormatted: CharSequence? =
-        if (flairText != null) {
-            Html.fromHtml(flairText, Html.FROM_HTML_MODE_COMPACT)
-        } else {
-            null
+    val flairTextFormatted: CharSequence?
+        get(){
+            return if (flairText != null) {
+                Html.fromHtml(flairText, Html.FROM_HTML_MODE_COMPACT)
+            } else {
+                null
+            }
         }
 
     @IgnoredOnParcel
@@ -241,14 +270,19 @@ data class Post(
     val titleFormatted: CharSequence = Html.fromHtml(title, Html.FROM_HTML_MODE_COMPACT)
 
     @IgnoredOnParcel
+    val deleted = author == "[deleted]"
+
+    @IgnoredOnParcel
     val urlType = url?.getUrlType()
 }
 
 enum class PostType {
     @SerializedName("self")
     TEXT,
+
     @SerializedName("link")
     URL,
+
     @SerializedName("crosspost")
     CROSSPOST
 }
@@ -380,8 +414,8 @@ data class Subreddit(
 
     @IgnoredOnParcel
     val banner: String?
-        get(){
-            return when{
+        get() {
+            return when {
                 !bannerImg.isNullOrBlank() -> bannerImg.toValidImgUrl()
                 !bannerBackgroundImg.isNullOrBlank() -> bannerBackgroundImg.toValidImgUrl()
                 else -> null
@@ -455,7 +489,7 @@ data class More(
         return sb.toString()
     }
 
-    fun undoChildrenPoll(){
+    fun undoChildrenPoll() {
         fetchIndex = previousFetchIndex
     }
 

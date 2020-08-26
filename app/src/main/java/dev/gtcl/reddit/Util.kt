@@ -8,10 +8,16 @@ import android.util.Base64
 import android.util.Log
 import android.util.TypedValue
 import android.view.View
+import android.view.ViewGroup
 import android.widget.PopupMenu
+import android.widget.PopupWindow
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
+import androidx.annotation.IdRes
+import androidx.annotation.Nullable
+import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
+import androidx.core.view.children
 import androidx.lifecycle.MutableLiveData
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
@@ -27,7 +33,7 @@ import com.squareup.moshi.JsonDataException
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.markdown.CustomMarkwonPlugin
 import dev.gtcl.reddit.models.reddit.listing.*
-import dev.gtcl.reddit.ui.fragments.subreddits.trending.TrendingSubredditPost
+import dev.gtcl.reddit.ui.fragments.subscriptions.trending.TrendingSubredditPost
 import io.noties.markwon.Markwon
 import io.noties.markwon.ext.tables.TablePlugin
 import io.noties.markwon.linkify.LinkifyPlugin
@@ -36,6 +42,7 @@ import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
+import java.lang.reflect.Field
 import java.net.SocketTimeoutException
 import java.net.URL
 import java.net.UnknownHostException
@@ -332,18 +339,6 @@ operator fun <T> MutableLiveData<MutableList<T>>.plusAssign(values: List<T>) {
     this.value = value
 }
 
-fun <T> MutableLiveData<MutableList<T>>.removeItemAt(position: Int){
-    val value = this.value ?: mutableListOf()
-    value.removeAt(position)
-    this.value = value
-}
-
-fun <T> MutableLiveData<MutableList<T>>.updateItem(item: T, position: Int){
-    val value = this.value ?: mutableListOf()
-    value[position] = item
-    this.value = value
-}
-
 operator fun <T> MutableLiveData<MutableSet<T>>.plusAssign(item: T){
     val value = this.value ?: mutableSetOf()
     value.add(item)
@@ -514,5 +509,33 @@ fun getListingTitle(context: Context, listing: Listing): String {
                 }
             )
         }
+    }
+}
+
+@Nullable
+@Throws(
+    IllegalAccessException::class,
+    NoSuchFieldException::class
+)
+fun getMenuItemView(toolbar: Toolbar?, @IdRes menuItemId: Int): View? {
+    val mMenuView: Field = Toolbar::class.java.getDeclaredField("mMenuView")
+    mMenuView.isAccessible = true
+    val menuView: Any? = mMenuView.get(toolbar)
+    (menuView as ViewGroup).children.forEach {
+        if(it.id == menuItemId) {
+            return it
+        }
+    }
+    return null
+}
+
+fun PopupWindow.showAsDropdown(anchor: View, content: View, width: Int, height: Int){
+    this.apply {
+        contentView = content
+        isFocusable = true
+        setWidth(width)
+        setHeight(height)
+        elevation = 20F
+        showAsDropDown(anchor)
     }
 }

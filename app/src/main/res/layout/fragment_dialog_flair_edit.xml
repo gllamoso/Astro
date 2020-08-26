@@ -20,7 +20,8 @@
             android:layout_height="?attr/actionBarSize"
             app:title="@{flair.text}"
             tools:title="@string/flair"
-            app:menu="@menu/close"
+            android:background="?android:attr/colorBackgroundFloating"
+            app:navigationIcon="@drawable/ic_x_24"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent">
 
@@ -47,24 +48,6 @@
                     android:hint="@string/edit_flair"/>
 
             </com.google.android.material.textfield.TextInputLayout>
-
-        </RelativeLayout>
-
-
-        <RelativeLayout
-            android:id="@+id/linearLayout"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:gravity="end|center_vertical"
-            android:orientation="horizontal"
-            android:padding="8dp">
-
-            <Button
-                android:id="@+id/finished_button"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
-                android:text="@string/done"/>
 
         </RelativeLayout>
 

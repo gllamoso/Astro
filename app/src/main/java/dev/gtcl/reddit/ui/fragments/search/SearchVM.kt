@@ -11,8 +11,8 @@ import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.SubredditChild
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.plusAssign
-import dev.gtcl.reddit.repositories.SubredditRepository
-import dev.gtcl.reddit.repositories.UserRepository
+import dev.gtcl.reddit.repositories.reddit.SubredditRepository
+import dev.gtcl.reddit.repositories.reddit.UserRepository
 import kotlinx.coroutines.*
 import retrofit2.HttpException
 import java.util.*

@@ -7,10 +7,6 @@ class ViewPagerVM(private val application: RedditApplication): AndroidViewModel(
     var isViewPagerSwipeEnabled = false
     var pages: MutableList<ViewPagerPage> = mutableListOf()
 
-    private val _newPage = MutableLiveData<ViewPagerPage?>()
-    val newPage: LiveData<ViewPagerPage?>
-        get() = _newPage
-
     private val _navigateToPreviousPage = MutableLiveData<Any?>()
     val navigateToPreviousPage: LiveData<Any?>
         get() = _navigateToPreviousPage
@@ -19,18 +15,9 @@ class ViewPagerVM(private val application: RedditApplication): AndroidViewModel(
     val swipeEnabled: LiveData<Boolean>
         get() = _swipingEnabled
 
-    fun newPage(page: ViewPagerPage){
-        _newPage.value = page
-        pages.add(page)
-    }
-
     private val _linkClicked = MutableLiveData<String?>()
     val linkClicked: LiveData<String?>
         get() = _linkClicked
-
-    fun newPageObserved(){
-        _newPage.value = null
-    }
 
     fun navigateToPreviousPage(){
         _navigateToPreviousPage.value = Any()

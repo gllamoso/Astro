@@ -100,7 +100,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
     }
 
     private fun setPopularRecyclerViewAdapter(){
-        val listAdapter = ListingItemAdapter(markwon = null, subredditActions = this, itemClickListener = this, retry = model::retry)
+        val listAdapter = ListingItemAdapter(markwon = null, subredditActions = this, itemClickListener = this, userId = null, retry = model::retry)
         val scrollListener = ItemScrollListener(15, binding.popularList.layoutManager as GridLayoutManager, model::loadMorePopular)
         val recycler = binding.popularList
         recycler.apply {

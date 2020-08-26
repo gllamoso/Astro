@@ -444,19 +444,13 @@ fun setRuleTypeText(textView: TextView, ruleFor: RuleFor){
     }
 }
 
-@Nullable
-@Throws(
-    IllegalAccessException::class,
-    NoSuchFieldException::class
-)
-fun getMenuItemView(toolbar: Toolbar?, @IdRes menuItemId: Int): View? {
-    val mMenuView: Field = Toolbar::class.java.getDeclaredField("mMenuView")
-    mMenuView.isAccessible = true
-    val menuView: Any? = mMenuView.get(toolbar)
-    (menuView as ViewGroup).children.forEach {
-        if(it.id == menuItemId) {
-            return it
-        }
+@BindingAdapter("flair")
+fun setFlairOnChip(chip: Chip, flair: Flair?){
+    if(flair == null){
+        chip.isChecked = false
+        chip.text = chip.context.getText(R.string.no_flair)
+    } else {
+        chip.isChecked = true
+        chip.text = flair.text
     }
-    return null
 }

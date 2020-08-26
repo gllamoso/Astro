@@ -8,10 +8,11 @@ import com.squareup.moshi.JsonDataException
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.getErrorMessage
-import dev.gtcl.reddit.repositories.ListingRepository
+import dev.gtcl.reddit.repositories.reddit.ListingRepository
 import dev.gtcl.reddit.models.reddit.listing.Account
 import dev.gtcl.reddit.models.reddit.listing.TrophyListingResponse
-import dev.gtcl.reddit.repositories.UserRepository
+import dev.gtcl.reddit.repositories.reddit.MiscRepository
+import dev.gtcl.reddit.repositories.reddit.UserRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -20,7 +21,7 @@ import kotlinx.coroutines.launch
 class UserAboutVM(val application: RedditApplication) : AndroidViewModel(application){
     // Repos
     private val userRepository = UserRepository.getInstance(application)
-    private val listingRepository = ListingRepository.getInstance(application)
+    private val miscRepository = MiscRepository.getInstance(application)
 
     // Scopes
     private val viewModelJob = Job()
@@ -66,7 +67,7 @@ class UserAboutVM(val application: RedditApplication) : AndroidViewModel(applica
     fun fetchAwards(){
         coroutineScope.launch {
             try {
-                trophyListing.value = listingRepository.getAwards(username ?: application.currentAccount!!.name).await()
+                trophyListing.value = miscRepository.getAwards(username ?: application.currentAccount!!.name).await()
             } catch (e: Exception){
                 _errorMessage.value = if(e is JsonDataException){
                     application.getString(R.string.account_error)

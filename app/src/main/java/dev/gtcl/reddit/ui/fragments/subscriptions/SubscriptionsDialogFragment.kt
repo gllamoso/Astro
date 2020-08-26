@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.subreddits
+package dev.gtcl.reddit.ui.fragments.subscriptions
 
 import android.app.AlertDialog
 import android.content.Context
@@ -28,7 +28,6 @@ import dev.gtcl.reddit.models.reddit.listing.MultiRedditUpdate
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
-import dev.gtcl.reddit.ui.fragments.create_post.CreatePostDialogFragment
 import dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditDetailsDialogFragment
 
 class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActions, ListingTypeClickListener{
@@ -108,26 +107,7 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
         }
 
         binding.moreOptions.setOnClickListener {
-            val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-            val popupBinding = PopupSubscriptionOptionsBinding.inflate(inflater)
-            val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
-            popupBinding.apply {
-                createMulti.root.setOnClickListener {
-                    MultiRedditDetailsDialogFragment.newInstance(null).show(childFragmentManager, null)
-                    popupWindow.dismiss()
-                }
-            }
-
-            popupBinding.root.measure(
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
-                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
-            )
-
-            popupWindow.width = ViewGroup.LayoutParams.WRAP_CONTENT
-            popupWindow.height = popupBinding.root.measuredHeight
-            popupWindow.elevation = 20F
-            popupWindow.showAsDropDown(it)
-            popupBinding.executePendingBindings()
+            showMoreOptionsPopupWindow(it)
         }
 
         model.errorMessage.observe(viewLifecycleOwner, Observer {
@@ -152,6 +132,24 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
                 editMultiReddit(it)
             }
         })
+    }
+
+    private fun showMoreOptionsPopupWindow(anchor: View){
+        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val popupBinding = PopupSubscriptionOptionsBinding.inflate(inflater)
+        val popupWindow = PopupWindow()
+        popupBinding.apply {
+            createMulti.root.setOnClickListener {
+                MultiRedditDetailsDialogFragment.newInstance(null).show(childFragmentManager, null)
+                popupWindow.dismiss()
+            }
+            executePendingBindings()
+            root.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+        }
+        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
     }
 
     override fun listingTypeClicked(listing: Listing) {

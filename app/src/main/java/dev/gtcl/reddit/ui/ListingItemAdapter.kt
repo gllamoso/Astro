@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui
 
-import android.util.Log
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.R
@@ -11,6 +10,7 @@ import dev.gtcl.reddit.network.Status
 import dev.gtcl.reddit.ui.viewholders.*
 import io.noties.markwon.Markwon
 import java.io.InvalidObjectException
+import java.lang.reflect.Array.set
 
 class ListingItemAdapter(
     private val markwon: Markwon?,
@@ -22,6 +22,7 @@ class ListingItemAdapter(
     private val blurNsfw: Boolean = false,
     private val blurSpoiler: Boolean = true,
     private val itemClickListener: ItemClickListener,
+    private val userId: String?,
     private val retry: () -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -63,6 +64,13 @@ class ListingItemAdapter(
         }
         this.items!!.addAll(items)
         notifyItemRangeInserted(previousSize, items.size)
+    }
+
+    fun updateAt(position: Int, item: Item){
+        items?.let {
+            it[position] = item
+            notifyItemChanged(position)
+        }
     }
 
     fun removeAt(position: Int) {
@@ -121,14 +129,14 @@ class ListingItemAdapter(
                     throw IllegalStateException("Post Actions not initialized")
                 }
                 val post = items!![position] as Post
-                (holder as PostVH).bind(post, postActions, blurNsfw, blurSpoiler, itemClickListener)
+                (holder as PostVH).bind(post, postActions, blurNsfw, blurSpoiler, userId, itemClickListener)
             }
             R.layout.item_comment_detailed -> {
                 val comment = items!![position] as Comment
                 if (commentActions == null) {
                     throw IllegalStateException("Comment Actions not initialized")
                 }
-                (holder as CommentDetailedVH).bind(comment, markwon, commentActions, itemClickListener)
+                (holder as CommentDetailedVH).bind(comment, markwon, commentActions, userId, itemClickListener)
             }
             R.layout.item_subreddit -> {
                 val subreddit = items!![position] as Subreddit

@@ -113,7 +113,6 @@
 
     <!--Report-->
     <string name="report_dialog_title">Which rule does this break?</string>
-    <string name="cancel">Cancel</string>
     <string name="other_rule_broken_description">Describe rule broken</string>
     <string name="posts_and_comments">Posts and comments</string>
 
@@ -198,6 +197,10 @@
     <string name="no_messages_found">No messages found.</string>
     <string name="guest">Guest</string>
     <string name="other">Other</string>
+    <string name="manage">Manage</string>
+    <string name="clear">Clear</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
 
     <!--Errors-->
     <string name="user_does_not_exist">User does not exist</string>
@@ -207,6 +210,8 @@
     <string name="something_went_wrong">Something went wrong. Please retry later.</string>
     <string name="error_with_video_player">Error with video player</string>
     <string name="error_in_json_parsing">Error in JSON Parsing.</string>
+    <string name="cannot_reply_to_comment">Cannot reply to a comment</string>
+    <string name="cannot_reply_to_post">Cannot reply to post</string>
 
     <!--Settings-->
     <string name="post_settings_title">Post Settings</string>

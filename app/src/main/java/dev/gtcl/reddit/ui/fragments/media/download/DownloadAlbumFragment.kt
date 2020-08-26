@@ -41,15 +41,15 @@ class DownloadAlbumFragment: DialogFragment(){
             }
         })
 
-        binding.downloadButton.setOnClickListener {
-            val text = binding.text.text.toString()
-            if(text.isEmpty()){
-                binding.textInputLayout.error = getString(R.string.invalid)
-            } else {
-                model.downloadAlbum(binding.text.text.toString())
-                dismiss()
-            }
-        }
+//        binding.downloadButton.setOnClickListener {
+//            val text = binding.text.text.toString()
+//            if(text.isEmpty()){
+//                binding.textInputLayout.error = getString(R.string.invalid)
+//            } else {
+//                model.downloadAlbum(binding.text.text.toString())
+//                dismiss()
+//            }
+//        }
 
         return binding.root
     }

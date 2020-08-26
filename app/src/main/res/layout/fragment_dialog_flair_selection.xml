@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="model"
+            type="dev.gtcl.reddit.ui.fragments.flair.FlairListVM" />
+        <import type="android.view.View"/>
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
+                android:background="?android:attr/colorBackgroundFloating"
+                android:layout_width="match_parent"
+                android:layout_height="?android:attr/actionBarSize"
+                app:title="@{model.title}"
+                app:navigationIcon="@drawable/ic_x_24"
+                tools:title="@string/subreddit"/>
+
+        </androidx.cardview.widget.CardView>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/recycler_view"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="1"
+                android:visibility="@{model.flairs != null &amp;&amp; !model.flairs.empty ? View.VISIBLE : View.GONE}"
+                tools:listitem="@layout/item_editable" />
+
+            <ProgressBar
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:visibility="@{model.loading ? View.VISIBLE : View.GONE}"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center"
+                android:gravity="center"
+                android:layout_margin="32dp"
+                android:visibility="@{model.flairs != null &amp;&amp; model.flairs.empty ? View.VISIBLE : View.GONE}"
+                android:text="@string/no_flair_found"/>
+
+        </FrameLayout>
+
+    </LinearLayout>
+
+</layout>

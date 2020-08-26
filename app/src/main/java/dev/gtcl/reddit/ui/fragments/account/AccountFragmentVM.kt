@@ -1,23 +1,18 @@
 package dev.gtcl.reddit.ui.fragments.account
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.squareup.moshi.JsonDataException
-import dev.gtcl.reddit.NotLoggedInException
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.getErrorMessage
-import dev.gtcl.reddit.models.reddit.*
 import dev.gtcl.reddit.models.reddit.listing.Account
-import dev.gtcl.reddit.repositories.UserRepository
+import dev.gtcl.reddit.repositories.reddit.UserRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.net.SocketTimeoutException
-import java.net.UnknownHostException
 
 class AccountFragmentVM(val application: RedditApplication): ViewModel() {
 
@@ -69,7 +64,7 @@ class AccountFragmentVM(val application: RedditApplication): ViewModel() {
     fun addFriend(username: String){
         coroutineScope.launch {
             try {
-                val response = userRepository.addFriend(username).await()
+                userRepository.addFriend(username).await()
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
             }
@@ -79,7 +74,7 @@ class AccountFragmentVM(val application: RedditApplication): ViewModel() {
     fun unfriend(username: String){
         coroutineScope.launch {
             try{
-                val response = userRepository.removeFriend(username).await()
+                userRepository.removeFriend(username).await()
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
             }
@@ -89,7 +84,7 @@ class AccountFragmentVM(val application: RedditApplication): ViewModel() {
     fun blockUser(username: String){
         coroutineScope.launch {
             try {
-                val response = userRepository.blockUser(username).await()
+                userRepository.blockUser(username).await()
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
             }
@@ -99,7 +94,7 @@ class AccountFragmentVM(val application: RedditApplication): ViewModel() {
     fun unblockUser(username: String){
         coroutineScope.launch {
             try {
-                val response = userRepository.unblockUser(username).await()
+                userRepository.unblockUser(username).await()
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
             }

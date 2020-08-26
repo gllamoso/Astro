@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.ui.fragments.subreddits.trending
+package dev.gtcl.reddit.ui.fragments.subscriptions.trending
 
 import android.os.Bundle
 import android.view.LayoutInflater

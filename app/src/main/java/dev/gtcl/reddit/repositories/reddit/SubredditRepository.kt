@@ -1,4 +1,4 @@
-package dev.gtcl.reddit.repositories
+package dev.gtcl.reddit.repositories.reddit
 
 import androidx.annotation.MainThread
 import dev.gtcl.reddit.*
@@ -358,18 +358,6 @@ class SubredditRepository private constructor(private val application: RedditApp
             spoiler,
             flair?.id,
             flair?.text
-        )
-    }
-
-    @MainThread
-    fun sendRepliesToInbox(id: String, state: Boolean): Deferred<Response<Unit>>{
-        if(application.accessToken == null) {
-            throw NotLoggedInException()
-        }
-        return RedditApi.oauth.setSendReplies(
-            application.accessToken!!.authorizationHeader,
-            id,
-            state
         )
     }
 

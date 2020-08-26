@@ -8,56 +8,38 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
-            android:layout_width="match_parent"
-            android:layout_height="?attr/actionBarSize"
-            app:title="@string/download_album"
-            app:menu="@menu/close"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-        </androidx.appcompat.widget.Toolbar>
-
-        <RelativeLayout
+        <androidx.cardview.widget.CardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/text_input_layout"
-                style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
+            <androidx.appcompat.widget.Toolbar
+                android:id="@+id/toolbar"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="16dp">
+                android:layout_height="?attr/actionBarSize"
+                app:title="@string/download_album"
+                app:menu="@menu/close"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent">
 
-                <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/text"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:hint="@string/album_name"/>
+            </androidx.appcompat.widget.Toolbar>
 
-            </com.google.android.material.textfield.TextInputLayout>
+        </androidx.cardview.widget.CardView>
 
-        </RelativeLayout>
-
-
-        <RelativeLayout
-            android:id="@+id/linearLayout"
+        <com.google.android.material.textfield.TextInputLayout
+            android:id="@+id/text_input_layout"
+            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="end|center_vertical"
-            android:orientation="horizontal"
-            android:padding="8dp">
+            android:layout_margin="16dp">
 
-            <Button
-                android:id="@+id/download_button"
-                android:layout_width="wrap_content"
+            <androidx.appcompat.widget.AppCompatEditText
+                android:id="@+id/text"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="?attr/selectableItemBackground"
-                android:text="@string/download"/>
+                android:singleLine="true"
+                android:hint="@string/album_name"/>
 
-        </RelativeLayout>
+        </com.google.android.material.textfield.TextInputLayout>
 
     </LinearLayout>
 
