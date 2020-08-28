@@ -146,7 +146,7 @@ interface RedditApiService {
         @Query("id") id: String
     ): Deferred<Response<Unit>>
 
-    @POST("api/report")
+    @POST("/api/report")
     fun report(
         @Header("Authorization") authorization: String,
         @Query("thing_id") thingId: String,
@@ -156,7 +156,7 @@ interface RedditApiService {
         @Query("api_type") apiType: String? = "json"
     ): Deferred<Response<Unit>>
 
-    @POST("api/editusertext")
+    @POST("/api/editusertext")
     fun editText(
         @Header("Authorization") authorization: String,
         @Query("thing_id") thingId: String,
@@ -164,7 +164,7 @@ interface RedditApiService {
         @Query("api_type") apiType: String = "json"
     ): Deferred<MoreChildrenResponse>
 
-    @POST("api/del")
+    @POST("/api/del")
     fun deleteThing(
         @Header("Authorization") authorization: String,
         @Query("id") thingId: String
@@ -425,6 +425,30 @@ interface RedditApiService {
         @Query("to") to: String,
         @Query("subject") subject: String,
         @Query("text") markdown: String
+    ): Deferred<Response<Unit>>
+
+    @POST("/api/block")
+    fun blockMessage(
+        @Header("Authorization") authorization: String,
+        @Query("id") id: String
+    ): Deferred<Response<Unit>>
+
+    @POST("/api/read_message")
+    fun readMessage(
+        @Header("Authorization") authorization: String,
+        @Query("id") id: String
+    ): Deferred<Response<Unit>>
+
+    @POST("/api/unread_message")
+    fun unreadMessage(
+        @Header("Authorization") authorization: String,
+        @Query("id") id: String
+    ): Deferred<Response<Unit>>
+
+    @POST("/api/del_msg")
+    fun deleteMessage(
+        @Header("Authorization") authorization: String,
+        @Query("id") id: String
     ): Deferred<Response<Unit>>
 
 //                                  _

@@ -22,7 +22,7 @@ import jp.wasabeef.glide.transformations.BlurTransformation
 class PostVH private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(post: Post, postActions: PostActions, blurNsfw: Boolean, blurSpoiler: Boolean, userId: String?, itemClickListener: ItemClickListener) {
+    fun bind(post: Post, postActions: PostActions, blurNsfw: Boolean, blurSpoiler: Boolean, username: String?, itemClickListener: ItemClickListener) {
         binding.post = post
 
         binding.cardView.setOnClickListener{
@@ -34,7 +34,7 @@ class PostVH private constructor(private val binding:ItemPostBinding)
         setThumbnail(post, blurNsfw, blurSpoiler, postActions)
 
         binding.moreOptions.setOnClickListener {
-            showPopupWindow(post, postActions, (post.authorFullName == userId && userId != null), it)
+            showPopupWindow(post, postActions, (post.author == username && username != null), it)
         }
 
         binding.executePendingBindings()
@@ -86,21 +86,11 @@ class PostVH private constructor(private val binding:ItemPostBinding)
             }
             upvoteButton.root.setOnClickListener {
                 postActions.vote(post, if(post.likes == true) Vote.UNVOTE else Vote.UPVOTE)
-                post.likes = if(post.likes == true) {
-                    null
-                } else {
-                    true
-                }
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }
             downvoteButton.root.setOnClickListener {
                 postActions.vote(post, if(post.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
-                post.likes = if(post.likes == false) {
-                    null
-                } else {
-                    false
-                }
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }

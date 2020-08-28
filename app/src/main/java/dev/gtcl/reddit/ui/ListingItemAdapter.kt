@@ -22,7 +22,7 @@ class ListingItemAdapter(
     private val blurNsfw: Boolean = false,
     private val blurSpoiler: Boolean = true,
     private val itemClickListener: ItemClickListener,
-    private val userId: String?,
+    private val username: String?,
     private val retry: () -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -129,14 +129,14 @@ class ListingItemAdapter(
                     throw IllegalStateException("Post Actions not initialized")
                 }
                 val post = items!![position] as Post
-                (holder as PostVH).bind(post, postActions, blurNsfw, blurSpoiler, userId, itemClickListener)
+                (holder as PostVH).bind(post, postActions, blurNsfw, blurSpoiler, username, itemClickListener)
             }
             R.layout.item_comment_detailed -> {
                 val comment = items!![position] as Comment
                 if (commentActions == null) {
                     throw IllegalStateException("Comment Actions not initialized")
                 }
-                (holder as CommentDetailedVH).bind(comment, markwon, commentActions, userId, itemClickListener)
+                (holder as CommentDetailedVH).bind(comment, markwon, commentActions, username, itemClickListener)
             }
             R.layout.item_subreddit -> {
                 val subreddit = items!![position] as Subreddit
@@ -150,7 +150,7 @@ class ListingItemAdapter(
                 if (messageActions == null) {
                     throw java.lang.IllegalStateException("Message Actions not initialized")
                 }
-                (holder as MessageVH).bind(message, markwon, messageActions, itemClickListener)
+                (holder as MessageVH).bind(message, markwon, messageActions, username, itemClickListener)
             }
             R.layout.item_network_state -> (holder as NetworkStateItemVH).bind(networkState, retry)
             R.layout.item_no_items_found -> (holder as NoItemFoundVH).bind(expected)

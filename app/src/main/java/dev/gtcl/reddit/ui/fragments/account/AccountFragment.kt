@@ -49,8 +49,12 @@ class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
 //            parentModel.openDrawer()
         }
         val username = requireArguments().getString(USER_KEY)
-        model.setUsername(username)
-        model.fetchAccount(username)
+        if(model.username == null){
+            model.setUsername(username)
+        }
+        if(model.account.value == null){
+            model.fetchAccount(username)
+        }
         initViewPagerAdapter()
 
         model.errorMessage.observe(viewLifecycleOwner, Observer {

@@ -14,6 +14,7 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.ActivityMainBinding
 
@@ -54,6 +55,13 @@ class MainActivity : FragmentActivity() {
             ),
             1
         ) // TODO: Move somewhere
+
+        model.errorMessage.observe(this, Observer {
+            if(it != null){
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                model.errorMessageObserved()
+            }
+        })
     }
 
     override fun onResume() {

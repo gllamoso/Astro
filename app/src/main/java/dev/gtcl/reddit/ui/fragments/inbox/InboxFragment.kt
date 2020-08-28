@@ -22,7 +22,7 @@ import dev.gtcl.reddit.models.reddit.listing.Message
 import dev.gtcl.reddit.ui.fragments.AccountPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 
-class InboxFragment: Fragment(), MessageActions, LeftDrawerActions{
+class InboxFragment: Fragment(), LeftDrawerActions{
 
     private lateinit var binding: FragmentInboxBinding
 
@@ -97,34 +97,6 @@ class InboxFragment: Fragment(), MessageActions, LeftDrawerActions{
 //        })
     }
 
-//     __  __                                               _   _
-//    |  \/  |                                    /\       | | (_)
-//    | \  / | ___  ___ ___  __ _  __ _  ___     /  \   ___| |_ _  ___  _ __  ___
-//    | |\/| |/ _ \/ __/ __|/ _` |/ _` |/ _ \   / /\ \ / __| __| |/ _ \| '_ \/ __|
-//    | |  | |  __/\__ \__ \ (_| | (_| |  __/  / ____ \ (__| |_| | (_) | | | \__ \
-//    |_|  |_|\___||___/___/\__,_|\__, |\___| /_/    \_\___|\__|_|\___/|_| |_|___/
-//                                 __/ |
-//                                |___/
-
-    override fun reply(message: Message) {
-        TODO("Not yet implemented")
-    }
-
-    override fun mark(message: Message) {
-        TODO("Not yet implemented")
-    }
-
-    override fun delete(message: Message) {
-        TODO("Not yet implemented")
-    }
-
-    override fun viewProfile(user: String) {
-        TODO("Not yet implemented")
-    }
-
-    override fun block(user: String) {
-        TODO("Not yet implemented")
-    }
 
 //     _           __ _     _____                                             _   _
 //    | |         / _| |   |  __ \                                  /\       | | (_)

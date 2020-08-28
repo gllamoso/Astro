@@ -135,6 +135,8 @@
     <string name="send_message">Send message…</string>
     <string name="save_draft_question">Save draft?</string>
     <string name="discard">Discard</string>
+    <string name="mark_read">Mark read</string>
+    <string name="mark_unread">Mark unread</string>
 
     <!--Multi-Reddit-->
     <string name="edit_custom_feed">Edit Custom Feed</string>

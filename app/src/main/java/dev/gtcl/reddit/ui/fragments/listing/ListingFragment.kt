@@ -124,7 +124,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             blurNsfw = blurNsfw,
             blurSpoiler = blurSpoiler,
             itemClickListener = this,
-            userId = currentAccount?.fullId){
+            username = currentAccount?.name){
             binding.list.apply {
                 removeOnScrollListener(scrollListener)
                 addOnScrollListener(scrollListener)
@@ -337,6 +337,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                     false -> post.score += 2
                     null -> post.score++
                 }
+                post.likes = true
             }
             Vote.DOWNVOTE -> {
                 when(post.likes){
@@ -344,12 +345,14 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                     false -> post.score ++
                     null -> post.score--
                 }
+                post.likes = false
             }
             Vote.UNVOTE -> {
                 when(post.likes){
                     true -> post.score--
                     false -> post.score++
                 }
+                post.likes = null
             }
         }
         activityModel.vote(post.name, vote)

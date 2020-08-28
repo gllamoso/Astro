@@ -127,7 +127,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             blurNsfw = blurNsfw,
             blurSpoiler = blurSpoiler,
             itemClickListener = this,
-            userId = currentAccount?.fullId){
+            username = currentAccount?.name){
             binding.list.apply {
                 removeOnScrollListener(scrollListener)
                 addOnScrollListener(scrollListener)
@@ -209,7 +209,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             val item = bundle.get(ITEM_KEY) as Item
             val position = bundle.getInt(POSITION_KEY)
             val reply = bundle.getBoolean(NEW_REPLY_KEY)
-            if(!reply) {
+            if(!reply && position != -1) {
                 model.updateItemAt(position, item)
                 listAdapter.updateAt(position, item)
             }
@@ -225,28 +225,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 //
 
     override fun vote(post: Post, vote: Vote) {
-        when(vote){
-            Vote.UPVOTE -> {
-                when(post.likes){
-                    true -> post.score--
-                    false -> post.score += 2
-                    null -> post.score++
-                }
-            }
-            Vote.DOWNVOTE -> {
-                when(post.likes){
-                    true -> post.score -= 2
-                    false -> post.score ++
-                    null -> post.score--
-                }
-            }
-            Vote.UNVOTE -> {
-                when(post.likes){
-                    true -> post.score--
-                    false -> post.score++
-                }
-            }
-        }
+        post.updateScore(vote)
         activityModel.vote(post.name, vote)
     }
 
@@ -403,17 +382,29 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 //                                 __/ |
 //                                |___/
 
-    override fun reply(message: Message) {}
-
-    override fun mark(message: Message) {}
-
-    override fun delete(message: Message) {}
-
-    override fun viewProfile(user: String) {
-//        navigationActions?.accountSelected(user)
+    override fun reply(message: Message) {
+        ReplyOrEditDialogFragment.newInstance(message, -1, true).show(childFragmentManager, null)
     }
 
-    override fun block(user: String) {}
+    override fun mark(message: Message, read: Boolean) {
+        activityModel.markMessage(message, read)
+    }
+
+    override fun delete(message: Message, position: Int) {
+        activityModel.deleteMessage(message)
+        listAdapter.removeAt(position)
+        model.removeItemAt(position)
+    }
+
+    override fun viewProfile(message: Message) {
+        activityModel.newPage(AccountPage(message.author))
+    }
+
+    override fun block(message: Message, position: Int) {
+        activityModel.block(message)
+        listAdapter.removeAt(position)
+        model.removeItemAt(position)
+    }
 
 //      _____       _                  _     _ _ _                  _   _
 //     / ____|     | |                | |   | (_) |       /\       | | (_)

@@ -274,6 +274,43 @@ data class Post(
 
     @IgnoredOnParcel
     val urlType = url?.getUrlType()
+
+    fun updateScore(vote: Vote){
+        when(vote){
+            Vote.UPVOTE -> {
+                when(likes){
+                    true -> score--
+                    false -> score += 2
+                    null -> score++
+
+                }
+                likes = if(likes != true){
+                    true
+                } else {
+                    null
+                }
+            }
+            Vote.DOWNVOTE -> {
+                when(likes){
+                    true -> score -= 2
+                    false -> score++
+                    null -> score--
+                }
+                likes = if(likes != false){
+                    false
+                } else {
+                    null
+                }
+            }
+            Vote.UNVOTE -> {
+                when(likes){
+                    true -> score--
+                    false -> score++
+                }
+                likes = null
+            }
+        }
+    }
 }
 
 enum class PostType {
@@ -345,7 +382,7 @@ data class Message(
     val created: Long,
     val body: String,
     val dest: String,
-    val new: Boolean,
+    var new: Boolean,
     @Json(name = "subreddit_name_prefixed")
     val subredditNamePrefixed: String?
 ) : Item(ItemType.Message) {

@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="message"
+            type="dev.gtcl.reddit.models.reddit.listing.Message" />
+        <variable
+            name="createdFromUser"
+            type="Boolean" />
+        <import type="android.view.View"/>
+    </data>
+
+    <androidx.cardview.widget.CardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/colorBackgroundFloating"
+        app:cardCornerRadius="4dp">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <include
+                android:id="@+id/mark_button"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{message.new ? @drawable/ic_opened_mail_24 : @drawable/ic_inbox_24}"
+                app:text="@{message.new ?  @string/mark_read : @string/mark_unread}"/>
+
+            <include
+                android:id="@+id/reply_button"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_reply_24}"
+                app:text="@{@string/reply}"/>
+
+            <include
+                android:id="@+id/profile_button"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_profile_24}"
+                app:text="@{message.author}"/>
+
+            <include
+                android:id="@+id/delete_button"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_delete_24}"
+                app:text="@{@string/delete}"/>
+
+            <include
+                android:id="@+id/block_button"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:visibility="@{!createdFromUser ? View.VISIBLE : View.GONE}"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_baseline_block_24}"
+                app:text="@{@string/block}"/>
+
+        </LinearLayout>
+
+
+    </androidx.cardview.widget.CardView>
+
+
+</layout>

@@ -6,6 +6,7 @@ import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.models.reddit.MoreChildrenResponse
 import dev.gtcl.reddit.models.reddit.listing.Flair
+import dev.gtcl.reddit.models.reddit.listing.Message
 import dev.gtcl.reddit.models.reddit.listing.TrophyListingResponse
 import dev.gtcl.reddit.network.RedditApi
 import kotlinx.coroutines.Deferred
@@ -141,6 +142,34 @@ class MiscRepository private constructor(private val application: RedditApplicat
             throw NotLoggedInException()
         }
         return RedditApi.oauth.addComment(application.accessToken!!.authorizationHeader, parentName, body)
+    }
+
+    @MainThread
+    fun block(message: Message): Deferred<Response<Unit>> {
+        if(application.accessToken == null) {
+            throw NotLoggedInException()
+        }
+        return RedditApi.oauth.blockMessage(application.accessToken!!.authorizationHeader, message.name)
+    }
+
+    @MainThread
+    fun markMessage(message: Message, read: Boolean): Deferred<Response<Unit>>{
+        if(application.accessToken == null) {
+            throw NotLoggedInException()
+        }
+        return if(read){
+            RedditApi.oauth.readMessage(application.accessToken!!.authorizationHeader, message.name)
+        } else {
+            RedditApi.oauth.unreadMessage(application.accessToken!!.authorizationHeader, message.name)
+        }
+    }
+
+    @MainThread
+    fun deleteMessage(message: Message): Deferred<Response<Unit>> {
+        if(application.accessToken == null) {
+            throw NotLoggedInException()
+        }
+        return RedditApi.oauth.deleteMessage(application.accessToken!!.authorizationHeader, message.name)
     }
 
     companion object{

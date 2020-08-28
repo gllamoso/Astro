@@ -18,13 +18,13 @@ import io.noties.markwon.Markwon
 
 class CommentDetailedVH private constructor(private val binding: ItemCommentDetailedBinding): RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(comment: Comment, markwon: Markwon?, commentActions: CommentActions, userId: String?, itemClickListener: ItemClickListener){
+    fun bind(comment: Comment, markwon: Markwon?, commentActions: CommentActions, username: String?, itemClickListener: ItemClickListener){
         binding.comment = comment
         binding.constraintLayout.setOnClickListener{
             itemClickListener.itemClicked(comment, adapterPosition)
         }
         binding.moreOptions.setOnClickListener {
-            showPopupWindow(comment, commentActions, (userId != null && comment.authorFullName == userId), it)
+            showPopupWindow(comment, commentActions, (username != null && comment.author == username), it)
         }
         if(markwon != null){
             markwon.setMarkdown(binding.bodyMessage, comment.body)

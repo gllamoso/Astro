@@ -7,10 +7,7 @@ import dev.gtcl.reddit.*
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.models.reddit.AccessToken
-import dev.gtcl.reddit.models.reddit.listing.Flair
-import dev.gtcl.reddit.models.reddit.listing.MultiReddit
-import dev.gtcl.reddit.models.reddit.listing.Post
-import dev.gtcl.reddit.models.reddit.listing.Subreddit
+import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.reddit.ListingRepository
 import dev.gtcl.reddit.repositories.reddit.MiscRepository
@@ -32,8 +29,8 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
 
     val allUsers = userRepository.getAllUsers()
 
-    private val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<String>
+    private val _errorMessage = MutableLiveData<String?>()
+    val errorMessage: LiveData<String?>
         get() = _errorMessage
 
     private val _newPage = MutableLiveData<ViewPagerPage?>()
@@ -62,6 +59,10 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
 
     fun newPageObserved(){
         _newPage.value = null
+    }
+
+    fun errorMessageObserved(){
+        _errorMessage.value = null
     }
 
     fun refreshAccessToken(){
@@ -125,19 +126,11 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
         coroutineScope.launch {
             try{
                 if (subscription.type == SubscriptionType.USER || subscription.type == SubscriptionType.SUBREDDIT) {
-                    val response = subredditRepository.subscribe(subscription, false).await()
-                    if(response.code() == 200 || response.code() == 404){
-                        subredditRepository.deleteSubscription(subscription)
-                    } else {
-                        throw Exception()
-                    }
+                    subredditRepository.subscribe(subscription, false).await()
+                    subredditRepository.deleteSubscription(subscription)
                 } else {
-                    val response = subredditRepository.deleteMultiReddit(subscription.url.removePrefix("/")).await()
-                    if(response.code() == 200 || response.code() == 404){
-                        subredditRepository.deleteSubscription(subscription)
-                    } else {
-                        throw Exception()
-                    }
+                    subredditRepository.deleteMultiReddit(subscription.url.removePrefix("/")).await()
+                    subredditRepository.deleteSubscription(subscription)
                 }
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
@@ -154,15 +147,11 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
     fun subscribe(subreddit: Subreddit, subscribe: Boolean){
         coroutineScope.launch {
             try{
-                val response = subredditRepository.subscribe(subreddit, subscribe).await()
-                if(response.isSuccessful || (!subscribe && !response.isSuccessful)){
-                    if(subscribe){
-                        subredditRepository.insertSubreddit(subreddit)
-                    } else {
-                        subredditRepository.deleteSubscription(subreddit)
-                    }
+                subredditRepository.subscribe(subreddit, subscribe).await()
+                if(subscribe){
+                    subredditRepository.insertSubreddit(subreddit)
                 } else {
-                   throw Exception()
+                    subredditRepository.deleteSubscription(subreddit)
                 }
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
@@ -173,10 +162,7 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
     fun vote(thingId: String, vote: Vote){
         coroutineScope.launch {
             try {
-                val response = miscRepository.vote(thingId, vote).await()
-                if (!response.isSuccessful) {
-                    throw Exception()
-                }
+                miscRepository.vote(thingId, vote).await()
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
             }
@@ -187,13 +173,10 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
     fun save(thingId: String, save: Boolean){
         coroutineScope.launch {
             try {
-                val response = if(save){
+                if(save){
                     miscRepository.save(thingId).await()
                 } else {
                     miscRepository.unsave(thingId).await()
-                }
-                if(!response.isSuccessful){
-                    throw Exception()
                 }
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
@@ -204,13 +187,10 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
     fun hide(thingId: String, hide: Boolean){
         coroutineScope.launch {
             try {
-                val response = if(hide){
+                if(hide){
                     miscRepository.hide(thingId).await()
                 } else {
                     miscRepository.unhide(thingId).await()
-                }
-                if(!response.isSuccessful){
-                    throw Exception()
                 }
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
@@ -221,14 +201,10 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
     fun report(thingId: String, rule: String, ruleType: RuleType){
         coroutineScope.launch {
             try {
-                val response = when(ruleType){
+                when(ruleType){
                     RuleType.RULE -> miscRepository.report(thingId, ruleReason = rule).await()
                     RuleType.SITE_RULE -> miscRepository.report(thingId, siteReason = rule).await()
                     RuleType.OTHER -> miscRepository.report(thingId, otherReason = rule).await()
-                }
-
-                if(response.code() != 200){
-                    throw Exception()
                 }
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
@@ -240,10 +216,7 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
     fun delete(thingId: String){
         coroutineScope.launch {
             try{
-                val response = miscRepository.delete(thingId).await()
-                if(!response.isSuccessful){
-                    throw Exception()
-                }
+                miscRepository.delete(thingId).await()
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
             }
@@ -282,6 +255,36 @@ class MainActivityVM(val application: RedditApplication): ViewModel() {
                 if(prevFlairTemplateId != flair?.id || prevFlairText != flair?.text){
                     miscRepository.setFlair(post.name, flair).await()
                 }
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
+            }
+        }
+    }
+
+    fun block(message: Message){
+        coroutineScope.launch {
+            try {
+                miscRepository.block(message).await()
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
+            }
+        }
+    }
+
+    fun markMessage(message: Message, read: Boolean){
+        coroutineScope.launch {
+            try {
+                miscRepository.markMessage(message, read).await()
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
+            }
+        }
+    }
+
+    fun deleteMessage(message: Message){
+        coroutineScope.launch {
+            try {
+                miscRepository.deleteMessage(message).await()
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
             }

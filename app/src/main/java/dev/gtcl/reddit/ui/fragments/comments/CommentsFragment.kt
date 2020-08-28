@@ -116,7 +116,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         binding.commentList.adapter = adapter
 
         model.allCommentsFetched.observe(viewLifecycleOwner, Observer {
-            Log.d("TAE", "All comments fetched: $it")
             adapter.allCommentsRetrieved = it
         })
 
@@ -180,18 +179,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 return@setOnClickListener
             }
             model.post.value?.let {
-                it.likes = if (it.likes == true) {
-                    null
-                } else {
-                    true
-                }
                 val vote = if (it.likes == true) {
-                    Vote.UPVOTE
-                } else {
                     Vote.UNVOTE
+                } else {
+                    Vote.UPVOTE
                 }
+                it.updateScore(vote)
                 activityModel.vote(it.name, vote)
-                binding.bottomBarLayout.invalidateAll()
+                binding.invalidateAll()
             }
         }
 
@@ -200,18 +195,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 return@setOnClickListener
             }
             model.post.value?.let {
-                it.likes = if (it.likes == false) {
-                    null
-                } else {
-                    false
-                }
                 val vote = if (it.likes == false) {
-                    Vote.DOWNVOTE
-                } else {
                     Vote.UNVOTE
+                } else {
+                    Vote.DOWNVOTE
                 }
+                it.updateScore(vote)
                 activityModel.vote(it.name, vote)
-                binding.bottomBarLayout.invalidateAll()
+                binding.invalidateAll()
             }
         }
 
@@ -222,7 +213,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             model.post.value?.let {
                 it.saved = !it.saved
                 activityModel.save(it.name, it.saved)
-                binding.bottomBarLayout.invalidateAll()
+                binding.invalidateAll()
             }
         }
 
@@ -255,13 +246,12 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                         activityModel.newPage(PostPage(post.crosspostParentList[0], -1))
                     }
                 }
-                when{
-                    post.isSelf -> markwon.setMarkdown(binding.content.contentText, post.selftext)
-                    else -> {
-                        when(post.url?.getUrlType()){
-                            UrlType.OTHER -> initUrlPreview(post.url)
-                            else -> model.fetchMediaItems(post)
-                        }
+                if(post.isSelf){
+                    markwon.setMarkdown(binding.content.contentText, post.selftext)
+                } else {
+                    when(post.url?.getUrlType()){
+                        UrlType.OTHER -> initUrlPreview(post.url)
+                        else -> model.fetchMediaItems(post)
                     }
                 }
                 model.contentInitialized = true
