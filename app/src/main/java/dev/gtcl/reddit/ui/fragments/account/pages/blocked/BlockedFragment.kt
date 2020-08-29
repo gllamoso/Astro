@@ -1,17 +1,13 @@
 package dev.gtcl.reddit.ui.fragments.account.pages.blocked
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import dev.gtcl.reddit.RedditApplication
-import dev.gtcl.reddit.USER_KEY
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.actions.UserActions
 import dev.gtcl.reddit.databinding.FragmentItemScrollerBinding
@@ -21,7 +17,6 @@ import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.ui.fragments.AccountPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 import dev.gtcl.reddit.ui.fragments.account.pages.UserListAdapter
-import dev.gtcl.reddit.ui.fragments.account.pages.friends.FriendsVM
 
 class BlockedFragment : Fragment(), UserActions {
 
@@ -39,24 +34,24 @@ class BlockedFragment : Fragment(), UserActions {
             model.getBlocked()
         }
         val adapter = UserListAdapter(UserType.BLOCKED, model::getBlocked, this)
-        binding.list.adapter = adapter
+        binding.fragmentItemScrollerList.adapter = adapter
 
-        model.networkState.observe(viewLifecycleOwner, Observer {
+        model.networkState.observe(viewLifecycleOwner, {
             adapter.networkState = it
             if(it == NetworkState.LOADED){
-                binding.swipeRefresh.isRefreshing = false
+                binding.fragmentItemScrollerSwipeRefresh.isRefreshing = false
             }
         })
 
-        model.blocked.observe(viewLifecycleOwner, Observer {
+        model.blocked.observe(viewLifecycleOwner, {
             adapter.submitList(it)
         })
 
-        binding.swipeRefresh.setOnRefreshListener {
+        binding.fragmentItemScrollerSwipeRefresh.setOnRefreshListener {
             model.getBlocked()
         }
 
-        model.removeAt.observe(viewLifecycleOwner, Observer {
+        model.removeAt.observe(viewLifecycleOwner, {
             if(it != null){
                 adapter.removeAt(it)
                 model.removeAtObserved()

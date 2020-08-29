@@ -5,8 +5,8 @@
 
     <data>
         <variable
-            name="comment"
-            type="dev.gtcl.reddit.models.reddit.listing.Comment" />
+            name="post"
+            type="dev.gtcl.reddit.models.reddit.listing.Post" />
         <variable
             name="createdFromUser"
             type="Boolean" />
@@ -15,26 +15,35 @@
 
     <androidx.cardview.widget.CardView
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:background="?attr/colorBackgroundFloating"
         app:cardCornerRadius="4dp">
 
         <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="wrap_content"
             android:orientation="vertical">
 
             <include
-                android:id="@+id/edit_button"
+                android:id="@+id/popupPostActions_edit"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
-                android:visibility="@{createdFromUser ? View.VISIBLE : View.GONE}"
+                android:visibility="@{createdFromUser &amp;&amp; post.self ? View.VISIBLE : View.GONE}"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_pencil_24}"
                 app:text="@{@string/edit}"/>
 
             <include
-                android:id="@+id/delete_button"
+                android:id="@+id/popupPostActions_manage"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:visibility="@{createdFromUser ? View.VISIBLE : View.GONE}"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_baseline_check_box_24}"
+                app:text="@{@string/manage}"/>
+
+            <include
+                android:id="@+id/popupPostActions_delete"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:visibility="@{createdFromUser ? View.VISIBLE : View.GONE}"
@@ -43,43 +52,49 @@
                 app:text="@{@string/delete}"/>
 
             <include
-                android:id="@+id/upvote_button"
+                android:id="@+id/popupPostActions_upvote"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_upvote_24}"
                 app:text="@{@string/upvote}"/>
 
             <include
-                android:id="@+id/downvote_button"
+                android:id="@+id/popupPostActions_downvote"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_downvote_24}"
                 app:text="@{@string/downvote}"/>
 
             <include
-                android:id="@+id/reply_button"
-                layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_reply_24}"
-                app:text="@{@string/reply}"/>
-
-            <include
-                android:id="@+id/save_button"
-                layout="@layout/item_selectable"
-                app:iconDrawable="@{comment.saved ? @drawable/ic_remove_circle_outline_24 : @drawable/ic_bookmark_24}"
-                app:text="@{comment.saved ? @string/unsave : @string/save}"/>
-
-            <include
-                android:id="@+id/profile_button"
-                layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_profile_24}"
-                app:text="@{comment.author}"/>
-
-            <include
-                android:id="@+id/share_button"
+                android:id="@+id/popupPostActions_share"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_share_24}"
                 app:text="@{@string/share}"/>
 
             <include
-                android:id="@+id/report_button"
+                android:id="@+id/popupPostActions_profile"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_profile_24}"
+                app:text="@{post.author}"/>
+
+            <include
+                android:id="@+id/popupPostActions_save"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{post.saved ? @drawable/ic_remove_circle_outline_24 : @drawable/ic_bookmark_24}"
+                app:text="@{post.saved ? @string/unsave : @string/save}"/>
+
+            <include
+                android:id="@+id/popupPostActions_hide"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{post.hidden ? @drawable/ic_unhide_24 : @drawable/ic_hide_24}"
+                app:text="@{post.hidden ? @string/unhide : @string/hide}"/>
+
+            <include
+                android:id="@+id/popupPostActions_subreddit"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_reddit_circle_24}"
+                app:text="@{post.subreddit}"/>
+
+            <include
+                android:id="@+id/popupPostActions_report"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_report_24}"
                 app:text="@{@string/report}"/>
@@ -88,5 +103,6 @@
 
 
     </androidx.cardview.widget.CardView>
+
 
 </layout>

@@ -25,7 +25,7 @@
             android:orientation="vertical">
 
             <include
-                android:id="@+id/edit_button"
+                android:id="@+id/popupCommentsPageActions_edit"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:visibility="@{createdFromUser &amp;&amp; post.self? View.VISIBLE : View.GONE}"
@@ -34,7 +34,7 @@
                 app:text="@{@string/edit}"/>
 
             <include
-                android:id="@+id/manage_button"
+                android:id="@+id/popupCommentsPageActions_manage"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:visibility="@{createdFromUser ? View.VISIBLE : View.GONE}"
@@ -43,7 +43,7 @@
                 app:text="@{@string/manage}"/>
 
             <include
-                android:id="@+id/delete_button"
+                android:id="@+id/popupCommentsPageActions_delete"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:visibility="@{createdFromUser ? View.VISIBLE : View.GONE}"
@@ -52,31 +52,31 @@
                 app:text="@{@string/delete}"/>
 
             <include
-                android:id="@+id/profile_button"
+                android:id="@+id/popupCommentsPageActions_profile"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_profile_24}"
                 app:text="@{post.author}"/>
 
             <include
-                android:id="@+id/subreddit_button"
+                android:id="@+id/popupCommentsPageActions_subreddits"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_reddit_circle_24}"
                 app:text="@{post.subreddit}"/>
 
             <include
-                android:id="@+id/hide_button"
+                android:id="@+id/popupCommentsPageActions_hide"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{post.hidden ? @drawable/ic_unhide_24 : @drawable/ic_hide_24}"
                 app:text="@{post.hidden ? @string/unhide : @string/hide}"/>
 
             <include
-                android:id="@+id/share_button"
+                android:id="@+id/popupCommentsPageActions_share"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_share_24}"
                 app:text="@{@string/share}"/>
 
             <include
-                android:id="@+id/report_button"
+                android:id="@+id/popupCommentsPageActions_report"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_report_24}"
                 app:text="@{@string/report}"/>

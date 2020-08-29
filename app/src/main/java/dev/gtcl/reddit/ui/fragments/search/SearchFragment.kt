@@ -15,7 +15,6 @@ import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -71,7 +70,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
     }
 
     private fun setEditTextListener(){
-        binding.searchText.addTextChangedListener(object: TextWatcher {
+        binding.fragmentSearchSearchText.addTextChangedListener(object: TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
 
@@ -83,14 +82,14 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
                 workRunnable?.let { handler.removeCallbacks(it) }
                 workRunnable = Runnable {
                     if(s.isNullOrBlank()){
-                        binding.popularList.visibility = View.VISIBLE
-                        binding.searchList.visibility = View.GONE
-                        binding.noResultsText.visibility = View.GONE
+                        binding.fragmentSearchPopularList.visibility = View.VISIBLE
+                        binding.fragmentSearchSearchList.visibility = View.GONE
+                        binding.fragmentSearchNoResultsText.visibility = View.GONE
                     } else {
                         model.searchSubreddits(s.toString())
-                        binding.popularList.visibility = View.GONE
-                        binding.searchList.visibility = View.VISIBLE
-                        binding.noResultsText.visibility = View.GONE
+                        binding.fragmentSearchPopularList.visibility = View.GONE
+                        binding.fragmentSearchSearchList.visibility = View.VISIBLE
+                        binding.fragmentSearchNoResultsText.visibility = View.GONE
                     }
                 }
                 handler.postDelayed(workRunnable!!, DELAY)
@@ -101,20 +100,20 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
 
     private fun setPopularRecyclerViewAdapter(){
         val listAdapter = ListingItemAdapter(markwon = null, subredditActions = this, itemClickListener = this, username = null, retry = model::retry)
-        val scrollListener = ItemScrollListener(15, binding.popularList.layoutManager as GridLayoutManager, model::loadMorePopular)
-        val recycler = binding.popularList
+        val scrollListener = ItemScrollListener(15, binding.fragmentSearchPopularList.layoutManager as GridLayoutManager, model::loadMorePopular)
+        val recycler = binding.fragmentSearchPopularList
         recycler.apply {
             adapter = listAdapter
             addOnScrollListener(scrollListener)
         }
 
-        model.popularItems.observe(viewLifecycleOwner, Observer {
+        model.popularItems.observe(viewLifecycleOwner, {
             listAdapter.submitList(it)
             scrollListener.finishedLoading()
             model.initialPageLoaded = true
         })
 
-        model.morePopularItems.observe(viewLifecycleOwner, Observer {
+        model.morePopularItems.observe(viewLifecycleOwner, {
             if(it != null){
                 scrollListener.finishedLoading()
                 listAdapter.addItems(it)
@@ -122,7 +121,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             }
         })
 
-        model.lastItemReached.observe(viewLifecycleOwner, Observer {
+        model.lastItemReached.observe(viewLifecycleOwner, {
             if(it == true){
                 recycler.removeOnScrollListener(scrollListener)
             }
@@ -131,17 +130,20 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
 
     private fun setSearchRecyclerViewAdapter(){
         val adapter = SearchAdapter(this, this)
-        binding.searchList.adapter = adapter
+        val searchList = binding.fragmentSearchSearchList
+        searchList.adapter = adapter
 
-        model.searchItems.observe(viewLifecycleOwner, Observer {
+        model.searchItems.observe(viewLifecycleOwner, {
             adapter.submitList(it)
-            binding.searchList.smoothScrollToPosition(0)
-            binding.searchList.visibility = if(it.isEmpty()) View.GONE else View.VISIBLE
-            binding.noResultsText.visibility = if(it.isNotEmpty() || binding.searchText.text.isNullOrEmpty()) View.GONE else View.VISIBLE
+            searchList.apply {
+                smoothScrollToPosition(0)
+                visibility = if(it.isEmpty()) View.GONE else View.VISIBLE
+            }
+            binding.fragmentSearchNoResultsText.visibility = if(it.isNotEmpty() || binding.fragmentSearchSearchText.text.isNullOrEmpty()) View.GONE else View.VISIBLE
         })
 
-        model.networkState.observe(viewLifecycleOwner, Observer {
-            binding.progressBar.visibility = if(it == NetworkState.LOADED){
+        model.networkState.observe(viewLifecycleOwner, {
+            binding.fragmentSearchProgressBar.visibility = if(it == NetworkState.LOADED){
                 View.GONE
             } else {
                 View.VISIBLE
@@ -150,7 +152,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
     }
 
     private fun setOnClickListeners(){
-        binding.toolbar.setNavigationOnClickListener {
+        binding.fragmentSearchToolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
             hideKeyboard()
         }
@@ -162,15 +164,15 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             model.removeSelectedItem(it)
         }
 
-        binding.searchText.imeOptions = EditorInfo.IME_ACTION_DONE
+        binding.fragmentSearchSearchText.imeOptions = EditorInfo.IME_ACTION_DONE
 
-        binding.selectedItemsRecyclerView.adapter = adapter
+        binding.fragmentSearchSelectedItems.adapter = adapter
 
-        model.selectedItems.observe(viewLifecycleOwner, Observer {
+        model.selectedItems.observe(viewLifecycleOwner, {
             adapter.submitList(ArrayList(it))
         })
 
-        binding.fab.setOnClickListener {
+        binding.fragmentSearchFab.setOnClickListener {
             val navController = findNavController()
             navController.previousBackStackEntry?.savedStateHandle?.set(SELECTED_SUBREDDITS_KEY, model.selectedItems.value?.toList() ?: listOf())
             navController.popBackStack()
@@ -178,16 +180,18 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
     }
 
     private fun setPostSearch(){
-        binding.fab.visibility = View.GONE
-        binding.searchText.imeOptions = EditorInfo.IME_ACTION_SEARCH
-        binding.searchText.setOnEditorActionListener { textView, _, _ ->
-            val query = textView.text.toString()
-            findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(ListingPage(SearchListing(query))))
-            hideKeyboard()
-            true
+        binding.fragmentSearchFab.visibility = View.GONE
+        binding.fragmentSearchSearchText.apply {
+            imeOptions = EditorInfo.IME_ACTION_SEARCH
+            setOnEditorActionListener { textView, _, _ ->
+                val query = textView.text.toString()
+                findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(ListingPage(SearchListing(query))))
+                hideKeyboard()
+                true
+            }
         }
-        binding.searchIcon.setOnClickListener {
-            val query = binding.searchText.text.toString()
+        binding.fragmentSearchSearchButton.setOnClickListener {
+            val query = binding.fragmentSearchSearchText.text.toString()
             findNavController().navigate(SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(ListingPage(SearchListing(query))))
             hideKeyboard()
         }
@@ -219,7 +223,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
     }
 
     private fun showKeyboard(){
-        binding.searchText.requestFocus()
+        binding.fragmentSearchSearchText.requestFocus()
         requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
     }
 

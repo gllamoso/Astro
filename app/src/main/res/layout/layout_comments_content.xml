@@ -18,14 +18,14 @@
         android:background="@{model.post.self || model.post.urlType == UrlType.OTHER ? @android:color/transparent : @android:color/black}">
 
         <TextView
-            android:id="@+id/content_text"
+            android:id="@+id/layoutCommentsContent_text"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:padding="16dp"
             android:visibility="@{model.post.self ? View.VISIBLE : View.GONE}"/>
 
         <include
-            android:id="@+id/thumbnail_with_url_layout"
+            android:id="@+id/layoutCommentsContent_urlLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             layout="@layout/layout_url_with_thumbnail"
@@ -34,33 +34,33 @@
             android:visibility="@{(model.post.urlType == UrlType.OTHER) ? View.VISIBLE : View.GONE}"/>
 
         <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/view_pager"
+            android:id="@+id/layoutCommentsContent_viewPager"
             android:layout_width="match_parent"
             android:layout_height="525dp"
             android:orientation="horizontal"
             app:viewSize="@{70}"
             android:visibility="@{model.mediaItems != null ? View.VISIBLE : View.GONE}"/>
 
-        <ImageView
-            android:id="@+id/previous_button"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/layoutCommentsContent_previousButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_baseline_arrow_drop_down_circle_24"
             android:layout_gravity="center_vertical|left"
-            android:tint="@android:color/darker_gray"
+            app:tint="@android:color/darker_gray"
             tools:ignore="RtlHardcoded"
             android:rotation="90"
             android:layout_margin="16dp"
             android:visibility="gone"
             tools:visibility="visible"/>
 
-        <ImageView
-            android:id="@+id/next_button"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/layoutCommentsContent_nextButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_baseline_arrow_drop_down_circle_24"
             android:layout_gravity="center_vertical|right"
-            android:tint="@android:color/darker_gray"
+            app:tint="@android:color/darker_gray"
             tools:ignore="RtlHardcoded"
             android:rotation="-90"
             android:layout_margin="16dp"

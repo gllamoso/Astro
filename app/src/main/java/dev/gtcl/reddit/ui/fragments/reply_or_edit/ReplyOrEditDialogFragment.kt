@@ -9,7 +9,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
@@ -48,7 +47,7 @@ class ReplyOrEditDialogFragment: DialogFragment() {
         binding = FragmentDialogReplyOrEditBinding.inflate(inflater)
         binding.model = model
         binding.lifecycleOwner = viewLifecycleOwner
-        binding.parentMessage.movementMethod = ScrollingMovementMethod()
+        binding.fragmentDialogReplyParentMessage.movementMethod = ScrollingMovementMethod()
 
         val parent = requireArguments().get(ITEM_KEY) as Item
         val position = requireArguments().getInt(POSITION_KEY)
@@ -68,7 +67,7 @@ class ReplyOrEditDialogFragment: DialogFragment() {
                 if(reply){
                     binding.replyToBody = parent.title
                 } else {
-                    binding.responseText.setText(parent.selftext)
+                    binding.fragmentDialogReplyResponseText.setText(parent.selftext)
                 }
             }
             is Comment -> {
@@ -76,7 +75,7 @@ class ReplyOrEditDialogFragment: DialogFragment() {
                 if(reply){
                     binding.replyToBody = parent.body
                 } else {
-                    binding.responseText.setText(parent.body)
+                    binding.fragmentDialogReplyResponseText.setText(parent.body)
                 }
             }
             is Message -> {
@@ -90,19 +89,19 @@ class ReplyOrEditDialogFragment: DialogFragment() {
     }
 
     private fun setListeners(parent: Item, position: Int, reply: Boolean){
-        binding.toolbar.setNavigationOnClickListener {
+        binding.fragmentDialogReplyToolbar.setNavigationOnClickListener {
             if(model.isLoading.value != true) {
                 dismiss()
             }
         }
 
-        binding.toolbar.setOnMenuItemClickListener {
+        binding.fragmentDialogReplyToolbar.setOnMenuItemClickListener {
             if(model.isLoading.value == true){
                 return@setOnMenuItemClickListener false
             }
-            val text = binding.responseText.text.toString()
+            val text = binding.fragmentDialogReplyResponseText.text.toString()
             if(text.isBlank()){
-                binding.responseInputLayout.error = getString(R.string.required)
+                binding.fragmentDialogReplyResponseInputLayout.error = getString(R.string.required)
                 return@setOnMenuItemClickListener false
             }
             if(reply){
@@ -114,14 +113,14 @@ class ReplyOrEditDialogFragment: DialogFragment() {
             true
         }
 
-        model.isLoading.observe(viewLifecycleOwner, Observer {
+        model.isLoading.observe(viewLifecycleOwner, {
             dialog?.apply {
                 setCancelable(!it)
                 setCanceledOnTouchOutside(!it)
             }
         })
 
-        model.newItem.observe(viewLifecycleOwner, Observer {
+        model.newItem.observe(viewLifecycleOwner, {
             if(it != null){
                 val bundle = bundleOf(ITEM_KEY to it, POSITION_KEY to position, NEW_REPLY_KEY to reply)
                 parentFragmentManager.setFragmentResult(NEW_REPLY_KEY, bundle)
@@ -130,18 +129,18 @@ class ReplyOrEditDialogFragment: DialogFragment() {
             }
         })
 
-        model.errorMessage.observe(viewLifecycleOwner, Observer {
+        model.errorMessage.observe(viewLifecycleOwner, {
             if(it != null){
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }
         })
 
-        binding.responseText.addTextChangedListener(object: TextWatcher{
+        binding.fragmentDialogReplyResponseText.addTextChangedListener(object: TextWatcher{
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.responseInputLayout.error = null
+                binding.fragmentDialogReplyResponseInputLayout.error = null
             }
         })
     }

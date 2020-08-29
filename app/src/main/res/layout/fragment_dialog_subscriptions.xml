@@ -12,7 +12,7 @@
             android:background="@drawable/top_rounded_corners">
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
+                android:id="@+id/fragmentDialogSubscriptions_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 android:background="@android:color/transparent"
@@ -33,8 +33,8 @@
                         android:textAppearance="@style/TextAppearance.AppCompat.Title"
                         android:gravity="center_vertical"/>
 
-                    <ImageView
-                        android:id="@+id/search"
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/fragmentDialogSubscriptions_search"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_search_24"
@@ -42,8 +42,8 @@
                         android:padding="2dp"
                         android:layout_margin="8dp"/>
 
-                    <ImageView
-                        android:id="@+id/sync"
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/fragmentDialogSubscriptions_sync"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_sync_24"
@@ -51,8 +51,8 @@
                         android:padding="2dp"
                         android:layout_margin="8dp"/>
 
-                    <ImageView
-                        android:id="@+id/more_options"
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/fragmentDialogSubscriptions_moreOptions"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_more_vert_24"
@@ -64,7 +64,6 @@
 
                 </LinearLayout>
 
-
             </androidx.appcompat.widget.Toolbar>
 
         </com.google.android.material.appbar.AppBarLayout>
@@ -75,7 +74,7 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <ProgressBar
-                android:id="@+id/progress_bar"
+                android:id="@+id/fragmentDialogSubscriptions_progressBar"
                 android:layout_width="match_parent"
                 android:layout_height="6dp"
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
@@ -83,7 +82,7 @@
                 android:visibility="gone"/>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/recycler_view"
+                android:id="@+id/fragmentDialogSubscriptions_recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"

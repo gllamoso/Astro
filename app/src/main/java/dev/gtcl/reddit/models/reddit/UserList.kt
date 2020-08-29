@@ -2,10 +2,7 @@ package dev.gtcl.reddit.models.reddit
 
 import android.os.Parcelable
 import com.google.gson.Gson
-import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
-import dev.gtcl.reddit.Visibility
-import dev.gtcl.reddit.models.reddit.listing.SubredditData
 import kotlinx.android.parcel.Parcelize
 
 data class UserList(val data: UserListData)

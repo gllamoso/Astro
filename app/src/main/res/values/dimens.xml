@@ -1,5 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <dimen name="comment_indentation_size">16dp</dimen>
-    <dimen name="comment_indicator_size">4dp</dimen>
-</resources>

@@ -24,7 +24,7 @@
             android:layout_height="wrap_content">
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
+                android:id="@+id/fragmentDialogCreatePost_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:menu="@menu/send"
@@ -34,7 +34,7 @@
         </androidx.cardview.widget.CardView>
 
         <androidx.core.widget.NestedScrollView
-            android:id="@+id/nested_scroll_view"
+            android:id="@+id/fragmentDialogCreatePost_scrollView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -50,7 +50,7 @@
                     app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/subreddit_text_input_layout"
+                        android:id="@+id/fragmentDialogCreatePost_subredditTextInputLayout"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -58,12 +58,12 @@
                         android:layout_marginTop="8dp"
                         android:layout_marginEnd="8dp"
                         android:hint="@string/subreddit"
-                        app:layout_constraintEnd_toStartOf="@id/rules_button"
+                        app:layout_constraintEnd_toStartOf="@id/fragmentDialogCreatePost_rulesButton"
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent">
 
                         <com.google.android.material.textview.MaterialAutoCompleteTextView
-                            android:id="@+id/subreddit_text"
+                            android:id="@+id/fragmentDialogCreatePost_subredditText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:inputType="text"
@@ -72,18 +72,18 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <Button
-                        android:id="@+id/rules_button"
+                        android:id="@+id/fragmentDialogCreatePost_rulesButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="16dp"
                         android:text="@string/rules"
-                        app:layout_constraintBottom_toBottomOf="@id/subreddit_text_input_layout"
+                        app:layout_constraintBottom_toBottomOf="@id/fragmentDialogCreatePost_subredditTextInputLayout"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toEndOf="@id/subreddit_text_input_layout"
-                        app:layout_constraintTop_toTopOf="@id/subreddit_text_input_layout" />
+                        app:layout_constraintStart_toEndOf="@id/fragmentDialogCreatePost_subredditTextInputLayout"
+                        app:layout_constraintTop_toTopOf="@id/fragmentDialogCreatePost_subredditTextInputLayout" />
 
                     <com.google.android.material.textfield.TextInputLayout
-                        android:id="@+id/title_text_input_layout"
+                        android:id="@+id/fragmentDialogCreatePost_titleTextInputLayout"
                         android:layout_width="0dp"
                         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
                         android:layout_height="wrap_content"
@@ -91,13 +91,13 @@
                         android:layout_marginVertical="16dp"
                         app:counterEnabled="true"
                         app:counterMaxLength="300"
-                        app:layout_constraintBottom_toTopOf="@id/chip_group"
+                        app:layout_constraintBottom_toTopOf="@id/fragmentDialogCreatePost_chipGroup"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/subreddit_text_input_layout">
+                        app:layout_constraintTop_toBottomOf="@id/fragmentDialogCreatePost_subredditTextInputLayout">
 
                         <com.google.android.material.textfield.TextInputEditText
-                            android:id="@+id/title_text"
+                            android:id="@+id/fragmentDialogCreatePost_titleText"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:hint="@string/title"
@@ -106,37 +106,37 @@
                     </com.google.android.material.textfield.TextInputLayout>
 
                     <com.google.android.material.chip.ChipGroup
-                        android:id="@+id/chip_group"
+                        android:id="@+id/fragmentDialogCreatePost_chipGroup"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:padding="16dp"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toBottomOf="@id/title_text_input_layout">
+                        app:layout_constraintTop_toBottomOf="@id/fragmentDialogCreatePost_titleTextInputLayout">
 
                         <com.google.android.material.chip.Chip
-                            android:id="@+id/get_notifications_chip"
+                            android:id="@+id/fragmentDialogCreatePost_getNotificationsChip"
                             style="@style/CustomChipChoice"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/get_notifications" />
 
                         <com.google.android.material.chip.Chip
-                            android:id="@+id/nsfw_chip"
+                            android:id="@+id/fragmentDialogCreatePost_nsfwChip"
                             style="@style/CustomChipChoice"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/nsfw" />
 
                         <com.google.android.material.chip.Chip
-                            android:id="@+id/spoiler_chip"
+                            android:id="@+id/fragmentDialogCreatePost_spoilerChip"
                             style="@style/CustomChipChoice"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/spoiler" />
 
                         <com.google.android.material.chip.Chip
-                            android:id="@+id/flair_chip"
+                            android:id="@+id/fragmentDialogCreatePost_flairChip"
                             style="@style/CustomChipChoice"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
@@ -149,7 +149,7 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/tab_layout"
+                    android:id="@+id/fragmentDialogCreatePost_tabLayout"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     app:tabMode="fixed"
@@ -157,17 +157,17 @@
                     android:visibility="@{crossPost == null ? View.VISIBLE : View.GONE}"/>
 
                 <androidx.viewpager2.widget.ViewPager2
-                    android:id="@+id/view_pager"
+                    android:id="@+id/fragmentDialogCreatePost_viewPager"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tab_layout"
+                    app:layout_constraintTop_toBottomOf="@id/fragmentDialogCreatePost_tabLayout"
                     android:visibility="@{crossPost == null ? View.VISIBLE : View.GONE}"/>
 
                 <include
-                    android:id="@+id/cross_post_layout"
+                    android:id="@+id/fragmentDialogCreatePost_crossPostLayout"
                     layout="@layout/layout_crosspost"
                     android:layout_height="wrap_content"
                     android:layout_width="match_parent"

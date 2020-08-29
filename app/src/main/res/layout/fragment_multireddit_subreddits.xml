@@ -19,7 +19,7 @@
             android:layout_height="wrap_content">
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
+                android:id="@+id/fragmentMultiRedditSubreddits_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:contentInsetStartWithNavigation="0dp"
@@ -37,7 +37,7 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <ProgressBar
-                android:id="@+id/progress_bar"
+                android:id="@+id/fragmentMultiRedditSubreddits_progressBar"
                 android:layout_width="match_parent"
                 android:layout_height="6dp"
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
@@ -46,7 +46,7 @@
                 android:visibility="gone"/>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/list"
+                android:id="@+id/fragmentMultiRedditSubreddits_list"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
@@ -57,7 +57,7 @@
                 />
 
             <TextView
-                android:id="@+id/no_results_text"
+                android:id="@+id/fragmentMultiRedditSubreddits_noResultsText"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="@string/nothing_found"
@@ -68,7 +68,7 @@
         </FrameLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
+            android:id="@+id/fragmentMultiRedditSubreddits_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"

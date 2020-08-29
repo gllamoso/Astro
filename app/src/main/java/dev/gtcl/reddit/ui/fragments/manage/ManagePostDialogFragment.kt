@@ -3,22 +3,17 @@ package dev.gtcl.reddit.ui.fragments.manage
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.FragmentResultListener
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentDialogManagePostBinding
 import dev.gtcl.reddit.models.reddit.listing.Flair
 import dev.gtcl.reddit.models.reddit.listing.Post
-import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.flair.FlairListDialogFragment
-import dev.gtcl.reddit.ui.fragments.listing.ListingVM
 
 class ManagePostDialogFragment: DialogFragment() {
 
@@ -34,9 +29,9 @@ class ManagePostDialogFragment: DialogFragment() {
             .setTitle(R.string.manage)
             .setPositiveButton(R.string.done){ _, _ ->
                 val position = requireArguments().getInt(POSITION_KEY)
-                val nsfw = binding.nsfwCheckbox.isChecked
-                val spoiler = binding.spoilerCheckbox.isChecked
-                val getNotifications = binding.notificationsCheckbox.isChecked
+                val nsfw = binding.fragmentDialogManagePostNsfwCheckbox.isChecked
+                val spoiler = binding.fragmentDialogManagePostSpoilerCheckbox.isChecked
+                val getNotifications = binding.fragmentDialogManagePostNotificationsCheckbox.isChecked
                 val flair = model.flair.value
                 val bundle = bundleOf(
                     POSITION_KEY to position,
@@ -70,12 +65,12 @@ class ManagePostDialogFragment: DialogFragment() {
         }
         binding.executePendingBindings()
 
-        binding.flairChip.setOnClickListener {
-            binding.flairChip.isChecked = model.flair.value != null
+        binding.fragmentDialogManagePostFlairChip.setOnClickListener {
+            binding.fragmentDialogManagePostFlairChip.isChecked = model.flair.value != null
             FlairListDialogFragment.newInstance(post.subreddit).show(childFragmentManager, null)
         }
 
-        childFragmentManager.setFragmentResultListener(FLAIR_SELECTED_KEY, this, FragmentResultListener { _, result ->
+        childFragmentManager.setFragmentResultListener(FLAIR_SELECTED_KEY, this, { _, result ->
             val flair = result.get(FLAIRS_KEY) as Flair?
             model.selectFlair(flair)
         })

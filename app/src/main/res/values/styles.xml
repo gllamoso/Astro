@@ -30,6 +30,13 @@
         <item name="tint">?android:attr/colorControlNormal</item>
     </style>
 
+<!--    <style name="Toolbar.Button.Navigation.Tinted.White" parent="Widget.AppCompat.Toolbar.Button.Navigation">-->
+    <style name="Toolbar.Button.Navigation.Tinted.White" parent="AppTheme.Toolbar">
+        <!--        <item name="tint">?android:attr/textColorPrimary</item>-->
+        <item name="tint">@android:color/white</item>
+        <item name="android:tint">@android:color/white</item>
+    </style>
+
     <style name="CollapsingToolbarLayoutExpandedTextStyle" parent="AppTheme">
         <item name="android:textColor">@android:color/transparent</item>
         <item name="android:textSize">20sp</item>

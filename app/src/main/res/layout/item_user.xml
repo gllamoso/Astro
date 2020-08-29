@@ -10,7 +10,7 @@
     </data>
 
     <LinearLayout
-        android:id="@+id/background"
+        android:id="@+id/itemUser_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
@@ -18,7 +18,7 @@
         android:padding="16dp"
         android:background="?android:attr/selectableItemBackground">
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_profile_24"/>
@@ -34,8 +34,8 @@
             android:gravity="center_vertical"
             />
 
-        <ImageView
-            android:id="@+id/more_options"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/itemUser_moreOptions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?android:attr/selectableItemBackgroundBorderless"

@@ -2,6 +2,7 @@ package dev.gtcl.reddit.ui
 
 import android.content.Context
 import android.view.ViewGroup
+import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.reddit.LeftDrawerHeader
 import dev.gtcl.reddit.R
@@ -49,25 +50,25 @@ class LeftDrawerAdapter(
                 0 -> holder.bind(
                     currentHeader == LeftDrawerHeader.HOME,
                     context.getString(R.string.home),
-                    context.getDrawable(R.drawable.ic_home_24),
+                    ContextCompat.getDrawable(context, R.drawable.ic_home_24),
                     null,
                         onClick = { leftDrawerActions.onHomeClicked() })
                 1 -> holder.bind(
                     currentHeader == LeftDrawerHeader.MY_ACCOUNT,
                     context.getString(R.string.my_account),
-                    context.getDrawable(R.drawable.ic_profile_24),
+                    ContextCompat.getDrawable(context, R.drawable.ic_profile_24),
                     null,
                     onClick = {leftDrawerActions.onMyAccountClicked()})
                 2 -> holder.bind(
                     currentHeader == LeftDrawerHeader.INBOX,
                     context.getString(R.string.inbox),
-                    context.getDrawable(R.drawable.ic_inbox_24),
+                    ContextCompat.getDrawable(context, R.drawable.ic_inbox_24),
                     null,
                     onClick = {leftDrawerActions.onInboxClicked()})
                 3 -> holder.bind(
                     currentHeader == LeftDrawerHeader.SETTINGS,
                     context.getString(R.string.settings),
-                    context.getDrawable(R.drawable.ic_settings_24),
+                    ContextCompat.getDrawable(context, R.drawable.ic_settings_24),
                     null,
                     onClick = {leftDrawerActions.onSettingsClicked()})
             }
@@ -77,20 +78,20 @@ class LeftDrawerAdapter(
                     false,
                     context.getString(R.string.add_account),
                      null,
-                    context.getDrawable(R.drawable.ic_add_24),
+                    ContextCompat.getDrawable(context, R.drawable.ic_add_24),
                     onClick = { leftDrawerActions.onAddAccountClicked() })
                 users.size + 1 -> holder.bind(
                     false,
                     context.getString(R.string.logout),
                     null,
-                    context.getDrawable(R.drawable.ic_logout_24),
+                    ContextCompat.getDrawable(context, R.drawable.ic_logout_24),
                     onClick = { leftDrawerActions.onLogoutClicked() }){
                 }
                 else -> holder.bind(
                     false,
                     users[position].name,
-                    context.getDrawable(R.drawable.ic_profile_24),
-                    context.getDrawable(R.drawable.ic_remove_circle_outline_24),
+                    ContextCompat.getDrawable(context, R.drawable.ic_profile_24),
+                    ContextCompat.getDrawable(context, R.drawable.ic_remove_circle_outline_24),
                     onClick = { leftDrawerActions.onAccountClicked(users[position])},
                     onRightIconClicked = {leftDrawerActions.onRemoveAccountClicked(users[position])})
             }

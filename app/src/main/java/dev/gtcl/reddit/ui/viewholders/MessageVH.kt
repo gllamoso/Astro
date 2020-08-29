@@ -6,15 +6,11 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.recyclerview.widget.RecyclerView
-import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.actions.MessageActions
-import dev.gtcl.reddit.actions.PostActions
 import dev.gtcl.reddit.databinding.ItemMessageBinding
-import dev.gtcl.reddit.databinding.PopupMessageOptionsBinding
-import dev.gtcl.reddit.databinding.PopupPostOptionsBinding
+import dev.gtcl.reddit.databinding.PopupMessageActionsBinding
 import dev.gtcl.reddit.models.reddit.listing.Message
-import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.showAsDropdown
 import io.noties.markwon.Markwon
 
@@ -25,12 +21,12 @@ class MessageVH private constructor(private val binding: ItemMessageBinding): Re
             itemClickListener.itemClicked(message, adapterPosition)
         }
         if(markwon != null){
-            markwon.setMarkdown(binding.messageBody, message.body)
+            markwon.setMarkdown(binding.itemMessageBody, message.body)
         } else {
-            binding.messageBody.text = message.bodyFormatted
+            binding.itemMessageBody.text = message.bodyFormatted
         }
 
-        binding.moreOptions.setOnClickListener {
+        binding.itemMessageMoreOptions.setOnClickListener {
             showPopupWindow(message, messageActions, username == message.author, it)
         }
 
@@ -39,32 +35,32 @@ class MessageVH private constructor(private val binding: ItemMessageBinding): Re
 
     private fun showPopupWindow(message: Message, messageActions: MessageActions, createdFromUser: Boolean, anchor: View){
         val inflater = anchor.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val popupBinding = PopupMessageOptionsBinding.inflate(inflater)
+        val popupBinding = PopupMessageActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
             this.message = message
             this.createdFromUser = createdFromUser
-            markButton.root.setOnClickListener {
+            popupMessageActionsMark.root.setOnClickListener {
                 messageActions.mark(message, message.new)
                 message.new = !message.new
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }
-            replyButton.root.setOnClickListener {
+            popupMessageActionsReply.root.setOnClickListener {
                 messageActions.reply(message)
                 popupWindow.dismiss()
             }
-            profileButton.root.setOnClickListener {
+            popupMessageActionsProfile.root.setOnClickListener {
                 messageActions.viewProfile(message)
                 popupWindow.dismiss()
             }
-            deleteButton.root.setOnClickListener {
+            popupMessageActionsDelete.root.setOnClickListener {
                 messageActions.delete(message, adapterPosition)
                 popupWindow.dismiss()
             }
 
             if(!createdFromUser){
-                blockButton.root.setOnClickListener {
+                popupMessageActionsBlock.root.setOnClickListener {
                     messageActions.block(message, adapterPosition)
                     popupWindow.dismiss()
                 }

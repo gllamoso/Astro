@@ -23,13 +23,13 @@
             android:orientation="vertical">
 
             <include
-                android:id="@+id/friend"
+                android:id="@+id/popupAccountActions_friend"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{account.isFriend() ? @drawable/ic_remove_circle_outline_24 : @drawable/ic_baseline_person_add_24}"
                 app:text="@{account.isFriend() ? @string/unfriend : @string/add_friend}"/>
 
             <include
-                android:id="@+id/block"
+                android:id="@+id/popupAccountActions_block"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_baseline_block_24}"
                 app:text="@{@string/block}"/>

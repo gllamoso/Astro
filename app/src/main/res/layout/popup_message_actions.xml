@@ -25,31 +25,31 @@
             android:orientation="vertical">
 
             <include
-                android:id="@+id/mark_button"
+                android:id="@+id/popupMessageActions_mark"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{message.new ? @drawable/ic_opened_mail_24 : @drawable/ic_inbox_24}"
                 app:text="@{message.new ?  @string/mark_read : @string/mark_unread}"/>
 
             <include
-                android:id="@+id/reply_button"
+                android:id="@+id/popupMessageActions_reply"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_reply_24}"
                 app:text="@{@string/reply}"/>
 
             <include
-                android:id="@+id/profile_button"
+                android:id="@+id/popupMessageActions_profile"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_profile_24}"
                 app:text="@{message.author}"/>
 
             <include
-                android:id="@+id/delete_button"
+                android:id="@+id/popupMessageActions_delete"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_delete_24}"
                 app:text="@{@string/delete}"/>
 
             <include
-                android:id="@+id/block_button"
+                android:id="@+id/popupMessageActions_block"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
                 android:visibility="@{!createdFromUser ? View.VISIBLE : View.GONE}"

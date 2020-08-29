@@ -16,16 +16,11 @@ import android.webkit.URLUtil
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.annotation.IdRes
-import androidx.annotation.Nullable
-import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
-import androidx.core.view.children
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
@@ -38,7 +33,6 @@ import dev.gtcl.reddit.databinding.IconFlairSmallBinding
 import dev.gtcl.reddit.models.reddit.RuleFor
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.ui.fragments.multireddits.MultiRedditSubredditsAdapter
-import java.lang.reflect.Field
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -101,15 +95,6 @@ fun bindUriToImage(imgView: ImageView, uri: Uri?){
     Glide.with(imgView.context)
         .load(uri)
         .into(imgView)
-}
-
-@BindingAdapter("subsampleImage")
-fun loadImage(subsamplingScaleImageView: SubsamplingScaleImageView, imgUrl: String?){
-    Glide.with(subsamplingScaleImageView.context)
-        .asBitmap()
-        .load(imgUrl)
-        .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
-        .into(SubsamplingScaleImageViewTarget(subsamplingScaleImageView))
 }
 
 class SubsamplingScaleImageViewTarget(view: SubsamplingScaleImageView): CustomViewTarget<SubsamplingScaleImageView, Bitmap>(view){
@@ -186,24 +171,8 @@ fun loadSubscriptionIcon(imgView: ImageView, subscription: Subscription){
         .into(imgView)
 }
 
-@BindingAdapter("multiRedditIcon")
-fun loadMultiRedditIcon(imgView: ImageView, imgUrl: String?){
-    if(imgUrl == null || !imgUrl.startsWith("http")){
-        imgView.setImageResource(R.drawable.ic_collection_24)
-    }
-    else {
-        val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
-        Glide.with(imgView.context)
-            .load(imgUri)
-            .apply(RequestOptions()
-                .placeholder(R.drawable.ic_collection_24)
-                .circleCrop())
-            .into(imgView)
-    }
-}
 
-
-@BindingAdapter("tint")
+@BindingAdapter("colorTint")
 fun setTint(imgView: ImageView, color: Int){
     imgView.setColorFilter(color)
 }
@@ -298,13 +267,6 @@ fun secondsToDate(textView: TextView, time: Long){
     textView.text = simpleDateFormat.format(1000L * time)
 }
 
-@BindingAdapter("upvoteRatio")
-fun setUpvoteRatio(textView: TextView, upvoteRatio: Double?){
-    if(upvoteRatio != null){
-        textView.text = String.format(textView.context.getString(R.string.upvote_ratio), upvoteRatio * 100)
-    } else textView.text = ""
-}
-
 @BindingAdapter("viewSize")
 fun setViewSize(view: View, percentOfDeviceHeight: Int){
     val wm = view.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
@@ -369,11 +331,6 @@ fun applyBookmarkTint(imageView: ImageView, bookmarked: Boolean){
         true -> imageView.setColorFilter(ContextCompat.getColor(imageView.context, android.R.color.holo_orange_light))
         else -> imageView.clearColorFilter()
     }
-}
-
-@BindingAdapter("chipIsChecked")
-fun checkChip(chip: Chip, check: Boolean){
-    chip.isChecked = check
 }
 
 @BindingAdapter("flairListSmall")

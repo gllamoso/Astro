@@ -18,7 +18,7 @@ class MediaVH private constructor(private val binding: ItemMediaSelectableBindin
         } else {
             setImage(binding.root.context, mediaUrl.url)
         }
-        binding.imageView.setOnClickListener {
+        binding.itemMediaSelectableImage.setOnClickListener {
             itemClickListener(adapterPosition)
         }
     }
@@ -28,7 +28,7 @@ class MediaVH private constructor(private val binding: ItemMediaSelectableBindin
 
         Glide.with(context).load(url)
             .apply(requestOptions)
-            .into(binding.imageView)
+            .into(binding.itemMediaSelectableImage)
     }
 
     private fun setVideoPreviewImage(context: Context, url: String){
@@ -37,7 +37,7 @@ class MediaVH private constructor(private val binding: ItemMediaSelectableBindin
         val options = RequestOptions().frame(thumb)
         Glide.with(context).load(url).apply(options)
             .apply(requestOptions)
-            .into(binding.imageView)
+            .into(binding.itemMediaSelectableImage)
     }
 
     companion object{

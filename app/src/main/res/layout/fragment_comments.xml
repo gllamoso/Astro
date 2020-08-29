@@ -14,10 +14,9 @@
     </data>
 
     <androidx.drawerlayout.widget.DrawerLayout
-        android:id="@+id/drawer_layout"
+        android:id="@+id/fragmentComments_drawer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        >
+        android:layout_height="match_parent">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
@@ -29,7 +28,7 @@
                 android:layout_height="wrap_content">
 
                 <androidx.appcompat.widget.Toolbar
-                    android:id="@+id/toolbar"
+                    android:id="@+id/fragmentComments_toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     app:layout_collapseMode="pin"
@@ -53,8 +52,8 @@
                             android:text="@{model.post.subreddit}"
                             tools:text="wholesome" />
 
-                        <ImageView
-                            android:id="@+id/media_list_icon"
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/fragmentComments_thumbnailsIcon"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:src="@drawable/ic_baseline_art_track_24"
@@ -78,7 +77,7 @@
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
                 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                    android:id="@+id/swipe_refresh"
+                    android:id="@+id/fragmentComments_swipeRefresh"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     app:layout_constraintTop_toTopOf="parent"
@@ -87,7 +86,7 @@
                     app:layout_constraintEnd_toEndOf="parent">
 
                     <androidx.core.widget.NestedScrollView
-                        android:id="@+id/nested_scroll_view"
+                        android:id="@+id/fragmentComments_scrollView"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:scrollbars="vertical">
@@ -99,12 +98,12 @@
                             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
                             <include
-                                android:id="@+id/post_layout"
+                                android:id="@+id/fragmentComments_postLayout"
                                 layout="@layout/layout_post_in_comments"
                                 app:post="@{model.post}"/>
 
                             <include
-                                android:id="@+id/cross_post_layout"
+                                android:id="@+id/fragmentComments_crossPostLayout"
                                 layout="@layout/layout_crosspost"
                                 android:layout_height="wrap_content"
                                 android:layout_width="match_parent"
@@ -114,7 +113,7 @@
                                 android:visibility="@{model.post.crosspostParentList != null &amp;&amp; !model.post.crosspostParentList.empty ? View.VISIBLE : View.GONE}"/>
 
                             <include
-                                android:id="@+id/content"
+                                android:id="@+id/fragmentComments_content"
                                 layout="@layout/layout_comments_content"
                                 app:model="@{model}"/>
 
@@ -131,21 +130,21 @@
             </LinearLayout>
 
             <com.google.android.material.bottomappbar.BottomAppBar
-                android:id="@+id/bottom_bar"
+                android:id="@+id/fragmentComments_bottomBar"
                 android:layout_width="match_parent"
                 android:layout_height="?android:attr/actionBarSize"
                 android:layout_gravity="bottom"
                 app:contentInsetStart="0dp">
 
                 <include
-                    android:id="@+id/bottom_bar_layout"
+                    android:id="@+id/fragmentComments_bottomBarLayout"
                     app:post="@{model.post}"
                     layout="@layout/layout_comments_bottom_bar" />
 
             </com.google.android.material.bottomappbar.BottomAppBar>
 
             <androidx.coordinatorlayout.widget.CoordinatorLayout
-                android:id="@+id/bottom_sheet"
+                android:id="@+id/fragmentComments_bottomSheet"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:paddingTop="?android:attr/actionBarSize"
@@ -159,7 +158,7 @@
                     android:layout_height="wrap_content">
 
                     <androidx.appcompat.widget.Toolbar
-                        android:id="@+id/comments_toolbar"
+                        android:id="@+id/fragmentComments_commentsToolbar"
                         android:layout_width="match_parent"
                         android:layout_height="?android:attr/actionBarSize">
 
@@ -177,8 +176,8 @@
                                 android:textAppearance="@style/TextAppearance.AppCompat.Title"
                                 android:gravity="center_vertical"/>
 
-                            <ImageView
-                                android:id="@+id/reply_button"
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:id="@+id/fragmentComments_reply"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:src="@drawable/ic_comment_plus_24"
@@ -186,8 +185,8 @@
                                 android:padding="2dp"
                                 android:layout_margin="8dp"/>
 
-                            <ImageView
-                                android:id="@+id/sort_button"
+                            <androidx.appcompat.widget.AppCompatImageView
+                                android:id="@+id/fragmentComments_sort"
                                 android:layout_width="wrap_content"
                                 android:layout_height="wrap_content"
                                 android:src="@drawable/ic_sort_24"
@@ -204,7 +203,7 @@
                 </com.google.android.material.appbar.AppBarLayout>
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/comment_list"
+                    android:id="@+id/fragmentComments_comments"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
@@ -219,7 +218,7 @@
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/album_thumbnails"
+            android:id="@+id/fragmentComments_thumbnailsList"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"

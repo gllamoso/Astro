@@ -37,10 +37,10 @@ class DownloadIntentService : JobIntentService(){
     override fun onCreate() {
         super.onCreate()
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.O){
-            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).apply {
+            (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).apply {
                 createNotificationChannel(NotificationChannel(JOB_ID.toString(), getText(R.string.download_status_notification_name), NotificationManager.IMPORTANCE_LOW))
             }
-            (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).apply {
+            (getSystemService(NOTIFICATION_SERVICE) as NotificationManager).apply {
                 createNotificationChannel(NotificationChannel(DOWNLOAD_COMPLETE_CHANNEL_ID.toString(), getText(R.string.download_complete), NotificationManager.IMPORTANCE_LOW))
             }
         }
@@ -70,7 +70,7 @@ class DownloadIntentService : JobIntentService(){
         }
 
         val fileUri = Uri.withAppendedPath(Uri.fromFile(saveDestination), fileName)
-        val file = File(fileUri.path)
+        val file = File(fileUri.path!!)
 
         if(fileExtension.toLowerCase() == HLS_EXTENSION){ // For downloading HLS videos
             if(FFmpeg.execute("-i $url -acodec copy -bsf:a aac_adtstoasc -vcodec copy ${file.path}")
@@ -91,7 +91,7 @@ class DownloadIntentService : JobIntentService(){
     }
 
     private fun createForegroundNotification(fileName: String): Notification{
-        return Notification.Builder(this, JOB_ID.toString())
+        return NotificationCompat.Builder(this, JOB_ID.toString())
             .setContentTitle(fileName)
             .setSmallIcon(R.drawable.ic_download_black_24)
             .setContentText(getText(R.string.downloading))
@@ -115,7 +115,7 @@ class DownloadIntentService : JobIntentService(){
         }
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
 
-        return Notification.Builder(this, DOWNLOAD_COMPLETE_CHANNEL_ID.toString())
+        return NotificationCompat.Builder(this, DOWNLOAD_COMPLETE_CHANNEL_ID.toString())
             .setContentIntent(pendingIntent)
             .setContentTitle(fileName)
             .setSmallIcon(R.drawable.ic_save_24)
@@ -132,7 +132,7 @@ class DownloadIntentService : JobIntentService(){
 
 //        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
         var count = 0
-        for(notification: StatusBarNotification in (application.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager).activeNotifications){
+        for(notification: StatusBarNotification in (application.getSystemService(NOTIFICATION_SERVICE) as NotificationManager).activeNotifications){
             if(notification.notification.group == newNotification.group){
                 count++
             }
@@ -200,9 +200,9 @@ class DownloadIntentService : JobIntentService(){
     }
 
     private fun getExtension(fileName: String) =
-        fileName.replace("[A-Za-z0-9]+\\.".toRegex(), "").toLowerCase()
+        fileName.replace("[A-Za-z0-9]+\\.".toRegex(), "").toLowerCase(Locale.getDefault())
 
-    companion object{
+    companion object {
         private const val JOB_ID = 1001
         private const val DOWNLOAD_COMPLETE_CHANNEL_ID = 2000
         private const val SUMMARY_ID = 1999

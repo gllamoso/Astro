@@ -7,7 +7,7 @@ import dev.gtcl.reddit.databinding.ItemViewAllCommentsBinding
 
 class ViewAllCommentsVH private constructor(private val binding: ItemViewAllCommentsBinding): RecyclerView.ViewHolder(binding.root){
     fun bind(onClick: () -> Unit){
-        binding.background.setOnClickListener {
+        binding.itemViewAllCommentsBackground.setOnClickListener {
             onClick()
         }
     }

@@ -9,7 +9,6 @@ import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
@@ -21,7 +20,7 @@ import dev.gtcl.reddit.databinding.FragmentCreatePostImageBinding
 import dev.gtcl.reddit.ui.fragments.create_post.CreatePostVM
 import java.io.File
 
-class UploadImageFragment: Fragment() {
+class CreatePostImageFragment: Fragment() {
 
     private lateinit var binding: FragmentCreatePostImageBinding
 
@@ -78,21 +77,21 @@ class UploadImageFragment: Fragment() {
     }
 
     private fun initClickListeners(){
-        binding.cameraButton.setOnClickListener {
+        binding.fragmentCreatePostImageCameraButton.setOnClickListener {
             getFromCamera.launch(photoUri)
         }
 
-        binding.galleryButton.setOnClickListener {
+        binding.fragmentCreatePostImageGalleryButton.setOnClickListener {
             getFromGallery.launch("image/*")
         }
 
-        binding.closeButton.setOnClickListener {
+        binding.fragmentCreatePostImageClose.setOnClickListener {
             model.setUri(null)
         }
     }
 
     private fun initObservers(){
-        parentModel.fetchInput.observe(viewLifecycleOwner, Observer {
+        parentModel.fetchInput.observe(viewLifecycleOwner, {
             if(it == true){
                 if(model.uri.value != null){
                     parentModel.setPostContent(

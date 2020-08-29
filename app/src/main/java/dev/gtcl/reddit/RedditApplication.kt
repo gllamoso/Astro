@@ -4,7 +4,6 @@ import android.app.Application
 import android.util.Log
 import dev.gtcl.reddit.models.reddit.AccessToken
 import dev.gtcl.reddit.models.reddit.listing.Account
-import io.noties.markwon.Markwon
 
 class RedditApplication : Application() {
 

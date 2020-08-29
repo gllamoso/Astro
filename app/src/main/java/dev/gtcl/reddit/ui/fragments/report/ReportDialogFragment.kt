@@ -2,8 +2,6 @@ package dev.gtcl.reddit.ui.fragments.report
 
 import android.app.Dialog
 import android.os.Bundle
-import android.util.Log
-import android.view.ContextMenu
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,11 +10,9 @@ import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentDialogReportBinding
-import dev.gtcl.reddit.models.reddit.Rule
 import dev.gtcl.reddit.models.reddit.listing.Comment
 import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.Post
@@ -40,12 +36,12 @@ class ReportDialogFragment: DialogFragment() {
 
         val builder = AlertDialog.Builder(requireContext())
             .setPositiveButton(R.string.report){ _, _ ->
-                val rule = idToRule[binding.radioGroup.checkedRadioButtonId]
+                val rule = idToRule[binding.fragmentDialogReportRadioGroup.checkedRadioButtonId]
                 if(rule != null){
                     val position = requireArguments().getInt(POSITION_KEY, -1)
                     val item = requireArguments().get(ITEM_KEY) as Item
                     if(rule.type == RuleType.OTHER){
-                        val otherReason = binding.otherRuleText.text.toString()
+                        val otherReason = binding.fragmentDialogReportOtherRuleText.text.toString()
                         if(!otherReason.isBlank()){
                             activityModel.report(item.name, otherReason, RuleType.OTHER)
                             parentFragmentManager.setFragmentResult(REPORT_KEY, bundleOf(POSITION_KEY to position))
@@ -85,23 +81,23 @@ class ReportDialogFragment: DialogFragment() {
             model.fetchRules((requireArguments().get(ITEM_KEY) as Item))
         }
 
-        model.rules.observe(this, Observer {
+        model.rules.observe(this, {
             if(it != null){
                 idToRule = HashMap()
-                binding.radioGroup.removeAllViews()
+                binding.fragmentDialogReportRadioGroup.removeAllViews()
                 var otherButtonId = -1
                 for(ruleData in it){
                     val radioButton = RadioButton(requireContext()).apply {
                         text = ruleData.rule
                     }
-                    binding.radioGroup.addView(radioButton)
+                    binding.fragmentDialogReportRadioGroup.addView(radioButton)
                     idToRule[radioButton.id] = ruleData
                     if(ruleData.type == RuleType.OTHER){
                         otherButtonId = radioButton.id
                     }
                 }
 
-                binding.radioGroup.setOnCheckedChangeListener { _, checkedId ->
+                binding.fragmentDialogReportRadioGroup.setOnCheckedChangeListener { _, checkedId ->
                     if(checkedId == otherButtonId){
                         model.otherRuleSelected()
                     } else {

@@ -33,7 +33,7 @@ class MultiRedditSubredditsAdapter(private val onSubredditRemovedListener: OnSub
 
         fun bind(sub: Subreddit, onSubredditRemovedListener: OnSubredditRemovedListener){
             binding.sub = sub
-            binding.removeButton.setOnClickListener {
+            binding.itemSubredditInMultiRedditRemoveButton.setOnClickListener {
                 onSubredditRemovedListener.onRemove(sub, adapterPosition)
             }
             binding.executePendingBindings()

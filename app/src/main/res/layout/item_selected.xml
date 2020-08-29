@@ -37,11 +37,11 @@
                     android:singleLine="true"
                     android:paddingHorizontal="4dp"/>
 
-                <ImageView
+                <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:src="@drawable/ic_x_24"
-                    android:tint="?android:attr/textColorPrimary"/>
+                    app:tint="?android:attr/textColorPrimary"/>
 
             </LinearLayout>
 

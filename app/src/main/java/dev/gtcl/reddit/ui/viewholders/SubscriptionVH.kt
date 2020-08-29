@@ -9,7 +9,6 @@ import dev.gtcl.reddit.actions.SubscriptionActions
 import dev.gtcl.reddit.actions.SubscriptionAdapterActions
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.ItemSubscriptionBinding
-import dev.gtcl.reddit.models.reddit.listing.ProfileListing
 import dev.gtcl.reddit.models.reddit.listing.SubscriptionListing
 
 class SubscriptionVH private constructor(private val binding: ItemSubscriptionBinding): RecyclerView.ViewHolder(binding.root){
@@ -29,12 +28,12 @@ class SubscriptionVH private constructor(private val binding: ItemSubscriptionBi
         }
 
         if(sub.type == SubscriptionType.MULTIREDDIT){
-            binding.editButton.setOnClickListener {
+            binding.itemSubscriptionEditButton.setOnClickListener {
                subscriptionActions.editMultiReddit(sub)
             }
         }
 
-        binding.favoriteButton.setOnClickListener {
+        binding.itemSubscriptionFavoriteButton.setOnClickListener {
             sub.isFavorite = !sub.isFavorite
             if(sub.isFavorite){
                 subscriptionAdapterActions.addToFavorites(sub)
@@ -45,7 +44,7 @@ class SubscriptionVH private constructor(private val binding: ItemSubscriptionBi
             binding.invalidateAll()
         }
 
-        binding.removeButton.setOnClickListener {
+        binding.itemSubscriptionRemoveButton.setOnClickListener {
             subscriptionAdapterActions.remove(sub)
             subscriptionActions.remove(sub)
         }

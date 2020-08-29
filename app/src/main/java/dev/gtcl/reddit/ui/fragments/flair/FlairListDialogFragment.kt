@@ -3,21 +3,19 @@ package dev.gtcl.reddit.ui.fragments.flair
 import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
-import android.text.method.TextKeyListener.clear
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.databinding.FragmentDialogFlairSelectionBinding
+import dev.gtcl.reddit.databinding.FragmentDialogFlairListBinding
 import dev.gtcl.reddit.models.reddit.listing.Flair
 
 class FlairListDialogFragment : DialogFragment(), FlairListAdapter.FlairSelectionListener{
 
-    private lateinit var binding: FragmentDialogFlairSelectionBinding
+    private lateinit var binding: FragmentDialogFlairListBinding
 
     private val model: FlairListVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
@@ -31,7 +29,7 @@ class FlairListDialogFragment : DialogFragment(), FlairListAdapter.FlairSelectio
             }
             .setNeutralButton(R.string.cancel){_,_ ->}
 
-        binding = FragmentDialogFlairSelectionBinding.inflate(LayoutInflater.from(requireContext()))
+        binding = FragmentDialogFlairListBinding.inflate(LayoutInflater.from(requireContext()))
         builder.setView(binding.root)
 
         return builder.create()
@@ -57,9 +55,9 @@ class FlairListDialogFragment : DialogFragment(), FlairListAdapter.FlairSelectio
 
     private fun initList(){
         val adapter = FlairListAdapter(this)
-        binding.recyclerView.adapter = adapter
+        binding.fragmentDialogFlairSelectionRecyclerView.adapter = adapter
 
-        model.flairs.observe(this, Observer {
+        model.flairs.observe(this, {
             if(it != null){
                 adapter.submitList(it)
             }
@@ -67,7 +65,7 @@ class FlairListDialogFragment : DialogFragment(), FlairListAdapter.FlairSelectio
     }
 
     private fun initOtherObservers(){
-        binding.toolbar.setNavigationOnClickListener {
+        binding.fragmentDialogFlairSelectionToolbar.setNavigationOnClickListener {
             dismiss()
         }
 

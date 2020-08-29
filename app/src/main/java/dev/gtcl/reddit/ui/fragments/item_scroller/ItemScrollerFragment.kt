@@ -1,16 +1,13 @@
 package dev.gtcl.reddit.ui.fragments.item_scroller
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentResultListener
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResult
-import androidx.fragment.app.setFragmentResultListener
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
@@ -113,7 +110,9 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     private fun initScroller(){
-        scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadMore)
+        val recyclerView = binding.fragmentItemScrollerList
+        val swipeRefresh = binding.fragmentItemScrollerSwipeRefresh
+        scrollListener = ItemScrollListener(15, recyclerView.layoutManager as GridLayoutManager, model::loadMore)
         val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val blurNsfw = preferences.getBoolean("blur_nsfw_thumbnail", false)
         val blurSpoiler = preferences.getBoolean("blur_spoiler_thumbnail", true)
@@ -128,23 +127,23 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             blurSpoiler = blurSpoiler,
             itemClickListener = this,
             username = currentAccount?.name){
-            binding.list.apply {
+            recyclerView.apply {
                 removeOnScrollListener(scrollListener)
                 addOnScrollListener(scrollListener)
                 model.retry()
             }
         }
-        binding.list.apply {
+        recyclerView.apply {
             this.adapter = listAdapter
             addOnScrollListener(scrollListener)
         }
 
-        model.items.observe(viewLifecycleOwner, Observer {
+        model.items.observe(viewLifecycleOwner, {
             scrollListener.finishedLoading()
             listAdapter.submitList(it)
         })
 
-        model.moreItems.observe(viewLifecycleOwner, Observer {
+        model.moreItems.observe(viewLifecycleOwner, {
             if(it != null){
                 scrollListener.finishedLoading()
                 listAdapter.addItems(it)
@@ -152,68 +151,72 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             }
         })
 
-        model.networkState.observe(viewLifecycleOwner, Observer {
+        model.networkState.observe(viewLifecycleOwner, {
             listAdapter.networkState = it
             if (it == NetworkState.LOADED || it.status == Status.FAILED) {
-                binding.swipeRefresh.isRefreshing = false
+                swipeRefresh.isRefreshing = false
             }
         })
 
-        model.lastItemReached.observe(viewLifecycleOwner, Observer {
+        model.lastItemReached.observe(viewLifecycleOwner, {
             if (it == true) {
-                binding.list.removeOnScrollListener(scrollListener)
+                recyclerView.removeOnScrollListener(scrollListener)
             }
         })
 
-        binding.swipeRefresh.setOnRefreshListener {
+        swipeRefresh.setOnRefreshListener {
             if(model.networkState.value == NetworkState.LOADING){
-                binding.swipeRefresh.isRefreshing = false
+               swipeRefresh.isRefreshing = false
                 return@setOnRefreshListener
             }
 
-            binding.list.removeOnScrollListener(scrollListener)
-            binding.list.addOnScrollListener(scrollListener)
+            recyclerView.apply {
+                removeOnScrollListener(scrollListener)
+                addOnScrollListener(scrollListener)
+            }
             initData()
         }
     }
 
     private fun initOtherObservers(){
-        model.errorMessage.observe(viewLifecycleOwner, Observer {
+        model.errorMessage.observe(viewLifecycleOwner, {
             Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
         })
 
-        childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner){ _, bundle ->
+        childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
             handleLink(bundle.getString(URL_KEY) ?: "")
-        }
+        })
 
-        childFragmentManager.setFragmentResultListener(REPORT_KEY, viewLifecycleOwner){ _, bundle ->
+        childFragmentManager.setFragmentResultListener(REPORT_KEY, viewLifecycleOwner, { _, bundle ->
             val  position = bundle.getInt(POSITION_KEY, -1)
             if(position != -1){
                 model.removeItemAt(position)
                 listAdapter.removeAt(position)
             }
-        }
+        })
 
-        childFragmentManager.setFragmentResultListener(MANAGE_POST_KEY, viewLifecycleOwner){ _, bundle ->
-            val position = bundle.getInt(POST_KEY)
-            val nsfw = bundle.getBoolean(NSFW_KEY)
-            val spoiler = bundle.getBoolean(SPOILER_KEY)
-            val getNotification = bundle.getBoolean(GET_NOTIFICATIONS_KEY)
-            val flair = bundle.get(FLAIRS_KEY) as Flair?
-            val post = model.items.value!![position] as Post
-            activityModel.updatePost(post, nsfw, spoiler, getNotification, flair)
-            listAdapter.notifyItemChanged(position)
-        }
+        childFragmentManager.setFragmentResultListener(MANAGE_POST_KEY, viewLifecycleOwner,
+            { _, bundle ->
+                val position = bundle.getInt(POST_KEY)
+                val nsfw = bundle.getBoolean(NSFW_KEY)
+                val spoiler = bundle.getBoolean(SPOILER_KEY)
+                val getNotification = bundle.getBoolean(GET_NOTIFICATIONS_KEY)
+                val flair = bundle.get(FLAIRS_KEY) as Flair?
+                val post = model.items.value!![position] as Post
+                activityModel.updatePost(post, nsfw, spoiler, getNotification, flair)
+                listAdapter.notifyItemChanged(position)
+            })
 
-        childFragmentManager.setFragmentResultListener(NEW_REPLY_KEY, viewLifecycleOwner){ _, bundle ->
-            val item = bundle.get(ITEM_KEY) as Item
-            val position = bundle.getInt(POSITION_KEY)
-            val reply = bundle.getBoolean(NEW_REPLY_KEY)
-            if(!reply && position != -1) {
-                model.updateItemAt(position, item)
-                listAdapter.updateAt(position, item)
-            }
-        }
+        childFragmentManager.setFragmentResultListener(NEW_REPLY_KEY, viewLifecycleOwner,
+            { _, bundle ->
+                val item = bundle.get(ITEM_KEY) as Item
+                val position = bundle.getInt(POSITION_KEY)
+                val reply = bundle.getBoolean(NEW_REPLY_KEY)
+                if(!reply && position != -1) {
+                    model.updateItemAt(position, item)
+                    listAdapter.updateAt(position, item)
+                }
+            })
     }
 
 //     _____          _                  _   _

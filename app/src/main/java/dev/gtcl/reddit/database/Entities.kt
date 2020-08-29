@@ -5,7 +5,6 @@ import androidx.room.Entity
 import androidx.room.PrimaryKey
 import androidx.room.TypeConverter
 import dev.gtcl.reddit.SubscriptionType
-import dev.gtcl.reddit.models.reddit.*
 import kotlinx.android.parcel.Parcelize
 
 //   _____                _   _____ _

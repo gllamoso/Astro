@@ -10,7 +10,7 @@
     </data>
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/background"
+        android:id="@+id/iconSubscribe_background"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         app:cardCornerRadius="4dp"
@@ -24,9 +24,10 @@
             android:orientation="horizontal"
             android:gravity="center"
             android:paddingVertical="4dp"
-            android:paddingHorizontal="8dp">
+            android:paddingHorizontal="8dp"
+            tools:ignore="UseCompoundDrawables">
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="12dp"
                 android:layout_height="12dp"
                 android:src="@{isSubscribed ? @drawable/ic_added_24 : @drawable/ic_add_circle_24}"

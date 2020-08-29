@@ -6,13 +6,11 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
 import dev.gtcl.reddit.*
-import dev.gtcl.reddit.models.reddit.listing.Flair
 import dev.gtcl.reddit.models.reddit.listing.Item
 import dev.gtcl.reddit.models.reddit.listing.Listing
 import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.network.NetworkState
 import dev.gtcl.reddit.repositories.reddit.ListingRepository
-import dev.gtcl.reddit.repositories.reddit.MiscRepository
 import dev.gtcl.reddit.repositories.reddit.SubredditRepository
 import kotlinx.coroutines.*
 import kotlin.collections.HashSet
@@ -23,7 +21,6 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
     // Repos
     private val listingRepository = ListingRepository.getInstance(application)
     private val subredditRepository = SubredditRepository.getInstance(application)
-    private val miscRepository = MiscRepository.getInstance(application)
 
     // Scopes
     private var viewModelJob = Job()
@@ -225,10 +222,6 @@ class ItemScrollerVM(private val application: RedditApplication): AndroidViewMod
 
     fun removeItemAt(position: Int){
         _items.value?.removeAt(position)
-    }
-
-    fun addItemAt(position: Int, item: Item){
-        _items.value?.add(position, item)
     }
 
     fun updateItemAt(position: Int, item: Item){

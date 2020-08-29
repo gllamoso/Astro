@@ -161,17 +161,6 @@ data class Account(
 
     @IgnoredOnParcel
     val fullId = "t2_$id"
-
-    fun asSubscription(userId: String) = Subscription(
-        "${subreddit.name}__${userId}",
-        "u_${name}",
-        name,
-        userId,
-        iconImg,
-        "/user/${name}/",
-        false,
-        SubscriptionType.USER
-    )
 }
 
 //   _   ____             _____          _
@@ -479,8 +468,7 @@ data class Award(
     override val id: String?,
     @Json(name = "icon_70") val icon70: String,
     @Json(name = "icon_40") val icon40: String
-) : Parcelable, Item(ItemType.Award) {
-}
+) : Parcelable, Item(ItemType.Award)
 
 //                                        __  __
 //     _ __ ___   ___  _ __ ___          |  \/  | ___  _ __ ___

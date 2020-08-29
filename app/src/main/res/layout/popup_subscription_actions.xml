@@ -15,7 +15,7 @@
             android:orientation="vertical">
 
             <include
-                android:id="@+id/create_multi"
+                android:id="@+id/popupSubscriptionActions_createCustomFeed"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_pencil_24}"
                 app:text="@{@string/create_custom_feed}"/>

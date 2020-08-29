@@ -20,7 +20,7 @@ data class MoreComments(
 class CommentsMoshiAdapter {
 
     @ToJson
-    fun toJson(commentPage: CommentPage) = "{}" // UNUSED
+    fun toJson(commentPage: CommentPage) = "{$commentPage}" // Unused
 
     @FromJson
     fun getCommentsPageInfo(jsonReader: JsonReader): CommentPage {

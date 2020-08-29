@@ -15,25 +15,25 @@
             android:orientation="vertical">
 
             <include
-                android:id="@+id/create_post"
+                android:id="@+id/popupListingActions_createPost"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_pencil_24}"
                 app:text="@{@string/create_post}"/>
 
             <include
-                android:id="@+id/search"
+                android:id="@+id/popupListingActions_search"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_search_24}"
                 app:text="@{@string/search_tab_label}"/>
 
             <include
-                android:id="@+id/my_account"
+                android:id="@+id/popupListingActions_myAccount"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_profile_24}"
                 app:text="@{@string/my_account}" />
 
             <include
-                android:id="@+id/inbox"
+                android:id="@+id/popupListingActions_inbox"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_inbox_24}"
                 app:text="@{@string/inbox}" />

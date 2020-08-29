@@ -31,20 +31,20 @@
             android:background="?attr/selectableItemBackground">
 
             <TextView
-                android:id="@+id/name"
+                android:id="@+id/itemExpandable_text"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:padding="16dp"
                 android:text="@{expandableItem.name}"
                 android:textStyle="bold"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/collapse_indicator"
+                app:layout_constraintEnd_toStartOf="@+id/itemExpandable_collapseIndicator"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 tools:text="Multi-Reddits" />
 
-            <ImageView
-                android:id="@+id/collapse_indicator"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/itemExpandable_collapseIndicator"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:src="@drawable/ic_up_no_stem_24"

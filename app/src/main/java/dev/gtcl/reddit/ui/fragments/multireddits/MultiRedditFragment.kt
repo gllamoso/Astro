@@ -4,8 +4,8 @@ import android.os.Bundle
 import android.view.*
 import android.widget.Toast
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentResultListener
 import androidx.fragment.app.setFragmentResultListener
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
@@ -49,30 +49,30 @@ class MultiRedditFragment: Fragment(),
         }
 
         adapter = MultiRedditSubredditsAdapter(this)
-        binding.list.adapter = adapter
+        binding.fragmentMultiRedditSubredditsList.adapter = adapter
 
 
-        binding.toolbar.setNavigationOnClickListener {
+        binding.fragmentMultiRedditSubredditsToolbar.setNavigationOnClickListener {
             navController.popBackStack()
         }
 
-        binding.fab.setOnClickListener {
+        binding.fragmentMultiRedditSubredditsFab.setOnClickListener {
             navController.navigate(
                 MultiRedditFragmentDirections.actionMultiRedditFragmentToSearchFragment(true)
             )
         }
 
         navController.currentBackStackEntry?.savedStateHandle?.getLiveData<List<String>>(SELECTED_SUBREDDITS_KEY)?.observe(
-            viewLifecycleOwner, Observer {
+            viewLifecycleOwner, {
                 model.addSubredditsToMultiReddit(it)
             }
         )
 
-        model.errorMessage.observe(viewLifecycleOwner, Observer {
+        model.errorMessage.observe(viewLifecycleOwner, {
             Toast.makeText(context, it, Toast.LENGTH_LONG).show()
         })
 
-        binding.toolbar.setOnMenuItemClickListener {
+        binding.fragmentMultiRedditSubredditsToolbar.setOnMenuItemClickListener {
             if(it.itemId == R.id.edit){
                 if(model.multi.value != null){
                     MultiRedditDetailsDialogFragment.newInstance(model.multi.value!!).show(childFragmentManager, null)
@@ -81,10 +81,10 @@ class MultiRedditFragment: Fragment(),
             true
         }
 
-        childFragmentManager.setFragmentResultListener(MULTI_KEY, viewLifecycleOwner){ _, bundle ->
+        childFragmentManager.setFragmentResultListener(MULTI_KEY, viewLifecycleOwner, FragmentResultListener{ _, bundle ->
             val multiUpdate = bundle.get(MULTI_KEY) as MultiRedditUpdate
             model.updateMultiReddit(multiUpdate)
-        }
+        })
     }
 
     override fun onRemove(subreddit: Subreddit, position: Int) {

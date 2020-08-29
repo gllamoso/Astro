@@ -17,7 +17,7 @@
         android:layout_height="match_parent">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/card_view"
+            android:id="@+id/itemPost_cardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
@@ -26,19 +26,19 @@
             app:cardCornerRadius="4dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout
-                android:id="@+id/rootLayout"
+                android:id="@+id/itemPost_background"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content">
 
                 <LinearLayout
-                    android:id="@+id/tags_group"
+                    android:id="@+id/itemPost_tagsGroup"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="8dp"
                     android:layout_marginTop="8dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    app:layout_constraintEnd_toStartOf="@+id/frame_layout"
+                    app:layout_constraintEnd_toStartOf="@+id/itemPost_thumbnailBackground"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
@@ -57,7 +57,7 @@
                         android:visibility="@{post.spoiler == true ? View.VISIBLE : View.GONE}" />
 
                     <include
-                        android:id="@+id/flair_layout"
+                        android:id="@+id/itemPost_flairLayout"
                         layout="@layout/icon_flair"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
@@ -65,69 +65,69 @@
                         app:charSequence="@{post.flairTextFormatted}"
                         android:visibility="@{post.flairText != null ? View.VISIBLE : View.GONE}" />
 
-                    <ImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:src="@drawable/ic_bookmark_24"
-                        android:tint="@android:color/holo_orange_light"
+                        app:tint="@android:color/holo_orange_light"
                         android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}" />
 
-                    <ImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:src="@drawable/ic_crosspost_24"
-                        android:tint="@android:color/holo_blue_bright"
+                        app:tint="@android:color/holo_blue_bright"
                         android:visibility="@{post.crosspostParentList != null &amp;&amp; post.crosspostParentList.size() > 0 ? View.VISIBLE : View.GONE}" />
 
-                    <ImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:src="@drawable/ic_hide_24"
                         android:visibility="@{post.hidden == true ? View.VISIBLE : View.GONE}" />
 
-                    <ImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:src="@drawable/ic_pin_24"
-                        android:tint="@android:color/holo_green_light"
+                        app:tint="@android:color/holo_green_light"
                         android:visibility="@{post.pinned == true || post.stickied == true ? View.VISIBLE : View.GONE}" />
 
-                    <ImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:src="@drawable/ic_baseline_lock_24"
-                        android:tint="@android:color/holo_red_light"
+                        app:tint="@android:color/holo_red_light"
                         android:visibility="@{post.locked == true ? View.VISIBLE : View.GONE}" />
 
                 </LinearLayout>
 
                 <TextView
-                    android:id="@+id/title"
+                    android:id="@+id/itemPost_title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="8dp"
                     android:textSize="16sp"
                     android:text="@{post.titleFormatted}"
-                    app:layout_constraintEnd_toStartOf="@id/frame_layout"
+                    app:layout_constraintEnd_toStartOf="@id/itemPost_thumbnailBackground"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/tags_group"
+                    app:layout_constraintTop_toBottomOf="@id/itemPost_tagsGroup"
                     app:read="@{post.isRead}"
                     tools:text="Title" />
 
                 <LinearLayout
-                    android:id="@+id/post_info1"
+                    android:id="@+id/itemPost_postInfo1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="8dp"
                     android:orientation="horizontal"
-                    app:layout_constraintEnd_toStartOf="@id/frame_layout"
+                    app:layout_constraintEnd_toStartOf="@id/itemPost_thumbnailBackground"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/title">
+                    app:layout_constraintTop_toBottomOf="@id/itemPost_title">
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -177,17 +177,17 @@
                 </LinearLayout>
 
                 <LinearLayout
-                    android:id="@+id/post_info2"
+                    android:id="@+id/itemPost_postInfo2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="8dp"
                     android:orientation="horizontal"
-                    app:layout_constraintEnd_toStartOf="@id/frame_layout"
+                    app:layout_constraintEnd_toStartOf="@id/itemPost_thumbnailBackground"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/post_info1">
+                    app:layout_constraintTop_toBottomOf="@id/itemPost_postInfo1">
 
                     <TextView
-                        android:id="@+id/score_info"
+                        android:id="@+id/itemPost_scoreInfo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:singleLine="true"
@@ -243,12 +243,12 @@
                     android:gravity="center_vertical"
                     android:layout_marginBottom="8dp"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/frame_layout"
-                    app:layout_constraintTop_toBottomOf="@id/post_info2"
+                    app:layout_constraintEnd_toStartOf="@id/itemPost_thumbnailBackground"
+                    app:layout_constraintTop_toBottomOf="@id/itemPost_postInfo2"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintVertical_bias="0">
 
-                    <ImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/ic_reddit_silver"
@@ -264,7 +264,7 @@
                         android:visibility="@{post.gildings != null &amp;&amp; post.gildings.silver != null ? View.VISIBLE : View.GONE}"
                         tools:text="99"/>
 
-                    <ImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/ic_reddit_gold"
@@ -280,7 +280,7 @@
                         android:visibility="@{post.gildings != null &amp;&amp; post.gildings.gold != null ? View.VISIBLE : View.GONE}"
                         tools:text="99"/>
 
-                    <ImageView
+                    <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:src="@drawable/ic_reddit_platinum"
@@ -299,18 +299,18 @@
                 </LinearLayout>
 
                 <FrameLayout
-                    android:id="@+id/frame_layout"
+                    android:id="@+id/itemPost_thumbnailBackground"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginVertical="8dp"
                     android:layout_marginEnd="8dp"
                     android:background="@android:color/black"
                     app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/more_options"
+                    app:layout_constraintEnd_toStartOf="@id/itemPost_moreOptions"
                     app:layout_constraintTop_toTopOf="parent">
 
-                    <ImageView
-                        android:id="@+id/thumbnail"
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/itemPost_thumbnail"
                         android:layout_width="72dp"
                         android:layout_height="72dp"
                         android:background="?android:attr/selectableItemBackground"
@@ -318,8 +318,8 @@
 
                 </FrameLayout>
 
-                <ImageView
-                    android:id="@+id/more_options"
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/itemPost_moreOptions"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginVertical="8dp"

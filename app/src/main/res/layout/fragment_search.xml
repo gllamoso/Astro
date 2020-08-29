@@ -12,7 +12,7 @@
             android:layout_height="wrap_content">
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
+                android:id="@+id/fragmentSearch_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:contentInsetStartWithNavigation="0dp"
@@ -25,7 +25,7 @@
                     android:gravity="center">
 
                     <EditText
-                        android:id="@+id/search_text"
+                        android:id="@+id/fragmentSearch_searchText"
                         android:layout_width="0dp"
                         android:layout_weight="1"
                         android:layout_height="match_parent"
@@ -35,8 +35,8 @@
                         android:hint="@string/search_hint"
                         android:background="@android:color/transparent"/>
 
-                    <ImageView
-                        android:id="@+id/search_icon"
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/fragmentSearch_searchButton"
                         android:layout_width="24dp"
                         android:layout_height="24dp"
                         android:padding="2dp"
@@ -49,7 +49,7 @@
             </androidx.appcompat.widget.Toolbar>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/selected_items_recycler_view"
+                android:id="@+id/fragmentSearch_selectedItems"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
@@ -67,7 +67,7 @@
             app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
             <ProgressBar
-                android:id="@+id/progress_bar"
+                android:id="@+id/fragmentSearch_progressBar"
                 android:layout_width="match_parent"
                 android:layout_height="6dp"
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
@@ -76,7 +76,7 @@
                 android:visibility="gone"/>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/popular_list"
+                android:id="@+id/fragmentSearch_popularList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
@@ -84,7 +84,7 @@
                 android:scrollbars="vertical"/>
 
             <androidx.recyclerview.widget.RecyclerView
-                android:id="@+id/search_list"
+                android:id="@+id/fragmentSearch_searchList"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
@@ -94,7 +94,7 @@
                 />
 
             <TextView
-                android:id="@+id/no_results_text"
+                android:id="@+id/fragmentSearch_noResultsText"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:text="@string/nothing_found"
@@ -105,7 +105,7 @@
         </FrameLayout>
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
+            android:id="@+id/fragmentSearch_fab"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"

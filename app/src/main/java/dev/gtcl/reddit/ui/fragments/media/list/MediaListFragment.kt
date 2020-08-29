@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
@@ -36,7 +35,7 @@ class MediaListFragment : Fragment(){
                 this,
                 items
             )
-        binding.viewpager.apply {
+        binding.fragmentViewPagerViewPager.apply {
             this.adapter = adapter
             model.setItemPosition(0)
             registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
@@ -49,16 +48,15 @@ class MediaListFragment : Fragment(){
             })
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
-        model.itemPosition.observe(viewLifecycleOwner, Observer {
-            binding.viewpager.currentItem = it
+        model.itemPosition.observe(viewLifecycleOwner, {
+            binding.fragmentViewPagerViewPager.currentItem = it
         })
         return binding.root
     }
 
     companion object{
         fun newInstance(mediaItems: List<MediaURL>): MediaListFragment {
-            val fragment =
-                MediaListFragment()
+            val fragment = MediaListFragment()
             val args = bundleOf(MEDIA_KEY to mediaItems)
             fragment.arguments = args
             return fragment

@@ -16,13 +16,13 @@
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
-        android:id="@+id/constraint_layout"
+        android:id="@+id/itemComment_background"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground">
 
         <LinearLayout
-            android:id="@+id/indent"
+            android:id="@+id/itemComment_indent"
             android:layout_width="wrap_content"
             android:layout_height="0dp"
             android:orientation="horizontal"
@@ -32,7 +32,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <View
-            android:id="@+id/top_divider"
+            android:id="@+id/itemComment_topDivider"
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
             android:background="@android:color/darker_gray"
@@ -42,7 +42,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <LinearLayout
-            android:id="@+id/top_view_group"
+            android:id="@+id/itemComment_topViewGroup"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
@@ -52,12 +52,12 @@
             android:gravity="center_vertical|start"
             app:layout_constraintVertical_bias="0"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintStart_toEndOf="@id/indent"
+            app:layout_constraintStart_toEndOf="@id/itemComment_indent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/more_options">
+            app:layout_constraintEnd_toStartOf="@id/itemComment_moreOptions">
 
             <TextView
-                android:id="@+id/author_text"
+                android:id="@+id/itemComment_authorText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@{comment.author}"
@@ -67,16 +67,16 @@
                 android:singleLine="true"
                 tools:text="CommentAuthor" />
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:visibility="@{comment.authorCakeday == true ? View.VISIBLE : View.GONE}"
                 android:layout_marginEnd="4dp"
                 android:src="@drawable/ic_cake_24"
-                android:tint="@android:color/holo_orange_dark"/>
+                app:tint="@android:color/holo_orange_dark"/>
 
             <include
-                android:id="@+id/submitter_icon"
+                android:id="@+id/itemComment_submitterIcon"
                 layout="@layout/icon_op_small"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -93,32 +93,32 @@
                 app:flairListSmall="@{comment.authorFlairRichtext}"
                 tools:visibility="gone"/>
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:layout_marginEnd="4dp"
                 android:src="@drawable/ic_bookmark_24"
-                android:tint="@android:color/holo_orange_light"
+                app:tint="@android:color/holo_orange_light"
                 android:visibility="@{comment.saved == true ? View.VISIBLE : View.GONE}"/>
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:layout_marginEnd="4dp"
                 android:src="@drawable/ic_baseline_lock_24"
-                android:tint="@android:color/holo_red_light"
+                app:tint="@android:color/holo_red_light"
                 android:visibility="@{comment.locked == true ? View.VISIBLE : View.GONE}"/>
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:layout_marginEnd="4dp"
                 android:src="@drawable/ic_pin_24"
-                android:tint="@android:color/holo_green_light"
+                app:tint="@android:color/holo_green_light"
                 android:visibility="@{comment.stickied == true ? View.VISIBLE : View.GONE}"/>
 
             <TextView
-                android:id="@+id/points_text"
+                android:id="@+id/itemComment_pointsText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
@@ -138,7 +138,7 @@
                 tools:ignore="HardcodedText" />
 
             <TextView
-                android:id="@+id/timestamp_text"
+                android:id="@+id/itemComment_timestampText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
@@ -151,20 +151,20 @@
         </LinearLayout>
 
         <LinearLayout
-            android:id="@+id/gildings_view_group"
+            android:id="@+id/itemComment_gildingsViewGroup"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginHorizontal="8dp"
             android:gravity="center_vertical"
             android:layout_marginBottom="8dp"
-            app:layout_constraintStart_toEndOf="@id/indent"
-            app:layout_constraintEnd_toStartOf="@id/more_options"
-            app:layout_constraintTop_toBottomOf="@id/top_view_group"
+            app:layout_constraintStart_toEndOf="@id/itemComment_indent"
+            app:layout_constraintEnd_toStartOf="@id/itemComment_moreOptions"
+            app:layout_constraintTop_toBottomOf="@id/itemComment_topViewGroup"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintVertical_bias="0">
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_reddit_silver"
@@ -180,7 +180,7 @@
                 android:visibility="@{comment.gildings != null &amp;&amp; comment.gildings.silver != null ? View.VISIBLE : View.GONE}"
                 tools:text="99"/>
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_reddit_gold"
@@ -196,7 +196,7 @@
                 android:visibility="@{comment.gildings != null &amp;&amp; comment.gildings.gold != null ? View.VISIBLE : View.GONE}"
                 tools:text="99"/>
 
-            <ImageView
+            <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="16dp"
                 android:layout_height="16dp"
                 android:src="@drawable/ic_reddit_platinum"
@@ -214,8 +214,8 @@
 
         </LinearLayout>
 
-        <ImageView
-            android:id="@+id/more_options"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/itemComment_moreOptions"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
@@ -227,7 +227,7 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
-            android:id="@+id/body_message"
+            android:id="@+id/itemComment_bodyMessage"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_marginStart="8dp"
@@ -236,9 +236,9 @@
             android:layout_marginBottom="8dp"
             android:visibility="@{comment.collapsed == true ? View.GONE : View.VISIBLE}"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/more_options"
-            app:layout_constraintStart_toEndOf="@id/indent"
-            app:layout_constraintTop_toBottomOf="@id/gildings_view_group"
+            app:layout_constraintEnd_toStartOf="@id/itemComment_moreOptions"
+            app:layout_constraintStart_toEndOf="@id/itemComment_indent"
+            app:layout_constraintTop_toBottomOf="@id/itemComment_gildingsViewGroup"
             tools:text="This is what the comment body will look like. The quick brown fox jumps over the lazy dog." />
 
     </androidx.constraintlayout.widget.ConstraintLayout>

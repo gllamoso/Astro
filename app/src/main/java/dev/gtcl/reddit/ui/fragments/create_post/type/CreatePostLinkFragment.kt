@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import android.webkit.URLUtil
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProviders
 import dev.gtcl.reddit.LinkPost
 import dev.gtcl.reddit.R
@@ -16,7 +15,7 @@ import dev.gtcl.reddit.databinding.FragmentCreatePostLinkBinding
 import dev.gtcl.reddit.ui.fragments.create_post.CreatePostVM
 import java.net.URL
 
-class LinkFragment: Fragment() {
+class CreatePostLinkFragment: Fragment() {
 
     private lateinit var binding: FragmentCreatePostLinkBinding
 
@@ -44,32 +43,32 @@ class LinkFragment: Fragment() {
     }
 
     private fun initObservers(){
-        model.fetchInput.observe(viewLifecycleOwner, Observer {
+        model.fetchInput.observe(viewLifecycleOwner, {
             if(it == true){
-                val text = binding.urlText.text.toString()
-                if(text.isNullOrEmpty()){
-                    binding.textInputLayout.error = getString(R.string.required)
+                val text = binding.fragmentCreatePostLinkText.text.toString()
+                if(text.isEmpty()){
+                    binding.fragmentCreatePostLinkTextInputLayout.error = getString(R.string.required)
                 } else {
                     try{
                         if(!URLUtil.isValidUrl(text)){
                             throw Exception()
                         }
-                        val url = URL(binding.urlText.text.toString())
+                        val url = URL(binding.fragmentCreatePostLinkText.text.toString())
                         model.setPostContent(LinkPost(url))
                     } catch(e: Exception){
-                        binding.textInputLayout.error = getString(R.string.invalid)
+                        binding.fragmentCreatePostLinkTextInputLayout.error = getString(R.string.invalid)
                     }
                 }
                 model.dataFetched()
             }
         })
 
-        binding.urlText.addTextChangedListener(object: TextWatcher{
+        binding.fragmentCreatePostLinkText.addTextChangedListener(object: TextWatcher{
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.textInputLayout.error = null
+                binding.fragmentCreatePostLinkTextInputLayout.error = null
             }
         })
     }

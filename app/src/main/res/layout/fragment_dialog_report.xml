@@ -36,14 +36,14 @@
                 android:orientation="vertical">
 
                 <RadioGroup
-                    android:id="@+id/radio_group"
+                    android:id="@+id/fragmentDialogReport_radioGroup"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:padding="16dp"
                     android:visibility="@{!model.loading ? View.VISIBLE : View.GONE}"/>
 
                 <com.google.android.material.textfield.TextInputLayout
-                    android:id="@+id/other_rule_layout"
+                    android:id="@+id/fragmentDialogReport_otherRuleLayout"
                     android:layout_width="match_parent"
                     style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
                     android:layout_height="wrap_content"
@@ -54,7 +54,7 @@
                     android:hint="@string/other_rule_broken_description">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/other_rule_text"
+                        android:id="@+id/fragmentDialogReport_otherRuleText"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:maxLines="3" />

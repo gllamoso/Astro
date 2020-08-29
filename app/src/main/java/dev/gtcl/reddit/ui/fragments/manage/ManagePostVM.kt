@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import dev.gtcl.reddit.models.reddit.listing.Flair
 
-class ManagePostVM(): ViewModel(){
+class ManagePostVM: ViewModel(){
 
     private val _flair = MutableLiveData<Flair?>().apply { value = null }
     val flair: LiveData<Flair?>

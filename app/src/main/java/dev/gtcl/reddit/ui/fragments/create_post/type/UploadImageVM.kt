@@ -6,7 +6,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.reddit.RedditApplication
 
-class UploadImageVM(private val application: RedditApplication): AndroidViewModel(application){
+class UploadImageVM(application: RedditApplication): AndroidViewModel(application){
 
     private val _uri = MutableLiveData<Uri?>()
     val uri: LiveData<Uri?>

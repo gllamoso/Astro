@@ -6,7 +6,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.RedditApplication
@@ -14,13 +13,13 @@ import dev.gtcl.reddit.USER_KEY
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentAccountAboutBinding
 
-class UserAboutFragment : Fragment() {
+class AccountAboutFragment : Fragment() {
 
     private lateinit var binding: FragmentAccountAboutBinding
 
-    val model: UserAboutVM by lazy {
+    val model: AccountAboutVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as RedditApplication)
-        ViewModelProvider(this, viewModelFactory).get(UserAboutVM::class.java)
+        ViewModelProvider(this, viewModelFactory).get(AccountAboutVM::class.java)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
@@ -32,24 +31,24 @@ class UserAboutFragment : Fragment() {
         model.fetchAwards()
 
         val adapter = AwardsAdapter()
-        model.awards.observe(viewLifecycleOwner, Observer {
+        model.awards.observe(viewLifecycleOwner, {
             adapter.submitList(it)
         })
 
-        model.errorMessage.observe(viewLifecycleOwner, Observer {
+        model.errorMessage.observe(viewLifecycleOwner, {
             if(it != null){
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }
         })
 
-        binding.awardsList.adapter = adapter
+        binding.fragmentAccountAboutAwardsList.adapter = adapter
         return binding.root
     }
 
     companion object{
-        fun newInstance(user: String?): UserAboutFragment{
-            val fragment = UserAboutFragment()
+        fun newInstance(user: String?): AccountAboutFragment{
+            val fragment = AccountAboutFragment()
             val args = bundleOf(USER_KEY to user)
             fragment.arguments = args
             return fragment

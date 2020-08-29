@@ -1,15 +1,13 @@
 package dev.gtcl.reddit.ui.fragments
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentResultListener
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResultListener
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -51,7 +49,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 
     override fun onResume() {
         super.onResume()
-        backPressedCallback.isEnabled = binding.viewpager.currentItem != 0
+        backPressedCallback.isEnabled = binding.fragmentViewPagerViewPager.currentItem != 0
     }
 
     private fun initViewPagerAdapter(){
@@ -62,14 +60,14 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
             pageAdapter.addPage(args.startingPage)
         }
 
-        activityModel.newPage.observe(viewLifecycleOwner, Observer {
+        activityModel.newPage.observe(viewLifecycleOwner, {
             if(it != null){
                 newPage(it)
                 activityModel.newPageObserved()
             }
         })
 
-        binding.viewpager.apply {
+        binding.fragmentViewPagerViewPager.apply {
             adapter = pageAdapter
             isUserInputEnabled = model.isViewPagerSwipeEnabled
             offscreenPageLimit = 3
@@ -92,37 +90,37 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
     private fun initBackPressedCallback(){
         backPressedCallback = object: OnBackPressedCallback(true){
             override fun handleOnBackPressed() {
-                val currentPage = binding.viewpager.currentItem
-                binding.viewpager.setCurrentItem(currentPage - 1, true)
+                val currentPage = binding.fragmentViewPagerViewPager.currentItem
+                binding.fragmentViewPagerViewPager.setCurrentItem(currentPage - 1, true)
             }
         }
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback)
     }
 
     private fun initObservers() {
-        model.swipeEnabled.observe(viewLifecycleOwner, Observer {
-            binding.viewpager.isUserInputEnabled = it
+        model.swipeEnabled.observe(viewLifecycleOwner, {
+            binding.fragmentViewPagerViewPager.isUserInputEnabled = it
         })
 
-        model.navigateToPreviousPage.observe(viewLifecycleOwner, Observer {
+        model.navigateToPreviousPage.observe(viewLifecycleOwner, {
             if(it != null){
-                val currentPage = binding.viewpager.currentItem
-                binding.viewpager.setCurrentItem(currentPage - 1, true)
+                val currentPage = binding.fragmentViewPagerViewPager.currentItem
+                binding.fragmentViewPagerViewPager.setCurrentItem(currentPage - 1, true)
                 model.navigateToPreviousPageObserved()
             }
         })
 
-        model.linkClicked.observe(viewLifecycleOwner, Observer {
+        model.linkClicked.observe(viewLifecycleOwner, {
             if(it != null){
                 handleLink(it)
                 model.linkObserved()
             }
         })
 
-        childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner){ _, bundle ->
+        childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
             val url = bundle.getString(URL_KEY)!!
             newPage(ContinueThreadPage(url, null, false))
-        }
+        })
     }
 
 //     _   _             _             _   _                            _   _
@@ -161,8 +159,8 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
     private fun newPage(page: ViewPagerPage){
         pageAdapter.addPage(page)
         model.pages.add(page)
-        val currentPage = binding.viewpager.currentItem
-        binding.viewpager.setCurrentItem(currentPage + 1, true)
+        val currentPage = binding.fragmentViewPagerViewPager.currentItem
+        binding.fragmentViewPagerViewPager.setCurrentItem(currentPage + 1, true)
     }
 
     override fun handleLink(link: String) {
@@ -175,6 +173,8 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
             UrlType.REDDIT_COMMENTS -> newPage(ContinueThreadPage(link, null, true))
             UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
             UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_PICTURE)).show(childFragmentManager, null)
+            UrlType.REDGIFS -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.REDGIFS)).show(childFragmentManager, null)
+            null -> throw IllegalArgumentException("Unable to determin link type: link")
         }
     }
 

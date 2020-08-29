@@ -9,7 +9,6 @@ import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.models.reddit.AccessToken
 import dev.gtcl.reddit.models.reddit.listing.*
 import dev.gtcl.reddit.network.NetworkState
-import dev.gtcl.reddit.repositories.reddit.ListingRepository
 import dev.gtcl.reddit.repositories.reddit.MiscRepository
 import dev.gtcl.reddit.repositories.reddit.SubredditRepository
 import dev.gtcl.reddit.repositories.reddit.UserRepository

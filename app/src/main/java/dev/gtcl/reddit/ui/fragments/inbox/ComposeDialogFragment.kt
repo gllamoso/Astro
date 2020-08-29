@@ -11,7 +11,6 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
@@ -50,50 +49,50 @@ class ComposeDialogFragment : DialogFragment(){
         if(!model.initialized){
             val user = arguments?.getString(USER_KEY)
             if(user != null){
-                binding.toText.setText(user)
+                binding.fragmentDialogComposeMessageToText.setText(user)
             } else {
                 val sharedPrefs = requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
                 val to = sharedPrefs.getString(TO_KEY, "")
                 val subject = sharedPrefs.getString(SUBJECT_KEY, "")
                 val message = sharedPrefs.getString(MESSAGE_KEY, "")
-                binding.toText.setText(to)
-                binding.subjectText.setText(subject)
-                binding.messageText.setText(message)
+                binding.fragmentDialogComposeMessageToText.setText(to)
+                binding.fragmentDialogComposeMessageSubjectText.setText(subject)
+                binding.fragmentDialogComposeMessageMessageText.setText(message)
             }
         }
 
-        binding.toolbar.setNavigationOnClickListener {
+        binding.fragmentDialogComposeMessageToolbar.setNavigationOnClickListener {
             if(model.isLoading.value != true) {
                 dismiss()
             }
         }
 
-        binding.toolbar.setOnMenuItemClickListener {
+        binding.fragmentDialogComposeMessageToolbar.setOnMenuItemClickListener {
             if(model.isLoading.value == true){
                 return@setOnMenuItemClickListener false
             }
-            val to = binding.toText.text.toString()
-            val subject = binding.subjectText.text.toString()
-            val message = binding.messageText.text.toString()
+            val to = binding.fragmentDialogComposeMessageToText.text.toString()
+            val subject = binding.fragmentDialogComposeMessageSubjectText.text.toString()
+            val message = binding.fragmentDialogComposeMessageMessageText.text.toString()
             var valid = true
 
             if(to.isBlank()){
-                binding.toInputLayout.error = getString(R.string.required)
+                binding.fragmentDialogComposeMessageToInputLayout.error = getString(R.string.required)
                 valid = false
             }
 
             if(subject.isBlank()){
-                binding.subjectInputLayout.error = getString(R.string.required)
+                binding.fragmentDialogComposeMessageSubjectInputLayout.error = getString(R.string.required)
                 valid = false
             }
 
             if(subject.length > 100){
-                binding.subjectInputLayout.error = getString(R.string.invalid)
+                binding.fragmentDialogComposeMessageSubjectInputLayout.error = getString(R.string.invalid)
                 valid = false
             }
 
             if(message.isBlank()){
-                binding.messageInputLayout.error = getString(R.string.required)
+                binding.fragmentDialogComposeMessageMessageInputLayout.error = getString(R.string.required)
                 valid = false
             }
 
@@ -105,28 +104,28 @@ class ComposeDialogFragment : DialogFragment(){
             return@setOnMenuItemClickListener false
         }
 
-        model.errorMessage.observe(viewLifecycleOwner, Observer {
+        model.errorMessage.observe(viewLifecycleOwner, {
             if(it != null){
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }
         })
 
-        model.isLoading.observe(viewLifecycleOwner, Observer {
+        model.isLoading.observe(viewLifecycleOwner, {
             dialog?.apply {
                 setCancelable(!it)
                 setCanceledOnTouchOutside(!it)
             }
         })
 
-        model.userDoesNotExist.observe(viewLifecycleOwner, Observer {
+        model.userDoesNotExist.observe(viewLifecycleOwner, {
             if(it != null){
-                binding.toInputLayout.error = getString(R.string.user_does_not_exist)
+                binding.fragmentDialogComposeMessageToInputLayout.error = getString(R.string.user_does_not_exist)
                 model.userDoesNotExistObserved()
             }
         })
 
-        model.messageSent.observe(viewLifecycleOwner, Observer {
+        model.messageSent.observe(viewLifecycleOwner, {
             if(it){
                 dismiss()
             }
@@ -140,27 +139,27 @@ class ComposeDialogFragment : DialogFragment(){
     }
 
     private fun setTextChangeListeners(){
-        binding.toText.addTextChangedListener(object: TextWatcher{
+        binding.fragmentDialogComposeMessageToText.addTextChangedListener(object: TextWatcher{
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.toInputLayout.error = null
+                binding.fragmentDialogComposeMessageToInputLayout.error = null
             }
         })
 
-        binding.subjectText.addTextChangedListener(object: TextWatcher{
+        binding.fragmentDialogComposeMessageSubjectText.addTextChangedListener(object: TextWatcher{
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.subjectInputLayout.error = null
+                binding.fragmentDialogComposeMessageSubjectInputLayout.error = null
             }
         })
 
-        binding.messageText.addTextChangedListener(object: TextWatcher{
+        binding.fragmentDialogComposeMessageMessageText.addTextChangedListener(object: TextWatcher{
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.messageInputLayout.error = null
+                binding.fragmentDialogComposeMessageMessageInputLayout.error = null
             }
         })
     }
@@ -170,9 +169,9 @@ class ComposeDialogFragment : DialogFragment(){
         if(model.messageSent.value == true){
             clearSharedPreferenceDraft()
         } else {
-            val to = binding.toText.text.toString()
-            val subject = binding.subjectText.text.toString()
-            val message = binding.messageText.text.toString()
+            val to = binding.fragmentDialogComposeMessageToText.text.toString()
+            val subject = binding.fragmentDialogComposeMessageSubjectText.text.toString()
+            val message = binding.fragmentDialogComposeMessageMessageText.text.toString()
             if(to.isNotBlank() || subject.isNotBlank() || message.isNotBlank()){
                 val bundle = bundleOf(TO_KEY to to, SUBJECT_KEY to subject, MESSAGE_KEY to message)
                 setFragmentResult(DRAFT_KEY, bundle)

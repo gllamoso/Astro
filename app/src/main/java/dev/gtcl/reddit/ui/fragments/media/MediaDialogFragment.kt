@@ -2,14 +2,12 @@ package dev.gtcl.reddit.ui.fragments.media
 
 import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
@@ -60,7 +58,7 @@ class MediaDialogFragment : DialogFragment(){
         initTopbar()
         initBottomBar()
 
-        model.errorMessage.observe(viewLifecycleOwner, Observer {
+        model.errorMessage.observe(viewLifecycleOwner, {
             if(it != null){
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
                 model.errorMessageObserved()
@@ -74,17 +72,17 @@ class MediaDialogFragment : DialogFragment(){
         val mediaListAdapter =
             MediaListAdapter { position ->
                 model.setItemPosition(position)
-                binding.drawerLayout.closeDrawer(GravityCompat.END)
+                binding.fragmentMediaDialogDrawer.closeDrawer(GravityCompat.END)
             }
 
-        model.mediaItems.observe(viewLifecycleOwner, Observer {
-            if(binding.viewpager.adapter == null){
+        model.mediaItems.observe(viewLifecycleOwner, {
+            if(binding.fragmentMediaDialogViewpager.adapter == null){
                 val swipeToDismissAdapter =
                     MediaSwipeToDismissAdapter(
                         this,
                         it
                     )
-                binding.viewpager.apply {
+                binding.fragmentMediaDialogViewpager.apply {
                     this.adapter = swipeToDismissAdapter
                     currentItem = 1
                     registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
@@ -106,15 +104,15 @@ class MediaDialogFragment : DialogFragment(){
                                 positionOffset
                             }
                             val multiplier = 1000
-                            binding.topToolbar.translationY = -multiplier * offset
-                            binding.bottomBarControls.root.translationY = multiplier * offset
+                            binding.fragmentMediaDialogToolbar.translationY = -multiplier * offset
+                            binding.fragmentMediaDialogBottomBar.translationY = multiplier * offset
                         }
                     })
                 }
             }
             mediaListAdapter.submitList(it)
 
-            binding.drawerLayout.setDrawerLockMode(
+            binding.fragmentMediaDialogDrawer.setDrawerLockMode(
                 if(it.size > 1) DrawerLayout.LOCK_MODE_UNLOCKED else DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
                 GravityCompat.END
             )
@@ -122,15 +120,19 @@ class MediaDialogFragment : DialogFragment(){
 
 
 
-        binding.albumThumbnails.adapter = mediaListAdapter
+        binding.fragmentMediaDialogAlbumThumbnails.adapter = mediaListAdapter
     }
 
     private fun initTopbar(){
-        binding.albumIcon.setOnClickListener {
-            binding.drawerLayout.openDrawer(GravityCompat.END)
+        binding.fragmentMediaDialogAlbumButton.setOnClickListener {
+            binding.fragmentMediaDialogDrawer.openDrawer(GravityCompat.END)
         }
 
-        binding.topToolbar.setNavigationOnClickListener {
+        binding.fragmentMediaDialogNavigationButton.setOnClickListener {
+            dismiss()
+        }
+
+        binding.fragmentMediaDialogToolbar.setNavigationOnClickListener {
             dismiss()
         }
     }
@@ -152,25 +154,23 @@ class MediaDialogFragment : DialogFragment(){
         val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
         model.setPost(postPage?.post)
 
-        binding.bottomBarControls.apply {
-            commentButton.setOnClickListener {
-                if (postPage != null) {
-                    activityModel.newPage(postPage)
-                }
-                dismiss()
+        binding.fragmentMediaDialogComments.setOnClickListener {
+            if (postPage != null) {
+                activityModel.newPage(postPage)
             }
+            dismiss()
+        }
 
-            shareButton.setOnClickListener {
-                val shareIntent = Intent(Intent.ACTION_SEND)
-                shareIntent.type = "text/plain"
-                shareIntent.putExtra(Intent.EXTRA_SUBJECT, getText(R.string.share_subject_message))
-                shareIntent.putExtra(Intent.EXTRA_TEXT, mediaUrl.url)
-                startActivity(Intent.createChooser(shareIntent, null))
-            }
+        binding.fragmentMediaDialogShare.setOnClickListener {
+            val shareIntent = Intent(Intent.ACTION_SEND)
+            shareIntent.type = "text/plain"
+            shareIntent.putExtra(Intent.EXTRA_SUBJECT, getText(R.string.share_subject_message))
+            shareIntent.putExtra(Intent.EXTRA_TEXT, mediaUrl.url)
+            startActivity(Intent.createChooser(shareIntent, null))
+        }
 
-            downloadButton.setOnClickListener {
-                model.downloadCurrentItem()
-            }
+        binding.fragmentMediaDialogDownload.setOnClickListener {
+            model.downloadCurrentItem()
         }
     }
 

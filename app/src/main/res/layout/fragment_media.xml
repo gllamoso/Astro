@@ -16,32 +16,33 @@
         android:background="@android:color/transparent">
 
         <com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
-            android:id="@+id/scale_image_view"
+            android:id="@+id/fragmentMedia_scaleImageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="@{model.mediaURL.mediaType == MediaType.PICTURE ? View.VISIBLE : View.GONE}"
             app:tileBackgroundColor="@android:color/transparent"
             app:zoomEnabled="true"/>
 
-        <ImageView
-            android:id="@+id/image_view"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/fragmentMedia_imageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="@{model.mediaURL.mediaType == MediaType.GIF ? View.VISIBLE : View.GONE}" />
 
         <com.google.android.exoplayer2.ui.PlayerView
-            android:id="@+id/player_view"
+            android:id="@+id/fragmentMedia_playerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:visibility="@{(model.mediaURL.mediaType == MediaType.GFYCAT || model.mediaURL.mediaType == MediaType.VIDEO) ? View.VISIBLE : View.GONE}"
             android:layout_gravity="center"
+            android:layout_marginVertical="?android:attr/actionBarSize"
             app:show_buffering="always"
             app:resize_mode="fit"
             app:surface_type="texture_view"
             app:use_controller="false"/>
 
         <com.google.android.exoplayer2.ui.PlayerControlView
-            android:id="@+id/player_controller"
+            android:id="@+id/fragmentMedia_playerController"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             app:show_timeout="0"
@@ -49,7 +50,7 @@
             android:layout_marginBottom="?android:attr/actionBarSize" />
 
         <ProgressBar
-            android:id="@+id/progress_bar"
+            android:id="@+id/fragmentMedia_progressBar"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"

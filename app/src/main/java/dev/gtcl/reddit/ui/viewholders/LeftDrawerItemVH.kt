@@ -19,7 +19,7 @@ class LeftDrawerItemVH private constructor(private val binding: ItemLeftDrawerBi
         }
 
         if(onRightIconClicked != null){
-            binding.rightIconView.setOnClickListener {
+            binding.itemLeftDrawerRightIcon.setOnClickListener {
                 onRightIconClicked()
             }
         }

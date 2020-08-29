@@ -1,17 +1,14 @@
 package dev.gtcl.reddit.ui.viewholders
 
 import android.content.Context
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import android.widget.RelativeLayout
 import androidx.recyclerview.widget.RecyclerView
-import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.actions.UserActions
 import dev.gtcl.reddit.databinding.ItemUserBinding
-import dev.gtcl.reddit.databinding.PopupPostOptionsBinding
 import dev.gtcl.reddit.databinding.PopupUserActionsBinding
 import dev.gtcl.reddit.models.reddit.User
 import dev.gtcl.reddit.models.reddit.UserType
@@ -21,11 +18,11 @@ class UserVH private constructor(private val binding: ItemUserBinding): Recycler
     fun bind(user: User, userType: UserType, userActions: UserActions){
         binding.user = user
 
-        binding.background.setOnClickListener {
+        binding.itemUserBackground.setOnClickListener {
             userActions.viewProfile(user)
         }
 
-        binding.moreOptions.setOnClickListener {
+        binding.itemUserMoreOptions.setOnClickListener {
             showPopupWindow(user, userType, userActions, it)
         }
 
@@ -39,17 +36,17 @@ class UserVH private constructor(private val binding: ItemUserBinding): Recycler
         popupBinding.apply {
             this.userType = userType
             executePendingBindings()
-            viewProfile.root.setOnClickListener {
+            popupUserActionsProfile.root.setOnClickListener {
                 userActions.viewProfile(user)
                 popupWindow.dismiss()
             }
             if(userType == UserType.FRIEND){
-                message.root.setOnClickListener {
+                popupUserActionsMessage.root.setOnClickListener {
                     userActions.message(user)
                     popupWindow.dismiss()
                 }
             }
-            remove.root.setOnClickListener{
+            popupUserActionsRemove.root.setOnClickListener{
                 userActions.remove(adapterPosition)
                 popupWindow.dismiss()
             }

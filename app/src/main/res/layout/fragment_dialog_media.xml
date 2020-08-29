@@ -15,29 +15,42 @@
     </data>
 
     <androidx.drawerlayout.widget.DrawerLayout
-        android:id="@+id/drawer_layout"
+        android:id="@+id/fragmentMediaDialog_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
-        <androidx.coordinatorlayout.widget.CoordinatorLayout
+        <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/top_toolbar"
+                android:id="@+id/fragmentMediaDialog_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
-                app:navigationIcon="@drawable/ic_back_arrow_24"
                 android:background="@drawable/gradient_transparent_bottom_to_top"
                 android:elevation="1dp"
+                app:contentInsetStart="0dp"
                 android:visibility="@{activityModel.showUi &amp;&amp; !model.loading ? View.VISIBLE : View.GONE}">
 
                 <LinearLayout
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
-                    android:orientation="horizontal">
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical">
 
-                    <TextView
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/fragmentMediaDialog_navigationButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@drawable/ic_back_arrow_24"
+                        android:padding="2dp"
+                        android:layout_marginVertical="8dp"
+                        android:layout_marginStart="16dp"
+                        android:layout_marginEnd="32dp"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        app:tint="@android:color/white"/>
+
+                    <androidx.appcompat.widget.AppCompatTextView
                         android:layout_width="0dp"
                         android:layout_height="match_parent"
                         android:layout_weight="1"
@@ -47,13 +60,17 @@
                         android:gravity="center|start"
                         android:textColor="@android:color/white"/>
 
-                    <ImageView
-                        android:id="@+id/album_icon"
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/fragmentMediaDialog_albumButton"
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:src="@drawable/ic_baseline_art_track_24"
-                        android:padding="16dp"
-                        android:tint="@android:color/white"
+                        android:padding="2dp"
+                        android:layout_marginVertical="8dp"
+                        android:layout_marginStart="8dp"
+                        android:layout_marginEnd="16dp"
+                        android:background="?android:attr/selectableItemBackgroundBorderless"
+                        app:tint="@android:color/white"
                         android:visibility="@{model.mediaItems.size() > 1 ? View.VISIBLE : View.GONE}"/>
 
                 </LinearLayout>
@@ -61,7 +78,7 @@
             </androidx.appcompat.widget.Toolbar>
 
             <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/viewpager"
+                android:id="@+id/fragmentMediaDialog_viewpager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:elevation="0dp"
@@ -74,21 +91,76 @@
                 android:visibility="@{model.loading ? View.VISIBLE : View.GONE}"
                 android:elevation="10dp"/>
 
-            <include
-                android:id="@+id/bottom_bar_controls"
+            <LinearLayout
+                android:id="@+id/fragmentMediaDialog_bottomBar"
                 android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                android:background="@drawable/gradient_transparent_top_to_bottom"
-                layout="@layout/layout_media_buttons"
-                app:hasPostUrl="@{model.post != null}"
+                android:layout_height="?android:attr/actionBarSize"
+                android:orientation="horizontal"
                 android:layout_gravity="bottom"
-                android:visibility="@{activityModel.showUi &amp;&amp; !model.loading ? View.VISIBLE : View.GONE}"
-                />
+                android:background="@drawable/gradient_transparent_top_to_bottom"
+                android:gravity="center"
+                android:visibility="@{activityModel.showUi &amp;&amp; !model.loading ? View.VISIBLE : View.GONE}">
 
-        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/fragmentMediaDialog_comments"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_comments_24"
+                    app:tint="@android:color/white"
+                    android:layout_margin="8dp"
+                    android:elevation="10dp"
+                    android:visibility="@{model.post != null ? View.VISIBLE : View.GONE}"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:padding="2dp"/>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="2"
+                    android:visibility="@{model.post != null ? View.VISIBLE : View.GONE}"/>
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/fragmentMediaDialog_share"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_share_24"
+                    app:tint="@android:color/white"
+                    android:layout_margin="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:padding="2dp"/>
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="2"/>
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/fragmentMediaDialog_download"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_download_24"
+                    app:tint="@android:color/white"
+                    android:layout_margin="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:padding="2dp"
+                    />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
+                    android:layout_weight="1"/>
+
+            </LinearLayout>
+
+        </FrameLayout>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/album_thumbnails"
+            android:id="@+id/fragmentMediaDialog_albumThumbnails"
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"

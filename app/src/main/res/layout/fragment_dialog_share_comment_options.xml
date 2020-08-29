@@ -9,13 +9,13 @@
         android:orientation="vertical">
 
         <include
-            android:id="@+id/link"
+            android:id="@+id/fragmentDialogShareComments_link"
             layout="@layout/item_icon_and_text"
             app:iconDrawable="@{@drawable/ic_link_24}"
             app:title="@{@string/share_link}"/>
 
         <include
-            android:id="@+id/text"
+            android:id="@+id/fragmentDialogShareComments_text"
             layout="@layout/item_icon_and_text"
             app:iconDrawable="@{@drawable/ic_comment_24}"
             app:title="@{@string/share_text}"/>

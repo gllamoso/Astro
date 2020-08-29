@@ -3,14 +3,12 @@ package dev.gtcl.reddit.ui.fragments.media.list.item
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -57,8 +55,8 @@ class MediaFragment : Fragment(){
     }
 
     private fun initSubsamplingImageView(){
-        binding.playerController.hide()
-        model.mediaURL.observe(viewLifecycleOwner, Observer {
+        binding.fragmentMediaPlayerController.hide()
+        model.mediaURL.observe(viewLifecycleOwner, {
             val url = it.url.replace("http://", "https://")
             Glide.with(requireContext())
                 .asBitmap()
@@ -87,18 +85,18 @@ class MediaFragment : Fragment(){
 
                 })
                 .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
-                .into(SubsamplingScaleImageViewTarget(binding.scaleImageView))
+                .into(SubsamplingScaleImageViewTarget(binding.fragmentMediaScaleImageView))
         })
 
-        binding.scaleImageView.setOnClickListener {
+        binding.fragmentMediaScaleImageView.setOnClickListener {
             activityModel.toggleUi()
         }
     }
 
     private fun initGifToImageView(){
 
-        binding.playerController.hide()
-        model.mediaURL.observe(viewLifecycleOwner, Observer {
+        binding.fragmentMediaPlayerController.hide()
+        model.mediaURL.observe(viewLifecycleOwner, {
             val url = it.url.replace("http://", "https://")
             Glide.with(requireContext())
                 .load(url)
@@ -125,28 +123,28 @@ class MediaFragment : Fragment(){
                     }
 
                 })
-                .into(binding.imageView)
+                .into(binding.fragmentMediaImageView)
         })
 
-        binding.imageView.setOnClickListener {
+        binding.fragmentMediaImageView.setOnClickListener {
             activityModel.toggleUi()
         }
     }
 
     private fun initVideoPlayer(){
-        model.player.observe(viewLifecycleOwner, Observer {simpleExoPlayer ->
+        model.player.observe(viewLifecycleOwner, {simpleExoPlayer ->
             if(simpleExoPlayer != null) {
-                binding.playerView.player = simpleExoPlayer
-                binding.playerController.player = simpleExoPlayer
+                binding.fragmentMediaPlayerView.player = simpleExoPlayer
+                binding.fragmentMediaPlayerController.player = simpleExoPlayer
                 model.setLoadingState(false)
             }
         })
 
-        activityModel.showUi.observe(viewLifecycleOwner, Observer {
+        activityModel.showUi.observe(viewLifecycleOwner, {
             if(it){
-                binding.playerController.show()
+                binding.fragmentMediaPlayerController.show()
             } else {
-                binding.playerController.hide()
+                binding.fragmentMediaPlayerController.hide()
             }
         })
 

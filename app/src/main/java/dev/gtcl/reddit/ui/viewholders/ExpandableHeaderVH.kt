@@ -3,10 +3,10 @@ package dev.gtcl.reddit.ui.viewholders
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import dev.gtcl.reddit.databinding.ItemExpandibleBinding
+import dev.gtcl.reddit.databinding.ItemExpandableBinding
 import dev.gtcl.reddit.rotateView
 
-class ExpandableHeaderVH private constructor(private val binding: ItemExpandibleBinding): RecyclerView.ViewHolder(binding.root){
+class ExpandableHeaderVH private constructor(private val binding: ItemExpandableBinding): RecyclerView.ViewHolder(binding.root){
     fun bind(expandableItem: ExpandableItem, showTopDivider: Boolean){
         binding.expandableItem = expandableItem
         binding.showTopDivider = showTopDivider
@@ -16,7 +16,7 @@ class ExpandableHeaderVH private constructor(private val binding: ItemExpandible
             expandableItem.apply {
                 if(expandable){
                     expanded = !expanded
-                    rotateView(binding.collapseIndicator, expanded)
+                    rotateView(binding.itemExpandableCollapseIndicator, expanded)
                     onExpand(expanded)
                 }
             }
@@ -25,7 +25,7 @@ class ExpandableHeaderVH private constructor(private val binding: ItemExpandible
 
     companion object{
         fun create(parent: ViewGroup): ExpandableHeaderVH {
-            return ExpandableHeaderVH(ItemExpandibleBinding.inflate(LayoutInflater.from(parent.context)))
+            return ExpandableHeaderVH(ItemExpandableBinding.inflate(LayoutInflater.from(parent.context)))
         }
     }
 }

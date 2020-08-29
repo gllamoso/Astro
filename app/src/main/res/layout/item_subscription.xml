@@ -23,12 +23,12 @@
         android:paddingHorizontal="8dp"
         android:paddingVertical="4dp">
 
-        <ImageView
+        <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:layout_margin="8dp"
             app:subscriptionIcon="@{sub}"
-            app:tint="@{iconTint}"
+            app:colorTint="@{iconTint}"
             tools:src="@drawable/ic_reddit_circle_24"
             tools:tint="@color/colorAccent"/>
 
@@ -41,8 +41,8 @@
             android:text="@{sub.displayName}"
             tools:text="Subreddit Name" />
 
-        <ImageView
-            android:id="@+id/edit_button"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/itemSubscription_editButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
@@ -50,8 +50,8 @@
             android:src="@drawable/ic_pencil_24"
             android:visibility="@{sub.type == SubscriptionType.MULTIREDDIT ? View.VISIBLE : View.GONE}"/>
 
-        <ImageView
-            android:id="@+id/favorite_button"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/itemSubscription_favoriteButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="?attr/selectableItemBackgroundBorderless"
@@ -59,8 +59,8 @@
             android:src="@drawable/ic_favorite_unfilled_24"
             app:favorite="@{sub.favorite}" />
 
-        <ImageView
-            android:id="@+id/remove_button"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/itemSubscription_removeButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="16dp"

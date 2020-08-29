@@ -10,7 +10,7 @@ import dev.gtcl.reddit.network.NetworkState
 class NetworkStateItemVH private constructor(private val binding: ItemNetworkStateBinding) : RecyclerView.ViewHolder(binding.root) {
     fun bind(networkState: NetworkState?, retryCallback: () -> Unit) {
         binding.networkState = networkState
-        binding.retryButton.setOnClickListener {
+        binding.itemNetworkStateRetryButton.setOnClickListener {
             retryCallback()
         }
         binding.executePendingBindings()

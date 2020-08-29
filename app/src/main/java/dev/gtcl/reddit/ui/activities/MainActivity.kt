@@ -3,14 +3,10 @@ package dev.gtcl.reddit.ui.activities
 import android.Manifest
 import android.net.Uri
 import android.os.Bundle
-import android.util.Log
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.ActivityCompat
-import androidx.core.content.ContentProviderCompat.requireContext
-import androidx.core.content.ContextCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -30,8 +26,8 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
-        navController = findNavController(R.id.nav_host_fragment)
-        model.openChromeTab.observe(this, Observer {
+        navController = findNavController(R.id.activityMain_navHostFragment)
+        model.openChromeTab.observe(this, {
             if (it != null) {
                 val url = if(it.startsWith("/")){
                     "https://www.reddit.com${it}"
@@ -56,7 +52,7 @@ class MainActivity : FragmentActivity() {
             1
         ) // TODO: Move somewhere
 
-        model.errorMessage.observe(this, Observer {
+        model.errorMessage.observe(this, {
             if(it != null){
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
                 model.errorMessageObserved()

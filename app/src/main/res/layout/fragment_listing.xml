@@ -14,7 +14,7 @@
 
 
     <androidx.drawerlayout.widget.DrawerLayout
-        android:id="@+id/drawer_layout"
+        android:id="@+id/fragmentListing_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?android:attr/colorBackground">
@@ -24,7 +24,7 @@
             android:layout_height="match_parent">
 
             <include
-                android:id="@+id/top_app_bar"
+                android:id="@+id/fragmentListing_topAppBarLayout"
                 layout="@layout/layout_top_app_bar_listing"
                 app:subreddit="@{model.subreddit}"
                 app:titleText="@{model.title}" />
@@ -36,7 +36,7 @@
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
                 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
-                    android:id="@+id/swipe_refresh"
+                    android:id="@+id/fragmentListing_swipeRefresh"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent">
 
@@ -54,7 +54,7 @@
                             android:visibility="@{model.networkState.status == Status.RUNNING ? View.VISIBLE : View.GONE}" />
 
                         <androidx.recyclerview.widget.RecyclerView
-                            android:id="@+id/list"
+                            android:id="@+id/fragmentListing_list"
                             android:tag="recycler_view"
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
@@ -71,7 +71,7 @@
             </LinearLayout>
 
             <com.google.android.material.bottomappbar.BottomAppBar
-                android:id="@+id/bottom_bar"
+                android:id="@+id/fragmentListing_bottomAppBar"
                 android:layout_width="match_parent"
                 android:layout_height="?android:attr/actionBarSize"
                 android:layout_gravity="bottom"
@@ -79,7 +79,7 @@
                 app:layout_behavior="dev.gtcl.reddit.ui.fragments.listing.BottomNavigationBehavior">
 
                 <include
-                    android:id="@+id/bottom_bar_layout"
+                    android:id="@+id/fragmentListing_bottomAppBarLayout"
                     layout="@layout/layout_listing_bottom_bar"/>
 
             </com.google.android.material.bottomappbar.BottomAppBar>
@@ -87,14 +87,14 @@
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
         <include
-            android:id="@+id/left_drawer_layout"
+            android:id="@+id/fragmentListing_leftDrawerLayout"
             android:layout_width="240dp"
             android:layout_height="match_parent"
             android:layout_gravity="start"
             layout="@layout/layout_left_drawer"/>
 
         <include
-            android:id="@+id/right_drawer_layout"
+            android:id="@+id/fragmentListing_rightDrawerLayout"
             android:layout_width="240dp"
             android:layout_height="match_parent"
             android:layout_gravity="end"

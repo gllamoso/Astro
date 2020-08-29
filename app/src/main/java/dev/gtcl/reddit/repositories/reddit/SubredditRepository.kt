@@ -172,12 +172,6 @@ class SubredditRepository private constructor(private val application: RedditApp
             database.subscriptionDao.insert(multi.asSubscription())
         }
     }
-    @MainThread
-    suspend fun insertAccount(account: Account){
-        withContext(Dispatchers.IO){
-            database.subscriptionDao.insert(account.asSubscription(application.currentAccount?.id ?: GUEST_ID))
-        }
-    }
 
     // UPDATE
     suspend fun addToFavorites(subscription: Subscription, favorite: Boolean){
@@ -206,17 +200,10 @@ class SubredditRepository private constructor(private val application: RedditApp
     suspend fun deleteSubscription(subreddit: Subreddit){
         deleteSubscription(subreddit.asSubscription(application.currentAccount?.id ?: GUEST_ID))
     }
-    @MainThread
-    suspend fun deleteSubscription(account: Account){
-        deleteSubscription(account.asSubscription(application.currentAccount?.id ?: GUEST_ID))
-    }
 
     // GET
     suspend fun searchMySubscriptionsExcludingMultireddits(startsWith: String) = database.subscriptionDao.searchSubscriptionsExcludingMultiReddits(application.currentAccount?.id ?: GUEST_ID, "$startsWith%")
-    suspend fun getMySubscription(subredditName: String) = database.subscriptionDao.getSubscription("${subredditName}__${application.currentAccount?.id ?: GUEST_ID}")
-    suspend fun getMySubscriptions() = database.subscriptionDao.getSubscriptionsAlphabetically(application.currentAccount?.id ?: GUEST_ID)
     suspend fun getMySubscriptions(subscriptionType: SubscriptionType) = database.subscriptionDao.getSubscriptionsAlphabetically(application.currentAccount?.id ?: GUEST_ID, subscriptionType)
-    suspend fun getMySubscriptionsExcludingMultireddits() = database.subscriptionDao.getSubscriptionsAlphabeticallyExcluding(application.currentAccount?.id ?: GUEST_ID, SubscriptionType.MULTIREDDIT)
     suspend fun getMyFavoriteSubscriptions() = database.subscriptionDao.getFavoriteSubscriptionsAlphabetically(application.currentAccount?.id ?: GUEST_ID)
     suspend fun getMyFavoriteSubscriptions(subscriptionType: SubscriptionType) = database.subscriptionDao.getFavoriteSubscriptionsAlphabetically(application.currentAccount?.id ?: GUEST_ID, subscriptionType)
     suspend fun getMyFavoriteSubscriptionsExcludingMultireddits() = database.subscriptionDao.getFavoriteSubscriptionsAlphabeticallyExcluding(application.currentAccount?.id ?: GUEST_ID, SubscriptionType.MULTIREDDIT)

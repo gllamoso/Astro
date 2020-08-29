@@ -9,6 +9,7 @@
       <w>crosspostable</w>
       <w>downvote</w>
       <w>downvoted</w>
+      <w>ffmpeg</w>
       <w>fullname</w>
       <w>gfycat</w>
       <w>gfycats</w>
@@ -26,10 +27,13 @@
       <w>recyclerview</w>
       <w>reddit</w>
       <w>reddits</w>
+      <w>redgifs</w>
       <w>richtext</w>
       <w>selftext</w>
       <w>subreddit</w>
       <w>subreddits</w>
+      <w>subsample</w>
+      <w>subsampling</w>
       <w>unfriend</w>
       <w>unhide</w>
       <w>unsave</w>

@@ -61,12 +61,6 @@ interface SubscriptionDao{
     @Query("select * from subscriptions where userId = :userId and isFavorite = 1 and type != :excluding order by displayName collate nocase asc")
     suspend fun getFavoriteSubscriptionsAlphabeticallyExcluding(userId: String, excluding: SubscriptionType): List<Subscription>
 
-    @Query("select * from subscriptions where userId = :userId order by displayName collate nocase asc")
-    suspend fun getSubscriptionsAlphabetically(userId: String): List<Subscription>
-
-    @Query("select * from subscriptions where userId = :userId and type != :excluding order by displayName collate nocase asc")
-    suspend fun getSubscriptionsAlphabeticallyExcluding(userId: String, excluding: SubscriptionType): List<Subscription>
-
     @Query("select * from subscriptions where userId = :userId and type = :type order by displayName collate nocase asc")
     suspend fun getSubscriptionsAlphabetically(userId: String, type: SubscriptionType): List<Subscription>
 

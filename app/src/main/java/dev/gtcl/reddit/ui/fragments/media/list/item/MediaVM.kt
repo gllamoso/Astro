@@ -10,7 +10,6 @@ import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import com.google.android.exoplayer2.ui.PlayerControlView
 import dev.gtcl.reddit.MediaType
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.buildMediaSource
@@ -20,7 +19,6 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
-import java.lang.ref.WeakReference
 
 class MediaVM(private val application: RedditApplication): AndroidViewModel(application){
 
@@ -105,24 +103,9 @@ class MediaVM(private val application: RedditApplication): AndroidViewModel(appl
         }
     }
 
-    fun pausePlayer(){
-        _player.value?.let{0
-            it.playWhenReady = false
-        }
-    }
-
-    fun resumePlayer(){
-        _player.value?.let {0
-            it.playWhenReady = true
-        }
-    }
-
     fun setLoadingState(loading: Boolean){
         _isLoading.value = loading
     }
-
-    val playerIsPlaying: Boolean
-        get() = _player.value?.isPlaying ?: false
 
     override fun onCleared() {
         super.onCleared()

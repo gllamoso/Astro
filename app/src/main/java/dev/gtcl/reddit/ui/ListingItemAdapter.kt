@@ -10,7 +10,6 @@ import dev.gtcl.reddit.network.Status
 import dev.gtcl.reddit.ui.viewholders.*
 import io.noties.markwon.Markwon
 import java.io.InvalidObjectException
-import java.lang.reflect.Array.set
 
 class ListingItemAdapter(
     private val markwon: Markwon?,

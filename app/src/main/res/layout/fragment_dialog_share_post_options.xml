@@ -16,9 +16,9 @@
         android:orientation="vertical">
 
         <include
+            android:id="@+id/fragmentDialogSharePostOptions_link"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/link"
             android:visibility="@{post.url != null ? View.VISIBLE : View.GONE}"
             layout="@layout/item_icon_and_text"
             app:iconDrawable="@{@drawable/ic_link_24}"
@@ -26,16 +26,16 @@
             app:subtext="@{post.url != null ? post.url : &quot;&quot;}"/>
 
         <include
-            android:id="@+id/comments"
+            android:id="@+id/fragmentDialogSharePostOptions_comments"
             layout="@layout/item_icon_and_text"
             app:iconDrawable="@{@drawable/ic_comments_24}"
             app:title="@{@string/share_comments}"
             app:subtext="@{post.permalinkWithRedditDomain}"/>
 
         <include
+            android:id="@+id/fragmentDialogSharePostOptions_crosspost"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/crosspost"
             layout="@layout/item_icon_and_text"
             android:visibility="@{post.crosspostable ? View.VISIBLE : View.GONE}"
             app:iconDrawable="@{@drawable/ic_crosspost_24}"
@@ -48,13 +48,13 @@
             android:background="@android:color/darker_gray"/>
 
         <include
-            android:id="@+id/title_and_link"
+            android:id="@+id/fragmentDialogSharePostOptions_titleAndLink"
             layout="@layout/item_icon_and_text"
             app:iconDrawable="@{@drawable/ic_text_24}"
             app:title="@{@string/share_title_link}"/>
 
         <include
-            android:id="@+id/shortlink"
+            android:id="@+id/fragmentDialogSharePostOptions_shortLink"
             layout="@layout/item_icon_and_text"
             app:iconDrawable="@{@drawable/ic_link_24}"
             app:title="@{@string/share_shortlink}"

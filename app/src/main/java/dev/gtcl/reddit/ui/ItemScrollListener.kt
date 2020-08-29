@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.ui
 
-import android.util.Log
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 

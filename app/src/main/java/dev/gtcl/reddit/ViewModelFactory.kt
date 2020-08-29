@@ -8,7 +8,7 @@ import dev.gtcl.reddit.ui.fragments.ViewPagerVM
 import dev.gtcl.reddit.ui.fragments.comments.CommentsVM
 import dev.gtcl.reddit.ui.fragments.listing.ListingVM
 import dev.gtcl.reddit.ui.fragments.item_scroller.ItemScrollerVM
-import dev.gtcl.reddit.ui.fragments.account.pages.about.UserAboutVM
+import dev.gtcl.reddit.ui.fragments.account.pages.about.AccountAboutVM
 import dev.gtcl.reddit.ui.fragments.account.pages.blocked.BlockedVM
 import dev.gtcl.reddit.ui.fragments.account.pages.friends.FriendsVM
 import dev.gtcl.reddit.ui.fragments.create_post.CreatePostVM
@@ -26,7 +26,6 @@ import dev.gtcl.reddit.ui.fragments.reply_or_edit.ReplyOrEditVM
 import dev.gtcl.reddit.ui.fragments.report.ReportVM
 import dev.gtcl.reddit.ui.fragments.rules.RulesVM
 import dev.gtcl.reddit.ui.fragments.search.SearchVM
-import dev.gtcl.reddit.ui.fragments.subscriptions.trending.TrendingListVM
 import java.lang.IllegalArgumentException
 
 @Suppress("UNCHECKED_CAST")
@@ -40,9 +39,8 @@ class ViewModelFactory(private val application: RedditApplication) : ViewModelPr
             modelClass.isAssignableFrom(CommentsVM::class.java) -> CommentsVM(application) as T
             modelClass.isAssignableFrom(MainActivityVM::class.java) -> MainActivityVM(application) as T
             modelClass.isAssignableFrom(AccountFragmentVM::class.java) -> AccountFragmentVM(application) as T
-            modelClass.isAssignableFrom(UserAboutVM::class.java) -> UserAboutVM(application) as T
+            modelClass.isAssignableFrom(AccountAboutVM::class.java) -> AccountAboutVM(application) as T
             modelClass.isAssignableFrom(ItemScrollerVM::class.java) -> ItemScrollerVM(application) as T
-            modelClass.isAssignableFrom(TrendingListVM::class.java) -> TrendingListVM(application) as T
             modelClass.isAssignableFrom(SubscriptionsVM::class.java) -> SubscriptionsVM(application) as T
             modelClass.isAssignableFrom(SearchVM::class.java) -> SearchVM(application) as T
             modelClass.isAssignableFrom(MultiRedditVM::class.java) -> MultiRedditVM(application) as T

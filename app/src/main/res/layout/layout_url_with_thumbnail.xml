@@ -18,8 +18,8 @@
         android:padding="16dp"
         android:background="?android:attr/selectableItemBackground">
 
-        <ImageView
-            android:id="@+id/url_icon"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/layoutUrlWithThumbnail_icon"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/ic_link_24"
@@ -29,7 +29,7 @@
             app:layout_constraintVertical_bias="0" />
 
         <TextView
-            android:id="@+id/url_text"
+            android:id="@+id/layoutUrlWithThumbnail_url"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
@@ -39,22 +39,22 @@
             android:text="@{url}"
             android:textColor="@android:color/holo_blue_dark"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/frame_layout"
-            app:layout_constraintStart_toEndOf="@id/url_icon"
+            app:layout_constraintEnd_toStartOf="@id/layoutUrlWithThumbnail_thumbnailBackground"
+            app:layout_constraintStart_toEndOf="@id/layoutUrlWithThumbnail_icon"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0"
             tools:text="https://www.reddit.com/" />
 
         <FrameLayout
-            android:id="@+id/frame_layout"
+            android:id="@+id/layoutUrlWithThumbnail_thumbnailBackground"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:background="@android:color/black"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent">
 
-            <ImageView
-                android:id="@+id/thumbnail"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/layoutUrlWithThumbnail_thumbnail"
                 android:layout_width="72dp"
                 android:layout_height="72dp"
                 app:loadImageAndHideIfNull="@{thumbnailUrl}"

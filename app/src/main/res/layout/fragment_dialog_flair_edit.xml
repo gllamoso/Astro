@@ -15,7 +15,7 @@
         android:orientation="vertical">
 
         <androidx.appcompat.widget.Toolbar
-            android:id="@+id/toolbar"
+            android:id="@+id/fragmentDialogFlairEdit_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             app:title="@{flair.text}"
@@ -32,7 +32,7 @@
             android:layout_height="wrap_content">
 
             <com.google.android.material.textfield.TextInputLayout
-                android:id="@+id/text_input_layout"
+                android:id="@+id/fragmentDialogFlairEdit_textInputLayout"
                 style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -41,7 +41,7 @@
                 android:layout_margin="16dp">
 
                 <androidx.appcompat.widget.AppCompatEditText
-                    android:id="@+id/text"
+                    android:id="@+id/fragmentDialogFlairEdit_text"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:singleLine="true"

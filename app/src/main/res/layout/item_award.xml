@@ -14,8 +14,8 @@
         android:layout_height="wrap_content"
         android:padding="8dp">
 
-        <ImageView
-            android:id="@+id/image"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/itemAward_image"
             android:layout_width="40dp"
             android:layout_height="40dp"
             android:layout_centerHorizontal="true"
@@ -23,12 +23,12 @@
             app:loadImage="@{award.icon70}"/>
 
         <TextView
-            android:id="@+id/name"
+            android:id="@+id/itemAward_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:singleLine="true"
             android:layout_centerInParent="true"
-            android:layout_below="@id/image"
+            android:layout_below="@id/itemAward_image"
             android:textAlignment="center"
             tools:text="Sample name"
             android:text="@{award.name}"

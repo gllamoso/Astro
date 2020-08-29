@@ -1,7 +1,6 @@
 package dev.gtcl.reddit.actions
 
 import dev.gtcl.reddit.Vote
-import dev.gtcl.reddit.models.reddit.listing.Comment
 import dev.gtcl.reddit.models.reddit.listing.Post
 
 interface PostActions {

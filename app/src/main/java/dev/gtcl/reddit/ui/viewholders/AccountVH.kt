@@ -13,7 +13,7 @@ class AccountVH private constructor(private val binding: ItemAccountBinding): Re
     fun bind(account: Account, subredditActions: SubredditActions, itemClickListener: ItemClickListener){
         binding.account = account
 
-        binding.addButton.setOnClickListener {
+        binding.itemAccountAddButton.setOnClickListener {
             account.subreddit.userSubscribed = !(account.subreddit.userSubscribed ?: false)
             subredditActions.subscribe(account.subreddit, account.subreddit.userSubscribed ?: false)
             binding.invalidateAll()

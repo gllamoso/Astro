@@ -5,7 +5,7 @@ import androidx.viewpager2.adapter.FragmentStateAdapter
 import dev.gtcl.reddit.PostSort
 import dev.gtcl.reddit.ProfileInfo
 import dev.gtcl.reddit.ui.fragments.item_scroller.ItemScrollerFragment
-import dev.gtcl.reddit.ui.fragments.account.pages.about.UserAboutFragment
+import dev.gtcl.reddit.ui.fragments.account.pages.about.AccountAboutFragment
 import dev.gtcl.reddit.ui.fragments.account.pages.blocked.BlockedFragment
 import dev.gtcl.reddit.ui.fragments.account.pages.friends.FriendsFragment
 import java.lang.IllegalArgumentException
@@ -17,7 +17,7 @@ class AccountStateAdapter (fragment: Fragment, private val user: String?): Fragm
     override fun createFragment(position: Int): Fragment {
         if(user == null){
             return when(position){
-                0 -> UserAboutFragment.newInstance(user)
+                0 -> AccountAboutFragment.newInstance(user)
                 1 -> ItemScrollerFragment.newInstance(ProfileInfo.OVERVIEW, PostSort.BEST, null, 15)
                 2 -> ItemScrollerFragment.newInstance(ProfileInfo.SUBMITTED, PostSort.BEST, null, 15)
                 3 -> ItemScrollerFragment.newInstance(ProfileInfo.COMMENTS, PostSort.BEST, null, 15)
@@ -33,7 +33,7 @@ class AccountStateAdapter (fragment: Fragment, private val user: String?): Fragm
         }
 
         return when(position){
-            0 -> UserAboutFragment.newInstance(user)
+            0 -> AccountAboutFragment.newInstance(user)
             1 -> ItemScrollerFragment.newInstance(ProfileInfo.OVERVIEW, PostSort.BEST, null, 15, user)
             2 -> ItemScrollerFragment.newInstance(ProfileInfo.SUBMITTED, PostSort.BEST, null, 15, user)
             3 -> ItemScrollerFragment.newInstance(ProfileInfo.COMMENTS, PostSort.BEST, null, 15, user)

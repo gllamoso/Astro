@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import dev.gtcl.reddit.RedditApplication
@@ -37,24 +36,24 @@ class FriendsFragment : Fragment(), UserActions{
         }
 
         val adapter = UserListAdapter(UserType.FRIEND, model::getFriends, this)
-        binding.list.adapter = adapter
+        binding.fragmentItemScrollerList.adapter = adapter
 
-        model.networkState.observe(viewLifecycleOwner, Observer {
+        model.networkState.observe(viewLifecycleOwner, {
             adapter.networkState = it
             if(it == NetworkState.LOADED){
-                binding.swipeRefresh.isRefreshing = false
+                binding.fragmentItemScrollerSwipeRefresh.isRefreshing = false
             }
         })
 
-        model.friends.observe(viewLifecycleOwner, Observer {
+        model.friends.observe(viewLifecycleOwner, {
             adapter.submitList(it)
         })
 
-        binding.swipeRefresh.setOnRefreshListener {
+        binding.fragmentItemScrollerSwipeRefresh.setOnRefreshListener {
             model.getFriends()
         }
 
-        model.removeAt.observe(viewLifecycleOwner, Observer {
+        model.removeAt.observe(viewLifecycleOwner, {
             if(it != null){
                 adapter.removeAt(it)
                 model.removeAtObserved()

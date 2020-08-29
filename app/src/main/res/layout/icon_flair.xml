@@ -16,7 +16,6 @@
         app:cardBackgroundColor="@android:color/holo_purple">
 
         <TextView
-            android:id="@+id/text_view"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingVertical="2dp"

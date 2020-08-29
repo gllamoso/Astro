@@ -155,7 +155,7 @@ class SubscriptionsAdapter(
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when(viewType){
-            R.layout.item_expandible -> ExpandableHeaderVH.create(parent)
+            R.layout.item_expandable -> ExpandableHeaderVH.create(parent)
             R.layout.item_listing -> ListingVH.create(parent)
             R.layout.item_subscription -> SubscriptionVH.create(parent)
             else -> throw IllegalArgumentException("Unknown view type $viewType")
@@ -189,7 +189,7 @@ class SubscriptionsAdapter(
                     || position == multisHeaderIndex
                     || position == favHeaderIndex
                     || position == usersHeaderIndex ->{
-                R.layout.item_expandible
+                R.layout.item_expandable
             }
             position > subredditsHeaderIndex -> {
                 R.layout.item_subscription

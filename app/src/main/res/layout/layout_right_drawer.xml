@@ -19,8 +19,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
-            <ImageView
-                android:id="@+id/sub_icon"
+            <androidx.appcompat.widget.AppCompatImageView
+                android:id="@+id/layoutRightDrawer_subIcon"
                 android:layout_width="64dp"
                 android:layout_height="64dp"
                 android:layout_margin="16dp"
@@ -30,17 +30,17 @@
                 app:subredditIcon="@{sub.icon}" />
 
             <include
-                android:id="@+id/subscribe_toggle"
+                android:id="@+id/layoutRightDrawer_subscribeToggle"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 layout="@layout/icon_subscribe"
                 android:layout_marginTop="8dp"
                 app:isSubscribed="@{sub.userSubscribed}"
-                app:layout_constraintTop_toBottomOf="@id/sub_icon"
-                app:layout_constraintStart_toStartOf="@id/sub_icon" />
+                app:layout_constraintTop_toBottomOf="@id/layoutRightDrawer_subIcon"
+                app:layout_constraintStart_toStartOf="@id/layoutRightDrawer_subIcon" />
 
             <TextView
-                android:id="@+id/sub_name"
+                android:id="@+id/layoutRightDrawer_subName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_marginHorizontal="8dp"
@@ -48,17 +48,17 @@
                 android:singleLine="true"
                 android:text="@{sub.displayName}"
                 android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                app:layout_constraintBottom_toBottomOf="@id/sub_icon"
-                app:layout_constraintTop_toTopOf="@id/sub_icon"
+                app:layout_constraintBottom_toBottomOf="@id/layoutRightDrawer_subIcon"
+                app:layout_constraintTop_toTopOf="@id/layoutRightDrawer_subIcon"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/sub_icon"
+                app:layout_constraintStart_toEndOf="@id/layoutRightDrawer_subIcon"
                 tools:text="Subreddit Name" />
 
             <TextView
-                android:id="@+id/public_description"
+                android:id="@+id/layoutRightDrawer_publicDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/subscribe_toggle"
+                app:layout_constraintTop_toBottomOf="@id/layoutRightDrawer_subscribeToggle"
                 android:padding="16dp"
                 tools:text="This is a long piece of text. Abcdefghijklmnopqrstuvwxyz. How are you today?"/>
 

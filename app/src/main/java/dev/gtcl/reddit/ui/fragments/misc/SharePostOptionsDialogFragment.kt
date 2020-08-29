@@ -19,7 +19,7 @@ class SharePostOptionsDialogFragment : DialogFragment(){
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentDialogSharePostOptionsBinding.inflate(inflater)
-        val post = requireArguments().getParcelable(POST_KEY) as Post
+        val post = requireArguments().getParcelable<Post>(POST_KEY)!!
         binding.post = post
         initClickListeners(post)
         binding.invalidateAll()
@@ -32,33 +32,33 @@ class SharePostOptionsDialogFragment : DialogFragment(){
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, getText(R.string.share_subject_message))
 
         if(post.url != null){
-            binding.link.root.setOnClickListener {
+            binding.fragmentDialogSharePostOptionsLink.root.setOnClickListener {
                 shareIntent.putExtra(Intent.EXTRA_TEXT, post.url)
                 startActivity(Intent.createChooser(shareIntent, null))
                 dismiss()
             }
         }
 
-        binding.comments.root.setOnClickListener {
+        binding.fragmentDialogSharePostOptionsComments.root.setOnClickListener {
             shareIntent.putExtra(Intent.EXTRA_TEXT, post.permalinkWithRedditDomain)
             startActivity(Intent.createChooser(shareIntent, null))
             dismiss()
         }
 
         if(post.isCrosspostable){
-            binding.crosspost.root.setOnClickListener {
+            binding.fragmentDialogSharePostOptionsCrosspost.root.setOnClickListener {
                 CreatePostDialogFragment.newInstance(post).show(parentFragmentManager, null)
                 dismiss()
             }
         }
 
-        binding.titleAndLink.root.setOnClickListener {
+        binding.fragmentDialogSharePostOptionsTitleAndLink.root.setOnClickListener {
             shareIntent.putExtra(Intent.EXTRA_TEXT, "${post.titleFormatted} - ${post.permalinkWithRedditDomain}")
             startActivity(Intent.createChooser(shareIntent, null))
             dismiss()
         }
 
-        binding.shortlink.root.setOnClickListener {
+        binding.fragmentDialogSharePostOptionsShortLink.root.setOnClickListener {
             shareIntent.putExtra(Intent.EXTRA_TEXT, post.shortLink)
             startActivity(Intent.createChooser(shareIntent, null))
             dismiss()

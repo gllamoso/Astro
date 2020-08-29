@@ -11,8 +11,5 @@ data class AccessToken(
     val expiresIn: Int,
     @Json(name="refresh_token")
     var refreshToken: String?){
-
-    private val timeStamp = System.currentTimeMillis()
-
     val authorizationHeader = "bearer $value"
 }

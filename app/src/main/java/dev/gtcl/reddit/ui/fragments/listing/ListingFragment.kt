@@ -13,8 +13,6 @@ import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResultListener
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
@@ -79,11 +77,11 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     ): View? {
         binding = FragmentListingBinding.inflate(inflater)
         binding.lifecycleOwner = viewLifecycleOwner
-        binding.rightDrawerLayout.lifecycleOwner = viewLifecycleOwner
+        binding.fragmentListingRightDrawerLayout.lifecycleOwner = viewLifecycleOwner
         binding.model = model
 
         if (!model.firstPageLoaded) {
-            val listing = requireArguments().getParcelable(LISTING_KEY) as Listing
+            val listing = requireArguments().getParcelable<Listing>(LISTING_KEY)!!
             model.setListing(listing)
             initData()
         }
@@ -98,7 +96,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     private fun initData(){
-        when(val listing = requireArguments().getParcelable(LISTING_KEY) as Listing){
+        when(val listing = requireArguments().getParcelable<Listing>(LISTING_KEY)){
             is SubredditListing -> model.fetchSubreddit(listing.displayName)
             is SubscriptionListing -> {
                 if(listing.subscription.type == SubscriptionType.SUBREDDIT){
@@ -111,7 +109,9 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     private fun initScroller() {
-        scrollListener = ItemScrollListener(15, binding.list.layoutManager as GridLayoutManager, model::loadMore)
+        val listView = binding.fragmentListingList
+        val swipeRefresh = binding.fragmentListingSwipeRefresh
+        scrollListener = ItemScrollListener(15, listView.layoutManager as GridLayoutManager, model::loadMore)
         val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val blurNsfw = preferences.getBoolean("blur_nsfw_thumbnail", false)
         val blurSpoiler = preferences.getBoolean("blur_spoiler_thumbnail", true)
@@ -125,23 +125,23 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             blurSpoiler = blurSpoiler,
             itemClickListener = this,
             username = currentAccount?.name){
-            binding.list.apply {
+            listView.apply {
                 removeOnScrollListener(scrollListener)
                 addOnScrollListener(scrollListener)
                 model.retry()
             }
         }
-        binding.list.apply {
+        listView.apply {
             this.adapter = listAdapter
             addOnScrollListener(scrollListener)
         }
 
-        model.items.observe(viewLifecycleOwner, Observer {
+        model.items.observe(viewLifecycleOwner, {
             scrollListener.finishedLoading()
             listAdapter.submitList(it)
         })
 
-        model.moreItems.observe(viewLifecycleOwner, Observer {
+        model.moreItems.observe(viewLifecycleOwner, {
             if(it != null){
                 scrollListener.finishedLoading()
                 listAdapter.addItems(it)
@@ -149,27 +149,29 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             }
         })
 
-        model.networkState.observe(viewLifecycleOwner, Observer {
+        model.networkState.observe(viewLifecycleOwner, {
             listAdapter.networkState = it
             if (it == NetworkState.LOADED || it.status == Status.FAILED) {
-                binding.swipeRefresh.isRefreshing = false
+                swipeRefresh.isRefreshing = false
             }
         })
 
-        model.lastItemReached.observe(viewLifecycleOwner, Observer {
+        model.lastItemReached.observe(viewLifecycleOwner, {
             if (it == true) {
-                binding.list.removeOnScrollListener(scrollListener)
+                listView.removeOnScrollListener(scrollListener)
             }
         })
 
-        binding.swipeRefresh.setOnRefreshListener {
+        swipeRefresh.setOnRefreshListener {
             if(model.networkState.value == NetworkState.LOADING){
-                binding.swipeRefresh.isRefreshing = false
+                swipeRefresh.isRefreshing = false
                 return@setOnRefreshListener
             }
 
-            binding.list.removeOnScrollListener(scrollListener)
-            binding.list.addOnScrollListener(scrollListener)
+            listView.apply {
+                removeOnScrollListener(scrollListener)
+                addOnScrollListener(scrollListener)
+            }
             initData()
         }
     }
@@ -177,67 +179,71 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     @SuppressLint("RtlHardcoded")
     private fun initLeftDrawer() {
         val leftDrawerAdapter = LeftDrawerAdapter(requireContext(), this, LeftDrawerHeader.HOME)
-        binding.leftDrawerLayout.list.adapter = leftDrawerAdapter
-        binding.leftDrawerLayout.account = (requireActivity().application as RedditApplication).currentAccount
+        val leftDrawerLayout = binding.fragmentListingLeftDrawerLayout
+        leftDrawerLayout.layoutLeftDrawerList.adapter = leftDrawerAdapter
+        leftDrawerLayout.account = (requireActivity().application as RedditApplication).currentAccount
 
-        activityModel.allUsers.observe(viewLifecycleOwner, Observer {
+        activityModel.allUsers.observe(viewLifecycleOwner, {
             leftDrawerAdapter.submitUsers(it)
         })
 
-        model.leftDrawerExpanded.observe(viewLifecycleOwner, Observer {
+        model.leftDrawerExpanded.observe(viewLifecycleOwner, {
             leftDrawerAdapter.isExpanded = it
         })
 
-        binding.leftDrawerLayout.banner.setOnClickListener {
+        leftDrawerLayout.layoutLeftDrawerBanner.setOnClickListener {
             model.toggleLeftDrawerExpanding()
         }
 
-        binding.topAppBar.toolbar.setNavigationOnClickListener {
-            binding.drawerLayout.openDrawer(Gravity.LEFT)
+        binding.fragmentListingTopAppBarLayout.layoutTopAppBarListingToolbar.setNavigationOnClickListener {
+            binding.fragmentListingDrawer.openDrawer(Gravity.LEFT)
         }
 
-        model.leftDrawerExpanded.observe(viewLifecycleOwner, Observer {
-            rotateView(binding.leftDrawerLayout.expandedIndicator, it)
+        model.leftDrawerExpanded.observe(viewLifecycleOwner, {
+            rotateView(leftDrawerLayout.layoutLeftDrawerExpandedIndicator, it)
         })
     }
 
     @SuppressLint("RtlHardcoded")
     private fun initRightDrawer() {
-        binding.topAppBar.sideBarButton.setOnClickListener {
-            binding.drawerLayout.openDrawer(Gravity.RIGHT)
+        val topAppBar = binding.fragmentListingTopAppBarLayout
+        val drawer = binding.fragmentListingDrawer
+        val rightDrawerLayout = binding.fragmentListingRightDrawerLayout
+        topAppBar.layoutTopAppBarListingSideBarButton.setOnClickListener {
+            drawer.openDrawer(Gravity.RIGHT)
         }
 
-        binding.rightDrawerLayout.lifecycleOwner = this
-        model.subreddit.observe(viewLifecycleOwner, Observer { sub ->
+        rightDrawerLayout.lifecycleOwner = this
+        model.subreddit.observe(viewLifecycleOwner, { sub ->
             if (sub != null) {
-                binding.rightDrawerLayout.subscribeToggle.background.setOnClickListener {
+                rightDrawerLayout.layoutRightDrawerSubscribeToggle.iconSubscribeBackground.setOnClickListener {
                     sub.userSubscribed = sub.userSubscribed != true
-                    binding.rightDrawerLayout.invalidateAll()
+                    rightDrawerLayout.invalidateAll()
                     subscribe(sub, (sub.userSubscribed == true))
                 }
-                binding.drawerLayout.setDrawerLockMode(
+                drawer.setDrawerLockMode(
                     DrawerLayout.LOCK_MODE_UNLOCKED,
                     Gravity.RIGHT
                 )
-                markwon.setMarkdown(binding.rightDrawerLayout.publicDescription, sub.publicDescription + "\n\n" + sub.description)
+                markwon.setMarkdown(rightDrawerLayout.layoutRightDrawerPublicDescription, sub.publicDescription + "\n\n" + sub.description)
             } else {
-                binding.rightDrawerLayout.subscribeToggle.background.isClickable = false
-                binding.drawerLayout.setDrawerLockMode(
+                rightDrawerLayout.layoutRightDrawerSubscribeToggle.iconSubscribeBackground.isClickable = false
+                drawer.setDrawerLockMode(
                     DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
                     Gravity.RIGHT
                 )
-                binding.topAppBar.collapsingToolbarLayout.contentScrim = null
+                topAppBar.layoutTopAppBarListingCollapsingToolbar.contentScrim = null
                 val typedValue = TypedValue()
                 val theme = requireContext().theme
                 theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-                binding.topAppBar.toolbar.setBackgroundColor(typedValue.data)
+                topAppBar.layoutTopAppBarListingToolbar.setBackgroundColor(typedValue.data)
             }
         })
     }
 
     private fun initBottomBar() {
-
-        binding.bottomBarLayout.sortButton.setOnClickListener {anchor ->
+        val bottomBarLayout = binding.fragmentListingBottomAppBarLayout
+        bottomBarLayout.layoutListingBottomBarSortButton.setOnClickListener {anchor ->
             val currentSort = model.postSort.value!!
             val currentTime = model.time.value
             val onSortSelected: (PostSort) -> Unit = { postSortSelected ->
@@ -259,66 +265,70 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             }
         }
 
-        binding.bottomBarLayout.subredditButton.setOnClickListener {
+        bottomBarLayout.layoutListingBottomBarSubredditButton.setOnClickListener {
             SubscriptionsDialogFragment().show(childFragmentManager, null)
         }
 
-        binding.bottomBarLayout.refreshButton.setOnClickListener {
+        bottomBarLayout.layoutListingBottomBarRefreshButton.setOnClickListener {
             initData()
         }
 
-        binding.bottomBarLayout.moreOptionsButton.setOnClickListener {
+        bottomBarLayout.layoutListingBottomBarMoreOptionsButton.setOnClickListener {
             showMoreOptionsPopup(it)
         }
     }
 
     @SuppressLint("WrongConstant")
     private fun initOtherObservers() {
-        model.errorMessage.observe(viewLifecycleOwner, Observer {
+        model.errorMessage.observe(viewLifecycleOwner, {
             if (it != null) {
-                binding.drawerLayout.closeDrawer(Gravity.START)
-                binding.drawerLayout.closeDrawer(Gravity.END)
+                binding.fragmentListingDrawer.apply {
+                    closeDrawer(Gravity.START)
+                    closeDrawer(Gravity.END)
+                }
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
             }
         })
 
-        childFragmentManager.setFragmentResultListener(LISTING_KEY, viewLifecycleOwner){ _, bundle ->
+        childFragmentManager.setFragmentResultListener(LISTING_KEY, viewLifecycleOwner, { _, bundle ->
             val listing = bundle.get(LISTING_KEY) as Listing
             if(listing is SubscriptionListing && listing.subscription.type == SubscriptionType.USER){
                 findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(listing.subscription.displayName)))
             } else {
                 findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(listing)))
             }
-        }
+        })
 
-        childFragmentManager.setFragmentResultListener(REPORT_KEY, viewLifecycleOwner){ _, bundle ->
+        childFragmentManager.setFragmentResultListener(REPORT_KEY, viewLifecycleOwner, { _, bundle ->
             val  position = bundle.getInt(POSITION_KEY, -1)
             if(position != -1){
                 model.removeItemAt(position)
                 listAdapter.removeAt(position)
             }
-        }
+        })
 
-        childFragmentManager.setFragmentResultListener(MANAGE_POST_KEY, viewLifecycleOwner){ _, bundle ->
-            val position = bundle.getInt(POST_KEY)
-            val nsfw = bundle.getBoolean(NSFW_KEY)
-            val spoiler = bundle.getBoolean(SPOILER_KEY)
-            val getNotification = bundle.getBoolean(GET_NOTIFICATIONS_KEY)
-            val flair = bundle.get(FLAIRS_KEY) as Flair?
-            val post = model.items.value!![position] as Post
-            activityModel.updatePost(post, nsfw, spoiler, getNotification, flair)
-            listAdapter.notifyItemChanged(position)
-        }
+        childFragmentManager.setFragmentResultListener(MANAGE_POST_KEY, viewLifecycleOwner,
+            { _, bundle ->
+                val position = bundle.getInt(POST_KEY)
+                val nsfw = bundle.getBoolean(NSFW_KEY)
+                val spoiler = bundle.getBoolean(SPOILER_KEY)
+                val getNotification = bundle.getBoolean(GET_NOTIFICATIONS_KEY)
+                val flair = bundle.get(FLAIRS_KEY) as Flair?
+                val post = model.items.value!![position] as Post
+                activityModel.updatePost(post, nsfw, spoiler, getNotification, flair)
+                listAdapter.notifyItemChanged(position)
+            })
 
-        childFragmentManager.setFragmentResultListener(NEW_REPLY_KEY, viewLifecycleOwner){ _, bundle ->
-            val item = bundle.get(ITEM_KEY) as Item
-            val position = bundle.getInt(POSITION_KEY)
-            val reply = bundle.getBoolean(NEW_REPLY_KEY)
-            if(!reply) {
-                model.updateItemAt(position, item)
-                listAdapter.updateAt(position, item)
-            }
-        }
+        childFragmentManager.setFragmentResultListener(NEW_REPLY_KEY, viewLifecycleOwner,
+            { _, bundle ->
+                val item = bundle.get(ITEM_KEY) as Item
+                val position = bundle.getInt(POSITION_KEY)
+                val reply = bundle.getBoolean(NEW_REPLY_KEY)
+                if(!reply) {
+                    model.updateItemAt(position, item)
+                    listAdapter.updateAt(position, item)
+                }
+            })
     }
 
 //     _____          _                  _   _
@@ -518,7 +528,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     @SuppressLint("RtlHardcoded")
     override fun onAddAccountClicked() {
         findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSignInFragment())
-        binding.drawerLayout.closeDrawer(Gravity.LEFT)
+        binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
     }
 
     override fun onRemoveAccountClicked(account: SavedAccount) {
@@ -539,7 +549,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         } else {
             model.toggleLeftDrawerExpanding()
         }
-        binding.drawerLayout.closeDrawer(Gravity.LEFT)
+        binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
@@ -551,38 +561,38 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         } else {
             model.toggleLeftDrawerExpanding()
         }
-        binding.drawerLayout.closeDrawer(Gravity.LEFT)
+        binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onHomeClicked() {
-        binding.drawerLayout.closeDrawer(Gravity.LEFT)
+        binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
         if ((activity?.application as RedditApplication).accessToken == null) {
-            Snackbar.make(binding.drawerLayout, R.string.please_login, Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(binding.fragmentListingDrawer, R.string.please_login, Snackbar.LENGTH_SHORT).show()
         } else {
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(null)))
-            binding.drawerLayout.closeDrawer(Gravity.LEFT)
+            binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
         }
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onInboxClicked() {
         if ((activity?.application as RedditApplication).accessToken == null) {
-            Snackbar.make(binding.drawerLayout, R.string.please_login, Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(binding.fragmentListingDrawer, R.string.please_login, Snackbar.LENGTH_SHORT).show()
         } else {
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(InboxPage))
-            binding.drawerLayout.closeDrawer(Gravity.LEFT)
+            binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
         }
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onSettingsClicked() {
         findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSettingsFragment())
-        binding.drawerLayout.closeDrawer(Gravity.LEFT)
+        binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
     }
 
 
@@ -601,27 +611,27 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         val popupWindow = PopupWindow()
         popupBinding.apply {
             sort = currentSort
-            best.root.setOnClickListener {
+            popupPostSortBest.root.setOnClickListener {
                 onSortSelected(PostSort.BEST)
                 popupWindow.dismiss()
             }
-            hot.root.setOnClickListener {
+            popupPostSortHot.root.setOnClickListener {
                 onSortSelected(PostSort.HOT)
                 popupWindow.dismiss()
             }
-            newSort.root.setOnClickListener {
+            popupPostSortNew.root.setOnClickListener {
                 onSortSelected(PostSort.NEW)
                 popupWindow.dismiss()
             }
-            top.root.setOnClickListener {
+            popupPostSortTop.root.setOnClickListener {
                 onSortSelected(PostSort.TOP)
                 popupWindow.dismiss()
             }
-            controversial.root.setOnClickListener {
+            popupPostSortControversial.root.setOnClickListener {
                 onSortSelected(PostSort.CONTROVERSIAL)
                 popupWindow.dismiss()
             }
-            rising.root.setOnClickListener {
+            popupPostSortRising.root.setOnClickListener {
                 onSortSelected(PostSort.RISING)
                 popupWindow.dismiss()
             }
@@ -641,23 +651,23 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         val popupWindow = PopupWindow()
         popupBinding.apply {
             sort = currentSort
-            mostRelevant.root.setOnClickListener {
+            popupSearchSortMostRelevant.root.setOnClickListener {
                 onSortSelected(PostSort.RELEVANCE)
                 popupWindow.dismiss()
             }
-            hot.root.setOnClickListener {
+            popupSearchSortHot.root.setOnClickListener {
                 onSortSelected(PostSort.HOT)
                 popupWindow.dismiss()
             }
-            newSort.root.setOnClickListener {
+            popupSearchSortNew.root.setOnClickListener {
                 onSortSelected(PostSort.NEW)
                 popupWindow.dismiss()
             }
-            top.root.setOnClickListener {
+            popupSearchSortTop.root.setOnClickListener {
                 onSortSelected(PostSort.TOP)
                 popupWindow.dismiss()
             }
-            commentCountSort.root.setOnClickListener {
+            popupSearchSortCommentCount.root.setOnClickListener {
                 onSortSelected(PostSort.COMMENTS)
                 popupWindow.dismiss()
             }
@@ -677,27 +687,27 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         val popupWindow = PopupWindow()
         popupBinding.apply {
             time = currentTimeSort
-            hour.root.setOnClickListener {
+            popupTimeSortHour.root.setOnClickListener {
                 onTimeSelected(Time.HOUR)
                 popupWindow.dismiss()
             }
-            day.root.setOnClickListener {
+            popupTimeSortDay.root.setOnClickListener {
                 onTimeSelected(Time.DAY)
                 popupWindow.dismiss()
             }
-            week.root.setOnClickListener {
+            popupTimeSortWeek.root.setOnClickListener {
                 onTimeSelected(Time.WEEK)
                 popupWindow.dismiss()
             }
-            month.root.setOnClickListener {
+            popupTimeSortMonth.root.setOnClickListener {
                 onTimeSelected(Time.MONTH)
                 popupWindow.dismiss()
             }
-            year.root.setOnClickListener {
+            popupTimeSortYear.root.setOnClickListener {
                 onTimeSelected(Time.YEAR)
                 popupWindow.dismiss()
             }
-            all.root.setOnClickListener {
+            popupTimeSortAll.root.setOnClickListener {
                 onTimeSelected(Time.ALL)
                 popupWindow.dismiss()
             }
@@ -713,23 +723,23 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
     private fun showMoreOptionsPopup(anchor: View){
         val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val popupBinding = PopupListingOptionsBinding.inflate(inflater)
+        val popupBinding = PopupListingActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
-            createPost.root.setOnClickListener {
+            popupListingActionsCreatePost.root.setOnClickListener {
                 val subredditName = model.subreddit.value?.displayName
                 CreatePostDialogFragment.newInstance(subredditName).show(parentFragmentManager, null)
                 popupWindow.dismiss()
             }
-            search.root.setOnClickListener {
+            popupListingActionsSearch.root.setOnClickListener {
                 findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSearchFragment(false))
                 popupWindow.dismiss()
             }
-            myAccount.root.setOnClickListener {
+            popupListingActionsMyAccount.root.setOnClickListener {
                 onMyAccountClicked()
                 popupWindow.dismiss()
             }
-            inbox.root.setOnClickListener {
+            popupListingActionsInbox.root.setOnClickListener {
                 onInboxClicked()
                 popupWindow.dismiss()
             }

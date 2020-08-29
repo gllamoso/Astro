@@ -22,7 +22,7 @@ class ShareCommentOptionsDialogFragment: DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentDialogShareCommentOptionsBinding.inflate(inflater)
-        val comment = requireArguments().getParcelable(COMMENT_KEY) as Comment
+        val comment = requireArguments().getParcelable<Comment>(COMMENT_KEY)!!
         initClickListeners(comment)
         return binding.root
     }
@@ -32,13 +32,13 @@ class ShareCommentOptionsDialogFragment: DialogFragment() {
         shareIntent.type = "text/plain"
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, getText(R.string.share_subject_message))
 
-        binding.link.root.setOnClickListener {
+        binding.fragmentDialogShareCommentsLink.root.setOnClickListener {
             shareIntent.putExtra(Intent.EXTRA_TEXT, comment.permalinkWithRedditDomain)
             startActivity(Intent.createChooser(shareIntent, null))
             dismiss()
         }
 
-        binding.text.root.setOnClickListener {
+        binding.fragmentDialogShareCommentsText.root.setOnClickListener {
             shareIntent.putExtra(Intent.EXTRA_TEXT, comment.bodyFormatted)
             startActivity(Intent.createChooser(shareIntent, null))
             dismiss()

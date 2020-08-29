@@ -8,7 +8,6 @@ import com.squareup.moshi.JsonDataException
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.getErrorMessage
-import dev.gtcl.reddit.repositories.reddit.ListingRepository
 import dev.gtcl.reddit.models.reddit.listing.Account
 import dev.gtcl.reddit.models.reddit.listing.TrophyListingResponse
 import dev.gtcl.reddit.repositories.reddit.MiscRepository
@@ -18,7 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class UserAboutVM(val application: RedditApplication) : AndroidViewModel(application){
+class AccountAboutVM(val application: RedditApplication) : AndroidViewModel(application){
     // Repos
     private val userRepository = UserRepository.getInstance(application)
     private val miscRepository = MiscRepository.getInstance(application)

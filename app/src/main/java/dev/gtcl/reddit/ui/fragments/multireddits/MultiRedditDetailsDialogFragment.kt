@@ -1,5 +1,7 @@
 package dev.gtcl.reddit.ui.fragments.multireddits
 
+import android.app.AlertDialog
+import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -18,42 +20,60 @@ import dev.gtcl.reddit.models.reddit.listing.MultiRedditUpdate
 class MultiRedditDetailsDialogFragment: DialogFragment() {
     private lateinit var binding: FragmentDialogMultiredditBinding
 
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
+        val builder = AlertDialog.Builder(context)
+            .setPositiveButton(R.string.done, null)
+            .setNegativeButton(R.string.cancel){_,_ ->}
+
+        binding = FragmentDialogMultiredditBinding.inflate(LayoutInflater.from(context))
+        builder.setView(binding.root)
+
+        return builder.create()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
         val multi = requireArguments().get(MULTI_KEY) as MultiReddit?
-        binding = FragmentDialogMultiredditBinding.inflate(inflater)
         binding.multi = multi
+        binding.fragmentDialogMultiRedditDisplayNameText.setText(multi?.displayName)
+        binding.fragmentDialogMultiRedditDescriptionText.setText(multi?.description)
         setSpinner(multi)
-        binding.displayNameInput.setText(multi?.displayName)
-        binding.descriptionInput.setText(multi?.description)
+        setOnClickListeners()
         binding.executePendingBindings()
-        return binding.root
+        return super.onCreateView(inflater, container, savedInstanceState)
     }
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        binding.exitButton.setOnClickListener {
+    private fun setOnClickListeners() {
+        binding.fragmentDialogMultiRedditToolbar.setNavigationOnClickListener {
             dismiss()
         }
-        binding.finishedButton.setOnClickListener {
-            val displayName = binding.displayNameInput.text?.toString()
-            if(displayName.isNullOrEmpty()){
-                binding.displayNameInput.error = getString(R.string.display_name_error)
-                return@setOnClickListener
+
+        dialog?.setOnShowListener {
+            val button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
+            button.setOnClickListener {
+                val displayName = binding.fragmentDialogMultiRedditDisplayNameText.text?.toString()
+                if(displayName.isNullOrEmpty() || displayName.length > 50){
+                    binding.fragmentDialogMultiRedditDisplayNameText.error = getString(R.string.invalid)
+                    return@setOnClickListener
+                }
+                val description = binding.fragmentDialogMultiRedditDescriptionText.text?.toString()
+                if(description?.length ?: 0 > 500){
+                    binding.fragmentDialogMultiRedditDescriptionText.error = getString(R.string.invalid)
+                    return@setOnClickListener
+                }
+                val visibility = when(binding.fragmentDialogMultiRedditVisibilitySpinner.selectedItemPosition){
+                    0 -> Visibility.PRIVATE
+                    1 -> Visibility.PUBLIC
+                    2 -> Visibility.HIDDEN
+                    else -> null
+                }
+                setFragmentResult(MULTI_KEY,
+                    bundleOf(MULTI_KEY to MultiRedditUpdate(displayName = displayName, description = description, visibility = visibility)))
+                dismiss()
             }
-            val description = binding.descriptionInput.text?.toString()
-            val visibility = when(binding.visibilitySpinner.selectedItemPosition){
-                0 -> Visibility.PRIVATE
-                1 -> Visibility.PUBLIC
-                2 -> Visibility.HIDDEN
-                else -> null
-            }
-            setFragmentResult(MULTI_KEY,
-                bundleOf(MULTI_KEY to MultiRedditUpdate(displayName = displayName, description = description, visibility = visibility)))
-            dismiss()
         }
     }
 
@@ -61,13 +81,13 @@ class MultiRedditDetailsDialogFragment: DialogFragment() {
         val strArray = arrayOf(resources.getString(R.string.private_label), resources.getString(R.string.public_label), resources.getString(R.string.hidden))
         val arrayAdapter = ArrayAdapter(requireContext(), android.R.layout.simple_spinner_item, strArray)
         arrayAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
-        binding.visibilitySpinner.adapter = arrayAdapter
+        binding.fragmentDialogMultiRedditVisibilitySpinner.adapter = arrayAdapter
 
         if(multi == null){
             return
         }
 
-        binding.visibilitySpinner.setSelection(when(multi.visibility){
+        binding.fragmentDialogMultiRedditVisibilitySpinner.setSelection(when(multi.visibility){
             Visibility.PRIVATE -> 0
             Visibility.PUBLIC -> 1
             Visibility.HIDDEN -> 2

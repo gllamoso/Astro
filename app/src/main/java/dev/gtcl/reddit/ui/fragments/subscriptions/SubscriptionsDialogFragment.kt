@@ -7,11 +7,10 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
-import android.widget.RelativeLayout
 import androidx.core.os.bundleOf
+import androidx.fragment.app.FragmentResultListener
 import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.setFragmentResultListener
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -21,8 +20,7 @@ import dev.gtcl.reddit.actions.ListingTypeClickListener
 import dev.gtcl.reddit.actions.SubscriptionActions
 import dev.gtcl.reddit.database.Subscription
 import dev.gtcl.reddit.databinding.FragmentDialogSubscriptionsBinding
-import dev.gtcl.reddit.databinding.PopupListingOptionsBinding
-import dev.gtcl.reddit.databinding.PopupSubscriptionOptionsBinding
+import dev.gtcl.reddit.databinding.PopupSubscriptionActionsBinding
 import dev.gtcl.reddit.models.reddit.listing.Listing
 import dev.gtcl.reddit.models.reddit.listing.MultiRedditUpdate
 import dev.gtcl.reddit.network.NetworkState
@@ -67,50 +65,50 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
                 this,
                 this
             )
-        binding.recyclerView.adapter = adapter
+        binding.fragmentDialogSubscriptionsRecyclerView.adapter = adapter
 
         if(activityModel.refreshState.value == null){
             model.fetchSubscriptions()
         }
 
-        activityModel.refreshState.observe(viewLifecycleOwner, Observer {
+        activityModel.refreshState.observe(viewLifecycleOwner, {
             if(it == NetworkState.LOADED){
                 model.fetchSubscriptions()
                 activityModel.refreshObserved()
             }
         })
 
-        model.subscriptions.observe(viewLifecycleOwner, Observer {
+        model.subscriptions.observe(viewLifecycleOwner, {
             if(it != null){
                 adapter.setSubscriptions(it.favorites, it.multiReddits, it.subreddits, it.users)
                 model.subscriptionsObserved()
             }
         })
 
-        activityModel.refreshState.observe(viewLifecycleOwner, Observer {
-            binding.progressBar.visibility = if(it == NetworkState.LOADING) View.VISIBLE else View.GONE
+        activityModel.refreshState.observe(viewLifecycleOwner, {
+            binding.fragmentDialogSubscriptionsProgressBar.visibility = if(it == NetworkState.LOADING) View.VISIBLE else View.GONE
         })
     }
 
     private fun setListeners(){
-        binding.toolbar.setNavigationOnClickListener {
+        binding.fragmentDialogSubscriptionsToolbar.setNavigationOnClickListener {
             dismiss()
         }
 
-        binding.search.setOnClickListener {
+        binding.fragmentDialogSubscriptionsSearch.setOnClickListener {
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSearchFragment(false))
             dismiss()
         }
 
-        binding.sync.setOnClickListener {
+        binding.fragmentDialogSubscriptionsSync.setOnClickListener {
             activityModel.syncSubscriptionsWithReddit()
         }
 
-        binding.moreOptions.setOnClickListener {
+        binding.fragmentDialogSubscriptionsMoreOptions.setOnClickListener {
             showMoreOptionsPopupWindow(it)
         }
 
-        model.errorMessage.observe(viewLifecycleOwner, Observer {
+        model.errorMessage.observe(viewLifecycleOwner, {
             if(it != null){
                 AlertDialog.Builder(requireContext())
                     .setMessage(it)
@@ -122,12 +120,12 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
             }
         })
 
-        childFragmentManager.setFragmentResultListener(MULTI_KEY, viewLifecycleOwner){ _, bundle ->
+        childFragmentManager.setFragmentResultListener(MULTI_KEY, viewLifecycleOwner, FragmentResultListener{ _, bundle ->
             val multiUpdate = bundle.get(MULTI_KEY) as MultiRedditUpdate
             model.createMulti(multiUpdate)
-        }
+        })
 
-        model.editSubscription.observe(viewLifecycleOwner, Observer {
+        model.editSubscription.observe(viewLifecycleOwner, {
             if(it != null){
                 editMultiReddit(it)
             }
@@ -136,10 +134,10 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
 
     private fun showMoreOptionsPopupWindow(anchor: View){
         val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val popupBinding = PopupSubscriptionOptionsBinding.inflate(inflater)
+        val popupBinding = PopupSubscriptionActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
-            createMulti.root.setOnClickListener {
+            popupSubscriptionActionsCreateCustomFeed.root.setOnClickListener {
                 MultiRedditDetailsDialogFragment.newInstance(null).show(childFragmentManager, null)
                 popupWindow.dismiss()
             }

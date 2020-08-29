@@ -21,7 +21,7 @@
             android:layout_height="wrap_content">
 
             <androidx.appcompat.widget.Toolbar
-                android:id="@+id/toolbar"
+                android:id="@+id/fragmentSignIn_toolbar"
                 android:layout_width="match_parent"
                 android:layout_height="?attr/actionBarSize"
                 app:navigationIcon="@drawable/ic_back_arrow_24"
@@ -34,14 +34,14 @@
             android:layout_height="match_parent">
 
             <WebView
-                android:id="@+id/web_view"
+                android:id="@+id/fragmentSignIn_webView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:elevation="0dp"
                 android:visibility="@{model.loading ? View.GONE : View.VISIBLE}"/>
 
             <ProgressBar
-                android:id="@+id/progress_bar"
+                android:id="@+id/fragmentSignIn_progressBar"
                 android:layout_width="96dp"
                 android:layout_height="96dp"
                 android:layout_gravity="center"

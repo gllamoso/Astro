@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProviders
-import dev.gtcl.reddit.R
 import dev.gtcl.reddit.databinding.FragmentDialogAlbumNameBinding
 import dev.gtcl.reddit.ui.fragments.media.MediaDialogVM
 
@@ -27,17 +26,17 @@ class DownloadAlbumFragment: DialogFragment(){
     ): View? {
         binding = FragmentDialogAlbumNameBinding.inflate(inflater)
 
-        binding.toolbar.setOnMenuItemClickListener {
+        binding.fragmentDialogAlbumNameToolbar.setOnMenuItemClickListener {
             dismiss()
             true
         }
 
-        binding.text.addTextChangedListener(object : TextWatcher{
+        binding.fragmentDialogAlbumNameText.addTextChangedListener(object : TextWatcher{
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.textInputLayout.error = null
+                binding.fragmentDialogAlbumNameTextInputLayout.error = null
             }
         })
 

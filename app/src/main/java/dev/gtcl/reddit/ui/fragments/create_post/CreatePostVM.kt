@@ -206,7 +206,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
 
                 _newPostData.value = newPostResponse.json.data
             } catch (e: Exception){
-                if(e is JsonDataException && e.localizedMessage.startsWith("Required value 'data' missing")){
+                if(e is JsonDataException && e.localizedMessage?.startsWith("Required value 'data' missing") == true){
                     try{
                         val errorResponse = subredditRepository.submitUrlPostForErrors(
                             subreddit,
@@ -279,7 +279,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                 deleteRecursively()
                 mkdirs()
             }
-            val file = File.createTempFile("upload", ".jpg", storageDir)
+            val file = File.createTempFile("upload", ".jpg", storageDir) // TODO: Change
             val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
             inputStream.use { input ->
                 val outputStream = FileOutputStream(file)

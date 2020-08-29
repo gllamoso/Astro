@@ -11,19 +11,19 @@
     </data>
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/coordinator_layout"
+        android:id="@+id/fragmentAccount_background"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?android:attr/colorBackground">
 
         <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/app_bar_layout"
+            android:id="@+id/fragmentAccount_appbarLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:stateListAnimator="@drawable/selector_appbar_always_elevated">
 
             <com.google.android.material.appbar.CollapsingToolbarLayout
-                android:id="@+id/collapsing_toolbar_layout"
+                android:id="@+id/fragmentAccount_collapsingToolbarLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:contentScrim="?android:attr/colorBackground"
@@ -42,8 +42,8 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <ImageView
-                        android:id="@+id/profile_banner"
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/fragmentAccount_profileBanner"
                         android:layout_width="match_parent"
                         android:layout_height="175dp"
                         android:scaleType="centerCrop"
@@ -53,7 +53,7 @@
                         tools:src="@android:color/darker_gray" />
 
                     <View
-                        android:id="@+id/user_name_panel_expanded"
+                        android:id="@+id/fragmentAccount_userInfoBackground"
                         android:layout_width="match_parent"
                         android:layout_height="72dp"
                         android:orientation="vertical"
@@ -63,19 +63,19 @@
                         app:layout_constraintBottom_toBottomOf="parent"/>
 
                     <LinearLayout
-                        android:id="@+id/user_info_group"
+                        android:id="@+id/fragmentAccount_userInfoPanel"
                         android:layout_width="0dp"
                         android:layout_height="72dp"
                         android:orientation="vertical"
                         android:gravity="center_vertical"
                         android:padding="12dp"
-                        app:layout_constraintEnd_toStartOf="@id/subscribe_toggle"
-                        app:layout_constraintStart_toStartOf="@id/user_name_panel_expanded"
-                        app:layout_constraintTop_toTopOf="@id/user_name_panel_expanded"
-                        app:layout_constraintBottom_toBottomOf="@id/user_name_panel_expanded">
+                        app:layout_constraintEnd_toStartOf="@id/fragmentAccount_subscribeToggle"
+                        app:layout_constraintStart_toStartOf="@id/fragmentAccount_userInfoBackground"
+                        app:layout_constraintTop_toTopOf="@id/fragmentAccount_userInfoBackground"
+                        app:layout_constraintBottom_toBottomOf="@id/fragmentAccount_userInfoBackground">
 
                         <TextView
-                            android:id="@+id/account_name"
+                            android:id="@+id/fragmentAccount_name"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
@@ -86,7 +86,7 @@
                             tools:text="User" />
 
                         <TextView
-                            android:id="@+id/sub_title"
+                            android:id="@+id/fragmentAccount_title"
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
                             android:gravity="center_vertical"
@@ -99,21 +99,21 @@
 
                     </LinearLayout>
 
-                    <ImageView
-                        android:id="@+id/profile_picture"
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:id="@+id/fragmentAccount_profilePicture"
                         android:layout_width="64dp"
                         android:layout_height="64dp"
                         android:layout_marginBottom="8dp"
                         android:elevation="16dp"
                         android:translationZ="16dp"
                         app:accountIcon="@{model.account.validProfileImg}"
-                        app:layout_constraintBottom_toTopOf="@+id/subscribe_toggle"
-                        app:layout_constraintEnd_toEndOf="@+id/subscribe_toggle"
-                        app:layout_constraintStart_toStartOf="@+id/subscribe_toggle"
+                        app:layout_constraintBottom_toTopOf="@id/fragmentAccount_subscribeToggle"
+                        app:layout_constraintEnd_toEndOf="@id/fragmentAccount_subscribeToggle"
+                        app:layout_constraintStart_toStartOf="@id/fragmentAccount_subscribeToggle"
                         tools:src="@drawable/ic_profile_24" />
 
                     <include
-                        android:id="@+id/subscribe_toggle"
+                        android:id="@+id/fragmentAccount_subscribeToggle"
                         android:layout_height="wrap_content"
                         android:layout_width="wrap_content"
                         layout="@layout/icon_subscribe"
@@ -126,7 +126,7 @@
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <androidx.appcompat.widget.Toolbar
-                    android:id="@+id/toolbar"
+                    android:id="@+id/fragmentAccount_toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
                     android:background="@android:color/transparent"
@@ -150,7 +150,7 @@
                 android:layout_height="wrap_content">
 
                 <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/tab_layout"
+                    android:id="@+id/fragmentAccount_tabLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:tabGravity="fill"
@@ -160,7 +160,7 @@
             </androidx.cardview.widget.CardView>
 
             <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/view_pager"
+                android:id="@+id/fragmentAccount_viewPager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
 

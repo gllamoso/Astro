@@ -5,11 +5,9 @@ import android.net.Uri
 import android.os.Parcelable
 import android.text.util.Linkify
 import android.util.Base64
-import android.util.Log
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
-import android.widget.PopupMenu
 import android.widget.PopupWindow
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
@@ -33,7 +31,6 @@ import com.squareup.moshi.JsonDataException
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.markdown.CustomMarkwonPlugin
 import dev.gtcl.reddit.models.reddit.listing.*
-import dev.gtcl.reddit.ui.fragments.subscriptions.trending.TrendingSubredditPost
 import io.noties.markwon.Markwon
 import io.noties.markwon.ext.tables.TablePlugin
 import io.noties.markwon.linkify.LinkifyPlugin
@@ -323,14 +320,6 @@ suspend fun setItemsReadStatus(items: List<Item>, readIds: HashSet<String>){
     }
 }
 
-suspend fun setSubsAndFavoritesInTrendingPost(items: List<TrendingSubredditPost>, subscribedSubsHash: HashSet<String>){
-    withContext(Dispatchers.Default){
-        for(item: TrendingSubredditPost in items){
-            item.setSubscribedTo(subscribedSubsHash)
-        }
-    }
-}
-
 fun String.toValidImgUrl(): String? = IMAGE_REGEX.find(this)?.value
 
 operator fun <T> MutableLiveData<MutableList<T>>.plusAssign(values: List<T>) {
@@ -349,18 +338,6 @@ operator fun <T> MutableLiveData<MutableSet<T>>.minusAssign(item: T){
     val value = this.value ?: hashSetOf()
     value.remove(item)
     this.value = value
-}
-
-fun PopupMenu.forceIcons(){
-    try {
-        val fieldPopup = PopupMenu::class.java.getDeclaredField("mPopup")
-        fieldPopup.isAccessible = true
-        val mPopup = fieldPopup.get(this)
-        mPopup.javaClass.getDeclaredMethod("setForceShowIcon", Boolean::class.java)
-            .invoke(mPopup, true)
-    } catch(e: Exception){
-        Log.e("Popup", "Error showing menu icons.", e)
-    }
 }
 
 sealed class PostContent

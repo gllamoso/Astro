@@ -17,7 +17,7 @@
         android:background="?android:attr/colorBackground">
 
         <androidx.cardview.widget.CardView
-            android:id="@+id/banner"
+            android:id="@+id/layoutLeftDrawer_bannerBackground"
             android:layout_width="match_parent"
             android:clickable="true"
             android:focusable="true"
@@ -29,8 +29,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-                <ImageView
-                    android:id="@+id/background"
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/layoutLeftDrawer_banner"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     app:layout_constraintStart_toStartOf="parent"
@@ -39,8 +39,8 @@
                     app:banner="@{account.validBannerImg}"
                     tools:background="@drawable/ic_sun_tornado"/>
 
-                <ImageView
-                    android:id="@+id/avatar"
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/layoutLeftDrawer_avatar"
                     android:layout_width="64dp"
                     android:layout_height="64dp"
                     android:layout_marginStart="16dp"
@@ -48,11 +48,11 @@
                     android:elevation="20dp"
                     android:src="@drawable/ic_profile_24"
                     app:accountIcon="@{account.validProfileImg}"
-                    app:layout_constraintBottom_toTopOf="@id/name"
+                    app:layout_constraintBottom_toTopOf="@id/layoutLeftDrawer_name"
                     app:layout_constraintStart_toStartOf="parent" />
 
                 <TextView
-                    android:id="@+id/name"
+                    android:id="@+id/layoutLeftDrawer_name"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginBottom="16dp"
@@ -65,11 +65,11 @@
                     android:layout_marginStart="16dp"
                     app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/expanded_indicator"
+                    app:layout_constraintEnd_toStartOf="@id/layoutLeftDrawer_expandedIndicator"
                     tools:text="User" />
 
-                <ImageView
-                    android:id="@+id/expanded_indicator"
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/layoutLeftDrawer_expandedIndicator"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_down_no_stem_24"
@@ -77,14 +77,14 @@
                     app:layout_constraintBottom_toBottomOf="parent"
                     android:layout_marginEnd="16dp"
                     android:layout_marginBottom="16dp"
-                    android:tint="@android:color/white"/>
+                    app:tint="@android:color/white"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
         </androidx.cardview.widget.CardView>
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list"
+            android:id="@+id/layoutLeftDrawer_list"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"

@@ -1,6 +1,5 @@
 package dev.gtcl.reddit.markdown
 
-import android.R
 import android.content.Context
 import android.text.SpannableStringBuilder
 import android.text.Spanned
@@ -36,9 +35,9 @@ class MarkdownToSpannable{
                 spannableStringBuilder.delete(end - 1, end + 1)
                 spannableStringBuilder.delete(start, start + 2)
                 val backgroundColorSpan =
-                    BackgroundColorSpan(context.getColor(R.color.darker_gray))
+                    BackgroundColorSpan(context.getColor(android.R.color.darker_gray))
                 val foregroundColorSpan =
-                    ForegroundColorSpan(context.getColor(R.color.darker_gray))
+                    ForegroundColorSpan(context.getColor(android.R.color.darker_gray))
                 val clickableSpan = object : ClickableSpan() {
                     override fun onClick(widget: View) {
                         spannableStringBuilder.removeSpan(backgroundColorSpan)

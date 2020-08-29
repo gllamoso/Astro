@@ -9,8 +9,6 @@ import android.widget.PopupWindow
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.setFragmentResultListener
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.snackbar.Snackbar
@@ -23,7 +21,6 @@ import dev.gtcl.reddit.databinding.PopupAccountActionsBinding
 import dev.gtcl.reddit.models.reddit.listing.Account
 import dev.gtcl.reddit.models.reddit.listing.Subreddit
 import dev.gtcl.reddit.ui.activities.MainActivityVM
-import dev.gtcl.reddit.ui.fragments.ContinueThreadPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerVM
 
 class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
@@ -45,7 +42,7 @@ class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
         binding = FragmentAccountBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.model = model
-        binding.toolbar.setNavigationOnClickListener {
+        binding.fragmentAccountToolbar.setNavigationOnClickListener {
 //            parentModel.openDrawer()
         }
         val username = requireArguments().getString(USER_KEY)
@@ -57,25 +54,25 @@ class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
         }
         initViewPagerAdapter()
 
-        model.errorMessage.observe(viewLifecycleOwner, Observer {
+        model.errorMessage.observe(viewLifecycleOwner, {
             if(it != null){
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
                 model.errorMessageObserved()
-                binding.viewPager.adapter = null
+                binding.fragmentAccountViewPager.adapter = null
             }
         })
 
-        binding.subscribeToggle.root.setOnClickListener {
+        binding.fragmentAccountSubscribeToggle.root.setOnClickListener {
             val sub = model.account.value?.subreddit ?: return@setOnClickListener
             sub.userSubscribed = sub.userSubscribed != true
             binding.invalidateAll()
             subscribe(sub, (sub.userSubscribed == true))
         }
 
-        binding.toolbar.setOnMenuItemClickListener {
+        binding.fragmentAccountToolbar.setOnMenuItemClickListener {
             val account = model.account.value
             if(account != null){
-                val anchor = getMenuItemView(binding.toolbar, R.id.more_options)
+                val anchor = getMenuItemView(binding.fragmentAccountToolbar, R.id.more_options)
                 showAccountActionsPopup(anchor!!, account)
             }
             true
@@ -85,8 +82,8 @@ class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
     }
 
     private fun initViewPagerAdapter(){
-        val viewPager = binding.viewPager
-        val tabLayout = binding.tabLayout
+        val viewPager = binding.fragmentAccountViewPager
+        val tabLayout = binding.fragmentAccountTabLayout
         val adapter =
             AccountStateAdapter(
                 this,
@@ -130,7 +127,7 @@ class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
         val popupWindow = PopupWindow()
         popupBinding.apply {
             this.account = account
-            friend.root.setOnClickListener {
+            popupAccountActionsFriend.root.setOnClickListener {
                 account.isFriend = !(account.isFriend ?: false)
                 if(account.isFriend == true){
                     model.addFriend(account.name)
@@ -139,7 +136,7 @@ class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
                 }
                 popupWindow.dismiss()
             }
-            block.root.setOnClickListener {
+            popupAccountActionsBlock.root.setOnClickListener {
                 model.blockUser(account.name)
                 popupWindow.dismiss()
             }

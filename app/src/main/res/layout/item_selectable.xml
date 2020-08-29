@@ -17,45 +17,39 @@
     </data>
 
     <LinearLayout
+        android:orientation="horizontal"
         android:layout_width="match_parent"
-        android:minWidth="200dp"
         android:layout_height="wrap_content"
-        android:background="?attr/selectableItemBackground">
+        android:minWidth="200dp"
+        android:background="?attr/selectableItemBackground"
+        android:paddingVertical="12dp"
+        android:paddingHorizontal="16dp">
 
-        <LinearLayout
-            android:orientation="horizontal"
-            android:layout_width="match_parent"
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/itemSelectable_icon"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingVertical="12dp"
-            android:paddingHorizontal="16dp">
+            android:src="@{iconDrawable}"
+            tools:src="@drawable/ic_upvote_24"
+            android:visibility="@{iconDrawable != null ? View.VISIBLE : View.GONE}"
+            android:layout_marginEnd="8dp"/>
 
-            <ImageView
-                android:id="@+id/icon"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@{iconDrawable}"
-                tools:src="@drawable/ic_upvote_24"
-                android:visibility="@{icon != null ? View.VISIBLE : View.GONE}"
-                android:layout_marginEnd="8dp"/>
+        <TextView
+            android:id="@+id/itemSelectable_text"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:textSize="16sp"
+            android:text="@{text}"
+            android:singleLine="true"
+            tools:text="Upvote" />
 
-            <TextView
-                android:id="@+id/textView"
-                android:layout_width="0dp"
-                android:layout_weight="1"
-                android:layout_height="wrap_content"
-                android:textSize="16sp"
-                android:text="@{text}"
-                android:singleLine="true"
-                tools:text="Upvote" />
-
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_check_24"
-                android:layout_marginStart="8dp"
-                android:visibility="@{isSelected ? View.VISIBLE : View.GONE}"/>
-
-        </LinearLayout>
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_check_24"
+            android:layout_marginStart="8dp"
+            android:visibility="@{isSelected ? View.VISIBLE : View.GONE}"/>
 
     </LinearLayout>
 

@@ -8,7 +8,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentDialogRulesBinding
@@ -51,17 +50,17 @@ class RulesDialogFragment: DialogFragment() {
             model.fetchRules(displayName)
         }
 
-        model.rules.observe(this, Observer {
+        model.rules.observe(this, {
             if(!it.isNullOrEmpty()){
-                binding.linearLayout.removeAllViews()
+                binding.fragmentDialogRulesLinearLayout.removeAllViews()
                 for(rule in it){
                     val ruleBinding = ItemRuleBinding.inflate(LayoutInflater.from(requireContext()))
                     ruleBinding.apply {
                         this.rule = rule
-                        ruleDescription.text = markwon.toMarkdown(rule.description)
+                        itemRuleDescription.text = markwon.toMarkdown(rule.description)
                         ruleBinding.invalidateAll()
                     }
-                    binding.linearLayout.addView(ruleBinding.root)
+                    binding.fragmentDialogRulesLinearLayout.addView(ruleBinding.root)
                 }
             }
         })

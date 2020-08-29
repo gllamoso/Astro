@@ -10,7 +10,6 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.setFragmentResult
 import dev.gtcl.reddit.FLAIRS_KEY
 import dev.gtcl.reddit.FLAIR_SELECTED_KEY
 import dev.gtcl.reddit.R
@@ -44,7 +43,7 @@ class FlairEditDialogFragment : DialogFragment(), TextWatcher {
         dialog?.setOnShowListener {
             val button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
             button.setOnClickListener {
-                val text = binding.text.text.toString()
+                val text = binding.fragmentDialogFlairEditText.text.toString()
                 if (text.length in 1..64) {
                     flair.text = text
                     parentFragmentManager.setFragmentResult(
@@ -53,7 +52,7 @@ class FlairEditDialogFragment : DialogFragment(), TextWatcher {
                     )
                     dismiss()
                 } else {
-                    binding.textInputLayout.error = getString(R.string.invalid)
+                    binding.fragmentDialogFlairEditTextInputLayout.error = getString(R.string.invalid)
                 }
             }
         }
@@ -67,11 +66,11 @@ class FlairEditDialogFragment : DialogFragment(), TextWatcher {
     }
 
     private fun initObservers() {
-        binding.toolbar.setNavigationOnClickListener {
+        binding.fragmentDialogFlairEditToolbar.setNavigationOnClickListener {
             dismiss()
         }
 
-        binding.text.addTextChangedListener(this)
+        binding.fragmentDialogFlairEditText.addTextChangedListener(this)
     }
 
     override fun afterTextChanged(s: Editable?) {}
@@ -79,7 +78,7 @@ class FlairEditDialogFragment : DialogFragment(), TextWatcher {
     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        binding.textInputLayout.error = null
+        binding.fragmentDialogFlairEditTextInputLayout.error = null
     }
 
     companion object {

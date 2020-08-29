@@ -14,7 +14,7 @@ import dev.gtcl.reddit.Vote
 import dev.gtcl.reddit.actions.ItemClickListener
 import dev.gtcl.reddit.databinding.ItemPostBinding
 import dev.gtcl.reddit.actions.PostActions
-import dev.gtcl.reddit.databinding.PopupPostOptionsBinding
+import dev.gtcl.reddit.databinding.PopupPostActionsBinding
 import dev.gtcl.reddit.models.reddit.listing.Post
 import dev.gtcl.reddit.showAsDropdown
 import jp.wasabeef.glide.transformations.BlurTransformation
@@ -25,7 +25,7 @@ class PostVH private constructor(private val binding:ItemPostBinding)
     fun bind(post: Post, postActions: PostActions, blurNsfw: Boolean, blurSpoiler: Boolean, username: String?, itemClickListener: ItemClickListener) {
         binding.post = post
 
-        binding.cardView.setOnClickListener{
+        binding.itemPostCardView.setOnClickListener{
             post.isRead = true
             binding.invalidateAll()
             itemClickListener.itemClicked(post, adapterPosition)
@@ -33,8 +33,8 @@ class PostVH private constructor(private val binding:ItemPostBinding)
 
         setThumbnail(post, blurNsfw, blurSpoiler, postActions)
 
-        binding.moreOptions.setOnClickListener {
-            showPopupWindow(post, postActions, (post.author == username && username != null), it)
+        binding.itemPostMoreOptions.setOnClickListener {
+            showPopupWindow(post, postActions, (post.author == username), it)
         }
 
         binding.executePendingBindings()
@@ -43,8 +43,8 @@ class PostVH private constructor(private val binding:ItemPostBinding)
     private fun setThumbnail(post: Post, blurNsfw: Boolean, blurSpoiler: Boolean, postActions: PostActions){
         val thumbnailUrl = post.thumbnail
         if(thumbnailUrl != null && URLUtil.isValidUrl(thumbnailUrl) && Patterns.WEB_URL.matcher(thumbnailUrl).matches()){
-            binding.frameLayout.visibility = View.VISIBLE
-            binding.thumbnail.setOnClickListener{
+            binding.itemPostThumbnailBackground.visibility = View.VISIBLE
+            binding.itemPostThumbnail.setOnClickListener{
                 post.isRead = true
                 binding.invalidateAll()
                 postActions.thumbnailClicked(post, adapterPosition)
@@ -55,70 +55,70 @@ class PostVH private constructor(private val binding:ItemPostBinding)
                     if((post.spoiler && blurSpoiler) || (post.nsfw && blurNsfw)){
                         apply(RequestOptions.bitmapTransform(BlurTransformation()))
                     }
-                }.into(binding.thumbnail)
+                }.into(binding.itemPostThumbnail)
         } else {
-            binding.frameLayout.visibility = View.GONE
+            binding.itemPostThumbnailBackground.visibility = View.GONE
         }
     }
 
     private fun showPopupWindow(post: Post, postActions: PostActions, createdFromUser: Boolean, anchor: View){
         val inflater = anchor.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val popupBinding = PopupPostOptionsBinding.inflate(inflater)
+        val popupBinding = PopupPostActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
             this.post = post
             this.createdFromUser = createdFromUser
             if(createdFromUser){
                 if(post.isSelf){
-                    editButton.root.setOnClickListener {
+                    popupPostActionsEdit.root.setOnClickListener {
                         postActions.edit(post, adapterPosition)
                         popupWindow.dismiss()
                     }
                 }
-                manageButton.root.setOnClickListener {
+                popupPostActionsManage.root.setOnClickListener {
                     postActions.manage(post, adapterPosition)
                     popupWindow.dismiss()
                 }
-                deleteButton.root.setOnClickListener {
+                popupPostActionsDelete.root.setOnClickListener {
                     postActions.delete(post, adapterPosition)
                     popupWindow.dismiss()
                 }
             }
-            upvoteButton.root.setOnClickListener {
+            popupPostActionsUpvote.root.setOnClickListener {
                 postActions.vote(post, if(post.likes == true) Vote.UNVOTE else Vote.UPVOTE)
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }
-            downvoteButton.root.setOnClickListener {
+            popupPostActionsDownvote.root.setOnClickListener {
                 postActions.vote(post, if(post.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }
-            shareButton.root.setOnClickListener {
+            popupPostActionsShare.root.setOnClickListener {
                 postActions.share(post)
                 popupWindow.dismiss()
             }
-            profileButton.root.setOnClickListener {
+            popupPostActionsProfile.root.setOnClickListener {
                 postActions.viewProfile(post)
                 popupWindow.dismiss()
             }
-            saveButton.root.setOnClickListener {
+            popupPostActionsSave.root.setOnClickListener {
                 post.saved = !post.saved
                 postActions.save(post)
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }
-            hideButton.root.setOnClickListener {
+            popupPostActionsHide.root.setOnClickListener {
                 post.hidden = !post.hidden
                 postActions.hide(post, adapterPosition)
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }
-            subredditButton.root.setOnClickListener {
+            popupPostActionsSubreddit.root.setOnClickListener {
                 postActions.subredditSelected(post.subreddit)
                 popupWindow.dismiss()
             }
-            reportButton.root.setOnClickListener {
+            popupPostActionsReport.root.setOnClickListener {
                 postActions.report(post, adapterPosition)
                 popupWindow.dismiss()
             }

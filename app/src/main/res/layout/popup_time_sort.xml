@@ -21,37 +21,37 @@
             android:layout_height="match_parent">
 
             <include
-                android:id="@+id/hour"
+                android:id="@+id/popupTimeSort_hour"
                 layout="@layout/item_selectable"
                 app:text="@{@string/past_hour}"
                 app:isSelected="@{time == Time.HOUR}"/>
 
             <include
-                android:id="@+id/day"
+                android:id="@+id/popupTimeSort_day"
                 layout="@layout/item_selectable"
                 app:text="@{@string/past_24_hours}"
                 app:isSelected="@{time == Time.DAY}"/>
 
             <include
-                android:id="@+id/week"
+                android:id="@+id/popupTimeSort_week"
                 layout="@layout/item_selectable"
                 app:text="@{@string/past_week}"
                 app:isSelected="@{time == Time.WEEK}"/>
 
             <include
-                android:id="@+id/month"
+                android:id="@+id/popupTimeSort_month"
                 layout="@layout/item_selectable"
                 app:text="@{@string/past_month}"
                 app:isSelected="@{time == Time.MONTH}"/>
 
             <include
-                android:id="@+id/year"
+                android:id="@+id/popupTimeSort_year"
                 layout="@layout/item_selectable"
                 app:text="@{@string/past_year}"
                 app:isSelected="@{time == Time.YEAR}"/>
 
             <include
-                android:id="@+id/all"
+                android:id="@+id/popupTimeSort_all"
                 layout="@layout/item_selectable"
                 app:text="@{@string/all_time}"
                 app:isSelected="@{time == Time.ALL}"/>
