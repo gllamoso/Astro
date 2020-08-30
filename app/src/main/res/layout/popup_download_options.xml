@@ -4,11 +4,10 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <import type="dev.gtcl.reddit.models.reddit.UserType"/>
-        <import type="android.view.View"/>
         <variable
-            name="account"
-            type="dev.gtcl.reddit.models.reddit.listing.Account" />
+            name="mediaType"
+            type="dev.gtcl.reddit.SimpleMediaType" />
+        <import type="dev.gtcl.reddit.SimpleMediaType"/>
     </data>
 
     <androidx.cardview.widget.CardView
@@ -23,16 +22,16 @@
             android:orientation="vertical">
 
             <include
-                android:id="@+id/popupAccountActions_friend"
+                android:id="@+id/popupDownloadActions_single"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{account.isFriend() ? @drawable/ic_remove_circle_outline_24 : @drawable/ic_person_add_24}"
-                app:text="@{account.isFriend() ? @string/unfriend : @string/add_friend}"/>
+                app:iconDrawable="@{mediaType == SimpleMediaType.PICTURE ? @drawable/ic_photo_24 : @drawable/ic_videocam_24}"
+                app:text="@{@string/download_current_item}" />
 
             <include
-                android:id="@+id/popupAccountActions_block"
+                android:id="@+id/popupDownloadActions_all"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_block_24}"
-                app:text="@{@string/block}"/>
+                app:iconDrawable="@{@drawable/ic_photo_library_24}"
+                app:text="@{@string/download_all}" />
 
         </LinearLayout>
 

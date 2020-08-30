@@ -1,11 +1,13 @@
 package dev.gtcl.reddit.ui.fragments.comments
 
 import android.util.Log
+import android.widget.Toast
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
 import dev.gtcl.reddit.*
+import dev.gtcl.reddit.download.DownloadIntentService
 import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.network.MoreComments
 import dev.gtcl.reddit.models.reddit.listing.*
@@ -16,6 +18,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
+import retrofit2.HttpException
 
 const val CHILDREN_PER_FETCH = 50
 class CommentsVM(val application: RedditApplication): AndroidViewModel(application) {
@@ -306,6 +309,44 @@ class CommentsVM(val application: RedditApplication): AndroidViewModel(applicati
             } catch (e: Exception) {
                 _errorMessage.value = e.getErrorMessage(application)
             }
+        }
+    }
+
+    fun downloadAlbum(){
+        if(_mediaItems.value == null){
+            return
+        }
+
+        DownloadIntentService.enqueueWork(application.applicationContext, _mediaItems.value!!.map { it.url })
+    }
+
+    fun downloadItem(position: Int){
+        if(_mediaItems.value == null){
+            return
+        }
+
+        coroutineScope.launch {
+            Toast.makeText(application, application.getText(R.string.downloading), Toast.LENGTH_SHORT).show()
+            val item = _mediaItems.value!![position]
+            var downloadUrl = item.url
+
+            if(item.mediaType == MediaType.GFYCAT){
+                try{
+                    downloadUrl = gfycatRepository.getGfycatInfo(
+                        item.url.replace("http[s]?://gfycat.com/".toRegex(), ""))
+                        .await()
+                        .gfyItem
+                        .mp4Url
+                } catch (e: Exception){
+                    if(e is HttpException && e.code() == 404 && item.backupUrl != null){
+                        downloadUrl = item.backupUrl
+                    } else {
+                        Toast.makeText(application, application.getText(R.string.unable_to_download_file), Toast.LENGTH_SHORT).show()
+                    }
+                }
+            }
+
+            DownloadIntentService.enqueueWork(application.applicationContext, downloadUrl)
         }
     }
 }

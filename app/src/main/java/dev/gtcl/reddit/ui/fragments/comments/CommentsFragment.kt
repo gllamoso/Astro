@@ -609,12 +609,19 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         val popupBinding = PopupCommentsPageActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
-            val currentAccount = (this@CommentsFragment.requireActivity().application as RedditApplication).currentAccount
             val post = model.post.value!!
+            val currentAccount = (this@CommentsFragment.requireActivity().application as RedditApplication).currentAccount
+            val currentMediaUrl = model.mediaItems.value?.get(binding.fragmentCommentsContent.layoutCommentsContentViewPager.currentItem)
+            val currentMediaType = when(currentMediaUrl?.mediaType){
+                MediaType.GIF, MediaType.PICTURE -> SimpleMediaType.PICTURE
+                MediaType.VIDEO -> SimpleMediaType.VIDEO
+                else -> null
+            }
             this.post = post
-            val createdFromUser = currentAccount != null && currentAccount.fullId == post.authorFullName
-            this.createdFromUser = createdFromUser
-            if(createdFromUser){
+            this.createdFromUser = currentAccount != null && currentAccount.fullId == post.authorFullName
+            this.currentItemMediaType = currentMediaType
+            this.hasAlbum = model.mediaItems.value?.size ?: 0 > 1
+            if(createdFromUser == true){
                 if(post.isSelf){
                     popupCommentsPageActionsEdit.root.setOnClickListener {
                         ReplyOrEditDialogFragment.newInstance(post, -1, false).show(childFragmentManager, null)
@@ -647,6 +654,22 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             popupCommentsPageActionsShare.root.setOnClickListener {
                 SharePostOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
                 popupWindow.dismiss()
+            }
+            if(currentItemMediaType != null){
+                popupCommentsPageActionsFullScreen.root.setOnClickListener {
+                    MediaDialogFragment.newInstance(post.url!!, model.mediaItems.value!!).show(childFragmentManager, null)
+                    popupWindow.dismiss()
+                }
+                popupCommentsPageActionsDownloadSingleItem.root.setOnClickListener {
+                    model.downloadItem(binding.fragmentCommentsContent.layoutCommentsContentViewPager.currentItem)
+                    popupWindow.dismiss()
+                }
+                if(hasAlbum == true){
+                    popupCommentsPageActionsDownloadAll.root.setOnClickListener {
+                        model.downloadAlbum()
+                        popupWindow.dismiss()
+                    }
+                }
             }
             popupCommentsPageActionsReport.root.setOnClickListener {
                 ReportDialogFragment.newInstance(post).show(childFragmentManager, null)

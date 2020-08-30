@@ -1,8 +1,10 @@
 package dev.gtcl.reddit.ui.fragments.media
 
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
 import android.view.*
+import android.widget.PopupWindow
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -13,6 +15,8 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.databinding.FragmentDialogMediaBinding
+import dev.gtcl.reddit.databinding.PopupDownloadOptionsBinding
+import dev.gtcl.reddit.databinding.PopupPostSortBinding
 import dev.gtcl.reddit.models.reddit.MediaURL
 import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.PostPage
@@ -50,7 +54,14 @@ class MediaDialogFragment : DialogFragment(){
         binding.activityModel = activityModel
         activityModel.showUi(true)
         if(!model.mediaInitialized && model.isLoading.value != true){
-            model.setMedia(requireArguments().get(MEDIA_KEY) as MediaURL)
+            val url = requireArguments().get(MEDIA_KEY) as MediaURL?
+            if(url != null){
+                model.setMedia(url)
+            } else {
+                val mediaItems = requireArguments().get(MEDIA_ITEMS_KEY) as List<MediaURL>
+                model.setItems(mediaItems)
+            }
+
         }
 
         initAdapters()
@@ -150,7 +161,8 @@ class MediaDialogFragment : DialogFragment(){
     }
 
     private fun initBottomBar(){
-        val mediaUrl = requireArguments().get(MEDIA_KEY) as MediaURL
+        val mediaUrl = requireArguments().get(MEDIA_KEY) as MediaURL?
+        val albumUrl = requireArguments().getString(URL_KEY)
         val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
         model.setPost(postPage?.post)
 
@@ -165,22 +177,60 @@ class MediaDialogFragment : DialogFragment(){
             val shareIntent = Intent(Intent.ACTION_SEND)
             shareIntent.type = "text/plain"
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, getText(R.string.share_subject_message))
-            shareIntent.putExtra(Intent.EXTRA_TEXT, mediaUrl.url)
+            shareIntent.putExtra(Intent.EXTRA_TEXT, mediaUrl?.url ?: albumUrl ?: throw IllegalArgumentException("Unable to get url"))
             startActivity(Intent.createChooser(shareIntent, null))
         }
 
         binding.fragmentMediaDialogDownload.setOnClickListener {
-            model.downloadCurrentItem()
+            if(model.mediaItems.value != null && model.mediaItems.value!!.size > 1){
+                showDownloadOptionsPopup(it)
+            } else {
+                model.downloadCurrentItem()
+            }
         }
+    }
+
+    private fun showDownloadOptionsPopup(anchor: View){
+        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val popupBinding = PopupDownloadOptionsBinding.inflate(inflater)
+        val popupWindow = PopupWindow()
+        val currentItem = model.getCurrentMediaItem()
+        val mediaType = when(currentItem?.mediaType){
+            MediaType.PICTURE, MediaType.GIF -> SimpleMediaType.PICTURE
+            MediaType.VIDEO -> SimpleMediaType.VIDEO
+            else -> throw IllegalArgumentException("Invalid media type from item: $currentItem")
+        }
+        popupBinding.apply {
+            this.mediaType = mediaType
+            popupDownloadActionsSingle.root.setOnClickListener {
+                model.downloadCurrentItem()
+                popupWindow.dismiss()
+            }
+            popupDownloadActionsAll.root.setOnClickListener {
+                model.downloadAlbum()
+                popupWindow.dismiss()
+            }
+            executePendingBindings()
+            root.measure(
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED),
+                View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
+            )
+        }
+
+        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
     }
 
     companion object{
         fun newInstance(mediaURL: MediaURL, postPage: PostPage? = null): MediaDialogFragment {
-            val fragment =
-                MediaDialogFragment()
-            val args = bundleOf(MEDIA_KEY to mediaURL, POST_PAGE_KEY to postPage)
-            fragment.arguments = args
-            return fragment
+            return MediaDialogFragment().apply {
+                arguments = bundleOf(MEDIA_KEY to mediaURL, POST_PAGE_KEY to postPage)
+            }
+        }
+
+        fun newInstance(albumUrl: String, mediaItems: List<MediaURL>): MediaDialogFragment {
+            return MediaDialogFragment().apply {
+                arguments = bundleOf(URL_KEY to albumUrl, MEDIA_ITEMS_KEY to mediaItems)
+            }
         }
     }
 }

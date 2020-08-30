@@ -154,7 +154,7 @@ fun loadAccountIcon(imgView: ImageView, imgUrl: String?){
 fun loadSubscriptionIcon(imgView: ImageView, subscription: Subscription){
     val placeHolder = when(subscription.type){
         SubscriptionType.MULTIREDDIT -> R.drawable.ic_collection_24
-        SubscriptionType.USER -> R.drawable.ic_user_24
+        SubscriptionType.USER -> R.drawable.ic_profile_24
         SubscriptionType.SUBREDDIT -> R.drawable.ic_reddit_circle_24
     }
 

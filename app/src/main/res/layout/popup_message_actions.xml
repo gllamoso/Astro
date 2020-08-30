@@ -54,7 +54,7 @@
                 android:layout_width="match_parent"
                 android:visibility="@{!createdFromUser ? View.VISIBLE : View.GONE}"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_baseline_block_24}"
+                app:iconDrawable="@{@drawable/ic_block_24}"
                 app:text="@{@string/block}"/>
 
         </LinearLayout>

@@ -1,25 +1,23 @@
 package dev.gtcl.reddit.download
 
-import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.Context
-import android.content.Intent
-import android.media.MediaScannerConnection
+import android.content.*
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.provider.MediaStore
 import android.service.notification.StatusBarNotification
 import android.util.Log
 import android.widget.Toast
 import androidx.core.app.JobIntentService
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import androidx.core.content.FileProvider
 import com.arthenica.mobileffmpeg.Config
 import com.arthenica.mobileffmpeg.FFmpeg
+import dev.gtcl.reddit.ALBUM_KEY
 import dev.gtcl.reddit.R
 import dev.gtcl.reddit.URL_KEY
 import java.io.BufferedInputStream
@@ -46,78 +44,80 @@ class DownloadIntentService : JobIntentService(){
         }
     }
 
-    @SuppressLint("DefaultLocale")
     override fun onHandleWork(intent: Intent) {
-
-        val url = intent.extras!![URL_KEY] as String
-        val fileExtension = getExtension(Uri.parse(url).lastPathSegment!!)
-        val fileName: String =
-            if(fileExtension.toLowerCase() == HLS_EXTENSION) {
-                "${Calendar.getInstance().timeInMillis}.mp4"
-            } else {
-                Uri.parse(url).lastPathSegment!!
-            }
-        startForeground(JOB_ID, createForegroundNotification(fileName))
-
-        val picturesFolder = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).absolutePath
-        val saveDestination = File("${picturesFolder}/${applicationContext.getText(R.string.app_name)}")
+        val externalDirectories = this.getExternalFilesDirs(Environment.DIRECTORY_DOWNLOADS)
+        val picturesFolder = externalDirectories[0]!!
+        val saveDestination = File("$picturesFolder")
         val folderExists = createFolder(saveDestination)
         if(!folderExists){
-            val text = String.format(getString(R.string.unable_to_create_directory), saveDestination.absolutePath)
-            Toast.makeText(applicationContext, text, Toast.LENGTH_SHORT).show() // TODO: Add String value
+            val error = String.format(getString(R.string.unable_to_create_directory), saveDestination.absolutePath)
+            Toast.makeText(applicationContext, error, Toast.LENGTH_SHORT).show()
             stopForeground(false)
             return
         }
 
-        val fileUri = Uri.withAppendedPath(Uri.fromFile(saveDestination), fileName)
-        val file = File(fileUri.path!!)
-
-        if(fileExtension.toLowerCase() == HLS_EXTENSION){ // For downloading HLS videos
-            if(FFmpeg.execute("-i $url -acodec copy -bsf:a aac_adtstoasc -vcodec copy ${file.path}")
-                != Config.RETURN_CODE_SUCCESS){
-                Log.d(TAG, "ffmpeg execution failed")
-                stopForeground(true)
-                // TODO: Create failure notification
-                return
+        val downloadUrl = intent.extras!![URL_KEY] as String?
+        if(downloadUrl != null){ // Download single item
+            val filename = createFileName(downloadUrl)
+            startForeground(JOB_ID, createForegroundNotificationForSingleItem(filename))
+            val uri = downloadItem(downloadUrl, saveDestination)
+            if(uri != null){
+                showDownloadCompleteNotificationForSingleItem(uri, filename)
             }
-        } else {
-            downloadStandardFile(url, fileUri.path!!)
+            stopForeground(true)
+            stopSelf()
+        } else { // Download album
+            val urls = intent.extras!![ALBUM_KEY] as List<*>
+            val notification = createForegroundNotificationForAlbum()
+            startForeground(JOB_ID, notification.build())
+            var itemsComplete = 0
+            urls.forEach { url: Any? ->
+                if(url is String){
+                    downloadItem(url, saveDestination)
+                    itemsComplete++
+                    val completionPercentage = ((itemsComplete.toDouble())/urls.size) * 100
+                    notification.setProgress(100, completionPercentage.toInt(), false)
+                    NotificationManagerCompat.from(this).notify(JOB_ID, notification.build())
+                }
+            }
+            showDownloadCompleteNotificationForAlbum()
+            stopForeground(true)
+            stopSelf()
         }
-
-        scanMedia(file)
-        showDownloadCompleteNotification(file.absolutePath)
-
-        stopForeground(true)
     }
 
-    private fun createForegroundNotification(fileName: String): Notification{
+    private fun createForegroundNotificationForSingleItem(fileName: String): Notification{
         return NotificationCompat.Builder(this, JOB_ID.toString())
             .setContentTitle(fileName)
-            .setSmallIcon(R.drawable.ic_download_black_24)
+            .setSmallIcon(R.drawable.ic_download_24)
             .setContentText(getText(R.string.downloading))
             .setProgress(100, 0, true)
             .build()
     }
 
-    private fun createDownloadCompleteNotification(filePath: String): Notification{
+    private fun createForegroundNotificationForAlbum(): NotificationCompat.Builder {
+        return NotificationCompat.Builder(this, JOB_ID.toString())
+            .setContentTitle(getString(R.string.downloading_album))
+            .setSmallIcon(R.drawable.ic_download_24)
+            .setProgress(100, 0, false)
+    }
 
-        val file = Uri.parse(filePath)
-        val fileName = file.lastPathSegment!!
-        val fileExtension = getExtension(fileName)
+    private fun createItemCompleteNotification(uri: Uri, filename: String): Notification {
+        val fileExtension = getExtension(filename)
         val intent = Intent(Intent.ACTION_VIEW).apply {
             type = when(fileExtension){
                 "mp4","wav" -> "video/*"
                 "jpeg", "bmp", "gif", "jpg", "png" -> "image/*"
-                else -> throw IllegalArgumentException("Invalid file type: $fileExtension") // TODO: Fix Gfycat download errors
+                else -> throw IllegalArgumentException("Invalid file type: $fileExtension")
             }
             flags = Intent.FLAG_GRANT_READ_URI_PERMISSION
-            data = FileProvider.getUriForFile(this@DownloadIntentService, this@DownloadIntentService.applicationContext.packageName + ".provider", File(filePath))
+            data = uri
         }
         val pendingIntent = PendingIntent.getActivity(this, 0, intent, 0)
 
         return NotificationCompat.Builder(this, DOWNLOAD_COMPLETE_CHANNEL_ID.toString())
             .setContentIntent(pendingIntent)
-            .setContentTitle(fileName)
+            .setContentTitle(filename)
             .setSmallIcon(R.drawable.ic_save_24)
             .setContentText(getText(R.string.download_complete))
             .setGroup(DOWNLOAD_GROUP_KEY)
@@ -125,12 +125,20 @@ class DownloadIntentService : JobIntentService(){
             .build()
     }
 
-    private fun showDownloadCompleteNotification(filePath: String){
+    private fun createAlbumCompleteNotification(): Notification {
+        return NotificationCompat.Builder(this, DOWNLOAD_COMPLETE_CHANNEL_ID.toString())
+            .setSmallIcon(R.drawable.ic_save_24)
+            .setContentText(getText(R.string.album_download_complete))
+            .setGroup(DOWNLOAD_GROUP_KEY)
+            .setAutoCancel(true)
+            .build()
+    }
+
+    private fun showDownloadCompleteNotificationForSingleItem(uri: Uri, filename: String){
         val uniqueId = Random.nextInt() + DOWNLOAD_COMPLETE_CHANNEL_ID
-        val newNotification = createDownloadCompleteNotification(filePath)
+        val newNotification = createItemCompleteNotification(uri, filename)
         NotificationManagerCompat.from(this).notify(uniqueId, newNotification)
 
-//        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.M) return
         var count = 0
         for(notification: StatusBarNotification in (application.getSystemService(NOTIFICATION_SERVICE) as NotificationManager).activeNotifications){
             if(notification.notification.group == newNotification.group){
@@ -143,6 +151,30 @@ class DownloadIntentService : JobIntentService(){
                 .setSmallIcon(R.drawable.ic_save_24)
                 .setGroup(DOWNLOAD_GROUP_KEY)
                 .setGroupSummary(true)
+                .build()
+
+            NotificationManagerCompat.from(this).notify(SUMMARY_ID, summaryNotification)
+        }
+    }
+
+    private fun showDownloadCompleteNotificationForAlbum(){
+        val uniqueId = Random.nextInt() + DOWNLOAD_COMPLETE_CHANNEL_ID
+        val newNotification = createAlbumCompleteNotification()
+        NotificationManagerCompat.from(this).notify(uniqueId, newNotification)
+
+        var count = 0
+        for(notification: StatusBarNotification in (application.getSystemService(NOTIFICATION_SERVICE) as NotificationManager).activeNotifications){
+            if(notification.notification.group == newNotification.group){
+                count++
+            }
+        }
+
+        if(count > 1){
+            val summaryNotification = NotificationCompat.Builder(this, DOWNLOAD_COMPLETE_CHANNEL_ID.toString())
+                .setSmallIcon(R.drawable.ic_save_24)
+                .setGroup(DOWNLOAD_GROUP_KEY)
+                .setGroupSummary(true)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                 .build()
 
             NotificationManagerCompat.from(this).notify(SUMMARY_ID, summaryNotification)
@@ -182,29 +214,79 @@ class DownloadIntentService : JobIntentService(){
         }
     }
 
-    private fun scanMedia(file: File){
-        val client = object: MediaScannerConnection.MediaScannerConnectionClient{
-            private val path = file.absolutePath
-            lateinit var connection: MediaScannerConnection
-            override fun onMediaScannerConnected() {
-                connection.scanFile(path, null)
-            }
+    private fun getExtension(filename: String) = filename.replace("[a-zA-Z\\-0-9]+\\.".toRegex(), "")
 
-            override fun onScanCompleted(path: String?, uri: Uri?) {
-                connection.disconnect()
+    private fun createFileName(url: String): String {
+        val fileExtension = getExtension(Uri.parse(url).lastPathSegment!!)
+        return if(fileExtension.equals(HLS_EXTENSION, true)) {
+                "${Calendar.getInstance().timeInMillis}.mp4"
+            } else {
+                Uri.parse(url).lastPathSegment!!
             }
-        }
-        val connection = MediaScannerConnection(applicationContext, client)
-        client.connection = connection
-        connection.connect()
     }
 
-    private fun getExtension(fileName: String) =
-        fileName.replace("[A-Za-z0-9]+\\.".toRegex(), "").toLowerCase(Locale.getDefault())
+    private fun downloadItem(url: String, saveDestination: File): Uri? {
+        val filename = createFileName(url)
+        val fileUri = Uri.withAppendedPath(Uri.fromFile(saveDestination), filename)
+        val file = File(fileUri.path!!)
+        val fileExtension = getExtension(Uri.parse(url).lastPathSegment!!)
+
+        if(fileExtension.toLowerCase(Locale.getDefault()) == HLS_EXTENSION){ // For downloading HLS videos
+            if(FFmpeg.execute("-i $url -acodec copy -bsf:a aac_adtstoasc -vcodec copy ${file.path}") != Config.RETURN_CODE_SUCCESS){
+                Log.d(TAG, "ffmpeg execution failed")
+                stopForeground(true)
+                val notification = NotificationCompat.Builder(this, JOB_ID.toString())
+                    .setContentTitle(getString(R.string.unable_to_download_file))
+                    .setContentText(filename)
+                    .setSmallIcon(R.drawable.ic_error_outline_24)
+                    .build()
+                val notificationManager = getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+                notificationManager.notify(FAILURE_ID, notification)
+                return null
+            }
+        } else {
+            downloadStandardFile(url, fileUri.path!!)
+        }
+
+        // Move file to MediaStore
+        val mimeType = when(file.extension) {
+            "mp4", "wav" -> "video/*"
+            "jpeg", "bmp", "gif", "jpg", "png" -> "image/*"
+            else -> throw IllegalArgumentException("Invalid file type: $fileExtension")
+        }
+        val contentValues = ContentValues().apply {
+            put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
+            put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                val folder = when(mimeType){
+                    "video/*" -> "Movies"
+                    else -> "DCIM"
+                }
+                put(MediaStore.MediaColumns.RELATIVE_PATH, "$folder/${getString(R.string.app_name)}")
+            }
+        }
+        val externalUri = if(mimeType == "video/*"){
+            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        } else {
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        }
+        val uri = contentResolver.insert(externalUri, contentValues)
+        contentResolver.openOutputStream(uri!!).use {
+            val test = file.readBytes()
+            if(it != null){
+                it.write(test)
+                it.close()
+                file.delete()
+            }
+        }
+
+        return uri
+    }
 
     companion object {
         private const val JOB_ID = 1001
         private const val DOWNLOAD_COMPLETE_CHANNEL_ID = 2000
+        private const val FAILURE_ID = 3000
         private const val SUMMARY_ID = 1999
         private val DOWNLOAD_GROUP_KEY = DownloadIntentService::class.java.name
         val TAG: String = DownloadIntentService::class.java.simpleName
@@ -214,12 +296,10 @@ class DownloadIntentService : JobIntentService(){
             enqueueWork(context, DownloadIntentService::class.java, JOB_ID, serviceIntent)
         }
 
-        fun enqueueWork(context: Context, downloadUrls: List<String>, albumName: String){
-            TODO("Implement album download")
-//            val serviceIntent = Intent(context, DownloadIntentService::class.java)
-//            serviceIntent.putExtra(ALBUM_KEY, albumName)
-//            serviceIntent.putStringArrayListExtra(URLS_KEY, ArrayList<String>(downloadUrls))
-//            enqueueWork(context, DownloadIntentService::class.java, JOB_ID, serviceIntent)
+        fun enqueueWork(context: Context, downloadUrls: List<String>){
+            val serviceIntent = Intent(context, DownloadIntentService::class.java)
+            serviceIntent.putStringArrayListExtra(ALBUM_KEY, ArrayList(downloadUrls))
+            enqueueWork(context, DownloadIntentService::class.java, JOB_ID, serviceIntent)
         }
     }
 

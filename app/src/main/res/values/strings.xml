@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Reddit</string>
+    <string name="app_name">Astro</string>
 
     <!--Post Options-->
     <string name="upvote">Upvote</string>
@@ -108,6 +108,9 @@
     <string name="download_complete">Download complete</string>
     <string name="download_status_notification_name">Download Status</string>
     <string name="unable_to_download_file">Unable to download file</string>
+    <string name="download_current_item">Download current item</string>
+    <string name="download_all">Download all</string>
+    <string name="view_fullscreen">View fullscreen</string>
 
     <!--Inbox-->
     <string name="inbox">Inbox</string>
@@ -170,6 +173,8 @@
     <string name="close">Close</string>
     <string name="download_album">Download Album</string>
     <string name="album_name">Album Name</string>
+    <string name="downloading_album">Downloading Album</string>
+    <string name="album_download_complete">Album Download Complete</string>
     <string name="unable_to_create_directory">Unable to create directory %s</string>
     <string name="nothing_found">Nothing found.</string>
     <string name="no_posts_found">No posts found.</string>

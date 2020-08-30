@@ -42,8 +42,8 @@
 
             <ProgressBar
                 android:id="@+id/fragmentSignIn_progressBar"
-                android:layout_width="96dp"
-                android:layout_height="96dp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:layout_gravity="center"
                 android:elevation="8dp"
                 android:indeterminate="true"

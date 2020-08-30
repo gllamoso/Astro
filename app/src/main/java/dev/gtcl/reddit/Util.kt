@@ -201,6 +201,11 @@ enum class MediaType{
     IMGUR_ALBUM
 }
 
+enum class SimpleMediaType{
+    PICTURE,
+    VIDEO
+}
+
 const val SECONDS_IN_YEAR = 31_536_000.toLong()
 const val SECONDS_IN_MONTH = 2_592_000.toLong()
 const val SECONDS_IN_WEEK = 604_800.toLong()

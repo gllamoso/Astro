@@ -130,12 +130,12 @@ class MediaDialogVM(private val application: RedditApplication): AndroidViewMode
         _itemPosition.value = position
     }
 
-    fun downloadAlbum(name: String){
+    fun downloadAlbum(){
         if(_mediaItems.value == null){
             return
         }
 
-        DownloadIntentService.enqueueWork(application.applicationContext, _mediaItems.value!!.map { it.url }, name)
+        DownloadIntentService.enqueueWork(application.applicationContext, _mediaItems.value!!.map { it.url })
     }
 
     fun downloadCurrentItem(){
@@ -167,4 +167,11 @@ class MediaDialogVM(private val application: RedditApplication): AndroidViewMode
             DownloadIntentService.enqueueWork(application.applicationContext, downloadUrl)
         }
     }
+
+    fun setItems(list: List<MediaURL>){
+        _mediaItems.value = list
+        _mediaInitialized = true
+    }
+
+    fun getCurrentMediaItem() = _mediaItems.value?.get(_itemPosition.value!!)
 }

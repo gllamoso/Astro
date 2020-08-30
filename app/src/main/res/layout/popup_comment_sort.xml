@@ -52,7 +52,7 @@
             <include
                 android:id="@+id/popupCommentSort_old"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_baseline_history_24}"
+                app:iconDrawable="@{@drawable/ic_history_24}"
                 app:text="@{@string/order_old}"
                 app:isSelected="@{sort == CommentSort.OLD}"/>
 

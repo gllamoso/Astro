@@ -10,7 +10,14 @@
         <variable
             name="createdFromUser"
             type="Boolean" />
+        <variable
+            name="currentItemMediaType"
+            type="dev.gtcl.reddit.SimpleMediaType" />
+        <variable
+            name="hasAlbum"
+            type="Boolean" />
         <import type="android.view.View" />
+        <import type="dev.gtcl.reddit.SimpleMediaType"/>
     </data>
 
     <androidx.cardview.widget.CardView
@@ -39,7 +46,7 @@
                 android:layout_width="match_parent"
                 android:visibility="@{createdFromUser ? View.VISIBLE : View.GONE}"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_baseline_check_box_24}"
+                app:iconDrawable="@{@drawable/ic_check_box_24}"
                 app:text="@{@string/manage}"/>
 
             <include
@@ -74,6 +81,33 @@
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_share_24}"
                 app:text="@{@string/share}"/>
+
+            <include
+                android:id="@+id/popupCommentsPageActions_fullScreen"
+                layout="@layout/item_selectable"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:visibility="@{currentItemMediaType != null ? View.VISIBLE : View.GONE}"
+                app:iconDrawable="@{@drawable/ic_fullscreen_24}"
+                app:text="@{@string/view_fullscreen}" />
+
+            <include
+                android:id="@+id/popupCommentsPageActions_downloadSingleItem"
+                layout="@layout/item_selectable"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:visibility="@{currentItemMediaType != null ? View.VISIBLE : View.GONE}"
+                app:iconDrawable="@{currentItemMediaType == SimpleMediaType.PICTURE ? @drawable/ic_photo_24 : @drawable/ic_videocam_24}"
+                app:text="@{@string/download_current_item}" />
+
+            <include
+                android:id="@+id/popupCommentsPageActions_downloadAll"
+                layout="@layout/item_selectable"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:visibility="@{hasAlbum ? View.VISIBLE : View.GONE}"
+                app:iconDrawable="@{@drawable/ic_photo_library_24}"
+                app:text="@{@string/download_all}" />
 
             <include
                 android:id="@+id/popupCommentsPageActions_report"

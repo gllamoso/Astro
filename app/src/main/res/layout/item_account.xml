@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="8dp"
             app:accountIcon="@{account.validProfileImg}"
-            tools:src="@drawable/ic_user_24"/>
+            tools:src="@drawable/ic_profile_24"/>
 
         <TextView
             android:layout_width="0dp"
