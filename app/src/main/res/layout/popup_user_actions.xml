@@ -4,11 +4,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <import type="dev.gtcl.reddit.models.reddit.UserType"/>
+        <import type="dev.gtcl.astro.models.reddit.UserType"/>
         <import type="android.view.View"/>
         <variable
             name="userType"
-            type="dev.gtcl.reddit.models.reddit.UserType" />
+            type="dev.gtcl.astro.models.reddit.UserType" />
     </data>
 
     <androidx.cardview.widget.CardView

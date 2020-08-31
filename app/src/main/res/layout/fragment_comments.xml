@@ -8,8 +8,8 @@
     <data>
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.fragments.comments.CommentsVM" />
-        <import type="dev.gtcl.reddit.models.reddit.listing.PostType"/>
+            type="dev.gtcl.astro.ui.fragments.comments.CommentsVM" />
+        <import type="dev.gtcl.astro.models.reddit.listing.PostType"/>
         <import type="android.view.View"/>
     </data>
 

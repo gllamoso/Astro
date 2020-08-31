@@ -7,12 +7,12 @@
     <data>
         <variable
             name="comment"
-            type="dev.gtcl.reddit.models.reddit.listing.Comment" />
+            type="dev.gtcl.astro.models.reddit.listing.Comment" />
         <variable
             name="isUser"
             type="Boolean" />
         <import type="android.view.View" />
-        <import type="dev.gtcl.reddit.UtilKt"/>
+        <import type="dev.gtcl.astro.UtilKt"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

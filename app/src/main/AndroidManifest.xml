@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="dev.gtcl.reddit">
+    package="dev.gtcl.astro">
 
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
@@ -8,25 +8,25 @@
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE"/>
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
     <application
-        android:name=".RedditApplication"
+        android:name="dev.gtcl.astro.AstroApplication"
         android:allowBackup="true"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".ui.activities.MainActivity"
+        <activity android:name="dev.gtcl.astro.ui.activities.MainActivity"
             android:screenOrientation="portrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <service android:name=".download.DownloadIntentService"
+        <service android:name="dev.gtcl.astro.download.DownloadIntentService"
             android:permission="android.permission.BIND_JOB_SERVICE"
             android:exported="false"/>
         <provider
-            android:authorities="dev.gtcl.reddit.provider"
+            android:authorities="dev.gtcl.astro.provider"
             android:name="androidx.core.content.FileProvider"
             android:exported="false"
             android:grantUriPermissions="true">

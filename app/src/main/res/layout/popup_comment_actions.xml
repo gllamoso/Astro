@@ -6,7 +6,7 @@
     <data>
         <variable
             name="comment"
-            type="dev.gtcl.reddit.models.reddit.listing.Comment" />
+            type="dev.gtcl.astro.models.reddit.listing.Comment" />
         <variable
             name="createdFromUser"
             type="Boolean" />

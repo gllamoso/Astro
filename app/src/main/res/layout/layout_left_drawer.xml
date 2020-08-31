@@ -6,7 +6,7 @@
     <data>
         <variable
             name="account"
-            type="dev.gtcl.reddit.models.reddit.listing.Account" />
+            type="dev.gtcl.astro.models.reddit.listing.Account" />
         <import type="android.view.View"/>
     </data>
 

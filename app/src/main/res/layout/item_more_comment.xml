@@ -6,7 +6,7 @@
     <data>
         <variable
             name="more"
-            type="dev.gtcl.reddit.models.reddit.listing.More" />
+            type="dev.gtcl.astro.models.reddit.listing.More" />
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout

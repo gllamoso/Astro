@@ -6,7 +6,7 @@
     <data>
         <variable
             name="message"
-            type="dev.gtcl.reddit.models.reddit.listing.Message" />
+            type="dev.gtcl.astro.models.reddit.listing.Message" />
     </data>
 
     <RelativeLayout

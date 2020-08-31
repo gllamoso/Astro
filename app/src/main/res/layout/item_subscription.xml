@@ -6,12 +6,12 @@
     <data>
         <variable
             name="sub"
-            type="dev.gtcl.reddit.database.Subscription" />
+            type="dev.gtcl.astro.database.Subscription" />
         <variable
             name="iconTint"
             type="int" />
         <import type="android.view.View"/>
-        <import type="dev.gtcl.reddit.SubscriptionType"/>
+        <import type="dev.gtcl.astro.SubscriptionType"/>
     </data>
 
     <LinearLayout

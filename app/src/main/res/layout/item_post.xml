@@ -6,9 +6,9 @@
     <data>
         <variable
             name="post"
-            type="dev.gtcl.reddit.models.reddit.listing.Post" />
+            type="dev.gtcl.astro.models.reddit.listing.Post" />
         <import type="android.view.View" />
-        <import type="dev.gtcl.reddit.UtilKt" />
+        <import type="dev.gtcl.astro.UtilKt" />
         <import type="androidx.core.content.ContextCompat" />
     </data>
 

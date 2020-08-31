@@ -7,7 +7,7 @@
     <data>
         <variable
             name="listing"
-            type="dev.gtcl.reddit.models.reddit.listing.Listing" />
+            type="dev.gtcl.astro.models.reddit.listing.Listing" />
     </data>
 
     <LinearLayout

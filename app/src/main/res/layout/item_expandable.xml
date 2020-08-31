@@ -7,7 +7,7 @@
     <data>
         <variable
             name="expandableItem"
-            type="dev.gtcl.reddit.ui.viewholders.ExpandableItem" />
+            type="dev.gtcl.astro.ui.viewholders.ExpandableItem" />
         <variable
             name="showTopDivider"
             type="Boolean" />

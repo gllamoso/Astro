@@ -6,7 +6,7 @@
     <data>
         <variable
             name="user"
-            type="dev.gtcl.reddit.models.reddit.User" />
+            type="dev.gtcl.astro.models.reddit.User" />
     </data>
 
     <LinearLayout

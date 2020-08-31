@@ -4,11 +4,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="dev.gtcl.reddit.network.Status"/>
+        <import type="dev.gtcl.astro.network.Status"/>
         <import type="android.view.View"/>
         <variable
             name="networkState"
-            type="dev.gtcl.reddit.network.NetworkState" />
+            type="dev.gtcl.astro.network.NetworkState" />
     </data>
 
     <LinearLayout

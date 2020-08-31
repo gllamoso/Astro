@@ -5,11 +5,11 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="dev.gtcl.reddit.network.Status"/>
+        <import type="dev.gtcl.astro.network.Status"/>
         <import type="android.view.View"/>
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.fragments.listing.ListingVM" />
+            type="dev.gtcl.astro.ui.fragments.listing.ListingVM" />
     </data>
 
 
@@ -76,7 +76,7 @@
                 android:layout_height="?android:attr/actionBarSize"
                 android:layout_gravity="bottom"
                 app:contentInsetStart="0dp"
-                app:layout_behavior="dev.gtcl.reddit.ui.fragments.listing.BottomNavigationBehavior">
+                app:layout_behavior="dev.gtcl.astro.ui.fragments.listing.BottomNavigationBehavior">
 
                 <include
                     android:id="@+id/fragmentListing_bottomAppBarLayout"

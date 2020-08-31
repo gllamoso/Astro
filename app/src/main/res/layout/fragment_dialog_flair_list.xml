@@ -6,7 +6,7 @@
     <data>
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.fragments.flair.FlairListVM" />
+            type="dev.gtcl.astro.ui.fragments.flair.FlairListVM" />
         <import type="android.view.View"/>
     </data>
 

@@ -6,7 +6,7 @@
     <data>
         <variable
             name="subreddit"
-            type="dev.gtcl.reddit.models.reddit.listing.Subreddit" />
+            type="dev.gtcl.astro.models.reddit.listing.Subreddit" />
         <variable
             name="titleText"
             type="String" />

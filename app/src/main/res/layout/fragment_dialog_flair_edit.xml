@@ -6,7 +6,7 @@
     <data>
         <variable
             name="flair"
-            type="dev.gtcl.reddit.models.reddit.listing.Flair" />
+            type="dev.gtcl.astro.models.reddit.listing.Flair" />
     </data>
 
     <LinearLayout

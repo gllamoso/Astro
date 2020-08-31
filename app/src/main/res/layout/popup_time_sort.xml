@@ -5,8 +5,8 @@
     <data>
         <variable
             name="time"
-            type="dev.gtcl.reddit.Time" />
-        <import type="dev.gtcl.reddit.Time"/>
+            type="dev.gtcl.astro.Time" />
+        <import type="dev.gtcl.astro.Time"/>
     </data>
 
     <androidx.cardview.widget.CardView

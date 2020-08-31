@@ -6,18 +6,18 @@
     <data>
         <variable
             name="post"
-            type="dev.gtcl.reddit.models.reddit.listing.Post" />
+            type="dev.gtcl.astro.models.reddit.listing.Post" />
         <variable
             name="createdFromUser"
             type="Boolean" />
         <variable
             name="currentItemMediaType"
-            type="dev.gtcl.reddit.SimpleMediaType" />
+            type="dev.gtcl.astro.SimpleMediaType" />
         <variable
             name="hasAlbum"
             type="Boolean" />
         <import type="android.view.View" />
-        <import type="dev.gtcl.reddit.SimpleMediaType"/>
+        <import type="dev.gtcl.astro.SimpleMediaType"/>
     </data>
 
     <androidx.cardview.widget.CardView

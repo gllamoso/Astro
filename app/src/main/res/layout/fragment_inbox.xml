@@ -56,7 +56,7 @@
                 app:backgroundTint="@color/colorAccent"
                 app:tint="@android:color/white"
                 android:layout_margin="16dp"
-                app:layout_behavior="dev.gtcl.reddit.ui.BottomFabBehavior"/>
+                app:layout_behavior="dev.gtcl.astro.ui.BottomFabBehavior"/>
 
         </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

@@ -7,7 +7,7 @@
 
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.fragments.account.AccountFragmentVM" />
+            type="dev.gtcl.astro.ui.fragments.account.AccountFragmentVM" />
 
         <import type="android.view.View" />
     </data>

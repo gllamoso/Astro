@@ -6,7 +6,7 @@
 
         <variable
             name="model"
-            type="dev.gtcl.reddit.ui.fragments.signin.SignInVM" />
+            type="dev.gtcl.astro.ui.fragments.signin.SignInVM" />
         <import type="android.view.View" />
     </data>
 

@@ -6,8 +6,8 @@
     <data>
         <variable
             name="sort"
-            type="dev.gtcl.reddit.PostSort" />
-        <import type="dev.gtcl.reddit.PostSort"/>
+            type="dev.gtcl.astro.PostSort" />
+        <import type="dev.gtcl.astro.PostSort"/>
     </data>
 
     <androidx.cardview.widget.CardView
