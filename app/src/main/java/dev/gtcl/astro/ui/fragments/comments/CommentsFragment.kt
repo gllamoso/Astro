@@ -1,13 +1,19 @@
 package dev.gtcl.astro.ui.fragments.comments
 
+import android.Manifest
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
+import android.widget.Toast
+import androidx.activity.result.ActivityResultLauncher
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.coordinatorlayout.widget.CoordinatorLayout
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -62,6 +68,9 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     private val markwon: Markwon by lazy {
         createMarkwonInstance(requireContext(), ::handleLink)
     }
+
+    private lateinit var requestPermissionToDownloadItem: ActivityResultLauncher<String>
+    private lateinit var requestPermissionToDownloadAlbum: ActivityResultLauncher<String>
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -345,7 +354,11 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 val url = requireArguments().getString(URL_KEY)
                 val fullContextLink = requireArguments().getString(FULL_CONTEXT_URL_KEY, null)
                 if(model.allCommentsFetched.value == true){
-                    model.fetchComments(fullContextLink)
+                    if(fullContextLink != null){
+                        model.fetchComments(fullContextLink)
+                    } else {
+                        model.fetchComments(url!!)
+                    }
                 } else {
                     model.fetchComments(url!!)
                 }
@@ -406,6 +419,26 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     activityModel.updatePost(post, nsfw, spoiler, getNotification, flair)
                 }
             })
+
+
+        requestPermissionToDownloadItem = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                model.downloadItem(binding.fragmentCommentsContent.layoutCommentsContentViewPager.currentItem)
+            } else {
+                Toast.makeText(requireContext(), getString(R.string.please_grant_necessary_permissions), Toast.LENGTH_LONG).show()
+            }
+        }
+
+        requestPermissionToDownloadAlbum = registerForActivityResult(ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                model.downloadAlbum()
+            } else {
+                Toast.makeText(requireContext(), getString(R.string.please_grant_necessary_permissions), Toast.LENGTH_LONG).show()
+            }
+        }
     }
 
 //      _____                                     _                  _   _
@@ -604,6 +637,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             return
         }
 
+        val loggedIn = (requireActivity().application as AstroApplication).currentAccount != null
+
         val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupCommentsPageActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
@@ -645,6 +680,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 popupWindow.dismiss()
             }
             popupCommentsPageActionsHide.root.setOnClickListener {
+                if (!loggedIn) {
+                    Snackbar.make(binding.root, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
                 post.hidden = !post.hidden
                 binding.invalidateAll()
                 activityModel.hide(post.name, post.hidden)
@@ -660,17 +699,29 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     popupWindow.dismiss()
                 }
                 popupCommentsPageActionsDownloadSingleItem.root.setOnClickListener {
-                    model.downloadItem(binding.fragmentCommentsContent.layoutCommentsContentViewPager.currentItem)
+                    if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+                        model.downloadItem(binding.fragmentCommentsContent.layoutCommentsContentViewPager.currentItem)
+                    } else {
+                        requestPermissionToDownloadItem.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                    }
                     popupWindow.dismiss()
                 }
                 if(hasAlbum == true){
                     popupCommentsPageActionsDownloadAll.root.setOnClickListener {
-                        model.downloadAlbum()
+                        if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+                            model.downloadAlbum()
+                        } else {
+                            requestPermissionToDownloadAlbum.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                        }
                         popupWindow.dismiss()
                     }
                 }
             }
             popupCommentsPageActionsReport.root.setOnClickListener {
+                if (!loggedIn) {
+                    Snackbar.make(binding.root, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
+                    return@setOnClickListener
+                }
                 ReportDialogFragment.newInstance(post).show(childFragmentManager, null)
                 popupWindow.dismiss()
             }

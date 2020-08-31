@@ -1,13 +1,17 @@
 package dev.gtcl.astro.ui.fragments.create_post.type
 
+import android.Manifest
 import android.content.ContentValues
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.os.Bundle
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -34,7 +38,7 @@ class CreatePostImageFragment: Fragment() {
 
     private val photoUri: Uri by lazy {
         val values = ContentValues().apply {
-            put(MediaStore.Images.Media.MIME_TYPE, "image/jpg")
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
         }
         requireContext().contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
     }
@@ -80,12 +84,40 @@ class CreatePostImageFragment: Fragment() {
     }
 
     private fun initClickListeners(){
+        val requestCameraAccess = registerForActivityResult(
+                ActivityResultContracts.RequestPermission()
+            ) { isGranted: Boolean ->
+                if (isGranted) {
+                    getFromCamera.launch(photoUri)
+                } else {
+                    Toast.makeText(requireContext(), getString(R.string.please_grant_necessary_permissions), Toast.LENGTH_LONG).show()
+                }
+            }
+
         binding.fragmentCreatePostImageCameraButton.setOnClickListener {
-            getFromCamera.launch(photoUri)
+            if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+                getFromCamera.launch(photoUri)
+            } else {
+                requestCameraAccess.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+            }
+        }
+
+        val requestGalleryAccess = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                getFromGallery.launch("image/*")
+            } else {
+                Toast.makeText(requireContext(), getString(R.string.please_grant_necessary_permissions), Toast.LENGTH_LONG).show()
+            }
         }
 
         binding.fragmentCreatePostImageGalleryButton.setOnClickListener {
-            getFromGallery.launch("image/*")
+            if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+                getFromGallery.launch("image/*")
+            } else {
+                requestGalleryAccess.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
+            }
         }
 
         binding.fragmentCreatePostImageClose.setOnClickListener {

@@ -3,6 +3,7 @@ package dev.gtcl.astro.ui.activities
 import android.Manifest
 import android.net.Uri
 import android.os.Bundle
+import android.os.Environment
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
@@ -39,14 +40,6 @@ class MainActivity : FragmentActivity() {
                 model.chromeTabOpened()
             }
         })
-        ActivityCompat.requestPermissions(
-            this,
-            arrayOf(
-                Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                Manifest.permission.READ_EXTERNAL_STORAGE
-            ),
-            1
-        ) // TODO: Move somewhere
 
         model.errorMessage.observe(this, {
             if(it != null){
@@ -54,6 +47,9 @@ class MainActivity : FragmentActivity() {
                 model.errorMessageObserved()
             }
         })
+
+        // Preemptively create external directories
+        getExternalFilesDirs(Environment.DIRECTORY_DOWNLOADS)
     }
 
     override fun onResume() {

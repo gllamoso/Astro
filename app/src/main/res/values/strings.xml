@@ -161,7 +161,9 @@
     <string name="select_photo">Please select a photo</string>
 
     <!--Misc-->
-    <string name="please_login">Please log in</string>
+    <string name="please_log_in">Please log in</string>
+    <string name="must_be_logged_in">You must be logged in to do that</string>
+    <string name="please_grant_necessary_permissions">Please grant necessary permissions</string>
     <string name="retry">Retry</string>
     <string name="my_subscriptions">My Subscriptions</string>
     <string name="subscribe">Subscribe</string>
@@ -176,6 +178,7 @@
     <string name="downloading_album">Downloading Album</string>
     <string name="album_download_complete">Album Download Complete</string>
     <string name="unable_to_create_directory">Unable to create directory %s</string>
+    <string name="unable_to_create_external_directory">Unable to create external directory. Please retry.</string>
     <string name="nothing_found">Nothing found.</string>
     <string name="no_posts_found">No posts found.</string>
     <string name="no_comments_found">No comments found.</string>

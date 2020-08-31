@@ -1,10 +1,16 @@
 package dev.gtcl.astro.ui.fragments.media
 
+import android.Manifest
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.*
 import android.widget.PopupWindow
+import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
@@ -180,11 +186,29 @@ class MediaDialogFragment : DialogFragment(){
             startActivity(Intent.createChooser(shareIntent, null))
         }
 
-        binding.fragmentMediaDialogDownload.setOnClickListener {
-            if(model.mediaItems.value != null && model.mediaItems.value!!.size > 1){
-                showDownloadOptionsPopup(it)
+        val requestPermission = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                if(model.mediaItems.value != null && model.mediaItems.value!!.size > 1){
+                    showDownloadOptionsPopup(binding.fragmentMediaDialogDownload)
+                } else {
+                    model.downloadCurrentItem()
+                }
             } else {
-                model.downloadCurrentItem()
+                Toast.makeText(requireContext(), getString(R.string.please_grant_necessary_permissions), Toast.LENGTH_LONG).show()
+            }
+        }
+
+        binding.fragmentMediaDialogDownload.setOnClickListener {
+            if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+                if(model.mediaItems.value != null && model.mediaItems.value!!.size > 1){
+                    showDownloadOptionsPopup(it)
+                } else {
+                    model.downloadCurrentItem()
+                }
+            } else {
+                requestPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
         }
     }

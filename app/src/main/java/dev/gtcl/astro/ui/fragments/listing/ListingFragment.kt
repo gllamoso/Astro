@@ -557,7 +557,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
         if ((activity?.application as AstroApplication).accessToken == null) {
-            Snackbar.make(binding.fragmentListingDrawer, R.string.please_login, Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(binding.fragmentListingDrawer, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
         } else {
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(null)))
             binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
@@ -567,7 +567,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     @SuppressLint("RtlHardcoded")
     override fun onInboxClicked() {
         if ((activity?.application as AstroApplication).accessToken == null) {
-            Snackbar.make(binding.fragmentListingDrawer, R.string.please_login, Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(binding.fragmentListingDrawer, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
         } else {
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(InboxPage))
             binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
@@ -712,8 +712,12 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         val popupWindow = PopupWindow()
         popupBinding.apply {
             popupListingActionsCreatePost.root.setOnClickListener {
-                val subredditName = model.subreddit.value?.displayName
-                CreatePostDialogFragment.newInstance(subredditName).show(parentFragmentManager, null)
+                if ((activity?.application as AstroApplication).accessToken == null) {
+                    Snackbar.make(binding.fragmentListingDrawer, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
+                } else {
+                    val subredditName = model.subreddit.value?.displayName
+                    CreatePostDialogFragment.newInstance(subredditName).show(parentFragmentManager, null)
+                }
                 popupWindow.dismiss()
             }
             popupListingActionsSearch.root.setOnClickListener {

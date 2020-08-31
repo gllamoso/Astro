@@ -159,7 +159,7 @@ class CreatePostVM(private val application: AstroApplication): AndroidViewModel(
         spoiler: Boolean
     ){
         coroutineScope.launch {
-            val file = createFile(application,photo)
+            val file = createFile(application,photo) ?: return@launch
             try{
                 _loading.value = true
                 val imgurResponse = imgurRepository.uploadImage(file).await()
@@ -294,10 +294,9 @@ class CreatePostVM(private val application: AstroApplication): AndroidViewModel(
     }
 
     companion object{
-        fun createFile(context: Context, uri: Uri): File{
-            val externalDirectories = context.getExternalFilesDirs(Environment.DIRECTORY_DOWNLOADS)
-            val picturesFolder = externalDirectories[0]!!
-            val file = File.createTempFile("upload", ".jpg", picturesFolder)
+        fun createFile(context: Context, uri: Uri): File?{
+            val folder = context.getExternalFilesDirs(Environment.DIRECTORY_DOWNLOADS)[0] ?: return null
+            val file = File.createTempFile("upload", ".jpg", folder)
             val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
             inputStream.use { input ->
                 val outputStream = FileOutputStream(file)

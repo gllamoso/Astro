@@ -46,7 +46,11 @@ class DownloadIntentService : JobIntentService(){
 
     override fun onHandleWork(intent: Intent) {
         val externalDirectories = this.getExternalFilesDirs(Environment.DIRECTORY_DOWNLOADS)
-        val picturesFolder = externalDirectories[0]!!
+        val picturesFolder = externalDirectories[0]
+        if(picturesFolder == null){
+            Toast.makeText(this, getString(R.string.unable_to_create_external_directory), Toast.LENGTH_LONG).show()
+            return
+        }
         val saveDestination = File("$picturesFolder")
         val folderExists = createFolder(saveDestination)
         if(!folderExists){

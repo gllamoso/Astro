@@ -236,7 +236,7 @@ class AccountFragment : Fragment(),  LeftDrawerActions {
     @SuppressLint("RtlHardcoded")
     override fun onInboxClicked() {
         if ((activity?.application as AstroApplication).accessToken == null) {
-            Snackbar.make(binding.fragmentAccountDrawer, R.string.please_login, Snackbar.LENGTH_SHORT).show()
+            Snackbar.make(binding.fragmentAccountDrawer, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
         } else {
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(InboxPage))
             binding.fragmentAccountDrawer.closeDrawer(Gravity.LEFT)
