@@ -3,13 +3,11 @@ package dev.gtcl.reddit.ui.fragments.create_post.type
 import android.content.ContentValues
 import android.net.Uri
 import android.os.Bundle
-import android.os.Environment
 import android.provider.MediaStore
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.FileProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -20,7 +18,6 @@ import dev.gtcl.reddit.RedditApplication
 import dev.gtcl.reddit.ViewModelFactory
 import dev.gtcl.reddit.databinding.FragmentCreatePostImageBinding
 import dev.gtcl.reddit.ui.fragments.create_post.CreatePostVM
-import java.io.File
 
 class CreatePostImageFragment: Fragment() {
 
@@ -36,12 +33,10 @@ class CreatePostImageFragment: Fragment() {
     }
 
     private val photoUri: Uri by lazy {
-        val storageDir = File("${Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).absolutePath}/${requireContext().getText(R.string.app_name)}/temp").apply {
-            deleteRecursively()
-            mkdirs()
+        val values = ContentValues().apply {
+            put(MediaStore.Images.Media.MIME_TYPE, "image/jpg")
         }
-        val tempFile = File.createTempFile("preview", ".jpg", storageDir)
-        FileProvider.getUriForFile(requireContext(), "dev.gtcl.reddit.provider", tempFile)
+        requireContext().contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
     }
 
     private val getFromGallery = registerForActivityResult(ActivityResultContracts.GetContent()) {
@@ -75,6 +70,13 @@ class CreatePostImageFragment: Fragment() {
         binding.model = model
         initClickListeners()
         return binding.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        if(!requireActivity().isChangingConfigurations){
+            requireContext().contentResolver.delete(photoUri, null, null)
+        }
     }
 
     private fun initClickListeners(){

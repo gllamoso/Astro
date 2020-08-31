@@ -67,6 +67,10 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
     val postContent: LiveData<PostContent?>
         get() = _postContent
 
+    private val _loading = MutableLiveData<Boolean>().apply { value = false }
+    val loading: LiveData<Boolean>
+        get() = _loading
+
     fun fetchData(){
         _fetchInput.value = true
     }
@@ -118,6 +122,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
     ){
         coroutineScope.launch {
             try {
+                _loading.value = true
                 val newPostResponse = subredditRepository.submitTextPost(
                     subreddit,
                     title,
@@ -137,6 +142,8 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                 _newPostData.value = newPostResponse.json.data
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
+            } finally {
+                _loading.value = false
             }
         }
     }
@@ -151,6 +158,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
     ){
         coroutineScope.launch {
             try{
+                _loading.value = true
                 val imgurResponse = imgurRepository.uploadImage(createFile(application ,photo)).await()
                 val newPostResponse = subredditRepository.submitUrlPost(
                     subreddit,
@@ -172,6 +180,8 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                 _newPostData.value = newPostResponse.json.data
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
+            } finally {
+                _loading.value = false
             }
         }
     }
@@ -187,6 +197,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
         ){
         coroutineScope.launch {
             try {
+                _loading.value = true
                 val newPostResponse = subredditRepository.submitUrlPost(
                     subreddit,
                     title,
@@ -228,6 +239,8 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                 } else {
                     _errorMessage.value = e.getErrorMessage(application)
                 }
+            } finally {
+                _loading.value = false
             }
         }
     }
@@ -241,6 +254,7 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
 
         coroutineScope.launch {
             try {
+                _loading.value = true
                 val newPostResponse = subredditRepository.submitCrosspost(
                     subreddit,
                     title,
@@ -260,6 +274,8 @@ class CreatePostVM(private val application: RedditApplication): AndroidViewModel
                 _newPostData.value = newPostResponse.json.data
             } catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
+            } finally {
+                _loading.value = false
             }
         }
 

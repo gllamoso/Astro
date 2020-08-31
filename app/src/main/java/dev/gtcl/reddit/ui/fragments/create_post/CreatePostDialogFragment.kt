@@ -281,6 +281,10 @@ class CreatePostDialogFragment : DialogFragment(){
                 dismiss()
             }
         })
+
+        model.loading.observe(viewLifecycleOwner, {
+            dialog?.setCancelable(!it)
+        })
     }
 
     companion object{
