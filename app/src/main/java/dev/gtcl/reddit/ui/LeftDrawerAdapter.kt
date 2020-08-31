@@ -27,6 +27,10 @@ class LeftDrawerAdapter(
         }
     private var users: List<SavedAccount> = listOf()
 
+    fun toggleExpanded(){
+        isExpanded = !isExpanded
+    }
+
     fun submitUsers(users: List<SavedAccount>){
         this.users = users
         if(isExpanded){

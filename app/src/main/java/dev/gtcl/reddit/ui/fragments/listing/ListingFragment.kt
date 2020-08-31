@@ -65,11 +65,6 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     private lateinit var scrollListener: ItemScrollListener
     private lateinit var listAdapter: ListingItemAdapter
 
-    override fun onResume() {
-        super.onResume()
-        model.setLeftDrawerExpanded(false)
-    }
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -187,21 +182,15 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             leftDrawerAdapter.submitUsers(it)
         })
 
-        model.leftDrawerExpanded.observe(viewLifecycleOwner, {
-            leftDrawerAdapter.isExpanded = it
-        })
-
         leftDrawerLayout.layoutLeftDrawerBanner.setOnClickListener {
-            model.toggleLeftDrawerExpanding()
+            leftDrawerAdapter.toggleExpanded()
+            rotateView(leftDrawerLayout.layoutLeftDrawerExpandedIndicator, leftDrawerAdapter.isExpanded)
         }
 
         binding.fragmentListingTopAppBarLayout.layoutTopAppBarListingToolbar.setNavigationOnClickListener {
             binding.fragmentListingDrawer.openDrawer(Gravity.LEFT)
         }
 
-        model.leftDrawerExpanded.observe(viewLifecycleOwner, {
-            rotateView(leftDrawerLayout.layoutLeftDrawerExpandedIndicator, it)
-        })
     }
 
     @SuppressLint("RtlHardcoded")
@@ -546,8 +535,6 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         if(account.id != currentAccount?.id){
             saveAccountToPreferences(requireContext(), account)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
-        } else {
-            model.toggleLeftDrawerExpanding()
         }
         binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
     }
@@ -558,8 +545,6 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         if(currentAccount != null){
             saveAccountToPreferences(requireContext(), null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
-        } else {
-            model.toggleLeftDrawerExpanding()
         }
         binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
     }

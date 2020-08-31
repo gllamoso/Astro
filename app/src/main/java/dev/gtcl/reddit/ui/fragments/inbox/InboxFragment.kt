@@ -8,21 +8,27 @@ import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.FragmentResultListener
+import androidx.fragment.app.activityViewModels
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.LeftDrawerActions
 import dev.gtcl.reddit.database.SavedAccount
 import dev.gtcl.reddit.databinding.FragmentInboxBinding
+import dev.gtcl.reddit.models.reddit.listing.FrontPage
+import dev.gtcl.reddit.ui.LeftDrawerAdapter
+import dev.gtcl.reddit.ui.activities.MainActivityVM
 import dev.gtcl.reddit.ui.fragments.AccountPage
+import dev.gtcl.reddit.ui.fragments.ListingPage
 import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 
 class InboxFragment: Fragment(), LeftDrawerActions{
 
     private lateinit var binding: FragmentInboxBinding
+
+    private val activityModel: MainActivityVM by activityViewModels()
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -30,8 +36,8 @@ class InboxFragment: Fragment(), LeftDrawerActions{
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentInboxBinding.inflate(inflater)
-        setViewPagerAdapter()
-        setLeftDrawer()
+        initViewPagerAdapter()
+        initLeftDrawer()
 
         binding.fragmentInboxFab.setOnClickListener {
             ComposeDialogFragment.newInstance().show(childFragmentManager, null)
@@ -52,7 +58,7 @@ class InboxFragment: Fragment(), LeftDrawerActions{
         return binding.root
     }
 
-    private fun setViewPagerAdapter(){
+    private fun initViewPagerAdapter(){
         binding.fragmentInboxViewPager.adapter = InboxStateAdapter(this)
         TabLayoutMediator(binding.fragmentInboxTabLayout, binding.fragmentInboxViewPager) { tab, position ->
             tab.text = getText(when(position){
@@ -64,35 +70,26 @@ class InboxFragment: Fragment(), LeftDrawerActions{
         }.attach()
     }
 
-    private fun setLeftDrawer(){
-//        val header = LayoutNavHeaderBinding.inflate(inflater)
-//        binding.expandableListView.addHeaderView(header.root)
+    @SuppressLint("RtlHardcoded")
+    private fun initLeftDrawer(){
 
-//        binding.expandableListView.setAdapter(adapter)
+        val leftDrawerAdapter = LeftDrawerAdapter(requireContext(), this, LeftDrawerHeader.HOME)
+        val leftDrawerLayout = binding.fragmentInboxLeftDrawerLayout
+        leftDrawerLayout.layoutLeftDrawerList.adapter = leftDrawerAdapter
+        leftDrawerLayout.account = (requireActivity().application as RedditApplication).currentAccount
 
-//        parentModel.allUsers.observe(viewLifecycleOwner, Observer {
-//            adapter.setUsers(it.asAccountDomainModel())
-//        })
-//
-//        parentModel.currentAccount.observe(viewLifecycleOwner, Observer {
-//            header.account = it
-//        })
+        activityModel.allUsers.observe(viewLifecycleOwner, {
+            leftDrawerAdapter.submitUsers(it)
+        })
 
-//        binding.drawerLayout.setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-//        binding.toolbar.setNavigationOnClickListener {
-//            binding.drawerLayout.openDrawer(Gravity.LEFT)
-//        }
-//        binding.drawerLayout.addDrawerListener(object : DrawerLayout.DrawerListener{
-//            override fun onDrawerStateChanged(newState: Int) {}
-//            override fun onDrawerSlide(drawerView: View, slideOffset: Float) {}
-//            override fun onDrawerClosed(drawerView: View) {
-//                binding.expandableListView.collapseGroup(0)
-//            }
-//
-//            override fun onDrawerOpened(drawerView: View) {
-//                adapter.notifyDataSetInvalidated()
-//            }
-//        })
+        leftDrawerLayout.layoutLeftDrawerBanner.setOnClickListener {
+            leftDrawerAdapter.toggleExpanded()
+            rotateView(leftDrawerLayout.layoutLeftDrawerExpandedIndicator, leftDrawerAdapter.isExpanded)
+        }
+
+        binding.fragmentInboxToolbar.setNavigationOnClickListener {
+            binding.fragmentInboxDrawer.openDrawer(Gravity.LEFT)
+        }
     }
 
 
@@ -105,36 +102,55 @@ class InboxFragment: Fragment(), LeftDrawerActions{
 //
 
 
+    @SuppressLint("RtlHardcoded")
     override fun onAddAccountClicked() {
-//        parentModel.startSignInActivity()
+        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSignInFragment())
+        binding.fragmentInboxDrawer.closeDrawer(Gravity.LEFT)
     }
 
     override fun onRemoveAccountClicked(account: SavedAccount) {
-//        parentModel.deleteUserFromDatabase(user)
+        val currentAccount = (requireActivity().application as RedditApplication).currentAccount
+        if(account.id == currentAccount?.id){
+            saveAccountToPreferences(requireContext(), null)
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
+        }
+        activityModel.removeAccount(account)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onAccountClicked(account: SavedAccount) {
-//        parentModel.setCurrentUser(account, true)
+        val currentAccount = (requireActivity().application as RedditApplication).currentAccount
+        if(account.id != currentAccount?.id){
+            saveAccountToPreferences(requireContext(), account)
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
+        }
         binding.fragmentInboxDrawer.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onLogoutClicked() {
-//        parentModel.setCurrentUser(null, true)
+        val currentAccount = (requireActivity().application as RedditApplication).currentAccount
+        if(currentAccount != null){
+            saveAccountToPreferences(requireContext(), null)
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
+        }
         binding.fragmentInboxDrawer.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onHomeClicked() {
-//        findNavController().popBackStack(R.id.home_fragment, false)
+        findNavController().navigate(ViewPagerFragmentDirections.popBackStack(ListingPage(FrontPage)))
         binding.fragmentInboxDrawer.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
-        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(null)))
-        binding.fragmentInboxDrawer.closeDrawer(Gravity.LEFT)
+        if ((activity?.application as RedditApplication).accessToken == null) {
+            Snackbar.make(binding.fragmentInboxDrawer, R.string.please_login, Snackbar.LENGTH_SHORT).show()
+        } else {
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(null)))
+            binding.fragmentInboxDrawer.closeDrawer(Gravity.LEFT)
+        }
     }
 
     @SuppressLint("RtlHardcoded")
@@ -144,7 +160,7 @@ class InboxFragment: Fragment(), LeftDrawerActions{
 
     @SuppressLint("RtlHardcoded")
     override fun onSettingsClicked() {
-        Toast.makeText(context, "Settings", Toast.LENGTH_LONG).show()
+        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSettingsFragment())
         binding.fragmentInboxDrawer.closeDrawer(Gravity.LEFT)
     }
 

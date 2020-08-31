@@ -67,10 +67,6 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
     val lastItemReached: LiveData<Boolean>
         get() = _lastItemReached
 
-    private val _leftDrawerExpanded = MutableLiveData<Boolean>()
-    val leftDrawerExpanded: LiveData<Boolean>
-        get() = _leftDrawerExpanded
-
     private var showNsfw: Boolean = false
 
     private lateinit var _listing: Listing
@@ -324,14 +320,6 @@ class ListingVM(val application: RedditApplication) : AndroidViewModel(applicati
 
     fun updateItemAt(position: Int, item: Item) {
         _items.value?.set(position, item)
-    }
-
-    fun toggleLeftDrawerExpanding() {
-        _leftDrawerExpanded.value = !(_leftDrawerExpanded.value!!)
-    }
-
-    fun setLeftDrawerExpanded(expand: Boolean) {
-        _leftDrawerExpanded.value = expand
     }
 
 }

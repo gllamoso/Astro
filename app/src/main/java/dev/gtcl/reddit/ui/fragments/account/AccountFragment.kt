@@ -1,7 +1,9 @@
 package dev.gtcl.reddit.ui.fragments.account
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
+import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,20 +12,24 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.reddit.*
 import dev.gtcl.reddit.actions.*
-import dev.gtcl.reddit.databinding.FragmentAccountBinding
 import dev.gtcl.reddit.database.SavedAccount
+import dev.gtcl.reddit.databinding.FragmentAccountBinding
 import dev.gtcl.reddit.databinding.PopupAccountActionsBinding
 import dev.gtcl.reddit.models.reddit.listing.Account
-import dev.gtcl.reddit.models.reddit.listing.Subreddit
+import dev.gtcl.reddit.models.reddit.listing.FrontPage
+import dev.gtcl.reddit.ui.LeftDrawerAdapter
 import dev.gtcl.reddit.ui.activities.MainActivityVM
-import dev.gtcl.reddit.ui.fragments.ViewPagerVM
+import dev.gtcl.reddit.ui.fragments.AccountPage
+import dev.gtcl.reddit.ui.fragments.InboxPage
+import dev.gtcl.reddit.ui.fragments.ListingPage
+import dev.gtcl.reddit.ui.fragments.ViewPagerFragmentDirections
 
-class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
+class AccountFragment : Fragment(),  LeftDrawerActions {
 
     private lateinit var binding: FragmentAccountBinding
 
@@ -32,19 +38,12 @@ class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
         ViewModelProvider(this, viewModelFactory).get(AccountFragmentVM::class.java)
     }
 
-    private val viewPagerModel: ViewPagerVM by lazy {
-        ViewModelProviders.of(requireParentFragment()).get(ViewPagerVM::class.java)
-    }
-
     private val activityModel: MainActivityVM by activityViewModels()
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentAccountBinding.inflate(inflater)
         binding.lifecycleOwner = this
         binding.model = model
-        binding.fragmentAccountToolbar.setNavigationOnClickListener {
-//            parentModel.openDrawer()
-        }
         val username = requireArguments().getString(USER_KEY)
         if(model.username == null){
             model.setUsername(username)
@@ -52,33 +51,33 @@ class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
         if(model.account.value == null){
             model.fetchAccount(username)
         }
+
         initViewPagerAdapter()
-
-        model.errorMessage.observe(viewLifecycleOwner, {
-            if(it != null){
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
-                model.errorMessageObserved()
-                binding.fragmentAccountViewPager.adapter = null
-            }
-        })
-
-        binding.fragmentAccountSubscribeToggle.root.setOnClickListener {
-            val sub = model.account.value?.subreddit ?: return@setOnClickListener
-            sub.userSubscribed = sub.userSubscribed != true
-            binding.invalidateAll()
-            subscribe(sub, (sub.userSubscribed == true))
-        }
-
-        binding.fragmentAccountToolbar.setOnMenuItemClickListener {
-            val account = model.account.value
-            if(account != null){
-                val anchor = getMenuItemView(binding.fragmentAccountToolbar, R.id.more_options)
-                showAccountActionsPopup(anchor!!, account)
-            }
-            true
-        }
+        initLeftDrawer()
+        initOtherObservers()
 
         return binding.root
+    }
+
+    @SuppressLint("RtlHardcoded")
+    private fun initLeftDrawer(){
+        val leftDrawerAdapter = LeftDrawerAdapter(requireContext(), this, LeftDrawerHeader.HOME)
+        val leftDrawerLayout = binding.fragmentAccountLeftDrawerLayout
+        leftDrawerLayout.layoutLeftDrawerList.adapter = leftDrawerAdapter
+        leftDrawerLayout.account = (requireActivity().application as RedditApplication).currentAccount
+
+        activityModel.allUsers.observe(viewLifecycleOwner, {
+            leftDrawerAdapter.submitUsers(it)
+        })
+
+        leftDrawerLayout.layoutLeftDrawerBanner.setOnClickListener {
+            leftDrawerAdapter.toggleExpanded()
+            rotateView(leftDrawerLayout.layoutLeftDrawerExpandedIndicator, leftDrawerAdapter.isExpanded)
+        }
+
+        binding.fragmentAccountToolbar.setNavigationOnClickListener {
+            binding.fragmentAccountDrawer.openDrawer(Gravity.LEFT)
+        }
     }
 
     private fun initViewPagerAdapter(){
@@ -121,6 +120,32 @@ class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
         }
     }
 
+    private fun initOtherObservers(){
+        model.errorMessage.observe(viewLifecycleOwner, {
+            if(it != null){
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                model.errorMessageObserved()
+                binding.fragmentAccountViewPager.adapter = null
+            }
+        })
+
+        binding.fragmentAccountSubscribeToggle.root.setOnClickListener {
+            val sub = model.account.value?.subreddit ?: return@setOnClickListener
+            sub.userSubscribed = sub.userSubscribed != true
+            binding.invalidateAll()
+            activityModel.subscribe(sub, (sub.userSubscribed == true))
+        }
+
+        binding.fragmentAccountToolbar.setOnMenuItemClickListener {
+            val account = model.account.value
+            if(account != null){
+                val anchor = getMenuItemView(binding.fragmentAccountToolbar, R.id.more_options)
+                showAccountActionsPopup(anchor!!, account)
+            }
+            true
+        }
+    }
+
     private fun showAccountActionsPopup(anchor: View, account: Account){
         val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupAccountActionsBinding.inflate(inflater)
@@ -157,48 +182,72 @@ class AccountFragment : Fragment(), SubredditActions,  LeftDrawerActions {
 //    | |___|  __/ | | |_  | |__| | | | (_| |\ V  V /  __/ |     / ____ \ (__| |_| | (_) | | | \__ \
 //    |______\___|_|  \__| |_____/|_|  \__,_| \_/\_/ \___|_|    /_/    \_\___|\__|_|\___/|_| |_|___/
 
+    @SuppressLint("RtlHardcoded")
     override fun onAddAccountClicked() {
-//        navigationActions?.signInNewAccount()
+        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSignInFragment())
+        binding.fragmentAccountDrawer.closeDrawer(Gravity.LEFT)
     }
 
     override fun onRemoveAccountClicked(account: SavedAccount) {
-        TODO("Not yet implemented")
+        val currentAccount = (requireActivity().application as RedditApplication).currentAccount
+        if(account.id == currentAccount?.id){
+            saveAccountToPreferences(requireContext(), null)
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
+        }
+        activityModel.removeAccount(account)
     }
 
+    @SuppressLint("RtlHardcoded")
     override fun onAccountClicked(account: SavedAccount) {
-        TODO("Not yet implemented")
+        val currentAccount = (requireActivity().application as RedditApplication).currentAccount
+        if(account.id != currentAccount?.id){
+            saveAccountToPreferences(requireContext(), account)
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
+        }
+        binding.fragmentAccountDrawer.closeDrawer(Gravity.LEFT)
     }
 
+    @SuppressLint("RtlHardcoded")
     override fun onLogoutClicked() {
-        TODO("Not yet implemented")
+        val currentAccount = (requireActivity().application as RedditApplication).currentAccount
+        if(currentAccount != null){
+            saveAccountToPreferences(requireContext(), null)
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
+        }
+        binding.fragmentAccountDrawer.closeDrawer(Gravity.LEFT)
     }
 
+    @SuppressLint("RtlHardcoded")
     override fun onHomeClicked() {
-        TODO("Not yet implemented")
+        findNavController().navigate(ViewPagerFragmentDirections.popBackStack(ListingPage(FrontPage)))
+        binding.fragmentAccountDrawer.closeDrawer(Gravity.LEFT)
     }
 
     override fun onMyAccountClicked() {
-//        navigationActions?.accountSelected(null)
+        val user = model.account.value
+        val currentAccount = (requireActivity().application as RedditApplication).currentAccount
+        if(user?.name != currentAccount?.name){
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(null)))
+        }
+        binding.fragmentAccountDrawer.closeDrawer(Gravity.LEFT)
     }
 
+    @SuppressLint("RtlHardcoded")
     override fun onInboxClicked() {
-//        navigationActions?.messagesSelected()
+        if ((activity?.application as RedditApplication).accessToken == null) {
+            Snackbar.make(binding.fragmentAccountDrawer, R.string.please_login, Snackbar.LENGTH_SHORT).show()
+        } else {
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                InboxPage
+            ))
+            binding.fragmentAccountDrawer.closeDrawer(Gravity.LEFT)
+        }
     }
 
+    @SuppressLint("RtlHardcoded")
     override fun onSettingsClicked() {
-        TODO("Not yet implemented")
-    }
-
-//      _____       _                  _     _ _ _                  _   _
-//     / ____|     | |                | |   | (_) |       /\       | | (_)
-//    | (___  _   _| |__  _ __ ___  __| | __| |_| |_     /  \   ___| |_ _  ___  _ __  ___
-//     \___ \| | | | '_ \| '__/ _ \/ _` |/ _` | | __|   / /\ \ / __| __| |/ _ \| '_ \/ __|
-//     ____) | |_| | |_) | | |  __/ (_| | (_| | | |_   / ____ \ (__| |_| | (_) | | | \__ \
-//    |_____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
-//
-
-    override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-        activityModel.subscribe(subreddit, subscribe)
+        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSettingsFragment())
+        binding.fragmentAccountDrawer.closeDrawer(Gravity.LEFT)
     }
 
     companion object {

@@ -4,168 +4,183 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
+
         <variable
             name="model"
             type="dev.gtcl.reddit.ui.fragments.account.AccountFragmentVM" />
-        <import type="android.view.View"/>
+
+        <import type="android.view.View" />
     </data>
 
-    <androidx.coordinatorlayout.widget.CoordinatorLayout
-        android:id="@+id/fragmentAccount_background"
+    <androidx.drawerlayout.widget.DrawerLayout
+        android:id="@+id/fragmentAccount_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="?android:attr/colorBackground">
 
-        <com.google.android.material.appbar.AppBarLayout
-            android:id="@+id/fragmentAccount_appbarLayout"
+        <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:stateListAnimator="@drawable/selector_appbar_always_elevated">
+            android:layout_height="match_parent">
 
-            <com.google.android.material.appbar.CollapsingToolbarLayout
-                android:id="@+id/fragmentAccount_collapsingToolbarLayout"
+            <com.google.android.material.appbar.AppBarLayout
+                android:id="@+id/fragmentAccount_appbarLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:contentScrim="?android:attr/colorBackground"
-                app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
-                android:fitsSystemWindows="true"
-                app:title="@{model.account.name}"
-                app:expandedTitleTextAppearance="@style/CollapsingToolbarLayoutExpandedTextStyle"
-                app:expandedTitleGravity="top|center"
-                app:expandedTitleMarginTop="16dp"
-                tools:title="User">
-<!--                app:scrimVisibleHeightTrigger="156dp"-->
-<!--                app:expandedTitleGravity="top|start"-->
-<!--                app:expandedTitleMarginStart="76dp"-->
+                android:stateListAnimator="@drawable/selector_appbar_always_elevated">
 
-                <androidx.constraintlayout.widget.ConstraintLayout
+                <com.google.android.material.appbar.CollapsingToolbarLayout
+                    android:id="@+id/fragmentAccount_collapsingToolbarLayout"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:fitsSystemWindows="true"
+                    app:contentScrim="?android:attr/colorBackground"
+                    app:expandedTitleGravity="top|center"
+                    app:expandedTitleMarginTop="16dp"
+                    app:expandedTitleTextAppearance="@style/CollapsingToolbarLayoutExpandedTextStyle"
+                    app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
+                    app:title="@{model.account.name}"
+                    tools:title="User">
+                    <!--                app:scrimVisibleHeightTrigger="156dp"-->
+                    <!--                app:expandedTitleGravity="top|start"-->
+                    <!--                app:expandedTitleMarginStart="76dp"-->
+
+                    <androidx.constraintlayout.widget.ConstraintLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/fragmentAccount_profileBanner"
+                            android:layout_width="match_parent"
+                            android:layout_height="175dp"
+                            android:scaleType="centerCrop"
+                            app:banner="@{model.account.validBannerImg}"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            tools:src="@android:color/darker_gray" />
+
+                        <View
+                            android:id="@+id/fragmentAccount_userInfoBackground"
+                            android:layout_width="match_parent"
+                            android:layout_height="72dp"
+                            android:background="#80000000"
+                            android:elevation="0dp"
+                            android:gravity="center_vertical"
+                            android:orientation="vertical"
+                            app:layout_constraintBottom_toBottomOf="parent" />
+
+                        <LinearLayout
+                            android:id="@+id/fragmentAccount_userInfoPanel"
+                            android:layout_width="0dp"
+                            android:layout_height="72dp"
+                            android:gravity="center_vertical"
+                            android:orientation="vertical"
+                            android:padding="12dp"
+                            app:layout_constraintBottom_toBottomOf="@id/fragmentAccount_userInfoBackground"
+                            app:layout_constraintEnd_toStartOf="@id/fragmentAccount_subscribeToggle"
+                            app:layout_constraintStart_toStartOf="@id/fragmentAccount_userInfoBackground"
+                            app:layout_constraintTop_toTopOf="@id/fragmentAccount_userInfoBackground">
+
+                            <TextView
+                                android:id="@+id/fragmentAccount_name"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:singleLine="true"
+                                android:text="@{model.account.name}"
+                                android:textColor="@android:color/white"
+                                android:textStyle="bold"
+                                tools:text="User" />
+
+                            <TextView
+                                android:id="@+id/fragmentAccount_title"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
+                                android:gravity="center_vertical"
+                                android:singleLine="true"
+                                android:text="@{model.account.subreddit.title}"
+                                android:textColor="@android:color/white"
+                                android:visibility="@{model.account.subreddit.title.empty ? View.GONE : View.VISIBLE}"
+                                tools:text="Display Name" />
+
+
+                        </LinearLayout>
+
+                        <androidx.appcompat.widget.AppCompatImageView
+                            android:id="@+id/fragmentAccount_profilePicture"
+                            android:layout_width="64dp"
+                            android:layout_height="64dp"
+                            android:layout_marginBottom="8dp"
+                            android:elevation="16dp"
+                            android:translationZ="16dp"
+                            app:accountIcon="@{model.account.validProfileImg}"
+                            app:layout_constraintBottom_toTopOf="@id/fragmentAccount_subscribeToggle"
+                            app:layout_constraintEnd_toEndOf="@id/fragmentAccount_subscribeToggle"
+                            app:layout_constraintStart_toStartOf="@id/fragmentAccount_subscribeToggle"
+                            tools:src="@drawable/ic_profile_24" />
+
+                        <include
+                            android:id="@+id/fragmentAccount_subscribeToggle"
+                            layout="@layout/icon_subscribe"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginEnd="12dp"
+                            android:layout_marginBottom="16dp"
+                            app:isSubscribed="@{model.account.subreddit.userSubscribed}"
+                            app:layout_constraintBottom_toBottomOf="parent"
+                            app:layout_constraintEnd_toEndOf="parent" />
+
+                    </androidx.constraintlayout.widget.ConstraintLayout>
+
+                    <androidx.appcompat.widget.Toolbar
+                        android:id="@+id/fragmentAccount_toolbar"
+                        android:layout_width="match_parent"
+                        android:layout_height="?attr/actionBarSize"
+                        android:background="@android:color/transparent"
+                        app:layout_collapseMode="pin"
+                        app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
+                        app:menu="@menu/more_options"
+                        app:navigationIcon="@drawable/ic_menu_24" />
+
+                </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+                <androidx.cardview.widget.CardView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content">
 
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:id="@+id/fragmentAccount_profileBanner"
+                    <com.google.android.material.tabs.TabLayout
+                        android:id="@+id/fragmentAccount_tabLayout"
                         android:layout_width="match_parent"
-                        android:layout_height="175dp"
-                        android:scaleType="centerCrop"
-                        app:banner="@{model.account.validBannerImg}"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        tools:src="@android:color/darker_gray" />
-
-                    <View
-                        android:id="@+id/fragmentAccount_userInfoBackground"
-                        android:layout_width="match_parent"
-                        android:layout_height="72dp"
-                        android:orientation="vertical"
-                        android:background="#80000000"
-                        android:elevation="0dp"
-                        android:gravity="center_vertical"
-                        app:layout_constraintBottom_toBottomOf="parent"/>
-
-                    <LinearLayout
-                        android:id="@+id/fragmentAccount_userInfoPanel"
-                        android:layout_width="0dp"
-                        android:layout_height="72dp"
-                        android:orientation="vertical"
-                        android:gravity="center_vertical"
-                        android:padding="12dp"
-                        app:layout_constraintEnd_toStartOf="@id/fragmentAccount_subscribeToggle"
-                        app:layout_constraintStart_toStartOf="@id/fragmentAccount_userInfoBackground"
-                        app:layout_constraintTop_toTopOf="@id/fragmentAccount_userInfoBackground"
-                        app:layout_constraintBottom_toBottomOf="@id/fragmentAccount_userInfoBackground">
-
-                        <TextView
-                            android:id="@+id/fragmentAccount_name"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:singleLine="true"
-                            android:text="@{model.account.name}"
-                            android:textColor="@android:color/white"
-                            android:textStyle="bold"
-                            tools:text="User" />
-
-                        <TextView
-                            android:id="@+id/fragmentAccount_title"
-                            android:layout_width="match_parent"
-                            android:layout_height="wrap_content"
-                            android:gravity="center_vertical"
-                            android:singleLine="true"
-                            android:text="@{model.account.subreddit.title}"
-                            android:textColor="@android:color/white"
-                            android:visibility="@{model.account.subreddit.title.empty ? View.GONE : View.VISIBLE}"
-                            tools:text="Display Name" />
-
-
-                    </LinearLayout>
-
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:id="@+id/fragmentAccount_profilePicture"
-                        android:layout_width="64dp"
-                        android:layout_height="64dp"
-                        android:layout_marginBottom="8dp"
-                        android:elevation="16dp"
-                        android:translationZ="16dp"
-                        app:accountIcon="@{model.account.validProfileImg}"
-                        app:layout_constraintBottom_toTopOf="@id/fragmentAccount_subscribeToggle"
-                        app:layout_constraintEnd_toEndOf="@id/fragmentAccount_subscribeToggle"
-                        app:layout_constraintStart_toStartOf="@id/fragmentAccount_subscribeToggle"
-                        tools:src="@drawable/ic_profile_24" />
-
-                    <include
-                        android:id="@+id/fragmentAccount_subscribeToggle"
                         android:layout_height="wrap_content"
-                        android:layout_width="wrap_content"
-                        layout="@layout/icon_subscribe"
-                        app:isSubscribed="@{model.account.subreddit.userSubscribed}"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        android:layout_marginEnd="12dp"
-                        android:layout_marginBottom="16dp"/>
+                        app:layout_collapseMode="pin"
+                        app:tabGravity="fill"
+                        app:tabMode="auto" />
 
-                </androidx.constraintlayout.widget.ConstraintLayout>
+                </androidx.cardview.widget.CardView>
 
-                <androidx.appcompat.widget.Toolbar
-                    android:id="@+id/fragmentAccount_toolbar"
+                <androidx.viewpager2.widget.ViewPager2
+                    android:id="@+id/fragmentAccount_viewPager"
                     android:layout_width="match_parent"
-                    android:layout_height="?attr/actionBarSize"
-                    android:background="@android:color/transparent"
-                    app:layout_collapseMode="pin"
-                    app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed"
-                    app:navigationIcon="@drawable/ic_menu_24"
-                    app:menu="@menu/more_options"/>
+                    android:layout_height="match_parent" />
 
-            </com.google.android.material.appbar.CollapsingToolbarLayout>
+            </LinearLayout>
 
-        </com.google.android.material.appbar.AppBarLayout>
-        
-        <LinearLayout
-            android:layout_width="match_parent"
+        </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+        <include
+            android:id="@+id/fragmentAccount_leftDrawerLayout"
+            android:layout_width="240dp"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            app:layout_behavior="@string/appbar_scrolling_view_behavior">
+            android:layout_gravity="start"
+            layout="@layout/layout_left_drawer"/>
 
-            <androidx.cardview.widget.CardView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content">
-
-                <com.google.android.material.tabs.TabLayout
-                    android:id="@+id/fragmentAccount_tabLayout"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    app:tabGravity="fill"
-                    app:tabMode="auto"
-                    app:layout_collapseMode="pin"/>
-
-            </androidx.cardview.widget.CardView>
-
-            <androidx.viewpager2.widget.ViewPager2
-                android:id="@+id/fragmentAccount_viewPager"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"/>
-
-        </LinearLayout>
-
-    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+    </androidx.drawerlayout.widget.DrawerLayout>
 
 </layout>
