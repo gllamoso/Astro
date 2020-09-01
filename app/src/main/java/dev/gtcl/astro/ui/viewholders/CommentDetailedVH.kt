@@ -19,12 +19,14 @@ import io.noties.markwon.Markwon
 class CommentDetailedVH private constructor(private val binding: ItemCommentDetailedBinding): RecyclerView.ViewHolder(binding.root) {
 
     fun bind(comment: Comment, markwon: Markwon?, commentActions: CommentActions, username: String?, itemClickListener: ItemClickListener){
+        val isUser = (username != null && comment.author == username)
         binding.comment = comment
+        binding.isUser = isUser
         binding.itemCommentDetailedBackground.setOnClickListener{
             itemClickListener.itemClicked(comment, adapterPosition)
         }
         binding.itemCommentDetailedMoreOptions.setOnClickListener {
-            showPopupWindow(comment, commentActions, (username != null && comment.author == username), it)
+            showPopupWindow(comment, commentActions, isUser, it)
         }
         if(markwon != null){
             markwon.setMarkdown(binding.itemCommentDetailedBodyMessage, comment.body)

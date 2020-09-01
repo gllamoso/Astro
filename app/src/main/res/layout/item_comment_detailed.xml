@@ -8,6 +8,9 @@
         <variable
             name="comment"
             type="dev.gtcl.astro.models.reddit.listing.Comment" />
+        <variable
+            name="isUser"
+            type="Boolean" />
         <import type="android.view.View" />
         <import type="dev.gtcl.astro.UtilKt"/>
     </data>
@@ -57,6 +60,7 @@
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
                         android:singleLine="true"
+                        app:isUser="@{isUser}"
                         android:text="@{comment.author}"
                         android:textStyle="bold"
                         tools:text="Author" />

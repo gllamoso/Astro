@@ -443,3 +443,19 @@ fun setTimeText(textView: TextView, time: Time?){
         })
     }
 }
+
+@BindingAdapter("isUser")
+fun setUserTextColor(textView: TextView, isUser: Boolean){
+    val context = textView.context!!
+    val typedValue = TypedValue()
+    context.theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
+    val arr = context.obtainStyledAttributes(typedValue.data, intArrayOf(android.R.attr.textColorPrimary))
+    textView.setTextColor(
+        if(isUser){
+            context.getColor(R.color.colorPrimary)
+        } else {
+            arr.getColor(0, -1)
+        }
+    )
+    arr.recycle()
+}

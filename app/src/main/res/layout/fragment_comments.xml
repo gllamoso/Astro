@@ -167,6 +167,7 @@
                     <androidx.appcompat.widget.Toolbar
                         android:id="@+id/fragmentComments_commentsToolbar"
                         android:layout_width="match_parent"
+                        android:background="?android:attr/colorBackgroundFloating"
                         android:layout_height="?android:attr/actionBarSize">
 
                         <LinearLayout

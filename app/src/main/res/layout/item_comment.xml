@@ -11,6 +11,9 @@
         <variable
             name="isUser"
             type="Boolean" />
+        <variable
+            name="showTopDivider"
+            type="Boolean" />
         <import type="android.view.View" />
         <import type="dev.gtcl.astro.UtilKt"/>
     </data>
@@ -36,7 +39,7 @@
             android:layout_width="match_parent"
             android:layout_height="0.5dp"
             android:background="@android:color/darker_gray"
-            android:visibility="@{comment.depth == 0 ? View.VISIBLE : View.GONE}"
+            android:visibility="@{showTopDivider ? View.VISIBLE : View.GONE}"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
@@ -60,6 +63,7 @@
                 android:id="@+id/itemComment_authorText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                app:isUser="@{isUser}"
                 android:text="@{comment.author}"
                 android:layout_marginEnd="4dp"
                 android:textSize="12sp"
