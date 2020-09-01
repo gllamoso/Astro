@@ -52,8 +52,8 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     override fun onResume() {
         super.onResume()
-        val scrollPosition = binding.fragmentItemScrollerList.scrollY
-        if(scrollPosition == 0){
+        val scrollPosition = (binding.fragmentItemScrollerList.layoutManager as GridLayoutManager?)?.findFirstCompletelyVisibleItemPosition()
+        if(scrollPosition == 0){ // Fix for recyclerview items not being updated
             binding.fragmentItemScrollerList.scrollToPosition(0)
         }
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
