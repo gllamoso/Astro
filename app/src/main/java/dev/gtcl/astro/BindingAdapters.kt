@@ -269,8 +269,12 @@ fun secondsToDate(textView: TextView, time: Long){
 
 @BindingAdapter("viewSize")
 fun setViewSize(view: View, percentOfDeviceHeight: Int){
-    val wm = view.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-    val display = wm.defaultDisplay
+    val display = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
+        view.context.display!!
+    } else {
+        val wm = view.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
+        wm.defaultDisplay
+    }
     val size = Point()
     display.getRealSize(size)
     val height = size.y * percentOfDeviceHeight / 100
