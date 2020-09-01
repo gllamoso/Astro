@@ -37,7 +37,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     android:scaleType="centerCrop"
                     app:banner="@{account.validBannerImg}"
-                    tools:background="@drawable/ic_sun_tornado"/>
+                    tools:background="@drawable/default_banner"/>
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/layoutLeftDrawer_avatar"

@@ -76,7 +76,7 @@ fun loadImage(imgView: ImageView, imgUrl: String?){
 @BindingAdapter("banner")
 fun loadBanner(imgView: ImageView, url: String?){
     if (url.isNullOrBlank()){
-        imgView.setImageResource(R.drawable.ic_sun_tornado)
+        imgView.setImageResource(R.drawable.default_banner)
     } else {
         Glide.with(imgView.context)
             .load(url)
