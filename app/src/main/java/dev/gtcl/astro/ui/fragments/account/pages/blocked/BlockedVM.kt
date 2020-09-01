@@ -1,6 +1,5 @@
 package dev.gtcl.astro.ui.fragments.account.pages.blocked
 
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.AstroApplication
@@ -8,10 +7,6 @@ import dev.gtcl.astro.AstroViewModel
 import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.User
 import dev.gtcl.astro.network.NetworkState
-import dev.gtcl.astro.repositories.reddit.UserRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class BlockedVM(private val application: AstroApplication): AstroViewModel(application) {
@@ -31,13 +26,13 @@ class BlockedVM(private val application: AstroApplication): AstroViewModel(appli
     fun getBlocked() {
         coroutineScope.launch {
             try {
-                _networkState.value = NetworkState.LOADING
-                _blocked.value = userRepository.getBlocked().await().data.children
-                _networkState.value = NetworkState.LOADED
+                _networkState.postValue(NetworkState.LOADING)
+                _blocked.postValue(userRepository.getBlocked().await().data.children)
+                _networkState.postValue(NetworkState.LOADED)
             } catch (e: Exception) {
                 val errorMessage = e.getErrorMessage(application)
-                _errorMessage.value = errorMessage
-                _networkState.value = NetworkState.error(errorMessage)
+                _errorMessage.postValue(errorMessage)
+                _networkState.postValue(NetworkState.error(errorMessage))
             }
         }
     }
@@ -50,9 +45,9 @@ class BlockedVM(private val application: AstroApplication): AstroViewModel(appli
             try{
                 val username = _blocked.value!![position].name
                 userRepository.unblockUser(username).await()
-                _removeAt.value = position
+                _removeAt.postValue(position)
             }catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }

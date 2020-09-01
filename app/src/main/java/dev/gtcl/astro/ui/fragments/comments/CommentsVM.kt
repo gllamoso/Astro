@@ -87,19 +87,19 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
     fun fetchComments(permalink: String = post.value!!.permalink, refreshPost: Boolean = true){
         coroutineScope.launch {
             try{
-                _loading.value = true
+                _loading.postValue(true)
                 val commentPage = listingRepository.getPostAndComments(permalink, _commentSort.value!!, pageSize * 3).await()
                 if(refreshPost){
-                    _post.value = commentPage.post
+                    _post.postValue(commentPage.post)
                 }
-                _allCommentsFetched.value = permalink.endsWith(commentPage.post.permalink)
-                _comments.value = commentPage.comments.toMutableList()
+                _allCommentsFetched.postValue(permalink.endsWith(commentPage.post.permalink))
+                _comments.postValue(commentPage.comments.toMutableList())
                 _commentsFetched = true
             } catch (e: Exception){
-                _comments.value = mutableListOf()
-                _errorMessage.value = e.getErrorMessage(application)
+                _comments.postValue(mutableListOf())
+                _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
-                _loading.value = false
+                _loading.postValue(false)
             }
         }
     }
@@ -119,24 +119,24 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
             }
             val children = moreItem.pollChildrenAsValidString(CHILDREN_PER_FETCH)
             try{
-                _loading.value = true
+                _loading.postValue(true)
                 val comments = listingRepository.getMoreComments(children, post.value!!.name, _commentSort.value!!).await().json.data.things.map { it.data }.filter { !(it is More && it.depth == 0) }
                 if(moreItem.lastChildFetched){
                     _comments.value?.removeAt(positionOffset)
-                    _removeAt.value = position
+                    _removeAt.postValue(position)
                 }
-                _moreComments.value = MoreComments(
+                _moreComments.postValue(MoreComments(
                     position,
                     comments
-                )
+                ))
 
                 _comments.value?.addAll(positionOffset, comments)
             } catch (e: Exception){
                 moreItem.undoChildrenPoll()
-                _notifyAt.value = position
-                _errorMessage.value = e.getErrorMessage(application)
+                _notifyAt.postValue(position)
+                _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
-                _loading.value = false
+                _loading.postValue(false)
             }
         }
     }
@@ -212,8 +212,8 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
     fun fetchMediaItems(post: Post) {
         coroutineScope.launch {
             try {
-                _loading.value = true
-                _mediaItems.value = when (val urlType = post.urlType) {
+                _loading.postValue(true)
+                _mediaItems.postValue(when (val urlType = post.urlType) {
                     UrlType.IMAGE -> {
                         listOf(MediaURL(post.url!!, MediaType.PICTURE))
                     }
@@ -292,10 +292,11 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
                         listOf()
                     }
                 }
+                )
             } catch (e: Exception) {
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
-                _loading.value = false
+                _loading.postValue(false)
             }
         }
     }

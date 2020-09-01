@@ -26,17 +26,17 @@ class AccountAboutVM(val application: AstroApplication) : AstroViewModel(applica
         coroutineScope.launch {
             try {
                 if (user != null) {
-                    _account.value = userRepository.getAccountInfo(user).await().data
+                    _account.postValue(userRepository.getAccountInfo(user).await().data)
                 } else {
-                    _account.value = userRepository.getCurrentAccountInfo().await()
+                    _account.postValue(userRepository.getCurrentAccountInfo().await())
                 }
             } catch (e: Exception){
-                Log.d("TAE", "Exception 1: $e")
-                _errorMessage.value = if(e is JsonDataException){
-                    application.getString(R.string.account_error)
-                } else {
-                    e.getErrorMessage(application)
-                }
+                _errorMessage.postValue(if(e is JsonDataException){
+                        application.getString(R.string.account_error)
+                    } else {
+                        e.getErrorMessage(application)
+                    }
+                )
             }
         }
     }
@@ -48,14 +48,14 @@ class AccountAboutVM(val application: AstroApplication) : AstroViewModel(applica
     fun fetchAwards(){
         coroutineScope.launch {
             try {
-                trophyListing.value = miscRepository.getAwards(username ?: application.currentAccount!!.name).await()
+                trophyListing.postValue(miscRepository.getAwards(username ?: application.currentAccount!!.name).await())
             } catch (e: Exception){
-                Log.d("TAE", "Exception 2: $e")
-                _errorMessage.value = if(e is JsonDataException){
-                    application.getString(R.string.account_error)
-                } else {
-                    e.getErrorMessage(application)
-                }
+                _errorMessage.postValue(if(e is JsonDataException){
+                        application.getString(R.string.account_error)
+                    } else {
+                        e.getErrorMessage(application)
+                    }
+                )
             }
         }
     }

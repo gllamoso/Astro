@@ -2,10 +2,7 @@ package dev.gtcl.astro.ui.fragments.subscriptions
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import dev.gtcl.astro.R
-import dev.gtcl.astro.AstroApplication
-import dev.gtcl.astro.AstroViewModel
-import dev.gtcl.astro.SubscriptionType
+import dev.gtcl.astro.*
 import dev.gtcl.astro.database.Subscription
 import dev.gtcl.astro.models.reddit.listing.MultiRedditUpdate
 import kotlinx.coroutines.launch
@@ -27,7 +24,7 @@ class SubscriptionsVM(private val application: AstroApplication): AstroViewModel
             val multiReddits = subredditRepository.getMySubscriptions(SubscriptionType.MULTIREDDIT)
             val subreddits = subredditRepository.getMySubscriptions(SubscriptionType.SUBREDDIT)
             val users = subredditRepository.getMySubscriptions(SubscriptionType.USER)
-            _subscriptions.value = Subscriptions(favorites, multiReddits, subreddits, users)
+            _subscriptions.postValue(Subscriptions(favorites, multiReddits, subreddits, users))
         }
     }
 
@@ -40,13 +37,16 @@ class SubscriptionsVM(private val application: AstroApplication): AstroViewModel
             try{
                 val multiReddit = subredditRepository.createMulti(model).await().data
                 subredditRepository.insertMultiReddit(multiReddit)
-                _editSubscription.value = multiReddit.asSubscription()
+                _editSubscription.postValue(multiReddit.asSubscription())
             } catch (e: Exception){
-                if(e is HttpException && e.code() == 409){
-                    _errorMessage.value = application.getString(R.string.conflict_error)
-                } else{
-                    _errorMessage.value = e.toString()
-                }
+                _errorMessage.postValue(
+                    if(e is HttpException && e.code() == 409){
+                        application.getString(R.string.conflict_error)
+                    } else{
+                        e.getErrorMessage(application)
+                    }
+                )
+
             }
         }
     }

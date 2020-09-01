@@ -9,10 +9,7 @@ import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
 import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
-import dev.gtcl.astro.MediaType
-import dev.gtcl.astro.AstroApplication
-import dev.gtcl.astro.AstroViewModel
-import dev.gtcl.astro.buildMediaSource
+import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.MediaURL
 import kotlinx.coroutines.launch
 
@@ -36,8 +33,8 @@ class MediaVM(private val application: AstroApplication): AstroViewModel(applica
 
     fun setMedia(mediaURL: MediaURL){
         coroutineScope.launch {
-            _isLoading.value = true
-            _mediaUrl.value = mediaURL
+            _isLoading.postValue(true)
+            _mediaUrl.postValue(mediaURL)
             if(mediaURL.mediaType == MediaType.GFYCAT || mediaURL.mediaType == MediaType.VIDEO){
                 val trackSelector = DefaultTrackSelector()
                 trackSelector.setParameters(trackSelector.buildUponParameters().setMaxVideoSizeSd())
@@ -62,7 +59,7 @@ class MediaVM(private val application: AstroApplication): AstroViewModel(applica
                         if(mediaURL.backupUrl != null){
                             videoUri = Uri.parse(mediaURL.backupUrl)
                         } else {
-                            _errorMessage.value = e.toString()
+                            _errorMessage.postValue(e.getErrorMessage(application))
                         }
                     }
                 }
@@ -83,7 +80,7 @@ class MediaVM(private val application: AstroApplication): AstroViewModel(applica
                         }
                     })
                 }
-                _player.value = player
+                _player.postValue(player)
             }
             _initialized = true
         }

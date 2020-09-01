@@ -69,9 +69,9 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
             try{
                 val sub = subredditRepository.getSubreddit(displayName)
                     .await().data
-                _subreddit.value = sub
+                _subreddit.postValue(sub)
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
@@ -230,7 +230,7 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
             } catch (e: Exception) {
                 lastAction = ::fetchFirstPage
                 after = null
-                _networkState.value = NetworkState.error(e.getErrorMessage(application))
+                _networkState.postValue(NetworkState.error(e.getErrorMessage(application)))
             }
         }
     }
@@ -287,7 +287,7 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
             } catch (e: Exception) {
                 after = previousAfter
                 lastAction = ::loadMore
-                _networkState.value = NetworkState.error(e.getErrorMessage(application))
+                _networkState.postValue(NetworkState.error(e.getErrorMessage(application)))
             }
         }
     }

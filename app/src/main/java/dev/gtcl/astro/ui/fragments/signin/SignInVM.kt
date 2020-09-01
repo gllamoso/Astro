@@ -42,13 +42,13 @@ class SignInVM(private val application: AstroApplication) : AstroViewModel(appli
 
     fun setNewUser(responseUrl: String){
         coroutineScope.launch {
-            _loading.value = true
+            _loading.postValue(true)
             val code: String
             try {
                code = getCodeFromUrl(responseUrl)
             } catch(e: IllegalArgumentException){
-                _errorMessage.value = e.localizedMessage
-                _loading.value = false
+                _errorMessage.postValue(e.localizedMessage)
+                _loading.postValue(false)
                 return@launch
             }
 
@@ -60,8 +60,8 @@ class SignInVM(private val application: AstroApplication) : AstroViewModel(appli
             application.accessToken = token
             application.currentAccount = account
             saveUserToSharedPreferences(account)
-            _successfullyAddedAccount.value = true
-            _loading.value = false
+            _successfullyAddedAccount.postValue(true)
+            _loading.postValue(false)
         }
     }
 

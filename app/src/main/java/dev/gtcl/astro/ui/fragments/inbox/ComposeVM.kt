@@ -31,22 +31,22 @@ class ComposeVM(private val application: AstroApplication): AstroViewModel(appli
     fun sendMessage(to: String, subject: String, markdown: String){
         coroutineScope.launch {
             try{
-                _isLoading.value = true
+                _isLoading.postValue(true)
                 if(!userExists(to)){
                     _userDoesNotExist.value = Any()
-                    _isLoading.value
+                    _isLoading.postValue(false)
                     return@launch
                 }
                 val result = miscRepository.sendMessage(to, subject, markdown).await()
                 if(result.isSuccessful){
-                    _messageSent.value = true
+                    _messageSent.postValue(true)
                 } else {
                    throw Exception()
                 }
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
-                _isLoading.value = false
+                _isLoading.postValue(false)
             }
         }
     }

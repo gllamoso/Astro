@@ -134,7 +134,7 @@ class ItemScrollerVM(private val application: AstroApplication): AstroViewModel(
             } catch (e: Exception) {
                 lastAction = ::fetchFirstPage
                 after = null
-                _networkState.value = NetworkState.error(e.getErrorMessage(application))
+                _networkState.postValue(NetworkState.error(e.getErrorMessage(application)))
             }
         }
     }
@@ -190,7 +190,7 @@ class ItemScrollerVM(private val application: AstroApplication): AstroViewModel(
             } catch (e: Exception) {
                 after = previousAfter
                 lastAction = ::loadMore
-                _networkState.value = NetworkState.error(e.getErrorMessage(application))
+                _networkState.postValue(NetworkState.error(e.getErrorMessage(application)))
             }
         }
     }

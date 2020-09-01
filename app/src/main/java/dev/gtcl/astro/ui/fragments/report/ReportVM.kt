@@ -34,7 +34,7 @@ class ReportVM(private val application: AstroApplication): AstroViewModel(applic
     fun fetchRules(item: Item){
         coroutineScope.launch {
             try{
-                _loading.value = true
+                _loading.postValue(true)
                 val rulesResponse = when(item){
                     is Post -> subredditRepository.getRules((item).subreddit).await()
                     is Comment -> subredditRepository.getRules(item.subreddit).await()
@@ -47,11 +47,11 @@ class ReportVM(private val application: AstroApplication): AstroViewModel(applic
                 }
                 rulesList.addAll(rulesResponse.siteRules.map { RuleData(it, RuleType.SITE_RULE) })
                 rulesList.add(RuleData(application.getString(R.string.other), RuleType.OTHER))
-                _rules.value = rulesList
+                _rules.postValue(rulesList)
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
-                _loading.value = false
+                _loading.postValue(false)
             }
         }
     }

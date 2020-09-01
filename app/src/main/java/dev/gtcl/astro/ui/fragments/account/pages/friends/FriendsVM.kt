@@ -26,13 +26,13 @@ class FriendsVM(private val application: AstroApplication): AstroViewModel(appli
     fun getFriends(){
         coroutineScope.launch {
             try{
-                _networkState.value = NetworkState.LOADING
-                _friends.value = userRepository.getFriends().await()[0].data.children.toMutableList()
-                _networkState.value = NetworkState.LOADED
+                _networkState.postValue(NetworkState.LOADING)
+                _friends.postValue(userRepository.getFriends().await()[0].data.children.toMutableList())
+                _networkState.postValue(NetworkState.LOADED)
             }catch (e: Exception){
                 val errorMessage = e.getErrorMessage(application)
-                _errorMessage.value = errorMessage
-                _networkState.value = NetworkState.error(errorMessage)
+                _errorMessage.postValue(errorMessage)
+                _networkState.postValue(NetworkState.error(errorMessage))
             }
         }
     }
@@ -45,7 +45,7 @@ class FriendsVM(private val application: AstroApplication): AstroViewModel(appli
             try{
                 userRepository.removeFriend(_friends.value!![position].name).await()
                 _friends.value!!.removeAt(position)
-                _removeAt.value = position
+                _removeAt.postValue(position)
             }catch (e: Exception){
                 _errorMessage.value = e.getErrorMessage(application)
             }

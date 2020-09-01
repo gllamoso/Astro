@@ -33,16 +33,17 @@ class AccountFragmentVM(val application: AstroApplication): AstroViewModel(appli
         coroutineScope.launch {
             try {
                 if (user != null) {
-                    _account.value = userRepository.getAccountInfo(user).await().data
+                    _account.postValue(userRepository.getAccountInfo(user).await().data)
                 } else {
-                    _account.value = userRepository.getCurrentAccountInfo().await()
+                    _account.postValue(userRepository.getCurrentAccountInfo().await())
                 }
             } catch (e: Exception){
-                _errorMessage.value = if(e is JsonDataException){
+                _errorMessage.postValue(if(e is JsonDataException){
                         application.getString(R.string.account_error)
                     } else {
                         e.getErrorMessage(application)
                     }
+                )
             }
         }
     }
@@ -52,7 +53,7 @@ class AccountFragmentVM(val application: AstroApplication): AstroViewModel(appli
             try {
                 userRepository.addFriend(username).await()
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
@@ -62,7 +63,7 @@ class AccountFragmentVM(val application: AstroApplication): AstroViewModel(appli
             try{
                 userRepository.removeFriend(username).await()
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
@@ -72,7 +73,7 @@ class AccountFragmentVM(val application: AstroApplication): AstroViewModel(appli
             try {
                 userRepository.blockUser(username).await()
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
@@ -82,7 +83,7 @@ class AccountFragmentVM(val application: AstroApplication): AstroViewModel(appli
             try {
                 userRepository.unblockUser(username).await()
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }

@@ -23,8 +23,8 @@ abstract class AstroViewModel(application: AstroApplication): AndroidViewModel(a
     protected val imgurRepository = ImgurRepository.getInstance()
 
     // Scopes
-    protected val viewModelJob = Job()
-    protected val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+    private val viewModelJob = Job()
+    protected val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Default)
 
     protected val _errorMessage = MutableLiveData<String?>()
     val errorMessage: LiveData<String?>

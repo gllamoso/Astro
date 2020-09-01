@@ -36,16 +36,16 @@ class MultiRedditVM(private val application: AstroApplication): AstroViewModel(a
     fun fetchMultiReddit(subscription: Subscription){
         coroutineScope.launch {
             try{
-                _isLoading.value = true
+                _isLoading.postValue(true)
                 multipath = subscription.url.replaceFirst("/", "")
                 val response = subredditRepository.getMultiReddit(multipath).await()
-                _multi.value = response.data
-                _subreddits.value = response.data.subreddits.map { it.data!! }.toMutableList()
+                _multi.postValue(response.data)
+                _subreddits.postValue(response.data.subreddits.map { it.data!! }.toMutableList())
                 _initialized = true
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
-                _isLoading.value = false
+                _isLoading.postValue(false)
             }
         }
     }
@@ -53,17 +53,17 @@ class MultiRedditVM(private val application: AstroApplication): AstroViewModel(a
     fun remove(subreddit: Subreddit, position: Int){
         coroutineScope.launch {
             try {
-                _isLoading.value = true
+                _isLoading.postValue(true)
                 _subreddits.value?.removeAt(position)
-                _subreddits.value = _subreddits.value ?: mutableListOf()
+                _subreddits.postValue(_subreddits.value ?: mutableListOf())
                 val response = subredditRepository.deleteSubredditFromMultiReddit(multipath, subreddit).await()
                 if(response.code() != 200){
                     throw HttpException(response)
                 }
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
-                _isLoading.value = false
+                _isLoading.postValue(false)
             }
         }
     }

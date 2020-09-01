@@ -10,7 +10,7 @@ import dev.gtcl.astro.models.reddit.listing.Post
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
-class MediaDialogVM(private val application: AstroApplication): AstroViewModel(application){
+class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(application) {
 
     private val _mediaItems = MutableLiveData<List<MediaURL>>()
     val mediaItems: LiveData<List<MediaURL>>
@@ -21,7 +21,7 @@ class MediaDialogVM(private val application: AstroApplication): AstroViewModel(a
         get() = _post
 
     private val _itemPosition = MutableLiveData<Int>().apply { value = 0 }
-    val itemPosition : LiveData<Int>
+    val itemPosition: LiveData<Int>
         get() = _itemPosition
 
     private val _isLoading = MutableLiveData<Boolean>().apply { value = false }
@@ -32,13 +32,14 @@ class MediaDialogVM(private val application: AstroApplication): AstroViewModel(a
     val mediaInitialized: Boolean
         get() = _mediaInitialized
 
-    fun setMedia(mediaURL: MediaURL){
+    fun setMedia(mediaURL: MediaURL) {
         coroutineScope.launch {
-            try{
-                _isLoading.value = true
-                _mediaItems.value = when(mediaURL.mediaType){
+            try {
+                _isLoading.postValue(true)
+                _mediaItems.postValue(when (mediaURL.mediaType) {
                     MediaType.IMGUR_ALBUM -> {
-                        val album = imgurRepository.getAlbumImages(mediaURL.imgurHash!!).await().data.images!!
+                        val album = imgurRepository.getAlbumImages(mediaURL.imgurHash!!)
+                            .await().data.images!!
                         album.map {
                             val mediaType = when {
                                 it.type.startsWith("video") -> {
@@ -71,7 +72,9 @@ class MediaDialogVM(private val application: AstroApplication): AstroViewModel(a
                     }
                     MediaType.GFYCAT -> {
                         val videoUrl = gfycatRepository.getGfycatInfo(
-                            mediaURL.url.replace("http[s]?://gfycat.com/".toRegex(), "").split("-")[0])
+                            mediaURL.url.replace("http[s]?://gfycat.com/".toRegex(), "")
+                                .split("-")[0]
+                        )
                             .await()
                             .gfyItem
                             .mobileUrl
@@ -79,7 +82,11 @@ class MediaDialogVM(private val application: AstroApplication): AstroViewModel(a
                     }
                     MediaType.REDGIFS -> {
                         val videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(
-                            mediaURL.url.replace("http[s]?://(www\\.)?redgifs.com/watch/".toRegex(), ""))
+                            mediaURL.url.replace(
+                                "http[s]?://(www\\.)?redgifs.com/watch/".toRegex(),
+                                ""
+                            )
+                        )
                             .await()
                             .gfyItem
                             .mobileUrl
@@ -89,53 +96,65 @@ class MediaDialogVM(private val application: AstroApplication): AstroViewModel(a
                         listOf(mediaURL)
                     }
                 }
+                )
                 _mediaInitialized = true
-                _isLoading.value = false
+                _isLoading.postValue(false)
             } catch (e: Exception) {
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
 
         }
     }
 
-    fun setPost(post: Post?){
+    fun setPost(post: Post?) {
         _post.value = post
     }
 
-    fun setItemPosition(position: Int){
+    fun setItemPosition(position: Int) {
         _itemPosition.value = position
     }
 
-    fun downloadAlbum(){
-        if(_mediaItems.value == null){
+    fun downloadAlbum() {
+        if (_mediaItems.value == null) {
             return
         }
 
-        DownloadIntentService.enqueueWork(application.applicationContext, _mediaItems.value!!.map { it.url })
+        DownloadIntentService.enqueueWork(
+            application.applicationContext,
+            _mediaItems.value!!.map { it.url })
     }
 
-    fun downloadCurrentItem(){
-        if(_mediaItems.value == null && _itemPosition.value == null){
+    fun downloadCurrentItem() {
+        if (_mediaItems.value == null && _itemPosition.value == null) {
             return
         }
 
         coroutineScope.launch {
-            Toast.makeText(application, application.getText(R.string.downloading), Toast.LENGTH_SHORT).show()
+            Toast.makeText(
+                application,
+                application.getText(R.string.downloading),
+                Toast.LENGTH_SHORT
+            ).show()
             val item = _mediaItems.value!![_itemPosition.value!!]
             var downloadUrl = item.url
 
-            if(item.mediaType == MediaType.GFYCAT){
-                try{
+            if (item.mediaType == MediaType.GFYCAT) {
+                try {
                     downloadUrl = gfycatRepository.getGfycatInfo(
-                        item.url.replace("http[s]?://gfycat.com/".toRegex(), ""))
+                        item.url.replace("http[s]?://gfycat.com/".toRegex(), "")
+                    )
                         .await()
                         .gfyItem
                         .mp4Url
-                } catch (e: Exception){
-                    if(e is HttpException && e.code() == 404 && item.backupUrl != null){
+                } catch (e: Exception) {
+                    if (e is HttpException && e.code() == 404 && item.backupUrl != null) {
                         downloadUrl = item.backupUrl
                     } else {
-                        Toast.makeText(application, application.getText(R.string.unable_to_download_file), Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            application,
+                            application.getText(R.string.unable_to_download_file),
+                            Toast.LENGTH_SHORT
+                        ).show()
                     }
                 }
             }
@@ -144,7 +163,7 @@ class MediaDialogVM(private val application: AstroApplication): AstroViewModel(a
         }
     }
 
-    fun setItems(list: List<MediaURL>){
+    fun setItems(list: List<MediaURL>) {
         _mediaItems.value = list
         _mediaInitialized = true
     }

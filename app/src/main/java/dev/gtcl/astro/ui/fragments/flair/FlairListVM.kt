@@ -27,17 +27,17 @@ class FlairListVM(private val application: AstroApplication): AstroViewModel(app
     fun fetchFlairs(srName: String){
         coroutineScope.launch {
             try{
-                _loading.value = true
-                _title.value = srName
-                _flairs.value = subredditRepository.getFlairs(srName).await()
+                _loading.postValue(true)
+                _title.postValue(srName)
+                _flairs.postValue(subredditRepository.getFlairs(srName).await())
             } catch (e: Exception){
                 if(e is HttpException && e.code() == 403){
-                    _flairs.value = listOf()
+                    _flairs.postValue(listOf())
                 } else {
-                    _errorMessage.value = e.getErrorMessage(application)
+                    _errorMessage.postValue(e.getErrorMessage(application))
                 }
             } finally {
-                _loading.value = false
+                _loading.postValue(false)
             }
         }
     }

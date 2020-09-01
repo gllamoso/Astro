@@ -26,12 +26,12 @@ class RulesVM(private val application: AstroApplication): AstroViewModel(applica
     fun fetchRules(displayName: String){
         coroutineScope.launch {
             try{
-                _loading.value = true
-                _rules.value = subredditRepository.getRules(displayName).await().rules
+                _loading.postValue(true)
+                _rules.postValue(subredditRepository.getRules(displayName).await().rules)
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
-                _loading.value = false
+                _loading.postValue(false)
             }
         }
     }

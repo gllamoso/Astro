@@ -79,7 +79,7 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
 
     fun searchSubreddits(q: String){
         coroutineScope.launch {
-            _subredditSuggestions.value = subredditRepository.searchMySubscriptionsExcludingMultireddits(q).map { it.name }
+            _subredditSuggestions.postValue(subredditRepository.searchMySubscriptionsExcludingMultireddits(q).map { it.name })
         }
     }
 
@@ -87,9 +87,9 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
         coroutineScope.launch {
             try {
                 subredditRepository.getSubreddit(displayName).await()
-                _subredditValid.value = true
+                _subredditValid.postValue(true)
             } catch (e: Exception){
-                _subredditValid.value = false
+                _subredditValid.postValue(false)
             }
         }
     }
@@ -108,7 +108,7 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
     ){
         coroutineScope.launch {
             try {
-                _loading.value = true
+                _loading.postValue(true)
                 val newPostResponse = subredditRepository.submitTextPost(
                     subreddit,
                     title,
@@ -125,11 +125,11 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
                     }
                 }
 
-                _newPostData.value = newPostResponse.json.data
+                _newPostData.postValue(newPostResponse.json.data)
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
-                _loading.value = false
+                _loading.postValue(false)
             }
         }
     }
@@ -145,7 +145,7 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
         coroutineScope.launch {
             val file = createFile(application,photo) ?: return@launch
             try{
-                _loading.value = true
+                _loading.postValue(true)
                 val imgurResponse = imgurRepository.uploadImage(file).await()
                 val newPostResponse = subredditRepository.submitUrlPost(
                     subreddit,
@@ -164,12 +164,12 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
                     }
                 }
 
-                _newPostData.value = newPostResponse.json.data
+                _newPostData.postValue(newPostResponse.json.data)
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
                 file.delete()
-                _loading.value = false
+                _loading.postValue(false)
             }
         }
     }
@@ -185,7 +185,7 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
         ){
         coroutineScope.launch {
             try {
-                _loading.value = true
+                _loading.postValue(true)
                 val newPostResponse = subredditRepository.submitUrlPost(
                     subreddit,
                     title,
@@ -203,7 +203,7 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
                     }
                 }
 
-                _newPostData.value = newPostResponse.json.data
+                _newPostData.postValue(newPostResponse.json.data)
             } catch (e: Exception){
                 if(e is JsonDataException && e.localizedMessage?.startsWith("Required value 'data' missing") == true){
                     try{
@@ -217,18 +217,18 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
                         ).await()
                         val errorMessage = errorResponse.json.errors[0][1]
                         if(errorMessage == "that link has already been submitted"){
-                            _urlResubmit.value = url
+                            _urlResubmit.postValue(url)
                         } else {
-                            _errorMessage.value = errorMessage[0].toUpperCase() + errorMessage.substring(1)
+                            _errorMessage.postValue(errorMessage[0].toUpperCase() + errorMessage.substring(1))
                         }
                     } catch (e2: Exception){
-                        _errorMessage.value = application.getString(R.string.unable_fetch_error)
+                        _errorMessage.postValue(application.getString(R.string.unable_fetch_error))
                     }
                 } else {
-                    _errorMessage.value = e.getErrorMessage(application)
+                    _errorMessage.postValue(e.getErrorMessage(application))
                 }
             } finally {
-                _loading.value = false
+                _loading.postValue(false)
             }
         }
     }
@@ -242,7 +242,7 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
 
         coroutineScope.launch {
             try {
-                _loading.value = true
+                _loading.postValue(true)
                 val newPostResponse = subredditRepository.submitCrosspost(
                     subreddit,
                     title,
@@ -259,11 +259,11 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
                     }
                 }
 
-                _newPostData.value = newPostResponse.json.data
+                _newPostData.postValue(newPostResponse.json.data)
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
-                _loading.value = false
+                _loading.postValue(false)
             }
         }
 

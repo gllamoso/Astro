@@ -25,13 +25,13 @@ class ReplyOrEditVM(private val application: AstroApplication): AstroViewModel(a
     fun reply(parent: Item, body: String){
         coroutineScope.launch {
             try{
-                _isLoading.value = true
+                _isLoading.postValue(true)
                 val newComment = miscRepository.addComment(parent.name, body).await().json.data.things[0].data
-                _newItem.value = newComment
+                _newItem.postValue(newComment)
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
-                _isLoading.value = false
+                _isLoading.postValue(false)
             }
         }
     }
@@ -39,13 +39,13 @@ class ReplyOrEditVM(private val application: AstroApplication): AstroViewModel(a
     fun edit(parent: Item, body: String){
         coroutineScope.launch {
             try{
-                _isLoading.value = true
+                _isLoading.postValue(true)
                 val editResponse = miscRepository.editText(parent.name, body).await()
-                _newItem.value = editResponse.json.data.things[0].data
+                _newItem.postValue(editResponse.json.data.things[0].data)
             } catch (e: Exception){
-                _errorMessage.value = e.toString()
+                _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
-                _isLoading.value = false
+                _isLoading.postValue(false)
             }
         }
     }

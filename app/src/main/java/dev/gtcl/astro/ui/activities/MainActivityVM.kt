@@ -111,7 +111,7 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
                     subredditRepository.deleteSubscription(subscription)
                 }
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
@@ -132,7 +132,7 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
                     subredditRepository.deleteSubscription(subreddit)
                 }
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
@@ -142,7 +142,7 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
             try {
                 miscRepository.vote(thingId, vote).await()
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
 
         }
@@ -157,7 +157,7 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
                     miscRepository.unsave(thingId).await()
                 }
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
@@ -171,7 +171,7 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
                     miscRepository.unhide(thingId).await()
                 }
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
@@ -185,7 +185,7 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
                     RuleType.OTHER -> miscRepository.report(thingId, otherReason = rule).await()
                 }
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
 
         }
@@ -196,7 +196,7 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
             try{
                 miscRepository.delete(thingId).await()
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
@@ -234,7 +234,7 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
                     miscRepository.setFlair(post.name, flair).await()
                 }
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
@@ -244,7 +244,7 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
             try {
                 miscRepository.block(message).await()
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
@@ -254,7 +254,7 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
             try {
                 miscRepository.markMessage(message, read).await()
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
@@ -264,7 +264,7 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
             try {
                 miscRepository.deleteMessage(message).await()
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
