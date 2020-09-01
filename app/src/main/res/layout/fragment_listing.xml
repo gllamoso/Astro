@@ -27,7 +27,9 @@
                 android:id="@+id/fragmentListing_topAppBarLayout"
                 layout="@layout/layout_top_app_bar_listing"
                 app:subreddit="@{model.subreddit}"
-                app:titleText="@{model.title}" />
+                app:titleText="@{model.title}"
+                app:postSort="@{model.postSort}"
+                app:time="@{model.time}"/>
 
             <LinearLayout
                 android:layout_width="match_parent"

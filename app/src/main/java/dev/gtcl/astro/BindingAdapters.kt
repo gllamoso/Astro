@@ -411,3 +411,31 @@ fun setFlairOnChip(chip: Chip, flair: Flair?){
         chip.text = flair.text
     }
 }
+
+@BindingAdapter("postSort")
+fun setSortText(textView: TextView, postSort: PostSort){
+    textView.text = textView.context.getText(when(postSort){
+        PostSort.BEST -> R.string.order_best
+        PostSort.HOT -> R.string.order_hot
+        PostSort.NEW -> R.string.order_new
+        PostSort.TOP -> R.string.order_top
+        PostSort.CONTROVERSIAL -> R.string.order_controversial
+        PostSort.RISING -> R.string.order_rising
+        PostSort.RELEVANCE -> R.string.order_most_relevant
+        PostSort.COMMENTS -> R.string.order_comment_count
+    })
+}
+
+@BindingAdapter("time")
+fun setTimeText(textView: TextView, time: Time?){
+    time?.let {
+        textView.text = textView.context.getText(when(it){
+            Time.HOUR -> R.string.past_hour
+            Time.DAY -> R.string.past_24_hours
+            Time.WEEK -> R.string.past_week
+            Time.MONTH -> R.string.past_month
+            Time.YEAR -> R.string.past_year
+            Time.ALL -> R.string.all_time
+        })
+    }
+}

@@ -10,6 +10,12 @@
         <variable
             name="titleText"
             type="String" />
+        <variable
+            name="postSort"
+            type="dev.gtcl.astro.PostSort" />
+        <variable
+            name="time"
+            type="dev.gtcl.astro.Time" />
         <import type="android.view.View"/>
         <import type="android.R"/>
     </data>
@@ -54,11 +60,9 @@
                 app:layout_collapseMode="pin"
                 app:layout_scrollFlags="scroll|enterAlways|enterAlwaysCollapsed">
 
-                <LinearLayout
+                <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:orientation="horizontal"
-                    android:gravity="center">
+                    android:layout_height="match_parent">
 
                     <TextView
                         android:id="@+id/layoutTopAppBarListing_title"
@@ -70,8 +74,61 @@
                         android:textAppearance="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
                         android:layout_marginEnd="8dp"
                         android:text="@{titleText}"
+                        android:textSize="18sp"
+                        app:layout_constraintVertical_bias="100"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/layoutTopAppBarListing_sideBarButton"
+                        app:layout_constraintBottom_toTopOf="@id/layoutTopAppBarListing_toolbarCenter"
                         tools:text="Subreddit dsafdsafdsafadsf fasdfasdfadsf"
                         tools:textColor="@android:color/black"/>
+
+                    <View
+                        android:id="@+id/layoutTopAppBarListing_toolbarCenter"
+                        android:layout_width="0dp"
+                        android:layout_height="0.1dp"
+                        app:layout_constraintVertical_bias="0.6"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/layoutTopAppBarListing_sideBarButton"/>
+
+                    <LinearLayout
+                        android:id="@+id/layoutTopAppBarListing_sortingInfoGroup"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:layout_marginEnd="8dp"
+                        app:layout_constraintVertical_bias="0"
+                        app:layout_constraintTop_toBottomOf="@id/layoutTopAppBarListing_toolbarCenter"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintEnd_toStartOf="@id/layoutTopAppBarListing_sideBarButton">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="12sp"
+                            app:postSort="@{postSort}"
+                            tools:text="Top"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text=" • "
+                            android:visibility="@{time != null ? View.VISIBLE : View.GONE}"
+                            android:textSize="12sp"
+                            tools:ignore="HardcodedText" />
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:textSize="12sp"
+                            android:visibility="@{time != null ? View.VISIBLE : View.GONE}"
+                            app:time="@{time}"
+                            tools:text="All time"/>
+
+                    </LinearLayout>
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/layoutTopAppBarListing_sideBarButton"
@@ -82,9 +139,12 @@
                         android:padding="8dp"
                         android:layout_marginEnd="16dp"
                         android:visibility="@{subreddit == null ? View.GONE : View.VISIBLE}"
-                        app:subredditIcon="@{subreddit.icon}"/>
+                        app:subredditIcon="@{subreddit.icon}"
+                        app:layout_constraintTop_toTopOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintBottom_toBottomOf="parent"/>
 
-                </LinearLayout>
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
             </androidx.appcompat.widget.Toolbar>
 
