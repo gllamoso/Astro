@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import com.squareup.moshi.JsonDataException
 import dev.gtcl.astro.R
 import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.AstroViewModel
 import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.listing.Account
 import dev.gtcl.astro.repositories.reddit.UserRepository
@@ -14,14 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class AccountFragmentVM(val application: AstroApplication): ViewModel() {
-
-    // Repos
-    private val userRepository = UserRepository.getInstance(application)
-
-    // Scopes
-    private val viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+class AccountFragmentVM(val application: AstroApplication): AstroViewModel(application) {
 
     private val _account = MutableLiveData<Account>()
     val account: LiveData<Account>
@@ -31,16 +25,8 @@ class AccountFragmentVM(val application: AstroApplication): ViewModel() {
     val username: String?
         get() = _username
 
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?>
-        get() = _errorMessage
-
     fun setUsername(username: String?){
         _username = username
-    }
-
-    fun errorMessageObserved(){
-        _errorMessage.value = null
     }
 
     fun fetchAccount(user: String?){

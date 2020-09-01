@@ -1,25 +1,15 @@
 package dev.gtcl.astro.ui.fragments.flair
 
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.AstroViewModel
 import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.listing.Flair
-import dev.gtcl.astro.repositories.reddit.SubredditRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
-class FlairListVM(private val application: AstroApplication): AndroidViewModel(application) {
-
-    private val subredditRepository = SubredditRepository.getInstance(application)
-
-    // Scopes
-    private val viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+class FlairListVM(private val application: AstroApplication): AstroViewModel(application) {
 
     private val _flairs = MutableLiveData<List<Flair>?>().apply { value = null }
     val flairs: LiveData<List<Flair>?>
@@ -33,9 +23,6 @@ class FlairListVM(private val application: AstroApplication): AndroidViewModel(a
     val loading: LiveData<Boolean>
         get() = _loading
 
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?>
-        get() = _errorMessage
 
     fun fetchFlairs(srName: String){
         coroutineScope.launch {
@@ -53,9 +40,5 @@ class FlairListVM(private val application: AstroApplication): AndroidViewModel(a
                 _loading.value = false
             }
         }
-    }
-
-    fun errorMessageObserved(){
-        _errorMessage.value = null
     }
 }

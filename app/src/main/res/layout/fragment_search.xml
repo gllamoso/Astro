@@ -3,6 +3,14 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <data>
+        <variable
+            name="model"
+            type="dev.gtcl.astro.ui.fragments.search.SearchVM" />
+        <import type="android.view.View"/>
+        <import type="dev.gtcl.astro.network.Status"/>
+    </data>
+
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent">
@@ -73,7 +81,7 @@
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:elevation="20dp"
                 android:indeterminate="true"
-                android:visibility="gone"/>
+                android:visibility="@{model.networkState.status == Status.RUNNING || model.isSearching() ? View.VISIBLE : View.GONE}"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/fragmentSearch_popularList"
@@ -81,7 +89,10 @@
                 android:layout_height="wrap_content"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="1"
-                android:scrollbars="vertical"/>
+                android:visibility="@{model.showPopular ? View.VISIBLE : View.GONE}"
+                android:scrollbars="vertical"
+                tools:listitem="@layout/item_subreddit"
+                tools:visibility="gone"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/fragmentSearch_searchList"
@@ -89,7 +100,7 @@
                 android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="1"
-                android:visibility="gone"
+                android:visibility="@{!model.showPopular &amp;&amp; !model.searchItems.empty ? View.VISIBLE : View.GONE}"
                 tools:listitem="@layout/item_subreddit"
                 />
 
@@ -100,7 +111,8 @@
                 android:text="@string/nothing_found"
                 android:textAlignment="center"
                 android:padding="32dp"
-                android:visibility="gone"/>
+                android:visibility="@{!model.showPopular &amp;&amp; model.searchItems.empty ? View.VISIBLE : View.GONE}"
+                tools:visibility="gone"/>
 
         </FrameLayout>
 

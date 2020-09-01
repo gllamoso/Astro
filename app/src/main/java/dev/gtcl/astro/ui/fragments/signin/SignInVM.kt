@@ -16,12 +16,7 @@ import kotlin.IllegalArgumentException
 
 val STATE = UUID.randomUUID().toString()
 
-class SignInVM(private val application: AstroApplication) : AndroidViewModel(application) {
-
-    private val userRepository = UserRepository.getInstance(application)
-
-    private val viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+class SignInVM(private val application: AstroApplication) : AstroViewModel(application) {
 
     private val _loading = MutableLiveData<Boolean>()
     val loading: LiveData<Boolean>
@@ -34,10 +29,6 @@ class SignInVM(private val application: AstroApplication) : AndroidViewModel(app
     private val _successfullyAddedAccount = MutableLiveData<Boolean>()
     val successfullyAddedAccount: LiveData<Boolean>
         get() = _successfullyAddedAccount
-
-    private val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<String>
-        get() = _errorMessage
 
     fun incrementStackCount(){
         val count = _pageStackCount.value ?: 0

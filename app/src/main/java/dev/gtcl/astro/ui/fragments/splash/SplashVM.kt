@@ -9,22 +9,11 @@ import dev.gtcl.astro.models.reddit.AccessToken
 import dev.gtcl.astro.repositories.reddit.UserRepository
 import kotlinx.coroutines.*
 
-class SplashVM(val application: AstroApplication): ViewModel() {
-
-    // Repos
-    private val userRepository = UserRepository.getInstance(application)
-
-    // Scopes
-    private val viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+class SplashVM(val application: AstroApplication): AstroViewModel(application) {
 
     private val _ready = MutableLiveData<Boolean?>()
     val ready: LiveData<Boolean?>
         get() = _ready
-
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?>
-        get() = _errorMessage
 
     fun readyComplete(){
         _ready.value = null
@@ -52,10 +41,6 @@ class SplashVM(val application: AstroApplication): ViewModel() {
                 }
             }
         }
-    }
-
-    fun errorMessageObserved(){
-        _errorMessage.value = null
     }
 
     private suspend fun fetchAccessToken(refreshToken: String): AccessToken {

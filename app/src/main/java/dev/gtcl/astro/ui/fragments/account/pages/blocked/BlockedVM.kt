@@ -4,6 +4,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.AstroViewModel
 import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.User
 import dev.gtcl.astro.network.NetworkState
@@ -13,13 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class BlockedVM(private val application: AstroApplication): AndroidViewModel(application) {
-    // Repos
-    private val userRepository = UserRepository.getInstance(application)
-
-    // Scopes
-    private var viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+class BlockedVM(private val application: AstroApplication): AstroViewModel(application) {
 
     private val _networkState = MutableLiveData<NetworkState>()
     val networkState: LiveData<NetworkState>
@@ -28,10 +23,6 @@ class BlockedVM(private val application: AstroApplication): AndroidViewModel(app
     private val _blocked = MutableLiveData<List<User>>()
     val blocked: LiveData<List<User>>
         get() = _blocked
-
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?>
-        get() = _errorMessage
 
     private val _removeAt = MutableLiveData<Int?>()
     val removeAt: LiveData<Int?>

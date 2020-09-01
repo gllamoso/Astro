@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.FragmentResultListener
 import androidx.fragment.app.activityViewModels
@@ -109,17 +110,12 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
 
         model.errorMessage.observe(viewLifecycleOwner, {
             if(it != null){
-                AlertDialog.Builder(requireContext())
-                    .setMessage(it)
-                    .setPositiveButton(getString(R.string.done)){ dialog, _ ->
-                        dialog.dismiss()
-                    }
-                    .show()
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }
         })
 
-        childFragmentManager.setFragmentResultListener(MULTI_KEY, viewLifecycleOwner, FragmentResultListener{ _, bundle ->
+        childFragmentManager.setFragmentResultListener(MULTI_KEY, viewLifecycleOwner, { _, bundle ->
             val multiUpdate = bundle.get(MULTI_KEY) as MultiRedditUpdate
             model.createMulti(multiUpdate)
         })

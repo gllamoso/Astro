@@ -1,33 +1,18 @@
 package dev.gtcl.astro.ui.fragments.reply_or_edit
 
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.AstroViewModel
 import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.listing.Item
-import dev.gtcl.astro.repositories.reddit.MiscRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class ReplyOrEditVM(private val application: AstroApplication): AndroidViewModel(application) {
-
-    // Repos
-    private val miscRepository = MiscRepository.getInstance(application)
-
-    // Scopes
-    private val viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+class ReplyOrEditVM(private val application: AstroApplication): AstroViewModel(application) {
 
     private val _newItem = MutableLiveData<Item?>()
     val newItem: LiveData<Item?>
         get() = _newItem
-
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?>
-        get() = _errorMessage
 
     private val _isLoading = MutableLiveData<Boolean>().apply { value = false }
     val isLoading: LiveData<Boolean>
@@ -63,9 +48,5 @@ class ReplyOrEditVM(private val application: AstroApplication): AndroidViewModel
                 _isLoading.value = false
             }
         }
-    }
-
-    fun errorMessageObserved(){
-        _errorMessage.value = null
     }
 }

@@ -1,6 +1,5 @@
 package dev.gtcl.astro.ui.fragments.report
 
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.*
@@ -8,24 +7,9 @@ import dev.gtcl.astro.models.reddit.RuleFor
 import dev.gtcl.astro.models.reddit.listing.Comment
 import dev.gtcl.astro.models.reddit.listing.Item
 import dev.gtcl.astro.models.reddit.listing.Post
-import dev.gtcl.astro.repositories.reddit.SubredditRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class ReportVM(private val application: AstroApplication): AndroidViewModel(application) {
-
-    // Repos
-    private val subredditRepository = SubredditRepository.getInstance(application)
-
-    // Scopes
-    private val viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?>
-        get() = _errorMessage
+class ReportVM(private val application: AstroApplication): AstroViewModel(application) {
 
     private val _rules = MutableLiveData<List<RuleData>?>().apply { value = null }
     val rules: LiveData<List<RuleData>?>
@@ -38,10 +22,6 @@ class ReportVM(private val application: AstroApplication): AndroidViewModel(appl
     private val _otherSelected = MutableLiveData<Boolean>().apply { value = false }
     val otherSelected: LiveData<Boolean>
         get() = _otherSelected
-
-    fun errorMessageObserved(){
-        _errorMessage.value = null
-    }
 
     fun otherRuleSelected(){
         _otherSelected.value = true

@@ -1,26 +1,15 @@
 package dev.gtcl.astro.ui.fragments.listing
 
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
 import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.listing.*
-import dev.gtcl.astro.repositories.reddit.ListingRepository
 import dev.gtcl.astro.network.NetworkState
-import dev.gtcl.astro.repositories.reddit.SubredditRepository
 import kotlinx.coroutines.*
 
 const val PAGE_SIZE = 15
-class ListingVM(val application: AstroApplication) : AndroidViewModel(application) {
-
-    // Repos
-    private val listingRepository = ListingRepository.getInstance(application)
-    private val subredditRepository = SubredditRepository.getInstance(application)
-
-    // Scopes
-    private val viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+class ListingVM(val application: AstroApplication) : AstroViewModel(application) {
 
     private val _title = MutableLiveData<String>()
     val title: LiveData<String>
@@ -46,10 +35,6 @@ class ListingVM(val application: AstroApplication) : AndroidViewModel(applicatio
 
     private val readItemIds = HashSet<String>()
     private var after: String? = null
-
-    private val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<String>
-        get() = _errorMessage
 
     private val _postSort = MutableLiveData<PostSort>()
     val postSort: LiveData<PostSort>

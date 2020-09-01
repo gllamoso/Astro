@@ -4,6 +4,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.AstroViewModel
 import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.Rule
 import dev.gtcl.astro.repositories.reddit.SubredditRepository
@@ -12,14 +13,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class RulesVM(private val application: AstroApplication): AndroidViewModel(application){
-
-    // Repos
-    private val subredditRepository = SubredditRepository.getInstance(application)
-
-    // Scopes
-    private val viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+class RulesVM(private val application: AstroApplication): AstroViewModel(application){
 
     private val _rules = MutableLiveData<List<Rule>?>().apply { value = null }
     val rules: LiveData<List<Rule>?>
@@ -28,14 +22,6 @@ class RulesVM(private val application: AstroApplication): AndroidViewModel(appli
     private val _loading = MutableLiveData<Boolean>().apply { value = true }
     val loading: LiveData<Boolean>
         get() = _loading
-
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?>
-        get() = _errorMessage
-
-    fun errorMessageObserved(){
-        _errorMessage.value = null
-    }
 
     fun fetchRules(displayName: String){
         coroutineScope.launch {

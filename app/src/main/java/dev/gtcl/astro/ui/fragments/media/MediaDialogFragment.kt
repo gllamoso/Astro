@@ -17,7 +17,6 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentDialogMediaBinding
 import dev.gtcl.astro.databinding.PopupDownloadActionsBinding
@@ -72,13 +71,6 @@ class MediaDialogFragment : DialogFragment(){
         initWindowBackground()
         initTopBar()
         initBottomBar()
-
-        model.errorMessage.observe(viewLifecycleOwner, {
-            if(it != null){
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
-                model.errorMessageObserved()
-            }
-        })
 
         return binding.root
     }

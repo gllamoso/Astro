@@ -6,11 +6,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentDialogReportBinding
 import dev.gtcl.astro.models.reddit.listing.Comment
@@ -104,6 +106,13 @@ class ReportDialogFragment: DialogFragment() {
                         model.otherRuleUnselected()
                     }
                 }
+            }
+        })
+
+        model.errorMessage.observe(viewLifecycleOwner, {
+            if(it != null){
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
+                model.errorMessageObserved()
             }
         })
 

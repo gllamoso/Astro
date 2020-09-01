@@ -7,10 +7,10 @@ import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentDialogReplyOrEditBinding
 import dev.gtcl.astro.models.reddit.listing.Comment
@@ -131,7 +131,7 @@ class ReplyOrEditDialogFragment: DialogFragment() {
 
         model.errorMessage.observe(viewLifecycleOwner, {
             if(it != null){
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }
         })

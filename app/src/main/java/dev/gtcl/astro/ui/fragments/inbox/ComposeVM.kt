@@ -1,31 +1,14 @@
 package dev.gtcl.astro.ui.fragments.inbox
 
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.AstroViewModel
 import dev.gtcl.astro.getErrorMessage
-import dev.gtcl.astro.repositories.reddit.MiscRepository
-import dev.gtcl.astro.repositories.reddit.UserRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
-class ComposeVM(private val application: AstroApplication): AndroidViewModel(application){
-
-    // Repos
-    private val userRepository = UserRepository.getInstance(application)
-    private val miscRepository = MiscRepository.getInstance(application)
-
-    // Scopes
-    private val viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?>
-        get() = _errorMessage
+class ComposeVM(private val application: AstroApplication): AstroViewModel(application){
 
     private val _isLoading = MutableLiveData<Boolean>().apply { value = false }
     val isLoading: LiveData<Boolean>
@@ -40,10 +23,6 @@ class ComposeVM(private val application: AstroApplication): AndroidViewModel(app
         get() = _userDoesNotExist
 
     var initialized = false
-
-    fun errorMessageObserved(){
-        _errorMessage.value = null
-    }
 
     fun userDoesNotExistObserved(){
         _userDoesNotExist.value = null

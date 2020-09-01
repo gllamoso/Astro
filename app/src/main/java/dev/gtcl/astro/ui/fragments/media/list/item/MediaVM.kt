@@ -2,7 +2,6 @@ package dev.gtcl.astro.ui.fragments.media.list.item
 
 import android.net.Uri
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.exoplayer2.ExoPlaybackException
@@ -12,21 +11,12 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import dev.gtcl.astro.MediaType
 import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.AstroViewModel
 import dev.gtcl.astro.buildMediaSource
 import dev.gtcl.astro.models.reddit.MediaURL
-import dev.gtcl.astro.repositories.GfycatRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
-class MediaVM(private val application: AstroApplication): AndroidViewModel(application){
-
-    private val gfycatRepository = GfycatRepository.getInstance()
-
-    // Scopes
-    private var viewModelJob = Job()
-    private var coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+class MediaVM(private val application: AstroApplication): AstroViewModel(application){
 
     private val _mediaUrl = MutableLiveData<MediaURL>()
     val mediaURL: LiveData<MediaURL>
@@ -39,10 +29,6 @@ class MediaVM(private val application: AstroApplication): AndroidViewModel(appli
     private val _player = MutableLiveData<SimpleExoPlayer?>()
     val player: LiveData<SimpleExoPlayer?>
         get() = _player
-
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?>
-        get() = _errorMessage
 
     private var _initialized = false
     val initialized: Boolean

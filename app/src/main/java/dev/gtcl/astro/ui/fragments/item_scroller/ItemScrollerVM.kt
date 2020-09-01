@@ -1,31 +1,17 @@
 package dev.gtcl.astro.ui.fragments.item_scroller
 
-import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.preference.PreferenceManager
 import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.listing.Item
 import dev.gtcl.astro.models.reddit.listing.Listing
 import dev.gtcl.astro.models.reddit.listing.Post
 import dev.gtcl.astro.network.NetworkState
-import dev.gtcl.astro.network.Status
-import dev.gtcl.astro.repositories.reddit.ListingRepository
-import dev.gtcl.astro.repositories.reddit.SubredditRepository
 import kotlinx.coroutines.*
 import kotlin.collections.HashSet
 
 const val PAGE_SIZE = 15
-class ItemScrollerVM(private val application: AstroApplication): AndroidViewModel(application){
-
-    // Repos
-    private val listingRepository = ListingRepository.getInstance(application)
-    private val subredditRepository = SubredditRepository.getInstance(application)
-
-    // Scopes
-    private var viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+class ItemScrollerVM(private val application: AstroApplication): AstroViewModel(application){
 
     private val _networkState = MutableLiveData<NetworkState>()
     val networkState: LiveData<NetworkState>
@@ -53,10 +39,6 @@ class ItemScrollerVM(private val application: AstroApplication): AndroidViewMode
     private val _lastItemReached = MutableLiveData<Boolean>().apply { value = false }
     val lastItemReached: LiveData<Boolean>
         get() = _lastItemReached
-
-    private val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<String>
-        get() = _errorMessage
 
     private lateinit var lastAction: () -> Unit
 

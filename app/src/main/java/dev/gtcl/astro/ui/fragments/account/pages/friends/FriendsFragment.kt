@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.AstroApplication
 import dev.gtcl.astro.ViewModelFactory
 import dev.gtcl.astro.actions.UserActions
@@ -66,6 +67,13 @@ class FriendsFragment : Fragment(), UserActions{
             if(it != null){
                 adapter.removeAt(it)
                 model.removeAtObserved()
+            }
+        })
+
+        model.errorMessage.observe(viewLifecycleOwner, {
+            if(it != null){
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                model.errorMessageObserved()
             }
         })
 

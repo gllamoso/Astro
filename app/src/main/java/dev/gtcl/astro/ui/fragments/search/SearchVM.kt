@@ -1,30 +1,15 @@
 package dev.gtcl.astro.ui.fragments.search
 
-import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import dev.gtcl.astro.AstroApplication
-import dev.gtcl.astro.SubredditWhere
-import dev.gtcl.astro.minusAssign
+import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.listing.Item
 import dev.gtcl.astro.models.reddit.listing.SubredditChild
 import dev.gtcl.astro.network.NetworkState
-import dev.gtcl.astro.plusAssign
-import dev.gtcl.astro.repositories.reddit.SubredditRepository
-import dev.gtcl.astro.repositories.reddit.UserRepository
 import kotlinx.coroutines.*
-import retrofit2.HttpException
 import java.util.*
 
-class SearchVM(application: AstroApplication) : AndroidViewModel(application){
-    // Repos
-    private val subredditRepository = SubredditRepository.getInstance(application)
-    private val userRepository = UserRepository.getInstance(application)
-
-    // Scopes
-    private var viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+class SearchVM(private val application: AstroApplication) : AstroViewModel(application){
 
     private val _networkState = MutableLiveData<NetworkState>().apply { value = NetworkState.LOADING }
     val networkState: LiveData<NetworkState>
@@ -33,10 +18,6 @@ class SearchVM(application: AstroApplication) : AndroidViewModel(application){
     private val _searchItems = MutableLiveData<List<Item>>().apply { value = listOf() }
     val searchItems: LiveData<List<Item>>
         get() = _searchItems
-
-    private val _errorMessage = MutableLiveData<String>()
-    val errorMessage: LiveData<String>
-        get() = _errorMessage
 
     private val _popularItems = MutableLiveData<MutableList<Item>>().apply { value = arrayListOf() }
     val popularItems: LiveData<MutableList<Item>>
@@ -52,28 +33,46 @@ class SearchVM(application: AstroApplication) : AndroidViewModel(application){
 
     private var after: String? = null
     private val pageSize = 25
-    var initialPageLoaded = false
+
+    private var _firstPageLoaded = false
+    val firstPageLoaded: Boolean
+        get() = _firstPageLoaded
 
     private val _selectedItems = MutableLiveData<MutableSet<String>>().apply { value = mutableSetOf() }
     val selectedItems: LiveData<MutableSet<String>>
         get() = _selectedItems
 
+    private val _isSearching = MutableLiveData<Boolean>().apply { value = false }
+    val isSearching: LiveData<Boolean>
+        get() = _isSearching
+
+    private lateinit var lastAction: () -> Unit
+
+    private val _showPopular = MutableLiveData<Boolean>().apply { value = true }
+    val showPopular: LiveData<Boolean>
+        get() = _showPopular
+
+    fun showPopular(show: Boolean){
+        _showPopular.value = show
+    }
+
     fun retry(){
-        TODO("Need to be able to retry failed network requests")
+        lastAction()
     }
 
     fun searchSubreddits(query: String){
         coroutineScope.launch {
-            _networkState.value = NetworkState.LOADING
+            _isSearching.value = true
             try {
                 val results = ArrayList<Item>()
                 fetchAccountIfItExists(query, results)
                 searchSubreddits(query, results)
                 _searchItems.value = results
             } catch (e: Exception){
-                _errorMessage.value = e.toString()
+                _searchItems.value = listOf()
+                _errorMessage.value = e.getErrorMessage(application)
             } finally {
-                _networkState.value = NetworkState.LOADED
+                _isSearching.value = false
             }
         }
     }
@@ -82,13 +81,7 @@ class SearchVM(application: AstroApplication) : AndroidViewModel(application){
         try {
             val account = userRepository.getAccountInfo(query).await().data
             results.add(account)
-        } catch (e: HttpException){
-            if(e.code() == 404){
-                Log.i("Search", "Account not found: ${e.code()}")
-            } else {
-                throw e
-            }
-        }
+        } catch (e: Exception){ }
     }
 
     private suspend fun searchSubreddits(query: String, results: MutableList<Item>){
@@ -111,16 +104,19 @@ class SearchVM(application: AstroApplication) : AndroidViewModel(application){
                 _popularItems.value = subs
                 _lastItemReached.value = subs.size < size
                 after = response.data.after
-            } catch(e: Exception){
-                _errorMessage.value = e.toString()
-            } finally {
                 _networkState.value = NetworkState.LOADED
+                _firstPageLoaded = true
+            } catch(e: Exception){
+                lastAction = ::loadPopular
+                after = null
+                _networkState.value = NetworkState.error(e.getErrorMessage(application))
             }
         }
     }
 
     fun loadMorePopular(){
         coroutineScope.launch {
+            val previousAfter = after
             _networkState.value = NetworkState.LOADING
             try {
                 val size = if(popularItems.value.isNullOrEmpty()){
@@ -134,10 +130,11 @@ class SearchVM(application: AstroApplication) : AndroidViewModel(application){
                 _popularItems.value?.addAll(subs)
                 _lastItemReached.value = subs.size < size
                 after = response.data.after
-            } catch(e: Exception){
-                _errorMessage.value = e.toString()
-            } finally {
                 _networkState.value = NetworkState.LOADED
+            } catch(e: Exception){
+                after = previousAfter
+                lastAction = ::loadMorePopular
+                _networkState.value = NetworkState.error(e.getErrorMessage(application))
             }
         }
     }

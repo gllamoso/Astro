@@ -15,6 +15,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
+import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentSignInBinding
 import dev.gtcl.astro.models.reddit.listing.FrontPage
@@ -100,7 +101,8 @@ class SignInFragment : Fragment() {
 
         model.errorMessage.observe(viewLifecycleOwner, {
             if(it != null){
-                Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                model.errorMessageObserved()
             }
         })
 

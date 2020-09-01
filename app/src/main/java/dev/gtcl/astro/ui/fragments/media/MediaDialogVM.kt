@@ -1,32 +1,16 @@
 package dev.gtcl.astro.ui.fragments.media
 
 import android.widget.Toast
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import dev.gtcl.astro.MediaType
-import dev.gtcl.astro.R
-import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.*
 import dev.gtcl.astro.download.DownloadIntentService
-import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.Post
-import dev.gtcl.astro.repositories.GfycatRepository
-import dev.gtcl.astro.repositories.ImgurRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
-class MediaDialogVM(private val application: AstroApplication): AndroidViewModel(application){
-
-    private val imgurRepository = ImgurRepository.getInstance()
-    private val gfycatRepository = GfycatRepository.getInstance()
-
-    // Scopes
-    private val viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+class MediaDialogVM(private val application: AstroApplication): AstroViewModel(application){
 
     private val _mediaItems = MutableLiveData<List<MediaURL>>()
     val mediaItems: LiveData<List<MediaURL>>
@@ -47,10 +31,6 @@ class MediaDialogVM(private val application: AstroApplication): AndroidViewModel
     private var _mediaInitialized = false
     val mediaInitialized: Boolean
         get() = _mediaInitialized
-
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?>
-        get() = _errorMessage
 
     fun setMedia(mediaURL: MediaURL){
         coroutineScope.launch {
@@ -116,10 +96,6 @@ class MediaDialogVM(private val application: AstroApplication): AndroidViewModel
             }
 
         }
-    }
-
-    fun errorMessageObserved(){
-        _errorMessage.value = null
     }
 
     fun setPost(post: Post?){

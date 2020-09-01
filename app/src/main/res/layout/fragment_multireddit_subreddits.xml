@@ -43,7 +43,7 @@
                 style="@style/Widget.AppCompat.ProgressBar.Horizontal"
                 android:elevation="20dp"
                 android:indeterminate="true"
-                android:visibility="gone"/>
+                android:visibility="@{model.isLoading() ? View.VISIBLE : View.GONE}"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/fragmentMultiRedditSubreddits_list"

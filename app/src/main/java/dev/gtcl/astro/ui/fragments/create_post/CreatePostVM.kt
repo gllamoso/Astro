@@ -8,10 +8,7 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.squareup.moshi.JsonDataException
-import dev.gtcl.astro.PostContent
-import dev.gtcl.astro.R
-import dev.gtcl.astro.AstroApplication
-import dev.gtcl.astro.getErrorMessage
+import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.NewPostData
 import dev.gtcl.astro.models.reddit.listing.Flair
 import dev.gtcl.astro.models.reddit.listing.Post
@@ -26,16 +23,7 @@ import java.io.InputStream
 import java.net.URI
 import java.net.URL
 
-class CreatePostVM(private val application: AstroApplication): AndroidViewModel(application){
-
-    // Repos
-    private val imgurRepository = ImgurRepository.getInstance()
-    private val subredditRepository = SubredditRepository.getInstance(application)
-    private val miscRepository = MiscRepository.getInstance(application)
-
-    // Scopes
-    private val viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+class CreatePostVM(private val application: AstroApplication): AstroViewModel(application){
 
     private val _fetchInput = MutableLiveData<Boolean?>()
     val fetchInput: LiveData<Boolean?>
@@ -52,10 +40,6 @@ class CreatePostVM(private val application: AstroApplication): AndroidViewModel(
     private val _flair = MutableLiveData<Flair?>().apply { value = null }
     val flair: LiveData<Flair?>
         get() = _flair
-
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?>
-        get() = _errorMessage
 
     private val _urlResubmit = MutableLiveData<URL?>()
     val urlResubmit: LiveData<URL?>
@@ -287,10 +271,6 @@ class CreatePostVM(private val application: AstroApplication): AndroidViewModel(
 
     fun urlResubmitObserved(){
         _urlResubmit.value = null
-    }
-
-    fun errorMessageObserved(){
-        _errorMessage.value = null
     }
 
     companion object{

@@ -1,8 +1,6 @@
 package dev.gtcl.astro.ui.fragments.comments
 
-import android.util.Log
 import android.widget.Toast
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
@@ -11,26 +9,11 @@ import dev.gtcl.astro.download.DownloadIntentService
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.network.MoreComments
 import dev.gtcl.astro.models.reddit.listing.*
-import dev.gtcl.astro.repositories.reddit.ListingRepository
-import dev.gtcl.astro.repositories.GfycatRepository
-import dev.gtcl.astro.repositories.ImgurRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
 const val CHILDREN_PER_FETCH = 50
-class CommentsVM(val application: AstroApplication): AndroidViewModel(application) {
-
-    // Repos
-    private val listingRepository = ListingRepository.getInstance(application)
-    private val gfycatRepository = GfycatRepository.getInstance()
-    private val imgurRepository = ImgurRepository.getInstance()
-
-    // Scopes
-    private var viewModelJob = Job()
-    private var coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+class CommentsVM(val application: AstroApplication): AstroViewModel(application) {
 
     private val hiddenItemsMap = HashMap<String, List<Item>>()
 
@@ -61,10 +44,6 @@ class CommentsVM(val application: AstroApplication): AndroidViewModel(applicatio
     private val _commentSort = MutableLiveData<CommentSort>()
     val commentSort: LiveData<CommentSort>
         get() = _commentSort
-
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?>
-        get() = _errorMessage
 
     private val _removeAt = MutableLiveData<Int?>().apply { value = null }
     val removeAt: LiveData<Int?>
@@ -161,10 +140,6 @@ class CommentsVM(val application: AstroApplication): AndroidViewModel(applicatio
 
     fun addItems(position: Int, items: List<Item>){
         _comments.value?.addAll(position, items)
-    }
-
-    fun errorMessageObserved(){
-        _errorMessage.value = null
     }
 
     fun hideItems(position: Int): Int{

@@ -164,6 +164,7 @@ class AccountFragment : Fragment(),  LeftDrawerActions {
             popupAccountActionsBlock.root.setOnClickListener {
                 model.blockUser(account.name)
                 popupWindow.dismiss()
+                findNavController().popBackStack()
             }
             executePendingBindings()
             root.measure(

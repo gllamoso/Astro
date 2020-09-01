@@ -1,31 +1,17 @@
 package dev.gtcl.astro.ui.fragments.subscriptions
 
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.R
 import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.AstroViewModel
 import dev.gtcl.astro.SubscriptionType
 import dev.gtcl.astro.database.Subscription
 import dev.gtcl.astro.models.reddit.listing.MultiRedditUpdate
-import dev.gtcl.astro.repositories.reddit.SubredditRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
-class SubscriptionsVM(private val application: AstroApplication): AndroidViewModel(application){
-    // Repos
-    private val subredditRepository = SubredditRepository.getInstance(application)
-
-    // Scopes
-    private var viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
-
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?>
-        get() = _errorMessage
+class SubscriptionsVM(private val application: AstroApplication): AstroViewModel(application){
 
     private val _subscriptions = MutableLiveData<Subscriptions?>()
     val subscriptions: LiveData<Subscriptions?>
@@ -47,10 +33,6 @@ class SubscriptionsVM(private val application: AstroApplication): AndroidViewMod
 
     fun subscriptionsObserved(){
         _subscriptions.value = null
-    }
-
-    fun errorMessageObserved(){
-        _errorMessage.value = null
     }
 
     fun createMulti(model: MultiRedditUpdate){

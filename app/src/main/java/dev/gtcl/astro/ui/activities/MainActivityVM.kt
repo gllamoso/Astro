@@ -2,35 +2,18 @@ package dev.gtcl.astro.ui.activities
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import dev.gtcl.astro.*
 import dev.gtcl.astro.database.SavedAccount
 import dev.gtcl.astro.database.Subscription
 import dev.gtcl.astro.models.reddit.AccessToken
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
-import dev.gtcl.astro.repositories.reddit.MiscRepository
-import dev.gtcl.astro.repositories.reddit.SubredditRepository
-import dev.gtcl.astro.repositories.reddit.UserRepository
 import dev.gtcl.astro.ui.fragments.ViewPagerPage
 import kotlinx.coroutines.*
 
-class MainActivityVM(val application: AstroApplication): ViewModel() {
-
-    // Repos
-    private val userRepository = UserRepository.getInstance(application)
-    private val subredditRepository = SubredditRepository.getInstance(application)
-    private val miscRepository = MiscRepository.getInstance(application)
-
-    // Scopes
-    private val viewModelJob = Job()
-    private val coroutineScope = CoroutineScope(viewModelJob + Dispatchers.Main)
+class MainActivityVM(val application: AstroApplication): AstroViewModel(application) {
 
     val allUsers = userRepository.getAllUsers()
-
-    private val _errorMessage = MutableLiveData<String?>()
-    val errorMessage: LiveData<String?>
-        get() = _errorMessage
 
     private val _newPage = MutableLiveData<ViewPagerPage?>()
     val newPage: LiveData<ViewPagerPage?>
@@ -58,10 +41,6 @@ class MainActivityVM(val application: AstroApplication): ViewModel() {
 
     fun newPageObserved(){
         _newPage.value = null
-    }
-
-    fun errorMessageObserved(){
-        _errorMessage.value = null
     }
 
     fun refreshAccessToken(){

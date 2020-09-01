@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentMultiredditSubredditsBinding
 import dev.gtcl.astro.models.reddit.listing.MultiRedditUpdate
@@ -50,7 +51,6 @@ class MultiRedditFragment: Fragment(),
         adapter = MultiRedditSubredditsAdapter(this)
         binding.fragmentMultiRedditSubredditsList.adapter = adapter
 
-
         binding.fragmentMultiRedditSubredditsToolbar.setNavigationOnClickListener {
             navController.popBackStack()
         }
@@ -68,7 +68,11 @@ class MultiRedditFragment: Fragment(),
         )
 
         model.errorMessage.observe(viewLifecycleOwner, {
-            Toast.makeText(context, it, Toast.LENGTH_LONG).show()
+            if(it != null){
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                model.errorMessageObserved()
+            }
+
         })
 
         binding.fragmentMultiRedditSubredditsToolbar.setOnMenuItemClickListener {
@@ -80,7 +84,7 @@ class MultiRedditFragment: Fragment(),
             true
         }
 
-        childFragmentManager.setFragmentResultListener(MULTI_KEY, viewLifecycleOwner, FragmentResultListener{ _, bundle ->
+        childFragmentManager.setFragmentResultListener(MULTI_KEY, viewLifecycleOwner, { _, bundle ->
             val multiUpdate = bundle.get(MULTI_KEY) as MultiRedditUpdate
             model.updateMultiReddit(multiUpdate)
         })

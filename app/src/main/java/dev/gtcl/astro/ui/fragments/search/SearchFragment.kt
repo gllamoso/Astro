@@ -7,6 +7,7 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,12 +20,12 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
+import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.actions.ItemClickListener
 import dev.gtcl.astro.actions.SubredditActions
 import dev.gtcl.astro.databinding.FragmentSearchBinding
 import dev.gtcl.astro.models.reddit.listing.*
-import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.ui.ItemScrollListener
 import dev.gtcl.astro.ui.ListingItemAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
@@ -46,15 +47,17 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentSearchBinding.inflate(inflater)
+        binding.model = model
+        binding.lifecycleOwner = viewLifecycleOwner
 
-        if(!model.initialPageLoaded){
+        if(!model.firstPageLoaded){
             model.loadPopular()
         }
 
-        setEditTextListener()
-        setPopularRecyclerViewAdapter()
-        setSearchRecyclerViewAdapter()
-        setOnClickListeners()
+        initEditTextListener()
+        initPopularItems()
+        initSearchRecyclerViewAdapter()
+        initOnClickListeners()
 
         if(args.multiSelectMode){
             setMultiSelect()
@@ -66,10 +69,17 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             showKeyboard()
         }
 
+        model.errorMessage.observe(viewLifecycleOwner, {
+            if(it != null){
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                model.errorMessageObserved()
+            }
+        })
+
         return binding.root
     }
 
-    private fun setEditTextListener(){
+    private fun initEditTextListener(){
         binding.fragmentSearchSearchText.addTextChangedListener(object: TextWatcher {
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
@@ -82,14 +92,10 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
                 workRunnable?.let { handler.removeCallbacks(it) }
                 workRunnable = Runnable {
                     if(s.isNullOrBlank()){
-                        binding.fragmentSearchPopularList.visibility = View.VISIBLE
-                        binding.fragmentSearchSearchList.visibility = View.GONE
-                        binding.fragmentSearchNoResultsText.visibility = View.GONE
+                        model.showPopular(true)
                     } else {
                         model.searchSubreddits(s.toString())
-                        binding.fragmentSearchPopularList.visibility = View.GONE
-                        binding.fragmentSearchSearchList.visibility = View.VISIBLE
-                        binding.fragmentSearchNoResultsText.visibility = View.GONE
+                        model.showPopular(false)
                     }
                 }
                 handler.postDelayed(workRunnable!!, DELAY)
@@ -98,10 +104,16 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         })
     }
 
-    private fun setPopularRecyclerViewAdapter(){
-        val listAdapter = ListingItemAdapter(markwon = null, subredditActions = this, itemClickListener = this, username = null, retry = model::retry)
-        val scrollListener = ItemScrollListener(15, binding.fragmentSearchPopularList.layoutManager as GridLayoutManager, model::loadMorePopular)
+    private fun initPopularItems(){
         val recycler = binding.fragmentSearchPopularList
+        val scrollListener = ItemScrollListener(15, binding.fragmentSearchPopularList.layoutManager as GridLayoutManager, model::loadMorePopular)
+        val listAdapter = ListingItemAdapter(markwon = null, subredditActions = this, itemClickListener = this, username = null){
+            recycler.apply {
+                removeOnScrollListener(scrollListener)
+                addOnScrollListener(scrollListener)
+                model.retry()
+            }
+        }
         recycler.apply {
             adapter = listAdapter
             addOnScrollListener(scrollListener)
@@ -110,7 +122,6 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         model.popularItems.observe(viewLifecycleOwner, {
             listAdapter.submitList(it)
             scrollListener.finishedLoading()
-            model.initialPageLoaded = true
         })
 
         model.morePopularItems.observe(viewLifecycleOwner, {
@@ -121,6 +132,10 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             }
         })
 
+        model.networkState.observe(viewLifecycleOwner, {
+            listAdapter.networkState = it
+        })
+
         model.lastItemReached.observe(viewLifecycleOwner, {
             if(it == true){
                 recycler.removeOnScrollListener(scrollListener)
@@ -128,30 +143,18 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         })
     }
 
-    private fun setSearchRecyclerViewAdapter(){
+    private fun initSearchRecyclerViewAdapter(){
         val adapter = SearchAdapter(this, this)
         val searchList = binding.fragmentSearchSearchList
         searchList.adapter = adapter
 
         model.searchItems.observe(viewLifecycleOwner, {
             adapter.submitList(it)
-            searchList.apply {
-                smoothScrollToPosition(0)
-                visibility = if(it.isEmpty()) View.GONE else View.VISIBLE
-            }
-            binding.fragmentSearchNoResultsText.visibility = if(it.isNotEmpty() || binding.fragmentSearchSearchText.text.isNullOrEmpty()) View.GONE else View.VISIBLE
-        })
-
-        model.networkState.observe(viewLifecycleOwner, {
-            binding.fragmentSearchProgressBar.visibility = if(it == NetworkState.LOADED){
-                View.GONE
-            } else {
-                View.VISIBLE
-            }
+            searchList.smoothScrollToPosition(0)
         })
     }
 
-    private fun setOnClickListeners(){
+    private fun initOnClickListeners(){
         binding.fragmentSearchToolbar.setNavigationOnClickListener {
             findNavController().popBackStack()
             hideKeyboard()
@@ -203,7 +206,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             val name = when (item) {
                 is Subreddit ->  item.displayName
                 is Account ->  item.subreddit.displayName
-                else ->  ""
+                else ->  throw IllegalStateException("Invalid account: $item")
             }
             model.addSelectedItem(name)
         } else {

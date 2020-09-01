@@ -200,7 +200,10 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     private fun initOtherObservers(){
         model.errorMessage.observe(viewLifecycleOwner, {
-            Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+            if(it != null){
+                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                model.errorMessageObserved()
+            }
         })
 
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->

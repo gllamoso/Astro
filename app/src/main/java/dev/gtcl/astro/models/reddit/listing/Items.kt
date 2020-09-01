@@ -407,7 +407,7 @@ data class Subreddit(
     var userSubscribed: Boolean?,
     @Json(name = "public_description")
     val publicDescription: String,
-    val description: String,
+    val description: String?,
     val url: String
 ) : Item(ItemType.Subreddit) {
     @IgnoredOnParcel
