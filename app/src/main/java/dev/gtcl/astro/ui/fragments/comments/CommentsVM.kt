@@ -108,6 +108,9 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
         coroutineScope.launch {
             val positionOffset = position + if(allCommentsFetched.value == false) -1 else 0
             if(_loading.value == true || position == -1) {
+                if(position != -1){
+                    _notifyAt.value = position
+                }
                 return@launch
             }
             val moreItem = _comments.value?.get(positionOffset)
