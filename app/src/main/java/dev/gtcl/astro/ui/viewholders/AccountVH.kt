@@ -14,7 +14,6 @@ class AccountVH private constructor(private val binding: ItemAccountBinding): Re
         binding.account = account
 
         binding.itemAccountAddButton.setOnClickListener {
-            account.subreddit.userSubscribed = !(account.subreddit.userSubscribed ?: false)
             subredditActions.subscribe(account.subreddit, account.subreddit.userSubscribed ?: false)
             binding.invalidateAll()
         }

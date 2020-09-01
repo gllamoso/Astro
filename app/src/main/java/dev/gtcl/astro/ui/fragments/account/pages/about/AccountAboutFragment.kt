@@ -28,7 +28,9 @@ class AccountAboutFragment : Fragment() {
         binding.model = model
         val user = arguments?.getString(USER_KEY)
         model.fetchAccount(user)
-        model.fetchAwards()
+        if((requireActivity().application as AstroApplication).currentAccount != null){
+            model.fetchAwards()
+        }
 
         val adapter = AwardsAdapter()
         model.awards.observe(viewLifecycleOwner, {

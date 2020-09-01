@@ -63,7 +63,6 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
                 popupWindow.dismiss()
             }
             popupCommentActionsSave.root.setOnClickListener {
-                comment.saved = comment.saved != true
                 commentActions.save(comment)
                 binding.invalidateAll()
                 popupWindow.dismiss()

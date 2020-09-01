@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
@@ -222,9 +223,10 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         model.subreddit.observe(viewLifecycleOwner, { sub ->
             if (sub != null) {
                 rightDrawerLayout.layoutRightDrawerSubscribeToggle.iconSubscribeBackground.setOnClickListener {
-                    sub.userSubscribed = sub.userSubscribed != true
-                    rightDrawerLayout.invalidateAll()
-                    subscribe(sub, (sub.userSubscribed == true))
+                    checkedIfLoggedInBeforeExecuting(requireContext()) {
+                        subscribe(sub, (sub.userSubscribed ?: false))
+                        rightDrawerLayout.invalidateAll()
+                    }
                 }
                 drawer.setDrawerLockMode(
                     DrawerLayout.LOCK_MODE_UNLOCKED,
@@ -352,32 +354,10 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 //
 
     override fun vote(post: Post, vote: Vote) {
-        when(vote){
-            Vote.UPVOTE -> {
-                when(post.likes){
-                    true -> post.score--
-                    false -> post.score += 2
-                    null -> post.score++
-                }
-                post.likes = true
-            }
-            Vote.DOWNVOTE -> {
-                when(post.likes){
-                    true -> post.score -= 2
-                    false -> post.score ++
-                    null -> post.score--
-                }
-                post.likes = false
-            }
-            Vote.UNVOTE -> {
-                when(post.likes){
-                    true -> post.score--
-                    false -> post.score++
-                }
-                post.likes = null
-            }
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            post.updateScore(vote)
+            activityModel.vote(post.name, vote)
         }
-        activityModel.vote(post.name, vote)
     }
 
     override fun share(post: Post) {
@@ -393,7 +373,10 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun save(post: Post) {
-        activityModel.save(post.name, post.saved)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            post.saved = post.saved != true
+            activityModel.save(post.name, post.saved)
+        }
     }
 
     override fun subredditSelected(sub: String) {
@@ -406,13 +389,18 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun hide(post: Post, position: Int) {
-        activityModel.hide(post.name, post.hidden)
-        model.removeItemAt(position)
-        listAdapter.removeAt(position)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            post.hidden = !post.hidden
+            activityModel.hide(post.name, post.hidden)
+            model.removeItemAt(position)
+            listAdapter.removeAt(position)
+        }
     }
 
     override fun report(post: Post, position: Int) {
-        ReportDialogFragment.newInstance(post, position).show(childFragmentManager, null)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            ReportDialogFragment.newInstance(post, position).show(childFragmentManager, null)
+        }
     }
 
     override fun thumbnailClicked(post: Post, position: Int) {
@@ -448,17 +436,23 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun edit(post: Post, position: Int) {
-        ReplyOrEditDialogFragment.newInstance(post, position, false).show(childFragmentManager, null)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            ReplyOrEditDialogFragment.newInstance(post, position, false).show(childFragmentManager, null)
+        }
     }
 
     override fun manage(post: Post, position: Int) {
-        ManagePostDialogFragment.newInstance(post, position).show(childFragmentManager, null)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            ManagePostDialogFragment.newInstance(post, position).show(childFragmentManager, null)
+        }
     }
 
     override fun delete(post: Post, position: Int) {
-        activityModel.delete(post.name)
-        model.removeItemAt(position)
-        listAdapter.removeAt(position)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            activityModel.delete(post.name)
+            model.removeItemAt(position)
+            listAdapter.removeAt(position)
+        }
     }
 
 //      _____                                     _                  _   _
@@ -470,12 +464,17 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
 
     override fun vote(comment: Comment, vote: Vote) {
-        comment.updateScore(vote)
-        activityModel.vote(comment.name, vote)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            comment.updateScore(vote)
+            activityModel.vote(comment.name, vote)
+        }
     }
 
     override fun save(comment: Comment) {
-        activityModel.save(comment.name, comment.saved == true)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            comment.saved = comment.saved != true
+            activityModel.save(comment.name, comment.saved == true)
+        }
     }
 
     override fun share(comment: Comment) {
@@ -483,7 +482,13 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun reply(comment: Comment, position: Int) {
-        ReplyOrEditDialogFragment.newInstance(comment, position + 1, true).show(childFragmentManager, null)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            if(comment.locked == true || comment.deleted){
+                Toast.makeText(requireContext(), R.string.cannot_reply_to_comment, Toast.LENGTH_LONG).show()
+            } else {
+                ReplyOrEditDialogFragment.newInstance(comment, position, true).show(childFragmentManager, null)
+            }
+        }
     }
 
     override fun viewProfile(comment: Comment) {
@@ -495,17 +500,23 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun report(comment: Comment, position: Int) {
-        ReportDialogFragment.newInstance(comment, position).show(childFragmentManager, null)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            ReportDialogFragment.newInstance(comment, position).show(childFragmentManager, null)
+        }
     }
 
     override fun edit(comment: Comment, position: Int) {
-        ReplyOrEditDialogFragment.newInstance(comment, position, false).show(childFragmentManager, null)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            ReplyOrEditDialogFragment.newInstance(comment, position, false).show(childFragmentManager, null)
+        }
     }
 
     override fun delete(comment: Comment, position: Int) {
-        activityModel.delete(comment.name)
-        model.removeItemAt(position)
-        listAdapter.removeAt(position)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            activityModel.delete(comment.name)
+            model.removeItemAt(position)
+            listAdapter.removeAt(position)
+        }
     }
 
 //      _____       _                  _     _ _ _                  _   _
@@ -517,7 +528,10 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 //
 
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-        activityModel.subscribe(subreddit, subscribe)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            subreddit.userSubscribed = subscribe
+            activityModel.subscribe(subreddit, subscribe)
+        }
     }
 
 
@@ -584,9 +598,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
-        if ((activity?.application as AstroApplication).accessToken == null) {
-            Snackbar.make(binding.fragmentListingDrawer, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
-        } else {
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(null)))
             binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
         }
@@ -594,9 +606,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
     @SuppressLint("RtlHardcoded")
     override fun onInboxClicked() {
-        if ((activity?.application as AstroApplication).accessToken == null) {
-            Snackbar.make(binding.fragmentListingDrawer, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
-        } else {
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(InboxPage))
             binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
         }

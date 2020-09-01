@@ -456,12 +456,17 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 //    \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 
     override fun vote(comment: Comment, vote: Vote) {
-        comment.updateScore(vote)
-        activityModel.vote(comment.name, vote)
+        checkedIfLoggedInBeforeExecuting(requireContext()){
+            comment.updateScore(vote)
+            activityModel.vote(comment.name, vote)
+        }
     }
 
     override fun save(comment: Comment) {
-        activityModel.save(comment.name, comment.saved == true)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            comment.saved = comment.saved != true
+            activityModel.save(comment.name, comment.saved == true)
+        }
     }
 
     override fun share(comment: Comment) {
@@ -469,10 +474,12 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     override fun reply(comment: Comment, position: Int) {
-        if(comment.locked == true || comment.deleted){
-            Snackbar.make(binding.fragmentCommentsReply, R.string.cannot_reply_to_comment, Snackbar.LENGTH_LONG).show()
-        } else {
-            ReplyOrEditDialogFragment.newInstance(comment, position, true).show(childFragmentManager, null)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            if(comment.locked == true || comment.deleted){
+                Toast.makeText(requireContext(), R.string.cannot_reply_to_comment, Toast.LENGTH_LONG).show()
+            } else {
+                ReplyOrEditDialogFragment.newInstance(comment, position, true).show(childFragmentManager, null)
+            }
         }
     }
 
@@ -485,17 +492,23 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     override fun report(comment: Comment, position: Int) {
-        ReportDialogFragment.newInstance(comment, position).show(childFragmentManager, null)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            ReportDialogFragment.newInstance(comment, position).show(childFragmentManager, null)
+        }
     }
 
     override fun edit(comment: Comment, position: Int) {
-        ReplyOrEditDialogFragment.newInstance(comment, position, false).show(childFragmentManager, null)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            ReplyOrEditDialogFragment.newInstance(comment, position, false).show(childFragmentManager, null)
+        }
     }
 
     override fun delete(comment: Comment, position: Int) {
-        activityModel.delete(comment.name)
-        model.removeCommentAt(position)
-        adapter.removeAt(position)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            activityModel.delete(comment.name)
+            model.removeCommentAt(position)
+            adapter.removeAt(position)
+        }
     }
 
     override fun itemClicked(item: Item, position: Int) {
@@ -621,8 +634,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             return
         }
 
-        val loggedIn = (requireActivity().application as AstroApplication).currentAccount != null
-
         val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupCommentsPageActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
@@ -641,16 +652,22 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             if(createdFromUser == true){
                 if(post.isSelf){
                     popupCommentsPageActionsEdit.root.setOnClickListener {
-                        ReplyOrEditDialogFragment.newInstance(post, -1, false).show(childFragmentManager, null)
+                        checkedIfLoggedInBeforeExecuting(requireContext()){
+                            ReplyOrEditDialogFragment.newInstance(post, -1, false).show(childFragmentManager, null)
+                        }
                         popupWindow.dismiss()
                     }
                 }
                 popupCommentsPageActionsManage.root.setOnClickListener {
-                    ManagePostDialogFragment.newInstance(post).show(childFragmentManager, null)
+                    checkedIfLoggedInBeforeExecuting(requireContext()) {
+                        ManagePostDialogFragment.newInstance(post).show(childFragmentManager, null)
+                    }
                     popupWindow.dismiss()
                 }
                 popupCommentsPageActionsDelete.root.setOnClickListener {
-                    activityModel.delete(post.name)
+                    checkedIfLoggedInBeforeExecuting(requireContext()){
+                        activityModel.delete(post.name)
+                    }
                     popupWindow.dismiss()
                 }
             }
@@ -663,13 +680,11 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 popupWindow.dismiss()
             }
             popupCommentsPageActionsHide.root.setOnClickListener {
-                if (!loggedIn) {
-                    Snackbar.make(binding.root, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
-                    return@setOnClickListener
+                checkedIfLoggedInBeforeExecuting(requireContext()){
+                    post.hidden = !post.hidden
+                    binding.invalidateAll()
+                    activityModel.hide(post.name, post.hidden)
                 }
-                post.hidden = !post.hidden
-                binding.invalidateAll()
-                activityModel.hide(post.name, post.hidden)
                 popupWindow.dismiss()
             }
             popupCommentsPageActionsShare.root.setOnClickListener {
@@ -707,11 +722,9 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 }
             }
             popupCommentsPageActionsReport.root.setOnClickListener {
-                if (!loggedIn) {
-                    Snackbar.make(binding.root, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
-                    return@setOnClickListener
+                checkedIfLoggedInBeforeExecuting(requireContext()){
+                    ReportDialogFragment.newInstance(post).show(childFragmentManager, null)
                 }
-                ReportDialogFragment.newInstance(post).show(childFragmentManager, null)
                 popupWindow.dismiss()
             }
             executePendingBindings()

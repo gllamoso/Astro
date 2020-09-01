@@ -60,15 +60,17 @@ class ItemScrollerVM(private val application: AstroApplication): AstroViewModel(
     }
 
     private lateinit var subredditWhere: SubredditWhere
-    fun setListingInfo(subredditWhere: SubredditWhere, pageSize: Int){
+    fun setListingInfo(subredditWhere: SubredditWhere, pageSize: Int, showNsfw: Boolean){
         this.subredditWhere = subredditWhere
         this.pageSize = pageSize
+        _showNsfw = showNsfw
     }
 
     private lateinit var messageWhere: MessageWhere
-    fun setListingInfo(messageWhere: MessageWhere, pageSize: Int){
+    fun setListingInfo(messageWhere: MessageWhere, pageSize: Int, showNsfw: Boolean){
         this.messageWhere = messageWhere
         this.pageSize = pageSize
+        _showNsfw = showNsfw
     }
 
     fun addReadItem(item: Item){

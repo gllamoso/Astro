@@ -9,6 +9,7 @@ import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.annotation.AttrRes
 import androidx.annotation.ColorInt
 import androidx.annotation.IdRes
@@ -519,5 +520,14 @@ fun PopupWindow.showAsDropdown(anchor: View, content: View, width: Int, height: 
         setHeight(height)
         elevation = 20F
         showAsDropDown(anchor)
+    }
+}
+
+fun checkedIfLoggedInBeforeExecuting(context: Context, runnable: () -> Unit){
+    val isLoggedIn = (context.applicationContext as AstroApplication).accessToken != null
+    if(isLoggedIn){
+        runnable()
+    } else {
+        Toast.makeText(context, context.getText(R.string.user_must_be_logged_in), Toast.LENGTH_LONG).show()
     }
 }

@@ -39,6 +39,14 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
         ViewModelProvider(this, viewModelFactory).get(SubscriptionsVM::class.java)
     }
 
+    val adapter: SubscriptionsAdapter by lazy {
+        SubscriptionsAdapter(
+            requireContext(),
+            this,
+            this
+        )
+    }
+
     override fun onStart() {
         super.onStart()
 
@@ -59,12 +67,6 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
     }
 
     private fun setRecyclerView(){
-        val adapter =
-            SubscriptionsAdapter(
-                requireContext(),
-                this,
-                this
-            )
         binding.fragmentDialogSubscriptionsRecyclerView.adapter = adapter
 
         if(activityModel.refreshState.value == null){
@@ -133,7 +135,9 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
         val popupWindow = PopupWindow()
         popupBinding.apply {
             popupSubscriptionActionsCreateCustomFeed.root.setOnClickListener {
-                MultiRedditDetailsDialogFragment.newInstance(null).show(childFragmentManager, null)
+                checkedIfLoggedInBeforeExecuting(requireContext()){
+                    MultiRedditDetailsDialogFragment.newInstance(null).show(childFragmentManager, null)
+                }
                 popupWindow.dismiss()
             }
             executePendingBindings()
@@ -159,17 +163,27 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
 //                                       | |
 //                                       |_|
 
-    override fun favorite(sub: Subscription, favorite: Boolean) {
+    override fun favorite(sub: Subscription, favorite: Boolean, inFavoritesSection: Boolean) {
+        sub.isFavorite = favorite
+        if(favorite){
+            adapter.addToFavorites(sub)
+        } else {
+            adapter.removeFromFavorites(sub, inFavoritesSection)
+        }
         activityModel.favorite(sub, favorite)
     }
 
     override fun remove(sub: Subscription) {
-        activityModel.unsubscribe(sub)
+        checkedIfLoggedInBeforeExecuting(requireContext()){
+            activityModel.unsubscribe(sub)
+        }
     }
 
     override fun editMultiReddit(sub: Subscription) {
-        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToMultiRedditFragment(sub))
-        dismiss()
+        checkedIfLoggedInBeforeExecuting(requireContext()){
+            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToMultiRedditFragment(sub))
+            dismiss()
+        }
     }
 
     companion object{

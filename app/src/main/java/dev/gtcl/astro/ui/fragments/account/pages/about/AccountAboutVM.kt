@@ -1,6 +1,6 @@
 package dev.gtcl.astro.ui.fragments.account.pages.about
 
-import androidx.lifecycle.AndroidViewModel
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -11,11 +11,6 @@ import dev.gtcl.astro.AstroViewModel
 import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.listing.Account
 import dev.gtcl.astro.models.reddit.listing.TrophyListingResponse
-import dev.gtcl.astro.repositories.reddit.MiscRepository
-import dev.gtcl.astro.repositories.reddit.UserRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class AccountAboutVM(val application: AstroApplication) : AstroViewModel(application){
@@ -36,6 +31,7 @@ class AccountAboutVM(val application: AstroApplication) : AstroViewModel(applica
                     _account.value = userRepository.getCurrentAccountInfo().await()
                 }
             } catch (e: Exception){
+                Log.d("TAE", "Exception 1: $e")
                 _errorMessage.value = if(e is JsonDataException){
                     application.getString(R.string.account_error)
                 } else {
@@ -54,6 +50,7 @@ class AccountAboutVM(val application: AstroApplication) : AstroViewModel(applica
             try {
                 trophyListing.value = miscRepository.getAwards(username ?: application.currentAccount!!.name).await()
             } catch (e: Exception){
+                Log.d("TAE", "Exception 2: $e")
                 _errorMessage.value = if(e is JsonDataException){
                     application.getString(R.string.account_error)
                 } else {

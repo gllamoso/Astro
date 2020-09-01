@@ -34,13 +34,7 @@ class SubscriptionVH private constructor(private val binding: ItemSubscriptionBi
         }
 
         binding.itemSubscriptionFavoriteButton.setOnClickListener {
-            sub.isFavorite = !sub.isFavorite
-            if(sub.isFavorite){
-                subscriptionAdapterActions.addToFavorites(sub)
-            } else {
-                subscriptionAdapterActions.removeFromFavorites(sub, inFavoritesSection)
-            }
-            subscriptionActions.favorite(sub, sub.isFavorite)
+            subscriptionActions.favorite(sub, !sub.isFavorite, inFavoritesSection)
             binding.invalidateAll()
         }
 

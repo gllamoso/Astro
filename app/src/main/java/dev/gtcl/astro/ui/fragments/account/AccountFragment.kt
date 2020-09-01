@@ -130,10 +130,12 @@ class AccountFragment : Fragment(),  LeftDrawerActions {
         })
 
         binding.fragmentAccountSubscribeToggle.root.setOnClickListener {
-            val sub = model.account.value?.subreddit ?: return@setOnClickListener
-            sub.userSubscribed = sub.userSubscribed != true
-            binding.invalidateAll()
-            activityModel.subscribe(sub, (sub.userSubscribed == true))
+            checkedIfLoggedInBeforeExecuting(requireContext()){
+                val sub = model.account.value?.subreddit ?: return@checkedIfLoggedInBeforeExecuting
+                sub.userSubscribed = sub.userSubscribed != true
+                binding.invalidateAll()
+                activityModel.subscribe(sub, (sub.userSubscribed == true))
+            }
         }
 
         binding.fragmentAccountToolbar.setOnMenuItemClickListener {
@@ -153,18 +155,22 @@ class AccountFragment : Fragment(),  LeftDrawerActions {
         popupBinding.apply {
             this.account = account
             popupAccountActionsFriend.root.setOnClickListener {
-                account.isFriend = !(account.isFriend ?: false)
-                if(account.isFriend == true){
-                    model.addFriend(account.name)
-                } else {
-                    model.unfriend(account.name)
+                checkedIfLoggedInBeforeExecuting(requireContext()){
+                    account.isFriend = !(account.isFriend ?: false)
+                    if(account.isFriend == true){
+                        model.addFriend(account.name)
+                    } else {
+                        model.unfriend(account.name)
+                    }
                 }
                 popupWindow.dismiss()
             }
             popupAccountActionsBlock.root.setOnClickListener {
-                model.blockUser(account.name)
+                checkedIfLoggedInBeforeExecuting(requireContext()){
+                    model.blockUser(account.name)
+                    findNavController().popBackStack()
+                }
                 popupWindow.dismiss()
-                findNavController().popBackStack()
             }
             executePendingBindings()
             root.measure(

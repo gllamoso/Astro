@@ -221,7 +221,10 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
     }
 
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-        activityModel.subscribe(subreddit, subscribe)
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            subreddit.userSubscribed = subscribe
+            activityModel.subscribe(subreddit, subscribe)
+        }
     }
 
     private fun showKeyboard(){

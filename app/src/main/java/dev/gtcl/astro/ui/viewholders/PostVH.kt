@@ -103,13 +103,11 @@ class PostVH private constructor(private val binding:ItemPostBinding)
                 popupWindow.dismiss()
             }
             popupPostActionsSave.root.setOnClickListener {
-                post.saved = !post.saved
                 postActions.save(post)
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }
             popupPostActionsHide.root.setOnClickListener {
-                post.hidden = !post.hidden
                 postActions.hide(post, adapterPosition)
                 binding.invalidateAll()
                 popupWindow.dismiss()
