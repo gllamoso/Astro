@@ -143,6 +143,13 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
         })
 
+        model.notifyAt.observe(viewLifecycleOwner,{
+            if(it != null){
+                adapter.notifyItemChanged(it)
+                model.notifyAtObserved()
+            }
+        })
+
         val behavior = BottomSheetBehavior.from(binding.fragmentCommentsBottomSheet)
         behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(p0: View, p1: Float) {

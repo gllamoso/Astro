@@ -49,6 +49,10 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
     val removeAt: LiveData<Int?>
         get() = _removeAt
 
+    private val _notifyAt = MutableLiveData<Int?>().apply { value = null }
+    val notifyAt: LiveData<Int?>
+        get() = _notifyAt
+
     private val _mediaItems = MutableLiveData<List<MediaURL>?>().apply { value = null }
     val mediaItems: LiveData<List<MediaURL>?>
         get() = _mediaItems
@@ -91,9 +95,11 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
                 _allCommentsFetched.value = permalink.endsWith(commentPage.post.permalink)
                 _comments.value = commentPage.comments.toMutableList()
                 _commentsFetched = true
-                _loading.value = false
             } catch (e: Exception){
+                _comments.value = mutableListOf()
                 _errorMessage.value = e.getErrorMessage(application)
+            } finally {
+                _loading.value = false
             }
         }
     }
@@ -122,16 +128,22 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
                 )
 
                 _comments.value?.addAll(positionOffset, comments)
-                _loading.value = false
             } catch (e: Exception){
                 moreItem.undoChildrenPoll()
+                _notifyAt.value = position
                 _errorMessage.value = e.getErrorMessage(application)
+            } finally {
+                _loading.value = false
             }
         }
     }
 
     fun removeAtObserved(){
         _removeAt.value = null
+    }
+
+    fun notifyAtObserved(){
+        _notifyAt.value = null
     }
 
     fun moreCommentsObserved(){
@@ -277,10 +289,10 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
                         listOf()
                     }
                 }
-
-                _loading.value = false
             } catch (e: Exception) {
                 _errorMessage.value = e.getErrorMessage(application)
+            } finally {
+                _loading.value = false
             }
         }
     }

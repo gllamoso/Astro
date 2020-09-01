@@ -1,6 +1,7 @@
 package dev.gtcl.astro.ui.viewholders
 
 import android.view.LayoutInflater
+import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.astro.actions.ItemClickListener
@@ -10,7 +11,9 @@ import dev.gtcl.astro.models.reddit.listing.More
 class MoreVH private constructor(private val binding: ItemMoreCommentBinding): RecyclerView.ViewHolder(binding.root) {
     fun bind(item: More, itemClickListener: ItemClickListener){
         binding.more = item
-        binding.itemMoreCommentText.setOnClickListener {
+        binding.itemMoreCommentProgressBar.visibility = View.GONE
+        binding.itemMoreCommentBackground.setOnClickListener {
+            binding.itemMoreCommentProgressBar.visibility = View.VISIBLE
             itemClickListener.itemClicked(item, adapterPosition)
         }
         binding.executePendingBindings()

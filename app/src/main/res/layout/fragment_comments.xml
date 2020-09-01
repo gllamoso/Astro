@@ -70,11 +70,18 @@
 
             </com.google.android.material.appbar.AppBarLayout>
 
-            <LinearLayout
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="vertical"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+                <ProgressBar
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                    android:indeterminate="true"
+                    android:elevation="12dp"
+                    android:visibility="@{model.loading ? View.VISIBLE : View.GONE}"/>
 
                 <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
                     android:id="@+id/fragmentComments_swipeRefresh"
@@ -127,7 +134,7 @@
 
                 </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
-            </LinearLayout>
+            </FrameLayout>
 
             <com.google.android.material.bottomappbar.BottomAppBar
                 android:id="@+id/fragmentComments_bottomBar"
@@ -165,7 +172,8 @@
                         <LinearLayout
                             android:layout_width="match_parent"
                             android:layout_height="match_parent"
-                            android:gravity="center_vertical">
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
 
                             <TextView
                                 android:layout_width="0dp"
