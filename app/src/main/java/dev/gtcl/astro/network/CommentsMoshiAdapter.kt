@@ -377,7 +377,7 @@ class CommentsMoshiAdapter {
 
     // COMMENTS
 
-    private fun getCommentsFromListing(jsonReader: JsonReader, depth: Int): List<Item> { // TODO: Make cleaner
+    private fun getCommentsFromListing(jsonReader: JsonReader, depth: Int): List<Item> {
         jsonReader.beginObject()
         val comments = mutableListOf<Item>()
 

@@ -38,6 +38,7 @@ import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
+import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.subscriptions.SubscriptionsDialogFragment
 import io.noties.markwon.Markwon
 
@@ -469,23 +470,30 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
 
     override fun vote(comment: Comment, vote: Vote) {
-        TODO("Not yet implemented")
+        if(comment.scoreHidden != true){
+            comment.updateScore(vote)
+        }
+        activityModel.vote(comment.name, vote)
     }
 
     override fun save(comment: Comment) {
-        TODO("Not yet implemented")
+        activityModel.save(comment.name, comment.saved == true)
     }
 
     override fun share(comment: Comment) {
-        TODO("Not yet implemented")
+        ShareCommentOptionsDialogFragment.newInstance(comment).show(parentFragmentManager, null)
     }
 
     override fun reply(comment: Comment, position: Int) {
-        TODO("Not yet implemented")
+        ReplyOrEditDialogFragment.newInstance(comment, position + 1, true).show(childFragmentManager, null)
     }
 
     override fun viewProfile(comment: Comment) {
-        TODO("Not yet implemented")
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                AccountPage(comment.author)
+            )
+        )
     }
 
     override fun report(comment: Comment, position: Int) {

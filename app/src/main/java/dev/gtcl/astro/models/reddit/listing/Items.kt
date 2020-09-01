@@ -110,6 +110,43 @@ data class Comment(
 
     @IgnoredOnParcel
     val deleted = author == "[deleted]"
+
+    fun updateScore(vote: Vote){
+        when(vote){
+            Vote.UPVOTE -> {
+                when(likes){
+                    true -> score--
+                    false -> score += 2
+                    null -> score++
+
+                }
+                likes = if(likes != true){
+                    true
+                } else {
+                    null
+                }
+            }
+            Vote.DOWNVOTE -> {
+                when(likes){
+                    true -> score -= 2
+                    false -> score++
+                    null -> score--
+                }
+                likes = if(likes != false){
+                    false
+                } else {
+                    null
+                }
+            }
+            Vote.UNVOTE -> {
+                when(likes){
+                    true -> score--
+                    false -> score++
+                }
+                likes = null
+            }
+        }
+    }
 }
 
 @Parcelize

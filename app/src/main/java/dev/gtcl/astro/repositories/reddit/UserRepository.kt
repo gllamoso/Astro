@@ -16,7 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import retrofit2.Response
 
-class UserRepository private constructor(val application: AstroApplication) { // TODO: Delete
+class UserRepository private constructor(val application: AstroApplication) {
     private val database = redditDatabase(application)
 
     // --- NETWORK

@@ -10,7 +10,7 @@ class AstroApplication : Application() {
     var accessToken: AccessToken? = null
         set(value){
             field = value
-            Log.d("TOKEN", "Access Token: ${value?.authorizationHeader}") // TODO: Remove
+            Log.d("TOKEN", "Access Token: ${value?.authorizationHeader}")
         }
 
     var currentAccount: Account? = null

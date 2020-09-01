@@ -71,17 +71,17 @@ interface SubscriptionDao{
 
 @Database(entities = [SavedAccount::class, ItemRead::class, Subscription::class], version = 1, exportSchema = false)
 @TypeConverters(SubscriptionTypeConverter::class)
-abstract class RedditDatabase: RoomDatabase(){
+abstract class AstroDatabase: RoomDatabase(){
     abstract val accountDao: AccountDao
     abstract val readItemDao: ReadItemDao
     abstract val subscriptionDao: SubscriptionDao
 }
 
-private lateinit var INSTANCE: RedditDatabase
-fun redditDatabase(context: Context): RedditDatabase {
-    synchronized(RedditDatabase::class.java){
+private lateinit var INSTANCE: AstroDatabase
+fun redditDatabase(context: Context): AstroDatabase {
+    synchronized(AstroDatabase::class.java){
         if(!::INSTANCE.isInitialized){
-            INSTANCE = Room.databaseBuilder(context.applicationContext, RedditDatabase::class.java, "local").build() // TODO: Rename
+            INSTANCE = Room.databaseBuilder(context.applicationContext, AstroDatabase::class.java, "local").build()
         }
     }
     return INSTANCE
