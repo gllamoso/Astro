@@ -166,6 +166,7 @@
                         android:layout_height="?attr/actionBarSize"
                         app:tabMode="fixed"
                         app:tabGravity="fill"
+                        app:tabBackground="?android:attr/colorButtonNormal"
                         android:visibility="@{crossPost == null ? View.VISIBLE : View.GONE}"/>
 
                     <androidx.viewpager2.widget.ViewPager2

@@ -18,8 +18,7 @@ class ListingItemAdapter(
     private val messageActions: MessageActions? = null,
     private val commentActions: CommentActions? = null,
     private val expected: ItemType? = null,
-    private val blurNsfw: Boolean = false,
-    private val blurSpoiler: Boolean = true,
+    var blurNsfw: Boolean = false,
     private val itemClickListener: ItemClickListener,
     private val username: String?,
     private val retry: () -> Unit
@@ -128,7 +127,7 @@ class ListingItemAdapter(
                     throw IllegalStateException("Post Actions not initialized")
                 }
                 val post = items!![position] as Post
-                (holder as PostVH).bind(post, postActions, blurNsfw, blurSpoiler, username, itemClickListener)
+                (holder as PostVH).bind(post, postActions, blurNsfw, username, itemClickListener)
             }
             R.layout.item_comment_detailed -> {
                 val comment = items!![position] as Comment

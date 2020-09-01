@@ -28,6 +28,14 @@ class FriendsFragment : Fragment(), UserActions{
         ViewModelProvider(this, viewModelFactory).get(FriendsVM::class.java)
     }
 
+    override fun onResume() {
+        super.onResume()
+        val scrollPosition = binding.fragmentItemScrollerList.scrollY
+        if(scrollPosition == 0){
+            binding.fragmentItemScrollerList.scrollToPosition(0)
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentItemScrollerBinding.inflate(inflater)
 
@@ -47,6 +55,7 @@ class FriendsFragment : Fragment(), UserActions{
 
         model.friends.observe(viewLifecycleOwner, {
             adapter.submitList(it)
+            binding.fragmentItemScrollerList.scrollToPosition(0)
         })
 
         binding.fragmentItemScrollerSwipeRefresh.setOnRefreshListener {

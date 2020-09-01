@@ -67,7 +67,9 @@ class ListingVM(val application: AstroApplication) : AndroidViewModel(applicatio
     val lastItemReached: LiveData<Boolean>
         get() = _lastItemReached
 
-    private var showNsfw: Boolean = false
+    private var _showNsfw: Boolean = false
+    val showNsfw: Boolean
+        get() = _showNsfw
 
     private lateinit var _listing: Listing
     val listing: Listing
@@ -93,15 +95,14 @@ class ListingVM(val application: AstroApplication) : AndroidViewModel(applicatio
         _subreddit.value = sub
     }
 
-    fun setListing(listing: Listing){
+    fun setListing(listing: Listing, showNsfw: Boolean){
         _listing = listing
         _title.value = getListingTitle(application, listing)
+        _showNsfw = showNsfw
 
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(application)
-        val showNsfw = sharedPref.getBoolean("nsfw", true)
-        val defaultSort = sharedPref.getString("default_post_sort", application.getString(R.string.order_hot))
+        val defaultSort = sharedPref.getString(DEFAULT_POST_SORT_KEY, application.getString(R.string.order_hot))
         val sortArray = application.resources.getStringArray(R.array.post_sort_entries)
-        this.showNsfw = showNsfw
         val postSort: PostSort
         val time: Time?
         if(listing is SearchListing){
@@ -247,7 +248,7 @@ class ListingVM(val application: AstroApplication) : AndroidViewModel(applicatio
     }
 
     fun loadMore() {
-        if (lastItemReached.value == true) {
+        if (lastItemReached.value == true || _networkState.value == NetworkState.LOADING) {
             return
         }
         coroutineScope.launch {

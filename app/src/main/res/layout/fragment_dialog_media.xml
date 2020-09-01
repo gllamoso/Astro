@@ -153,6 +153,22 @@
                 <View
                     android:layout_width="0dp"
                     android:layout_height="0dp"
+                    android:layout_weight="2"/>
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/fragmentMediaDialog_link"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_link_24"
+                    app:tint="@android:color/white"
+                    android:layout_margin="8dp"
+                    android:background="?attr/selectableItemBackgroundBorderless"
+                    android:padding="2dp"
+                    />
+
+                <View
+                    android:layout_width="0dp"
+                    android:layout_height="0dp"
                     android:layout_weight="1"/>
 
             </LinearLayout>

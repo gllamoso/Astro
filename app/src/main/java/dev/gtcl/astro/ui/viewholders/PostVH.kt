@@ -22,7 +22,7 @@ import jp.wasabeef.glide.transformations.BlurTransformation
 class PostVH private constructor(private val binding:ItemPostBinding)
     : RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(post: Post, postActions: PostActions, blurNsfw: Boolean, blurSpoiler: Boolean, username: String?, itemClickListener: ItemClickListener) {
+    fun bind(post: Post, postActions: PostActions, blurNsfw: Boolean, username: String?, itemClickListener: ItemClickListener) {
         binding.post = post
 
         binding.itemPostCardView.setOnClickListener{
@@ -31,7 +31,7 @@ class PostVH private constructor(private val binding:ItemPostBinding)
             itemClickListener.itemClicked(post, adapterPosition)
         }
 
-        setThumbnail(post, blurNsfw, blurSpoiler, postActions)
+        setThumbnail(post, blurNsfw, postActions)
 
         binding.itemPostMoreOptions.setOnClickListener {
             showPopupWindow(post, postActions, (post.author == username), it)
@@ -40,7 +40,7 @@ class PostVH private constructor(private val binding:ItemPostBinding)
         binding.executePendingBindings()
     }
 
-    private fun setThumbnail(post: Post, blurNsfw: Boolean, blurSpoiler: Boolean, postActions: PostActions){
+    private fun setThumbnail(post: Post, blurNsfw: Boolean, postActions: PostActions){
         val thumbnailUrl = post.thumbnail
         if(thumbnailUrl != null && URLUtil.isValidUrl(thumbnailUrl) && Patterns.WEB_URL.matcher(thumbnailUrl).matches()){
             binding.itemPostThumbnailBackground.visibility = View.VISIBLE
@@ -52,7 +52,7 @@ class PostVH private constructor(private val binding:ItemPostBinding)
 
             Glide.with(binding.root.context)
                 .load(thumbnailUrl).apply {
-                    if((post.spoiler && blurSpoiler) || (post.nsfw && blurNsfw)){
+                    if((post.nsfw && blurNsfw)){
                         apply(RequestOptions.bitmapTransform(BlurTransformation()))
                     }
                 }.into(binding.itemPostThumbnail)

@@ -1,6 +1,7 @@
 package dev.gtcl.astro.ui.fragments.item_scroller
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -25,8 +26,8 @@ import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.*
 import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
-import dev.gtcl.astro.ui.fragments.misc.ShareCommentOptionsDialogFragment
-import dev.gtcl.astro.ui.fragments.misc.SharePostOptionsDialogFragment
+import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
+import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
 import io.noties.markwon.Markwon
@@ -49,6 +50,25 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     private val activityModel: MainActivityVM by activityViewModels()
 
+    override fun onResume() {
+        super.onResume()
+        val scrollPosition = binding.fragmentItemScrollerList.scrollY
+        if(scrollPosition == 0){
+            binding.fragmentItemScrollerList.scrollToPosition(0)
+        }
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
+        val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
+        val blurNsfwThumbnail = sharedPref.getBoolean(NSFW_THUMBNAIL_KEY, false)
+        if(showNsfw != model.showNsfw){
+            binding.fragmentItemScrollerSwipeRefresh.isRefreshing = true
+            listAdapter.blurNsfw = blurNsfwThumbnail
+            initData()
+        } else if(blurNsfwThumbnail != listAdapter.blurNsfw){
+            listAdapter.blurNsfw = blurNsfwThumbnail
+            listAdapter.notifyDataSetChanged()
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentItemScrollerBinding.inflate(inflater)
         binding.model = model
@@ -70,6 +90,8 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     private fun initListingInfo(){
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
+        val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
         val args = requireArguments()
         when{
             args.getSerializable(PROFILE_INFO_KEY) != null -> {
@@ -81,7 +103,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                 model.setListingInfo(
                     ProfileListing(
                         profileInfo
-                    ), postSort, time, pageSize)
+                    ), postSort, time, pageSize, showNsfw)
                 model.user = user
             }
             args.getSerializable(SUBREDDIT_KEY) != null -> {
@@ -92,7 +114,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                 model.setListingInfo(
                     SubredditListing(
                         subreddit
-                    ), postSort, time, pageSize)
+                    ), postSort, time, pageSize, showNsfw)
             }
             args.getSerializable(MESSAGE_WHERE_KEY) != null -> {
                 val messageWhere = args.getSerializable(MESSAGE_WHERE_KEY) as MessageWhere
@@ -113,8 +135,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         val swipeRefresh = binding.fragmentItemScrollerSwipeRefresh
         scrollListener = ItemScrollListener(15, recyclerView.layoutManager as GridLayoutManager, model::loadMore)
         val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val blurNsfw = preferences.getBoolean("blur_nsfw_thumbnail", false)
-        val blurSpoiler = preferences.getBoolean("blur_spoiler_thumbnail", true)
+        val blurNsfw = preferences.getBoolean(NSFW_THUMBNAIL_KEY, false)
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
         listAdapter = ListingItemAdapter(
             markwon,
@@ -123,7 +144,6 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             messageActions = this,
             expected = ItemType.Post,
             blurNsfw = blurNsfw,
-            blurSpoiler = blurSpoiler,
             itemClickListener = this,
             username = currentAccount?.name){
             recyclerView.apply {
@@ -140,6 +160,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         model.items.observe(viewLifecycleOwner, {
             scrollListener.finishedLoading()
             listAdapter.submitList(it)
+            binding.fragmentItemScrollerList.scrollToPosition(0)
         })
 
         model.moreItems.observe(viewLifecycleOwner, {

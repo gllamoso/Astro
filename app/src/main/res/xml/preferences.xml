@@ -13,12 +13,8 @@
 
         <SwitchPreferenceCompat
             android:key="blur_nsfw_thumbnail"
-            android:title="Blur NSFW thumbnails"
+            android:title="@string/blur_nsfw_title"
             android:dependency="nsfw"/>
-
-        <SwitchPreference
-            android:key="blur_spoiler_thumbnail"
-            android:title="@string/blur_spoiler_title"/>
 
         <ListPreference
             android:key="default_post_sort"
@@ -26,8 +22,7 @@
             app:useSimpleSummaryProvider="true"
             android:entries="@array/post_sort_entries"
             android:entryValues="@array/post_sort_entries"
-            android:defaultValue="@string/order_hot"
-            android:dialogTitle="@string/default_post_sort_title"/>
+            android:defaultValue="@string/order_hot"/>
 
     </PreferenceCategory>
 
@@ -40,8 +35,7 @@
             app:useSimpleSummaryProvider="true"
             android:entries="@array/comment_sort_entries"
             android:entryValues="@array/comment_sort_entries"
-            android:defaultValue="@string/order_best"
-            android:dialogTitle="Dialog Title List Preference"/>
+            android:defaultValue="@string/order_best"/>
 
     </PreferenceCategory>
 

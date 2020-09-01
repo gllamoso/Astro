@@ -35,7 +35,7 @@ import dev.gtcl.astro.ui.fragments.*
 import dev.gtcl.astro.ui.fragments.create_post.CreatePostDialogFragment
 import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
-import dev.gtcl.astro.ui.fragments.misc.SharePostOptionsDialogFragment
+import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
 import dev.gtcl.astro.ui.fragments.subscriptions.SubscriptionsDialogFragment
@@ -65,6 +65,21 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     private lateinit var scrollListener: ItemScrollListener
     private lateinit var listAdapter: ListingItemAdapter
 
+    override fun onResume() {
+        super.onResume()
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
+        val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
+        val blurNsfwThumbnail = sharedPref.getBoolean(NSFW_THUMBNAIL_KEY, false)
+        if(showNsfw != model.showNsfw){
+            binding.fragmentListingSwipeRefresh.isRefreshing = true
+            listAdapter.blurNsfw = blurNsfwThumbnail
+            initData()
+        } else if(blurNsfwThumbnail != listAdapter.blurNsfw){
+            listAdapter.blurNsfw = blurNsfwThumbnail
+            listAdapter.notifyDataSetChanged()
+        }
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -76,8 +91,6 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         binding.model = model
 
         if (!model.firstPageLoaded) {
-            val listing = requireArguments().getParcelable<Listing>(LISTING_KEY)!!
-            model.setListing(listing)
             initData()
         }
         initScroller()
@@ -91,7 +104,10 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     private fun initData(){
-        when(val listing = requireArguments().getParcelable<Listing>(LISTING_KEY)){
+        val listing = requireArguments().getParcelable<Listing>(LISTING_KEY)!!
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
+        val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
+        when(listing){
             is SubredditListing -> model.fetchSubreddit(listing.displayName)
             is SubscriptionListing -> {
                 if(listing.subscription.type == SubscriptionType.SUBREDDIT){
@@ -100,6 +116,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             }
             else -> model.setSubreddit(null)
         }
+        model.setListing(listing, showNsfw)
         model.fetchFirstPage()
     }
 
@@ -109,7 +126,6 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         scrollListener = ItemScrollListener(15, listView.layoutManager as GridLayoutManager, model::loadMore)
         val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val blurNsfw = preferences.getBoolean("blur_nsfw_thumbnail", false)
-        val blurSpoiler = preferences.getBoolean("blur_spoiler_thumbnail", true)
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
         listAdapter = ListingItemAdapter(
             markwon,
@@ -117,7 +133,6 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             commentActions = this,
             expected = ItemType.Post,
             blurNsfw = blurNsfw,
-            blurSpoiler = blurSpoiler,
             itemClickListener = this,
             username = currentAccount?.name){
             listView.apply {
@@ -214,6 +229,13 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                     DrawerLayout.LOCK_MODE_UNLOCKED,
                     Gravity.RIGHT
                 )
+                if(sub.banner == null){
+                    topAppBar.layoutTopAppBarListingCollapsingToolbar.contentScrim = null
+                    val typedValue = TypedValue()
+                    val theme = requireContext().theme
+                    theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
+                    topAppBar.layoutTopAppBarListingToolbar.setBackgroundColor(typedValue.data)
+                }
                 markwon.setMarkdown(rightDrawerLayout.layoutRightDrawerPublicDescription, sub.publicDescription + "\n\n" + sub.description)
             } else {
                 rightDrawerLayout.layoutRightDrawerSubscribeToggle.iconSubscribeBackground.isClickable = false

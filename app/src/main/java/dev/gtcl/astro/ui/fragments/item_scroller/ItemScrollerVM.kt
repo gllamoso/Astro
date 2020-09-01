@@ -10,6 +10,7 @@ import dev.gtcl.astro.models.reddit.listing.Item
 import dev.gtcl.astro.models.reddit.listing.Listing
 import dev.gtcl.astro.models.reddit.listing.Post
 import dev.gtcl.astro.network.NetworkState
+import dev.gtcl.astro.network.Status
 import dev.gtcl.astro.repositories.reddit.ListingRepository
 import dev.gtcl.astro.repositories.reddit.SubredditRepository
 import kotlinx.coroutines.*
@@ -59,38 +60,33 @@ class ItemScrollerVM(private val application: AstroApplication): AndroidViewMode
 
     private lateinit var lastAction: () -> Unit
 
-    private var showNsfw: Boolean = false
+    private var _showNsfw: Boolean = false
+    val showNsfw: Boolean
+        get() = _showNsfw
 
     fun retry(){
         lastAction()
     }
 
     private lateinit var listing: Listing
-    fun setListingInfo(listing: Listing, postSort: PostSort, t: Time?, pageSize: Int){
+    fun setListingInfo(listing: Listing, postSort: PostSort, t: Time?, pageSize: Int, showNsfw: Boolean){
         this.listing = listing
         this.postSort = postSort
         this.t = t
         this.pageSize = pageSize
-        initNsfwValue()
+        _showNsfw = showNsfw
     }
 
     private lateinit var subredditWhere: SubredditWhere
     fun setListingInfo(subredditWhere: SubredditWhere, pageSize: Int){
         this.subredditWhere = subredditWhere
         this.pageSize = pageSize
-        initNsfwValue()
     }
 
     private lateinit var messageWhere: MessageWhere
     fun setListingInfo(messageWhere: MessageWhere, pageSize: Int){
         this.messageWhere = messageWhere
         this.pageSize = pageSize
-    }
-
-    private fun initNsfwValue(){
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(application)
-        val showNsfw = sharedPref.getBoolean("nsfw", true)
-        this.showNsfw = showNsfw
     }
 
     fun addReadItem(item: Item){
@@ -152,7 +148,6 @@ class ItemScrollerVM(private val application: AstroApplication): AndroidViewMode
                     _networkState.postValue(NetworkState.LOADED)
                 }
             } catch (e: Exception) {
-                Log.d("TAE", "Exception: $e")
                 lastAction = ::fetchFirstPage
                 after = null
                 _networkState.value = NetworkState.error(e.getErrorMessage(application))
@@ -161,7 +156,7 @@ class ItemScrollerVM(private val application: AstroApplication): AndroidViewMode
     }
 
     fun loadMore(){
-        if (lastItemReached.value == true) {
+        if (lastItemReached.value == true || _networkState.value == NetworkState.LOADING) {
             return
         }
         coroutineScope.launch {

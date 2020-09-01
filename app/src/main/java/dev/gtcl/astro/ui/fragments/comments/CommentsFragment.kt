@@ -41,8 +41,8 @@ import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.astro.ui.fragments.media.list.MediaListAdapter
 import dev.gtcl.astro.ui.fragments.media.list.MediaListFragmentAdapter
-import dev.gtcl.astro.ui.fragments.misc.ShareCommentOptionsDialogFragment
-import dev.gtcl.astro.ui.fragments.misc.SharePostOptionsDialogFragment
+import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
+import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
 import io.noties.markwon.*
@@ -518,7 +518,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         when(item) {
             is More -> {
                 if (item.isContinueThreadLink) {
-                    activityModel.newPage(ContinueThreadPage("${model.post.value!!.permalink}${item.parentId.replace("t1_", "")}", null, true))
+                    activityModel.newPage(ContinueThreadPage("${model.post.value!!.permalink}${item.parentId.replace("t1_", "")}", model.post.value?.permalink, true))
                 } else {
                     model.fetchMoreComments(position)
                 }
@@ -654,7 +654,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             this.post = post
             this.createdFromUser = currentAccount != null && currentAccount.fullId == post.authorFullName
             this.currentItemMediaType = currentMediaType
-            this.hasAlbum = model.mediaItems.value?.size ?: 0 > 1
             if(createdFromUser == true){
                 if(post.isSelf){
                     popupCommentsPageActionsEdit.root.setOnClickListener {
@@ -706,7 +705,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     }
                     popupWindow.dismiss()
                 }
-                if(hasAlbum == true){
+                if(post.urlType == UrlType.IMGUR_ALBUM){
                     popupCommentsPageActionsDownloadAll.root.setOnClickListener {
                         if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
                             model.downloadAlbum()
@@ -715,6 +714,12 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                         }
                         popupWindow.dismiss()
                     }
+                }
+            }
+            if(post.url != null){
+                popupCommentsPageActionsLink.root.setOnClickListener {
+                    activityModel.openChromeTab(post.url)
+                    popupWindow.dismiss()
                 }
             }
             popupCommentsPageActionsReport.root.setOnClickListener {

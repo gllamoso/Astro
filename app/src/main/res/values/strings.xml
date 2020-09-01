@@ -108,8 +108,9 @@
     <string name="download_complete">Download complete</string>
     <string name="download_status_notification_name">Download Status</string>
     <string name="unable_to_download_file">Unable to download file</string>
-    <string name="download_current_item">Download current item</string>
+    <string name="download">Download</string>
     <string name="download_all">Download all</string>
+    <string name="open_link">Open link</string>
     <string name="view_fullscreen">View fullscreen</string>
 
     <!--Inbox-->
@@ -198,14 +199,14 @@
     <string name="unknown_host_exception">Please reconnect to the internet.</string>
     <string name="something_went_wrong">Something went wrong. Please retry later.</string>
     <string name="error_in_json_parsing">Error in JSON Parsing.</string>
-    <string name="cannot_reply_to_comment">Cannot reply to a comment</string>
+    <string name="cannot_reply_to_comment">Cannot reply to comment</string>
     <string name="cannot_reply_to_post">Cannot reply to post</string>
 
     <!--Settings-->
     <string name="post_settings_title">Post Settings</string>
     <string name="nsfw_title">Show NSFW</string>
     <string name="nsfw_summary">Show posts with NSFW (Not Safe For Work) tag</string>
-    <string name="blur_spoiler_title">Blur Spoiler Thumbnails</string>
+    <string name="blur_nsfw_title">Blur NSFW Thumbnails</string>
     <string name="default_post_sort_title">Default Post Sorting</string>
     <string-array name="post_sort_entries">
         <item>@string/order_best</item>

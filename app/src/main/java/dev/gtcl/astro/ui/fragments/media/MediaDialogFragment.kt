@@ -9,7 +9,6 @@ import android.view.*
 import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
@@ -21,7 +20,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentDialogMediaBinding
-import dev.gtcl.astro.databinding.PopupDownloadOptionsBinding
+import dev.gtcl.astro.databinding.PopupDownloadActionsBinding
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.PostPage
@@ -71,7 +70,7 @@ class MediaDialogFragment : DialogFragment(){
 
         initAdapters()
         initWindowBackground()
-        initTopbar()
+        initTopBar()
         initBottomBar()
 
         model.errorMessage.observe(viewLifecycleOwner, {
@@ -139,7 +138,7 @@ class MediaDialogFragment : DialogFragment(){
         binding.fragmentMediaDialogAlbumThumbnails.adapter = mediaListAdapter
     }
 
-    private fun initTopbar(){
+    private fun initTopBar(){
         binding.fragmentMediaDialogAlbumButton.setOnClickListener {
             binding.fragmentMediaDialogDrawer.openDrawer(GravityCompat.END)
         }
@@ -211,11 +210,15 @@ class MediaDialogFragment : DialogFragment(){
                 requestPermission.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
             }
         }
+
+        binding.fragmentMediaDialogLink.setOnClickListener {
+            activityModel.openChromeTab(mediaUrl?.url ?: albumUrl!!)
+        }
     }
 
     private fun showDownloadOptionsPopup(anchor: View){
         val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
-        val popupBinding = PopupDownloadOptionsBinding.inflate(inflater)
+        val popupBinding = PopupDownloadActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         val currentItem = model.getCurrentMediaItem()
         val mediaType = when(currentItem?.mediaType){

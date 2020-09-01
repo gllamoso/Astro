@@ -109,8 +109,6 @@ class CommentsVM(val application: AstroApplication): AndroidViewModel(applicatio
                 if(refreshPost){
                     _post.value = commentPage.post
                 }
-                Log.d("TAE", "Permalink: $permalink")
-                Log.d("TAE", "CommentPagePostPermalink: ${commentPage.post.permalink}")
                 _allCommentsFetched.value = permalink.endsWith(commentPage.post.permalink)
                 _comments.value = commentPage.comments.toMutableList()
                 _commentsFetched = true
@@ -246,7 +244,7 @@ class CommentsVM(val application: AstroApplication): AndroidViewModel(applicatio
                     }
                     UrlType.GFYCAT -> {
                         val videoUrl = gfycatRepository.getGfycatInfo(
-                            post.url!!.replace("http[s]?://gfycat.com/".toRegex(), "")
+                            post.url!!.replace("http[s]?://gfycat.com/".toRegex(), "").split("-")[0]
                         )
                             .await()
                             .gfyItem
@@ -333,7 +331,7 @@ class CommentsVM(val application: AstroApplication): AndroidViewModel(applicatio
             if(item.mediaType == MediaType.GFYCAT){
                 try{
                     downloadUrl = gfycatRepository.getGfycatInfo(
-                        item.url.replace("http[s]?://gfycat.com/".toRegex(), ""))
+                        item.url.replace("http[s]?://gfycat.com/".toRegex(), "").split("-")[0])
                         .await()
                         .gfyItem
                         .mp4Url

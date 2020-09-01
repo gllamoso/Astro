@@ -91,7 +91,7 @@ class MediaDialogVM(private val application: AstroApplication): AndroidViewModel
                     }
                     MediaType.GFYCAT -> {
                         val videoUrl = gfycatRepository.getGfycatInfo(
-                            mediaURL.url.replace("http[s]?://gfycat.com/".toRegex(), ""))
+                            mediaURL.url.replace("http[s]?://gfycat.com/".toRegex(), "").split("-")[0])
                             .await()
                             .gfyItem
                             .mobileUrl

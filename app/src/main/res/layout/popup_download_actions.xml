@@ -25,7 +25,7 @@
                 android:id="@+id/popupDownloadActions_single"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{mediaType == SimpleMediaType.PICTURE ? @drawable/ic_photo_24 : @drawable/ic_videocam_24}"
-                app:text="@{@string/download_current_item}" />
+                app:text="@{@string/download}" />
 
             <include
                 android:id="@+id/popupDownloadActions_all"

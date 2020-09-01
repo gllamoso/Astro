@@ -1,4 +1,4 @@
-package dev.gtcl.astro.ui.fragments.misc
+package dev.gtcl.astro.ui.fragments.share
 
 import android.content.Intent
 import android.os.Bundle
