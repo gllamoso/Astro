@@ -85,6 +85,9 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
         _title.value = getListingTitle(application, listing)
         _showNsfw = showNsfw
 
+        if(_postSort.value != null){
+            return
+        }
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(application)
         val defaultSort = sharedPref.getString(DEFAULT_POST_SORT_KEY, application.getString(R.string.order_hot))
         val sortArray = application.resources.getStringArray(R.array.post_sort_entries)
