@@ -3,7 +3,7 @@ package dev.gtcl.astro.ui
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 
-class ItemScrollListener(private val visibleThreshold: Int = 15, private val layoutManager: GridLayoutManager, private val loadMore: () -> Unit) : RecyclerView.OnScrollListener() {
+class ListingScrollListener(private val visibleThreshold: Int = 15, private val layoutManager: GridLayoutManager, private val loadMore: () -> Unit) : RecyclerView.OnScrollListener() {
 
     private var isLoading = false
     fun finishedLoading(){

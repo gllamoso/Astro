@@ -27,9 +27,9 @@ import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.network.Status
-import dev.gtcl.astro.ui.ItemScrollListener
+import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.LeftDrawerAdapter
-import dev.gtcl.astro.ui.ListingItemAdapter
+import dev.gtcl.astro.ui.ListingAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.*
 import dev.gtcl.astro.ui.fragments.create_post.CreatePostDialogFragment
@@ -63,8 +63,8 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         createMarkwonInstance(requireContext(), viewPagerModel::linkClicked)
     }
 
-    private lateinit var scrollListener: ItemScrollListener
-    private lateinit var listAdapter: ListingItemAdapter
+    private lateinit var scrollListener: ListingScrollListener
+    private lateinit var listAdapter: ListingAdapter
 
     override fun onResume() {
         super.onResume()
@@ -124,11 +124,11 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     private fun initScroller() {
         val listView = binding.fragmentListingList
         val swipeRefresh = binding.fragmentListingSwipeRefresh
-        scrollListener = ItemScrollListener(15, listView.layoutManager as GridLayoutManager, model::loadMore)
+        scrollListener = ListingScrollListener(15, listView.layoutManager as GridLayoutManager, model::loadMore)
         val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val blurNsfw = preferences.getBoolean("blur_nsfw_thumbnail", false)
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
-        listAdapter = ListingItemAdapter(
+        listAdapter = ListingAdapter(
             markwon,
             postActions = this,
             commentActions = this,
@@ -470,9 +470,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
 
     override fun vote(comment: Comment, vote: Vote) {
-        if(comment.scoreHidden != true){
-            comment.updateScore(vote)
-        }
+        comment.updateScore(vote)
         activityModel.vote(comment.name, vote)
     }
 

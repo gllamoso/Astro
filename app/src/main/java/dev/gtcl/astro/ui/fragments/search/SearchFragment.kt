@@ -7,7 +7,6 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -26,8 +25,8 @@ import dev.gtcl.astro.actions.ItemClickListener
 import dev.gtcl.astro.actions.SubredditActions
 import dev.gtcl.astro.databinding.FragmentSearchBinding
 import dev.gtcl.astro.models.reddit.listing.*
-import dev.gtcl.astro.ui.ItemScrollListener
-import dev.gtcl.astro.ui.ListingItemAdapter
+import dev.gtcl.astro.ui.ListingScrollListener
+import dev.gtcl.astro.ui.ListingAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.AccountPage
 import dev.gtcl.astro.ui.fragments.ListingPage
@@ -106,8 +105,8 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
 
     private fun initPopularItems(){
         val recycler = binding.fragmentSearchPopularList
-        val scrollListener = ItemScrollListener(15, binding.fragmentSearchPopularList.layoutManager as GridLayoutManager, model::loadMorePopular)
-        val listAdapter = ListingItemAdapter(markwon = null, subredditActions = this, itemClickListener = this, username = null){
+        val scrollListener = ListingScrollListener(15, binding.fragmentSearchPopularList.layoutManager as GridLayoutManager, model::loadMorePopular)
+        val listAdapter = ListingAdapter(markwon = null, subredditActions = this, itemClickListener = this, username = null){
             recycler.apply {
                 removeOnScrollListener(scrollListener)
                 addOnScrollListener(scrollListener)

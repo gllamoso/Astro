@@ -47,21 +47,11 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
             }
             popupCommentActionsUpvote.root.setOnClickListener {
                 commentActions.vote(comment, if(comment.likes == true) Vote.UNVOTE else Vote.UPVOTE)
-                comment.likes = if(comment.likes == true) {
-                    null
-                } else {
-                    true
-                }
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }
             popupCommentActionsDownvote.root.setOnClickListener {
                 commentActions.vote(comment, if(comment.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
-                comment.likes = if(comment.likes == false) {
-                    null
-                } else {
-                    false
-                }
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }

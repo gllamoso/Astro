@@ -1,7 +1,6 @@
 package dev.gtcl.astro.ui.fragments.item_scroller
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,8 +19,8 @@ import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.network.Status
-import dev.gtcl.astro.ui.ItemScrollListener
-import dev.gtcl.astro.ui.ListingItemAdapter
+import dev.gtcl.astro.ui.ListingScrollListener
+import dev.gtcl.astro.ui.ListingAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.*
 import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
@@ -36,8 +35,8 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     private lateinit var binding: FragmentItemScrollerBinding
 
-    private lateinit var scrollListener: ItemScrollListener
-    private lateinit var listAdapter: ListingItemAdapter
+    private lateinit var scrollListener: ListingScrollListener
+    private lateinit var listAdapter: ListingAdapter
 
     val model: ItemScrollerVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
@@ -133,11 +132,11 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     private fun initScroller(){
         val recyclerView = binding.fragmentItemScrollerList
         val swipeRefresh = binding.fragmentItemScrollerSwipeRefresh
-        scrollListener = ItemScrollListener(15, recyclerView.layoutManager as GridLayoutManager, model::loadMore)
+        scrollListener = ListingScrollListener(15, recyclerView.layoutManager as GridLayoutManager, model::loadMore)
         val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val blurNsfw = preferences.getBoolean(NSFW_THUMBNAIL_KEY, false)
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
-        listAdapter = ListingItemAdapter(
+        listAdapter = ListingAdapter(
             markwon,
             postActions = this,
             commentActions = this,
@@ -338,9 +337,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 //     \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 
     override fun vote(comment: Comment, vote: Vote) {
-        if(comment.scoreHidden != true){
-            comment.updateScore(vote)
-        }
+        comment.updateScore(vote)
         activityModel.vote(comment.name, vote)
     }
 

@@ -11,7 +11,7 @@ import dev.gtcl.astro.ui.viewholders.*
 import io.noties.markwon.Markwon
 import java.io.InvalidObjectException
 
-class ListingItemAdapter(
+class ListingAdapter(
     private val markwon: Markwon?,
     private val postActions: PostActions? = null,
     private val subredditActions: SubredditActions? = null,

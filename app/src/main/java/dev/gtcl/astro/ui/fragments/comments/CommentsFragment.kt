@@ -449,30 +449,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 //    \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 
     override fun vote(comment: Comment, vote: Vote) {
-        if(comment.scoreHidden != true){
-            when(vote){
-                Vote.UPVOTE -> {
-                    when(comment.likes){
-                        true -> comment.score--
-                        false -> comment.score += 2
-                        null -> comment.score++
-                    }
-                }
-                Vote.DOWNVOTE -> {
-                    when(comment.likes){
-                        true -> comment.score -= 2
-                        false -> comment.score++
-                        null -> comment.score--
-                    }
-                }
-                Vote.UNVOTE -> {
-                    when(comment.likes){
-                        true -> comment.score--
-                        false -> comment.score++
-                    }
-                }
-            }
-        }
+        comment.updateScore(vote)
         activityModel.vote(comment.name, vote)
     }
 
