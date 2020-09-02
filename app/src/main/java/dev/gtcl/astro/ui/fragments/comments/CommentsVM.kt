@@ -9,7 +9,9 @@ import dev.gtcl.astro.download.DownloadIntentService
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.network.MoreComments
 import dev.gtcl.astro.models.reddit.listing.*
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 
 const val CHILDREN_PER_FETCH = 50
@@ -315,7 +317,9 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
         }
 
         coroutineScope.launch {
-            Toast.makeText(application, application.getText(R.string.downloading), Toast.LENGTH_SHORT).show()
+            withContext(Dispatchers.Main){
+                Toast.makeText(application, application.getText(R.string.downloading), Toast.LENGTH_SHORT).show()
+            }
             val item = _mediaItems.value!![position]
             var downloadUrl = item.url
 
@@ -330,7 +334,9 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
                     if(e is HttpException && e.code() == 404 && item.backupUrl != null){
                         downloadUrl = item.backupUrl
                     } else {
-                        Toast.makeText(application, application.getText(R.string.unable_to_download_file), Toast.LENGTH_SHORT).show()
+                        withContext(Dispatchers.Main){
+                            Toast.makeText(application, application.getText(R.string.unable_to_download_file), Toast.LENGTH_SHORT).show()
+                        }
                     }
                 }
             }
