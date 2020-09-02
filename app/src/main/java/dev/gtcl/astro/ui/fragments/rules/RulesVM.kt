@@ -1,16 +1,11 @@
 package dev.gtcl.astro.ui.fragments.rules
 
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.AstroApplication
 import dev.gtcl.astro.AstroViewModel
 import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.Rule
-import dev.gtcl.astro.repositories.reddit.SubredditRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class RulesVM(private val application: AstroApplication): AstroViewModel(application){

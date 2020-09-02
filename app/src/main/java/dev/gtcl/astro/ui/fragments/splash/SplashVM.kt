@@ -2,11 +2,9 @@ package dev.gtcl.astro.ui.fragments.splash
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import dev.gtcl.astro.*
 import dev.gtcl.astro.database.SavedAccount
 import dev.gtcl.astro.models.reddit.AccessToken
-import dev.gtcl.astro.repositories.reddit.UserRepository
 import kotlinx.coroutines.*
 
 class SplashVM(val application: AstroApplication): AstroViewModel(application) {

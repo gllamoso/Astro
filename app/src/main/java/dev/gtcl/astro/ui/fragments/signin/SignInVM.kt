@@ -2,14 +2,12 @@ package dev.gtcl.astro.ui.fragments.signin
 
 import android.content.Context
 import android.net.Uri
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.gson.Gson
 import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.AccessToken
 import dev.gtcl.astro.models.reddit.listing.Account
-import dev.gtcl.astro.repositories.reddit.UserRepository
 import kotlinx.coroutines.*
 import java.util.*
 import kotlin.IllegalArgumentException

@@ -12,7 +12,6 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentDialogReportBinding
 import dev.gtcl.astro.models.reddit.listing.Comment

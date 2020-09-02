@@ -2,17 +2,12 @@ package dev.gtcl.astro.ui.fragments.account
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
 import com.squareup.moshi.JsonDataException
 import dev.gtcl.astro.R
 import dev.gtcl.astro.AstroApplication
 import dev.gtcl.astro.AstroViewModel
 import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.listing.Account
-import dev.gtcl.astro.repositories.reddit.UserRepository
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.launch
 
 class AccountFragmentVM(val application: AstroApplication): AstroViewModel(application) {

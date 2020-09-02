@@ -3,8 +3,6 @@ package dev.gtcl.astro.ui.fragments.create_post
 import android.content.Context
 import android.net.Uri
 import android.os.Environment
-import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.squareup.moshi.JsonDataException
@@ -12,15 +10,11 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.NewPostData
 import dev.gtcl.astro.models.reddit.listing.Flair
 import dev.gtcl.astro.models.reddit.listing.Post
-import dev.gtcl.astro.repositories.ImgurRepository
-import dev.gtcl.astro.repositories.reddit.MiscRepository
-import dev.gtcl.astro.repositories.reddit.SubredditRepository
 import kotlinx.coroutines.*
 import retrofit2.HttpException
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
-import java.net.URI
 import java.net.URL
 
 class CreatePostVM(private val application: AstroApplication): AstroViewModel(application){

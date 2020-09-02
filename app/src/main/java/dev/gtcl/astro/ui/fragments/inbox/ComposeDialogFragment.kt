@@ -13,7 +13,6 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.setFragmentResult
 import androidx.lifecycle.ViewModelProvider
-import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentDialogComposeMessageBinding
 

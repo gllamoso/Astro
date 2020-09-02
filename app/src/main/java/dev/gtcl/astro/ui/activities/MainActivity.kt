@@ -1,11 +1,9 @@
 package dev.gtcl.astro.ui.activities
 
-import android.Manifest
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import androidx.browser.customtabs.CustomTabsIntent
-import androidx.core.app.ActivityCompat
 import androidx.databinding.DataBindingUtil
 import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider

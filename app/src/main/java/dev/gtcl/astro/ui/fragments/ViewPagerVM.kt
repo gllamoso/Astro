@@ -1,7 +1,6 @@
 package dev.gtcl.astro.ui.fragments
 
 import androidx.lifecycle.*
-import dev.gtcl.astro.*
 
 class ViewPagerVM: ViewModel(){
     var isViewPagerSwipeEnabled = false

@@ -54,7 +54,6 @@
     <string name="settings">Settings</string>
     <string name="logout">Logout</string>
     <string name="add_account">Add account</string>
-    <string name="not_logged_in">Not logged in</string>
 
     <!--Comments-->
     <string name="reply">Reply</string>
@@ -63,9 +62,6 @@
     <string name="add_response">Add response…</string>
     <string name="view_all_comments">View all comments</string>
     <string name="you_are_viewing_a_single_thread">You are viewing a single thread</string>
-
-    <!--Post Details-->
-    <string name="upvote_ratio">(%.0f%% upvote)</string>
 
     <!--Account-->
     <string name="overview">Overview</string>
@@ -173,9 +169,6 @@
     <string name="send">Send</string>
     <string name="edit">Edit</string>
     <string name="more_options">More Options</string>
-    <string name="close">Close</string>
-    <string name="download_album">Download Album</string>
-    <string name="album_name">Album Name</string>
     <string name="downloading_album">Downloading Album</string>
     <string name="album_download_complete">Album Download Complete</string>
     <string name="unable_to_create_directory">Unable to create directory %s</string>
@@ -194,7 +187,6 @@
 
     <!--Errors-->
     <string name="user_does_not_exist">User does not exist</string>
-    <string name="user_must_be_logged_in">User must be logged in to do that.</string>
     <string name="socket_timeout_error">Unable to connect to Reddit at this time. Please retry later.</string>
     <string name="unknown_host_exception">Please reconnect to the internet.</string>
     <string name="something_went_wrong">Something went wrong. Please retry later.</string>

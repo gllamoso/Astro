@@ -1,6 +1,5 @@
 package dev.gtcl.astro.ui.fragments.account.pages.about
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations

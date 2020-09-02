@@ -428,7 +428,7 @@ fun Exception.getErrorMessage(context: Context): String{
     val errorId = when(this){
         is SocketTimeoutException -> R.string.socket_timeout_error
         is UnknownHostException -> R.string.unknown_host_exception
-        is NotLoggedInException -> R.string.user_must_be_logged_in
+        is NotLoggedInException -> R.string.must_be_logged_in
         is JsonDataException -> R.string.error_in_json_parsing
         else -> R.string.something_went_wrong
     }
@@ -528,6 +528,6 @@ fun checkedIfLoggedInBeforeExecuting(context: Context, runnable: () -> Unit){
     if(isLoggedIn){
         runnable()
     } else {
-        Toast.makeText(context, context.getText(R.string.user_must_be_logged_in), Toast.LENGTH_LONG).show()
+        Toast.makeText(context, context.getText(R.string.must_be_logged_in), Toast.LENGTH_LONG).show()
     }
 }
