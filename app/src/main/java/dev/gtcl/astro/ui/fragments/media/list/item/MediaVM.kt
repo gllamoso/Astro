@@ -11,7 +11,9 @@ import com.google.android.exoplayer2.SimpleExoPlayer
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector
 import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.MediaURL
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MediaVM(private val application: AstroApplication): AstroViewModel(application){
 
@@ -64,23 +66,25 @@ class MediaVM(private val application: AstroApplication): AstroViewModel(applica
                     }
                 }
                 var mediaSource = buildMediaSource(application.baseContext, videoUri)
-                val player = ExoPlayerFactory.newSimpleInstance(application.baseContext, trackSelector)
-                player!!.apply {
-                    repeatMode = Player.REPEAT_MODE_ONE
-                    playWhenReady = false
-                    seekTo(0, 0)
-                    prepare(mediaSource, false, false)
-                    addListener(object: Player.EventListener{
-                        override fun onPlayerError(error: ExoPlaybackException?) {
-                            Log.e("Media", "Exception: $error")
-                            if(videoUri.path != mediaURL.backupUrl && mediaURL.backupUrl != null) {
-                                mediaSource = buildMediaSource(application.baseContext, Uri.parse(mediaURL.backupUrl))
-                                prepare(mediaSource, false, false)
+                withContext(Dispatchers.Main){
+                    val player = ExoPlayerFactory.newSimpleInstance(application.baseContext, trackSelector)
+                    player!!.apply {
+                        repeatMode = Player.REPEAT_MODE_ONE
+                        playWhenReady = false
+                        seekTo(0, 0)
+                        prepare(mediaSource, false, false)
+                        addListener(object: Player.EventListener{
+                            override fun onPlayerError(error: ExoPlaybackException?) {
+                                Log.e("Media", "Exception: $error")
+                                if(videoUri.path != mediaURL.backupUrl && mediaURL.backupUrl != null) {
+                                    mediaSource = buildMediaSource(application.baseContext, Uri.parse(mediaURL.backupUrl))
+                                    prepare(mediaSource, false, false)
+                                }
                             }
-                        }
-                    })
+                        })
+                    }
+                    _player.value = player
                 }
-                _player.postValue(player)
             }
             _initialized = true
         }
