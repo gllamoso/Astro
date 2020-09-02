@@ -196,14 +196,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         } else {
             val url = requireArguments().getString(URL_KEY)!!
             val fullContextLink = VALID_REDDIT_COMMENTS_URL_REGEX.find(url)!!.value
-            Log.d("TAE", "URL: $url")
-            Log.d("TAE", "Full context: $fullContextLink")
             if(model.allCommentsFetched.value == true){
-                Log.d("TAE", "Test1")
                 model.fetchComments(fullContextLink, isFullContext = true, refreshPost = refreshPost)
             } else {
                 val isFullContext = url == fullContextLink
-                Log.d("TAE", "IsFullContext: $isFullContext")
                 model.fetchComments(url, isFullContext = isFullContext, refreshPost = refreshPost)
             }
         }
