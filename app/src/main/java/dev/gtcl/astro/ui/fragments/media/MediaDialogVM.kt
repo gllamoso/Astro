@@ -7,7 +7,9 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.download.DownloadIntentService
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.Post
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 
 class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(application) {
@@ -130,11 +132,13 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
         }
 
         coroutineScope.launch {
-            Toast.makeText(
-                application,
-                application.getText(R.string.downloading),
-                Toast.LENGTH_SHORT
-            ).show()
+            withContext(Dispatchers.Main){
+                Toast.makeText(
+                    application,
+                    application.getText(R.string.downloading),
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
             val item = _mediaItems.value!![_itemPosition.value!!]
             var downloadUrl = item.url
 
@@ -150,11 +154,13 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                     if (e is HttpException && e.code() == 404 && item.backupUrl != null) {
                         downloadUrl = item.backupUrl
                     } else {
-                        Toast.makeText(
-                            application,
-                            application.getText(R.string.unable_to_download_file),
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        withContext(Dispatchers.Main){
+                            Toast.makeText(
+                                application,
+                                application.getText(R.string.unable_to_download_file),
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
                     }
                 }
             }
