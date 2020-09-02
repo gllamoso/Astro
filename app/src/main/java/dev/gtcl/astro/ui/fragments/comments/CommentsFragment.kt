@@ -34,7 +34,6 @@ import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.databinding.FragmentCommentsBinding
 import dev.gtcl.astro.databinding.PopupCommentSortBinding
 import dev.gtcl.astro.databinding.PopupCommentsPageActionsBinding
-import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.*
@@ -533,23 +532,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     override fun handleLink(link: String) {
-        when(link.getUrlType()){
-            UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
-            UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
-            UrlType.GIFV -> MediaDialogFragment.newInstance(MediaURL(link.replace(".gifv", ".mp4"), MediaType.VIDEO)).show(childFragmentManager, null)
-            UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
-            UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
-            UrlType.REDGIFS -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.REDGIFS)).show(childFragmentManager, null)
-            UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
-            UrlType.REDDIT_THREAD ->  activityModel.newPage(CommentsPage(link, true))
-            UrlType.REDDIT_COMMENTS -> {
-                val validUrl = VALID_REDDIT_COMMENTS_URL_REGEX.find(link)!!.value
-                activityModel.newPage(CommentsPage(validUrl, true))
-            }
-            UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
-            UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_PICTURE)).show(childFragmentManager, null)
-            null -> throw IllegalArgumentException("Unable to determine link type: $link")
-        }
+        viewPagerModel.linkClicked(link)
     }
 
 //     _____                                             _   _

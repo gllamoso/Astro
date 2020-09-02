@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
@@ -23,12 +24,17 @@ import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.AccountPage
 import dev.gtcl.astro.ui.fragments.ListingPage
 import dev.gtcl.astro.ui.fragments.ViewPagerFragmentDirections
+import dev.gtcl.astro.ui.fragments.ViewPagerVM
 
 class InboxFragment: Fragment(), LeftDrawerActions{
 
     private lateinit var binding: FragmentInboxBinding
 
     private val activityModel: MainActivityVM by activityViewModels()
+
+    private val viewPagerModel: ViewPagerVM by lazy {
+        ViewModelProviders.of(requireParentFragment()).get(ViewPagerVM::class.java)
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -53,6 +59,11 @@ class InboxFragment: Fragment(), LeftDrawerActions{
                     clearSharedPreferenceDraft()
                 }
                 .show()
+        })
+
+        childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
+            val url = bundle.getString(URL_KEY)!!
+            viewPagerModel.linkClicked(url)
         })
 
         return binding.root

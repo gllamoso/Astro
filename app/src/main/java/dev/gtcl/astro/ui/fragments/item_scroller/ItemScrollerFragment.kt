@@ -500,7 +500,10 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                 }
             }
         }
+    }
 
+    override fun handleLink(link: String) {
+        parentFragmentManager.setFragmentResult(URL_KEY, bundleOf(URL_KEY to link))
     }
 
 //     _   _                 _____           _
@@ -545,26 +548,5 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         }
 
     }
-
-    override fun handleLink(link: String) {
-        when(link.getUrlType()){
-            UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
-            UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
-            UrlType.GIFV -> MediaDialogFragment.newInstance(MediaURL(link.replace(".gifv", ".mp4"), MediaType.VIDEO)).show(childFragmentManager, null)
-            UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
-            UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
-            UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
-            UrlType.REDDIT_THREAD ->  activityModel.newPage(CommentsPage(link, true))
-            UrlType.REDDIT_COMMENTS -> {
-                val validUrl = VALID_REDDIT_COMMENTS_URL_REGEX.find(link)!!.value
-                activityModel.newPage(CommentsPage(validUrl, true))
-            }
-            UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
-            UrlType.REDGIFS -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.REDGIFS)).show(childFragmentManager, null)
-            UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_PICTURE)).show(childFragmentManager, null)
-            null -> throw IllegalArgumentException("Unable to determine link type: $link")
-        }
-    }
-
 
 }

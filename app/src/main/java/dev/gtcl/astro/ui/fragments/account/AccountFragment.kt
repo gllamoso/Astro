@@ -12,6 +12,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
@@ -24,10 +25,7 @@ import dev.gtcl.astro.models.reddit.listing.Account
 import dev.gtcl.astro.models.reddit.listing.FrontPage
 import dev.gtcl.astro.ui.LeftDrawerAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import dev.gtcl.astro.ui.fragments.AccountPage
-import dev.gtcl.astro.ui.fragments.InboxPage
-import dev.gtcl.astro.ui.fragments.ListingPage
-import dev.gtcl.astro.ui.fragments.ViewPagerFragmentDirections
+import dev.gtcl.astro.ui.fragments.*
 
 class AccountFragment : Fragment(),  LeftDrawerActions {
 
@@ -39,6 +37,10 @@ class AccountFragment : Fragment(),  LeftDrawerActions {
     }
 
     private val activityModel: MainActivityVM by activityViewModels()
+
+    private val viewPagerModel: ViewPagerVM by lazy {
+        ViewModelProviders.of(requireParentFragment()).get(ViewPagerVM::class.java)
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentAccountBinding.inflate(inflater)
@@ -146,6 +148,11 @@ class AccountFragment : Fragment(),  LeftDrawerActions {
             }
             true
         }
+
+        childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
+            val url = bundle.getString(URL_KEY)!!
+            viewPagerModel.linkClicked(url)
+        })
     }
 
     private fun showAccountActionsPopup(anchor: View, account: Account){
