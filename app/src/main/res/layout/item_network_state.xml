@@ -29,6 +29,7 @@
             style="?android:attr/progressBarStyle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:paddingVertical="8dp"
             android:visibility="@{networkState.status == Status.RUNNING ? View.VISIBLE : View.GONE}"
             android:layout_gravity="center"/>
         <Button
