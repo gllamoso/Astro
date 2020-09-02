@@ -73,13 +73,24 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                         listOf(MediaURL(imgurData.link, mediaType))
                     }
                     MediaType.GFYCAT -> {
-                        val videoUrl = gfycatRepository.getGfycatInfo(
-                            mediaURL.url.replace("http[s]?://gfycat.com/".toRegex(), "")
-                                .split("-")[0]
-                        )
-                            .await()
-                            .gfyItem
-                            .mobileUrl
+                        val id = mediaURL.url.replace("http[s]?://gfycat.com/".toRegex(), "").split("-")[0]
+                        var videoUrl: String
+                        try {
+                            videoUrl = gfycatRepository.getGfycatInfo(id)
+                                .await()
+                                .gfyItem
+                                .mobileUrl
+                        } catch (e: Exception){
+                            if(e is HttpException){
+                                videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(id)
+                                    .await()
+                                    .gfyItem
+                                    .mobileUrl
+                                listOf(MediaURL(videoUrl, MediaType.VIDEO, mediaURL.backupUrl))
+                            } else {
+                                throw Exception()
+                            }
+                        }
                         listOf(MediaURL(videoUrl, MediaType.VIDEO, mediaURL.backupUrl))
                     }
                     MediaType.REDGIFS -> {

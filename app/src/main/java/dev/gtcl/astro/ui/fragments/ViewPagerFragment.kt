@@ -118,7 +118,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
             val url = bundle.getString(URL_KEY)!!
-            newPage(ContinueThreadPage(url, null, false))
+            newPage(CommentsPage(url, false))
         })
     }
 
@@ -170,7 +170,11 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
             UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
             UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
             UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
-            UrlType.REDDIT_COMMENTS -> newPage(ContinueThreadPage(link, null, true))
+            UrlType.REDDIT_THREAD ->  activityModel.newPage(CommentsPage(link, true))
+            UrlType.REDDIT_COMMENTS -> {
+                val validUrl = VALID_REDDIT_COMMENTS_URL_REGEX.find(link)!!.value
+                activityModel.newPage(CommentsPage(validUrl, true))
+            }
             UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
             UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_PICTURE)).show(childFragmentManager, null)
             UrlType.REDGIFS -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.REDGIFS)).show(childFragmentManager, null)

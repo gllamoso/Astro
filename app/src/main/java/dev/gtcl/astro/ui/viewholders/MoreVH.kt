@@ -13,7 +13,9 @@ class MoreVH private constructor(private val binding: ItemMoreCommentBinding): R
         binding.more = item
         binding.itemMoreCommentProgressBar.visibility = View.GONE
         binding.itemMoreCommentBackground.setOnClickListener {
-            binding.itemMoreCommentProgressBar.visibility = View.VISIBLE
+            if(!item.isContinueThreadLink){
+                binding.itemMoreCommentProgressBar.visibility = View.VISIBLE
+            }
             itemClickListener.itemClicked(item, adapterPosition)
         }
         binding.executePendingBindings()

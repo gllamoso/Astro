@@ -19,21 +19,26 @@ class CommentsAdapter(
     private val commentActions: CommentActions,
     private val itemClickListener: ItemClickListener,
     private val userId: String?,
-    private val onViewAllClick: (() -> Unit)?) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+    allCommentsFetched: Boolean,
+    private val onViewAllClick: (() -> Unit)) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
 
-    var allCommentsRetrieved: Boolean = onViewAllClick == null
+    var allCommentsFetched: Boolean = allCommentsFetched
         set(value){
             val previousValue = field
             field = value
-            if(!previousValue && value){
-                notifyItemRemoved(0)
+            if(previousValue != value){
+                if(value){
+                    notifyItemRemoved(0)
+                } else {
+                    notifyItemInserted(0)
+                }
             }
         }
 
     private var comments: MutableList<Item>? = null
 
     fun submitList(items: List<Item>?){
-        val offset = if(allCommentsRetrieved) 0 else 1
+        val offset = if(allCommentsFetched) 0 else 1
         if(!comments.isNullOrEmpty()){
             notifyItemRangeRemoved(offset, comments!!.size)
             comments = items?.toMutableList()
@@ -46,7 +51,7 @@ class CommentsAdapter(
     }
 
     fun addItems(position: Int, items: List<Item>){
-        val offset = if(allCommentsRetrieved) 0 else 1
+        val offset = if(allCommentsFetched) 0 else 1
         if(comments.isNullOrEmpty()){
             notifyItemRemoved(offset)
         }
@@ -64,7 +69,7 @@ class CommentsAdapter(
     }
 
     fun removeRange(position: Int, size: Int){
-        val offset = if(allCommentsRetrieved) 0 else 1
+        val offset = if(allCommentsFetched) 0 else 1
         for(i in 1..size){
             comments!!.removeAt(position - offset)
         }
@@ -72,7 +77,7 @@ class CommentsAdapter(
     }
 
     fun updateAt(item: Item, position: Int){
-        val offset = if(allCommentsRetrieved) 0 else 1
+        val offset = if(allCommentsFetched) 0 else 1
         comments?.let {
             it[position] = item
             notifyItemChanged(position - offset)
@@ -91,9 +96,9 @@ class CommentsAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val offset = if(allCommentsRetrieved) 0 else -1
+        val offset = if(allCommentsFetched) 0 else -1
         when(val viewType = getItemViewType(position)){
-            R.layout.item_view_all_comments -> (holder as ViewAllCommentsVH).bind(onViewAllClick!!)
+            R.layout.item_view_all_comments -> (holder as ViewAllCommentsVH).bind(onViewAllClick)
             R.layout.item_more_comment -> (holder as MoreVH).bind(comments!![position + offset] as More, itemClickListener)
             R.layout.item_comment -> (holder as CommentVH).bind(comments!![position + offset] as Comment, markwon, commentActions, userId, itemClickListener)
             R.layout.item_network_state -> (holder as NetworkStateItemVH).bind(NetworkState.LOADING){}
@@ -103,9 +108,9 @@ class CommentsAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        val offset = if(allCommentsRetrieved) 0 else -1
+        val offset = if(allCommentsFetched) 0 else -1
         return when{
-            position == 0 && !allCommentsRetrieved -> R.layout.item_view_all_comments
+            position == 0 && !allCommentsFetched -> R.layout.item_view_all_comments
             comments == null -> R.layout.item_network_state
             comments?.isEmpty() ?: false -> R.layout.item_no_items_found
             comments?.get(position + offset) is More -> R.layout.item_more_comment
@@ -116,9 +121,9 @@ class CommentsAdapter(
 
     override fun getItemCount(): Int{
         return if(!comments.isNullOrEmpty()){
-               comments!!.size + if(!allCommentsRetrieved) 1 else 0
+               comments!!.size + if(!allCommentsFetched) 1 else 0
         } else {
-            if(allCommentsRetrieved) 1 else 2
+            if(allCommentsFetched) 1 else 2
         }
     }
 

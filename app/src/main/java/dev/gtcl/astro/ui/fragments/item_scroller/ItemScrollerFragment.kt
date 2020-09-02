@@ -482,23 +482,21 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                 ReplyOrEditDialogFragment.newInstance(item, position, true).show(childFragmentManager, null)
             }
             is Comment -> {
-                val permalink = item.permalink
-                if(!permalink.isNullOrBlank()){
-                    val linkPermalink = item.linkPermalink?.replace("http[s]?://www\\.reddit\\.com".toRegex(), "")
-                    activityModel.newPage(ContinueThreadPage(permalink , linkPermalink, true))
+                if(item.permalink != null){
+                    val permalink = "https://www.reddit.com${item.permalink}"
+                    activityModel.newPage(CommentsPage(permalink, true))
                 } else {
                     val context = item.context
                     if(context.isNullOrBlank()){
                         throw Exception("Comment has no permalink or context: $item")
                     }
                     val regex = "/[a-z0-9]+/\\?context=[0-9]+".toRegex()
-                    val linkPermalink = context.replace(regex, "/")
-                    val newPermalink = if(item.parentId?.startsWith("t1_") == true){
+                    val link = if(item.parentId?.startsWith("t1_") == true){
                         context.replace(regex, item.parentId.replace("t1_", "/"))
                     } else {
                         context
                     }
-                    activityModel.newPage(ContinueThreadPage(newPermalink, linkPermalink, true))
+                    activityModel.newPage(CommentsPage("https://www.reddit.com$link", true))
                 }
             }
         }
@@ -556,7 +554,11 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
             UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
             UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
-            UrlType.REDDIT_COMMENTS -> activityModel.newPage(ContinueThreadPage(link, null, true))
+            UrlType.REDDIT_THREAD ->  activityModel.newPage(CommentsPage(link, true))
+            UrlType.REDDIT_COMMENTS -> {
+                val validUrl = VALID_REDDIT_COMMENTS_URL_REGEX.find(link)!!.value
+                activityModel.newPage(CommentsPage(validUrl, true))
+            }
             UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
             UrlType.REDGIFS -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.REDGIFS)).show(childFragmentManager, null)
             UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_PICTURE)).show(childFragmentManager, null)

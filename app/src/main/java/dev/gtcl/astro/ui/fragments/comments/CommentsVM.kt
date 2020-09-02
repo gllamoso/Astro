@@ -1,5 +1,6 @@
 package dev.gtcl.astro.ui.fragments.comments
 
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -19,10 +20,6 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
 
     private val hiddenItemsMap = HashMap<String, List<Item>>()
 
-    private var _commentsFetched = false
-    val commentsFetched: Boolean
-        get() = _commentsFetched
-
     private val _post = MutableLiveData<Post>()
     val post: LiveData<Post>
         get() = _post
@@ -35,11 +32,11 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
     val moreComments: LiveData<MoreComments?>
         get() = _moreComments
 
-    private val _allCommentsFetched = MutableLiveData<Boolean>()
+    private val _allCommentsFetched = MutableLiveData<Boolean>().apply { value = false }
     val allCommentsFetched: LiveData<Boolean>
         get() = _allCommentsFetched
 
-    private val _loading = MutableLiveData<Boolean>().apply { value = true }
+    private val _loading = MutableLiveData<Boolean>().apply { value = false }
     val loading: LiveData<Boolean>
         get() = _loading
 
@@ -60,6 +57,8 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
         get() = _mediaItems
 
     private val pageSize = 15
+
+    private var fullContextLink: String? = null
 
     var contentInitialized = false
 
@@ -86,17 +85,29 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
         _commentSort.value = sort
     }
 
-    fun fetchComments(permalink: String = post.value!!.permalink, refreshPost: Boolean = true){
+    fun fetchFullContext(){
+        fetchComments(fullContextLink!!, isFullContext = true, refreshPost = false)
+    }
+
+    fun fetchComments(permalink: String, isFullContext: Boolean, refreshPost: Boolean){
         coroutineScope.launch {
             try{
                 _loading.postValue(true)
-                val commentPage = listingRepository.getPostAndComments(permalink, _commentSort.value!!, pageSize * 3).await()
+                val isLoggedIn = application.accessToken != null
+                val link = if(isLoggedIn){
+                    permalink.replace("www.", "oauth.")
+                } else {
+                    permalink
+                }
+                val commentPage = listingRepository.getPostAndComments(link, _commentSort.value!!, pageSize * 3).await()
                 if(refreshPost){
                     _post.postValue(commentPage.post)
                 }
-                _allCommentsFetched.postValue(permalink.endsWith(commentPage.post.permalink))
+                _allCommentsFetched.postValue(isFullContext)
+                if(!isFullContext){
+                    fullContextLink = VALID_REDDIT_COMMENTS_URL_REGEX.find(permalink)!!.value
+                }
                 _comments.postValue(commentPage.comments.toMutableList())
-                _commentsFetched = true
             } catch (e: Exception){
                 _comments.postValue(mutableListOf())
                 _errorMessage.postValue(e.getErrorMessage(application))
@@ -235,12 +246,24 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
                         }
                     }
                     UrlType.GFYCAT -> {
-                        val videoUrl = gfycatRepository.getGfycatInfo(
-                            post.url!!.replace("http[s]?://gfycat.com/".toRegex(), "").split("-")[0]
-                        )
-                            .await()
-                            .gfyItem
-                            .mobileUrl
+                        val id = post.url!!.replace("http[s]?://gfycat.com/".toRegex(), "").split("-")[0]
+                        var videoUrl: String
+                        try {
+                            videoUrl = gfycatRepository.getGfycatInfo(id)
+                                .await()
+                                .gfyItem
+                                .mobileUrl
+                        } catch (e: Exception){
+                            if(e is HttpException){
+                                videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(id)
+                                    .await()
+                                    .gfyItem
+                                    .mobileUrl
+                                listOf(MediaURL(videoUrl, MediaType.VIDEO, post.previewVideoUrl))
+                            } else {
+                                throw Exception()
+                            }
+                        }
                         listOf(MediaURL(videoUrl, MediaType.VIDEO, post.previewVideoUrl))
                     }
                     UrlType.REDGIFS -> {

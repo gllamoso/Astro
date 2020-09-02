@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
+import android.util.Log
 import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
@@ -81,12 +82,16 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         binding.lifecycleOwner = viewLifecycleOwner
         binding.model = model
 
-        if(!model.commentsFetched){
-            initPost()
+        if(model.post.value == null && model.loading.value != true){
+            val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
+            if (postPage != null) {
+                model.setPost(postPage.post)
+            }
+            refresh(true)
         }
         initPostObservers()
         initTopBar()
-        initBottomBarAndCommentsAdapter()
+        initBottomBarAndBottomSheet()
         initMedia()
         initOtherObservers()
 
@@ -105,24 +110,18 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         }
     }
 
-    private fun initBottomBarAndCommentsAdapter() {
-        val fullContextLink = requireArguments().getString(FULL_CONTEXT_URL_KEY, null)
-        val onViewAllClick: (() -> Unit)? =
-            if(fullContextLink != null){
-                {
-                    if(model.loading.value != true){
-                        model.fetchComments(fullContextLink)
-                    }
-                }
-            } else {
-                null
-            }
+    private fun initBottomBarAndBottomSheet() {
+
         val userId = (requireActivity().application as AstroApplication).currentAccount?.fullId
-        adapter = CommentsAdapter(markwon, this, this, userId, onViewAllClick)
+        adapter = CommentsAdapter(markwon, this, this, userId, model.allCommentsFetched.value == true){
+            if(model.loading.value != true){
+                model.fetchFullContext()
+            }
+        }
         binding.fragmentCommentsComments.adapter = adapter
 
         model.allCommentsFetched.observe(viewLifecycleOwner, {
-            adapter.allCommentsRetrieved = it
+            adapter.allCommentsFetched = it
         })
 
         model.comments.observe(viewLifecycleOwner, {
@@ -161,6 +160,11 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
         })
 
+        val expand = requireArguments().getBoolean(EXPAND_REPLIES_KEY)
+        if(expand){
+            behavior.state = BottomSheetBehavior.STATE_EXPANDED
+        }
+
         binding.fragmentCommentsReply.setOnClickListener {
             val post = model.post.value!!
             if(post.locked || post.deleted){
@@ -174,11 +178,35 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             val currentSort = model.commentSort.value!!
             showCommentSortPopup(it, currentSort){ sort ->
                 model.setCommentSort(sort)
-                model.fetchComments(refreshPost = false)
+                refresh(false)
             }
         }
 
         initBottomBarOnClickListeners(behavior)
+    }
+
+    private fun refresh(refreshPost: Boolean){
+        model.contentInitialized = false
+        val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
+        if(postPage != null){
+            model.fetchComments(postPage.post.permalink,
+                isFullContext = true,
+                refreshPost = refreshPost
+            )
+        } else {
+            val url = requireArguments().getString(URL_KEY)!!
+            val fullContextLink = VALID_REDDIT_COMMENTS_URL_REGEX.find(url)!!.value
+            Log.d("TAE", "URL: $url")
+            Log.d("TAE", "Full context: $fullContextLink")
+            if(model.allCommentsFetched.value == true){
+                Log.d("TAE", "Test1")
+                model.fetchComments(fullContextLink, isFullContext = true, refreshPost = refreshPost)
+            } else {
+                val isFullContext = url == fullContextLink
+                Log.d("TAE", "IsFullContext: $isFullContext")
+                model.fetchComments(url, isFullContext = isFullContext, refreshPost = refreshPost)
+            }
+        }
     }
 
     private fun initBottomBarOnClickListeners(behavior: BottomSheetBehavior<CoordinatorLayout>) {
@@ -236,21 +264,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
         }
 
-    }
-
-    private fun initPost() {
-        val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
-        val url = requireArguments().get(URL_KEY) as String?
-        if (postPage != null) {
-            model.setPost(postPage.post)
-            model.fetchComments(postPage.post.permalink, false)
-        } else {
-            model.fetchComments(url!!)
-            val expand = requireArguments().getBoolean(EXPAND_REPLIES_KEY)
-            if(expand){
-                BottomSheetBehavior.from(binding.fragmentCommentsBottomSheet).state = BottomSheetBehavior.STATE_EXPANDED
-            }
-        }
     }
 
     private fun initPostObservers(){
@@ -350,26 +363,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
         binding.fragmentCommentsSwipeRefresh.setOnRefreshListener {
             if(model.loading.value == true){
+                binding.fragmentCommentsSwipeRefresh.isRefreshing = false
                 return@setOnRefreshListener
             }
-
-            model.contentInitialized = false
-            val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
-            if(postPage != null){
-                model.fetchComments()
-            } else {
-                val url = requireArguments().getString(URL_KEY)
-                val fullContextLink = requireArguments().getString(FULL_CONTEXT_URL_KEY, null)
-                if(model.allCommentsFetched.value == true){
-                    if(fullContextLink != null){
-                        model.fetchComments(fullContextLink)
-                    } else {
-                        model.fetchComments(url!!)
-                    }
-                } else {
-                    model.fetchComments(url!!)
-                }
-            }
+            refresh(true)
         }
 
         model.loading.observe(viewLifecycleOwner, {
@@ -515,7 +512,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         when(item) {
             is More -> {
                 if (item.isContinueThreadLink) {
-                    activityModel.newPage(ContinueThreadPage("${model.post.value!!.permalink}${item.parentId.replace("t1_", "")}", model.post.value?.permalink, true))
+                    activityModel.newPage(CommentsPage("https://www.reddit.com${model.post.value!!.permalink}${item.parentId.replace("t1_", "")}", true))
                 } else {
                     model.fetchMoreComments(position)
                 }
@@ -548,7 +545,11 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
             UrlType.REDGIFS -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.REDGIFS)).show(childFragmentManager, null)
             UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
-            UrlType.REDDIT_COMMENTS -> activityModel.newPage(ContinueThreadPage(link, null, true))
+            UrlType.REDDIT_THREAD ->  activityModel.newPage(CommentsPage(link, true))
+            UrlType.REDDIT_COMMENTS -> {
+                val validUrl = VALID_REDDIT_COMMENTS_URL_REGEX.find(link)!!.value
+                activityModel.newPage(CommentsPage(validUrl, true))
+            }
             UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
             UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_PICTURE)).show(childFragmentManager, null)
             null -> throw IllegalArgumentException("Unable to determine link type: $link")
@@ -746,9 +747,9 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             return fragment
         }
 
-        fun newInstance(url: String, fullContextLink: String?, expandReplies: Boolean): CommentsFragment {
+        fun newInstance(url: String, expandReplies: Boolean): CommentsFragment {
             val fragment = CommentsFragment()
-            val args = bundleOf(URL_KEY to url, FULL_CONTEXT_URL_KEY to fullContextLink, EXPAND_REPLIES_KEY to expandReplies)
+            val args = bundleOf(URL_KEY to url, EXPAND_REPLIES_KEY to expandReplies)
             fragment.arguments = args
             return fragment
         }

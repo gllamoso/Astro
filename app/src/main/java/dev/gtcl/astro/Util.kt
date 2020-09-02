@@ -362,7 +362,9 @@ val REDGIFS_REGEX = "http[s]?://(www\\.)?redgifs.com/watch/\\w+".toRegex()
 val HLS_REGEX = "http[s]?://.+/HLSPlaylist\\.m3u8.*".toRegex()
 val REDDIT_VIDEO_REGEX = "http[s]?://v.redd.it/\\w+".toRegex()
 val STANDARD_VIDEO = "http[s]?://.+\\.(mp4)".toRegex()
-val REDDIT_COMMENTS_REGEX = "http[s]?://www\\.reddit\\.com/r/\\w+/comments/.+".toRegex()
+val REDDIT_COMMENTS_REGEX = "http[s]?://(www|oauth)\\.reddit\\.com/r/\\w+/comments/\\w+/.+".toRegex()
+val REDDIT_THREAD_REGEX = "http[s]?://(www|oauth)\\.reddit\\.com/r/\\w+/comments/\\w+/\\w+/\\w+[/]?".toRegex()
+val VALID_REDDIT_COMMENTS_URL_REGEX = "http[s]?://(www|oauth)\\.reddit\\.com/r/\\w+/comments/\\w+".toRegex()
 
 @Parcelize
 enum class UrlType: Parcelable {
@@ -377,6 +379,7 @@ enum class UrlType: Parcelable {
     IMGUR_ALBUM,
     IMGUR_IMAGE,
     REDDIT_COMMENTS,
+    REDDIT_THREAD,
     OTHER
 }
 
@@ -392,6 +395,7 @@ fun String.getUrlType(): UrlType?{
         HLS_REGEX.matches(this) -> UrlType.HLS
         REDDIT_VIDEO_REGEX.matches(this) -> UrlType.REDDIT_VIDEO
         STANDARD_VIDEO.matches(this) -> UrlType.STANDARD_VIDEO
+        REDDIT_THREAD_REGEX.matches(this) -> UrlType.REDDIT_THREAD
         REDDIT_COMMENTS_REGEX.matches(this) -> UrlType.REDDIT_COMMENTS
         else -> UrlType.OTHER
     }
