@@ -11,6 +11,9 @@
         <variable
             name="isUser"
             type="Boolean" />
+        <variable
+            name="inInbox"
+            type="Boolean" />
         <import type="android.view.View" />
         <import type="dev.gtcl.astro.UtilKt"/>
     </data>
@@ -44,6 +47,16 @@
                     app:layout_constraintEnd_toStartOf="@id/itemCommentDetailed_moreOptions"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="4dp"
+                        android:visibility="@{inInbox ? View.VISIBLE : View.GONE}"
+                        android:src="@{comment.new == true ? @drawable/ic_mail_closed_24 : @drawable/ic_mail_opened_24}"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
+                        tools:visibility="gone"/>
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:id="@+id/itemCommentDetailed_commentIcon"

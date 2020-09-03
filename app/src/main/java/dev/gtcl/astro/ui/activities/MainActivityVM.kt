@@ -239,20 +239,20 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
         }
     }
 
-    fun block(message: Message){
+    fun block(item: Item){
         coroutineScope.launch {
             try {
-                miscRepository.block(message).await()
+                miscRepository.block(item.name).await()
             } catch (e: Exception){
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
 
-    fun markMessage(message: Message, read: Boolean){
+    fun markMessage(item: Item, read: Boolean){
         coroutineScope.launch {
             try {
-                miscRepository.markMessage(message, read).await()
+                miscRepository.markMessage(item, read).await()
             } catch (e: Exception){
                 _errorMessage.postValue(e.getErrorMessage(application))
             }

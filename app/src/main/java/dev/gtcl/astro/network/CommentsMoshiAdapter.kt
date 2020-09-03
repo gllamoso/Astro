@@ -517,6 +517,7 @@ class CommentsMoshiAdapter {
         var linkPermalink: String? = null
         var parentId: String? = null
         var context: String? = null
+        var new: Boolean? = null
         var subreddit: String? = null
         var subredditPrefixed: String? = null
         var linkTitle: String? = null
@@ -615,6 +616,9 @@ class CommentsMoshiAdapter {
                 "subreddit_name_prefixed" -> {
                     subredditPrefixed = jsonReader.nextString()
                 }
+                "new" -> {
+                    new = jsonReader.nextBoolean()
+                }
                 "link_title" -> {
                     linkTitle = jsonReader.nextString()
                 }
@@ -636,7 +640,7 @@ class CommentsMoshiAdapter {
 
         val comment = Comment(
             name = name!!,
-            id = id ?: "",
+            id = id ?: name.replace("t1_", ""),
             depth = depth,
             author = author!!,
             authorFullName = authorFullName,
@@ -646,6 +650,7 @@ class CommentsMoshiAdapter {
             score = score!!,
             scoreHidden = scoreHidden,
             created = created!!,
+            new = new,
             saved = saved,
             likes =  likes,
             authorFlairText = authorFlairText,

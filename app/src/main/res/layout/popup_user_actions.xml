@@ -31,7 +31,7 @@
             <include
                 android:id="@+id/popupUserActions_message"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_inbox_24}"
+                app:iconDrawable="@{@drawable/ic_mail_closed_24}"
                 app:text="@{@string/message}"
                 android:visibility="@{userType == UserType.FRIEND ? View.VISIBLE : View.GONE}"/>
 

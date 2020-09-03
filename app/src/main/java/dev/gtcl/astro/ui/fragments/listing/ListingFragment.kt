@@ -137,7 +137,8 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             expected = ItemType.Post,
             blurNsfw = blurNsfw,
             itemClickListener = this,
-            username = currentAccount?.name){
+            username = currentAccount?.name,
+            inInbox = false){
             listView.apply {
                 removeOnScrollListener(scrollListener)
                 addOnScrollListener(scrollListener)
@@ -493,6 +494,21 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             } else {
                 ReplyOrEditDialogFragment.newInstance(comment, position, true).show(childFragmentManager, null)
             }
+        }
+    }
+
+    override fun mark(comment: Comment) {
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            comment.new = !(comment.new ?: false)
+            activityModel.markMessage(comment, !(comment.new ?: false))
+        }
+    }
+
+    override fun block(comment: Comment, position: Int) {
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            activityModel.block(comment)
+            listAdapter.removeAt(position)
+            model.removeItemAt(position)
         }
     }
 

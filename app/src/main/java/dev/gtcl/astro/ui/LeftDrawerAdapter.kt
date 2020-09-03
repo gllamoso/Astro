@@ -66,7 +66,7 @@ class LeftDrawerAdapter(
                 2 -> holder.bind(
                     currentHeader == LeftDrawerHeader.INBOX,
                     context.getString(R.string.inbox),
-                    ContextCompat.getDrawable(context, R.drawable.ic_inbox_24),
+                    ContextCompat.getDrawable(context, R.drawable.ic_mail_closed_24),
                     null,
                     onClick = {leftDrawerActions.onInboxClicked()})
                 3 -> holder.bind(

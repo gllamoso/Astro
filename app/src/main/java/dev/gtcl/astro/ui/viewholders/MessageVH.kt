@@ -41,7 +41,7 @@ class MessageVH private constructor(private val binding: ItemMessageBinding): Re
             this.message = message
             this.createdFromUser = createdFromUser
             popupMessageActionsMark.root.setOnClickListener {
-                messageActions.mark(message, message.new)
+                messageActions.mark(message)
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }

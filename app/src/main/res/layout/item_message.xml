@@ -33,10 +33,10 @@
                     android:layout_height="wrap_content"
                     android:layout_marginTop="8dp"
                     android:layout_marginStart="8dp"
-                    android:src="@{message.new ? @drawable/ic_inbox_24 : @drawable/ic_opened_mail_24}"
+                    android:src="@{message.new ? @drawable/ic_mail_closed_24 : @drawable/ic_mail_opened_24}"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintStart_toStartOf="parent"
-                    tools:src="@drawable/ic_inbox_24"/>
+                    tools:src="@drawable/ic_mail_closed_24"/>
 
                 <TextView
                     android:id="@+id/itemMessage_author"

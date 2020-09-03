@@ -10,6 +10,9 @@
         <variable
             name="createdFromUser"
             type="Boolean" />
+        <variable
+            name="inInbox"
+            type="Boolean" />
         <import type="android.view.View"/>
     </data>
 
@@ -65,6 +68,24 @@
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{comment.saved ? @drawable/ic_remove_circle_outline_24 : @drawable/ic_bookmark_24}"
                 app:text="@{comment.saved ? @string/unsave : @string/save}"/>
+
+            <include
+                android:id="@+id/popupCommentActions_mark"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:visibility="@{inInbox ? View.VISIBLE : View.GONE}"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{comment.new == true ? @drawable/ic_mail_opened_24 : @drawable/ic_mail_closed_24}"
+                app:text="@{comment.new == true ? @string/mark_read : @string/mark_unread}"/>
+
+            <include
+                android:id="@+id/popupCommentActions_block"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:visibility="@{inInbox &amp;&amp; !createdFromUser ? View.VISIBLE : View.GONE}"
+                layout="@layout/item_selectable"
+                app:iconDrawable="@{@drawable/ic_block_24}"
+                app:text="@{@string/block}"/>
 
             <include
                 android:id="@+id/popupCommentActions_profile"

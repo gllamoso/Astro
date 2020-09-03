@@ -137,6 +137,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val blurNsfw = preferences.getBoolean(NSFW_THUMBNAIL_KEY, false)
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
+        val inInbox = requireArguments().getSerializable(MESSAGE_WHERE_KEY) != null
         listAdapter = ListingAdapter(
             markwon,
             postActions = this,
@@ -145,7 +146,8 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             expected = ItemType.Post,
             blurNsfw = blurNsfw,
             itemClickListener = this,
-            username = currentAccount?.name){
+            username = currentAccount?.name,
+            inInbox = inInbox){
             recyclerView.apply {
                 removeOnScrollListener(scrollListener)
                 addOnScrollListener(scrollListener)
@@ -384,6 +386,21 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         }
     }
 
+    override fun mark(comment: Comment) {
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            comment.new = !(comment.new ?: false)
+            activityModel.markMessage(comment, !(comment.new ?: false))
+        }
+    }
+
+    override fun block(comment: Comment, position: Int) {
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            activityModel.block(comment)
+            listAdapter.removeAt(position)
+            model.removeItemAt(position)
+        }
+    }
+
     override fun viewProfile(comment: Comment) {
         findNavController().navigate(
             ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
@@ -427,10 +444,10 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         }
     }
 
-    override fun mark(message: Message, read: Boolean) {
+    override fun mark(message: Message) {
         checkedIfLoggedInBeforeExecuting(requireContext()) {
-            message.new = !read
-            activityModel.markMessage(message, read)
+            message.new = !message.new
+            activityModel.markMessage(message, !message.new)
         }
     }
 

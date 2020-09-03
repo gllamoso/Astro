@@ -35,7 +35,7 @@
             <include
                 android:id="@+id/popupListingActions_inbox"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_inbox_24}"
+                app:iconDrawable="@{@drawable/ic_mail_closed_24}"
                 app:text="@{@string/inbox}" />
 
         </LinearLayout>

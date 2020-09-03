@@ -38,6 +38,7 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
         popupBinding.apply {
             this.comment = comment
             this.createdFromUser = createdFromUser
+            this.inInbox = false
             if(createdFromUser){
                 popupCommentActionsEdit.root.setOnClickListener {
                     commentActions.edit(comment, adapterPosition)

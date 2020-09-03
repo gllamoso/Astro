@@ -8,6 +8,8 @@ interface CommentActions {
     fun save(comment: Comment)
     fun share(comment: Comment)
     fun reply(comment: Comment, position: Int)
+    fun mark(comment: Comment)
+    fun block(comment: Comment, position: Int)
     fun viewProfile(comment: Comment)
     fun report(comment: Comment, position: Int)
     fun edit(comment: Comment, position: Int)

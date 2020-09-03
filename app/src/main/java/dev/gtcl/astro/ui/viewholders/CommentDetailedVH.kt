@@ -18,15 +18,16 @@ import io.noties.markwon.Markwon
 
 class CommentDetailedVH private constructor(private val binding: ItemCommentDetailedBinding): RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(comment: Comment, markwon: Markwon?, commentActions: CommentActions, username: String?, itemClickListener: ItemClickListener){
+    fun bind(comment: Comment, markwon: Markwon?, commentActions: CommentActions, username: String?, inInbox: Boolean, itemClickListener: ItemClickListener){
         val isUser = (username != null && comment.author == username)
         binding.comment = comment
         binding.isUser = isUser
+        binding.inInbox = inInbox
         binding.itemCommentDetailedBackground.setOnClickListener{
             itemClickListener.itemClicked(comment, adapterPosition)
         }
         binding.itemCommentDetailedMoreOptions.setOnClickListener {
-            showPopupWindow(comment, commentActions, isUser, it)
+            showPopupWindow(comment, commentActions, isUser, inInbox, it)
         }
         if(markwon != null){
             markwon.setMarkdown(binding.itemCommentDetailedBodyMessage, comment.body)
@@ -36,13 +37,14 @@ class CommentDetailedVH private constructor(private val binding: ItemCommentDeta
         binding.executePendingBindings()
     }
 
-    private fun showPopupWindow(comment: Comment, commentActions: CommentActions, createdFromUser: Boolean, anchor: View){
+    private fun showPopupWindow(comment: Comment, commentActions: CommentActions, createdFromUser: Boolean, inInbox: Boolean, anchor: View){
         val inflater = anchor.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupCommentActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
             this.comment = comment
             this.createdFromUser = createdFromUser
+            this.inInbox = inInbox
             if(createdFromUser){
                 popupCommentActionsEdit.root.setOnClickListener {
                     commentActions.edit(comment, adapterPosition)
@@ -71,6 +73,19 @@ class CommentDetailedVH private constructor(private val binding: ItemCommentDeta
                 commentActions.save(comment)
                 binding.invalidateAll()
                 popupWindow.dismiss()
+            }
+            if(inInbox){
+                popupCommentActionsMark.root.setOnClickListener {
+                    commentActions.mark(comment)
+                    binding.invalidateAll()
+                    popupWindow.dismiss()
+                }
+                if(!createdFromUser){
+                    popupCommentActionsBlock.root.setOnClickListener {
+                        commentActions.block(comment, adapterPosition)
+                        popupWindow.dismiss()
+                    }
+                }
             }
             popupCommentActionsProfile.root.setOnClickListener {
                 commentActions.viewProfile(comment)

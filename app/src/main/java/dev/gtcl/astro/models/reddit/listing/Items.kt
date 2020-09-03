@@ -72,6 +72,7 @@ data class Comment(
     var scoreHidden: Boolean?,
     @Json(name = "created_utc")
     val created: Long,
+    var new: Boolean?,
     var saved: Boolean?,
     var likes: Boolean?,
     @Json(name = "author_flair_text")

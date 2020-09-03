@@ -5,9 +5,7 @@ import dev.gtcl.astro.NotLoggedInException
 import dev.gtcl.astro.AstroApplication
 import dev.gtcl.astro.Vote
 import dev.gtcl.astro.models.reddit.MoreChildrenResponse
-import dev.gtcl.astro.models.reddit.listing.Flair
-import dev.gtcl.astro.models.reddit.listing.Message
-import dev.gtcl.astro.models.reddit.listing.TrophyListingResponse
+import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.RedditApi
 import kotlinx.coroutines.Deferred
 import retrofit2.Response
@@ -145,22 +143,22 @@ class MiscRepository private constructor(private val application: AstroApplicati
     }
 
     @MainThread
-    fun block(message: Message): Deferred<Response<Unit>> {
+    fun block(fullId: String): Deferred<Response<Unit>> {
         if(application.accessToken == null) {
             throw NotLoggedInException()
         }
-        return RedditApi.oauth.blockMessage(application.accessToken!!.authorizationHeader, message.name)
+        return RedditApi.oauth.blockMessage(application.accessToken!!.authorizationHeader, fullId)
     }
 
     @MainThread
-    fun markMessage(message: Message, read: Boolean): Deferred<Response<Unit>>{
+    fun markMessage(item: Item, read: Boolean): Deferred<Response<Unit>>{
         if(application.accessToken == null) {
             throw NotLoggedInException()
         }
         return if(read){
-            RedditApi.oauth.readMessage(application.accessToken!!.authorizationHeader, message.name)
+            RedditApi.oauth.readMessage(application.accessToken!!.authorizationHeader, item.name)
         } else {
-            RedditApi.oauth.unreadMessage(application.accessToken!!.authorizationHeader, message.name)
+            RedditApi.oauth.unreadMessage(application.accessToken!!.authorizationHeader, item.name)
         }
     }
 

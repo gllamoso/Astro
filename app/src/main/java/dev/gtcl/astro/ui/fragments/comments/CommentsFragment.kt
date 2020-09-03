@@ -477,6 +477,21 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         }
     }
 
+    override fun mark(comment: Comment) {
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            comment.new = !(comment.new ?: false)
+            activityModel.markMessage(comment, !(comment.new ?: false))
+        }
+    }
+
+    override fun block(comment: Comment, position: Int) {
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            activityModel.block(comment)
+            adapter.removeAt(position)
+            model.removeCommentAt(position)
+        }
+    }
+
     override fun viewProfile(comment: Comment) {
         findNavController().navigate(
             ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
