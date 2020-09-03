@@ -18,6 +18,10 @@ class ViewPagerVM: ViewModel(){
     val linkClicked: LiveData<String?>
         get() = _linkClicked
 
+    private val _notifyViewPager = MutableLiveData<Any?>()
+    val notifyViewPager: LiveData<Any?>
+        get() = _notifyViewPager
+
     fun navigateToPreviousPage(){
         _navigateToPreviousPage.value = Any()
     }
@@ -36,5 +40,13 @@ class ViewPagerVM: ViewModel(){
 
     fun linkObserved(){
         _linkClicked.value = null
+    }
+
+    fun notifyViewPager(){
+        _notifyViewPager.value = Any()
+    }
+
+    fun notifyViewPagerObserved(){
+        _notifyViewPager.value = null
     }
 }

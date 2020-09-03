@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
@@ -20,6 +21,7 @@ import dev.gtcl.astro.models.reddit.listing.Listing
 import dev.gtcl.astro.models.reddit.listing.SubscriptionListing
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
+import okhttp3.internal.notify
 
 class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 
@@ -41,7 +43,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
         binding = FragmentViewpagerBinding.inflate(inflater)
         initViewPagerAdapter()
         initBackPressedCallback()
-        initObservers()
+        initOtherObservers()
 
         return binding.root
     }
@@ -52,7 +54,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
     }
 
     private fun initViewPagerAdapter(){
-        pageAdapter = PageAdapter(this)
+        pageAdapter = PageAdapter(childFragmentManager, lifecycle)
         if(model.pages.isNotEmpty()){
             pageAdapter.setPageStack(model.pages)
         } else {
@@ -70,20 +72,22 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
             adapter = pageAdapter
             isUserInputEnabled = model.isViewPagerSwipeEnabled
             offscreenPageLimit = 3
-            registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
-                override fun onPageScrollStateChanged(state: Int) {
-                    super.onPageScrollStateChanged(state)
-                    if(state == ViewPager2.SCROLL_STATE_IDLE){
-                        pageAdapter.popFragmentsGreaterThanPosition(currentItem)
-                        isUserInputEnabled = currentItem != 0
-                        backPressedCallback.isEnabled = currentItem != 0
-                        model.isViewPagerSwipeEnabled = isUserInputEnabled
-                    }
-                }
-            })
             setPageTransformer(SlidePageTransformer())
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
+
+        model.notifyViewPager.observe(viewLifecycleOwner, {
+            if(it != null){
+                val viewPager = binding.fragmentViewPagerViewPager
+                val currentPage = binding.fragmentViewPagerViewPager.currentItem
+                val isNotFirstPage = currentPage != 0
+                pageAdapter.popFragmentsGreaterThanPosition(currentPage)
+                viewPager.isUserInputEnabled = isNotFirstPage
+                backPressedCallback.isEnabled = isNotFirstPage
+                model.isViewPagerSwipeEnabled = isNotFirstPage
+                model.notifyViewPagerObserved()
+            }
+        })
     }
 
     private fun initBackPressedCallback(){
@@ -96,7 +100,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
         requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback)
     }
 
-    private fun initObservers() {
+    private fun initOtherObservers() {
         model.swipeEnabled.observe(viewLifecycleOwner, {
             binding.fragmentViewPagerViewPager.isUserInputEnabled = it
         })

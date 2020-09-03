@@ -1,7 +1,13 @@
 package dev.gtcl.astro.ui.fragments
 
+import android.os.Handler
+import android.os.Looper
 import android.os.Parcelable
+import android.util.Log
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.fragments.account.AccountFragment
@@ -9,8 +15,9 @@ import dev.gtcl.astro.ui.fragments.comments.CommentsFragment
 import dev.gtcl.astro.ui.fragments.inbox.InboxFragment
 import dev.gtcl.astro.ui.fragments.listing.ListingFragment
 import kotlinx.android.parcel.Parcelize
+import java.util.*
 
-class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
+class PageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle): FragmentStateAdapter(fragmentManager, lifecycle){
     private var pageStack = mutableListOf<ViewPagerPage>()
 
     override fun getItemCount() = pageStack.size
@@ -31,9 +38,15 @@ class PageAdapter(fragment: Fragment): FragmentStateAdapter(fragment){
     }
 
     fun popFragmentsGreaterThanPosition(currentPage: Int){
+        if(currentPage >= pageStack.lastIndex){
+            return
+        }
         val itemsRemoved = pageStack.lastIndex - currentPage
         pageStack.subList(currentPage + 1, pageStack.size).clear()
-        notifyItemRangeRemoved(pageStack.lastIndex + 1, itemsRemoved)
+        Handler(Looper.getMainLooper()).post {
+            notifyItemRangeRemoved(pageStack.lastIndex + 1, itemsRemoved)
+        }
+
     }
 
     fun setPageStack(pages: MutableList<ViewPagerPage>){

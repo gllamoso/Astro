@@ -69,6 +69,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
     override fun onResume() {
         super.onResume()
+        viewPagerModel.notifyViewPager()
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
         val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
         val blurNsfwThumbnail = sharedPref.getBoolean(NSFW_THUMBNAIL_KEY, false)

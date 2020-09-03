@@ -36,6 +36,11 @@ class InboxFragment: Fragment(), LeftDrawerActions{
         ViewModelProviders.of(requireParentFragment()).get(ViewPagerVM::class.java)
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewPagerModel.notifyViewPager()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

@@ -72,6 +72,11 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     private lateinit var requestPermissionToDownloadItem: ActivityResultLauncher<String>
     private lateinit var requestPermissionToDownloadAlbum: ActivityResultLauncher<String>
 
+    override fun onResume() {
+        super.onResume()
+        viewPagerModel.notifyViewPager()
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

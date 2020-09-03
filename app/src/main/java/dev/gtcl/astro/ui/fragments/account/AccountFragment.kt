@@ -42,6 +42,11 @@ class AccountFragment : Fragment(),  LeftDrawerActions {
         ViewModelProviders.of(requireParentFragment()).get(ViewPagerVM::class.java)
     }
 
+    override fun onResume() {
+        super.onResume()
+        viewPagerModel.notifyViewPager()
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentAccountBinding.inflate(inflater)
         binding.lifecycleOwner = this
