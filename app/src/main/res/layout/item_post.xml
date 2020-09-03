@@ -135,7 +135,6 @@
                         android:singleLine="true"
                         android:text="@{post.subredditPrefixed}"
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="12sp"
                         tools:text="r/funny" />
 
                     <TextView
@@ -144,7 +143,6 @@
                         android:singleLine="true"
                         android:text=" • "
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="12sp"
                         tools:ignore="HardcodedText" />
 
                     <TextView
@@ -153,7 +151,6 @@
                         android:singleLine="true"
                         android:text="@{post.author}"
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="12sp"
                         tools:text="User123" />
 
                     <TextView
@@ -171,7 +168,6 @@
                         android:singleLine="true"
                         android:text="@{post.domain}"
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="12sp"
                         tools:text="i.redd.it" />
 
                 </LinearLayout>
@@ -193,7 +189,6 @@
                         android:singleLine="true"
                         android:text="@{UtilKt.numFormatted(post.score)}"
                         android:textColor="@{post.likes == null ? @android:color/darker_gray : post.likes == true ? @android:color/holo_orange_dark : @android:color/holo_blue_dark}"
-                        android:textSize="12sp"
                         tools:text="9k"
                         tools:textColor="@android:color/holo_orange_dark" />
 
@@ -203,7 +198,6 @@
                         android:singleLine="true"
                         android:text=" • "
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="12sp"
                         tools:ignore="HardcodedText" />
 
                     <TextView
@@ -212,7 +206,6 @@
                         android:singleLine="true"
                         android:text="@{String.format(@string/num_comments, UtilKt.numFormatted(post.numComments))}"
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="12sp"
                         tools:text="9k comments" />
 
                     <TextView
@@ -221,7 +214,6 @@
                         android:singleLine="true"
                         android:text=" • "
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="12sp"
                         tools:ignore="HardcodedText" />
 
                     <TextView
@@ -230,7 +222,6 @@
                         android:singleLine="true"
                         android:text="@{UtilKt.timeSince(post.created)}"
                         android:textColor="@android:color/darker_gray"
-                        android:textSize="12sp"
                         tools:text="3h" />
 
                 </LinearLayout>
@@ -258,7 +249,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="12sp"
                         android:text="@{(post.gildings != null &amp;&amp; post.gildings.silver != null ? post.gildings.silver : 0).toString()}"
                         android:textColor="#919191"
                         android:layout_marginEnd="4dp"
@@ -275,7 +265,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="12sp"
                         android:text="@{(post.gildings != null &amp;&amp; post.gildings.gold != null ? post.gildings.gold : 0).toString()}"
                         android:textColor="#ffd54f"
                         android:layout_marginEnd="4dp"
@@ -292,7 +281,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="12sp"
                         android:text="@{(post.gildings != null &amp;&amp; post.gildings.platinum != null ? post.gildings.platinum : 0).toString()}"
                         android:textColor="#00bfa5"
                         android:layout_marginEnd="4dp"

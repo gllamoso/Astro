@@ -135,7 +135,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="12sp"
                         android:text="@{(comment.gildings != null &amp;&amp; comment.gildings.silver != null ? comment.gildings.silver : 0).toString()}"
                         android:textColor="#919191"
                         android:layout_marginEnd="4dp"
@@ -152,7 +151,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="12sp"
                         android:text="@{(comment.gildings != null &amp;&amp; comment.gildings.gold != null ? comment.gildings.gold : 0).toString()}"
                         android:textColor="#ffd54f"
                         android:layout_marginEnd="4dp"
@@ -169,7 +167,6 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:textSize="12sp"
                         android:text="@{(comment.gildings != null &amp;&amp; comment.gildings.platinum != null ? comment.gildings.platinum : 0).toString()}"
                         android:textColor="#00bfa5"
                         android:layout_marginEnd="4dp"
@@ -182,7 +179,6 @@
                     android:id="@+id/itemCommentDetailed_linkTitle"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
                     android:text="@{comment.linkTitleFormatted}"
                     tools:text="Post Link Title"
                     android:layout_marginStart="8dp"
@@ -196,7 +192,6 @@
                     android:singleLine="true"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
                     android:text="@{comment.subredditPrefixed}"
                     tools:text="r/funny"
                     android:layout_marginTop="2dp"
@@ -259,6 +254,7 @@
                 <TextView
                     android:id="@+id/itemCommentDetailed_bodyMessage"
                     android:layout_width="0dp"
+                    android:textSize="16sp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="4dp"

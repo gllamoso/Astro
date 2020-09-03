@@ -129,6 +129,7 @@
                 android:id="@+id/layoutCrosspost_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:textSize="16sp"
                 android:layout_marginHorizontal="8dp"
                 android:text="@{post.titleFormatted}"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -153,9 +154,8 @@
                     android:singleLine="true"
                     android:text="@{post.subredditPrefixed}"
                     android:textColor="@android:color/darker_gray"
-                    android:textSize="10sp"
-                    tools:text="r/funny"
-                    tools:ignore="SmallSp" />
+                    android:textSize="12sp"
+                    tools:text="r/funny"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -163,8 +163,7 @@
                     android:singleLine="true"
                     android:text=" • "
                     android:textColor="@android:color/darker_gray"
-                    android:textSize="10sp"
-                    tools:ignore="HardcodedText,SmallSp" />
+                    android:textSize="12sp" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -172,9 +171,8 @@
                     android:singleLine="true"
                     android:text="@{post.author}"
                     android:textColor="@android:color/darker_gray"
-                    android:textSize="10sp"
-                    tools:text="User123"
-                    tools:ignore="SmallSp" />
+                    android:textSize="12sp"
+                    tools:text="User123" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -182,8 +180,8 @@
                     android:singleLine="true"
                     android:text=" • "
                     android:textColor="@android:color/darker_gray"
-                    android:textSize="10sp"
-                    tools:ignore="HardcodedText,SmallSp" />
+                    android:textSize="12sp"
+                    tools:ignore="HardcodedText" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -191,9 +189,8 @@
                     android:singleLine="true"
                     android:text="@{post.domain}"
                     android:textColor="@android:color/darker_gray"
-                    android:textSize="10sp"
-                    tools:text="i.redd.it"
-                    tools:ignore="SmallSp" />
+                    android:textSize="12sp"
+                    tools:text="i.redd.it" />
 
             </LinearLayout>
 
@@ -217,10 +214,9 @@
                     android:singleLine="true"
                     android:text="@{UtilKt.numFormatted(post.score)}"
                     android:textColor="@{post.likes == null ? @android:color/darker_gray : post.likes == true ? @android:color/holo_orange_dark : @android:color/holo_blue_dark}"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     tools:text="9k"
-                    tools:textColor="@android:color/holo_orange_dark"
-                    tools:ignore="SmallSp" />
+                    tools:textColor="@android:color/holo_orange_dark"/>
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -228,8 +224,8 @@
                     android:singleLine="true"
                     android:text=" • "
                     android:textColor="@android:color/darker_gray"
-                    android:textSize="10sp"
-                    tools:ignore="HardcodedText,SmallSp" />
+                    android:textSize="12sp"
+                    tools:ignore="HardcodedText" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -237,9 +233,8 @@
                     android:singleLine="true"
                     android:text="@{String.format(@string/num_comments, UtilKt.numFormatted(post.numComments))}"
                     android:textColor="@android:color/darker_gray"
-                    android:textSize="10sp"
-                    tools:text="9k comments"
-                    tools:ignore="SmallSp" />
+                    android:textSize="12sp"
+                    tools:text="9k comments" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -247,8 +242,8 @@
                     android:singleLine="true"
                     android:text=" • "
                     android:textColor="@android:color/darker_gray"
-                    android:textSize="10sp"
-                    tools:ignore="HardcodedText,SmallSp" />
+                    android:textSize="12sp"
+                    tools:ignore="HardcodedText" />
 
                 <TextView
                     android:layout_width="wrap_content"
@@ -256,9 +251,8 @@
                     android:singleLine="true"
                     android:text="@{UtilKt.timeSince(post.created)}"
                     android:textColor="@android:color/darker_gray"
-                    android:textSize="10sp"
-                    tools:text="3h"
-                    tools:ignore="SmallSp" />
+                    android:textSize="12sp"
+                    tools:text="3h"/>
 
             </LinearLayout>
 
@@ -276,8 +270,8 @@
                 app:layout_constraintVertical_bias="0">
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
                     android:layout_marginEnd="2dp"
                     android:src="@drawable/ic_reddit_silver"
                     android:visibility="@{post.gildings != null &amp;&amp; post.gildings.silver != null ? View.VISIBLE : View.GONE}"/>
@@ -285,17 +279,16 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:text="@{(post.gildings != null &amp;&amp; post.gildings.silver != null ? post.gildings.silver : 0).toString()}"
                     android:textColor="#919191"
                     android:layout_marginEnd="4dp"
                     android:visibility="@{post.gildings != null &amp;&amp; post.gildings.silver != null ? View.VISIBLE : View.GONE}"
-                    tools:text="99"
-                    tools:ignore="SmallSp" />
+                    tools:text="99" />
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
                     android:layout_marginEnd="2dp"
                     android:src="@drawable/ic_reddit_gold"
                     android:visibility="@{post.gildings != null &amp;&amp; post.gildings.gold != null ? View.VISIBLE : View.GONE}"/>
@@ -303,17 +296,16 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:text="@{(post.gildings != null &amp;&amp; post.gildings.gold != null ? post.gildings.gold : 0).toString()}"
                     android:textColor="#ffd54f"
                     android:layout_marginEnd="4dp"
                     android:visibility="@{post.gildings != null &amp;&amp; post.gildings.gold != null ? View.VISIBLE : View.GONE}"
-                    tools:text="99"
-                    tools:ignore="SmallSp" />
+                    tools:text="99" />
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="12dp"
-                    android:layout_height="12dp"
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
                     android:layout_marginEnd="2dp"
                     android:src="@drawable/ic_reddit_platinum"
                     android:visibility="@{post.gildings != null &amp;&amp; post.gildings.platinum != null ? View.VISIBLE : View.GONE}"/>
@@ -321,13 +313,12 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="10sp"
+                    android:textSize="12sp"
                     android:text="@{(post.gildings != null &amp;&amp; post.gildings.platinum != null ? post.gildings.platinum : 0).toString()}"
                     android:textColor="#00bfa5"
                     android:layout_marginEnd="4dp"
                     android:visibility="@{post.gildings != null &amp;&amp; post.gildings.platinum != null ? View.VISIBLE : View.GONE}"
-                    tools:text="99"
-                    tools:ignore="SmallSp" />
+                    tools:text="99" />
 
             </LinearLayout>
 

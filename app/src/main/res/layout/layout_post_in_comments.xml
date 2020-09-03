@@ -96,7 +96,7 @@
                 android:id="@+id/layoutPostInComments_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textSize="16sp"
+                android:textSize="20sp"
                 android:text="@{post.titleFormatted}"
                 android:layout_marginHorizontal="8dp"
                 app:layout_constraintEnd_toEndOf="parent"
@@ -118,7 +118,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{post.subredditPrefixed}"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textColor="@android:color/darker_gray"
                     android:singleLine="true"
                     tools:text="r/funny" />
@@ -127,7 +127,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:text=" • "
                     android:singleLine="true"
                     tools:ignore="HardcodedText" />
@@ -136,7 +136,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{post.author}"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textColor="@android:color/darker_gray"
                     android:singleLine="true"
                     tools:text="User123" />
@@ -145,7 +145,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:text=" • "
                     android:singleLine="true"
                     tools:ignore="HardcodedText" />
@@ -154,7 +154,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{post.domain}"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textColor="@android:color/darker_gray"
                     android:singleLine="true"
                     tools:text="i.redd.it" />
@@ -180,7 +180,7 @@
                     android:layout_height="wrap_content"
                     android:textColor="@{post.likes == null ? @android:color/darker_gray : post.likes == true ? @android:color/holo_orange_dark : @android:color/holo_blue_dark}"
                     android:text="@{UtilKt.numFormatted(post.score)}"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:singleLine="true"
                     tools:textColor="@android:color/holo_orange_dark"
                     tools:text="9k" />
@@ -189,7 +189,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:text=" • "
                     android:singleLine="true"
                     tools:ignore="HardcodedText" />
@@ -198,7 +198,7 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@{String.format(@string/num_comments, UtilKt.numFormatted(post.numComments))}"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:textColor="@android:color/darker_gray"
                     android:singleLine="true"
                     tools:text="9k comments" />
@@ -215,7 +215,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:singleLine="true"
                     android:textColor="@android:color/darker_gray"
                     android:text="@{UtilKt.timeSince(post.created)}"
@@ -246,7 +246,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:text="@{(post.gildings != null &amp;&amp; post.gildings.silver != null ? post.gildings.silver : 0).toString()}"
                     android:textColor="#919191"
                     android:layout_marginEnd="4dp"
@@ -263,7 +263,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:text="@{(post.gildings != null &amp;&amp; post.gildings.gold != null ? post.gildings.gold : 0).toString()}"
                     android:textColor="#ffd54f"
                     android:layout_marginEnd="4dp"
@@ -280,7 +280,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:textSize="12sp"
+                    android:textSize="14sp"
                     android:text="@{(post.gildings != null &amp;&amp; post.gildings.platinum != null ? post.gildings.platinum : 0).toString()}"
                     android:textColor="#00bfa5"
                     android:layout_marginEnd="4dp"
