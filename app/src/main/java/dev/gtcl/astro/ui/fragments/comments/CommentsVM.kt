@@ -1,6 +1,5 @@
 package dev.gtcl.astro.ui.fragments.comments
 
-import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,8 +7,11 @@ import androidx.preference.PreferenceManager
 import dev.gtcl.astro.*
 import dev.gtcl.astro.download.DownloadIntentService
 import dev.gtcl.astro.models.reddit.MediaURL
+import dev.gtcl.astro.models.reddit.listing.Comment
+import dev.gtcl.astro.models.reddit.listing.Item
+import dev.gtcl.astro.models.reddit.listing.More
+import dev.gtcl.astro.models.reddit.listing.Post
 import dev.gtcl.astro.network.MoreComments
-import dev.gtcl.astro.models.reddit.listing.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -312,6 +314,9 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
                             }
                         }
                         listOf(MediaURL(imgurData.link, mediaType))
+                    }
+                    UrlType.REDDIT_GALLERY -> {
+                        post.galleryAsMediaItems!!
                     }
                     else -> {
                         listOf()

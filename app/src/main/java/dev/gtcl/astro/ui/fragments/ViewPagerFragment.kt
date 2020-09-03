@@ -7,21 +7,19 @@ import android.view.ViewGroup
 import androidx.activity.OnBackPressedCallback
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
 import dev.gtcl.astro.*
-import dev.gtcl.astro.actions.*
+import dev.gtcl.astro.actions.LinkHandler
+import dev.gtcl.astro.actions.NavigationActions
 import dev.gtcl.astro.databinding.FragmentViewpagerBinding
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.Listing
 import dev.gtcl.astro.models.reddit.listing.SubscriptionListing
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
-import okhttp3.internal.notify
 
 class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 

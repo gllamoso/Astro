@@ -296,6 +296,10 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         model.addReadItem(post)
         when (val urlType: UrlType? = post.url?.getUrlType()) {
             UrlType.OTHER -> activityModel.openChromeTab(post.url)
+            UrlType.REDDIT_GALLERY -> {
+                val dialog = MediaDialogFragment.newInstance(post.url, post.galleryAsMediaItems!!)
+                dialog.show(parentFragmentManager, null)
+            }
             null -> throw IllegalArgumentException("Post does not have URL")
             else -> {
                 val mediaType = when (urlType) {

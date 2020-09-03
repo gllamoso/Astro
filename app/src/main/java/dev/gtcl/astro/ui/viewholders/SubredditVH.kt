@@ -15,7 +15,7 @@ class SubredditVH private constructor(private val binding: ItemSubredditBinding)
             itemClickListener.itemClicked(sub, adapterPosition)
         }
         binding.itemSubredditAddButton.setOnClickListener{
-            subredditActions.subscribe(sub, sub.userSubscribed ?: false)
+            subredditActions.subscribe(sub, !(sub.userSubscribed ?: false))
             binding.invalidateAll()
         }
         binding.executePendingBindings()

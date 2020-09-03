@@ -1,5 +1,6 @@
 package dev.gtcl.astro.ui.fragments.item_scroller
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.*

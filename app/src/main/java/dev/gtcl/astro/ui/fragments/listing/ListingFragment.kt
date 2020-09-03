@@ -225,7 +225,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             if (sub != null) {
                 rightDrawerLayout.layoutRightDrawerSubscribeToggle.iconSubscribeBackground.setOnClickListener {
                     checkedIfLoggedInBeforeExecuting(requireContext()) {
-                        subscribe(sub, (sub.userSubscribed ?: false))
+                        subscribe(sub, !(sub.userSubscribed ?: false))
                         rightDrawerLayout.invalidateAll()
                     }
                 }
@@ -408,6 +408,10 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         model.addReadItem(post)
         when (val urlType: UrlType? = post.url?.getUrlType()) {
             UrlType.OTHER -> activityModel.openChromeTab(post.url)
+            UrlType.REDDIT_GALLERY -> {
+                val dialog = MediaDialogFragment.newInstance(post.url, post.galleryAsMediaItems!!)
+                dialog.show(parentFragmentManager, null)
+            }
             null -> throw IllegalArgumentException("Post does not have URL")
             else -> {
                 val mediaType = when (urlType) {

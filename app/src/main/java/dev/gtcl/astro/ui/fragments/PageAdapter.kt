@@ -3,19 +3,17 @@ package dev.gtcl.astro.ui.fragments
 import android.os.Handler
 import android.os.Looper
 import android.os.Parcelable
-import android.util.Log
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleOwner
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import dev.gtcl.astro.models.reddit.listing.*
+import dev.gtcl.astro.models.reddit.listing.Listing
+import dev.gtcl.astro.models.reddit.listing.Post
 import dev.gtcl.astro.ui.fragments.account.AccountFragment
 import dev.gtcl.astro.ui.fragments.comments.CommentsFragment
 import dev.gtcl.astro.ui.fragments.inbox.InboxFragment
 import dev.gtcl.astro.ui.fragments.listing.ListingFragment
 import kotlinx.android.parcel.Parcelize
-import java.util.*
 
 class PageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle): FragmentStateAdapter(fragmentManager, lifecycle){
     private var pageStack = mutableListOf<ViewPagerPage>()

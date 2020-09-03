@@ -2,12 +2,14 @@ package dev.gtcl.astro.models.reddit.listing
 
 import android.os.Parcelable
 import android.text.Html
+import androidx.room.Ignore
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
 import dev.gtcl.astro.*
 import dev.gtcl.astro.database.SavedAccount
 import dev.gtcl.astro.database.Subscription
+import dev.gtcl.astro.models.reddit.MediaURL
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 import java.util.*
@@ -238,6 +240,10 @@ data class Post(
     val secureMedia: SecureMedia?,
     val preview: Preview?,
     val media: Media?,
+    @Json(name = "media_metadata")
+    val mediaMetadata: Map<String, MediaMetadata>?,
+    @Json(name = "gallery_data")
+    val galleryData: GalleryData?,
     val domain: String,
     @Json(name = "over_18")
     var nsfw: Boolean,
@@ -280,14 +286,11 @@ data class Post(
     val shortLink = "https://redd.it/$id"
 
     @IgnoredOnParcel
-    val flairTextFormatted: CharSequence?
-        get(){
-            return if (flairText != null) {
-                Html.fromHtml(flairText, Html.FROM_HTML_MODE_COMPACT)
-            } else {
-                null
-            }
-        }
+    val flairTextFormatted: CharSequence? = if (flairText != null) {
+        Html.fromHtml(flairText, Html.FROM_HTML_MODE_COMPACT)
+    } else {
+        null
+    }
 
     @IgnoredOnParcel
     val permalinkWithRedditDomain = "https://www.reddit.com$permalink"
@@ -300,6 +303,36 @@ data class Post(
 
     @IgnoredOnParcel
     val urlType = url?.getUrlType()
+
+    @IgnoredOnParcel
+    val galleryAsMediaItems: List<MediaURL>? = if(galleryData != null){
+        mutableListOf<MediaURL>().apply{
+            for(id: String in galleryData.items.map { it.mediaId }){
+                val metaData = mediaMetadata!![id] ?: error("MetaData is null")
+                val mimeType = metaData.mimeType
+                val extension = when{
+                    mimeType.endsWith("png") -> "png"
+                    mimeType.endsWith("jpg") -> "jpg"
+                    mimeType.endsWith("png") -> "png"
+                    mimeType.endsWith("svg") -> "svg"
+                    mimeType.endsWith("jpeg") -> "jpeg"
+                    mimeType.endsWith("gif") -> "gif"
+                    else -> null
+                }
+                if(extension.isNullOrBlank()){
+                    continue
+                }
+                val mediaType = if(extension == "gif"){
+                    MediaType.GIF
+                } else {
+                    MediaType.PICTURE
+                }
+                add(MediaURL("https://i.redd.it/$id.$extension", mediaType))
+            }
+        }
+    } else {
+        null
+    }
 
     fun updateScore(vote: Vote){
         when(vote){
@@ -383,6 +416,25 @@ data class Gildings(
     val gold: Int?,
     @Json(name = "gid_3")
     val platinum: Int?
+) : Parcelable
+
+@Parcelize
+data class  GalleryData(
+    val items: List<GalleryItem>
+) : Parcelable
+
+@Parcelize
+data class GalleryItem(
+    val caption: String?,
+    @Json(name = "media_id")
+    val mediaId: String
+) : Parcelable
+
+@Parcelize
+data class MediaMetadata(
+    val id: String,
+    @Json(name = "m")
+    val mimeType: String
 ) : Parcelable
 
 //   _   _  _              __  __

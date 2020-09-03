@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
 import android.util.Log
-import androidx.fragment.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,6 +17,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
@@ -27,7 +27,6 @@ import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
-import dev.gtcl.astro.R
 import dev.gtcl.astro.actions.CommentActions
 import dev.gtcl.astro.actions.ItemClickListener
 import dev.gtcl.astro.actions.LinkHandler
@@ -41,11 +40,11 @@ import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.astro.ui.fragments.media.list.MediaListAdapter
 import dev.gtcl.astro.ui.fragments.media.list.MediaListFragmentAdapter
-import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
-import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
-import io.noties.markwon.*
+import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
+import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
+import io.noties.markwon.Markwon
 
 class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler, DrawerLayout.DrawerListener {
 
@@ -277,8 +276,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 if(post.isSelf){
                     markwon.setMarkdown(binding.fragmentCommentsContent.layoutCommentsContentText, post.selftext)
                 } else {
-                    when(post.url?.getUrlType()){
-                        UrlType.OTHER -> initUrlPreview(post.url)
+                    when(post.urlType){
+                        UrlType.OTHER -> initUrlPreview(post.url!!)
                         else -> model.fetchMediaItems(post)
                     }
                 }
