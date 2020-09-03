@@ -33,6 +33,7 @@ import dev.gtcl.astro.database.SavedAccount
 import dev.gtcl.astro.markdown.CustomMarkwonPlugin
 import dev.gtcl.astro.models.reddit.listing.*
 import io.noties.markwon.Markwon
+import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
 import io.noties.markwon.ext.tables.TablePlugin
 import io.noties.markwon.linkify.LinkifyPlugin
 import io.noties.markwon.movement.MovementMethodPlugin
@@ -469,6 +470,7 @@ fun rotateView(view: View, rotate: Boolean){
 
 fun createMarkwonInstance(context: Context, handleLink: (String) -> Unit): Markwon{
     return Markwon.builder(context)
+        .usePlugin(StrikethroughPlugin.create())
         .usePlugin(TablePlugin.create(context))
         .usePlugin(CustomMarkwonPlugin(handleLink))
         .usePlugin(LinkifyPlugin.create(Linkify.WEB_URLS))

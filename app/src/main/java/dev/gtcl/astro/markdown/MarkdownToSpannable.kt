@@ -1,20 +1,21 @@
 package dev.gtcl.astro.markdown
 
 import android.content.Context
+import android.graphics.Color
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextPaint
-import android.text.style.BackgroundColorSpan
-import android.text.style.ClickableSpan
-import android.text.style.ForegroundColorSpan
-import android.text.style.StrikethroughSpan
+import android.text.style.*
 import android.view.View
 
-val SPOILER_REGEX = ">!.+!<".toRegex()
-val STRIKETHROUGH_REGEX = "~~.+~~".toRegex()
-val NONSENSE_TEXT_REGEX = "^&#x200B;$".toRegex(RegexOption.MULTILINE)
+
 class MarkdownToSpannable{
     companion object{
+
+        private val SPOILER_REGEX = ">!.+!<".toRegex()
+        private val NONSENSE_TEXT_REGEX = "^&#x200B;$".toRegex(RegexOption.MULTILINE)
+        private val QUOTE_TEXT_REGEX = "^>.+$".toRegex(RegexOption.MULTILINE)
+
         fun setSpannableStringBuilder(context: Context, spannableStringBuilder: SpannableStringBuilder, defaultTextColor: Int){
             removeNonsenseText(spannableStringBuilder)
             setSpoilersInMarkdown(
@@ -22,9 +23,7 @@ class MarkdownToSpannable{
                 spannableStringBuilder,
                 defaultTextColor
             )
-            setStrikethroughMarkdown(
-                spannableStringBuilder
-            )
+            setQuoteMarkdown(spannableStringBuilder)
         }
 
         private fun setSpoilersInMarkdown(context: Context, spannableStringBuilder: SpannableStringBuilder, defaultColor: Int){
@@ -74,15 +73,14 @@ class MarkdownToSpannable{
             }
         }
 
-        private fun setStrikethroughMarkdown(spannableStringBuilder: SpannableStringBuilder){
-            var match = STRIKETHROUGH_REGEX.find(spannableStringBuilder)
+        private fun setQuoteMarkdown(spannableStringBuilder: SpannableStringBuilder){
+            var match = QUOTE_TEXT_REGEX.find(spannableStringBuilder)
             while(match != null){
                 val start = match.range.first
                 val end = match.range.last
-                spannableStringBuilder.delete(end - 1, end + 1)
-                spannableStringBuilder.delete(start, start + 2)
-                spannableStringBuilder.setSpan(StrikethroughSpan(), start, end - 3, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
-                match = STRIKETHROUGH_REGEX.find(spannableStringBuilder)
+                spannableStringBuilder.delete(start, start + 1)
+                spannableStringBuilder.setSpan( CustomQuoteSpan(Color.GREEN, 10, 40), start, end - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                match = QUOTE_TEXT_REGEX.find(spannableStringBuilder)
             }
         }
 
