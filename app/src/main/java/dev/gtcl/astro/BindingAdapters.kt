@@ -494,6 +494,19 @@ fun setTimeText(textView: TextView, time: Time?){
     }
 }
 
+@BindingAdapter("commentSort")
+fun setCommentSortText(textView: TextView, commentSort: CommentSort){
+    textView.text = textView.context.getText(when(commentSort){
+        CommentSort.BEST -> R.string.order_best
+        CommentSort.TOP -> R.string.order_top
+        CommentSort.NEW -> R.string.order_new
+        CommentSort.CONTROVERSIAL -> R.string.order_controversial
+        CommentSort.OLD -> R.string.order_old
+        CommentSort.RANDOM -> R.string.order_random
+        CommentSort.QA -> R.string.order_qanda
+    })
+}
+
 @BindingAdapter("isUser")
 fun setUserTextColor(textView: TextView, isUser: Boolean){
     val context = textView.context!!

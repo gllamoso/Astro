@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,7 +11,6 @@ import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.coordinatorlayout.widget.CoordinatorLayout
 import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
 import androidx.core.view.GravityCompat
@@ -208,7 +206,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         }
     }
 
-    private fun initBottomBarOnClickListeners(behavior: BottomSheetBehavior<CoordinatorLayout>) {
+    private fun initBottomBarOnClickListeners(behavior: BottomSheetBehavior<out ViewGroup>) {
 
         binding.fragmentCommentsBottomBarLayout.apply {
             layoutCommentsBottomBarCommentsButton.setOnClickListener {
