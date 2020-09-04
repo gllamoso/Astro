@@ -53,8 +53,7 @@ class CreatePostLinkFragment: Fragment() {
                         if(!URLUtil.isValidUrl(text)){
                             throw Exception()
                         }
-                        val url = URL(binding.fragmentCreatePostLinkText.text.toString())
-                        model.setPostContent(LinkPost(url))
+                        model.setPostContent(LinkPost(text))
                     } catch(e: Exception){
                         binding.fragmentCreatePostLinkTextInputLayout.error = getString(R.string.invalid)
                     }

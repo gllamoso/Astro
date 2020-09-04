@@ -19,6 +19,7 @@ import dev.gtcl.astro.databinding.FragmentDialogCreatePostBinding
 import dev.gtcl.astro.models.reddit.listing.Flair
 import dev.gtcl.astro.models.reddit.listing.Post
 import dev.gtcl.astro.ui.fragments.ViewPagerVM
+import dev.gtcl.astro.ui.fragments.create_post.resubmit.ResubmitDialogFragment
 import dev.gtcl.astro.ui.fragments.flair.FlairListDialogFragment
 import dev.gtcl.astro.ui.fragments.rules.RulesDialogFragment
 import java.util.*
@@ -260,25 +261,26 @@ class CreatePostDialogFragment : DialogFragment(){
 
         model.urlResubmit.observe(viewLifecycleOwner, {
             if(it != null){
-                val builder = AlertDialog.Builder(requireContext())
-                builder.setMessage(R.string.url_already_posted)
-                builder.setPositiveButton(R.string.done) { dialog, _ ->
-                    val sub = binding.fragmentDialogCreatePostSubredditText.text.toString()
-                    val title = binding.fragmentDialogCreatePostTitleText.text.toString()
-                    model.submitUrlPost(
-                        sub,
-                        title,
-                        it,
-                        binding.fragmentDialogCreatePostGetNotificationsChip.isChecked,
-                        binding.fragmentDialogCreatePostNsfwChip.isChecked,
-                        binding.fragmentDialogCreatePostSpoilerChip.isChecked,
-                    true)
-                    dialog?.dismiss()
-                }
-                builder.create().show()
+                ResubmitDialogFragment.newInstance(it).show(childFragmentManager, null)
                 model.urlResubmitObserved()
             }
         })
+
+        childFragmentManager.setFragmentResultListener(URL_KEY, this){ _, bundle ->
+            val resubmitUrl = bundle.getString(URL_KEY)
+            if(resubmitUrl != null){
+                val sub = binding.fragmentDialogCreatePostSubredditText.text.toString()
+                val title = binding.fragmentDialogCreatePostTitleText.text.toString()
+                model.submitUrlPost(
+                    sub,
+                    title,
+                    resubmitUrl,
+                    binding.fragmentDialogCreatePostGetNotificationsChip.isChecked,
+                    binding.fragmentDialogCreatePostNsfwChip.isChecked,
+                    binding.fragmentDialogCreatePostSpoilerChip.isChecked,
+                    true)
+            }
+        }
 
         model.newPostData.observe(viewLifecycleOwner, { newPostData ->
             if(newPostData != null){

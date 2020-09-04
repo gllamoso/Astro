@@ -35,8 +35,8 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
     val flair: LiveData<Flair?>
         get() = _flair
 
-    private val _urlResubmit = MutableLiveData<URL?>()
-    val urlResubmit: LiveData<URL?>
+    private val _urlResubmit = MutableLiveData<String?>()
+    val urlResubmit: LiveData<String?>
         get() = _urlResubmit
 
     private val _newPostData = MutableLiveData<NewPostData?>()
@@ -171,7 +171,7 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
     fun submitUrlPost(
         subreddit: String,
         title: String,
-        url: URL,
+        url: String,
         notifications: Boolean,
         nsfw: Boolean,
         spoiler: Boolean,
@@ -204,7 +204,7 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
                         val errorResponse = subredditRepository.submitUrlPostForErrors(
                             subreddit,
                             title,
-                            url.toString(),
+                            url,
                             nsfw,
                             spoiler,
                             _flair.value

@@ -350,7 +350,7 @@ operator fun <T> MutableLiveData<MutableSet<T>>.minusAssign(item: T){
 sealed class PostContent
 class TextPost(val body: String): PostContent()
 class ImagePost(val uri: Uri): PostContent()
-class LinkPost(val url: URL): PostContent()
+class LinkPost(val url: String): PostContent()
 
 val IMGUR_GALLERY_REGEX = "http[s]?://(m.)?imgur\\.com/gallery/[A-Za-z0-9]+".toRegex()
 val IMGUR_ALBUM_REGEX = "http[s]?://(m.)?imgur\\.com/a/[A-Za-z0-9]+".toRegex()

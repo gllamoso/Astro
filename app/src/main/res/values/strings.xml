@@ -155,6 +155,7 @@
     <string name="no_flair_found">No flair found</string>
     <string name="unable_fetch_error">Unable to fetch error</string>
     <string name="url_already_posted">URL already posted. Resubmit?</string>
+    <string name="resubmit">Resubmit</string>
     <string name="select_photo">Please select a photo</string>
 
     <!--Misc-->
