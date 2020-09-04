@@ -33,6 +33,14 @@ class MediaFragment : Fragment(){
 
     private val activityModel: MainActivityVM by activityViewModels()
 
+    override fun onPause() {
+        super.onPause()
+        val isChangingConfigurations = requireActivity().isChangingConfigurations
+        if(!isChangingConfigurations) {
+            model.pausePlayer()
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentMediaBinding.inflate(inflater)
         binding.lifecycleOwner = viewLifecycleOwner
@@ -153,6 +161,14 @@ class MediaFragment : Fragment(){
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        val isChangingConfigurations = requireActivity().isChangingConfigurations
+        if(!isChangingConfigurations){
+            model.releasePlayer()
+            model.initialized = false
+        }
+    }
 
     companion object{
         fun newInstance(mediaURL: MediaURL): MediaFragment {

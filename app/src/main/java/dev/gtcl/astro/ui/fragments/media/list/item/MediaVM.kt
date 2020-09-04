@@ -29,9 +29,7 @@ class MediaVM(private val application: AstroApplication): AstroViewModel(applica
     val player: LiveData<SimpleExoPlayer?>
         get() = _player
 
-    private var _initialized = false
-    val initialized: Boolean
-        get() = _initialized
+    var initialized = false
 
     fun setMedia(mediaURL: MediaURL){
         coroutineScope.launch {
@@ -86,12 +84,21 @@ class MediaVM(private val application: AstroApplication): AstroViewModel(applica
                     _player.value = player
                 }
             }
-            _initialized = true
+            initialized = true
         }
     }
 
     fun setLoadingState(loading: Boolean){
         _isLoading.value = loading
+    }
+
+    fun pausePlayer(){
+        _player.value?.playWhenReady = false
+    }
+
+    fun releasePlayer(){
+        _player.value?.release()
+        _player.value = null
     }
 
     override fun onCleared() {
