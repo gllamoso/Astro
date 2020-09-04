@@ -70,7 +70,7 @@ class MediaVM(private val application: AstroApplication): AstroViewModel(applica
                     val player = ExoPlayerFactory.newSimpleInstance(application.baseContext, trackSelector)
                     player!!.apply {
                         repeatMode = Player.REPEAT_MODE_ONE
-                        playWhenReady = false
+                        playWhenReady = true
                         seekTo(0, 0)
                         prepare(mediaSource, false, false)
                         addListener(object: Player.EventListener{
