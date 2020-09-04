@@ -20,15 +20,10 @@ class FlairEditDialogFragment : DialogFragment(), TextWatcher {
 
     private lateinit var binding: FragmentDialogFlairEditBinding
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val builder = AlertDialog.Builder(context)
-            .setPositiveButton(R.string.done, null)
-            .setNegativeButton(R.string.cancel){_,_ ->}
-
-        binding = FragmentDialogFlairEditBinding.inflate(LayoutInflater.from(context))
-        builder.setView(binding.root)
-
-        return builder.create()
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+//        dialog?.window?.setBackgroundDrawableResource(android.R.color.black) // This makes the dialog full screen
     }
 
     override fun onCreateView(
@@ -36,28 +31,30 @@ class FlairEditDialogFragment : DialogFragment(), TextWatcher {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        binding = FragmentDialogFlairEditBinding.inflate(LayoutInflater.from(context))
         val flair = requireArguments().get(FLAIRS_KEY) as Flair
         initFlair(flair)
         initObservers()
 
-        dialog?.setOnShowListener {
-            val button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
-            button.setOnClickListener {
-                val text = binding.fragmentDialogFlairEditText.text.toString()
-                if (text.length in 1..64) {
-                    flair.text = text
-                    parentFragmentManager.setFragmentResult(
-                        FLAIR_SELECTED_KEY,
-                        bundleOf(FLAIRS_KEY to flair)
-                    )
-                    dismiss()
-                } else {
-                    binding.fragmentDialogFlairEditTextInputLayout.error = getString(R.string.invalid)
-                }
+        binding.fragmentDialogFlairEditDialogButtons.dialogPositiveButton.setOnClickListener {
+            val text = binding.fragmentDialogFlairEditText.text.toString()
+            if (text.length in 1..64) {
+                flair.text = text
+                parentFragmentManager.setFragmentResult(
+                    FLAIR_SELECTED_KEY,
+                    bundleOf(FLAIRS_KEY to flair)
+                )
+                dismiss()
+            } else {
+                binding.fragmentDialogFlairEditTextInputLayout.error = getString(R.string.invalid)
             }
         }
 
-        return super.onCreateView(inflater, container, savedInstanceState)
+        binding.fragmentDialogFlairEditDialogButtons.dialogNegativeButton.setOnClickListener {
+            dismiss()
+        }
+
+        return binding.root
     }
 
     private fun initFlair(flair: Flair) {

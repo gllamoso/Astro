@@ -12,7 +12,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
         <androidx.cardview.widget.CardView
@@ -32,12 +32,14 @@
 
         <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            >
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/fragmentDialogFlairSelection_recyclerView"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="1"
                 android:visibility="@{model.flairs != null &amp;&amp; !model.flairs.empty ? View.VISIBLE : View.GONE}"
@@ -51,7 +53,7 @@
 
             <TextView
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_gravity="center"
                 android:gravity="center"
                 android:layout_margin="32dp"
@@ -59,6 +61,12 @@
                 android:text="@string/no_flair_found"/>
 
         </FrameLayout>
+
+        <include
+            android:id="@+id/fragmentDialogFlairList_dialogButtons"
+            layout="@layout/layout_dialog_buttons"
+            app:negativeText="@{@string/clear}"
+            app:neutralText="@{@string/cancel}"/>
 
     </LinearLayout>
 

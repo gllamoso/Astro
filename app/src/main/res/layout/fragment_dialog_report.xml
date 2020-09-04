@@ -28,7 +28,8 @@
 
         <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="0dp"
+            android:layout_weight="1">
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -72,6 +73,13 @@
             </LinearLayout>
 
         </ScrollView>
+
+        <include
+            android:id="@+id/fragmentDialogReport_dialogButtons"
+            layout="@layout/layout_dialog_buttons"
+            app:positiveText="@{@string/report}"
+            app:negativeText="@{@string/cancel}"
+            app:neutralText="@{@string/rules}"/>
 
     </LinearLayout>
 

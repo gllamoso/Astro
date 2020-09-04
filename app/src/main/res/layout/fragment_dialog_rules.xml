@@ -11,10 +11,11 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
         <androidx.cardview.widget.CardView
+            android:id="@+id/fragmentDialogRules_cardView"
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
@@ -27,8 +28,10 @@
         </androidx.cardview.widget.CardView>
 
         <ScrollView
+            android:id="@+id/fragmentDialogRules_scrollView"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="0dp"
+            android:layout_weight="1"
             android:minHeight="100dp">
 
             <LinearLayout
@@ -57,6 +60,13 @@
             </LinearLayout>
 
         </ScrollView>
+
+        <include
+            android:id="@+id/fragmentDialogRules_dialogButtons"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            layout="@layout/layout_dialog_buttons"
+            app:positiveText="@{@string/done}"/>
 
     </LinearLayout>
 

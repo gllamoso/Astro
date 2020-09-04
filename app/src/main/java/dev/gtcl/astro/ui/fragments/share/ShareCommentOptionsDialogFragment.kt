@@ -16,6 +16,12 @@ class ShareCommentOptionsDialogFragment: DialogFragment() {
 
     private lateinit var binding: FragmentDialogShareCommentOptionsBinding
 
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+//        dialog?.window?.setBackgroundDrawableResource(android.R.color.black) // This makes the dialog full screen
+    }
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,

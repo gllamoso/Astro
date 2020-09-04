@@ -1,6 +1,5 @@
 package dev.gtcl.astro.ui.fragments.rules
 
-import android.app.AlertDialog
 import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
@@ -28,14 +27,10 @@ class RulesDialogFragment: DialogFragment() {
 
     private lateinit var binding: FragmentDialogRulesBinding
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val builder = AlertDialog.Builder(context)
-            .setPositiveButton(R.string.done){_,_ ->}
-
-        binding = FragmentDialogRulesBinding.inflate(LayoutInflater.from(requireContext()))
-        builder.setView(binding.root)
-
-        return builder.create()
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+//        dialog?.window?.setBackgroundDrawableResource(android.R.color.black) // This makes the dialog full screen
     }
 
     override fun onCreateView(
@@ -43,6 +38,7 @@ class RulesDialogFragment: DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        binding = FragmentDialogRulesBinding.inflate(inflater)
         binding.model = model
         binding.lifecycleOwner = this
 
@@ -73,7 +69,11 @@ class RulesDialogFragment: DialogFragment() {
             }
         })
 
-        return super.onCreateView(inflater, container, savedInstanceState)
+        binding.fragmentDialogRulesDialogButtons.dialogPositiveButton.setOnClickListener {
+            dismiss()
+        }
+
+        return binding.root
     }
 
     companion object{

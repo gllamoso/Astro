@@ -17,6 +17,12 @@ class SharePostOptionsDialogFragment : DialogFragment(){
 
     private lateinit var binding: FragmentDialogSharePostOptionsBinding
 
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+//        dialog?.window?.setBackgroundDrawableResource(android.R.color.black) // This makes the dialog full screen
+    }
+
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         binding = FragmentDialogSharePostOptionsBinding.inflate(inflater)
         val post = requireArguments().getParcelable<Post>(POST_KEY)!!

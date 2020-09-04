@@ -71,7 +71,7 @@ class MultiRedditVM(private val application: AstroApplication): AstroViewModel(a
     fun addSubredditsToMultiReddit(names: List<String>){
         coroutineScope.launch {
             try {
-                _isLoading.value = true
+                _isLoading.postValue(true)
                 val currentList: MutableList<Subreddit> = if(initialized){
                     _subreddits.value ?: mutableListOf()
                 } else {
@@ -82,12 +82,12 @@ class MultiRedditVM(private val application: AstroApplication): AstroViewModel(a
                 val subsData = allNames.map { SubredditData(it, null) }
                 val model = MultiRedditUpdate(subreddits = subsData)
                 val response = subredditRepository.updateMulti(multipath, model).await()
-                _multi.value = response.data
-                _subreddits.value = response.data.subreddits.map{ it.data!! }.toMutableList()
+                _multi.postValue(response.data)
+                _subreddits.postValue(response.data.subreddits.map{ it.data!! }.toMutableList())
             } catch (e: HttpException){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
-                _isLoading.value = false
+                _isLoading.postValue(false)
             }
         }
     }
@@ -95,14 +95,14 @@ class MultiRedditVM(private val application: AstroApplication): AstroViewModel(a
     fun updateMultiReddit(model: MultiRedditUpdate){
         coroutineScope.launch {
             try {
-                _isLoading.value = true
+                _isLoading.postValue(true)
                 val response = subredditRepository.updateMulti(multipath, model).await()
-                _multi.value = response.data
+                _multi.postValue(response.data)
                 subredditRepository.insertMultiReddit(response.data)
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
-                _isLoading.value = false
+                _isLoading.postValue(false)
             }
         }
     }

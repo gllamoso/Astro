@@ -23,17 +23,10 @@ class FlairListDialogFragment : DialogFragment(), FlairListAdapter.FlairSelectio
         ViewModelProvider(this, viewModelFactory).get(FlairListVM::class.java)
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val builder = AlertDialog.Builder(context)
-            .setNegativeButton(R.string.clear){_,_ ->
-                parentFragmentManager.setFragmentResult(FLAIR_SELECTED_KEY, bundleOf(FLAIRS_KEY to null))
-            }
-            .setNeutralButton(R.string.cancel){_,_ ->}
-
-        binding = FragmentDialogFlairListBinding.inflate(LayoutInflater.from(requireContext()))
-        builder.setView(binding.root)
-
-        return builder.create()
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+//        dialog?.window?.setBackgroundDrawableResource(android.R.color.black) // This makes the dialog full screen
     }
 
     override fun onCreateView(
@@ -41,7 +34,7 @@ class FlairListDialogFragment : DialogFragment(), FlairListAdapter.FlairSelectio
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
+        binding = FragmentDialogFlairListBinding.inflate(LayoutInflater.from(requireContext()))
         binding.model = model
         binding.lifecycleOwner = this
         val subredditName = requireArguments().get(SUBREDDIT_KEY) as String
@@ -49,9 +42,8 @@ class FlairListDialogFragment : DialogFragment(), FlairListAdapter.FlairSelectio
 
         initList()
         initOtherObservers()
-        binding.invalidateAll()
 
-        return super.onCreateView(inflater, container, savedInstanceState)
+        return binding.root
     }
 
     private fun initList(){
@@ -76,6 +68,15 @@ class FlairListDialogFragment : DialogFragment(), FlairListAdapter.FlairSelectio
                 model.errorMessageObserved()
             }
         })
+
+        binding.fragmentDialogFlairListDialogButtons.dialogNegativeButton.setOnClickListener {
+            parentFragmentManager.setFragmentResult(FLAIR_SELECTED_KEY, bundleOf(FLAIRS_KEY to null))
+            dismiss()
+        }
+
+        binding.fragmentDialogFlairListDialogButtons.dialogNeutralButton.setOnClickListener {
+            dismiss()
+        }
 
     }
 

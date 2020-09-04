@@ -19,6 +19,7 @@
             android:id="@+id/fragmentDialogMultiReddit_toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
+            android:background="?android:attr/colorBackgroundFloating"
             app:title="@{multi == null ? @string/create_custom_feed : @string/edit_custom_feed}"
             app:navigationIcon="@drawable/ic_x_24"
             tools:title="MultiReddit Name"/>
@@ -73,7 +74,14 @@
             android:id="@+id/fragmentDialogMultiReddit_visibilitySpinner"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp" />
+            android:layout_margin="16dp"
+            android:popupBackground="?android:attr/colorBackgroundFloating"/>
+
+        <include
+            android:id="@+id/fragmentDialogMultiReddit_dialogButtons"
+            layout="@layout/layout_dialog_buttons"
+            app:positiveText="@{@string/done}"
+            app:negativeText="@{@string/cancel}"/>
 
     </LinearLayout>
 
