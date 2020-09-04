@@ -6,6 +6,7 @@ import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextPaint
 import android.text.style.*
+import android.util.Log
 import android.view.View
 
 
@@ -78,8 +79,9 @@ class MarkdownToSpannable{
             while(match != null){
                 val start = match.range.first
                 val end = match.range.last
-                spannableStringBuilder.delete(start, start + 1)
-                spannableStringBuilder.setSpan( CustomQuoteSpan(Color.GREEN, 10, 40), start, end - 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                val quotePrefix = ">\\s*".toRegex().find(match.value)!!.value
+                spannableStringBuilder.delete(start, start + quotePrefix.length)
+                spannableStringBuilder.setSpan(CustomQuoteSpan(Color.GREEN, 10, 40), start, end - quotePrefix.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
                 match = QUOTE_TEXT_REGEX.find(spannableStringBuilder)
             }
         }
