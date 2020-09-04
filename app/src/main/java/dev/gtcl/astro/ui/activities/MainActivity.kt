@@ -3,9 +3,9 @@ package dev.gtcl.astro.ui.activities
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.databinding.DataBindingUtil
-import androidx.fragment.app.FragmentActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
@@ -13,7 +13,7 @@ import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.ActivityMainBinding
 
-class MainActivity : FragmentActivity() {
+class MainActivity : AppCompatActivity() {
     lateinit var binding: ActivityMainBinding
     private lateinit var navController: NavController
 
@@ -25,6 +25,7 @@ class MainActivity : FragmentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
+        supportActionBar?.hide()
         navController = findNavController(R.id.activityMain_navHostFragment)
         model.openChromeTab.observe(this, {
             if (it != null) {

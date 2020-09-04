@@ -195,6 +195,15 @@
     <string name="cannot_reply_to_post">Cannot reply to post</string>
 
     <!--Settings-->
+    <string name="dark_mode_settings_category_title">Dark mode settings</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="use_system_settings">Use system settings</string>
+    <string-array name="dark_mode_entries">
+        <item>Off</item>
+        <item>On</item>
+        <item>@string/use_system_settings</item>
+    </string-array>
+
     <string name="post_settings_title">Post Settings</string>
     <string name="nsfw_title">Show NSFW</string>
     <string name="nsfw_summary">Show posts with NSFW (Not Safe For Work) tag</string>

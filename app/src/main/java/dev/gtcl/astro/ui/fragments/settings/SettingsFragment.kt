@@ -5,10 +5,13 @@ import android.util.TypedValue
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.preference.ListPreference
 import androidx.preference.PreferenceFragmentCompat
+import dev.gtcl.astro.DARK_SETTINGS_KEY
 import dev.gtcl.astro.R
 
-class SettingsFragment: PreferenceFragmentCompat() {
+class SettingsFragment : PreferenceFragmentCompat() {
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -24,6 +27,17 @@ class SettingsFragment: PreferenceFragmentCompat() {
 
     override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         setPreferencesFromResource(R.xml.preferences, rootKey)
+
+        val allDarkSettings = resources.getStringArray(R.array.dark_mode_entries)
+        val darkModePreference = findPreference<ListPreference>(DARK_SETTINGS_KEY)
+        darkModePreference?.setOnPreferenceChangeListener { _, newValue ->
+            when (allDarkSettings.indexOf(newValue.toString())) {
+                0 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+                1 -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+                else -> AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_FOLLOW_SYSTEM)
+            }
+            true
+        }
     }
 
 }

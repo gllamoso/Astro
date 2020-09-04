@@ -4,6 +4,19 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <PreferenceCategory
+        android:title="@string/dark_mode_settings_category_title">
+
+        <ListPreference
+            android:key="dark_settings"
+            android:title="@string/dark_mode"
+            app:useSimpleSummaryProvider="true"
+            android:entries="@array/dark_mode_entries"
+            android:entryValues="@array/dark_mode_entries"
+            android:defaultValue="@string/use_system_settings"/>
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
         android:title="@string/post_settings_title">
 
         <SwitchPreferenceCompat
