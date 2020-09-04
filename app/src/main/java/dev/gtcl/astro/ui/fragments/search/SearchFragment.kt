@@ -106,7 +106,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
     private fun initPopularItems(){
         val recycler = binding.fragmentSearchPopularList
         val scrollListener = ListingScrollListener(15, binding.fragmentSearchPopularList.layoutManager as GridLayoutManager, model::loadMorePopular)
-        val listAdapter = ListingAdapter(markwon = null, subredditActions = this, itemClickListener = this, username = null, inInbox = false){
+        val listAdapter = ListingAdapter(markwon = null, subredditActions = this, expected = ItemType.Subreddit, itemClickListener = this, username = null){
             recycler.apply {
                 removeOnScrollListener(scrollListener)
                 addOnScrollListener(scrollListener)

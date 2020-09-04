@@ -21,7 +21,6 @@ class ListingAdapter(
     var blurNsfw: Boolean = false,
     private val itemClickListener: ItemClickListener,
     private val username: String?,
-    private val inInbox: Boolean,
     private val retry: () -> Unit
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -135,7 +134,7 @@ class ListingAdapter(
                 if (commentActions == null) {
                     throw IllegalStateException("Comment Actions not initialized")
                 }
-                (holder as CommentDetailedVH).bind(comment, markwon, commentActions, username, inInbox, itemClickListener)
+                (holder as CommentDetailedVH).bind(comment, markwon, commentActions, username, expected == ItemType.Message, itemClickListener)
             }
             R.layout.item_subreddit -> {
                 val subreddit = items!![position] as Subreddit

@@ -137,8 +137,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             expected = ItemType.Post,
             blurNsfw = blurNsfw,
             itemClickListener = this,
-            username = currentAccount?.name,
-            inInbox = false){
+            username = currentAccount?.name){
             listView.apply {
                 removeOnScrollListener(scrollListener)
                 addOnScrollListener(scrollListener)

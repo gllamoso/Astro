@@ -143,11 +143,10 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             postActions = this,
             commentActions = this,
             messageActions = this,
-            expected = ItemType.Post,
+            expected = if(inInbox) ItemType.Message else ItemType.Post,
             blurNsfw = blurNsfw,
             itemClickListener = this,
-            username = currentAccount?.name,
-            inInbox = inInbox){
+            username = currentAccount?.name){
             recyclerView.apply {
                 removeOnScrollListener(scrollListener)
                 addOnScrollListener(scrollListener)
