@@ -17,7 +17,7 @@
         android:id="@+id/fragmentListing_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?android:attr/colorBackground">
+        android:background="@color/colorBackground">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"

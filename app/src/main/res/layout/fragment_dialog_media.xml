@@ -17,7 +17,8 @@
     <androidx.drawerlayout.widget.DrawerLayout
         android:id="@+id/fragmentMediaDialog_drawer"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+        android:layout_height="match_parent"
+        android:background="@android:color/black">
 
         <FrameLayout
             android:layout_width="match_parent"

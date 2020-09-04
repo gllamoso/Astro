@@ -32,7 +32,6 @@
         <ProgressBar
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
             style="@style/Widget.AppCompat.ProgressBar.Horizontal"
             app:layout_constraintTop_toBottomOf="@id/fragmentDialogComposeMessage_appBarLayout"
             android:indeterminate="true"

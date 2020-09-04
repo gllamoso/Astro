@@ -22,7 +22,7 @@
             android:layout_height="wrap_content"
             android:layout_margin="4dp"
             android:foreground="?android:attr/selectableItemBackground"
-            app:cardBackgroundColor="?android:attr/colorBackground"
+            app:cardBackgroundColor="@color/colorItemBackground"
             app:cardCornerRadius="4dp">
 
             <androidx.constraintlayout.widget.ConstraintLayout

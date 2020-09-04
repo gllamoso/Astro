@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:foreground="?android:attr/selectableItemBackground"
-        app:cardBackgroundColor="?android:attr/colorBackgroundFloating">
+        app:cardBackgroundColor="@color/colorItemBackground">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutCrosspost_background"
@@ -163,7 +163,8 @@
                     android:singleLine="true"
                     android:text=" • "
                     android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp" />
+                    android:textSize="12sp"
+                    tools:ignore="HardcodedText" />
 
                 <TextView
                     android:layout_width="wrap_content"

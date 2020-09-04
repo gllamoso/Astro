@@ -6,7 +6,7 @@
         android:id="@+id/fragmentInbox_drawer"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?android:attr/colorBackground">
+        android:background="@color/colorBackground">
 
         <androidx.coordinatorlayout.widget.CoordinatorLayout
             android:layout_width="match_parent"
@@ -15,12 +15,15 @@
             <com.google.android.material.appbar.AppBarLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:fitsSystemWindows="true"
+                android:stateListAnimator="@drawable/selector_appbar_always_elevated"
                 app:layout_behavior="com.google.android.material.appbar.AppBarLayout$Behavior">
 
                 <androidx.appcompat.widget.Toolbar
                     android:id="@+id/fragmentInbox_toolbar"
                     android:layout_width="match_parent"
                     android:layout_height="?attr/actionBarSize"
+                    android:background="@color/colorBackground"
                     app:layout_scrollFlags="scroll|enterAlways"
                     app:title="@string/inbox"
                     app:navigationIcon="@drawable/ic_menu_24" />
@@ -29,6 +32,7 @@
                     android:id="@+id/fragmentInbox_tabLayout"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:background="@color/colorBackground"
                     app:tabMode="fixed"
                     app:tabGravity="fill"
                     app:layout_scrollFlags="scroll|enterAlways"/>

@@ -66,7 +66,7 @@ class RulesDialogFragment: DialogFragment() {
             }
         })
 
-        model.errorMessage.observe(viewLifecycleOwner, {
+        model.errorMessage.observe(this, {
             if(it != null){
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 model.errorMessageObserved()

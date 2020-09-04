@@ -17,7 +17,7 @@ class FlairVH private constructor(private val binding: ItemEditableBinding): Rec
             flairSelectionListener.onSelect(flair)
         }
 
-        binding.itemEditableText.setOnClickListener {
+        binding.itemEditableIcon.setOnClickListener {
             flairSelectionListener.onEdit(flair)
         }
 

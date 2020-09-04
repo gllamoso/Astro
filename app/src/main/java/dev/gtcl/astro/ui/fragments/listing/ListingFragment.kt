@@ -235,10 +235,6 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                 )
                 if(sub.banner == null){
                     topAppBar.layoutTopAppBarListingCollapsingToolbar.contentScrim = null
-                    val typedValue = TypedValue()
-                    val theme = requireContext().theme
-                    theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-                    topAppBar.layoutTopAppBarListingToolbar.setBackgroundColor(typedValue.data)
                 }
                 markwon.setMarkdown(rightDrawerLayout.layoutRightDrawerPublicDescription, sub.publicDescription + "\n\n" + sub.description)
             } else {
@@ -248,10 +244,6 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                     Gravity.RIGHT
                 )
                 topAppBar.layoutTopAppBarListingCollapsingToolbar.contentScrim = null
-                val typedValue = TypedValue()
-                val theme = requireContext().theme
-                theme.resolveAttribute(android.R.attr.colorBackground, typedValue, true)
-                topAppBar.layoutTopAppBarListingToolbar.setBackgroundColor(typedValue.data)
             }
         })
     }

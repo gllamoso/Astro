@@ -16,7 +16,7 @@
         android:layout_height="wrap_content"
         android:gravity="center_vertical"
         android:foreground="?android:attr/selectableItemBackground"
-        android:background="?android:attr/colorBackground">
+        android:background="@color/colorBackground">
 
         <LinearLayout
             android:id="@+id/itemMoreComment_indent"
