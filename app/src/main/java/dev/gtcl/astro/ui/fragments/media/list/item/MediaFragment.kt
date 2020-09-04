@@ -65,7 +65,7 @@ class MediaFragment : Fragment(){
     private fun initSubsamplingImageView(){
         binding.fragmentMediaPlayerController.hide()
         model.mediaURL.observe(viewLifecycleOwner, {
-            val url = it.url.replace("http://", "https://")
+            val url = (IMAGE_REGEX.find(it.url)?.value ?: it.url).replaceFirst("http://", "https://")
             Glide.with(requireContext())
                 .asBitmap()
                 .load(url)

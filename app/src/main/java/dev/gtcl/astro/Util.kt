@@ -390,7 +390,7 @@ fun String.getUrlType(): UrlType?{
     return when{
         IMGUR_ALBUM_REGEX.matches(this) or IMGUR_GALLERY_REGEX.matches(this) -> UrlType.IMGUR_ALBUM
         IMGUR_URL_REGEX.matches(this) -> UrlType.IMGUR_IMAGE
-        IMAGE_REGEX.matches(this) or IMGUR_IMAGE_REGEX.matches(this) -> UrlType.IMAGE
+        IMAGE_REGEX.containsMatchIn(this) or IMGUR_IMAGE_REGEX.matches(this) -> UrlType.IMAGE
         GIF_REGEX.matches(this) -> UrlType.GIF
         GIFV_REGEX.matches(this) -> UrlType.GIFV
         GFYCAT_REGEX.matches(this) -> UrlType.GFYCAT
