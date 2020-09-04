@@ -9,6 +9,7 @@
         <com.google.android.material.appbar.AppBarLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:theme="@style/AppTheme"
             android:background="@drawable/top_rounded_corners">
 
             <androidx.appcompat.widget.Toolbar
@@ -39,6 +40,7 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_search_24"
                         android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:tint="?android:attr/textColorPrimary"
                         android:padding="2dp"
                         android:layout_margin="8dp"/>
 
@@ -48,6 +50,7 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_sync_24"
                         android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:tint="?android:attr/textColorPrimary"
                         android:padding="2dp"
                         android:layout_margin="8dp"/>
 
@@ -57,6 +60,7 @@
                         android:layout_height="wrap_content"
                         android:src="@drawable/ic_more_vert_24"
                         android:background="?android:attr/selectableItemBackgroundBorderless"
+                        android:tint="?android:attr/textColorPrimary"
                         android:padding="2dp"
                         android:layout_marginVertical="8dp"
                         android:layout_marginStart="8dp"

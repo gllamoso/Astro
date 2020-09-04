@@ -50,6 +50,7 @@
                         android:layout_height="24dp"
                         android:padding="2dp"
                         android:src="@drawable/ic_search_24"
+                        android:tint="?android:attr/textColorPrimary"
                         android:background="?android:attr/selectableItemBackgroundBorderless"
                         android:layout_margin="16dp"/>
 
