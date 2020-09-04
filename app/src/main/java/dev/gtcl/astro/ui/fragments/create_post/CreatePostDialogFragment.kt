@@ -12,11 +12,13 @@ import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProviders
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentDialogCreatePostBinding
 import dev.gtcl.astro.models.reddit.listing.Flair
 import dev.gtcl.astro.models.reddit.listing.Post
+import dev.gtcl.astro.ui.fragments.ViewPagerVM
 import dev.gtcl.astro.ui.fragments.flair.FlairListDialogFragment
 import dev.gtcl.astro.ui.fragments.rules.RulesDialogFragment
 import java.util.*
@@ -29,6 +31,10 @@ class CreatePostDialogFragment : DialogFragment(){
     private val model: CreatePostVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
         ViewModelProvider(this, viewModelFactory).get(CreatePostVM::class.java)
+    }
+
+    private val viewPagerModel: ViewPagerVM by lazy {
+        ViewModelProviders.of(requireParentFragment()).get(ViewPagerVM::class.java)
     }
 
     override fun onStart() {
@@ -274,9 +280,11 @@ class CreatePostDialogFragment : DialogFragment(){
             }
         })
 
-        model.newPostData.observe(viewLifecycleOwner, {
-            if(it != null){
-                parentFragmentManager.setFragmentResult(URL_KEY, bundleOf(URL_KEY to VALID_REDDIT_COMMENTS_URL_REGEX.find(it.url)?.value))
+        model.newPostData.observe(viewLifecycleOwner, { newPostData ->
+            if(newPostData != null){
+                VALID_REDDIT_COMMENTS_URL_REGEX.find(newPostData.url)?.value?.let {
+                    viewPagerModel.newPost(it)
+                }
                 model.newPostObserved()
                 dismiss()
             }

@@ -118,9 +118,10 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
             }
         })
 
-        childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
-            bundle.getString(URL_KEY)?.let {
-                newPage(CommentsPage(it, false))
+        model.newPostLink.observe(viewLifecycleOwner, {
+            if(it != null){
+                activityModel.newPage(CommentsPage(it, false))
+                model.newPostObserved()
             }
         })
     }
@@ -178,10 +179,10 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
                 val validUrl = VALID_REDDIT_COMMENTS_URL_REGEX.find(link)!!.value
                 activityModel.newPage(CommentsPage(validUrl, true))
             }
-            UrlType.OTHER, UrlType.REDDIT_VIDEO -> activityModel.openChromeTab(link)
+            UrlType.OTHER, UrlType.REDDIT_VIDEO, UrlType.REDDIT_GALLERY -> activityModel.openChromeTab(link)
             UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_PICTURE)).show(childFragmentManager, null)
             UrlType.REDGIFS -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.REDGIFS)).show(childFragmentManager, null)
-            null -> throw IllegalArgumentException("Unable to determin link type: link")
+            null -> throw IllegalArgumentException("Unable to determine link type: $link")
         }
     }
 
