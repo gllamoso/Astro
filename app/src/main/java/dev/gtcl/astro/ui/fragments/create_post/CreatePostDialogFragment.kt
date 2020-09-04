@@ -276,7 +276,7 @@ class CreatePostDialogFragment : DialogFragment(){
 
         model.newPostData.observe(viewLifecycleOwner, {
             if(it != null){
-                parentFragmentManager.setFragmentResult(URL_KEY, bundleOf(URL_KEY to it.url))
+                parentFragmentManager.setFragmentResult(URL_KEY, bundleOf(URL_KEY to VALID_REDDIT_COMMENTS_URL_REGEX.find(it.url)?.value))
                 model.newPostObserved()
                 dismiss()
             }

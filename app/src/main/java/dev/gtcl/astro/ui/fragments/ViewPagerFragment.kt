@@ -119,8 +119,9 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
         })
 
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
-            val url = bundle.getString(URL_KEY)!!
-            newPage(CommentsPage(url, false))
+            bundle.getString(URL_KEY)?.let {
+                newPage(CommentsPage(it, false))
+            }
         })
     }
 
