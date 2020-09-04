@@ -1,7 +1,5 @@
 package dev.gtcl.astro.ui.fragments.flair
 
-import android.app.AlertDialog
-import android.app.Dialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher

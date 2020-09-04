@@ -21,11 +21,7 @@
             app:title="@{flair.text}"
             tools:title="@string/flair"
             android:background="?android:attr/colorBackgroundFloating"
-            app:navigationIcon="@drawable/ic_x_24"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent">
-
-        </androidx.appcompat.widget.Toolbar>
+            app:navigationIcon="@drawable/ic_x_24"/>
 
         <RelativeLayout
             android:layout_width="match_parent"

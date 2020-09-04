@@ -286,8 +286,7 @@ data class Post(
     @IgnoredOnParcel
     val shortLink = "https://redd.it/$id"
 
-    @IgnoredOnParcel
-    val flairTextFormatted: CharSequence? = if (flairText != null) {
+    fun getFlairTextFormatted(): CharSequence? = if (flairText != null) {
         Html.fromHtml(flairText, Html.FROM_HTML_MODE_COMPACT)
     } else {
         null

@@ -12,109 +12,128 @@
             type="dev.gtcl.astro.ui.fragments.manage.ManagePostVM" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
-        <TextView
-            android:id="@+id/fragmentDialogManagePost_nsfwLabel"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:singleLine="true"
-            android:text="@string/nsfw"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="16dp"
-            android:layout_marginStart="8dp"
-            app:layout_constraintTop_toTopOf="@id/fragmentDialogManagePost_nsfwCheckbox"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/fragmentDialogManagePost_nsfwCheckbox"
-            app:layout_constraintBottom_toBottomOf="@id/fragmentDialogManagePost_nsfwCheckbox"/>
+        <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:title="@string/manage"
+            android:background="?android:attr/colorBackgroundFloating" />
 
-        <CheckBox
-            android:id="@+id/fragmentDialogManagePost_nsfwCheckbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="@{post.nsfw}"
-            android:layout_marginTop="16dp"
-            android:padding="8dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <TextView
-            android:id="@+id/fragmentDialogManagePost_spoilerLabel"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:singleLine="true"
-            android:text="@string/spoiler"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="16dp"
-            android:layout_marginStart="8dp"
-            app:layout_constraintTop_toBottomOf="@id/fragmentDialogManagePost_nsfwLabel"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/fragmentDialogManagePost_spoilerCheckbox"
-            app:layout_constraintBottom_toBottomOf="@id/fragmentDialogManagePost_spoilerCheckbox"/>
+            <TextView
+                android:id="@+id/fragmentDialogManagePost_nsfwLabel"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:singleLine="true"
+                android:text="@string/nsfw"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintTop_toTopOf="@id/fragmentDialogManagePost_nsfwCheckbox"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/fragmentDialogManagePost_nsfwCheckbox"
+                app:layout_constraintBottom_toBottomOf="@id/fragmentDialogManagePost_nsfwCheckbox"/>
 
-        <CheckBox
-            android:id="@+id/fragmentDialogManagePost_spoilerCheckbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="@{post.spoiler}"
-            android:padding="8dp"
-            app:layout_constraintTop_toBottomOf="@id/fragmentDialogManagePost_nsfwCheckbox"
-            app:layout_constraintEnd_toEndOf="parent"
-            />
+            <CheckBox
+                android:id="@+id/fragmentDialogManagePost_nsfwCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="@{post.nsfw}"
+                android:layout_marginTop="16dp"
+                android:padding="8dp"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
 
-        <TextView
-            android:id="@+id/fragmentDialogManagePost_notificationsLabel"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:singleLine="true"
-            android:text="@string/get_notifications"
-            android:gravity="center_vertical"
-            android:layout_marginStart="8dp"
-            android:paddingHorizontal="16dp"
-            app:layout_constraintTop_toBottomOf="@id/fragmentDialogManagePost_spoilerLabel"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/fragmentDialogManagePost_notificationsCheckbox"
-            app:layout_constraintBottom_toBottomOf="@id/fragmentDialogManagePost_notificationsCheckbox"/>
+            <TextView
+                android:id="@+id/fragmentDialogManagePost_spoilerLabel"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:singleLine="true"
+                android:text="@string/spoiler"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="16dp"
+                android:layout_marginStart="8dp"
+                app:layout_constraintTop_toBottomOf="@id/fragmentDialogManagePost_nsfwLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/fragmentDialogManagePost_spoilerCheckbox"
+                app:layout_constraintBottom_toBottomOf="@id/fragmentDialogManagePost_spoilerCheckbox"/>
 
-        <CheckBox
-            android:id="@+id/fragmentDialogManagePost_notificationsCheckbox"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:checked="@{post.sendReplies}"
-            android:padding="8dp"
-            app:layout_constraintTop_toBottomOf="@id/fragmentDialogManagePost_spoilerCheckbox"
-            app:layout_constraintEnd_toEndOf="parent" />
+            <CheckBox
+                android:id="@+id/fragmentDialogManagePost_spoilerCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="@{post.spoiler}"
+                android:padding="8dp"
+                app:layout_constraintTop_toBottomOf="@id/fragmentDialogManagePost_nsfwCheckbox"
+                app:layout_constraintEnd_toEndOf="parent"
+                />
 
-        <TextView
-            android:id="@+id/fragmentDialogManagePost_flairLabel"
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:singleLine="true"
-            android:text="@string/flair"
-            android:gravity="center_vertical"
-            android:paddingHorizontal="8dp"
-            android:layout_marginHorizontal="16dp"
-            app:layout_constraintTop_toBottomOf="@id/fragmentDialogManagePost_notificationsLabel"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toStartOf="@id/fragmentDialogManagePost_flairChip"
-            app:layout_constraintBottom_toBottomOf="@id/fragmentDialogManagePost_flairChip"/>
+            <TextView
+                android:id="@+id/fragmentDialogManagePost_notificationsLabel"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:singleLine="true"
+                android:text="@string/get_notifications"
+                android:gravity="center_vertical"
+                android:layout_marginStart="8dp"
+                android:paddingHorizontal="16dp"
+                app:layout_constraintTop_toBottomOf="@id/fragmentDialogManagePost_spoilerLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/fragmentDialogManagePost_notificationsCheckbox"
+                app:layout_constraintBottom_toBottomOf="@id/fragmentDialogManagePost_notificationsCheckbox"/>
 
-        <com.google.android.material.chip.Chip
-            android:id="@+id/fragmentDialogManagePost_flairChip"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            app:flair="@{model.flair}"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="16dp"
-            style="@style/CustomChipChoice"
-            app:layout_constraintTop_toBottomOf="@id/fragmentDialogManagePost_notificationsCheckbox"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:text="@string/no_flair"
-            tools:chipBackgroundColor="@android:color/darker_gray"/>
+            <CheckBox
+                android:id="@+id/fragmentDialogManagePost_notificationsCheckbox"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:checked="@{post.sendReplies}"
+                android:padding="8dp"
+                app:layout_constraintTop_toBottomOf="@id/fragmentDialogManagePost_spoilerCheckbox"
+                app:layout_constraintEnd_toEndOf="parent" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <TextView
+                android:id="@+id/fragmentDialogManagePost_flairLabel"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:singleLine="true"
+                android:text="@string/flair"
+                android:gravity="center_vertical"
+                android:paddingHorizontal="8dp"
+                android:layout_marginHorizontal="16dp"
+                app:layout_constraintTop_toBottomOf="@id/fragmentDialogManagePost_notificationsLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/fragmentDialogManagePost_flairChip"
+                app:layout_constraintBottom_toBottomOf="@id/fragmentDialogManagePost_flairChip"/>
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/fragmentDialogManagePost_flairChip"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:flair="@{model.flair}"
+                android:layout_marginEnd="16dp"
+                android:layout_marginBottom="16dp"
+                style="@style/CustomChipChoice"
+                app:layout_constraintTop_toBottomOf="@id/fragmentDialogManagePost_notificationsCheckbox"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                tools:text="@string/no_flair"
+                tools:chipBackgroundColor="@android:color/darker_gray"/>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <include
+            android:id="@+id/fragmentDialogManagePost_dialogButtons"
+            layout="@layout/layout_dialog_buttons"
+            app:positiveText="@{@string/done}"
+            app:negativeText="@{@string/cancel}"/>
+
+    </LinearLayout>
 
 </layout>

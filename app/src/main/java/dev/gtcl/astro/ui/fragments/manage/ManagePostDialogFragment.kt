@@ -1,7 +1,5 @@
 package dev.gtcl.astro.ui.fragments.manage
 
-import android.app.AlertDialog
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -24,30 +22,10 @@ class ManagePostDialogFragment: DialogFragment() {
         ViewModelProvider(this, viewModelFactory).get(ManagePostVM::class.java)
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        val builder = AlertDialog.Builder(requireContext())
-            .setTitle(R.string.manage)
-            .setPositiveButton(R.string.done){ _, _ ->
-                val position = requireArguments().getInt(POSITION_KEY)
-                val nsfw = binding.fragmentDialogManagePostNsfwCheckbox.isChecked
-                val spoiler = binding.fragmentDialogManagePostSpoilerCheckbox.isChecked
-                val getNotifications = binding.fragmentDialogManagePostNotificationsCheckbox.isChecked
-                val flair = model.flair.value
-                val bundle = bundleOf(
-                    POSITION_KEY to position,
-                    NSFW_KEY to nsfw,
-                    SPOILER_KEY to spoiler,
-                    GET_NOTIFICATIONS_KEY to getNotifications,
-                    FLAIRS_KEY to flair
-                )
-                parentFragmentManager.setFragmentResult(MANAGE_POST_KEY, bundle)
-            }
-            .setNegativeButton(R.string.cancel){_,_ ->}
-
-        binding = FragmentDialogManagePostBinding.inflate(LayoutInflater.from(requireContext()))
-        builder.setView(binding.root)
-
-        return builder.create()
+    override fun onStart() {
+        super.onStart()
+        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+//        dialog?.window?.setBackgroundDrawableResource(android.R.color.black) // This makes the dialog full screen
     }
 
     override fun onCreateView(
@@ -55,6 +33,8 @@ class ManagePostDialogFragment: DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
+        binding = FragmentDialogManagePostBinding.inflate(inflater)
+
         val post = requireArguments().get(POST_KEY) as Post
         binding.post = post
         binding.model = model
@@ -75,7 +55,28 @@ class ManagePostDialogFragment: DialogFragment() {
             model.selectFlair(flair)
         })
 
-        return super.onCreateView(inflater, container, savedInstanceState)
+        binding.fragmentDialogManagePostDialogButtons.dialogPositiveButton.setOnClickListener {
+            val position = requireArguments().getInt(POSITION_KEY)
+            val nsfw = binding.fragmentDialogManagePostNsfwCheckbox.isChecked
+            val spoiler = binding.fragmentDialogManagePostSpoilerCheckbox.isChecked
+            val getNotifications = binding.fragmentDialogManagePostNotificationsCheckbox.isChecked
+            val flair = model.flair.value
+            val bundle = bundleOf(
+                POSITION_KEY to position,
+                NSFW_KEY to nsfw,
+                SPOILER_KEY to spoiler,
+                GET_NOTIFICATIONS_KEY to getNotifications,
+                FLAIRS_KEY to flair
+            )
+            parentFragmentManager.setFragmentResult(MANAGE_POST_KEY, bundle)
+            dismiss()
+        }
+
+        binding.fragmentDialogManagePostDialogButtons.dialogNegativeButton.setOnClickListener {
+            dismiss()
+        }
+
+        return binding.root
     }
 
     companion object{

@@ -1,6 +1,7 @@
 package dev.gtcl.astro.ui.fragments.item_scroller
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
