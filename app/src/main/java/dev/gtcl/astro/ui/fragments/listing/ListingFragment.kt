@@ -403,16 +403,21 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                 val dialog = MediaDialogFragment.newInstance(post.url, post.galleryAsMediaItems!!)
                 dialog.show(parentFragmentManager, null)
             }
-            null -> throw IllegalArgumentException("Post does not have URL")
+            null -> itemClicked(post, position)
             else -> {
                 val mediaType = when (urlType) {
                     UrlType.IMGUR_ALBUM -> MediaType.IMGUR_ALBUM
+                    UrlType.IMGUR_IMAGE -> MediaType.IMGUR_PICTURE
                     UrlType.GIF -> MediaType.GIF
                     UrlType.GFYCAT -> MediaType.GFYCAT
                     UrlType.REDGIFS -> MediaType.REDGIFS
                     UrlType.IMAGE -> MediaType.PICTURE
                     UrlType.HLS, UrlType.GIFV, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> MediaType.VIDEO
-                    else -> throw IllegalArgumentException("Invalid media type: $urlType")
+                    else -> null
+                }
+                if(mediaType == null){
+                    activityModel.openChromeTab(post.url)
+                    return
                 }
                 val url = when (mediaType) {
                     MediaType.VIDEO -> post.previewVideoUrl!!
