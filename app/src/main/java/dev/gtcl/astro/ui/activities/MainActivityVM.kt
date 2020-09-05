@@ -49,7 +49,7 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
                 val refreshToken = application.accessToken!!.refreshToken!!
                 application.accessToken = fetchAccessToken(refreshToken)
             } catch (e: Exception){
-                _errorMessage.value = e.getErrorMessage(application)
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
