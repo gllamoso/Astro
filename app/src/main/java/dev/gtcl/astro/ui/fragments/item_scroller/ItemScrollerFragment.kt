@@ -222,7 +222,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
         childFragmentManager.setFragmentResultListener(MANAGE_POST_KEY, viewLifecycleOwner,
             { _, bundle ->
-                val position = bundle.getInt(POST_KEY)
+                val position = bundle.getInt(POSITION_KEY)
                 val nsfw = bundle.getBoolean(NSFW_KEY)
                 val spoiler = bundle.getBoolean(SPOILER_KEY)
                 val getNotification = bundle.getBoolean(GET_NOTIFICATIONS_KEY)
