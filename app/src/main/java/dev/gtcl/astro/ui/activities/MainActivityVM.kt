@@ -1,5 +1,6 @@
 package dev.gtcl.astro.ui.activities
 
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.*
@@ -202,41 +203,40 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
     }
 
     fun updatePost(post: Post, nsfw: Boolean, spoiler: Boolean, getNotifications: Boolean, flair: Flair?){
+        val prevNsfw = post.nsfw
+        val prevSpoiler = post.spoiler
+        val prevGetNotifications = post.sendReplies
+        val prevFlairText = post.flairText
+        val prevFlairTemplateId = post.linkFlairTemplateId
+
+        post.apply {
+            this.nsfw = nsfw
+            this.spoiler = spoiler
+            this.sendReplies = getNotifications
+            this.flairText = flair?.text
+            this.linkFlairTemplateId = flair?.id
+        }
+
         coroutineScope.launch {
-            withContext(Dispatchers.Main){
-                try{
-                    val prevNsfw = post.nsfw
-                    val prevSpoiler = post.spoiler
-                    val prevGetNotifications = post.sendReplies
-                    val prevFlairText = post.flairText
-                    val prevFlairTemplateId = post.linkFlairTemplateId
-
-                    post.apply {
-                        this.nsfw = nsfw
-                        this.spoiler = spoiler
-                        this.sendReplies = getNotifications
-                        this.flairText = flair?.text
-                        this.linkFlairTemplateId = flair?.id
-                    }
-
-                    if(prevNsfw != nsfw){
-                        miscRepository.markNsfw(post.name, nsfw).await()
-                    }
-
-                    if(prevSpoiler != spoiler){
-                        miscRepository.markSpoiler(post.name, spoiler).await()
-                    }
-
-                    if(prevGetNotifications != getNotifications){
-                        miscRepository.sendRepliesToInbox(post.name, getNotifications).await()
-                    }
-
-                    if(prevFlairTemplateId != flair?.id || prevFlairText != flair?.text){
-                        miscRepository.setFlair(post.name, flair).await()
-                    }
-                } catch (e: Exception){
-                    _errorMessage.postValue(e.getErrorMessage(application))
+            try{
+                if(prevNsfw != nsfw){
+                    miscRepository.markNsfw(post.name, nsfw).await()
                 }
+
+                if(prevSpoiler != spoiler){
+                    miscRepository.markSpoiler(post.name, spoiler).await()
+                }
+
+                if(prevGetNotifications != getNotifications){
+                    miscRepository.sendRepliesToInbox(post.name, getNotifications).await()
+                }
+
+                if(prevFlairTemplateId != flair?.id || prevFlairText != flair?.text){
+                    miscRepository.setFlair(post.name, flair).await()
+                }
+
+            } catch (e: Exception){
+                _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
