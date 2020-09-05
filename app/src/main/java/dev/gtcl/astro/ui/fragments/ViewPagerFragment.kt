@@ -177,7 +177,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
             UrlType.REDDIT_THREAD ->  activityModel.newPage(CommentsPage(link, true))
             UrlType.REDDIT_COMMENTS -> {
                 val validUrl = VALID_REDDIT_COMMENTS_URL_REGEX.find(link)!!.value
-                activityModel.newPage(CommentsPage(validUrl, true))
+                activityModel.newPage(CommentsPage(validUrl, false))
             }
             UrlType.OTHER, UrlType.REDDIT_VIDEO, UrlType.REDDIT_GALLERY -> activityModel.openChromeTab(link)
             UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_PICTURE)).show(childFragmentManager, null)
