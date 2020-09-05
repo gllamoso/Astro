@@ -1,6 +1,5 @@
 package dev.gtcl.astro.ui.fragments.item_scroller
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.*
@@ -46,6 +45,8 @@ class ItemScrollerVM(private val application: AstroApplication): AstroViewModel(
     private var _showNsfw: Boolean = false
     val showNsfw: Boolean
         get() = _showNsfw
+
+    private val currentItemIds = HashSet<String>()
 
     fun retry(){
         lastAction()
@@ -130,6 +131,8 @@ class ItemScrollerVM(private val application: AstroApplication): AstroViewModel(
                         _items.postValue(firstPageItems)
                     }
 
+                    currentItemIds.clear()
+                    currentItemIds.addAll(firstPageItems.map { it.name })
                     _networkState.postValue(NetworkState.LOADED)
                 }
             } catch (e: Exception) {
@@ -165,7 +168,7 @@ class ItemScrollerVM(private val application: AstroApplication): AstroViewModel(
                             _lastItemReached.postValue(true)
                             break
                         } else {
-                            val items = response.data.children.map { it.data }.filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList()
+                            val items = response.data.children.map { it.data }.filterNot { currentItemIds.contains(it.name) || !(showNsfw) && it is Post && it.nsfw }.toMutableList()
                             if(items.isNullOrEmpty()){
                                 emptyItemsCount++
                             } else {
@@ -186,6 +189,7 @@ class ItemScrollerVM(private val application: AstroApplication): AstroViewModel(
                     setItemsReadStatus(moreItems, readItemIds)
                     _moreItems.postValue(moreItems)
                     _items.value?.addAll(moreItems)
+                    currentItemIds.addAll(moreItems.map { it.name })
                     _networkState.postValue(NetworkState.LOADED)
                 }
             } catch (e: Exception) {

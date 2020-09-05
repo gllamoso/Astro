@@ -60,6 +60,8 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
     val listing: Listing
         get() = _listing
 
+    private val currentItemIds = HashSet<String>()
+
     fun retry() {
         lastAction()
     }
@@ -225,6 +227,8 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
                     }
 
                     _networkState.postValue(NetworkState.LOADED)
+                    currentItemIds.clear()
+                    currentItemIds.addAll(firstPageItems.map { it.name })
                     _firstPageLoaded = true
                 }
             } catch (e: Exception) {
@@ -261,7 +265,7 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
                             _lastItemReached.postValue(true)
                             break
                         } else {
-                            val items = response.data.children.map { it.data }.filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList()
+                            val items = response.data.children.map { it.data }.filterNot { currentItemIds.contains(it.name) || !(showNsfw) && it is Post && it.nsfw }.toMutableList()
                             if(items.isNullOrEmpty()){
                                 emptyItemsCount++
                             } else {
@@ -282,6 +286,7 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
                     setItemsReadStatus(moreItems, readItemIds)
                     _moreItems.postValue(moreItems)
                     _items.value?.addAll(moreItems)
+                    currentItemIds.addAll(moreItems.map { it.name })
                     _networkState.postValue(NetworkState.LOADED)
                 }
             } catch (e: Exception) {
