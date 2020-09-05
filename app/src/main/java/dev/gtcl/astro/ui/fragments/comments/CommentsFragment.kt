@@ -664,6 +664,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 }
                 popupCommentsPageActionsDelete.root.setOnClickListener {
                     checkedIfLoggedInBeforeExecuting(requireContext()){
+                        post.author = "[deleted]"
+                        binding.invalidateAll()
                         activityModel.delete(post.name)
                     }
                     popupWindow.dismiss()

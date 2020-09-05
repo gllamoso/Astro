@@ -218,7 +218,7 @@ data class Post(
     var saved: Boolean,
     val title: String,
     var score: Int,
-    val author: String,
+    var author: String,
     @Json(name = "author_fullname")
     val authorFullName: String?,
     val subreddit: String,
@@ -286,11 +286,14 @@ data class Post(
     @IgnoredOnParcel
     val shortLink = "https://redd.it/$id"
 
-    fun getFlairTextFormatted(): CharSequence? = if (flairText != null) {
-        Html.fromHtml(flairText, Html.FROM_HTML_MODE_COMPACT)
-    } else {
-        null
-    }
+    val flairTextFormatted: CharSequence?
+        get(){
+            return if (flairText != null) {
+                Html.fromHtml(flairText, Html.FROM_HTML_MODE_COMPACT)
+            } else {
+                null
+            }
+        }
 
     @IgnoredOnParcel
     val permalinkWithRedditDomain = "https://www.reddit.com$permalink"
@@ -299,7 +302,8 @@ data class Post(
     val titleFormatted: CharSequence = Html.fromHtml(title, Html.FROM_HTML_MODE_COMPACT)
 
     @IgnoredOnParcel
-    val deleted = author == "[deleted]"
+    val deleted: Boolean
+        get() = author == "[deleted]"
 
     @IgnoredOnParcel
     val urlType = url?.getUrlType()
