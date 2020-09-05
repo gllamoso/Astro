@@ -1,6 +1,5 @@
 package dev.gtcl.astro.ui.activities
 
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.*
@@ -46,8 +45,12 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
 
     fun refreshAccessToken(){
         coroutineScope.launch {
-            val refreshToken = application.accessToken!!.refreshToken!!
-            application.accessToken = fetchAccessToken(refreshToken)
+            try {
+                val refreshToken = application.accessToken!!.refreshToken!!
+                application.accessToken = fetchAccessToken(refreshToken)
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
+            }
         }
     }
 
