@@ -1,6 +1,5 @@
 package dev.gtcl.astro.ui.fragments.create_post
 
-import android.app.AlertDialog
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -71,6 +70,7 @@ class CreatePostDialogFragment : DialogFragment(){
         binding.fragmentDialogCreatePostRulesButton.isEnabled = subredditName != null
         binding.fragmentDialogCreatePostSubredditText.setText(subredditName)
         model.searchSubreddits(subredditName ?: "")
+        model.setSubredditIsValid(subredditName  != null)
 
         binding.fragmentDialogCreatePostSubredditText.addTextChangedListener(object: TextWatcher{
 

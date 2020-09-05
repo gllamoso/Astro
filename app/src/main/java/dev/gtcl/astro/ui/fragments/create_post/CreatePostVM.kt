@@ -73,7 +73,11 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
 
     fun searchSubreddits(q: String){
         coroutineScope.launch {
-            _subredditSuggestions.postValue(subredditRepository.searchMySubscriptionsExcludingMultireddits(q).map { it.name })
+            try {
+                _subredditSuggestions.postValue(subredditRepository.searchMySubscriptionsExcludingMultireddits(q).map { it.name })
+            } catch (e: Exception){
+                _errorMessage.value = e.getErrorMessage(application)
+            }
         }
     }
 
@@ -86,6 +90,10 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
                 _subredditValid.postValue(false)
             }
         }
+    }
+
+    fun setSubredditIsValid(isValid: Boolean){
+        _subredditValid.value = isValid
     }
 
     fun selectFlair(flair: Flair?){
