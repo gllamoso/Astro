@@ -14,18 +14,11 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <androidx.cardview.widget.CardView
-            android:id="@+id/fragmentDialogRules_cardView"
+        <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <androidx.appcompat.widget.Toolbar
-                android:layout_width="match_parent"
-                android:layout_height="?android:attr/actionBarSize"
-                app:title="@string/rules"
-                android:background="?android:attr/colorBackgroundFloating"/>
-
-        </androidx.cardview.widget.CardView>
+            android:layout_height="?android:attr/actionBarSize"
+            app:title="@string/rules"
+            android:background="?android:attr/colorBackgroundFloating"/>
 
         <ScrollView
             android:id="@+id/fragmentDialogRules_scrollView"
@@ -42,9 +35,8 @@
 
                 <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:paddingHorizontal="32dp"
-                    android:paddingVertical="16dp"
+                    android:layout_height="match_parent"
+                    android:layout_margin="32dp"
                     android:gravity="center"
                     android:text="@string/no_rules_found"
                     android:visibility="@{!model.loading &amp;&amp; (model.rules == null || model.rules.empty) ? View.VISIBLE : View.GONE}"/>

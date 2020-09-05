@@ -15,20 +15,14 @@
         android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <androidx.cardview.widget.CardView
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/fragmentDialogFlairSelection_toolbar"
+            android:background="?android:attr/colorBackgroundFloating"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/fragmentDialogFlairSelection_toolbar"
-                android:background="?android:attr/colorBackgroundFloating"
-                android:layout_width="match_parent"
-                android:layout_height="?android:attr/actionBarSize"
-                app:title="@{model.title}"
-                app:navigationIcon="@drawable/ic_x_24"
-                tools:title="@string/subreddit"/>
-
-        </androidx.cardview.widget.CardView>
+            android:layout_height="?android:attr/actionBarSize"
+            app:title="@{model.title}"
+            app:navigationIcon="@drawable/ic_x_24"
+            tools:title="@string/subreddit"/>
 
         <FrameLayout
             android:layout_width="match_parent"

@@ -18,19 +18,13 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <androidx.cardview.widget.CardView
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/fragmentDialogCreatePost_toolbar"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <androidx.appcompat.widget.Toolbar
-                android:id="@+id/fragmentDialogCreatePost_toolbar"
-                android:layout_width="match_parent"
-                android:layout_height="?attr/actionBarSize"
-                app:menu="@menu/send"
-                app:navigationIcon="@drawable/ic_x_24"
-                app:title="@{crossPost == null ? @string/create_post : @string/crosspost}" />
-
-        </androidx.cardview.widget.CardView>
+            android:layout_height="?attr/actionBarSize"
+            app:menu="@menu/send"
+            app:navigationIcon="@drawable/ic_x_24"
+            app:title="@{crossPost == null ? @string/create_post : @string/crosspost}" />
 
         <FrameLayout
             android:layout_width="match_parent"

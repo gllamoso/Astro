@@ -14,17 +14,11 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <androidx.cardview.widget.CardView
+        <androidx.appcompat.widget.Toolbar
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
-
-            <androidx.appcompat.widget.Toolbar
-                android:layout_width="match_parent"
-                android:layout_height="?android:attr/actionBarSize"
-                app:title="@string/report_dialog_title"
-                android:background="?android:attr/colorBackgroundFloating"/>
-
-        </androidx.cardview.widget.CardView>
+            android:layout_height="?android:attr/actionBarSize"
+            app:title="@string/report_dialog_title"
+            android:background="?android:attr/colorBackgroundFloating"/>
 
         <ScrollView
             android:layout_width="match_parent"
