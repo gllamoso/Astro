@@ -42,14 +42,15 @@ class MediaVM(private val application: AstroApplication): AstroViewModel(applica
                 if(mediaURL.mediaType == MediaType.GFYCAT || mediaURL.mediaType == MediaType.REDGIFS){
                     try{
                         val videoUrl = if(mediaURL.mediaType == MediaType.GFYCAT) {
+                            val id = GFYCAT_REGEX.getIdFromUrl(mediaURL.url)!!
                             gfycatRepository
-                                .getGfycatInfo(mediaURL.url.replace("http[s]?://gfycat.com/".toRegex(), ""))
+                                .getGfycatInfo(id)
                                 .await()
                                 .gfyItem
                                 .mobileUrl
                         } else {
-                            gfycatRepository.getGfycatInfoFromRedgifs(
-                                mediaURL.url.replace("http[s]?://(www\\.)?redgifs.com/watch/".toRegex(), ""))
+                            val id = REDGIFS_REGEX.getIdFromUrl(mediaURL.url)!!
+                            gfycatRepository.getGfycatInfoFromRedgifs(id)
                                 .await()
                                 .gfyItem
                                 .mobileUrl

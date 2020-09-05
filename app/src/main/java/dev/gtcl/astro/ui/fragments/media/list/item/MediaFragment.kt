@@ -105,7 +105,7 @@ class MediaFragment : Fragment(){
 
         binding.fragmentMediaPlayerController.hide()
         model.mediaURL.observe(viewLifecycleOwner, {
-            val url = it.url.replace("http://", "https://")
+            val url = it.url.replaceFirst("http://", "https://")
             Glide.with(requireContext())
                 .load(url)
                 .addListener(object: RequestListener<Drawable> {

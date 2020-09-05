@@ -73,7 +73,7 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                         listOf(MediaURL(imgurData.link, mediaType))
                     }
                     MediaType.GFYCAT -> {
-                        val id = mediaURL.url.replace("http[s]?://gfycat.com/".toRegex(), "").split("-")[0]
+                        val id = GFYCAT_REGEX.getIdFromUrl(mediaURL.url)!!
                         var videoUrl: String
                         try {
                             videoUrl = gfycatRepository.getGfycatInfo(id)
@@ -94,12 +94,8 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                         listOf(MediaURL(videoUrl, MediaType.VIDEO, mediaURL.backupUrl))
                     }
                     MediaType.REDGIFS -> {
-                        val videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(
-                            mediaURL.url.replace(
-                                "http[s]?://(www\\.)?redgifs.com/watch/".toRegex(),
-                                ""
-                            )
-                        )
+                        val id = REDGIFS_REGEX.getIdFromUrl(mediaURL.url)!!
+                        val videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(id)
                             .await()
                             .gfyItem
                             .mobileUrl

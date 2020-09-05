@@ -43,7 +43,6 @@ import kotlinx.coroutines.withContext
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
 import java.lang.reflect.Field
 import java.net.SocketTimeoutException
-import java.net.URL
 import java.net.UnknownHostException
 import java.util.*
 import kotlin.Exception
@@ -352,16 +351,16 @@ class TextPost(val body: String): PostContent()
 class ImagePost(val uri: Uri): PostContent()
 class LinkPost(val url: String): PostContent()
 
-val IMGUR_GALLERY_REGEX = "http[s]?://(m.)?imgur\\.com/gallery/[A-Za-z0-9]+".toRegex()
-val IMGUR_ALBUM_REGEX = "http[s]?://(m.)?imgur\\.com/a/[A-Za-z0-9]+".toRegex()
-val IMGUR_IMAGE_REGEX = "http[s]?://(m.)?imgur\\.com/[A-Za-z0-9]+".toRegex()
+val IMGUR_GALLERY_REGEX = "http[s]?://(m\\.)?imgur\\.com/gallery/\\w+".toRegex()
+val IMGUR_ALBUM_REGEX = "http[s]?://(m\\.)?imgur\\.com/a/\\w+".toRegex()
+val IMGUR_IMAGE_REGEX = "http[s]?://(m\\.)?imgur\\.com/\\w+".toRegex()
 val IMAGE_REGEX = "http[s]?://.+\\.(jpg|png|svg|jpeg)".toRegex()
 val GIF_REGEX = "http[s]?://.+\\.gif".toRegex()
 val GIFV_REGEX = "http[s]?://.+\\.gifv".toRegex()
-val GFYCAT_REGEX =  "http[s]?://(www\\.)?gfycat.com/[\\-a-zA-Z0-9_]+".toRegex()
-val REDGIFS_REGEX = "http[s]?://(www\\.)?redgifs.com/watch/\\w+".toRegex()
+val GFYCAT_REGEX =  "http[s]?://(www\\.)?gfycat\\.com/\\w+".toRegex()
+val REDGIFS_REGEX = "http[s]?://(www\\.)?redgifs\\.com/watch/\\w+".toRegex()
 val HLS_REGEX = "http[s]?://.+/HLSPlaylist\\.m3u8.*".toRegex()
-val REDDIT_VIDEO_REGEX = "http[s]?://v.redd.it/\\w+".toRegex()
+val REDDIT_VIDEO_REGEX = "http[s]?://v\\.redd\\.it/\\w+".toRegex()
 val STANDARD_VIDEO = "http[s]?://.+\\.(mp4)".toRegex()
 val REDDIT_COMMENTS_REGEX = "http[s]?://(www|oauth)\\.reddit\\.com/r/\\w+/comments/.+".toRegex()
 val REDDIT_THREAD_REGEX = "http[s]?://(www|oauth)\\.reddit\\.com/r/\\w+/comments/\\w+/\\w+/\\w+[/]?".toRegex()
@@ -388,34 +387,52 @@ enum class UrlType: Parcelable {
 
 fun String.getUrlType(): UrlType?{
     return when{
-        IMGUR_ALBUM_REGEX.matches(this) or IMGUR_GALLERY_REGEX.matches(this) -> UrlType.IMGUR_ALBUM
-        IMGUR_URL_REGEX.matches(this) -> UrlType.IMGUR_IMAGE
-        IMAGE_REGEX.containsMatchIn(this) or IMGUR_IMAGE_REGEX.matches(this) -> UrlType.IMAGE
-        GIF_REGEX.matches(this) -> UrlType.GIF
+        IMAGE_REGEX.matches(this) -> UrlType.IMAGE
         GIFV_REGEX.matches(this) -> UrlType.GIFV
-        GFYCAT_REGEX.matches(this) -> UrlType.GFYCAT
-        REDGIFS_REGEX.matches(this) -> UrlType.REDGIFS
+        GIF_REGEX.matches(this) -> UrlType.GIF
         HLS_REGEX.matches(this) -> UrlType.HLS
         REDDIT_VIDEO_REGEX.matches(this) -> UrlType.REDDIT_VIDEO
         STANDARD_VIDEO.matches(this) -> UrlType.STANDARD_VIDEO
+        IMGUR_ALBUM_REGEX.containsMatchIn(this) or IMGUR_GALLERY_REGEX.containsMatchIn(this) -> UrlType.IMGUR_ALBUM
+        IMGUR_IMAGE_REGEX.containsMatchIn(this) -> UrlType.IMGUR_IMAGE
+        GFYCAT_REGEX.containsMatchIn(this) -> UrlType.GFYCAT
+        REDGIFS_REGEX.containsMatchIn(this) -> UrlType.REDGIFS
         REDDIT_GALLERY_REGEX.matches(this) -> UrlType.REDDIT_GALLERY
         REDDIT_THREAD_REGEX.matches(this) -> UrlType.REDDIT_THREAD
-        REDDIT_COMMENTS_REGEX.matches(this) -> UrlType.REDDIT_COMMENTS
+        REDDIT_COMMENTS_REGEX.containsMatchIn(this) -> UrlType.REDDIT_COMMENTS
         else -> UrlType.OTHER
     }
 }
 
-val IMGUR_URL_REGEX = "http[s]?://(m\\.)?imgur\\.com/\\w+".toRegex()
-const val IMGUR_GALLERY_URL = "https://imgur.com/gallery/"
-const val IMGUR_ALBUM_URL = "https://imgur.com/a/"
-const val IMGUR_URL = "https://imgur.com/"
-
 fun String.getImgurHashFromUrl(): String?{
     return when(this.getUrlType()){
-        UrlType.IMGUR_ALBUM -> this.replace(IMGUR_ALBUM_URL, "").replace(IMGUR_GALLERY_URL, "")
-        UrlType.IMGUR_IMAGE -> this.replace(IMGUR_URL, "")
+        UrlType.IMGUR_ALBUM -> {
+            when {
+                IMGUR_GALLERY_REGEX.containsMatchIn(this) -> {
+                    IMGUR_GALLERY_REGEX.getIdFromUrl(this)
+                }
+                IMGUR_ALBUM_REGEX.containsMatchIn(this) -> {
+                    IMGUR_ALBUM_REGEX.getIdFromUrl(this)
+                }
+                else -> {
+                    null
+                }
+            }
+        }
+        UrlType.IMGUR_IMAGE -> {
+            if(IMGUR_IMAGE_REGEX.containsMatchIn(this)){
+                IMGUR_IMAGE_REGEX.getIdFromUrl(this)
+            } else {
+                null
+            }
+        }
         else -> null
     }
+}
+
+fun Regex.getIdFromUrl(str: String): String? {
+    val validUrl = this.find(str)?.value
+    return validUrl?.substring(validUrl.lastIndexOf('/') ?: 0)
 }
 
 @ColorInt

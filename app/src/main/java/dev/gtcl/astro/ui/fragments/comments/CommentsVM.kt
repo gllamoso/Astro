@@ -253,7 +253,7 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
                         }
                     }
                     UrlType.GFYCAT -> {
-                        val id = post.url!!.replace("http[s]?://gfycat.com/".toRegex(), "").split("-")[0]
+                        val id = GFYCAT_REGEX.getIdFromUrl(post.url!!)!!
                         var videoUrl: String
                         try {
                             videoUrl = gfycatRepository.getGfycatInfo(id)
@@ -274,12 +274,8 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
                         listOf(MediaURL(videoUrl, MediaType.VIDEO, post.previewVideoUrl))
                     }
                     UrlType.REDGIFS -> {
-                        val videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(
-                            post.url!!.replace(
-                                "http[s]?://(www\\.)?redgifs.com/watch/".toRegex(),
-                                ""
-                            )
-                        )
+                        val id = REDGIFS_REGEX.getIdFromUrl(post.url!!)!!
+                        val videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(id)
                             .await()
                             .gfyItem
                             .mobileUrl
