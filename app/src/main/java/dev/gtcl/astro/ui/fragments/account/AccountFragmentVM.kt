@@ -10,7 +10,9 @@ import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.listing.Account
 import kotlinx.coroutines.launch
 
-class AccountFragmentVM(val application: AstroApplication): AstroViewModel(application) {
+class AccountFragmentVM(val application: AstroApplication) : AstroViewModel(application) {
+
+    var selectedPage = 0
 
     private val _account = MutableLiveData<Account>()
     val account: LiveData<Account>
@@ -20,11 +22,11 @@ class AccountFragmentVM(val application: AstroApplication): AstroViewModel(appli
     val username: String?
         get() = _username
 
-    fun setUsername(username: String?){
+    fun setUsername(username: String?) {
         _username = username
     }
 
-    fun fetchAccount(user: String?){
+    fun fetchAccount(user: String?) {
         coroutineScope.launch {
             try {
                 if (user != null) {
@@ -32,8 +34,9 @@ class AccountFragmentVM(val application: AstroApplication): AstroViewModel(appli
                 } else {
                     _account.postValue(userRepository.getCurrentAccountInfo().await())
                 }
-            } catch (e: Exception){
-                _errorMessage.postValue(if(e is JsonDataException){
+            } catch (e: Exception) {
+                _errorMessage.postValue(
+                    if (e is JsonDataException) {
                         application.getString(R.string.account_error)
                     } else {
                         e.getErrorMessage(application)
@@ -43,41 +46,41 @@ class AccountFragmentVM(val application: AstroApplication): AstroViewModel(appli
         }
     }
 
-    fun addFriend(username: String){
+    fun addFriend(username: String) {
         coroutineScope.launch {
             try {
                 userRepository.addFriend(username).await()
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
 
-    fun unfriend(username: String){
+    fun unfriend(username: String) {
         coroutineScope.launch {
-            try{
+            try {
                 userRepository.removeFriend(username).await()
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
 
-    fun blockUser(username: String){
+    fun blockUser(username: String) {
         coroutineScope.launch {
             try {
                 userRepository.blockUser(username).await()
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
 
-    fun unblockUser(username: String){
+    fun unblockUser(username: String) {
         coroutineScope.launch {
             try {
                 userRepository.unblockUser(username).await()
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }

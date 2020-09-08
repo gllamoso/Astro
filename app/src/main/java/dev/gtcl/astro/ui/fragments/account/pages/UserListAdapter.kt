@@ -21,19 +21,19 @@ class UserListAdapter(
 
     var networkState: NetworkState = NetworkState.LOADING
 
-    fun submitList(users: List<User>?){
+    fun submitList(users: List<User>?) {
         notifyItemRangeRemoved(0, itemCount)
         this.users = users?.toMutableList()
-        if(users.isNullOrEmpty()){
+        if (users.isNullOrEmpty()) {
             notifyItemChanged(0)
         } else {
             notifyItemRangeInserted(0, users.size)
         }
     }
 
-    fun removeAt(position: Int){
+    fun removeAt(position: Int) {
         users?.removeAt(position)
-        if(users.isNullOrEmpty()){
+        if (users.isNullOrEmpty()) {
             notifyItemChanged(0)
         } else {
             notifyItemRemoved(position)
@@ -41,7 +41,7 @@ class UserListAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when(viewType){
+        return when (viewType) {
             R.layout.item_network_state -> NetworkStateItemVH.create(parent)
             R.layout.item_no_items_found -> NoItemFoundVH.create(parent)
             R.layout.item_user -> UserVH.create(parent)
@@ -50,7 +50,7 @@ class UserListAdapter(
     }
 
     override fun getItemCount(): Int {
-        return if(users.isNullOrEmpty()){
+        return if (users.isNullOrEmpty()) {
             1
         } else {
             users!!.size
@@ -58,7 +58,7 @@ class UserListAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when(val viewType = getItemViewType(position)){
+        when (val viewType = getItemViewType(position)) {
             R.layout.item_network_state -> (holder as NetworkStateItemVH).bind(networkState, retry)
             R.layout.item_no_items_found -> (holder as NoItemFoundVH).bind(null)
             R.layout.item_user -> (holder as UserVH).bind(users!![position], userType, userActions)
@@ -67,7 +67,7 @@ class UserListAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when{
+        return when {
             users == null -> R.layout.item_network_state
             users!!.isEmpty() -> R.layout.item_no_items_found
             else -> R.layout.item_user

@@ -80,8 +80,8 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                                 .await()
                                 .gfyItem
                                 .mobileUrl
-                        } catch (e: Exception){
-                            if(e is HttpException){
+                        } catch (e: Exception) {
+                            if (e is HttpException) {
                                 videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(id)
                                     .await()
                                     .gfyItem
@@ -139,7 +139,7 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
         }
 
         coroutineScope.launch {
-            withContext(Dispatchers.Main){
+            withContext(Dispatchers.Main) {
                 Toast.makeText(
                     application,
                     application.getText(R.string.downloading),
@@ -161,7 +161,7 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                     if (e is HttpException && e.code() == 404 && item.backupUrl != null) {
                         downloadUrl = item.backupUrl
                     } else {
-                        withContext(Dispatchers.Main){
+                        withContext(Dispatchers.Main) {
                             Toast.makeText(
                                 application,
                                 application.getText(R.string.unable_to_download_file),

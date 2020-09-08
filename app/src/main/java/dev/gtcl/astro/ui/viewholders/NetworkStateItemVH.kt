@@ -7,7 +7,8 @@ import dev.gtcl.astro.databinding.ItemNetworkStateBinding
 import dev.gtcl.astro.network.NetworkState
 
 
-class NetworkStateItemVH private constructor(private val binding: ItemNetworkStateBinding) : RecyclerView.ViewHolder(binding.root) {
+class NetworkStateItemVH private constructor(private val binding: ItemNetworkStateBinding) :
+    RecyclerView.ViewHolder(binding.root) {
     fun bind(networkState: NetworkState?, retryCallback: () -> Unit) {
         binding.networkState = networkState
         binding.itemNetworkStateRetryButton.setOnClickListener {

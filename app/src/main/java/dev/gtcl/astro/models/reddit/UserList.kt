@@ -7,6 +7,7 @@ import kotlinx.android.parcel.Parcelize
 
 data class UserList(val data: UserListData)
 data class UserListData(val children: List<User>)
+
 @Parcelize
 data class User(
     val date: Long,
@@ -14,13 +15,13 @@ data class User(
     val relId: String,
     val name: String,
     val id: String
-): Parcelable
+) : Parcelable
 
-enum class UserType{
+enum class UserType {
     FRIEND,
     BLOCKED
 }
 
-data class FriendRequest(val name: String){
+data class FriendRequest(val name: String) {
     override fun toString(): String = Gson().toJson(this)
 }

@@ -8,7 +8,7 @@ import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.listing.Item
 import kotlinx.coroutines.launch
 
-class ReplyOrEditVM(private val application: AstroApplication): AstroViewModel(application) {
+class ReplyOrEditVM(private val application: AstroApplication) : AstroViewModel(application) {
 
     private val _newItem = MutableLiveData<Item?>()
     val newItem: LiveData<Item?>
@@ -18,17 +18,18 @@ class ReplyOrEditVM(private val application: AstroApplication): AstroViewModel(a
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 
-    fun newReplyObserved(){
+    fun newReplyObserved() {
         _newItem.value = null
     }
 
-    fun reply(parent: Item, body: String){
+    fun reply(parent: Item, body: String) {
         coroutineScope.launch {
-            try{
+            try {
                 _isLoading.postValue(true)
-                val newComment = miscRepository.addComment(parent.name, body).await().json.data.things[0].data
+                val newComment =
+                    miscRepository.addComment(parent.name, body).await().json.data.things[0].data
                 _newItem.postValue(newComment)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
                 _isLoading.postValue(false)
@@ -36,13 +37,13 @@ class ReplyOrEditVM(private val application: AstroApplication): AstroViewModel(a
         }
     }
 
-    fun edit(parent: Item, body: String){
+    fun edit(parent: Item, body: String) {
         coroutineScope.launch {
-            try{
+            try {
                 _isLoading.postValue(true)
                 val editResponse = miscRepository.editText(parent.name, body).await()
                 _newItem.postValue(editResponse.json.data.things[0].data)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
                 _isLoading.postValue(false)

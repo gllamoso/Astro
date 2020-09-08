@@ -8,9 +8,14 @@ import dev.gtcl.astro.actions.SubredditActions
 import dev.gtcl.astro.databinding.ItemAccountBinding
 import dev.gtcl.astro.models.reddit.listing.Account
 
-class AccountVH private constructor(private val binding: ItemAccountBinding): RecyclerView.ViewHolder(binding.root){
+class AccountVH private constructor(private val binding: ItemAccountBinding) :
+    RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(account: Account, subredditActions: SubredditActions, itemClickListener: ItemClickListener){
+    fun bind(
+        account: Account,
+        subredditActions: SubredditActions,
+        itemClickListener: ItemClickListener
+    ) {
         binding.account = account
 
         binding.itemAccountAddButton.setOnClickListener {
@@ -26,7 +31,8 @@ class AccountVH private constructor(private val binding: ItemAccountBinding): Re
     }
 
 
-    companion object{
-        fun create(parent: ViewGroup) = AccountVH(ItemAccountBinding.inflate(LayoutInflater.from(parent.context)))
+    companion object {
+        fun create(parent: ViewGroup) =
+            AccountVH(ItemAccountBinding.inflate(LayoutInflater.from(parent.context)))
     }
 }

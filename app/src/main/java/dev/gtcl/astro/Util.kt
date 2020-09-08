@@ -49,56 +49,75 @@ import kotlin.Exception
 
 const val REDDIT_CLIENT_ID = "NjgsWrF6i2B0Jw"
 const val REDDIT_REDIRECT_URL = "http://reddit.gtcl.com/redirect"
-const val REDDIT_AUTH_URL = "https://www.reddit.com/api/v1/authorize.compact?client_id=%s&response_type=code&state=%s&redirect_uri=%s&duration=permanent&scope=account identity edit flair history modconfig modflair modlog modposts modwiki mysubreddits privatemessages read report save submit subscribe vote wikiedit wikiread"
+const val REDDIT_AUTH_URL =
+    "https://www.reddit.com/api/v1/authorize.compact?client_id=%s&response_type=code&state=%s&redirect_uri=%s&duration=permanent&scope=account identity edit flair history modconfig modflair modlog modposts modwiki mysubreddits privatemessages read report save submit subscribe vote wikiedit wikiread"
 
-enum class PostSort{
+enum class PostSort {
     @SerializedName("best")
     BEST,
+
     @SerializedName("hot")
     HOT,
+
     @SerializedName("new")
     NEW,
+
     @SerializedName("top")
     TOP,
+
     @SerializedName("controversial")
     CONTROVERSIAL,
+
     @SerializedName("rising")
     RISING,
+
     // USED FOR SEARCH
     @SerializedName("relevance")
     RELEVANCE,
+
     @SerializedName("comments")
     COMMENTS
 }
 
-enum class CommentSort{
+enum class CommentSort {
     @SerializedName("best")
     BEST,
+
     @SerializedName("top")
     TOP,
+
     @SerializedName("new")
     NEW,
+
     @SerializedName("controversial")
     CONTROVERSIAL,
+
     @SerializedName("old")
     OLD,
+
     @SerializedName("random")
     RANDOM,
+
     @SerializedName("qa")
     QA
 }
 
-enum class Time{
+enum class Time {
     @SerializedName("hour")
     HOUR,
+
     @SerializedName("day")
     DAY,
+
     @SerializedName("week")
     WEEK,
+
     @SerializedName("month")
     MONTH,
+
     @SerializedName("year")
     YEAR,
+
     @SerializedName("all")
     ALL
 }
@@ -106,82 +125,102 @@ enum class Time{
 enum class ProfileInfo {
     @SerializedName("overview")
     OVERVIEW,
+
     @SerializedName("submitted")
     SUBMITTED,
+
     @SerializedName("comments")
     COMMENTS,
+
     @SerializedName("upvoted")
     UPVOTED,
+
     @SerializedName("downvoted")
     DOWNVOTED,
+
     @SerializedName("hidden")
     HIDDEN,
+
     @SerializedName("saved")
     SAVED,
+
     @SerializedName("gilded")
     GILDED
 }
 
-enum class SubredditWhere{
+enum class SubredditWhere {
     @SerializedName("popular")
     POPULAR,
+
     @SerializedName("new")
     NEW,
+
     @SerializedName("gold")
     GOLD,
+
     @SerializedName("default")
     DEFAULT
 }
 
-enum class SubredditMineWhere{
+enum class SubredditMineWhere {
     @SerializedName("contributor")
     CONTRIBUTOR,
+
     @SerializedName("moderator")
     MODERATOR,
+
     @SerializedName("streams")
     STREAMS,
+
     @SerializedName("subscriber")
     SUBSCRIBER
 }
 
-enum class SubscribeAction{
+enum class SubscribeAction {
     @SerializedName("sub")
     SUBSCRIBE,
+
     @SerializedName("unsub")
     UNSUBSCRIBE
 }
 
-enum class MessageWhere{
+enum class MessageWhere {
     @SerializedName("inbox")
     INBOX,
+
     @SerializedName("unread")
     UNREAD,
+
     @SerializedName("sent")
     SENT
 }
 
-enum class SubscriptionType{
+enum class SubscriptionType {
     @SerializedName("multi")
     MULTIREDDIT,
+
     @SerializedName("sub")
     SUBREDDIT,
+
     @SerializedName("user")
     USER
 }
 
-enum class Visibility{
+enum class Visibility {
     @SerializedName("private")
     @Json(name = "private")
     PRIVATE,
+
     @SerializedName("public")
     @Json(name = "public")
     PUBLIC,
+
     @SerializedName("hidden")
     @Json(name = "hidden")
     HIDDEN
 }
 
-enum class RuleType{
+enum class RuleType {
     RULE,
     SITE_RULE,
     OTHER
@@ -192,7 +231,7 @@ data class RuleData(
     val type: RuleType
 )
 
-enum class MediaType{
+enum class MediaType {
     PICTURE,
     IMGUR_PICTURE,
     GIF,
@@ -202,7 +241,7 @@ enum class MediaType{
     IMGUR_ALBUM
 }
 
-enum class SimpleMediaType{
+enum class SimpleMediaType {
     PICTURE,
     VIDEO
 }
@@ -214,37 +253,37 @@ const val SECONDS_IN_DAY = 86_400.toLong()
 const val SECONDS_IN_HOUR = 3_600.toLong()
 const val SECONDS_IN_MINUTE = 60.toLong()
 
-fun timeSince(seconds: Long): String{
-    val timeNow = System.currentTimeMillis()/1000 // Instant.now().epochTime for API 26
+fun timeSince(seconds: Long): String {
+    val timeNow = System.currentTimeMillis() / 1000 // Instant.now().epochTime for API 26
     var secondsAgo = timeNow - seconds
 
     val sb = StringBuilder()
 
-    if(secondsAgo > SECONDS_IN_YEAR){
-        val years = secondsAgo/SECONDS_IN_YEAR
+    if (secondsAgo > SECONDS_IN_YEAR) {
+        val years = secondsAgo / SECONDS_IN_YEAR
         secondsAgo %= SECONDS_IN_YEAR
         sb.append("${years}y ")
     }
 
-    when{
+    when {
         secondsAgo > SECONDS_IN_MONTH -> {
-            val months = secondsAgo/SECONDS_IN_MONTH
+            val months = secondsAgo / SECONDS_IN_MONTH
             sb.append("${months}mo")
         }
         secondsAgo > SECONDS_IN_WEEK -> {
-            val weeks = secondsAgo/SECONDS_IN_WEEK
+            val weeks = secondsAgo / SECONDS_IN_WEEK
             sb.append("${weeks}w")
         }
         secondsAgo > SECONDS_IN_DAY -> {
-            val days = secondsAgo/SECONDS_IN_DAY
+            val days = secondsAgo / SECONDS_IN_DAY
             sb.append("${days}d")
         }
         secondsAgo > SECONDS_IN_HOUR -> {
-            val hours = secondsAgo/SECONDS_IN_HOUR
+            val hours = secondsAgo / SECONDS_IN_HOUR
             sb.append("${hours}h")
         }
         secondsAgo > SECONDS_IN_MINUTE -> {
-            val minutes = secondsAgo/SECONDS_IN_MINUTE
+            val minutes = secondsAgo / SECONDS_IN_MINUTE
             sb.append("${minutes}m")
         }
         else -> sb.append("1m")
@@ -253,13 +292,13 @@ fun timeSince(seconds: Long): String{
     return sb.toString()
 }
 
-fun numFormatted(num: Int): String{
+fun numFormatted(num: Int): String {
     val sb = StringBuilder()
     when {
         num >= 1_000_000 -> {
             sb.append(num / 1_000_000)
             val decimal = num % 1_000_000 / 100_000
-            if(decimal > 0){
+            if (decimal > 0) {
                 sb.append(".")
                 sb.append(decimal)
             }
@@ -268,7 +307,7 @@ fun numFormatted(num: Int): String{
         num >= 1_000 -> {
             sb.append(num / 1_000)
             val decimal = num % 1_000 / 100
-            if(decimal > 0){
+            if (decimal > 0) {
                 sb.append(".")
                 sb.append(decimal)
             }
@@ -302,24 +341,24 @@ fun buildMediaSource(context: Context, uri: Uri): MediaSource {
     }
 }
 
-fun getEncodedAuthString(): String{
+fun getEncodedAuthString(): String {
     val authString = "$REDDIT_CLIENT_ID:"
     return Base64.encodeToString(authString.toByteArray(), Base64.NO_WRAP)
 }
 
-enum class Vote(val value: Int){
+enum class Vote(val value: Int) {
     UPVOTE(1),
     DOWNVOTE(-1),
     UNVOTE(0)
 }
 
-suspend fun setItemsReadStatus(items: List<Item>, readIds: HashSet<String>){
-    withContext(Dispatchers.Default){
-        if(readIds.isEmpty()){
+suspend fun setItemsReadStatus(items: List<Item>, readIds: HashSet<String>) {
+    withContext(Dispatchers.Default) {
+        if (readIds.isEmpty()) {
             return@withContext
         }
-        for(item: Item in items){
-            if(item is Post){
+        for (item: Item in items) {
+            if (item is Post) {
                 item.isRead = readIds.contains(item.name)
             }
         }
@@ -334,22 +373,22 @@ operator fun <T> MutableLiveData<MutableList<T>>.plusAssign(values: List<T>) {
     this.value = value
 }
 
-operator fun <T> MutableLiveData<MutableSet<T>>.plusAssign(item: T){
+operator fun <T> MutableLiveData<MutableSet<T>>.plusAssign(item: T) {
     val value = this.value ?: mutableSetOf()
     value.add(item)
     this.value = value
 }
 
-operator fun <T> MutableLiveData<MutableSet<T>>.minusAssign(item: T){
+operator fun <T> MutableLiveData<MutableSet<T>>.minusAssign(item: T) {
     val value = this.value ?: hashSetOf()
     value.remove(item)
     this.value = value
 }
 
 sealed class PostContent
-class TextPost(val body: String): PostContent()
-class ImagePost(val uri: Uri): PostContent()
-class LinkPost(val url: String): PostContent()
+class TextPost(val body: String) : PostContent()
+class ImagePost(val uri: Uri) : PostContent()
+class LinkPost(val url: String) : PostContent()
 
 val IMGUR_GALLERY_REGEX = "http[s]?://(m\\.)?imgur\\.com/gallery/\\w+".toRegex()
 val IMGUR_ALBUM_REGEX = "http[s]?://(m\\.)?imgur\\.com/a/\\w+".toRegex()
@@ -357,18 +396,20 @@ val IMGUR_IMAGE_REGEX = "http[s]?://(m\\.)?imgur\\.com/\\w+".toRegex()
 val IMAGE_REGEX = "http[s]?://.+\\.(jpg|png|svg|jpeg)".toRegex()
 val GIF_REGEX = "http[s]?://.+\\.gif".toRegex()
 val GIFV_REGEX = "http[s]?://.+\\.gifv".toRegex()
-val GFYCAT_REGEX =  "http[s]?://(www\\.)?gfycat\\.com/\\w+".toRegex()
+val GFYCAT_REGEX = "http[s]?://(www\\.)?gfycat\\.com/\\w+".toRegex()
 val REDGIFS_REGEX = "http[s]?://(www\\.)?redgifs\\.com/watch/\\w+".toRegex()
 val HLS_REGEX = "http[s]?://.+/HLSPlaylist\\.m3u8.*".toRegex()
 val REDDIT_VIDEO_REGEX = "http[s]?://v\\.redd\\.it/\\w+".toRegex()
 val STANDARD_VIDEO = "http[s]?://.+\\.(mp4)".toRegex()
 val REDDIT_COMMENTS_REGEX = "http[s]?://(www|oauth)\\.reddit\\.com/r/\\w+/comments/.+".toRegex()
-val REDDIT_THREAD_REGEX = "http[s]?://(www|oauth)\\.reddit\\.com/r/\\w+/comments/\\w+/\\w+/\\w+[/]?".toRegex()
-val VALID_REDDIT_COMMENTS_URL_REGEX = "http[s]?://(www|oauth)\\.reddit\\.com/r/\\w+/comments/\\w+".toRegex()
+val REDDIT_THREAD_REGEX =
+    "http[s]?://(www|oauth)\\.reddit\\.com/r/\\w+/comments/\\w+/\\w+/\\w+[/]?".toRegex()
+val VALID_REDDIT_COMMENTS_URL_REGEX =
+    "http[s]?://(www|oauth)\\.reddit\\.com/r/\\w+/comments/\\w+".toRegex()
 val REDDIT_GALLERY_REGEX = "http[s]?://www\\.reddit\\.com/gallery/\\w+".toRegex()
 
 @Parcelize
-enum class UrlType: Parcelable {
+enum class UrlType : Parcelable {
     IMAGE,
     GIF,
     GIFV,
@@ -385,8 +426,8 @@ enum class UrlType: Parcelable {
     OTHER
 }
 
-fun String.getUrlType(): UrlType?{
-    return when{
+fun String.getUrlType(): UrlType? {
+    return when {
         IMAGE_REGEX.matches(this) -> UrlType.IMAGE
         GIFV_REGEX.matches(this) -> UrlType.GIFV
         GIF_REGEX.matches(this) -> UrlType.GIF
@@ -404,8 +445,8 @@ fun String.getUrlType(): UrlType?{
     }
 }
 
-fun String.getImgurHashFromUrl(): String?{
-    return when(this.getUrlType()){
+fun String.getImgurHashFromUrl(): String? {
+    return when (this.getUrlType()) {
         UrlType.IMGUR_ALBUM -> {
             when {
                 IMGUR_GALLERY_REGEX.containsMatchIn(this) -> {
@@ -420,7 +461,7 @@ fun String.getImgurHashFromUrl(): String?{
             }
         }
         UrlType.IMGUR_IMAGE -> {
-            if(IMGUR_IMAGE_REGEX.containsMatchIn(this)){
+            if (IMGUR_IMAGE_REGEX.containsMatchIn(this)) {
                 IMGUR_IMAGE_REGEX.getIdFromUrl(this)
             } else {
                 null
@@ -432,7 +473,7 @@ fun String.getImgurHashFromUrl(): String?{
 
 fun Regex.getIdFromUrl(str: String): String? {
     val validUrl = this.find(str)?.value
-    return validUrl?.substring(validUrl.lastIndexOf('/') ?: 0)
+    return validUrl?.substring(validUrl.lastIndexOf('/'))
 }
 
 @ColorInt
@@ -449,8 +490,8 @@ fun Context.resolveThemeAttr(@AttrRes attrRes: Int): TypedValue {
     return typedValue
 }
 
-fun Exception.getErrorMessage(context: Context): String{
-    val errorId = when(this){
+fun Exception.getErrorMessage(context: Context): String {
+    val errorId = when (this) {
         is SocketTimeoutException -> R.string.socket_timeout_error
         is UnknownHostException -> R.string.unknown_host_exception
         is NotLoggedInException -> R.string.must_be_logged_in
@@ -460,14 +501,14 @@ fun Exception.getErrorMessage(context: Context): String{
     return context.getString(errorId)
 }
 
-enum class LeftDrawerHeader{
+enum class LeftDrawerHeader {
     HOME,
     MY_ACCOUNT,
     INBOX,
     SETTINGS
 }
 
-fun saveAccountToPreferences(context: Context, account: SavedAccount?){
+fun saveAccountToPreferences(context: Context, account: SavedAccount?) {
     val sharedPrefs = context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
     with(sharedPrefs.edit()) {
         val json = Gson().toJson(account)
@@ -476,16 +517,18 @@ fun saveAccountToPreferences(context: Context, account: SavedAccount?){
     }
 }
 
-fun rotateView(view: View, rotate: Boolean){
-    view.animate().rotation(if(rotate){
-        180F
-    } else {
-        0F
-    })
+fun rotateView(view: View, rotate: Boolean) {
+    view.animate().rotation(
+        if (rotate) {
+            180F
+        } else {
+            0F
+        }
+    )
 }
 
 
-fun createMarkwonInstance(context: Context, handleLink: (String) -> Unit): Markwon{
+fun createMarkwonInstance(context: Context, handleLink: (String) -> Unit): Markwon {
     return Markwon.builder(context)
         .usePlugin(StrikethroughPlugin.create())
         .usePlugin(TablePlugin.create(context))
@@ -531,14 +574,14 @@ fun getMenuItemView(toolbar: Toolbar?, @IdRes menuItemId: Int): View? {
     mMenuView.isAccessible = true
     val menuView: Any? = mMenuView.get(toolbar)
     (menuView as ViewGroup).children.forEach {
-        if(it.id == menuItemId) {
+        if (it.id == menuItemId) {
             return it
         }
     }
     return null
 }
 
-fun PopupWindow.showAsDropdown(anchor: View, content: View, width: Int, height: Int){
+fun PopupWindow.showAsDropdown(anchor: View, content: View, width: Int, height: Int) {
     this.apply {
         contentView = content
         isFocusable = true
@@ -549,11 +592,12 @@ fun PopupWindow.showAsDropdown(anchor: View, content: View, width: Int, height: 
     }
 }
 
-fun checkedIfLoggedInBeforeExecuting(context: Context, runnable: () -> Unit){
+fun checkedIfLoggedInBeforeExecuting(context: Context, runnable: () -> Unit) {
     val isLoggedIn = (context.applicationContext as AstroApplication).accessToken != null
-    if(isLoggedIn){
+    if (isLoggedIn) {
         runnable()
     } else {
-        Toast.makeText(context, context.getText(R.string.must_be_logged_in), Toast.LENGTH_LONG).show()
+        Toast.makeText(context, context.getText(R.string.must_be_logged_in), Toast.LENGTH_LONG)
+            .show()
     }
 }

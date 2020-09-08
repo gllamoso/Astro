@@ -9,7 +9,7 @@ import dev.gtcl.astro.models.reddit.User
 import dev.gtcl.astro.network.NetworkState
 import kotlinx.coroutines.launch
 
-class BlockedVM(private val application: AstroApplication): AstroViewModel(application) {
+class BlockedVM(private val application: AstroApplication) : AstroViewModel(application) {
 
     private val _networkState = MutableLiveData<NetworkState>()
     val networkState: LiveData<NetworkState>
@@ -37,22 +37,22 @@ class BlockedVM(private val application: AstroApplication): AstroViewModel(appli
         }
     }
 
-    fun removeAndUnblockAt(position: Int){
-        if(position < 0 || position >= _blocked.value!!.size){
+    fun removeAndUnblockAt(position: Int) {
+        if (position < 0 || position >= _blocked.value!!.size) {
             return
         }
         coroutineScope.launch {
-            try{
+            try {
                 val username = _blocked.value!![position].name
                 userRepository.unblockUser(username).await()
                 _removeAt.postValue(position)
-            }catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
 
-    fun removeAtObserved(){
+    fun removeAtObserved() {
         _removeAt.value = null
     }
 }

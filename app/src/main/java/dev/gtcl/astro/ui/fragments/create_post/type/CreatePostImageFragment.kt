@@ -23,9 +23,9 @@ import dev.gtcl.astro.ViewModelFactory
 import dev.gtcl.astro.databinding.FragmentCreatePostImageBinding
 import dev.gtcl.astro.ui.fragments.create_post.CreatePostVM
 
-class CreatePostImageFragment: Fragment() {
+class CreatePostImageFragment : Fragment() {
 
-    private lateinit var binding: FragmentCreatePostImageBinding
+    private var binding: FragmentCreatePostImageBinding? = null
 
     private val model: UploadImageVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
@@ -40,15 +40,18 @@ class CreatePostImageFragment: Fragment() {
         val values = ContentValues().apply {
             put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
         }
-        requireContext().contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)!!
+        requireContext().contentResolver.insert(
+            MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            values
+        )!!
     }
 
     private val getFromGallery = registerForActivityResult(ActivityResultContracts.GetContent()) {
         model.setUri(it)
     }
 
-    private val getFromCamera = registerForActivityResult(ActivityResultContracts.TakePicture()){
-        if(!it){
+    private val getFromCamera = registerForActivityResult(ActivityResultContracts.TakePicture()) {
+        if (!it) {
             return@registerForActivityResult
         }
         model.setUri(photoUri)
@@ -70,32 +73,41 @@ class CreatePostImageFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCreatePostImageBinding.inflate(inflater)
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.model = model
+        binding?.lifecycleOwner = viewLifecycleOwner
+        binding?.model = model
         initClickListeners()
-        return binding.root
+        return binding!!.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
-        if(!requireActivity().isChangingConfigurations){
+        if (!requireActivity().isChangingConfigurations) {
             requireContext().contentResolver.delete(photoUri, null, null)
         }
+        binding = null
     }
 
-    private fun initClickListeners(){
+    private fun initClickListeners() {
         val requestCameraAccess = registerForActivityResult(
-                ActivityResultContracts.RequestPermission()
-            ) { isGranted: Boolean ->
-                if (isGranted) {
-                    getFromCamera.launch(photoUri)
-                } else {
-                    Toast.makeText(requireContext(), getString(R.string.please_grant_necessary_permissions), Toast.LENGTH_LONG).show()
-                }
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                getFromCamera.launch(photoUri)
+            } else {
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.please_grant_necessary_permissions),
+                    Toast.LENGTH_LONG
+                ).show()
             }
+        }
 
-        binding.fragmentCreatePostImageCameraButton.setOnClickListener {
-            if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+        binding?.fragmentCreatePostImageCameraButton?.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
                 getFromCamera.launch(photoUri)
             } else {
                 requestCameraAccess.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -108,39 +120,50 @@ class CreatePostImageFragment: Fragment() {
             if (isGranted) {
                 getFromGallery.launch("image/*")
             } else {
-                Toast.makeText(requireContext(), getString(R.string.please_grant_necessary_permissions), Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.please_grant_necessary_permissions),
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
 
-        binding.fragmentCreatePostImageGalleryButton.setOnClickListener {
-            if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+        binding?.fragmentCreatePostImageGalleryButton?.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.READ_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
                 getFromGallery.launch("image/*")
             } else {
                 requestGalleryAccess.launch(Manifest.permission.READ_EXTERNAL_STORAGE)
             }
         }
 
-        binding.fragmentCreatePostImageClose.setOnClickListener {
+        binding?.fragmentCreatePostImageClose?.setOnClickListener {
             model.setUri(null)
         }
     }
 
-    private fun initObservers(){
-        parentModel.fetchInput.observe(viewLifecycleOwner, {
-            if(it == true){
-                if(model.uri.value != null){
+    private fun initObservers() {
+        parentModel.fetchInput.observe(viewLifecycleOwner, { fetchInput ->
+            if (fetchInput == true) {
+                if (model.uri.value != null) {
                     parentModel.setPostContent(
                         ImagePost(model.uri.value!!)
                     )
                 } else {
-                    Snackbar.make(binding.root, getString(R.string.select_photo), Snackbar.LENGTH_LONG).show()
+                    binding?.root?.let {
+                        Snackbar.make(it, getString(R.string.select_photo), Snackbar.LENGTH_LONG)
+                            .show()
+                    }
                 }
                 parentModel.dataFetched()
             }
         })
     }
 
-    private fun removeObservers(){
+    private fun removeObservers() {
         parentModel.fetchInput.removeObservers(viewLifecycleOwner)
     }
 }

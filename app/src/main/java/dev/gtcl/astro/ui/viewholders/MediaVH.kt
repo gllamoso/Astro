@@ -11,9 +11,10 @@ import dev.gtcl.astro.databinding.ItemMediaSelectableBinding
 import dev.gtcl.astro.models.reddit.MediaURL
 
 
-class MediaVH private constructor(private val binding: ItemMediaSelectableBinding): RecyclerView.ViewHolder(binding.root){
-    fun bind(mediaUrl: MediaURL, itemClickListener: (Int) -> Unit){
-        if(mediaUrl.mediaType == MediaType.VIDEO){
+class MediaVH private constructor(private val binding: ItemMediaSelectableBinding) :
+    RecyclerView.ViewHolder(binding.root) {
+    fun bind(mediaUrl: MediaURL, itemClickListener: (Int) -> Unit) {
+        if (mediaUrl.mediaType == MediaType.VIDEO) {
             setVideoPreviewImage(binding.root.context, mediaUrl.url)
         } else {
             setImage(binding.root.context, mediaUrl.url)
@@ -23,7 +24,7 @@ class MediaVH private constructor(private val binding: ItemMediaSelectableBindin
         }
     }
 
-    private fun setImage(context: Context, url: String){
+    private fun setImage(context: Context, url: String) {
         val requestOptions = RequestOptions().fitCenter().override(64, 64)
 
         Glide.with(context).load(url)
@@ -31,7 +32,7 @@ class MediaVH private constructor(private val binding: ItemMediaSelectableBindin
             .into(binding.itemMediaSelectableImage)
     }
 
-    private fun setVideoPreviewImage(context: Context, url: String){
+    private fun setVideoPreviewImage(context: Context, url: String) {
         val thumb = layoutPosition * 1000.toLong()
         val requestOptions = RequestOptions().fitCenter().override(64, 64)
         val options = RequestOptions().frame(thumb)
@@ -40,7 +41,7 @@ class MediaVH private constructor(private val binding: ItemMediaSelectableBindin
             .into(binding.itemMediaSelectableImage)
     }
 
-    companion object{
+    companion object {
         fun create(parent: ViewGroup): MediaVH {
             return MediaVH(ItemMediaSelectableBinding.inflate(LayoutInflater.from(parent.context)))
         }

@@ -7,9 +7,10 @@ import dev.gtcl.astro.databinding.ItemEditableBinding
 import dev.gtcl.astro.models.reddit.listing.Flair
 import dev.gtcl.astro.ui.fragments.flair.FlairListAdapter
 
-class FlairVH private constructor(private val binding: ItemEditableBinding): RecyclerView.ViewHolder(binding.root){
+class FlairVH private constructor(private val binding: ItemEditableBinding) :
+    RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(flair: Flair, flairSelectionListener: FlairListAdapter.FlairSelectionListener){
+    fun bind(flair: Flair, flairSelectionListener: FlairListAdapter.FlairSelectionListener) {
         binding.text = flair.text
         binding.isEditable = flair.textEditable
 
@@ -24,8 +25,8 @@ class FlairVH private constructor(private val binding: ItemEditableBinding): Rec
         binding.executePendingBindings()
     }
 
-    companion object{
-        fun create(parent: ViewGroup): FlairVH{
+    companion object {
+        fun create(parent: ViewGroup): FlairVH {
             return FlairVH(ItemEditableBinding.inflate(LayoutInflater.from(parent.context)))
         }
     }

@@ -9,7 +9,7 @@ import dev.gtcl.astro.models.reddit.listing.Flair
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
-class FlairListVM(private val application: AstroApplication): AstroViewModel(application) {
+class FlairListVM(private val application: AstroApplication) : AstroViewModel(application) {
 
     private val _flairs = MutableLiveData<List<Flair>?>().apply { value = null }
     val flairs: LiveData<List<Flair>?>
@@ -24,14 +24,14 @@ class FlairListVM(private val application: AstroApplication): AstroViewModel(app
         get() = _loading
 
 
-    fun fetchFlairs(srName: String){
+    fun fetchFlairs(srName: String) {
         coroutineScope.launch {
-            try{
+            try {
                 _loading.postValue(true)
                 _title.postValue(srName)
                 _flairs.postValue(subredditRepository.getFlairs(srName).await())
-            } catch (e: Exception){
-                if(e is HttpException && e.code() == 403){
+            } catch (e: Exception) {
+                if (e is HttpException && e.code() == 403) {
                     _flairs.postValue(listOf())
                 } else {
                     _errorMessage.postValue(e.getErrorMessage(application))

@@ -23,7 +23,7 @@ import dev.gtcl.astro.ui.fragments.ListingPage
 
 class SignInFragment : Fragment() {
 
-    private lateinit var binding: FragmentSignInBinding
+    private var binding: FragmentSignInBinding? = null
 
     private val model: SignInVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
@@ -39,12 +39,17 @@ class SignInFragment : Fragment() {
     ): View? {
 
         binding = FragmentSignInBinding.inflate(inflater)
-        binding.model = model
-        binding.lifecycleOwner = this
+        binding?.model = model
+        binding?.lifecycleOwner = this
         clearCookies()
         setWebview()
-        binding.executePendingBindings()
-        return binding.root
+        binding?.executePendingBindings()
+        return binding!!.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 
     private fun clearCookies() {
@@ -52,23 +57,26 @@ class SignInFragment : Fragment() {
         CookieManager.getInstance().flush()
     }
 
-    private fun setWebview(){
+    private fun setWebview() {
         val url = String.format(REDDIT_AUTH_URL, REDDIT_CLIENT_ID, STATE, REDDIT_REDIRECT_URL)
 
-        val backPressedCallback  = object: OnBackPressedCallback(false){
+        val backPressedCallback = object : OnBackPressedCallback(false) {
             override fun handleOnBackPressed() {
-                binding.fragmentSignInWebView.goBack()
+                binding?.fragmentSignInWebView?.goBack()
                 model.decrementStackCount()
             }
         }
 
         model.pageStackCount.observe(viewLifecycleOwner, {
-            if(it != null){
+            if (it != null) {
                 backPressedCallback.isEnabled = (it > 1)
             }
         })
 
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback)
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            backPressedCallback
+        )
 
         val onNavigateToNewPage: () -> Unit = {
             model.incrementStackCount()
@@ -78,7 +86,7 @@ class SignInFragment : Fragment() {
             model.setNewUser(it)
         }
 
-        binding.fragmentSignInWebView.apply {
+        binding?.fragmentSignInWebView?.apply {
             webViewClient =
                 NewAccountWebViewClient(
                     REDDIT_REDIRECT_URL,
@@ -88,34 +96,41 @@ class SignInFragment : Fragment() {
             loadUrl(url)
         }
 
-        binding.fragmentSignInToolbar.setNavigationOnClickListener {
+        binding?.fragmentSignInToolbar?.setNavigationOnClickListener {
             findNavController().popBackStack()
         }
 
         model.loading.observe(viewLifecycleOwner, {
-            if(it != null){
+            if (it != null) {
                 backPressedCallback.isEnabled = !it
             }
         })
 
-        model.errorMessage.observe(viewLifecycleOwner, {
-            if(it != null){
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+        model.errorMessage.observe(viewLifecycleOwner, { errorMessage ->
+            if (errorMessage != null) {
+                binding?.root?.let {
+                    Snackbar.make(it, errorMessage, Snackbar.LENGTH_LONG).show()
+                }
                 model.errorMessageObserved()
             }
         })
 
         model.successfullyAddedAccount.observe(viewLifecycleOwner, {
-            if(it == true){
-                findNavController().navigate(SignInFragmentDirections.signInWithNewAccount(ListingPage(
-                    FrontPage
-                )))
+            if (it == true) {
+                findNavController().navigate(
+                    SignInFragmentDirections.signInWithNewAccount(
+                        ListingPage(
+                            FrontPage
+                        )
+                    )
+                )
                 activityModel.syncSubscriptionsWithReddit()
             }
         })
     }
 
-    companion object class NewAccountWebViewClient(
+    companion object
+    class NewAccountWebViewClient(
         private val redirectUrl: String,
         private val onNavigateToNewPage: () -> Unit,
         private val onRedirectUrlFound: (String) -> Unit
@@ -135,7 +150,7 @@ class SignInFragment : Fragment() {
         private fun handleUri(uri: Uri?): Boolean {
             onNavigateToNewPage()
             val url = uri.toString()
-            if(url.contains(redirectUrl)){
+            if (url.contains(redirectUrl)) {
                 onRedirectUrlFound(url)
                 return true
             }

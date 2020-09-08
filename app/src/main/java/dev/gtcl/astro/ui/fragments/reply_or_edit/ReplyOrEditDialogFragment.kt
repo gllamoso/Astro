@@ -18,9 +18,9 @@ import dev.gtcl.astro.models.reddit.listing.Item
 import dev.gtcl.astro.models.reddit.listing.Message
 import dev.gtcl.astro.models.reddit.listing.Post
 
-class ReplyOrEditDialogFragment: DialogFragment() {
+class ReplyOrEditDialogFragment : DialogFragment() {
 
-    private lateinit var binding: FragmentDialogReplyOrEditBinding
+    private var binding: FragmentDialogReplyOrEditBinding? = null
 
     private val model: ReplyOrEditVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
@@ -45,9 +45,9 @@ class ReplyOrEditDialogFragment: DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentDialogReplyOrEditBinding.inflate(inflater)
-        binding.model = model
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.fragmentDialogReplyParentMessage.movementMethod = ScrollingMovementMethod()
+        binding?.model = model
+        binding?.lifecycleOwner = viewLifecycleOwner
+        binding?.fragmentDialogReplyParentMessage?.movementMethod = ScrollingMovementMethod()
 
         val parent = requireArguments().get(ITEM_KEY) as Item
         val position = requireArguments().getInt(POSITION_KEY)
@@ -56,31 +56,36 @@ class ReplyOrEditDialogFragment: DialogFragment() {
         initParent(parent, reply)
         setListeners(parent, position, reply)
 
-        binding.executePendingBindings()
-        return binding.root
+        binding?.executePendingBindings()
+        return binding!!.root
     }
 
-    private fun initParent(parent: Item, reply: Boolean){
-        when(parent){
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+    }
+
+    private fun initParent(parent: Item, reply: Boolean) {
+        when (parent) {
             is Post -> {
-                binding.replyToUser = parent.author
-                if(reply){
-                    binding.replyToBody = parent.title
+                binding?.replyToUser = parent.author
+                if (reply) {
+                    binding?.replyToBody = parent.title
                 } else {
-                    binding.fragmentDialogReplyResponseText.setText(parent.selftext)
+                    binding?.fragmentDialogReplyResponseText?.setText(parent.selftext)
                 }
             }
             is Comment -> {
-                binding.replyToUser = parent.author
-                if(reply){
-                    binding.replyToBody = parent.body
+                binding?.replyToUser = parent.author
+                if (reply) {
+                    binding?.replyToBody = parent.body
                 } else {
-                    binding.fragmentDialogReplyResponseText.setText(parent.body)
+                    binding?.fragmentDialogReplyResponseText?.setText(parent.body)
                 }
             }
             is Message -> {
-                binding.replyToUser = parent.author
-                binding.replyToBody = parent.body
+                binding?.replyToUser = parent.author
+                binding?.replyToBody = parent.body
             }
             else -> {
                 throw IllegalArgumentException("Unable to reply to the following item type: ${parent.kind}")
@@ -88,23 +93,24 @@ class ReplyOrEditDialogFragment: DialogFragment() {
         }
     }
 
-    private fun setListeners(parent: Item, position: Int, reply: Boolean){
-        binding.fragmentDialogReplyToolbar.setNavigationOnClickListener {
-            if(model.isLoading.value != true) {
+    private fun setListeners(parent: Item, position: Int, reply: Boolean) {
+        binding?.fragmentDialogReplyToolbar?.setNavigationOnClickListener {
+            if (model.isLoading.value != true) {
                 dismiss()
             }
         }
 
-        binding.fragmentDialogReplyToolbar.setOnMenuItemClickListener {
-            if(model.isLoading.value == true){
+        binding?.fragmentDialogReplyToolbar?.setOnMenuItemClickListener {
+            if (model.isLoading.value == true) {
                 return@setOnMenuItemClickListener false
             }
-            val text = binding.fragmentDialogReplyResponseText.text.toString()
-            if(text.isBlank()){
-                binding.fragmentDialogReplyResponseInputLayout.error = getString(R.string.required)
+            val text = binding?.fragmentDialogReplyResponseText?.text.toString()
+            if (text.isBlank()) {
+                binding?.fragmentDialogReplyResponseInputLayout?.error =
+                    getString(R.string.required)
                 return@setOnMenuItemClickListener false
             }
-            if(reply){
+            if (reply) {
                 model.reply(parent, text)
             } else {
                 model.edit(parent, text)
@@ -121,8 +127,9 @@ class ReplyOrEditDialogFragment: DialogFragment() {
         })
 
         model.newItem.observe(viewLifecycleOwner, {
-            if(it != null){
-                val bundle = bundleOf(ITEM_KEY to it, POSITION_KEY to position, NEW_REPLY_KEY to reply)
+            if (it != null) {
+                val bundle =
+                    bundleOf(ITEM_KEY to it, POSITION_KEY to position, NEW_REPLY_KEY to reply)
                 parentFragmentManager.setFragmentResult(NEW_REPLY_KEY, bundle)
                 model.newReplyObserved()
                 dismiss()
@@ -130,29 +137,29 @@ class ReplyOrEditDialogFragment: DialogFragment() {
         })
 
         model.errorMessage.observe(viewLifecycleOwner, {
-            if(it != null){
+            if (it != null) {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }
         })
 
-        binding.fragmentDialogReplyResponseText.addTextChangedListener(object: TextWatcher{
+        binding?.fragmentDialogReplyResponseText?.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.fragmentDialogReplyResponseInputLayout.error = null
+                binding?.fragmentDialogReplyResponseInputLayout?.error = null
             }
         })
     }
 
-    companion object{
-        fun newInstance(parent: Item, position: Int, reply: Boolean): ReplyOrEditDialogFragment{
+    companion object {
+        fun newInstance(parent: Item, position: Int, reply: Boolean): ReplyOrEditDialogFragment {
             return ReplyOrEditDialogFragment().apply {
-                arguments = bundleOf(ITEM_KEY to parent, POSITION_KEY to position, NEW_REPLY_KEY to reply)
+                arguments =
+                    bundleOf(ITEM_KEY to parent, POSITION_KEY to position, NEW_REPLY_KEY to reply)
             }
         }
     }
-
 
 
 }

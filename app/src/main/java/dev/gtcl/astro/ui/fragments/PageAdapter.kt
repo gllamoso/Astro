@@ -15,28 +15,31 @@ import dev.gtcl.astro.ui.fragments.inbox.InboxFragment
 import dev.gtcl.astro.ui.fragments.listing.ListingFragment
 import kotlinx.android.parcel.Parcelize
 
-class PageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle): FragmentStateAdapter(fragmentManager, lifecycle){
-    private var pageStack = mutableListOf<ViewPagerPage>()
+class PageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
+    FragmentStateAdapter(fragmentManager, lifecycle) {
+    private val pageStack = mutableListOf<Fragment>()
 
     override fun getItemCount() = pageStack.size
 
-    override fun createFragment(position: Int): Fragment {
-        return when(val pageType = pageStack[position]){
-            is ListingPage -> ListingFragment.newInstance(pageType.listing)
-            is AccountPage -> AccountFragment.newInstance(pageType.user)
-            is PostPage -> CommentsFragment.newInstance(pageType)
-            is CommentsPage -> CommentsFragment.newInstance(pageType.url, pageType.expandReplies)
+    override fun createFragment(position: Int) = pageStack[position]
+
+    fun addPage(page: ViewPagerPage) {
+        val fragment = when (page) {
+            is ListingPage -> ListingFragment.newInstance(page.listing)
+            is AccountPage -> AccountFragment.newInstance(page.user)
+            is PostPage -> CommentsFragment.newInstance(page)
+            is CommentsPage -> CommentsFragment.newInstance(
+                page.url,
+                page.expandReplies
+            )
             InboxPage -> InboxFragment.newInstance()
         }
-    }
-
-    fun addPage(pageType: ViewPagerPage){
-        pageStack.add(pageType)
+        pageStack.add(fragment)
         notifyItemInserted(pageStack.lastIndex)
     }
 
-    fun popFragmentsGreaterThanPosition(currentPage: Int){
-        if(currentPage >= pageStack.lastIndex){
+    fun popFragmentsGreaterThanPosition(currentPage: Int) {
+        if (currentPage >= pageStack.lastIndex) {
             return
         }
         val itemsRemoved = pageStack.lastIndex - currentPage
@@ -44,33 +47,52 @@ class PageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle): Fragm
         Handler(Looper.getMainLooper()).post {
             notifyItemRangeRemoved(pageStack.lastIndex + 1, itemsRemoved)
         }
-
     }
 
-    fun setPageStack(pages: MutableList<ViewPagerPage>){
-        pageStack = pages
+    fun addPages(pages: List<ViewPagerPage>) {
+        pageStack.addAll(pages.map {
+            when (it) {
+                is ListingPage -> ListingFragment.newInstance(it.listing)
+                is AccountPage -> AccountFragment.newInstance(it.user)
+                is PostPage -> CommentsFragment.newInstance(it)
+                is CommentsPage -> CommentsFragment.newInstance(
+                    it.url,
+                    it.expandReplies
+                )
+                InboxPage -> InboxFragment.newInstance()
+            }
+        })
         notifyDataSetChanged()
     }
+
+    override fun getItemId(position: Int) = position.toLong()
+
+    override fun containsItem(itemId: Long) = itemId <= pageStack.lastIndex
 }
 
-sealed class ViewPagerPage: Parcelable
+sealed class ViewPagerPage : Parcelable
+
 @Parcelize
 class ListingPage(
     val listing: Listing
-): ViewPagerPage()
+) : ViewPagerPage()
+
 @Parcelize
 class AccountPage(
     val user: String?
-): ViewPagerPage()
+) : ViewPagerPage()
+
 @Parcelize
 class PostPage(
     val post: Post,
     val position: Int
-): ViewPagerPage()
+) : ViewPagerPage()
+
 @Parcelize
 class CommentsPage(
     val url: String,
     val expandReplies: Boolean
-): ViewPagerPage()
+) : ViewPagerPage()
+
 @Parcelize
 object InboxPage : ViewPagerPage()

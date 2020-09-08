@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.astro.*
@@ -26,15 +27,17 @@ import dev.gtcl.astro.ui.fragments.ListingPage
 import dev.gtcl.astro.ui.fragments.ViewPagerFragmentDirections
 import dev.gtcl.astro.ui.fragments.ViewPagerVM
 
-class InboxFragment: Fragment(), LeftDrawerActions{
+class InboxFragment : Fragment(), LeftDrawerActions {
 
-    private lateinit var binding: FragmentInboxBinding
+    private var binding: FragmentInboxBinding? = null
 
     private val activityModel: MainActivityVM by activityViewModels()
 
     private val viewPagerModel: ViewPagerVM by lazy {
         ViewModelProviders.of(requireParentFragment()).get(ViewPagerVM::class.java)
     }
+
+    private var pageSelected = 0
 
     override fun onResume() {
         super.onResume()
@@ -50,17 +53,17 @@ class InboxFragment: Fragment(), LeftDrawerActions{
         initViewPagerAdapter()
         initLeftDrawer()
 
-        binding.fragmentInboxFab.setOnClickListener {
+        binding?.fragmentInboxFab?.setOnClickListener {
             ComposeDialogFragment.newInstance().show(childFragmentManager, null)
         }
 
         childFragmentManager.setFragmentResultListener(DRAFT_KEY, viewLifecycleOwner, { _, bundle ->
             AlertDialog.Builder(requireContext())
                 .setMessage(getString(R.string.save_draft_question))
-                .setPositiveButton(R.string.save){ _, _ ->
+                .setPositiveButton(R.string.save) { _, _ ->
                     saveDraft(bundle)
                 }
-                .setNegativeButton(R.string.discard){ _, _ ->
+                .setNegativeButton(R.string.discard) { _, _ ->
                     clearSharedPreferenceDraft()
                 }
                 .show()
@@ -71,40 +74,66 @@ class InboxFragment: Fragment(), LeftDrawerActions{
             viewPagerModel.linkClicked(url)
         })
 
-        return binding.root
+        return binding!!.root
     }
 
-    private fun initViewPagerAdapter(){
-        binding.fragmentInboxViewPager.adapter = InboxStateAdapter(this)
-        TabLayoutMediator(binding.fragmentInboxTabLayout, binding.fragmentInboxViewPager) { tab, position ->
-            tab.text = getText(when(position){
-                0 -> R.string.inbox
-                1 -> R.string.unread
-                2 -> R.string.sent
-                else -> throw NoSuchElementException("No such tab in the following position: $position")
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding?.fragmentInboxViewPager?.adapter = null
+        binding = null
+    }
+
+    private fun initViewPagerAdapter() {
+        val adapter = InboxStateAdapter(childFragmentManager, viewLifecycleOwner.lifecycle)
+        binding?.fragmentInboxViewPager?.adapter = adapter
+        if (binding?.fragmentInboxViewPager != null && binding?.fragmentInboxTabLayout != null) {
+            TabLayoutMediator(
+                binding!!.fragmentInboxTabLayout,
+                binding!!.fragmentInboxViewPager
+            ) { tab, position ->
+                tab.text = getText(
+                    when (position) {
+                        0 -> R.string.inbox
+                        1 -> R.string.unread
+                        2 -> R.string.sent
+                        else -> throw NoSuchElementException("No such tab in the following position: $position")
+                    }
+                )
+            }.attach()
+            binding?.fragmentInboxViewPager?.currentItem = pageSelected
+            binding?.fragmentInboxViewPager?.registerOnPageChangeCallback(object :
+                ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    pageSelected = position
+                }
             })
-        }.attach()
+        }
     }
 
     @SuppressLint("RtlHardcoded")
-    private fun initLeftDrawer(){
+    private fun initLeftDrawer() {
 
         val leftDrawerAdapter = LeftDrawerAdapter(requireContext(), this, LeftDrawerHeader.HOME)
-        val leftDrawerLayout = binding.fragmentInboxLeftDrawerLayout
-        leftDrawerLayout.layoutLeftDrawerList.adapter = leftDrawerAdapter
-        leftDrawerLayout.account = (requireActivity().application as AstroApplication).currentAccount
+        val leftDrawerLayout = binding?.fragmentInboxLeftDrawerLayout
+        leftDrawerLayout?.layoutLeftDrawerList?.adapter = leftDrawerAdapter
+        leftDrawerLayout?.account =
+            (requireActivity().application as AstroApplication).currentAccount
 
         activityModel.allUsers.observe(viewLifecycleOwner, {
             leftDrawerAdapter.submitUsers(it)
         })
 
-        leftDrawerLayout.layoutLeftDrawerBanner.setOnClickListener {
+        leftDrawerLayout?.layoutLeftDrawerBanner?.setOnClickListener {
             leftDrawerAdapter.toggleExpanded()
-            rotateView(leftDrawerLayout.layoutLeftDrawerExpandedIndicator, leftDrawerAdapter.isExpanded)
+            rotateView(
+                leftDrawerLayout.layoutLeftDrawerExpandedIndicator,
+                leftDrawerAdapter.isExpanded
+            )
         }
 
-        binding.fragmentInboxToolbar.setNavigationOnClickListener {
-            binding.fragmentInboxDrawer.openDrawer(Gravity.LEFT)
+        binding?.fragmentInboxToolbar?.setNavigationOnClickListener {
+            binding?.fragmentInboxDrawer?.openDrawer(Gravity.LEFT)
         }
     }
 
@@ -121,12 +150,12 @@ class InboxFragment: Fragment(), LeftDrawerActions{
     @SuppressLint("RtlHardcoded")
     override fun onAddAccountClicked() {
         findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSignInFragment())
-        binding.fragmentInboxDrawer.closeDrawer(Gravity.LEFT)
+        binding?.fragmentInboxDrawer?.closeDrawer(Gravity.LEFT)
     }
 
     override fun onRemoveAccountClicked(account: SavedAccount) {
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
-        if(account.id == currentAccount?.id){
+        if (account.id == currentAccount?.id) {
             saveAccountToPreferences(requireContext(), null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
@@ -136,52 +165,55 @@ class InboxFragment: Fragment(), LeftDrawerActions{
     @SuppressLint("RtlHardcoded")
     override fun onAccountClicked(account: SavedAccount) {
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
-        if(account.id != currentAccount?.id){
+        if (account.id != currentAccount?.id) {
             saveAccountToPreferences(requireContext(), account)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
-        binding.fragmentInboxDrawer.closeDrawer(Gravity.LEFT)
+        binding?.fragmentInboxDrawer?.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onLogoutClicked() {
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
-        if(currentAccount != null){
+        if (currentAccount != null) {
             saveAccountToPreferences(requireContext(), null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
-        binding.fragmentInboxDrawer.closeDrawer(Gravity.LEFT)
+        binding?.fragmentInboxDrawer?.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onHomeClicked() {
-        findNavController().navigate(ViewPagerFragmentDirections.popBackStack(ListingPage(FrontPage)))
-        binding.fragmentInboxDrawer.closeDrawer(Gravity.LEFT)
+        activityModel.newPage(ListingPage(FrontPage))
+        binding?.fragmentInboxDrawer?.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
         if ((activity?.application as AstroApplication).accessToken == null) {
-            Snackbar.make(binding.fragmentInboxDrawer, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
+            binding?.fragmentInboxDrawer?.let {
+                Snackbar.make(it, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
+            }
         } else {
-            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(null)))
-            binding.fragmentInboxDrawer.closeDrawer(Gravity.LEFT)
+            activityModel.newPage(AccountPage(null))
+            binding?.fragmentInboxDrawer?.closeDrawer(Gravity.LEFT)
         }
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onInboxClicked() {
-        binding.fragmentInboxDrawer.closeDrawer(Gravity.LEFT)
+        binding?.fragmentInboxDrawer?.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onSettingsClicked() {
         findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSettingsFragment())
-        binding.fragmentInboxDrawer.closeDrawer(Gravity.LEFT)
+        binding?.fragmentInboxDrawer?.closeDrawer(Gravity.LEFT)
     }
 
-    private fun clearSharedPreferenceDraft(){
-        val sharedPrefs = requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+    private fun clearSharedPreferenceDraft() {
+        val sharedPrefs =
+            requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
         with(sharedPrefs.edit()) {
             remove(TO_KEY)
             remove(SUBJECT_KEY)
@@ -190,11 +222,12 @@ class InboxFragment: Fragment(), LeftDrawerActions{
         }
     }
 
-    private fun saveDraft(bundle: Bundle){
+    private fun saveDraft(bundle: Bundle) {
         val to = bundle.getString(TO_KEY)
         val subject = bundle.getString(SUBJECT_KEY)
         val message = bundle.getString(MESSAGE_KEY)
-        val sharedPrefs = requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+        val sharedPrefs =
+            requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
         with(sharedPrefs.edit()) {
             putString(TO_KEY, to)
             putString(SUBJECT_KEY, subject)
@@ -203,7 +236,7 @@ class InboxFragment: Fragment(), LeftDrawerActions{
         }
     }
 
-    companion object{
+    companion object {
         fun newInstance() = InboxFragment()
     }
 }

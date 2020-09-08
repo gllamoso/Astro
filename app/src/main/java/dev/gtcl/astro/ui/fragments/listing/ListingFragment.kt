@@ -27,18 +27,18 @@ import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.network.Status
-import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.LeftDrawerAdapter
 import dev.gtcl.astro.ui.ListingAdapter
+import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.*
 import dev.gtcl.astro.ui.fragments.create_post.CreatePostDialogFragment
 import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
-import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
 import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
+import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.subscriptions.SubscriptionsDialogFragment
 import io.noties.markwon.Markwon
 
@@ -46,7 +46,7 @@ import io.noties.markwon.Markwon
 class ListingFragment : Fragment(), PostActions, CommentActions, SubredditActions,
     ItemClickListener, LeftDrawerActions {
 
-    private lateinit var binding: FragmentListingBinding
+    private var binding: FragmentListingBinding? = null
 
     private val model: ListingVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
@@ -69,14 +69,15 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     override fun onResume() {
         super.onResume()
         viewPagerModel.notifyViewPager()
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
+        val sharedPref =
+            PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
         val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
         val blurNsfwThumbnail = sharedPref.getBoolean(NSFW_THUMBNAIL_KEY, false)
-        if(showNsfw != model.showNsfw){
-            binding.fragmentListingSwipeRefresh.isRefreshing = true
+        if (showNsfw != model.showNsfw) {
+            binding?.fragmentListingSwipeRefresh?.isRefreshing = true
             listAdapter.blurNsfw = blurNsfwThumbnail
             initData()
-        } else if(blurNsfwThumbnail != listAdapter.blurNsfw){
+        } else if (blurNsfwThumbnail != listAdapter.blurNsfw) {
             listAdapter.blurNsfw = blurNsfwThumbnail
             listAdapter.notifyDataSetChanged()
         }
@@ -88,9 +89,9 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentListingBinding.inflate(inflater)
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.fragmentListingRightDrawerLayout.lifecycleOwner = viewLifecycleOwner
-        binding.model = model
+        binding?.lifecycleOwner = viewLifecycleOwner
+        binding?.fragmentListingRightDrawerLayout?.lifecycleOwner = viewLifecycleOwner
+        binding?.model = model
 
         if (!model.firstPageLoaded) {
             initData()
@@ -101,18 +102,19 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         initRightDrawer()
         initOtherObservers()
 
-        binding.executePendingBindings()
-        return binding.root
+        binding?.executePendingBindings()
+        return binding!!.root
     }
 
-    private fun initData(){
+    private fun initData() {
         val listing = requireArguments().getParcelable<Listing>(LISTING_KEY)!!
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
+        val sharedPref =
+            PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
         val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
-        when(listing){
+        when (listing) {
             is SubredditListing -> model.fetchSubreddit(listing.displayName)
             is SubscriptionListing -> {
-                if(listing.subscription.type == SubscriptionType.SUBREDDIT){
+                if (listing.subscription.type == SubscriptionType.SUBREDDIT) {
                     model.fetchSubreddit(listing.subscription.displayName)
                 }
             }
@@ -122,10 +124,16 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         model.fetchFirstPage()
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+    }
+
     private fun initScroller() {
-        val listView = binding.fragmentListingList
-        val swipeRefresh = binding.fragmentListingSwipeRefresh
-        scrollListener = ListingScrollListener(15, listView.layoutManager as GridLayoutManager, model::loadMore)
+        val listView = binding?.fragmentListingList
+        val swipeRefresh = binding?.fragmentListingSwipeRefresh
+        scrollListener =
+            ListingScrollListener(15, listView?.layoutManager as GridLayoutManager, model::loadMore)
         val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
         val blurNsfw = preferences.getBoolean("blur_nsfw_thumbnail", false)
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
@@ -136,7 +144,8 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             expected = ItemType.Post,
             blurNsfw = blurNsfw,
             itemClickListener = this,
-            username = currentAccount?.name){
+            username = currentAccount?.name
+        ) {
             listView.apply {
                 removeOnScrollListener(scrollListener)
                 addOnScrollListener(scrollListener)
@@ -154,7 +163,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         })
 
         model.moreItems.observe(viewLifecycleOwner, {
-            if(it != null){
+            if (it != null) {
                 scrollListener.finishedLoading()
                 listAdapter.addItems(it)
                 model.moreItemsObserved()
@@ -164,7 +173,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         model.networkState.observe(viewLifecycleOwner, {
             listAdapter.networkState = it
             if (it == NetworkState.LOADED || it.status == Status.FAILED) {
-                swipeRefresh.isRefreshing = false
+                swipeRefresh?.isRefreshing = false
             }
         })
 
@@ -174,8 +183,8 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             }
         })
 
-        swipeRefresh.setOnRefreshListener {
-            if(model.networkState.value == NetworkState.LOADING){
+        swipeRefresh?.setOnRefreshListener {
+            if (model.networkState.value == NetworkState.LOADING) {
                 swipeRefresh.isRefreshing = false
                 return@setOnRefreshListener
             }
@@ -191,71 +200,78 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     @SuppressLint("RtlHardcoded")
     private fun initLeftDrawer() {
         val leftDrawerAdapter = LeftDrawerAdapter(requireContext(), this, LeftDrawerHeader.HOME)
-        val leftDrawerLayout = binding.fragmentListingLeftDrawerLayout
-        leftDrawerLayout.layoutLeftDrawerList.adapter = leftDrawerAdapter
-        leftDrawerLayout.account = (requireActivity().application as AstroApplication).currentAccount
+        val leftDrawerLayout = binding?.fragmentListingLeftDrawerLayout
+        leftDrawerLayout?.layoutLeftDrawerList?.adapter = leftDrawerAdapter
+        leftDrawerLayout?.account =
+            (requireActivity().application as AstroApplication).currentAccount
 
         activityModel.allUsers.observe(viewLifecycleOwner, {
             leftDrawerAdapter.submitUsers(it)
         })
 
-        leftDrawerLayout.layoutLeftDrawerBanner.setOnClickListener {
+        leftDrawerLayout?.layoutLeftDrawerBanner?.setOnClickListener {
             leftDrawerAdapter.toggleExpanded()
-            rotateView(leftDrawerLayout.layoutLeftDrawerExpandedIndicator, leftDrawerAdapter.isExpanded)
+            rotateView(
+                leftDrawerLayout.layoutLeftDrawerExpandedIndicator,
+                leftDrawerAdapter.isExpanded
+            )
         }
 
-        binding.fragmentListingTopAppBarLayout.layoutTopAppBarListingToolbar.setNavigationOnClickListener {
-            binding.fragmentListingDrawer.openDrawer(Gravity.LEFT)
+        binding?.fragmentListingTopAppBarLayout?.layoutTopAppBarListingToolbar?.setNavigationOnClickListener {
+            binding?.fragmentListingDrawer?.openDrawer(Gravity.LEFT)
         }
 
     }
 
     @SuppressLint("RtlHardcoded")
     private fun initRightDrawer() {
-        val topAppBar = binding.fragmentListingTopAppBarLayout
-        val drawer = binding.fragmentListingDrawer
-        val rightDrawerLayout = binding.fragmentListingRightDrawerLayout
-        topAppBar.layoutTopAppBarListingSideBarButton.setOnClickListener {
-            drawer.openDrawer(Gravity.RIGHT)
+        val topAppBar = binding?.fragmentListingTopAppBarLayout
+        val drawer = binding?.fragmentListingDrawer
+        val rightDrawerLayout = binding?.fragmentListingRightDrawerLayout
+        topAppBar?.layoutTopAppBarListingSideBarButton?.setOnClickListener {
+            drawer?.openDrawer(Gravity.RIGHT)
         }
 
-        rightDrawerLayout.lifecycleOwner = this
+        rightDrawerLayout?.lifecycleOwner = this
         model.subreddit.observe(viewLifecycleOwner, { sub ->
             if (sub != null) {
-                rightDrawerLayout.layoutRightDrawerSubscribeToggle.iconSubscribeBackground.setOnClickListener {
+                rightDrawerLayout?.layoutRightDrawerSubscribeToggle?.iconSubscribeBackground?.setOnClickListener {
                     checkedIfLoggedInBeforeExecuting(requireContext()) {
                         subscribe(sub, !(sub.userSubscribed ?: false))
                         rightDrawerLayout.invalidateAll()
                     }
                 }
-                drawer.setDrawerLockMode(
+                drawer?.setDrawerLockMode(
                     DrawerLayout.LOCK_MODE_UNLOCKED,
                     Gravity.RIGHT
                 )
-                if(sub.banner == null){
-                    topAppBar.layoutTopAppBarListingCollapsingToolbar.contentScrim = null
+                if (sub.banner == null) {
+                    topAppBar?.layoutTopAppBarListingCollapsingToolbar?.contentScrim = null
                 }
-                markwon.setMarkdown(rightDrawerLayout.layoutRightDrawerPublicDescription, sub.publicDescription + "\n\n" + sub.description)
+                rightDrawerLayout?.layoutRightDrawerPublicDescription?.let {
+                    markwon.setMarkdown(it, sub.publicDescription + "\n\n" + sub.description)
+                }
             } else {
-                rightDrawerLayout.layoutRightDrawerSubscribeToggle.iconSubscribeBackground.isClickable = false
-                drawer.setDrawerLockMode(
+                rightDrawerLayout?.layoutRightDrawerSubscribeToggle?.iconSubscribeBackground?.isClickable =
+                    false
+                drawer?.setDrawerLockMode(
                     DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
                     Gravity.RIGHT
                 )
-                topAppBar.layoutTopAppBarListingCollapsingToolbar.contentScrim = null
+                topAppBar?.layoutTopAppBarListingCollapsingToolbar?.contentScrim = null
             }
         })
     }
 
     private fun initBottomBar() {
-        val bottomBarLayout = binding.fragmentListingBottomAppBarLayout
-        bottomBarLayout.layoutListingBottomBarSortButton.setOnClickListener {anchor ->
+        val bottomBarLayout = binding?.fragmentListingBottomAppBarLayout
+        bottomBarLayout?.layoutListingBottomBarSortButton?.setOnClickListener { anchor ->
             val currentSort = model.postSort.value!!
             val currentTime = model.time.value
             val onSortSelected: (PostSort) -> Unit = { postSortSelected ->
-                if(model.listing is SearchListing || postSortSelected == PostSort.TOP || postSortSelected == PostSort.CONTROVERSIAL){
-                    val time = if(currentSort == postSortSelected) currentTime else null
-                    showTimePopup(anchor, time){ timeSortSelected ->
+                if (model.listing is SearchListing || postSortSelected == PostSort.TOP || postSortSelected == PostSort.CONTROVERSIAL) {
+                    val time = if (currentSort == postSortSelected) currentTime else null
+                    showTimePopup(anchor, time) { timeSortSelected ->
                         model.setSort(postSortSelected, timeSortSelected)
                         model.fetchFirstPage()
                     }
@@ -264,54 +280,62 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                     model.fetchFirstPage()
                 }
             }
-            if(model.listing is SearchListing){
+            if (model.listing is SearchListing) {
                 showSearchSortPopup(anchor, currentSort, onSortSelected)
             } else {
                 showPostSortPopup(anchor, currentSort, onSortSelected)
             }
         }
 
-        bottomBarLayout.layoutListingBottomBarSubredditButton.setOnClickListener {
+        bottomBarLayout?.layoutListingBottomBarSubredditButton?.setOnClickListener {
             SubscriptionsDialogFragment().show(childFragmentManager, null)
         }
 
-        bottomBarLayout.layoutListingBottomBarRefreshButton.setOnClickListener {
+        bottomBarLayout?.layoutListingBottomBarRefreshButton?.setOnClickListener {
             initData()
         }
 
-        bottomBarLayout.layoutListingBottomBarMoreOptionsButton.setOnClickListener {
+        bottomBarLayout?.layoutListingBottomBarMoreOptionsButton?.setOnClickListener {
             showMoreOptionsPopup(it)
         }
     }
 
     @SuppressLint("WrongConstant")
     private fun initOtherObservers() {
-        model.errorMessage.observe(viewLifecycleOwner, {
-            if (it != null) {
-                binding.fragmentListingDrawer.apply {
+        model.errorMessage.observe(viewLifecycleOwner, { error ->
+            if (error != null) {
+                binding?.fragmentListingDrawer?.apply {
                     closeDrawer(Gravity.START)
                     closeDrawer(Gravity.END)
                 }
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+                binding?.root?.let {
+                    Snackbar.make(it, error, Snackbar.LENGTH_LONG).show()
+                }
             }
         })
 
-        childFragmentManager.setFragmentResultListener(LISTING_KEY, viewLifecycleOwner, { _, bundle ->
-            val listing = bundle.get(LISTING_KEY) as Listing
-            if(listing is SubscriptionListing && listing.subscription.type == SubscriptionType.USER){
-                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(listing.subscription.displayName)))
-            } else {
-                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(listing)))
-            }
-        })
+        childFragmentManager.setFragmentResultListener(
+            LISTING_KEY,
+            viewLifecycleOwner,
+            { _, bundle ->
+                val listing = bundle.get(LISTING_KEY) as Listing
+                if (listing is SubscriptionListing && listing.subscription.type == SubscriptionType.USER) {
+                    activityModel.newPage(AccountPage(listing.subscription.displayName))
+                } else {
+                    activityModel.newPage(ListingPage(listing))
+                }
+            })
 
-        childFragmentManager.setFragmentResultListener(REPORT_KEY, viewLifecycleOwner, { _, bundle ->
-            val  position = bundle.getInt(POSITION_KEY, -1)
-            if(position != -1){
-                model.removeItemAt(position)
-                listAdapter.removeAt(position)
-            }
-        })
+        childFragmentManager.setFragmentResultListener(
+            REPORT_KEY,
+            viewLifecycleOwner,
+            { _, bundle ->
+                val position = bundle.getInt(POSITION_KEY, -1)
+                if (position != -1) {
+                    model.removeItemAt(position)
+                    listAdapter.removeAt(position)
+                }
+            })
 
         childFragmentManager.setFragmentResultListener(MANAGE_POST_KEY, viewLifecycleOwner,
             { _, bundle ->
@@ -330,7 +354,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                 val item = bundle.get(ITEM_KEY) as Item
                 val position = bundle.getInt(POSITION_KEY)
                 val reply = bundle.getBoolean(NEW_REPLY_KEY)
-                if(!reply) {
+                if (!reply) {
                     model.updateItemAt(position, item)
                     listAdapter.updateAt(position, item)
                 }
@@ -357,11 +381,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun viewProfile(post: Post) {
-        findNavController().navigate(
-            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
-                AccountPage(post.author)
-            )
-        )
+        activityModel.newPage(AccountPage(post.author))
     }
 
     override fun save(post: Post) {
@@ -373,10 +393,10 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
     override fun subredditSelected(sub: String) {
         model.listing.let {
-            if(it is SubredditListing && it.displayName == sub){
+            if (it is SubredditListing && it.displayName == sub) {
                 return
             }
-            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(SubredditListing(sub))))
+            activityModel.newPage(ListingPage(SubredditListing(sub)))
         }
     }
 
@@ -415,7 +435,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                     UrlType.HLS, UrlType.GIFV, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> MediaType.VIDEO
                     else -> null
                 }
-                if(mediaType == null){
+                if (mediaType == null) {
                     activityModel.openChromeTab(post.url)
                     return
                 }
@@ -438,7 +458,8 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
     override fun edit(post: Post, position: Int) {
         checkedIfLoggedInBeforeExecuting(requireContext()) {
-            ReplyOrEditDialogFragment.newInstance(post, position, false).show(childFragmentManager, null)
+            ReplyOrEditDialogFragment.newInstance(post, position, false)
+                .show(childFragmentManager, null)
         }
     }
 
@@ -484,10 +505,15 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
     override fun reply(comment: Comment, position: Int) {
         checkedIfLoggedInBeforeExecuting(requireContext()) {
-            if(comment.locked == true || comment.deleted){
-                Toast.makeText(requireContext(), R.string.cannot_reply_to_comment, Toast.LENGTH_LONG).show()
+            if (comment.locked == true || comment.deleted) {
+                Toast.makeText(
+                    requireContext(),
+                    R.string.cannot_reply_to_comment,
+                    Toast.LENGTH_LONG
+                ).show()
             } else {
-                ReplyOrEditDialogFragment.newInstance(comment, position, true).show(childFragmentManager, null)
+                ReplyOrEditDialogFragment.newInstance(comment, position, true)
+                    .show(childFragmentManager, null)
             }
         }
     }
@@ -508,11 +534,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun viewProfile(comment: Comment) {
-        findNavController().navigate(
-            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
-                AccountPage(comment.author)
-            )
-        )
+        activityModel.newPage(AccountPage(comment.author))
     }
 
     override fun report(comment: Comment, position: Int) {
@@ -523,7 +545,8 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
     override fun edit(comment: Comment, position: Int) {
         checkedIfLoggedInBeforeExecuting(requireContext()) {
-            ReplyOrEditDialogFragment.newInstance(comment, position, false).show(childFragmentManager, null)
+            ReplyOrEditDialogFragment.newInstance(comment, position, false)
+                .show(childFragmentManager, null)
         }
     }
 
@@ -575,12 +598,12 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     @SuppressLint("RtlHardcoded")
     override fun onAddAccountClicked() {
         findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSignInFragment())
-        binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
+        binding?.fragmentListingDrawer?.closeDrawer(Gravity.LEFT)
     }
 
     override fun onRemoveAccountClicked(account: SavedAccount) {
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
-        if(account.id == currentAccount?.id){
+        if (account.id == currentAccount?.id) {
             saveAccountToPreferences(requireContext(), null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
@@ -590,48 +613,48 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     @SuppressLint("RtlHardcoded")
     override fun onAccountClicked(account: SavedAccount) {
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
-        if(account.id != currentAccount?.id){
+        if (account.id != currentAccount?.id) {
             saveAccountToPreferences(requireContext(), account)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
-        binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
+        binding?.fragmentListingDrawer?.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onLogoutClicked() {
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
-        if(currentAccount != null){
+        if (currentAccount != null) {
             saveAccountToPreferences(requireContext(), null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
-        binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
+        binding?.fragmentListingDrawer?.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onHomeClicked() {
-        binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
+        binding?.fragmentListingDrawer?.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
         checkedIfLoggedInBeforeExecuting(requireContext()) {
-            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(null)))
-            binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
+            activityModel.newPage(AccountPage(null))
+            binding?.fragmentListingDrawer?.closeDrawer(Gravity.LEFT)
         }
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onInboxClicked() {
         checkedIfLoggedInBeforeExecuting(requireContext()) {
-            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(InboxPage))
-            binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
+            activityModel.newPage(InboxPage)
+            binding?.fragmentListingDrawer?.closeDrawer(Gravity.LEFT)
         }
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onSettingsClicked() {
         findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSettingsFragment())
-        binding.fragmentListingDrawer.closeDrawer(Gravity.LEFT)
+        binding?.fragmentListingDrawer?.closeDrawer(Gravity.LEFT)
     }
 
 
@@ -644,8 +667,13 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 //               | |         | |
 //               |_|         |_|
 
-    private fun showPostSortPopup(anchor: View, currentSort: PostSort, onSortSelected: (PostSort) -> Unit){
-        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private fun showPostSortPopup(
+        anchor: View,
+        currentSort: PostSort,
+        onSortSelected: (PostSort) -> Unit
+    ) {
+        val inflater =
+            requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupPostSortBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
@@ -681,11 +709,21 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             )
         }
 
-        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
+        popupWindow.showAsDropdown(
+            anchor,
+            popupBinding.root,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            popupBinding.root.measuredHeight
+        )
     }
 
-    private fun showSearchSortPopup(anchor: View, currentSort: PostSort, onSortSelected: (PostSort) -> Unit){
-        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private fun showSearchSortPopup(
+        anchor: View,
+        currentSort: PostSort,
+        onSortSelected: (PostSort) -> Unit
+    ) {
+        val inflater =
+            requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupSearchSortBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
@@ -717,11 +755,21 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             )
         }
 
-        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
+        popupWindow.showAsDropdown(
+            anchor,
+            popupBinding.root,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            popupBinding.root.measuredHeight
+        )
     }
 
-    private fun showTimePopup(anchor: View, currentTimeSort: Time?, onTimeSelected: (Time) -> Unit){
-        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private fun showTimePopup(
+        anchor: View,
+        currentTimeSort: Time?,
+        onTimeSelected: (Time) -> Unit
+    ) {
+        val inflater =
+            requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupTimeSortBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
@@ -757,25 +805,38 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             )
         }
 
-        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
+        popupWindow.showAsDropdown(
+            anchor,
+            popupBinding.root,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            popupBinding.root.measuredHeight
+        )
     }
 
-    private fun showMoreOptionsPopup(anchor: View){
-        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private fun showMoreOptionsPopup(anchor: View) {
+        val inflater =
+            requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupListingActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
             popupListingActionsCreatePost.root.setOnClickListener {
                 if ((activity?.application as AstroApplication).accessToken == null) {
-                    Snackbar.make(binding.fragmentListingDrawer, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
+                    binding?.fragmentListingDrawer?.let {
+                        Snackbar.make(it, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
+                    }
                 } else {
                     val subredditName = model.subreddit.value?.displayName
-                    CreatePostDialogFragment.newInstance(subredditName).show(parentFragmentManager, null)
+                    CreatePostDialogFragment.newInstance(subredditName)
+                        .show(parentFragmentManager, null)
                 }
                 popupWindow.dismiss()
             }
             popupListingActionsSearch.root.setOnClickListener {
-                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSearchFragment(false))
+                findNavController().navigate(
+                    ViewPagerFragmentDirections.actionViewPagerFragmentToSearchFragment(
+                        false
+                    )
+                )
                 popupWindow.dismiss()
             }
             popupListingActionsMyAccount.root.setOnClickListener {
@@ -792,7 +853,12 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
             )
         }
-        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
+        popupWindow.showAsDropdown(
+            anchor,
+            popupBinding.root,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            popupBinding.root.measuredHeight
+        )
     }
 
     companion object {

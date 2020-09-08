@@ -8,12 +8,13 @@ import dev.gtcl.astro.actions.ItemClickListener
 import dev.gtcl.astro.databinding.ItemMoreCommentBinding
 import dev.gtcl.astro.models.reddit.listing.More
 
-class MoreVH private constructor(private val binding: ItemMoreCommentBinding): RecyclerView.ViewHolder(binding.root) {
-    fun bind(item: More, itemClickListener: ItemClickListener){
+class MoreVH private constructor(private val binding: ItemMoreCommentBinding) :
+    RecyclerView.ViewHolder(binding.root) {
+    fun bind(item: More, itemClickListener: ItemClickListener) {
         binding.more = item
         binding.itemMoreCommentProgressBar.visibility = View.GONE
         binding.itemMoreCommentBackground.setOnClickListener {
-            if(!item.isContinueThreadLink){
+            if (!item.isContinueThreadLink) {
                 binding.itemMoreCommentProgressBar.visibility = View.VISIBLE
             }
             itemClickListener.itemClicked(item, adapterPosition)
@@ -21,7 +22,7 @@ class MoreVH private constructor(private val binding: ItemMoreCommentBinding): R
         binding.executePendingBindings()
     }
 
-    companion object{
+    companion object {
         fun create(parent: ViewGroup): MoreVH {
             return MoreVH(ItemMoreCommentBinding.inflate(LayoutInflater.from(parent.context)))
         }

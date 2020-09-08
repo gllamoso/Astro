@@ -27,6 +27,7 @@ const val DEFAULT_POST_SORT_KEY = "default_post_sort"
 const val GET_NOTIFICATIONS_KEY = "notifications"
 const val MANAGE_POST_KEY = "manage_post"
 const val ALBUM_KEY = "album_name"
+
 // Draft
 const val DRAFT_KEY = "draft"
 const val TO_KEY = "to"

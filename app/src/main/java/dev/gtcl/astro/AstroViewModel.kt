@@ -13,7 +13,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
 
-abstract class AstroViewModel(application: AstroApplication): AndroidViewModel(application) {
+abstract class AstroViewModel(application: AstroApplication) : AndroidViewModel(application) {
     // Repos
     protected val listingRepository = ListingRepository.getInstance(application)
     protected val miscRepository = MiscRepository.getInstance(application)
@@ -30,7 +30,7 @@ abstract class AstroViewModel(application: AstroApplication): AndroidViewModel(a
     val errorMessage: LiveData<String?>
         get() = _errorMessage
 
-    fun errorMessageObserved(){
+    fun errorMessageObserved() {
         _errorMessage.value = null
     }
 }

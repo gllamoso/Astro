@@ -23,8 +23,8 @@ import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import java.lang.IllegalStateException
 
-class MediaFragment : Fragment(){
-    private lateinit var binding: FragmentMediaBinding
+class MediaFragment : Fragment() {
+    private var binding: FragmentMediaBinding? = null
 
     private val model: MediaVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
@@ -36,127 +36,136 @@ class MediaFragment : Fragment(){
     override fun onPause() {
         super.onPause()
         val isChangingConfigurations = requireActivity().isChangingConfigurations
-        if(!isChangingConfigurations) {
+        if (!isChangingConfigurations) {
             model.pausePlayer()
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = FragmentMediaBinding.inflate(inflater)
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.model = model
+        binding?.lifecycleOwner = viewLifecycleOwner
+        binding?.model = model
 
         val mediaURL = requireArguments().get(MEDIA_KEY) as MediaURL
-        if(!model.initialized){
+        if (!model.initialized) {
             model.setMedia(mediaURL)
         }
-        when(mediaURL.mediaType){
+        when (mediaURL.mediaType) {
             MediaType.GIF -> initGifToImageView()
             MediaType.PICTURE -> initSubsamplingImageView()
             MediaType.VIDEO, MediaType.GFYCAT, MediaType.REDGIFS -> initVideoPlayer()
             else -> throw IllegalStateException("Invalid media type: ${mediaURL.mediaType}")
         }
 
-        binding.executePendingBindings()
+        binding?.executePendingBindings()
 
-        return binding.root
+        return binding!!.root
     }
 
-    private fun initSubsamplingImageView(){
-        binding.fragmentMediaPlayerController.hide()
+    private fun initSubsamplingImageView() {
+        binding?.fragmentMediaPlayerController?.hide()
         model.mediaURL.observe(viewLifecycleOwner, {
-            val url = (IMAGE_REGEX.find(it.url)?.value ?: it.url).replaceFirst("http://", "https://")
-            Glide.with(requireContext())
-                .asBitmap()
-                .load(url)
-                .addListener(object : RequestListener<Bitmap> {
-                    override fun onLoadFailed(
-                        e: GlideException?,
-                        mod: Any?,
-                        target: Target<Bitmap>?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        model.setLoadingState(false)
-                        return false
-                    }
+            val url =
+                (IMAGE_REGEX.find(it.url)?.value ?: it.url).replaceFirst("http://", "https://")
+            binding?.fragmentMediaScaleImageView?.let { subsamplingScaleImageView ->
+                Glide.with(requireContext())
+                    .asBitmap()
+                    .load(url)
+                    .addListener(object : RequestListener<Bitmap> {
+                        override fun onLoadFailed(
+                            e: GlideException?,
+                            mod: Any?,
+                            target: Target<Bitmap>?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            model.setLoadingState(false)
+                            return false
+                        }
 
-                    override fun onResourceReady(
-                        resource: Bitmap?,
-                        mod: Any?,
-                        target: Target<Bitmap>?,
-                        dataSource: DataSource?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        model.setLoadingState(false)
-                        return false
-                    }
+                        override fun onResourceReady(
+                            resource: Bitmap?,
+                            mod: Any?,
+                            target: Target<Bitmap>?,
+                            dataSource: DataSource?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            model.setLoadingState(false)
+                            return false
+                        }
 
-                })
-                .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
-                .into(SubsamplingScaleImageViewTarget(binding.fragmentMediaScaleImageView))
+                    })
+                    .apply(RequestOptions.diskCacheStrategyOf(DiskCacheStrategy.AUTOMATIC))
+                    .into(SubsamplingScaleImageViewTarget(subsamplingScaleImageView))
+            }
         })
 
-        binding.fragmentMediaScaleImageView.setOnClickListener {
+        binding?.fragmentMediaScaleImageView?.setOnClickListener {
             activityModel.toggleUi()
         }
     }
 
-    private fun initGifToImageView(){
+    private fun initGifToImageView() {
 
-        binding.fragmentMediaPlayerController.hide()
+        binding?.fragmentMediaPlayerController?.hide()
         model.mediaURL.observe(viewLifecycleOwner, {
             val url = it.url.replaceFirst("http://", "https://")
-            Glide.with(requireContext())
-                .load(url)
-                .addListener(object: RequestListener<Drawable> {
-                    override fun onLoadFailed(
-                        e: GlideException?,
-                        mod: Any?,
-                        target: Target<Drawable>?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        model.setLoadingState(false)
-                        return false
-                    }
+            binding?.fragmentMediaImageView?.let { imageView ->
+                Glide.with(requireContext())
+                    .load(url)
+                    .addListener(object : RequestListener<Drawable> {
+                        override fun onLoadFailed(
+                            e: GlideException?,
+                            mod: Any?,
+                            target: Target<Drawable>?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            model.setLoadingState(false)
+                            return false
+                        }
 
-                    override fun onResourceReady(
-                        resource: Drawable?,
-                        mod: Any?,
-                        target: Target<Drawable>?,
-                        dataSource: DataSource?,
-                        isFirstResource: Boolean
-                    ): Boolean {
-                        model.setLoadingState(false)
-                        return false
-                    }
+                        override fun onResourceReady(
+                            resource: Drawable?,
+                            mod: Any?,
+                            target: Target<Drawable>?,
+                            dataSource: DataSource?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            model.setLoadingState(false)
+                            return false
+                        }
 
-                })
-                .into(binding.fragmentMediaImageView)
+                    })
+                    .into(imageView)
+            }
         })
 
-        binding.fragmentMediaImageView.setOnClickListener {
+        binding?.fragmentMediaImageView?.setOnClickListener {
             activityModel.toggleUi()
         }
     }
 
-    private fun initVideoPlayer(){
-        model.player.observe(viewLifecycleOwner, {simpleExoPlayer ->
-            if(simpleExoPlayer != null) {
-                binding.fragmentMediaPlayerView.player = simpleExoPlayer
-                binding.fragmentMediaPlayerController.player = simpleExoPlayer
+    private fun initVideoPlayer() {
+        model.player.observe(viewLifecycleOwner, { simpleExoPlayer ->
+            if (simpleExoPlayer != null) {
+                binding?.fragmentMediaPlayerView?.player = simpleExoPlayer
+                binding?.fragmentMediaPlayerController?.player = simpleExoPlayer
                 model.setLoadingState(false)
             }
         })
 
         activityModel.showUi.observe(viewLifecycleOwner, {
-            if(it){
-                binding.fragmentMediaPlayerController.show()
+            if (it) {
+                binding?.fragmentMediaPlayerController?.show()
             } else {
-                binding.fragmentMediaPlayerController.hide()
+                binding?.fragmentMediaPlayerController?.hide()
             }
         })
 
-        binding.root.setOnClickListener {
+        binding?.root?.setOnClickListener {
             activityModel.toggleUi()
         }
     }
@@ -164,13 +173,13 @@ class MediaFragment : Fragment(){
     override fun onDestroyView() {
         super.onDestroyView()
         val isChangingConfigurations = requireActivity().isChangingConfigurations
-        if(!isChangingConfigurations){
+        if (!isChangingConfigurations) {
             model.releasePlayer()
             model.initialized = false
         }
     }
 
-    companion object{
+    companion object {
         fun newInstance(mediaURL: MediaURL): MediaFragment {
             val fragment = MediaFragment()
             val args = bundleOf(MEDIA_KEY to mediaURL)

@@ -1,6 +1,5 @@
 package dev.gtcl.astro.network
 
-import android.util.Log
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
@@ -19,6 +18,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.*
+import timber.log.Timber
 
 
 interface RedditApiService {
@@ -31,7 +31,7 @@ interface RedditApiService {
         @Field("grant_type") grantType: String = "authorization_code",
         @Field("code") code: String,
         @Field("redirect_uri") redirectUri: String
-    ) : Deferred<AccessToken>
+    ): Deferred<AccessToken>
 
     @FormUrlEncoded
     @POST("/api/v1/access_token")
@@ -89,7 +89,7 @@ interface RedditApiService {
     fun getUserInfo(
         @Header("Authorization") authorization: String?,
         @Path("user") user: String
-    ) : Deferred<AccountChild>
+    ): Deferred<AccountChild>
 
     @POST("/api/vote/")
     fun vote(
@@ -493,14 +493,16 @@ interface RedditApiService {
             create(
                 BASE_URL.toHttpUrl()
             )
+
         fun createWithAuth(): RedditApiService =
             create(
                 OAUTH_URL.toHttpUrl()
             )
+
         fun create(httpUrl: HttpUrl): RedditApiService {
-            val logger = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger{
+            val logger = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
                 override fun log(message: String) {
-                    Log.d("API", message)
+                    Timber.tag("API").d(message)
                 }
             })
             logger.level = HttpLoggingInterceptor.Level.BASIC
@@ -511,12 +513,14 @@ interface RedditApiService {
 
             val moshi = Moshi.Builder()
                 .add(CommentsMoshiAdapter())
-                .add(PolymorphicJsonAdapterFactory.of(ListingChild::class.java, "kind")
-                    .withSubtype(CommentChild::class.java, "t1")
-                    .withSubtype(PostChild::class.java, "t3")
-                    .withSubtype(MessageChild::class.java, "t4")
-                    .withSubtype(SubredditChild::class.java, "t5")
-                    .withSubtype(MoreChild::class.java, "more"))
+                .add(
+                    PolymorphicJsonAdapterFactory.of(ListingChild::class.java, "kind")
+                        .withSubtype(CommentChild::class.java, "t1")
+                        .withSubtype(PostChild::class.java, "t3")
+                        .withSubtype(MessageChild::class.java, "t4")
+                        .withSubtype(SubredditChild::class.java, "t5")
+                        .withSubtype(MoreChild::class.java, "more")
+                )
                 .add(KotlinJsonAdapterFactory())
                 .build()
 
@@ -536,11 +540,11 @@ interface RedditApiService {
 }
 
 object RedditApi {
-    val base : RedditApiService by lazy {
+    val base: RedditApiService by lazy {
         RedditApiService.createWithNoAuth()
     }
 
-    val oauth : RedditApiService by lazy {
+    val oauth: RedditApiService by lazy {
         RedditApiService.createWithAuth()
     }
 }

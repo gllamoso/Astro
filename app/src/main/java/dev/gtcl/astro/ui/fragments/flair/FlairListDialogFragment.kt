@@ -1,7 +1,5 @@
 package dev.gtcl.astro.ui.fragments.flair
 
-import android.app.AlertDialog
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,9 +12,9 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentDialogFlairListBinding
 import dev.gtcl.astro.models.reddit.listing.Flair
 
-class FlairListDialogFragment : DialogFragment(), FlairListAdapter.FlairSelectionListener{
+class FlairListDialogFragment : DialogFragment(), FlairListAdapter.FlairSelectionListener {
 
-    private lateinit var binding: FragmentDialogFlairListBinding
+    private var binding: FragmentDialogFlairListBinding? = null
 
     private val model: FlairListVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
@@ -25,7 +23,10 @@ class FlairListDialogFragment : DialogFragment(), FlairListAdapter.FlairSelectio
 
     override fun onStart() {
         super.onStart()
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
 //        dialog?.window?.setBackgroundDrawableResource(android.R.color.black) // This makes the dialog full screen
     }
 
@@ -35,46 +36,49 @@ class FlairListDialogFragment : DialogFragment(), FlairListAdapter.FlairSelectio
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentDialogFlairListBinding.inflate(LayoutInflater.from(requireContext()))
-        binding.model = model
-        binding.lifecycleOwner = this
+        binding?.model = model
+        binding?.lifecycleOwner = this
         val subredditName = requireArguments().get(SUBREDDIT_KEY) as String
         model.fetchFlairs(subredditName)
 
         initList()
         initOtherObservers()
 
-        return binding.root
+        return binding!!.root
     }
 
-    private fun initList(){
+    private fun initList() {
         val adapter = FlairListAdapter(this)
-        binding.fragmentDialogFlairSelectionRecyclerView.adapter = adapter
+        binding?.fragmentDialogFlairSelectionRecyclerView?.adapter = adapter
 
         model.flairs.observe(this, {
-            if(it != null){
+            if (it != null) {
                 adapter.submitList(it)
             }
         })
     }
 
-    private fun initOtherObservers(){
-        binding.fragmentDialogFlairSelectionToolbar.setNavigationOnClickListener {
+    private fun initOtherObservers() {
+        binding?.fragmentDialogFlairSelectionToolbar?.setNavigationOnClickListener {
             dismiss()
         }
 
         model.errorMessage.observe(this, {
-            if(it != null){
+            if (it != null) {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }
         })
 
-        binding.fragmentDialogFlairListDialogButtons.dialogNegativeButton.setOnClickListener {
-            parentFragmentManager.setFragmentResult(FLAIR_SELECTED_KEY, bundleOf(FLAIRS_KEY to null))
+        binding?.fragmentDialogFlairListDialogButtons?.dialogNegativeButton?.setOnClickListener {
+            parentFragmentManager.setFragmentResult(
+                FLAIR_SELECTED_KEY,
+                bundleOf(FLAIRS_KEY to null)
+            )
             dismiss()
         }
 
-        binding.fragmentDialogFlairListDialogButtons.dialogNeutralButton.setOnClickListener {
+        binding?.fragmentDialogFlairListDialogButtons?.dialogNeutralButton?.setOnClickListener {
             dismiss()
         }
 
@@ -90,7 +94,7 @@ class FlairListDialogFragment : DialogFragment(), FlairListAdapter.FlairSelectio
         dismiss()
     }
 
-    companion object{
+    companion object {
         fun newInstance(subredditName: String): FlairListDialogFragment {
             val fragment = FlairListDialogFragment()
             val args = bundleOf(SUBREDDIT_KEY to subredditName)

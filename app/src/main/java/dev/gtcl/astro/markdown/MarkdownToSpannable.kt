@@ -5,19 +5,24 @@ import android.graphics.Color
 import android.text.SpannableStringBuilder
 import android.text.Spanned
 import android.text.TextPaint
-import android.text.style.*
-import android.util.Log
+import android.text.style.BackgroundColorSpan
+import android.text.style.ClickableSpan
+import android.text.style.ForegroundColorSpan
 import android.view.View
 
 
-class MarkdownToSpannable{
-    companion object{
+class MarkdownToSpannable {
+    companion object {
 
         private val SPOILER_REGEX = ">!.+!<".toRegex()
         private val NONSENSE_TEXT_REGEX = "^&#x200B;$".toRegex(RegexOption.MULTILINE)
         private val QUOTE_TEXT_REGEX = "^>.+$".toRegex(RegexOption.MULTILINE)
 
-        fun setSpannableStringBuilder(context: Context, spannableStringBuilder: SpannableStringBuilder, defaultTextColor: Int){
+        fun setSpannableStringBuilder(
+            context: Context,
+            spannableStringBuilder: SpannableStringBuilder,
+            defaultTextColor: Int
+        ) {
             removeNonsenseText(spannableStringBuilder)
             setSpoilersInMarkdown(
                 context,
@@ -27,9 +32,13 @@ class MarkdownToSpannable{
             setQuoteMarkdown(spannableStringBuilder)
         }
 
-        private fun setSpoilersInMarkdown(context: Context, spannableStringBuilder: SpannableStringBuilder, defaultColor: Int){
+        private fun setSpoilersInMarkdown(
+            context: Context,
+            spannableStringBuilder: SpannableStringBuilder,
+            defaultColor: Int
+        ) {
             var match = SPOILER_REGEX.find(spannableStringBuilder)
-            while(match != null){
+            while (match != null) {
                 val start = match.range.first
                 val end = match.range.last
                 spannableStringBuilder.delete(end - 1, end + 1)
@@ -74,21 +83,26 @@ class MarkdownToSpannable{
             }
         }
 
-        private fun setQuoteMarkdown(spannableStringBuilder: SpannableStringBuilder){
+        private fun setQuoteMarkdown(spannableStringBuilder: SpannableStringBuilder) {
             var match = QUOTE_TEXT_REGEX.find(spannableStringBuilder)
-            while(match != null){
+            while (match != null) {
                 val start = match.range.first
                 val end = match.range.last
                 val quotePrefix = ">\\s*".toRegex().find(match.value)!!.value
                 spannableStringBuilder.delete(start, start + quotePrefix.length)
-                spannableStringBuilder.setSpan(CustomQuoteSpan(Color.GREEN, 10, 40), start, end - quotePrefix.length, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+                spannableStringBuilder.setSpan(
+                    CustomQuoteSpan(Color.GREEN, 10, 40),
+                    start,
+                    end - quotePrefix.length,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
                 match = QUOTE_TEXT_REGEX.find(spannableStringBuilder)
             }
         }
 
-        private fun removeNonsenseText(spannableStringBuilder: SpannableStringBuilder){
+        private fun removeNonsenseText(spannableStringBuilder: SpannableStringBuilder) {
             var match = NONSENSE_TEXT_REGEX.find(spannableStringBuilder)
-            while(match != null){
+            while (match != null) {
                 val start = match.range.first
                 val end = match.range.last
                 spannableStringBuilder.delete(start, end + 1)

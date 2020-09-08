@@ -35,17 +35,19 @@ class ViewModelFactory(private val application: AstroApplication) : ViewModelPro
             modelClass.isAssignableFrom(SplashVM::class.java) -> SplashVM(application) as T
             modelClass.isAssignableFrom(SignInVM::class.java) -> SignInVM(application) as T
             modelClass.isAssignableFrom(ListingVM::class.java) -> ListingVM(application) as T
-            modelClass.isAssignableFrom(ViewPagerVM::class.java) -> ViewPagerVM() as T
+            modelClass.isAssignableFrom(ViewPagerVM::class.java) -> ViewPagerVM(application) as T
             modelClass.isAssignableFrom(CommentsVM::class.java) -> CommentsVM(application) as T
             modelClass.isAssignableFrom(MainActivityVM::class.java) -> MainActivityVM(application) as T
-            modelClass.isAssignableFrom(AccountFragmentVM::class.java) -> AccountFragmentVM(application) as T
+            modelClass.isAssignableFrom(AccountFragmentVM::class.java) -> AccountFragmentVM(
+                application
+            ) as T
             modelClass.isAssignableFrom(AccountAboutVM::class.java) -> AccountAboutVM(application) as T
             modelClass.isAssignableFrom(ItemScrollerVM::class.java) -> ItemScrollerVM(application) as T
             modelClass.isAssignableFrom(SubscriptionsVM::class.java) -> SubscriptionsVM(application) as T
             modelClass.isAssignableFrom(SearchVM::class.java) -> SearchVM(application) as T
             modelClass.isAssignableFrom(MultiRedditVM::class.java) -> MultiRedditVM(application) as T
             modelClass.isAssignableFrom(CreatePostVM::class.java) -> CreatePostVM(application) as T
-            modelClass.isAssignableFrom(UploadImageVM::class.java) -> UploadImageVM() as T
+            modelClass.isAssignableFrom(UploadImageVM::class.java) -> UploadImageVM(application) as T
             modelClass.isAssignableFrom(MediaVM::class.java) -> MediaVM(application) as T
             modelClass.isAssignableFrom(MediaDialogVM::class.java) -> MediaDialogVM(application) as T
             modelClass.isAssignableFrom(ReplyOrEditVM::class.java) -> ReplyOrEditVM(application) as T
@@ -55,7 +57,7 @@ class ViewModelFactory(private val application: AstroApplication) : ViewModelPro
             modelClass.isAssignableFrom(ReportVM::class.java) -> ReportVM(application) as T
             modelClass.isAssignableFrom(RulesVM::class.java) -> RulesVM(application) as T
             modelClass.isAssignableFrom(FlairListVM::class.java) -> FlairListVM(application) as T
-            modelClass.isAssignableFrom(ManagePostVM::class.java) -> ManagePostVM() as T
+            modelClass.isAssignableFrom(ManagePostVM::class.java) -> ManagePostVM(application) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: $modelClass")
         }
     }

@@ -9,25 +9,27 @@ import okhttp3.MultipartBody
 import okhttp3.RequestBody.Companion.asRequestBody
 import java.io.File
 
-class ImgurRepository private constructor(){
+class ImgurRepository private constructor() {
 
     @MainThread
-    fun uploadImage(image: File): Deferred<ImgurResponse>{
+    fun uploadImage(image: File): Deferred<ImgurResponse> {
         val requestFile = image.asRequestBody("multipart/form-data".toMediaTypeOrNull())
         val body = MultipartBody.Part.createFormData("image", image.name, requestFile)
         return ImgurApi.retrofit.uploadImage(body = body)
     }
 
     @MainThread
-    fun getAlbumImages(albumHash: String): Deferred<ImgurResponse> = ImgurApi.retrofit.getAlbumImages(albumHash = albumHash)
+    fun getAlbumImages(albumHash: String): Deferred<ImgurResponse> =
+        ImgurApi.retrofit.getAlbumImages(albumHash = albumHash)
 
     @MainThread
-    fun getImage(imageHash: String): Deferred<ImgurResponse> = ImgurApi.retrofit.getImage(imageHash = imageHash)
+    fun getImage(imageHash: String): Deferred<ImgurResponse> =
+        ImgurApi.retrofit.getImage(imageHash = imageHash)
 
-    companion object{
+    companion object {
         private lateinit var INSTANCE: ImgurRepository
-        fun getInstance(): ImgurRepository{
-            if(!Companion::INSTANCE.isInitialized){
+        fun getInstance(): ImgurRepository {
+            if (!Companion::INSTANCE.isInitialized) {
                 INSTANCE = ImgurRepository()
             }
             return INSTANCE

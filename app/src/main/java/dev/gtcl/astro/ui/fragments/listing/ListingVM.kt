@@ -7,8 +7,10 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import kotlinx.coroutines.*
+import kotlin.collections.HashSet
 
 const val PAGE_SIZE = 15
+
 class ListingVM(val application: AstroApplication) : AstroViewModel(application) {
 
     private val _title = MutableLiveData<String>()
@@ -66,40 +68,41 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
         lastAction()
     }
 
-    fun fetchSubreddit(displayName: String){
+    fun fetchSubreddit(displayName: String) {
         coroutineScope.launch {
-            try{
+            try {
                 val sub = subredditRepository.getSubreddit(displayName)
                     .await().data
                 _subreddit.postValue(sub)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
 
-    fun setSubreddit(sub: Subreddit?){
+    fun setSubreddit(sub: Subreddit?) {
         _subreddit.value = sub
     }
 
-    fun setListing(listing: Listing, showNsfw: Boolean){
+    fun setListing(listing: Listing, showNsfw: Boolean) {
         _listing = listing
         _title.value = getListingTitle(application, listing)
         _showNsfw = showNsfw
 
-        if(_postSort.value != null){
+        if (_postSort.value != null) {
             return
         }
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(application)
-        val defaultSort = sharedPref.getString(DEFAULT_POST_SORT_KEY, application.getString(R.string.order_hot))
+        val defaultSort =
+            sharedPref.getString(DEFAULT_POST_SORT_KEY, application.getString(R.string.order_hot))
         val sortArray = application.resources.getStringArray(R.array.post_sort_entries)
         val postSort: PostSort
         val time: Time?
-        if(listing is SearchListing){
+        if (listing is SearchListing) {
             postSort = PostSort.RELEVANCE
             time = Time.ALL
         } else {
-            when(sortArray.indexOf(defaultSort)){
+            when (sortArray.indexOf(defaultSort)) {
                 1 -> {
                     postSort = PostSort.HOT
                     time = null
@@ -160,7 +163,7 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
                     postSort = PostSort.TOP
                     time = Time.ALL
                 }
-                else ->{
+                else -> {
                     postSort = PostSort.BEST
                     time = null
                 }
@@ -188,8 +191,9 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
 
                     val firstPageItems = mutableListOf<Item>()
                     var emptyItemsCount = 0
-                    while(firstPageItems.size < firstPageSize && emptyItemsCount < 3){
-                        val retrieveSize = if(firstPageItems.size > (firstPageSize * 2 / 3)) PAGE_SIZE else firstPageSize
+                    while (firstPageItems.size < firstPageSize && emptyItemsCount < 3) {
+                        val retrieveSize =
+                            if (firstPageItems.size > (firstPageSize * 2 / 3)) PAGE_SIZE else firstPageSize
                         val response = listingRepository.getListing(
                             listing,
                             postSort.value!!,
@@ -199,25 +203,26 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
                         ).await()
                         after = response.data.after
 
-                        if(response.data.children.isNullOrEmpty()){
+                        if (response.data.children.isNullOrEmpty()) {
                             _lastItemReached.postValue(true)
                             break
                         } else {
-                            val items = response.data.children.map { it.data }.filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList()
-                            if(items.isNullOrEmpty()){
+                            val items = response.data.children.map { it.data }
+                                .filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList()
+                            if (items.isNullOrEmpty()) {
                                 emptyItemsCount++
                             } else {
                                 firstPageItems.addAll(items)
                             }
 
-                            if(after == null){
+                            if (after == null) {
                                 _lastItemReached.postValue(true)
                                 break
                             }
                         }
                     }
 
-                    if(emptyItemsCount >= 3){ // Show no items if there are 3 results of empty items
+                    if (emptyItemsCount >= 3) { // Show no items if there are 3 results of empty items
                         _lastItemReached.postValue(true)
                         _items.postValue(mutableListOf())
                     } else {
@@ -250,7 +255,7 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
                     _networkState.postValue(NetworkState.LOADING)
                     val moreItems = mutableListOf<Item>()
                     var emptyItemsCount = 0
-                    while(moreItems.size < PAGE_SIZE && emptyItemsCount < 3){
+                    while (moreItems.size < PAGE_SIZE && emptyItemsCount < 3) {
                         val response = listingRepository.getListing(
                             listing,
                             postSort.value!!,
@@ -261,25 +266,27 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
 
                         after = response.data.after
 
-                        if(response.data.children.isNullOrEmpty()){
+                        if (response.data.children.isNullOrEmpty()) {
                             _lastItemReached.postValue(true)
                             break
                         } else {
-                            val items = response.data.children.map { it.data }.filterNot { currentItemIds.contains(it.name) || !(showNsfw) && it is Post && it.nsfw }.toMutableList()
-                            if(items.isNullOrEmpty()){
+                            val items = response.data.children.map { it.data }
+                                .filterNot { currentItemIds.contains(it.name) || !(showNsfw) && it is Post && it.nsfw }
+                                .toMutableList()
+                            if (items.isNullOrEmpty()) {
                                 emptyItemsCount++
                             } else {
                                 moreItems.addAll(items)
                             }
 
-                            if(after == null){
+                            if (after == null) {
                                 _lastItemReached.postValue(true)
                                 break
                             }
                         }
                     }
 
-                    if(emptyItemsCount >= 3){
+                    if (emptyItemsCount >= 3) {
                         _lastItemReached.postValue(true)
                     }
 

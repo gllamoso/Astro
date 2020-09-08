@@ -7,11 +7,12 @@ import dev.gtcl.astro.R
 import dev.gtcl.astro.databinding.ItemNoItemsFoundBinding
 import dev.gtcl.astro.models.reddit.listing.ItemType
 
-class NoItemFoundVH private constructor(private val binding: ItemNoItemsFoundBinding): RecyclerView.ViewHolder(binding.root){
+class NoItemFoundVH private constructor(private val binding: ItemNoItemsFoundBinding) :
+    RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(expectedItem: ItemType?){
+    fun bind(expectedItem: ItemType?) {
         binding.text = binding.root.context.applicationContext.getString(
-            when(expectedItem){
+            when (expectedItem) {
                 ItemType.Comment -> R.string.no_comments_found
                 ItemType.Post -> R.string.no_posts_found
                 ItemType.Message -> R.string.no_messages_found
@@ -21,7 +22,8 @@ class NoItemFoundVH private constructor(private val binding: ItemNoItemsFoundBin
         binding.executePendingBindings()
     }
 
-    companion object{
-        fun create(parent: ViewGroup): NoItemFoundVH = NoItemFoundVH(ItemNoItemsFoundBinding.inflate(LayoutInflater.from(parent.context)))
+    companion object {
+        fun create(parent: ViewGroup): NoItemFoundVH =
+            NoItemFoundVH(ItemNoItemsFoundBinding.inflate(LayoutInflater.from(parent.context)))
     }
 }

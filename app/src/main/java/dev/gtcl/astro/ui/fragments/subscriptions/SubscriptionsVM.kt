@@ -8,7 +8,7 @@ import dev.gtcl.astro.models.reddit.listing.MultiRedditUpdate
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
-class SubscriptionsVM(private val application: AstroApplication): AstroViewModel(application){
+class SubscriptionsVM(private val application: AstroApplication) : AstroViewModel(application) {
 
     private val _subscriptions = MutableLiveData<Subscriptions?>()
     val subscriptions: LiveData<Subscriptions?>
@@ -18,7 +18,7 @@ class SubscriptionsVM(private val application: AstroApplication): AstroViewModel
     val editSubscription: LiveData<Subscription?>
         get() = _editSubscription
 
-    fun fetchSubscriptions(){
+    fun fetchSubscriptions() {
         coroutineScope.launch {
             val favorites = subredditRepository.getMyFavoriteSubscriptions()
             val multiReddits = subredditRepository.getMySubscriptions(SubscriptionType.MULTIREDDIT)
@@ -28,21 +28,21 @@ class SubscriptionsVM(private val application: AstroApplication): AstroViewModel
         }
     }
 
-    fun subscriptionsObserved(){
+    fun subscriptionsObserved() {
         _subscriptions.value = null
     }
 
-    fun createMulti(model: MultiRedditUpdate){
+    fun createMulti(model: MultiRedditUpdate) {
         coroutineScope.launch {
-            try{
+            try {
                 val multiReddit = subredditRepository.createMulti(model).await().data
                 subredditRepository.insertMultiReddit(multiReddit)
                 _editSubscription.postValue(multiReddit.asSubscription())
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(
-                    if(e is HttpException && e.code() == 409){
+                    if (e is HttpException && e.code() == 409) {
                         application.getString(R.string.conflict_error)
-                    } else{
+                    } else {
                         e.getErrorMessage(application)
                     }
                 )

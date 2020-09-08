@@ -13,10 +13,10 @@ import dev.gtcl.astro.databinding.FragmentMultiredditSubredditsBinding
 import dev.gtcl.astro.models.reddit.listing.MultiRedditUpdate
 import dev.gtcl.astro.models.reddit.listing.Subreddit
 
-class MultiRedditFragment: Fragment(),
+class MultiRedditFragment : Fragment(),
     MultiRedditSubredditsAdapter.OnSubredditRemovedListener {
 
-    private lateinit var binding: FragmentMultiredditSubredditsBinding
+    private var binding: FragmentMultiredditSubredditsBinding? = null
     private lateinit var navController: NavController
     private lateinit var adapter: MultiRedditSubredditsAdapter
 
@@ -33,50 +33,60 @@ class MultiRedditFragment: Fragment(),
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentMultiredditSubredditsBinding.inflate(inflater)
-        binding.model = model
-        binding.lifecycleOwner = viewLifecycleOwner
+        binding?.model = model
+        binding?.lifecycleOwner = viewLifecycleOwner
         navController = findNavController()
-        return binding.root
+        return binding!!.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
-        if(!model.initialized){
+        if (!model.initialized) {
             val multiReddit = args.multiReddit
             model.fetchMultiReddit(multiReddit)
         }
 
         adapter = MultiRedditSubredditsAdapter(this)
-        binding.fragmentMultiRedditSubredditsList.adapter = adapter
+        binding?.fragmentMultiRedditSubredditsList?.adapter = adapter
 
-        binding.fragmentMultiRedditSubredditsToolbar.setNavigationOnClickListener {
+        binding?.fragmentMultiRedditSubredditsToolbar?.setNavigationOnClickListener {
             navController.popBackStack()
         }
 
-        binding.fragmentMultiRedditSubredditsFab.setOnClickListener {
+        binding?.fragmentMultiRedditSubredditsFab?.setOnClickListener {
             navController.navigate(
                 MultiRedditFragmentDirections.actionMultiRedditFragmentToSearchFragment(true)
             )
         }
 
-        navController.currentBackStackEntry?.savedStateHandle?.getLiveData<List<String>>(SELECTED_SUBREDDITS_KEY)?.observe(
+        navController.currentBackStackEntry?.savedStateHandle?.getLiveData<List<String>>(
+            SELECTED_SUBREDDITS_KEY
+        )?.observe(
             viewLifecycleOwner, {
                 model.addSubredditsToMultiReddit(it)
             }
         )
 
-        model.errorMessage.observe(viewLifecycleOwner, {
-            if(it != null){
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+        model.errorMessage.observe(viewLifecycleOwner, { errorMessage ->
+            if (errorMessage != null) {
+                binding?.root?.let {
+                    Snackbar.make(it, errorMessage, Snackbar.LENGTH_LONG).show()
+                }
                 model.errorMessageObserved()
             }
 
         })
 
-        binding.fragmentMultiRedditSubredditsToolbar.setOnMenuItemClickListener {
-            if(it.itemId == R.id.edit){
-                if(model.multi.value != null){
-                    MultiRedditDetailsDialogFragment.newInstance(model.multi.value!!).show(childFragmentManager, null)
+        binding?.fragmentMultiRedditSubredditsToolbar?.setOnMenuItemClickListener {
+            if (it.itemId == R.id.edit) {
+                if (model.multi.value != null) {
+                    MultiRedditDetailsDialogFragment.newInstance(model.multi.value!!)
+                        .show(childFragmentManager, null)
                 }
             }
             true

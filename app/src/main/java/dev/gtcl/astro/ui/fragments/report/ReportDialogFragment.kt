@@ -1,13 +1,11 @@
 package dev.gtcl.astro.ui.fragments.report
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.RadioButton
 import android.widget.Toast
-import androidx.appcompat.app.AlertDialog
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
@@ -20,9 +18,9 @@ import dev.gtcl.astro.models.reddit.listing.Post
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.rules.RulesDialogFragment
 
-class ReportDialogFragment: DialogFragment() {
+class ReportDialogFragment : DialogFragment() {
 
-    private lateinit var binding: FragmentDialogReportBinding
+    private var binding: FragmentDialogReportBinding? = null
 
     private val model: ReportVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
@@ -35,7 +33,10 @@ class ReportDialogFragment: DialogFragment() {
 
     override fun onStart() {
         super.onStart()
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
 //        dialog?.window?.setBackgroundDrawableResource(android.R.color.black) // This makes the dialog full screen
     }
 
@@ -45,31 +46,31 @@ class ReportDialogFragment: DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentDialogReportBinding.inflate(inflater)
-        binding.model = model
-        binding.lifecycleOwner = this
+        binding?.model = model
+        binding?.lifecycleOwner = this
 
-        if(model.rules.value == null){
+        if (model.rules.value == null) {
             model.fetchRules((requireArguments().get(ITEM_KEY) as Item))
         }
 
         model.rules.observe(this, {
-            if(it != null){
+            if (it != null) {
                 idToRule = HashMap()
-                binding.fragmentDialogReportRadioGroup.removeAllViews()
+                binding?.fragmentDialogReportRadioGroup?.removeAllViews()
                 var otherButtonId = -1
-                for(ruleData in it){
+                for (ruleData in it) {
                     val radioButton = RadioButton(requireContext()).apply {
                         text = ruleData.rule
                     }
-                    binding.fragmentDialogReportRadioGroup.addView(radioButton)
+                    binding?.fragmentDialogReportRadioGroup?.addView(radioButton)
                     idToRule[radioButton.id] = ruleData
-                    if(ruleData.type == RuleType.OTHER){
+                    if (ruleData.type == RuleType.OTHER) {
                         otherButtonId = radioButton.id
                     }
                 }
 
-                binding.fragmentDialogReportRadioGroup.setOnCheckedChangeListener { _, checkedId ->
-                    if(checkedId == otherButtonId){
+                binding?.fragmentDialogReportRadioGroup?.setOnCheckedChangeListener { _, checkedId ->
+                    if (checkedId == otherButtonId) {
                         model.otherRuleSelected()
                     } else {
                         model.otherRuleUnselected()
@@ -79,7 +80,7 @@ class ReportDialogFragment: DialogFragment() {
         })
 
         model.errorMessage.observe(this, {
-            if(it != null){
+            if (it != null) {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }
@@ -87,26 +88,39 @@ class ReportDialogFragment: DialogFragment() {
 
         setOnClickListeners()
 
-        return binding.root
+        return binding!!.root
     }
 
-    private fun setOnClickListeners(){
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+    }
 
-        binding.fragmentDialogReportDialogButtons.apply {
+    private fun setOnClickListeners() {
+
+        binding?.fragmentDialogReportDialogButtons?.apply {
             dialogPositiveButton.setOnClickListener {
-                val rule = idToRule[binding.fragmentDialogReportRadioGroup.checkedRadioButtonId]
-                if(rule != null){
+                val rule =
+                    idToRule[binding?.fragmentDialogReportRadioGroup?.checkedRadioButtonId ?: 0]
+                if (rule != null) {
                     val position = requireArguments().getInt(POSITION_KEY, -1)
                     val item = requireArguments().get(ITEM_KEY) as Item
-                    if(rule.type == RuleType.OTHER){
-                        val otherReason = binding.fragmentDialogReportOtherRuleText.text.toString()
-                        if(!otherReason.isBlank()){
+                    if (rule.type == RuleType.OTHER) {
+                        val otherReason =
+                            binding?.fragmentDialogReportOtherRuleText?.text.toString()
+                        if (!otherReason.isBlank()) {
                             activityModel.report(item.name, otherReason, RuleType.OTHER)
-                            parentFragmentManager.setFragmentResult(REPORT_KEY, bundleOf(POSITION_KEY to position))
+                            parentFragmentManager.setFragmentResult(
+                                REPORT_KEY,
+                                bundleOf(POSITION_KEY to position)
+                            )
                         }
                     } else {
                         activityModel.report(item.name, rule.rule, rule.type)
-                        parentFragmentManager.setFragmentResult(REPORT_KEY, bundleOf(POSITION_KEY to position))
+                        parentFragmentManager.setFragmentResult(
+                            REPORT_KEY,
+                            bundleOf(POSITION_KEY to position)
+                        )
                     }
                 }
                 dismiss()
@@ -115,7 +129,7 @@ class ReportDialogFragment: DialogFragment() {
                 dismiss()
             }
             dialogNeutralButton.setOnClickListener {
-                val displayName = when(val item = requireArguments().get(ITEM_KEY) as Item){
+                val displayName = when (val item = requireArguments().get(ITEM_KEY) as Item) {
                     is Post -> item.subreddit
                     is Comment -> item.subreddit
                     else -> throw Exception("Invalid item type: $item")
@@ -127,8 +141,8 @@ class ReportDialogFragment: DialogFragment() {
 
     }
 
-    companion object{
-        fun newInstance(item: Item, position: Int = -1): ReportDialogFragment{
+    companion object {
+        fun newInstance(item: Item, position: Int = -1): ReportDialogFragment {
             return ReportDialogFragment().apply {
                 arguments = bundleOf(ITEM_KEY to item, POSITION_KEY to position)
             }

@@ -7,7 +7,8 @@ import android.text.style.LeadingMarginSpan
 import androidx.annotation.ColorInt
 
 
-class CustomQuoteSpan(@ColorInt private val color: Int, stripeWidth: Int, gapWidth: Int
+class CustomQuoteSpan(
+    @ColorInt private val color: Int, stripeWidth: Int, gapWidth: Int
 ) : LeadingMarginSpan {
     private var mStripWidth = stripeWidth
     private var mGapWidth = gapWidth

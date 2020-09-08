@@ -1,3 +1,3 @@
 package dev.gtcl.astro
 
-class NotLoggedInException: IllegalStateException()
+class NotLoggedInException : IllegalStateException()

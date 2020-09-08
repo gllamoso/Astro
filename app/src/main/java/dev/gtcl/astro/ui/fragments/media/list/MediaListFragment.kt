@@ -16,9 +16,9 @@ import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.ui.fragments.media.MediaDialogVM
 
 
-class MediaListFragment : Fragment(){
+class MediaListFragment : Fragment() {
 
-    private lateinit var binding: FragmentViewpagerBinding
+    private var binding: FragmentViewpagerBinding? = null
 
     val model: MediaDialogVM by lazy {
         ViewModelProviders.of(requireParentFragment()).get(MediaDialogVM::class.java)
@@ -30,40 +30,40 @@ class MediaListFragment : Fragment(){
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentViewpagerBinding.inflate(inflater)
+
         val items = requireArguments().get(MEDIA_KEY) as List<MediaURL>
         val adapter =
             MediaListFragmentAdapter(
-                this,
+                childFragmentManager,
+                viewLifecycleOwner.lifecycle,
                 items
             )
-        binding.fragmentViewPagerViewPager.apply {
+        binding?.fragmentViewPagerViewPager?.apply {
             this.adapter = adapter
             model.setItemPosition(0)
-            registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
-                override fun onPageScrollStateChanged(state: Int) {
-                    super.onPageScrollStateChanged(state)
-                    if(state == ViewPager2.SCROLL_STATE_IDLE){
-                        model.setItemPosition(currentItem)
-                    }
+            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    model.setItemPosition(position)
                 }
             })
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
         model.itemPosition.observe(viewLifecycleOwner, {
-            binding.fragmentViewPagerViewPager.currentItem = it
+            binding?.fragmentViewPagerViewPager?.currentItem = it
         })
 
         model.errorMessage.observe(viewLifecycleOwner, {
-            if(it != null){
+            if (it != null) {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }
         })
 
-        return binding.root
+        return binding!!.root
     }
 
-    companion object{
+    companion object {
         fun newInstance(mediaItems: List<MediaURL>): MediaListFragment {
             val fragment = MediaListFragment()
             val args = bundleOf(MEDIA_KEY to mediaItems)

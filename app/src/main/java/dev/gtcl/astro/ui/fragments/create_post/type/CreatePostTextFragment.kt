@@ -12,9 +12,9 @@ import dev.gtcl.astro.TextPost
 import dev.gtcl.astro.databinding.FragmentCreatePostTextBinding
 import dev.gtcl.astro.ui.fragments.create_post.CreatePostVM
 
-class CreatePostTextFragment: Fragment() {
+class CreatePostTextFragment : Fragment() {
 
-    private lateinit var binding: FragmentCreatePostTextBinding
+    private var binding: FragmentCreatePostTextBinding? = null
 
     val model: CreatePostVM by lazy {
         ViewModelProviders.of(requireParentFragment()).get(CreatePostVM::class.java)
@@ -30,32 +30,41 @@ class CreatePostTextFragment: Fragment() {
         removeObservers()
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = FragmentCreatePostTextBinding.inflate(inflater)
-        binding.lifecycleOwner = this
+        binding?.lifecycleOwner = this
         initObservers()
-        return binding.root
+        return binding!!.root
     }
 
-    private fun initObservers(){
+    private fun initObservers() {
         model.fetchInput.observe(viewLifecycleOwner, {
-            if(it == true){
-                model.setPostContent(TextPost(binding.fragmentCreatePostTextText.text.toString()))
+            if (it == true) {
+                model.setPostContent(TextPost(binding?.fragmentCreatePostTextText?.text.toString()))
                 model.dataFetched()
             }
         })
 
-        binding.fragmentCreatePostTextText.addTextChangedListener(object: TextWatcher{
+        binding?.fragmentCreatePostTextText?.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.fragmentCreatePostTextTextInputLayout.error = null
+                binding?.fragmentCreatePostTextTextInputLayout?.error = null
             }
         })
     }
 
-    private fun removeObservers(){
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+    }
+
+    private fun removeObservers() {
         model.fetchInput.removeObservers(viewLifecycleOwner)
     }
 }

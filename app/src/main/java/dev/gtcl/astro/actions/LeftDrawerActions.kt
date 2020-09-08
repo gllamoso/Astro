@@ -3,7 +3,7 @@ package dev.gtcl.astro.actions
 import dev.gtcl.astro.database.SavedAccount
 
 
-interface LeftDrawerActions{
+interface LeftDrawerActions {
     // Accounts
     fun onAddAccountClicked()
     fun onRemoveAccountClicked(account: SavedAccount)

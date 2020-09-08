@@ -6,7 +6,7 @@ import androidx.room.*
 import dev.gtcl.astro.SubscriptionType
 
 @Dao
-interface AccountDao{
+interface AccountDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(account: SavedAccount)
 
@@ -24,7 +24,7 @@ interface AccountDao{
 }
 
 @Dao
-interface ReadItemDao{
+interface ReadItemDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insert(itemsRead: ItemRead)
 
@@ -33,7 +33,7 @@ interface ReadItemDao{
 }
 
 @Dao
-interface SubscriptionDao{
+interface SubscriptionDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     fun insert(list: List<Subscription>)
 
@@ -50,28 +50,44 @@ interface SubscriptionDao{
     suspend fun getSubscription(subId: String): Subscription?
 
     @Query("select * from subscriptions where userId = :userId and name like :q and type != 'MULTIREDDIT' order by name collate nocase asc")
-    suspend fun searchSubscriptionsExcludingMultiReddits(userId: String, q: String): List<Subscription>
+    suspend fun searchSubscriptionsExcludingMultiReddits(
+        userId: String,
+        q: String
+    ): List<Subscription>
 
     @Query("select * from subscriptions where userId = :userId and isFavorite = 1 order by displayName collate nocase asc")
     suspend fun getFavoriteSubscriptionsAlphabetically(userId: String): List<Subscription>
 
     @Query("select * from subscriptions where userId = :userId and isFavorite = 1 and type = :type order by displayName collate nocase asc")
-    suspend fun getFavoriteSubscriptionsAlphabetically(userId: String, type: SubscriptionType): List<Subscription>
+    suspend fun getFavoriteSubscriptionsAlphabetically(
+        userId: String,
+        type: SubscriptionType
+    ): List<Subscription>
 
     @Query("select * from subscriptions where userId = :userId and isFavorite = 1 and type != :excluding order by displayName collate nocase asc")
-    suspend fun getFavoriteSubscriptionsAlphabeticallyExcluding(userId: String, excluding: SubscriptionType): List<Subscription>
+    suspend fun getFavoriteSubscriptionsAlphabeticallyExcluding(
+        userId: String,
+        excluding: SubscriptionType
+    ): List<Subscription>
 
     @Query("select * from subscriptions where userId = :userId and type = :type order by displayName collate nocase asc")
-    suspend fun getSubscriptionsAlphabetically(userId: String, type: SubscriptionType): List<Subscription>
+    suspend fun getSubscriptionsAlphabetically(
+        userId: String,
+        type: SubscriptionType
+    ): List<Subscription>
 
     @Query("update subscriptions set isFavorite = :favorite where id = :subId collate nocase")
     suspend fun updateSubscription(subId: String, favorite: Boolean)
 
 }
 
-@Database(entities = [SavedAccount::class, ItemRead::class, Subscription::class], version = 1, exportSchema = false)
+@Database(
+    entities = [SavedAccount::class, ItemRead::class, Subscription::class],
+    version = 1,
+    exportSchema = false
+)
 @TypeConverters(SubscriptionTypeConverter::class)
-abstract class AstroDatabase: RoomDatabase(){
+abstract class AstroDatabase : RoomDatabase() {
     abstract val accountDao: AccountDao
     abstract val readItemDao: ReadItemDao
     abstract val subscriptionDao: SubscriptionDao
@@ -79,9 +95,11 @@ abstract class AstroDatabase: RoomDatabase(){
 
 private lateinit var INSTANCE: AstroDatabase
 fun redditDatabase(context: Context): AstroDatabase {
-    synchronized(AstroDatabase::class.java){
-        if(!::INSTANCE.isInitialized){
-            INSTANCE = Room.databaseBuilder(context.applicationContext, AstroDatabase::class.java, "local").build()
+    synchronized(AstroDatabase::class.java) {
+        if (!::INSTANCE.isInitialized) {
+            INSTANCE =
+                Room.databaseBuilder(context.applicationContext, AstroDatabase::class.java, "local")
+                    .build()
         }
     }
     return INSTANCE

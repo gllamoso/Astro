@@ -1,6 +1,5 @@
 package dev.gtcl.astro.network
 
-import android.util.Log
 import com.jakewharton.retrofit2.adapter.kotlin.coroutines.CoroutineCallAdapterFactory
 import com.squareup.moshi.Moshi
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
@@ -13,6 +12,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.http.GET
 import retrofit2.http.Path
+import timber.log.Timber
 
 interface RedgifsService {
 
@@ -21,12 +21,12 @@ interface RedgifsService {
         @Path("gfyid") gfyid: String
     ): Deferred<GfycatResponse>
 
-    companion object{
+    companion object {
         private const val URL = "https://api.redgifs.com/"
         fun create(): RedgifsService {
-            val logger = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger{
+            val logger = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
                 override fun log(message: String) {
-                    Log.d("API", message)
+                    Timber.tag("API").d(message)
                 }
             })
             logger.level = HttpLoggingInterceptor.Level.BASIC
@@ -52,9 +52,8 @@ interface RedgifsService {
 }
 
 
-
 object RedgifsApi {
-    val retrofit : RedgifsService by lazy {
+    val retrofit: RedgifsService by lazy {
         RedgifsService.create()
     }
 }

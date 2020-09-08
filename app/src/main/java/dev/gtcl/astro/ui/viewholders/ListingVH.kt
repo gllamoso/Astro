@@ -7,8 +7,9 @@ import dev.gtcl.astro.databinding.ItemListingBinding
 import dev.gtcl.astro.models.reddit.listing.Listing
 import dev.gtcl.astro.actions.ListingTypeClickListener
 
-class ListingVH private constructor(private val binding: ItemListingBinding): RecyclerView.ViewHolder(binding.root) {
-    fun bind(listing: Listing, listingTypeClickListener: ListingTypeClickListener){
+class ListingVH private constructor(private val binding: ItemListingBinding) :
+    RecyclerView.ViewHolder(binding.root) {
+    fun bind(listing: Listing, listingTypeClickListener: ListingTypeClickListener) {
         binding.listing = listing
         binding.root.setOnClickListener {
             listingTypeClickListener.listingTypeClicked(listing)
@@ -16,7 +17,7 @@ class ListingVH private constructor(private val binding: ItemListingBinding): Re
         binding.executePendingBindings()
     }
 
-    companion object{
+    companion object {
         fun create(parent: ViewGroup): ListingVH {
             return ListingVH(ItemListingBinding.inflate(LayoutInflater.from(parent.context)))
         }

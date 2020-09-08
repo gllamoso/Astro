@@ -1,22 +1,19 @@
 package dev.gtcl.astro.ui.fragments.create_post
 
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
+import dev.gtcl.astro.ui.fragments.create_post.type.CreatePostImageFragment
 import dev.gtcl.astro.ui.fragments.create_post.type.CreatePostLinkFragment
 import dev.gtcl.astro.ui.fragments.create_post.type.CreatePostTextFragment
-import dev.gtcl.astro.ui.fragments.create_post.type.CreatePostImageFragment
-import java.lang.IllegalArgumentException
 
-class CreatePostStateAdapter(fragment: Fragment): FragmentStateAdapter(fragment) {
+class CreatePostStateAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
+    FragmentStateAdapter(fragmentManager, lifecycle) {
 
-    override fun getItemCount() = 3
+    private val fragments =
+        listOf(CreatePostTextFragment(), CreatePostImageFragment(), CreatePostLinkFragment())
 
-    override fun createFragment(position: Int): Fragment{
-        return when(position){
-            0 -> CreatePostTextFragment()
-            1 -> CreatePostImageFragment()
-            2 -> CreatePostLinkFragment()
-            else -> throw IllegalArgumentException("Invalid position $position")
-        }
-    }
+    override fun getItemCount() = fragments.size
+
+    override fun createFragment(position: Int) = fragments[position]
 }

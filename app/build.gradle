@@ -45,12 +45,12 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'
 
     // navigation
-    def nav_version = "2.3.0"
+    final def nav_version = "2.3.0"
     implementation "androidx.navigation:navigation-fragment-ktx:$nav_version"
     implementation "androidx.navigation:navigation-ui-ktx:$nav_version"
 
     // coroutines
-    def coroutines = "1.3.4"
+    final def coroutines = "1.3.4"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:${coroutines}"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:${coroutines}"
 
@@ -72,7 +72,7 @@ dependencies {
     implementation 'jp.wasabeef:glide-transformations:4.1.0'
 
     // Room dependency
-    def room_version = "2.2.5"
+    final def room_version = "2.2.5"
     implementation "androidx.room:room-ktx:$room_version"
     kapt "androidx.room:room-compiler:$room_version"
 
@@ -102,7 +102,7 @@ dependencies {
     implementation 'com.arthenica:mobile-ffmpeg-full:4.3.2'
 
     // WorkManager
-    def work_version = "1.0.1"
+    final def work_version = "1.0.1"
     implementation "android.arch.work:work-runtime-ktx:$work_version"
 
     // SwipeRefresh (to work with ViewPager2)
@@ -120,4 +120,7 @@ dependencies {
 
     // Better Link Movement Method
     implementation 'me.saket:better-link-movement-method:2.2.0'
+
+    // Timber
+    implementation 'com.jakewharton.timber:timber:4.7.1'
 }

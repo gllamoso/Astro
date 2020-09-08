@@ -14,10 +14,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
+import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.astro.*
-import dev.gtcl.astro.actions.*
+import dev.gtcl.astro.actions.LeftDrawerActions
 import dev.gtcl.astro.database.SavedAccount
 import dev.gtcl.astro.databinding.FragmentAccountBinding
 import dev.gtcl.astro.databinding.PopupAccountActionsBinding
@@ -27,9 +28,9 @@ import dev.gtcl.astro.ui.LeftDrawerAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.*
 
-class AccountFragment : Fragment(),  LeftDrawerActions {
+class AccountFragment : Fragment(), LeftDrawerActions {
 
-    private lateinit var binding: FragmentAccountBinding
+    private var binding: FragmentAccountBinding? = null
 
     val model: AccountFragmentVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
@@ -45,17 +46,22 @@ class AccountFragment : Fragment(),  LeftDrawerActions {
     override fun onResume() {
         super.onResume()
         viewPagerModel.notifyViewPager()
+        binding?.fragmentAccountViewPager?.currentItem = model.selectedPage
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = FragmentAccountBinding.inflate(inflater)
-        binding.lifecycleOwner = this
-        binding.model = model
+        binding!!.lifecycleOwner = this
+        binding!!.model = model
         val username = requireArguments().getString(USER_KEY)
-        if(model.username == null){
+        if (model.username == null) {
             model.setUsername(username)
         }
-        if(model.account.value == null){
+        if (model.account.value == null) {
             model.fetchAccount(username)
         }
 
@@ -63,92 +69,123 @@ class AccountFragment : Fragment(),  LeftDrawerActions {
         initLeftDrawer()
         initOtherObservers()
 
-        return binding.root
+        return binding!!.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding?.fragmentAccountViewPager?.adapter = null
+        binding = null
     }
 
     @SuppressLint("RtlHardcoded")
-    private fun initLeftDrawer(){
+    private fun initLeftDrawer() {
         val leftDrawerAdapter = LeftDrawerAdapter(requireContext(), this, LeftDrawerHeader.HOME)
-        val leftDrawerLayout = binding.fragmentAccountLeftDrawerLayout
-        leftDrawerLayout.layoutLeftDrawerList.adapter = leftDrawerAdapter
-        leftDrawerLayout.account = (requireActivity().application as AstroApplication).currentAccount
+        val leftDrawerLayout = binding?.fragmentAccountLeftDrawerLayout
+        leftDrawerLayout?.layoutLeftDrawerList?.adapter = leftDrawerAdapter
+        leftDrawerLayout?.account =
+            (requireActivity().application as AstroApplication).currentAccount
 
         activityModel.allUsers.observe(viewLifecycleOwner, {
             leftDrawerAdapter.submitUsers(it)
         })
 
-        leftDrawerLayout.layoutLeftDrawerBanner.setOnClickListener {
+        leftDrawerLayout?.layoutLeftDrawerBanner?.setOnClickListener {
             leftDrawerAdapter.toggleExpanded()
-            rotateView(leftDrawerLayout.layoutLeftDrawerExpandedIndicator, leftDrawerAdapter.isExpanded)
+            rotateView(
+                leftDrawerLayout.layoutLeftDrawerExpandedIndicator,
+                leftDrawerAdapter.isExpanded
+            )
         }
 
-        binding.fragmentAccountToolbar.setNavigationOnClickListener {
-            binding.fragmentAccountDrawer.openDrawer(Gravity.LEFT)
+        binding?.fragmentAccountToolbar?.setNavigationOnClickListener {
+            binding?.fragmentAccountDrawer?.openDrawer(Gravity.LEFT)
         }
     }
 
-    private fun initViewPagerAdapter(){
-        val viewPager = binding.fragmentAccountViewPager
-        val tabLayout = binding.fragmentAccountTabLayout
-        val adapter =
-            AccountStateAdapter(
-                this,
+    private fun initViewPagerAdapter() {
+        val viewPager = binding?.fragmentAccountViewPager
+        val tabLayout = binding?.fragmentAccountTabLayout
+        val fragmentAdapter =
+            AccountFragmentAdapter(
+                childFragmentManager,
+                viewLifecycleOwner.lifecycle,
                 model.username
             )
-        viewPager.adapter = adapter
-        if(model.username == null){
-            TabLayoutMediator(tabLayout, viewPager){ tab, position ->
-                tab.text = getText(when(position){
-                    0 -> R.string.about
-                    1 -> R.string.overview
-                    2 -> R.string.posts
-                    3 -> R.string.comments
-                    4 -> R.string.saved
-                    5 -> R.string.hidden
-                    6 -> R.string.upvoted
-                    7 -> R.string.downvoted
-                    8 -> R.string.gilded
-                    9 -> R.string.friends
-                    10 -> R.string.blocked
-                    else -> throw NoSuchElementException("No such tab in the following position: $position")
-                })
-            }.attach()
+
+        viewPager?.apply {
+            this.adapter = fragmentAdapter
+//            currentItem = model.selectedPage
+            registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                override fun onPageSelected(position: Int) {
+                    super.onPageSelected(position)
+                    model.selectedPage = position
+                }
+            })
+        }
+        if (model.username == null) {
+            if (tabLayout != null && viewPager != null) {
+                TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+                    tab.text = getText(
+                        when (position) {
+                            0 -> R.string.about
+                            1 -> R.string.overview
+                            2 -> R.string.posts
+                            3 -> R.string.comments
+                            4 -> R.string.saved
+                            5 -> R.string.hidden
+                            6 -> R.string.upvoted
+                            7 -> R.string.downvoted
+                            8 -> R.string.gilded
+                            9 -> R.string.friends
+                            10 -> R.string.blocked
+                            else -> throw NoSuchElementException("No such tab in the following position: $position")
+                        }
+                    )
+                }.attach()
+            }
         } else {
-            TabLayoutMediator(tabLayout, viewPager){ tab, position ->
-                tab.text = getText(when(position){
-                    0 -> R.string.about
-                    1 -> R.string.overview
-                    2 -> R.string.posts
-                    3 -> R.string.comments
-                    4 -> R.string.gilded
-                    else -> throw NoSuchElementException("No such tab in the following position: $position")
-                })
-            }.attach()
+            if (tabLayout != null && viewPager != null) {
+                TabLayoutMediator(tabLayout, viewPager) { tab, position ->
+                    tab.text = getText(
+                        when (position) {
+                            0 -> R.string.about
+                            1 -> R.string.overview
+                            2 -> R.string.posts
+                            3 -> R.string.comments
+                            4 -> R.string.gilded
+                            else -> throw NoSuchElementException("No such tab in the following position: $position")
+                        }
+                    )
+                }.attach()
+            }
         }
     }
 
-    private fun initOtherObservers(){
-        model.errorMessage.observe(viewLifecycleOwner, {
-            if(it != null){
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
-                model.errorMessageObserved()
-                binding.fragmentAccountViewPager.adapter = null
+    private fun initOtherObservers() {
+        model.errorMessage.observe(viewLifecycleOwner, { errorMessage ->
+            if (errorMessage != null) {
+                binding?.let {
+                    Snackbar.make(it.root, errorMessage, Snackbar.LENGTH_LONG).show()
+                    model.errorMessageObserved()
+                    binding?.fragmentAccountViewPager?.adapter = null
+                }
             }
         })
 
-        binding.fragmentAccountSubscribeToggle.root.setOnClickListener {
-            checkedIfLoggedInBeforeExecuting(requireContext()){
+        binding?.fragmentAccountSubscribeToggle?.root?.setOnClickListener {
+            checkedIfLoggedInBeforeExecuting(requireContext()) {
                 val sub = model.account.value?.subreddit ?: return@checkedIfLoggedInBeforeExecuting
                 sub.userSubscribed = sub.userSubscribed != true
-                binding.invalidateAll()
+                binding?.invalidateAll()
                 activityModel.subscribe(sub, (sub.userSubscribed == true))
             }
         }
 
-        binding.fragmentAccountToolbar.setOnMenuItemClickListener {
+        binding?.fragmentAccountToolbar?.setOnMenuItemClickListener {
             val account = model.account.value
-            if(account != null){
-                val anchor = getMenuItemView(binding.fragmentAccountToolbar, R.id.more_options)
+            if (account != null) {
+                val anchor = getMenuItemView(binding?.fragmentAccountToolbar, R.id.more_options)
                 showAccountActionsPopup(anchor!!, account)
             }
             true
@@ -160,16 +197,17 @@ class AccountFragment : Fragment(),  LeftDrawerActions {
         })
     }
 
-    private fun showAccountActionsPopup(anchor: View, account: Account){
-        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private fun showAccountActionsPopup(anchor: View, account: Account) {
+        val inflater =
+            requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupAccountActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
             this.account = account
             popupAccountActionsFriend.root.setOnClickListener {
-                checkedIfLoggedInBeforeExecuting(requireContext()){
+                checkedIfLoggedInBeforeExecuting(requireContext()) {
                     account.isFriend = !(account.isFriend ?: false)
-                    if(account.isFriend == true){
+                    if (account.isFriend == true) {
                         model.addFriend(account.name)
                     } else {
                         model.unfriend(account.name)
@@ -178,7 +216,7 @@ class AccountFragment : Fragment(),  LeftDrawerActions {
                 popupWindow.dismiss()
             }
             popupAccountActionsBlock.root.setOnClickListener {
-                checkedIfLoggedInBeforeExecuting(requireContext()){
+                checkedIfLoggedInBeforeExecuting(requireContext()) {
                     model.blockUser(account.name)
                     findNavController().popBackStack()
                 }
@@ -191,7 +229,12 @@ class AccountFragment : Fragment(),  LeftDrawerActions {
             )
         }
 
-        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
+        popupWindow.showAsDropdown(
+            anchor,
+            popupBinding.root,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            popupBinding.root.measuredHeight
+        )
     }
 
 //     _           __ _     _____                                             _   _
@@ -204,12 +247,12 @@ class AccountFragment : Fragment(),  LeftDrawerActions {
     @SuppressLint("RtlHardcoded")
     override fun onAddAccountClicked() {
         findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSignInFragment())
-        binding.fragmentAccountDrawer.closeDrawer(Gravity.LEFT)
+        binding?.fragmentAccountDrawer?.closeDrawer(Gravity.LEFT)
     }
 
     override fun onRemoveAccountClicked(account: SavedAccount) {
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
-        if(account.id == currentAccount?.id){
+        if (account.id == currentAccount?.id) {
             saveAccountToPreferences(requireContext(), null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
@@ -219,53 +262,55 @@ class AccountFragment : Fragment(),  LeftDrawerActions {
     @SuppressLint("RtlHardcoded")
     override fun onAccountClicked(account: SavedAccount) {
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
-        if(account.id != currentAccount?.id){
+        if (account.id != currentAccount?.id) {
             saveAccountToPreferences(requireContext(), account)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
-        binding.fragmentAccountDrawer.closeDrawer(Gravity.LEFT)
+        binding?.fragmentAccountDrawer?.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onLogoutClicked() {
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
-        if(currentAccount != null){
+        if (currentAccount != null) {
             saveAccountToPreferences(requireContext(), null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
-        binding.fragmentAccountDrawer.closeDrawer(Gravity.LEFT)
+        binding?.fragmentAccountDrawer?.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onHomeClicked() {
-        findNavController().navigate(ViewPagerFragmentDirections.popBackStack(ListingPage(FrontPage)))
-        binding.fragmentAccountDrawer.closeDrawer(Gravity.LEFT)
+        activityModel.newPage(ListingPage(FrontPage))
+        binding?.fragmentAccountDrawer?.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
         val user = model.account.value
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
-        if(user?.name != currentAccount?.name){
-            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(null)))
+        if (user?.name != currentAccount?.name) {
+            activityModel.newPage(AccountPage(null))
         }
-        binding.fragmentAccountDrawer.closeDrawer(Gravity.LEFT)
+        binding?.fragmentAccountDrawer?.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onInboxClicked() {
         if ((activity?.application as AstroApplication).accessToken == null) {
-            Snackbar.make(binding.fragmentAccountDrawer, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
+            binding?.fragmentAccountDrawer?.let {
+                Snackbar.make(it, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
+            }
         } else {
-            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(InboxPage))
-            binding.fragmentAccountDrawer.closeDrawer(Gravity.LEFT)
+            activityModel.newPage(InboxPage)
+            binding?.fragmentAccountDrawer?.closeDrawer(Gravity.LEFT)
         }
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onSettingsClicked() {
         findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSettingsFragment())
-        binding.fragmentAccountDrawer.closeDrawer(Gravity.LEFT)
+        binding?.fragmentAccountDrawer?.closeDrawer(Gravity.LEFT)
     }
 
     companion object {

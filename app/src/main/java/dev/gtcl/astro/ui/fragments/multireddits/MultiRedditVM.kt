@@ -13,9 +13,10 @@ import dev.gtcl.astro.models.reddit.listing.SubredditData
 import kotlinx.coroutines.*
 import retrofit2.HttpException
 
-class MultiRedditVM(private val application: AstroApplication): AstroViewModel(application){
+class MultiRedditVM(private val application: AstroApplication) : AstroViewModel(application) {
 
-    private val _subreddits = MutableLiveData<MutableList<Subreddit>>(). apply{ value = mutableListOf() }
+    private val _subreddits =
+        MutableLiveData<MutableList<Subreddit>>().apply { value = mutableListOf() }
     val subreddits: LiveData<MutableList<Subreddit>>
         get() = _subreddits
 
@@ -33,16 +34,16 @@ class MultiRedditVM(private val application: AstroApplication): AstroViewModel(a
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 
-    fun fetchMultiReddit(subscription: Subscription){
+    fun fetchMultiReddit(subscription: Subscription) {
         coroutineScope.launch {
-            try{
+            try {
                 _isLoading.postValue(true)
                 multipath = subscription.url.replaceFirst("/", "")
                 val response = subredditRepository.getMultiReddit(multipath).await()
                 _multi.postValue(response.data)
                 _subreddits.postValue(response.data.subreddits.map { it.data!! }.toMutableList())
                 _initialized = true
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
                 _isLoading.postValue(false)
@@ -50,17 +51,18 @@ class MultiRedditVM(private val application: AstroApplication): AstroViewModel(a
         }
     }
 
-    fun remove(subreddit: Subreddit, position: Int){
+    fun remove(subreddit: Subreddit, position: Int) {
         coroutineScope.launch {
             try {
                 _isLoading.postValue(true)
                 _subreddits.value?.removeAt(position)
                 _subreddits.postValue(_subreddits.value ?: mutableListOf())
-                val response = subredditRepository.deleteSubredditFromMultiReddit(multipath, subreddit).await()
-                if(response.code() != 200){
+                val response =
+                    subredditRepository.deleteSubredditFromMultiReddit(multipath, subreddit).await()
+                if (response.code() != 200) {
                     throw HttpException(response)
                 }
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
                 _isLoading.postValue(false)
@@ -68,14 +70,15 @@ class MultiRedditVM(private val application: AstroApplication): AstroViewModel(a
         }
     }
 
-    fun addSubredditsToMultiReddit(names: List<String>){
+    fun addSubredditsToMultiReddit(names: List<String>) {
         coroutineScope.launch {
             try {
                 _isLoading.postValue(true)
-                val currentList: MutableList<Subreddit> = if(initialized){
+                val currentList: MutableList<Subreddit> = if (initialized) {
                     _subreddits.value ?: mutableListOf()
                 } else {
-                    subredditRepository.getMultiReddit(multipath).await().data.subreddits.map{ it.data!! }.toMutableList()
+                    subredditRepository.getMultiReddit(multipath)
+                        .await().data.subreddits.map { it.data!! }.toMutableList()
                 }
                 val allNames = currentList.map { it.displayName }.toMutableSet()
                 allNames.addAll(names)
@@ -83,8 +86,8 @@ class MultiRedditVM(private val application: AstroApplication): AstroViewModel(a
                 val model = MultiRedditUpdate(subreddits = subsData)
                 val response = subredditRepository.updateMulti(multipath, model).await()
                 _multi.postValue(response.data)
-                _subreddits.postValue(response.data.subreddits.map{ it.data!! }.toMutableList())
-            } catch (e: HttpException){
+                _subreddits.postValue(response.data.subreddits.map { it.data!! }.toMutableList())
+            } catch (e: HttpException) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
                 _isLoading.postValue(false)
@@ -92,14 +95,14 @@ class MultiRedditVM(private val application: AstroApplication): AstroViewModel(a
         }
     }
 
-    fun updateMultiReddit(model: MultiRedditUpdate){
+    fun updateMultiReddit(model: MultiRedditUpdate) {
         coroutineScope.launch {
             try {
                 _isLoading.postValue(true)
                 val response = subredditRepository.updateMulti(multipath, model).await()
                 _multi.postValue(response.data)
                 subredditRepository.insertMultiReddit(response.data)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
                 _isLoading.postValue(false)

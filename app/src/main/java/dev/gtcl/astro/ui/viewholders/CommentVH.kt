@@ -15,8 +15,15 @@ import dev.gtcl.astro.models.reddit.listing.Comment
 import dev.gtcl.astro.showAsDropdown
 import io.noties.markwon.Markwon
 
-class CommentVH private constructor(private val binding: ItemCommentBinding): RecyclerView.ViewHolder(binding.root) {
-    fun bind(comment: Comment, markwon: Markwon, commentActions: CommentActions, userId: String?, itemClickListener: ItemClickListener){
+class CommentVH private constructor(private val binding: ItemCommentBinding) :
+    RecyclerView.ViewHolder(binding.root) {
+    fun bind(
+        comment: Comment,
+        markwon: Markwon,
+        commentActions: CommentActions,
+        userId: String?,
+        itemClickListener: ItemClickListener
+    ) {
         val isUser = (userId != null && comment.authorFullName == userId)
         binding.comment = comment
         binding.isUser = isUser
@@ -31,15 +38,21 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
         binding.executePendingBindings()
     }
 
-    private fun showPopupWindow(comment: Comment, commentActions: CommentActions, createdFromUser: Boolean, anchor: View){
-        val inflater = anchor.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private fun showPopupWindow(
+        comment: Comment,
+        commentActions: CommentActions,
+        createdFromUser: Boolean,
+        anchor: View
+    ) {
+        val inflater =
+            anchor.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupCommentActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
             this.comment = comment
             this.createdFromUser = createdFromUser
             this.inInbox = false
-            if(createdFromUser){
+            if (createdFromUser) {
                 popupCommentActionsEdit.root.setOnClickListener {
                     commentActions.edit(comment, adapterPosition)
                     popupWindow.dismiss()
@@ -50,12 +63,18 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
                 }
             }
             popupCommentActionsUpvote.root.setOnClickListener {
-                commentActions.vote(comment, if(comment.likes == true) Vote.UNVOTE else Vote.UPVOTE)
+                commentActions.vote(
+                    comment,
+                    if (comment.likes == true) Vote.UNVOTE else Vote.UPVOTE
+                )
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }
             popupCommentActionsDownvote.root.setOnClickListener {
-                commentActions.vote(comment, if(comment.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
+                commentActions.vote(
+                    comment,
+                    if (comment.likes == false) Vote.UNVOTE else Vote.DOWNVOTE
+                )
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }
@@ -87,10 +106,15 @@ class CommentVH private constructor(private val binding: ItemCommentBinding): Re
             )
         }
 
-        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
+        popupWindow.showAsDropdown(
+            anchor,
+            popupBinding.root,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            popupBinding.root.measuredHeight
+        )
     }
 
-    companion object{
+    companion object {
         fun create(parent: ViewGroup): CommentVH {
             return CommentVH(ItemCommentBinding.inflate(LayoutInflater.from(parent.context)))
         }

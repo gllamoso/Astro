@@ -25,11 +25,11 @@ import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.PostPage
 import dev.gtcl.astro.ui.fragments.media.list.MediaListAdapter
 
-class MediaDialogFragment : DialogFragment(){
+class MediaDialogFragment : DialogFragment() {
 
-    private lateinit var binding: FragmentDialogMediaBinding
+    private var binding: FragmentDialogMediaBinding? = null
 
-    private val model: MediaDialogVM by lazy{
+    private val model: MediaDialogVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
         ViewModelProvider(this, viewModelFactory).get(MediaDialogVM::class.java)
     }
@@ -52,13 +52,13 @@ class MediaDialogFragment : DialogFragment(){
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentDialogMediaBinding.inflate(inflater)
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.model = model
-        binding.activityModel = activityModel
+        binding?.lifecycleOwner = viewLifecycleOwner
+        binding?.model = model
+        binding?.activityModel = activityModel
         activityModel.showUi(true)
-        if(!model.mediaInitialized && model.isLoading.value != true){
+        if (!model.mediaInitialized && model.isLoading.value != true) {
             val url = requireArguments().get(MEDIA_KEY) as MediaURL?
-            if(url != null){
+            if (url != null) {
                 model.setMedia(url)
             } else {
                 val mediaItems = requireArguments().get(MEDIA_ITEMS_KEY) as List<MediaURL>
@@ -72,29 +72,36 @@ class MediaDialogFragment : DialogFragment(){
         initTopBar()
         initBottomBar()
 
-        return binding.root
+        return binding!!.root
     }
 
-    private fun initAdapters(){
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding?.fragmentMediaDialogViewpager?.adapter = null
+        binding = null
+    }
+
+    private fun initAdapters() {
         val mediaListAdapter =
             MediaListAdapter { position ->
                 model.setItemPosition(position)
-                binding.fragmentMediaDialogDrawer.closeDrawer(GravityCompat.END)
+                binding?.fragmentMediaDialogDrawer?.closeDrawer(GravityCompat.END)
             }
 
         model.mediaItems.observe(viewLifecycleOwner, {
-            if(binding.fragmentMediaDialogViewpager.adapter == null){
+            if (binding?.fragmentMediaDialogViewpager?.adapter == null) {
                 val swipeToDismissAdapter =
                     MediaSwipeToDismissAdapter(
-                        this,
+                        childFragmentManager,
+                        viewLifecycleOwner.lifecycle,
                         it
                     )
-                binding.fragmentMediaDialogViewpager.apply {
+                binding?.fragmentMediaDialogViewpager?.apply {
                     this.adapter = swipeToDismissAdapter
                     currentItem = 1
-                    registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
+                    registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                         override fun onPageScrollStateChanged(state: Int) {
-                            if(state == ViewPager2.SCROLL_STATE_IDLE && currentItem != 1){
+                            if (state == ViewPager2.SCROLL_STATE_IDLE && currentItem != 1) {
                                 dismiss()
                             }
                         }
@@ -105,46 +112,47 @@ class MediaDialogFragment : DialogFragment(){
                             positionOffsetPixels: Int
                         ) {
                             super.onPageScrolled(position, positionOffset, positionOffsetPixels)
-                            val offset = if(position == 0) {
+                            val offset = if (position == 0) {
                                 1 - positionOffset
                             } else {
                                 positionOffset
                             }
                             val multiplier = 1000
-                            binding.fragmentMediaDialogToolbar.translationY = -multiplier * offset
-                            binding.fragmentMediaDialogBottomBar.translationY = multiplier * offset
+                            binding?.fragmentMediaDialogToolbar?.translationY = -multiplier * offset
+                            binding?.fragmentMediaDialogBottomBar?.translationY =
+                                multiplier * offset
                         }
                     })
                 }
             }
             mediaListAdapter.submitList(it)
 
-            binding.fragmentMediaDialogDrawer.setDrawerLockMode(
-                if(it.size > 1) DrawerLayout.LOCK_MODE_UNLOCKED else DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
+            binding?.fragmentMediaDialogDrawer?.setDrawerLockMode(
+                if (it.size > 1) DrawerLayout.LOCK_MODE_UNLOCKED else DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
                 GravityCompat.END
             )
         })
 
 
 
-        binding.fragmentMediaDialogAlbumThumbnails.adapter = mediaListAdapter
+        binding?.fragmentMediaDialogAlbumThumbnails?.adapter = mediaListAdapter
     }
 
-    private fun initTopBar(){
-        binding.fragmentMediaDialogAlbumButton.setOnClickListener {
-            binding.fragmentMediaDialogDrawer.openDrawer(GravityCompat.END)
+    private fun initTopBar() {
+        binding?.fragmentMediaDialogAlbumButton?.setOnClickListener {
+            binding?.fragmentMediaDialogDrawer?.openDrawer(GravityCompat.END)
         }
 
-        binding.fragmentMediaDialogNavigationButton.setOnClickListener {
+        binding?.fragmentMediaDialogNavigationButton?.setOnClickListener {
             dismiss()
         }
 
-        binding.fragmentMediaDialogToolbar.setNavigationOnClickListener {
+        binding?.fragmentMediaDialogToolbar?.setNavigationOnClickListener {
             dismiss()
         }
     }
 
-    private fun initWindowBackground(){
+    private fun initWindowBackground() {
 //        dialog?.window?.setBackgroundDrawableResource(
 //            if(mediaURL.mediaType == MediaType.PICTURE || mediaURL.mediaType == MediaType.GIF){
 //                R.color.darkTransparent
@@ -156,24 +164,27 @@ class MediaDialogFragment : DialogFragment(){
         dialog?.window?.setBackgroundDrawableResource(android.R.color.black)
     }
 
-    private fun initBottomBar(){
+    private fun initBottomBar() {
         val mediaUrl = requireArguments().get(MEDIA_KEY) as MediaURL?
         val albumUrl = requireArguments().getString(URL_KEY)
         val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
         model.setPost(postPage?.post)
 
-        binding.fragmentMediaDialogComments.setOnClickListener {
+        binding?.fragmentMediaDialogComments?.setOnClickListener {
             if (postPage != null) {
                 activityModel.newPage(postPage)
             }
             dismiss()
         }
 
-        binding.fragmentMediaDialogShare.setOnClickListener {
+        binding?.fragmentMediaDialogShare?.setOnClickListener {
             val shareIntent = Intent(Intent.ACTION_SEND)
             shareIntent.type = "text/plain"
             shareIntent.putExtra(Intent.EXTRA_SUBJECT, getText(R.string.share_subject_message))
-            shareIntent.putExtra(Intent.EXTRA_TEXT, mediaUrl?.url ?: albumUrl ?: throw IllegalArgumentException("Unable to get url"))
+            shareIntent.putExtra(
+                Intent.EXTRA_TEXT,
+                mediaUrl?.url ?: albumUrl ?: throw IllegalArgumentException("Unable to get url")
+            )
             startActivity(Intent.createChooser(shareIntent, null))
         }
 
@@ -181,19 +192,29 @@ class MediaDialogFragment : DialogFragment(){
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
             if (isGranted) {
-                if(model.mediaItems.value != null && model.mediaItems.value!!.size > 1){
-                    showDownloadOptionsPopup(binding.fragmentMediaDialogDownload)
+                if (model.mediaItems.value != null && model.mediaItems.value!!.size > 1) {
+                    binding?.fragmentMediaDialogDownload?.let {
+                        showDownloadOptionsPopup(it)
+                    }
                 } else {
                     model.downloadCurrentItem()
                 }
             } else {
-                Toast.makeText(requireContext(), getString(R.string.please_grant_necessary_permissions), Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.please_grant_necessary_permissions),
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
 
-        binding.fragmentMediaDialogDownload.setOnClickListener {
-            if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
-                if(model.mediaItems.value != null && model.mediaItems.value!!.size > 1){
+        binding?.fragmentMediaDialogDownload?.setOnClickListener {
+            if (ContextCompat.checkSelfPermission(
+                    requireContext(),
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED
+            ) {
+                if (model.mediaItems.value != null && model.mediaItems.value!!.size > 1) {
                     showDownloadOptionsPopup(it)
                 } else {
                     model.downloadCurrentItem()
@@ -203,17 +224,18 @@ class MediaDialogFragment : DialogFragment(){
             }
         }
 
-        binding.fragmentMediaDialogLink.setOnClickListener {
+        binding?.fragmentMediaDialogLink?.setOnClickListener {
             activityModel.openChromeTab(mediaUrl?.url ?: albumUrl!!)
         }
     }
 
-    private fun showDownloadOptionsPopup(anchor: View){
-        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private fun showDownloadOptionsPopup(anchor: View) {
+        val inflater =
+            requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupDownloadActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         val currentItem = model.getCurrentMediaItem()
-        val mediaType = when(currentItem?.mediaType){
+        val mediaType = when (currentItem?.mediaType) {
             MediaType.PICTURE, MediaType.GIF -> SimpleMediaType.PICTURE
             MediaType.VIDEO -> SimpleMediaType.VIDEO
             else -> throw IllegalArgumentException("Invalid media type from item: $currentItem")
@@ -235,10 +257,15 @@ class MediaDialogFragment : DialogFragment(){
             )
         }
 
-        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
+        popupWindow.showAsDropdown(
+            anchor,
+            popupBinding.root,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            popupBinding.root.measuredHeight
+        )
     }
 
-    companion object{
+    companion object {
         fun newInstance(mediaURL: MediaURL, postPage: PostPage? = null): MediaDialogFragment {
             return MediaDialogFragment().apply {
                 arguments = bundleOf(MEDIA_KEY to mediaURL, POST_PAGE_KEY to postPage)

@@ -1,11 +1,17 @@
 package dev.gtcl.astro.ui.fragments.media.list
 
-import androidx.fragment.app.Fragment
+import androidx.fragment.app.FragmentManager
+import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.ui.fragments.media.list.item.MediaFragment
 
-class MediaListFragmentAdapter(fragment: Fragment, private val items: List<MediaURL>): FragmentStateAdapter(fragment){
-    override fun getItemCount() = items.size
-    override fun createFragment(position: Int) = MediaFragment.newInstance(items[position])
+class MediaListFragmentAdapter(
+    fragmentManager: FragmentManager,
+    lifecycle: Lifecycle,
+    items: List<MediaURL>
+) : FragmentStateAdapter(fragmentManager, lifecycle) {
+    val fragments = items.map { MediaFragment.newInstance(it) }
+    override fun getItemCount() = fragments.size
+    override fun createFragment(position: Int) = fragments[position]
 }

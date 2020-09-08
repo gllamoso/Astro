@@ -19,13 +19,19 @@ import dev.gtcl.astro.models.reddit.listing.Post
 import dev.gtcl.astro.showAsDropdown
 import jp.wasabeef.glide.transformations.BlurTransformation
 
-class PostVH private constructor(private val binding:ItemPostBinding)
-    : RecyclerView.ViewHolder(binding.root) {
+class PostVH private constructor(private val binding: ItemPostBinding) :
+    RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(post: Post, postActions: PostActions, blurNsfw: Boolean, username: String?, itemClickListener: ItemClickListener) {
+    fun bind(
+        post: Post,
+        postActions: PostActions,
+        blurNsfw: Boolean,
+        username: String?,
+        itemClickListener: ItemClickListener
+    ) {
         binding.post = post
 
-        binding.itemPostCardView.setOnClickListener{
+        binding.itemPostCardView.setOnClickListener {
             post.isRead = true
             binding.invalidateAll()
             itemClickListener.itemClicked(post, adapterPosition)
@@ -40,11 +46,14 @@ class PostVH private constructor(private val binding:ItemPostBinding)
         binding.executePendingBindings()
     }
 
-    private fun setThumbnail(post: Post, blurNsfw: Boolean, postActions: PostActions){
+    private fun setThumbnail(post: Post, blurNsfw: Boolean, postActions: PostActions) {
         val thumbnailUrl = post.thumbnail
-        if(thumbnailUrl != null && URLUtil.isValidUrl(thumbnailUrl) && Patterns.WEB_URL.matcher(thumbnailUrl).matches()){
+        if (thumbnailUrl != null && URLUtil.isValidUrl(thumbnailUrl) && Patterns.WEB_URL.matcher(
+                thumbnailUrl
+            ).matches()
+        ) {
             binding.itemPostThumbnailBackground.visibility = View.VISIBLE
-            binding.itemPostThumbnail.setOnClickListener{
+            binding.itemPostThumbnail.setOnClickListener {
                 post.isRead = true
                 binding.invalidateAll()
                 postActions.thumbnailClicked(post, adapterPosition)
@@ -52,7 +61,7 @@ class PostVH private constructor(private val binding:ItemPostBinding)
 
             Glide.with(binding.root.context)
                 .load(thumbnailUrl).apply {
-                    if((post.nsfw && blurNsfw)){
+                    if ((post.nsfw && blurNsfw)) {
                         apply(RequestOptions.bitmapTransform(BlurTransformation()))
                     }
                 }.into(binding.itemPostThumbnail)
@@ -61,15 +70,21 @@ class PostVH private constructor(private val binding:ItemPostBinding)
         }
     }
 
-    private fun showPopupWindow(post: Post, postActions: PostActions, createdFromUser: Boolean, anchor: View){
-        val inflater = anchor.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private fun showPopupWindow(
+        post: Post,
+        postActions: PostActions,
+        createdFromUser: Boolean,
+        anchor: View
+    ) {
+        val inflater =
+            anchor.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupPostActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
             this.post = post
             this.createdFromUser = createdFromUser
-            if(createdFromUser){
-                if(post.isSelf){
+            if (createdFromUser) {
+                if (post.isSelf) {
                     popupPostActionsEdit.root.setOnClickListener {
                         postActions.edit(post, adapterPosition)
                         popupWindow.dismiss()
@@ -85,12 +100,12 @@ class PostVH private constructor(private val binding:ItemPostBinding)
                 }
             }
             popupPostActionsUpvote.root.setOnClickListener {
-                postActions.vote(post, if(post.likes == true) Vote.UNVOTE else Vote.UPVOTE)
+                postActions.vote(post, if (post.likes == true) Vote.UNVOTE else Vote.UPVOTE)
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }
             popupPostActionsDownvote.root.setOnClickListener {
-                postActions.vote(post, if(post.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
+                postActions.vote(post, if (post.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
                 binding.invalidateAll()
                 popupWindow.dismiss()
             }
@@ -127,7 +142,12 @@ class PostVH private constructor(private val binding:ItemPostBinding)
             )
         }
 
-        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
+        popupWindow.showAsDropdown(
+            anchor,
+            popupBinding.root,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            popupBinding.root.measuredHeight
+        )
     }
 
     companion object {

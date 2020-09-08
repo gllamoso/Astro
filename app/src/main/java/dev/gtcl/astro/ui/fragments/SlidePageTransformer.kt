@@ -23,7 +23,8 @@ class SlidePageTransformer : ViewPager2.PageTransformer {
                 position <= 0 -> { // [-1,0]
                     val scaleFactor = max(MIN_SCALE, 1 - abs(position))
 //                    translationZ = -1f
-                    alpha = (MIN_ALPHA + (((scaleFactor - MIN_SCALE) / (1 - MIN_SCALE)) * (1 - MIN_ALPHA)))
+                    alpha =
+                        (MIN_ALPHA + (((scaleFactor - MIN_SCALE) / (1 - MIN_SCALE)) * (1 - MIN_ALPHA)))
                     // Counteract the default slide transition
                     translationX = pageWidth * -position
                 }

@@ -2,7 +2,6 @@ package dev.gtcl.astro.models.reddit.listing
 
 import android.os.Parcelable
 import android.text.Html
-import androidx.room.Ignore
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
@@ -114,35 +113,35 @@ data class Comment(
     @IgnoredOnParcel
     val deleted = author == "[deleted]"
 
-    fun updateScore(vote: Vote){
-        when(vote){
+    fun updateScore(vote: Vote) {
+        when (vote) {
             Vote.UPVOTE -> {
-                when(likes){
+                when (likes) {
                     true -> score--
                     false -> score += 2
                     null -> score++
 
                 }
-                likes = if(likes != true){
+                likes = if (likes != true) {
                     true
                 } else {
                     null
                 }
             }
             Vote.DOWNVOTE -> {
-                when(likes){
+                when (likes) {
                     true -> score -= 2
                     false -> score++
                     null -> score--
                 }
-                likes = if(likes != false){
+                likes = if (likes != false) {
                     false
                 } else {
                     null
                 }
             }
             Vote.UNVOTE -> {
-                when(likes){
+                when (likes) {
                     true -> score--
                     false -> score++
                 }
@@ -238,6 +237,7 @@ data class Post(
     val isSelf: Boolean, // if true, post is a text
     @Json(name = "upvote_ratio")
     val upvoteRatio: Double?,
+    @Json(name = "secure_media")
     val secureMedia: SecureMedia?,
     val preview: Preview?,
     val media: Media?,
@@ -275,10 +275,13 @@ data class Post(
     val previewVideoUrl: String?
         get() {
             return when {
-                secureMedia?.redditVideo != null -> secureMedia.redditVideo.hlsUrl
-                media?.redditVideo != null -> media.redditVideo.hlsUrl
-                preview?.redditVideo != null -> preview.redditVideo.hlsUrl
+                secureMedia?.redditVideo?.hlsUrl != null -> secureMedia.redditVideo.hlsUrl
+                media?.redditVideo?.hlsUrl != null -> media.redditVideo.hlsUrl
+                preview?.redditVideo?.hlsUrl != null -> preview.redditVideo.hlsUrl
                 crosspostParentList?.get(0)?.previewVideoUrl != null -> crosspostParentList[0].previewVideoUrl
+                REDDIT_VIDEO_REGEX.containsMatchIn(
+                    url ?: ""
+                ) -> "${REDDIT_VIDEO_REGEX.find(url ?: "")!!.value}/HLSPlaylist.m3u8"
                 else -> null
             }
         }
@@ -287,7 +290,7 @@ data class Post(
     val shortLink = "https://redd.it/$id"
 
     val flairTextFormatted: CharSequence?
-        get(){
+        get() {
             return if (flairText != null) {
                 Html.fromHtml(flairText, Html.FROM_HTML_MODE_COMPACT)
             } else {
@@ -309,12 +312,12 @@ data class Post(
     val urlType = url?.getUrlType()
 
     @IgnoredOnParcel
-    val galleryAsMediaItems: List<MediaURL>? = if(galleryData != null){
-        mutableListOf<MediaURL>().apply{
-            for(id: String in galleryData.items.map { it.mediaId }){
+    val galleryAsMediaItems: List<MediaURL>? = if (galleryData != null) {
+        mutableListOf<MediaURL>().apply {
+            for (id: String in galleryData.items.map { it.mediaId }) {
                 val metaData = mediaMetadata!![id] ?: error("MetaData is null")
                 val mimeType = metaData.mimeType
-                val extension = when{
+                val extension = when {
                     mimeType.endsWith("png") -> "png"
                     mimeType.endsWith("jpg") -> "jpg"
                     mimeType.endsWith("png") -> "png"
@@ -323,10 +326,10 @@ data class Post(
                     mimeType.endsWith("gif") -> "gif"
                     else -> null
                 }
-                if(extension.isNullOrBlank()){
+                if (extension.isNullOrBlank()) {
                     continue
                 }
-                val mediaType = if(extension == "gif"){
+                val mediaType = if (extension == "gif") {
                     MediaType.GIF
                 } else {
                     MediaType.PICTURE
@@ -338,35 +341,35 @@ data class Post(
         null
     }
 
-    fun updateScore(vote: Vote){
-        when(vote){
+    fun updateScore(vote: Vote) {
+        when (vote) {
             Vote.UPVOTE -> {
-                when(likes){
+                when (likes) {
                     true -> score--
                     false -> score += 2
                     null -> score++
 
                 }
-                likes = if(likes != true){
+                likes = if (likes != true) {
                     true
                 } else {
                     null
                 }
             }
             Vote.DOWNVOTE -> {
-                when(likes){
+                when (likes) {
                     true -> score -= 2
                     false -> score++
                     null -> score--
                 }
-                likes = if(likes != false){
+                likes = if (likes != false) {
                     false
                 } else {
                     null
                 }
             }
             Vote.UNVOTE -> {
-                when(likes){
+                when (likes) {
                     true -> score--
                     false -> score++
                 }
@@ -409,7 +412,7 @@ data class Media(
 @Parcelize
 data class RedditVideo(
     @Json(name = "hls_url")
-    val hlsUrl: String
+    val hlsUrl: String?
 ) : Parcelable
 
 @Parcelize
@@ -423,7 +426,7 @@ data class Gildings(
 ) : Parcelable
 
 @Parcelize
-data class  GalleryData(
+data class GalleryData(
     val items: List<GalleryItem>
 ) : Parcelable
 

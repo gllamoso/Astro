@@ -9,7 +9,7 @@ import io.noties.markwon.LinkResolverDef
 import io.noties.markwon.MarkwonConfiguration
 import io.noties.markwon.utils.NoCopySpannableFactory
 
-class CustomMarkwonPlugin(private val linkHandler: (String) -> Unit) : AbstractMarkwonPlugin(){
+class CustomMarkwonPlugin(private val linkHandler: (String) -> Unit) : AbstractMarkwonPlugin() {
 
     override fun configureConfiguration(builder: MarkwonConfiguration.Builder) {
         builder.linkResolver(object : LinkResolverDef() {

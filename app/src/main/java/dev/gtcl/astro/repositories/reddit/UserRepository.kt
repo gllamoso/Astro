@@ -23,7 +23,11 @@ class UserRepository private constructor(val application: AstroApplication) {
 
     @MainThread
     fun postCode(authorization: String, code: String, redirectUri: String) =
-        RedditApi.base.postCode(authorization = authorization, code = code, redirectUri = redirectUri)
+        RedditApi.base.postCode(
+            authorization = authorization,
+            code = code,
+            redirectUri = redirectUri
+        )
 
     @MainThread
     fun getNewAccessToken(authorization: String, refreshToken: String) =
@@ -41,75 +45,86 @@ class UserRepository private constructor(val application: AstroApplication) {
         RedditApi.oauth.getCurrentAccountInfo(accessToken.authorizationHeader)
 
     @MainThread
-    fun getAccountInfo(username: String): Deferred<AccountChild>{
-        return if(application.accessToken != null){
+    fun getAccountInfo(username: String): Deferred<AccountChild> {
+        return if (application.accessToken != null) {
             RedditApi.oauth.getUserInfo(application.accessToken!!.authorizationHeader, username)
-        }
-        else{
+        } else {
             RedditApi.base.getUserInfo(null, username)
         }
     }
 
     @MainThread
-    fun getFriends(): Deferred<List<UserList>>{
-        if(application.accessToken == null){
+    fun getFriends(): Deferred<List<UserList>> {
+        if (application.accessToken == null) {
             throw NotLoggedInException()
         }
         return RedditApi.oauth.getFriends(application.accessToken!!.authorizationHeader)
     }
 
     @MainThread
-    fun addFriend(username: String): Deferred<User>{
-        if(application.accessToken == null){
+    fun addFriend(username: String): Deferred<User> {
+        if (application.accessToken == null) {
             throw NotLoggedInException()
         }
-        return RedditApi.oauth.addFriend(application.accessToken!!.authorizationHeader, username, FriendRequest(username))
+        return RedditApi.oauth.addFriend(
+            application.accessToken!!.authorizationHeader,
+            username,
+            FriendRequest(username)
+        )
     }
 
     @MainThread
-    fun removeFriend(username: String): Deferred<Response<Unit>>{
-        if(application.accessToken == null){
+    fun removeFriend(username: String): Deferred<Response<Unit>> {
+        if (application.accessToken == null) {
             throw NotLoggedInException()
         }
-        return RedditApi.oauth.removeFriend(application.accessToken!!.authorizationHeader, username, FriendRequest(username))
+        return RedditApi.oauth.removeFriend(
+            application.accessToken!!.authorizationHeader,
+            username,
+            FriendRequest(username)
+        )
     }
 
     @MainThread
-    fun getBlocked(): Deferred<UserList>{
-        if(application.accessToken == null){
+    fun getBlocked(): Deferred<UserList> {
+        if (application.accessToken == null) {
             throw NotLoggedInException()
         }
         return RedditApi.oauth.getBlocked(application.accessToken!!.authorizationHeader)
     }
 
     @MainThread
-    fun blockUser(username: String): Deferred<Response<Unit>>{
-        if(application.accessToken == null){
+    fun blockUser(username: String): Deferred<Response<Unit>> {
+        if (application.accessToken == null) {
             throw NotLoggedInException()
         }
         return RedditApi.oauth.blockUser(application.accessToken!!.authorizationHeader, username)
     }
 
     @MainThread
-    fun unblockUser(username: String): Deferred<Response<Unit>>{
-        if(application.accessToken == null || application.currentAccount == null){
+    fun unblockUser(username: String): Deferred<Response<Unit>> {
+        if (application.accessToken == null || application.currentAccount == null) {
             throw NotLoggedInException()
         }
-        return RedditApi.oauth.unblockUser(application.accessToken!!.authorizationHeader, application.currentAccount!!.fullId, username)
+        return RedditApi.oauth.unblockUser(
+            application.accessToken!!.authorizationHeader,
+            application.currentAccount!!.fullId,
+            username
+        )
     }
 
     // --- DATABASE
 
     @MainThread
-    suspend fun insertUserToDatabase(account: Account){
-        withContext(Dispatchers.IO){
+    suspend fun insertUserToDatabase(account: Account) {
+        withContext(Dispatchers.IO) {
             val databaseUser = account.asDbModel()
             database.accountDao.insert(databaseUser)
         }
     }
 
     @MainThread
-    suspend fun deleteUserInDatabase(username: String){
+    suspend fun deleteUserInDatabase(username: String) {
         withContext(Dispatchers.IO) {
             database.accountDao.deleteUser(username)
         }
@@ -118,10 +133,10 @@ class UserRepository private constructor(val application: AstroApplication) {
     @MainThread
     fun getAllUsers() = database.accountDao.getUsers()
 
-    companion object{
+    companion object {
         private lateinit var INSTANCE: UserRepository
         fun getInstance(application: AstroApplication): UserRepository {
-            if(!Companion::INSTANCE.isInitialized){
+            if (!Companion::INSTANCE.isInitialized) {
                 INSTANCE = UserRepository(application)
             }
             return INSTANCE

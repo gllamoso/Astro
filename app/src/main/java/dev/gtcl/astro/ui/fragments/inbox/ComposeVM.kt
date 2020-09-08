@@ -8,7 +8,7 @@ import dev.gtcl.astro.getErrorMessage
 import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
-class ComposeVM(private val application: AstroApplication): AstroViewModel(application){
+class ComposeVM(private val application: AstroApplication) : AstroViewModel(application) {
 
     private val _isLoading = MutableLiveData<Boolean>().apply { value = false }
     val isLoading: LiveData<Boolean>
@@ -24,26 +24,26 @@ class ComposeVM(private val application: AstroApplication): AstroViewModel(appli
 
     var initialized = false
 
-    fun userDoesNotExistObserved(){
+    fun userDoesNotExistObserved() {
         _userDoesNotExist.value = null
     }
 
-    fun sendMessage(to: String, subject: String, markdown: String){
+    fun sendMessage(to: String, subject: String, markdown: String) {
         coroutineScope.launch {
-            try{
+            try {
                 _isLoading.postValue(true)
-                if(!userExists(to)){
+                if (!userExists(to)) {
                     _userDoesNotExist.value = Any()
                     _isLoading.postValue(false)
                     return@launch
                 }
                 val result = miscRepository.sendMessage(to, subject, markdown).await()
-                if(result.isSuccessful){
+                if (result.isSuccessful) {
                     _messageSent.postValue(true)
                 } else {
-                   throw Exception()
+                    throw Exception()
                 }
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
                 _isLoading.postValue(false)
@@ -51,11 +51,11 @@ class ComposeVM(private val application: AstroApplication): AstroViewModel(appli
         }
     }
 
-    private suspend fun userExists(query: String): Boolean{
+    private suspend fun userExists(query: String): Boolean {
         return try {
             userRepository.getAccountInfo(query).await().data
             true
-        } catch (e: HttpException){
+        } catch (e: HttpException) {
             false
         }
     }

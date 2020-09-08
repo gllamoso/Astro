@@ -9,9 +9,10 @@ import dev.gtcl.astro.network.NetworkState
 import kotlinx.coroutines.*
 import java.util.*
 
-class SearchVM(private val application: AstroApplication) : AstroViewModel(application){
+class SearchVM(private val application: AstroApplication) : AstroViewModel(application) {
 
-    private val _networkState = MutableLiveData<NetworkState>().apply { value = NetworkState.LOADING }
+    private val _networkState =
+        MutableLiveData<NetworkState>().apply { value = NetworkState.LOADING }
     val networkState: LiveData<NetworkState>
         get() = _networkState
 
@@ -38,7 +39,8 @@ class SearchVM(private val application: AstroApplication) : AstroViewModel(appli
     val firstPageLoaded: Boolean
         get() = _firstPageLoaded
 
-    private val _selectedItems = MutableLiveData<MutableSet<String>>().apply { value = mutableSetOf() }
+    private val _selectedItems =
+        MutableLiveData<MutableSet<String>>().apply { value = mutableSetOf() }
     val selectedItems: LiveData<MutableSet<String>>
         get() = _selectedItems
 
@@ -52,15 +54,15 @@ class SearchVM(private val application: AstroApplication) : AstroViewModel(appli
     val showPopular: LiveData<Boolean>
         get() = _showPopular
 
-    fun showPopular(show: Boolean){
+    fun showPopular(show: Boolean) {
         _showPopular.value = show
     }
 
-    fun retry(){
+    fun retry() {
         lastAction()
     }
 
-    fun searchSubreddits(query: String){
+    fun searchSubreddits(query: String) {
         coroutineScope.launch {
             _isSearching.postValue(true)
             try {
@@ -68,7 +70,7 @@ class SearchVM(private val application: AstroApplication) : AstroViewModel(appli
                 fetchAccountIfItExists(query, results)
                 searchSubreddits(query, results)
                 _searchItems.postValue(results)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _searchItems.postValue(listOf())
                 _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
@@ -77,14 +79,15 @@ class SearchVM(private val application: AstroApplication) : AstroViewModel(appli
         }
     }
 
-    private suspend fun fetchAccountIfItExists(query: String, results: MutableList<Item>){
+    private suspend fun fetchAccountIfItExists(query: String, results: MutableList<Item>) {
         try {
             val account = userRepository.getAccountInfo(query).await().data
             results.add(account)
-        } catch (e: Exception){ }
+        } catch (e: Exception) {
+        }
     }
 
-    private suspend fun searchSubreddits(query: String, results: MutableList<Item>){
+    private suspend fun searchSubreddits(query: String, results: MutableList<Item>) {
         val subs = subredditRepository.searchSubreddits(
             nsfw = true,
             includeProfiles = false,
@@ -94,19 +97,21 @@ class SearchVM(private val application: AstroApplication) : AstroViewModel(appli
         results.addAll(subs)
     }
 
-    fun loadPopular(){
+    fun loadPopular() {
         coroutineScope.launch {
             _networkState.postValue(NetworkState.LOADING)
             try {
                 val size = pageSize * 3
-                val response = subredditRepository.getSubredditsListing(SubredditWhere.POPULAR, after, size).await()
+                val response =
+                    subredditRepository.getSubredditsListing(SubredditWhere.POPULAR, after, size)
+                        .await()
                 val subs = response.data.children.map { it.data }.toMutableList()
                 _popularItems.postValue(subs)
                 _lastItemReached.postValue(subs.size < size)
                 after = response.data.after
                 _networkState.postValue(NetworkState.LOADED)
                 _firstPageLoaded = true
-            } catch(e: Exception){
+            } catch (e: Exception) {
                 lastAction = ::loadPopular
                 after = null
                 _networkState.postValue(NetworkState.error(e.getErrorMessage(application)))
@@ -114,24 +119,26 @@ class SearchVM(private val application: AstroApplication) : AstroViewModel(appli
         }
     }
 
-    fun loadMorePopular(){
+    fun loadMorePopular() {
         coroutineScope.launch {
             val previousAfter = after
             _networkState.postValue(NetworkState.LOADING)
             try {
-                val size = if(popularItems.value.isNullOrEmpty()){
+                val size = if (popularItems.value.isNullOrEmpty()) {
                     pageSize * 3
                 } else {
                     pageSize
                 }
-                val response = subredditRepository.getSubredditsListing(SubredditWhere.POPULAR, after, size).await()
+                val response =
+                    subredditRepository.getSubredditsListing(SubredditWhere.POPULAR, after, size)
+                        .await()
                 val subs = response.data.children.map { it.data }
                 _morePopularItems.postValue(subs)
                 _popularItems.value?.addAll(subs)
                 _lastItemReached.postValue(subs.size < size)
                 after = response.data.after
                 _networkState.postValue(NetworkState.LOADED)
-            } catch(e: Exception){
+            } catch (e: Exception) {
                 after = previousAfter
                 lastAction = ::loadMorePopular
                 _networkState.postValue(NetworkState.error(e.getErrorMessage(application)))
@@ -139,15 +146,15 @@ class SearchVM(private val application: AstroApplication) : AstroViewModel(appli
         }
     }
 
-    fun morePopularItemsObserved(){
+    fun morePopularItemsObserved() {
         _morePopularItems.value = null
     }
 
-    fun addSelectedItem(item: String){
+    fun addSelectedItem(item: String) {
         _selectedItems += item
     }
 
-    fun removeSelectedItem(item: String){
+    fun removeSelectedItem(item: String) {
         _selectedItems -= item
     }
 

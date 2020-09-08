@@ -17,9 +17,9 @@ import dev.gtcl.astro.models.reddit.listing.FrontPage
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.ListingPage
 
-class SplashFragment : Fragment(){
+class SplashFragment : Fragment() {
 
-    private lateinit var binding: FragmentSplashBinding
+    private var binding: FragmentSplashBinding? = null
 
     private val model: SplashVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
@@ -34,28 +34,38 @@ class SplashFragment : Fragment(){
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentSplashBinding.inflate(inflater)
-        binding.model = model
-        binding.lifecycleOwner = viewLifecycleOwner
+        binding?.model = model
+        binding?.lifecycleOwner = viewLifecycleOwner
         setUserFromSharedPreferences()
 
         model.ready.observe(viewLifecycleOwner, {
-            if(it != null){
-                findNavController().navigate(SplashFragmentDirections.actionSplashScreenFragmentToViewPagerFragment(ListingPage(FrontPage)))
+            if (it != null) {
+                findNavController().navigate(
+                    SplashFragmentDirections.actionSplashScreenFragmentToViewPagerFragment(
+                        ListingPage(FrontPage)
+                    )
+                )
                 model.readyComplete()
                 activityModel.syncSubscriptionsWithReddit()
             }
         })
 
-        binding.fragmentSplashRetryButton.setOnClickListener {
+        binding?.fragmentSplashRetryButton?.setOnClickListener {
             model.errorMessageObserved()
             setUserFromSharedPreferences()
         }
 
-        return binding.root
+        return binding!!.root
     }
 
-    private fun setUserFromSharedPreferences(){
-        val sharedPref = requireActivity().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+    }
+
+    private fun setUserFromSharedPreferences() {
+        val sharedPref =
+            requireActivity().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
         val userString = sharedPref.getString(CURRENT_USER_KEY, null)
         val account = Gson().fromJson(userString, SavedAccount::class.java)
         model.setCurrentUser(account, false)

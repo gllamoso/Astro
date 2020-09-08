@@ -16,11 +16,14 @@ import dev.gtcl.astro.models.reddit.listing.Flair
 
 class FlairEditDialogFragment : DialogFragment(), TextWatcher {
 
-    private lateinit var binding: FragmentDialogFlairEditBinding
+    private var binding: FragmentDialogFlairEditBinding? = null
 
     override fun onStart() {
         super.onStart()
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
 //        dialog?.window?.setBackgroundDrawableResource(android.R.color.black) // This makes the dialog full screen
     }
 
@@ -34,8 +37,8 @@ class FlairEditDialogFragment : DialogFragment(), TextWatcher {
         initFlair(flair)
         initObservers()
 
-        binding.fragmentDialogFlairEditDialogButtons.dialogPositiveButton.setOnClickListener {
-            val text = binding.fragmentDialogFlairEditText.text.toString()
+        binding?.fragmentDialogFlairEditDialogButtons?.dialogPositiveButton?.setOnClickListener {
+            val text = binding?.fragmentDialogFlairEditText?.text.toString()
             if (text.length in 1..64) {
                 flair.text = text
                 parentFragmentManager.setFragmentResult(
@@ -44,28 +47,33 @@ class FlairEditDialogFragment : DialogFragment(), TextWatcher {
                 )
                 dismiss()
             } else {
-                binding.fragmentDialogFlairEditTextInputLayout.error = getString(R.string.invalid)
+                binding?.fragmentDialogFlairEditTextInputLayout?.error = getString(R.string.invalid)
             }
         }
 
-        binding.fragmentDialogFlairEditDialogButtons.dialogNegativeButton.setOnClickListener {
+        binding?.fragmentDialogFlairEditDialogButtons?.dialogNegativeButton?.setOnClickListener {
             dismiss()
         }
 
-        return binding.root
+        return binding!!.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 
     private fun initFlair(flair: Flair) {
-        binding.flair = flair
-        binding.executePendingBindings()
+        binding?.flair = flair
+        binding?.executePendingBindings()
     }
 
     private fun initObservers() {
-        binding.fragmentDialogFlairEditToolbar.setNavigationOnClickListener {
+        binding?.fragmentDialogFlairEditToolbar?.setNavigationOnClickListener {
             dismiss()
         }
 
-        binding.fragmentDialogFlairEditText.addTextChangedListener(this)
+        binding?.fragmentDialogFlairEditText?.addTextChangedListener(this)
     }
 
     override fun afterTextChanged(s: Editable?) {}
@@ -73,7 +81,7 @@ class FlairEditDialogFragment : DialogFragment(), TextWatcher {
     override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
     override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-        binding.fragmentDialogFlairEditTextInputLayout.error = null
+        binding?.fragmentDialogFlairEditTextInputLayout?.error = null
     }
 
     companion object {

@@ -5,23 +5,25 @@ import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.*
 import dev.gtcl.astro.database.SavedAccount
 import dev.gtcl.astro.models.reddit.AccessToken
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
-class SplashVM(val application: AstroApplication): AstroViewModel(application) {
+class SplashVM(val application: AstroApplication) : AstroViewModel(application) {
 
     private val _ready = MutableLiveData<Boolean?>()
     val ready: LiveData<Boolean?>
         get() = _ready
 
-    fun readyComplete(){
+    fun readyComplete() {
         _ready.value = null
     }
 
-    fun setCurrentUser(account: SavedAccount?, saveToPreferences: Boolean){
+    fun setCurrentUser(account: SavedAccount?, saveToPreferences: Boolean) {
         coroutineScope.launch {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 try {
-                    if(account == null) {
+                    if (account == null) {
                         application.accessToken = null
                         application.currentAccount = null
                     } else {
@@ -30,11 +32,11 @@ class SplashVM(val application: AstroApplication): AstroViewModel(application) {
                         application.currentAccount = userRepository.getAccount(accessToken).await()
                     }
 
-                    if(saveToPreferences){
+                    if (saveToPreferences) {
                         saveAccountToPreferences(application, account)
                     }
                     _ready.postValue(true)
-                } catch (e: Exception){
+                } catch (e: Exception) {
                     _errorMessage.postValue(e.getErrorMessage(application))
                 }
             }
@@ -42,8 +44,10 @@ class SplashVM(val application: AstroApplication): AstroViewModel(application) {
     }
 
     private suspend fun fetchAccessToken(refreshToken: String): AccessToken {
-        return userRepository.getNewAccessToken("Basic ${getEncodedAuthString()}", refreshToken).await().apply {
-            this.refreshToken = refreshToken
-        }
+        return userRepository.getNewAccessToken("Basic ${getEncodedAuthString()}", refreshToken)
+            .await().apply {
+                this.refreshToken = refreshToken
+            }
     }
+
 }

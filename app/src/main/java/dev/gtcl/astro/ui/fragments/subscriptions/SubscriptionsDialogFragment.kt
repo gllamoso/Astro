@@ -26,9 +26,10 @@ import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.ViewPagerFragmentDirections
 import dev.gtcl.astro.ui.fragments.multireddits.MultiRedditDetailsDialogFragment
 
-class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActions, ListingTypeClickListener{
+class SubscriptionsDialogFragment : BottomSheetDialogFragment(), SubscriptionActions,
+    ListingTypeClickListener {
 
-    private lateinit var binding: FragmentDialogSubscriptionsBinding
+    private var binding: FragmentDialogSubscriptionsBinding? = null
 
     private val activityModel: MainActivityVM by activityViewModels()
 
@@ -57,59 +58,68 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = FragmentDialogSubscriptionsBinding.inflate(inflater)
         setRecyclerView()
         setListeners()
-        return binding.root
+        return binding!!.root
     }
 
-    private fun setRecyclerView(){
-        binding.fragmentDialogSubscriptionsRecyclerView.adapter = adapter
+    private fun setRecyclerView() {
+        binding?.fragmentDialogSubscriptionsRecyclerView?.adapter = adapter
 
-        if(activityModel.refreshState.value == null){
+        if (activityModel.refreshState.value == null) {
             model.fetchSubscriptions()
         }
 
         activityModel.refreshState.observe(viewLifecycleOwner, {
-            if(it == NetworkState.LOADED){
+            if (it == NetworkState.LOADED) {
                 model.fetchSubscriptions()
                 activityModel.refreshObserved()
             }
         })
 
         model.subscriptions.observe(viewLifecycleOwner, {
-            if(it != null){
+            if (it != null) {
                 adapter.setSubscriptions(it.favorites, it.multiReddits, it.subreddits, it.users)
                 model.subscriptionsObserved()
             }
         })
 
         activityModel.refreshState.observe(viewLifecycleOwner, {
-            binding.fragmentDialogSubscriptionsProgressBar.visibility = if(it == NetworkState.LOADING) View.VISIBLE else View.GONE
+            binding?.fragmentDialogSubscriptionsProgressBar?.visibility =
+                if (it == NetworkState.LOADING) View.VISIBLE else View.GONE
         })
     }
 
-    private fun setListeners(){
-        binding.fragmentDialogSubscriptionsToolbar.setNavigationOnClickListener {
+    private fun setListeners() {
+        binding?.fragmentDialogSubscriptionsToolbar?.setNavigationOnClickListener {
             dismiss()
         }
 
-        binding.fragmentDialogSubscriptionsSearch.setOnClickListener {
-            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSearchFragment(false))
+        binding?.fragmentDialogSubscriptionsSearch?.setOnClickListener {
+            findNavController().navigate(
+                ViewPagerFragmentDirections.actionViewPagerFragmentToSearchFragment(
+                    false
+                )
+            )
             dismiss()
         }
 
-        binding.fragmentDialogSubscriptionsSync.setOnClickListener {
+        binding?.fragmentDialogSubscriptionsSync?.setOnClickListener {
             activityModel.syncSubscriptionsWithReddit()
         }
 
-        binding.fragmentDialogSubscriptionsMoreOptions.setOnClickListener {
+        binding?.fragmentDialogSubscriptionsMoreOptions?.setOnClickListener {
             showMoreOptionsPopupWindow(it)
         }
 
         model.errorMessage.observe(viewLifecycleOwner, {
-            if(it != null){
+            if (it != null) {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }
@@ -121,20 +131,22 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
         })
 
         model.editSubscription.observe(viewLifecycleOwner, {
-            if(it != null){
+            if (it != null) {
                 editMultiReddit(it)
             }
         })
     }
 
-    private fun showMoreOptionsPopupWindow(anchor: View){
-        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private fun showMoreOptionsPopupWindow(anchor: View) {
+        val inflater =
+            requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupSubscriptionActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
             popupSubscriptionActionsCreateCustomFeed.root.setOnClickListener {
-                checkedIfLoggedInBeforeExecuting(requireContext()){
-                    MultiRedditDetailsDialogFragment.newInstance(null).show(childFragmentManager, null)
+                checkedIfLoggedInBeforeExecuting(requireContext()) {
+                    MultiRedditDetailsDialogFragment.newInstance(null)
+                        .show(childFragmentManager, null)
                 }
                 popupWindow.dismiss()
             }
@@ -144,7 +156,12 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
                 View.MeasureSpec.makeMeasureSpec(0, View.MeasureSpec.UNSPECIFIED)
             )
         }
-        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
+        popupWindow.showAsDropdown(
+            anchor,
+            popupBinding.root,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            popupBinding.root.measuredHeight
+        )
     }
 
     override fun listingTypeClicked(listing: Listing) {
@@ -163,7 +180,7 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
 
     override fun favorite(sub: Subscription, favorite: Boolean, inFavoritesSection: Boolean) {
         sub.isFavorite = favorite
-        if(favorite){
+        if (favorite) {
             adapter.addToFavorites(sub)
         } else {
             adapter.removeFromFavorites(sub, inFavoritesSection)
@@ -172,19 +189,23 @@ class SubscriptionsDialogFragment: BottomSheetDialogFragment(), SubscriptionActi
     }
 
     override fun remove(sub: Subscription) {
-        checkedIfLoggedInBeforeExecuting(requireContext()){
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.unsubscribe(sub)
         }
     }
 
     override fun editMultiReddit(sub: Subscription) {
-        checkedIfLoggedInBeforeExecuting(requireContext()){
-            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToMultiRedditFragment(sub))
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
+            findNavController().navigate(
+                ViewPagerFragmentDirections.actionViewPagerFragmentToMultiRedditFragment(
+                    sub
+                )
+            )
             dismiss()
         }
     }
 
-    companion object{
+    companion object {
         fun newInstance(): SubscriptionsDialogFragment {
             return SubscriptionsDialogFragment()
         }

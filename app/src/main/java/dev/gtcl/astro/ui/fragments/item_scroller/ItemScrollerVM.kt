@@ -7,11 +7,13 @@ import dev.gtcl.astro.models.reddit.listing.Item
 import dev.gtcl.astro.models.reddit.listing.Listing
 import dev.gtcl.astro.models.reddit.listing.Post
 import dev.gtcl.astro.network.NetworkState
-import kotlinx.coroutines.*
-import kotlin.collections.HashSet
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 const val PAGE_SIZE = 15
-class ItemScrollerVM(private val application: AstroApplication): AstroViewModel(application){
+
+class ItemScrollerVM(private val application: AstroApplication) : AstroViewModel(application) {
 
     private val _networkState = MutableLiveData<NetworkState>()
     val networkState: LiveData<NetworkState>
@@ -48,12 +50,18 @@ class ItemScrollerVM(private val application: AstroApplication): AstroViewModel(
 
     private val currentItemIds = HashSet<String>()
 
-    fun retry(){
+    fun retry() {
         lastAction()
     }
 
     private lateinit var listing: Listing
-    fun setListingInfo(listing: Listing, postSort: PostSort, t: Time?, pageSize: Int, showNsfw: Boolean){
+    fun setListingInfo(
+        listing: Listing,
+        postSort: PostSort,
+        t: Time?,
+        pageSize: Int,
+        showNsfw: Boolean
+    ) {
         this.listing = listing
         this.postSort = postSort
         this.t = t
@@ -62,27 +70,27 @@ class ItemScrollerVM(private val application: AstroApplication): AstroViewModel(
     }
 
     private lateinit var subredditWhere: SubredditWhere
-    fun setListingInfo(subredditWhere: SubredditWhere, pageSize: Int, showNsfw: Boolean){
+    fun setListingInfo(subredditWhere: SubredditWhere, pageSize: Int, showNsfw: Boolean) {
         this.subredditWhere = subredditWhere
         this.pageSize = pageSize
         _showNsfw = showNsfw
     }
 
     private lateinit var messageWhere: MessageWhere
-    fun setListingInfo(messageWhere: MessageWhere, pageSize: Int, showNsfw: Boolean){
+    fun setListingInfo(messageWhere: MessageWhere, pageSize: Int, showNsfw: Boolean) {
         this.messageWhere = messageWhere
         this.pageSize = pageSize
         _showNsfw = showNsfw
     }
 
-    fun addReadItem(item: Item){
+    fun addReadItem(item: Item) {
         readItemIds.add(item.name)
         coroutineScope.launch {
             listingRepository.addReadItem(item)
         }
     }
 
-    fun fetchFirstPage(){
+    fun fetchFirstPage() {
         coroutineScope.launch {
             try {
                 // Get listing items
@@ -94,35 +102,52 @@ class ItemScrollerVM(private val application: AstroApplication): AstroViewModel(
 
                     val firstPageItems = mutableListOf<Item>()
                     var emptyItemsCount = 0
-                    while(firstPageItems.size < firstPageSize && emptyItemsCount < 3){
-                        val retrieveSize = if(firstPageItems.size > (firstPageSize * 2 / 3)) dev.gtcl.astro.ui.fragments.listing.PAGE_SIZE else firstPageSize
-                        val response = when{
-                            ::listing.isInitialized -> listingRepository.getListing(listing, postSort, t, after, retrieveSize, user).await()
-                            ::subredditWhere.isInitialized -> subredditRepository.getSubredditsListing(subredditWhere, after, retrieveSize).await()
-                            ::messageWhere.isInitialized -> listingRepository.getMessages(messageWhere, after, retrieveSize).await()
+                    while (firstPageItems.size < firstPageSize && emptyItemsCount < 3) {
+                        val retrieveSize =
+                            if (firstPageItems.size > (firstPageSize * 2 / 3)) dev.gtcl.astro.ui.fragments.listing.PAGE_SIZE else firstPageSize
+                        val response = when {
+                            ::listing.isInitialized -> listingRepository.getListing(
+                                listing,
+                                postSort,
+                                t,
+                                after,
+                                retrieveSize,
+                                user
+                            ).await()
+                            ::subredditWhere.isInitialized -> subredditRepository.getSubredditsListing(
+                                subredditWhere,
+                                after,
+                                retrieveSize
+                            ).await()
+                            ::messageWhere.isInitialized -> listingRepository.getMessages(
+                                messageWhere,
+                                after,
+                                retrieveSize
+                            ).await()
                             else -> throw IllegalStateException("Not enough info to load listing")
                         }
                         after = response.data.after
 
-                        if(response.data.children.isNullOrEmpty()){
+                        if (response.data.children.isNullOrEmpty()) {
                             _lastItemReached.postValue(true)
                             break
                         } else {
-                            val items = response.data.children.map { it.data }.filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList()
-                            if(items.isNullOrEmpty()){
+                            val items = response.data.children.map { it.data }
+                                .filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList()
+                            if (items.isNullOrEmpty()) {
                                 emptyItemsCount++
                             } else {
                                 firstPageItems.addAll(items)
                             }
 
-                            if(after == null){
+                            if (after == null) {
                                 _lastItemReached.postValue(true)
                                 break
                             }
                         }
                     }
 
-                    if(emptyItemsCount >= 3){ // Show no items if there are 3 results of empty items
+                    if (emptyItemsCount >= 3) { // Show no items if there are 3 results of empty items
                         _lastItemReached.postValue(true)
                         _items.postValue(mutableListOf())
                     } else {
@@ -143,7 +168,7 @@ class ItemScrollerVM(private val application: AstroApplication): AstroViewModel(
         }
     }
 
-    fun loadMore(){
+    fun loadMore() {
         if (lastItemReached.value == true || _networkState.value == NetworkState.LOADING) {
             return
         }
@@ -154,35 +179,52 @@ class ItemScrollerVM(private val application: AstroApplication): AstroViewModel(
                     _networkState.postValue(NetworkState.LOADING)
                     val moreItems = mutableListOf<Item>()
                     var emptyItemsCount = 0
-                    while(moreItems.size < PAGE_SIZE && emptyItemsCount < 3){
-                        val response = when{
-                            ::listing.isInitialized -> listingRepository.getListing(listing, postSort, t, after, PAGE_SIZE, user).await()
-                            ::subredditWhere.isInitialized -> subredditRepository.getSubredditsListing(subredditWhere, after, PAGE_SIZE).await()
-                            ::messageWhere.isInitialized -> listingRepository.getMessages(messageWhere, after, PAGE_SIZE).await()
+                    while (moreItems.size < PAGE_SIZE && emptyItemsCount < 3) {
+                        val response = when {
+                            ::listing.isInitialized -> listingRepository.getListing(
+                                listing,
+                                postSort,
+                                t,
+                                after,
+                                PAGE_SIZE,
+                                user
+                            ).await()
+                            ::subredditWhere.isInitialized -> subredditRepository.getSubredditsListing(
+                                subredditWhere,
+                                after,
+                                PAGE_SIZE
+                            ).await()
+                            ::messageWhere.isInitialized -> listingRepository.getMessages(
+                                messageWhere,
+                                after,
+                                PAGE_SIZE
+                            ).await()
                             else -> throw IllegalStateException("Not enough info to load listing")
                         }
 
                         after = response.data.after
 
-                        if(response.data.children.isNullOrEmpty()){
+                        if (response.data.children.isNullOrEmpty()) {
                             _lastItemReached.postValue(true)
                             break
                         } else {
-                            val items = response.data.children.map { it.data }.filterNot { currentItemIds.contains(it.name) || !(showNsfw) && it is Post && it.nsfw }.toMutableList()
-                            if(items.isNullOrEmpty()){
+                            val items = response.data.children.map { it.data }
+                                .filterNot { currentItemIds.contains(it.name) || !(showNsfw) && it is Post && it.nsfw }
+                                .toMutableList()
+                            if (items.isNullOrEmpty()) {
                                 emptyItemsCount++
                             } else {
                                 moreItems.addAll(items)
                             }
 
-                            if(after == null){
+                            if (after == null) {
                                 _lastItemReached.postValue(true)
                                 break
                             }
                         }
                     }
 
-                    if(emptyItemsCount >= 3){
+                    if (emptyItemsCount >= 3) {
                         _lastItemReached.postValue(true)
                     }
 
@@ -200,16 +242,15 @@ class ItemScrollerVM(private val application: AstroApplication): AstroViewModel(
         }
     }
 
-    fun moreItemsObserved(){
+    fun moreItemsObserved() {
         _moreItems.value = null
     }
 
-    fun removeItemAt(position: Int){
+    fun removeItemAt(position: Int) {
         _items.value?.removeAt(position)
     }
 
-    fun updateItemAt(position: Int, item: Item){
+    fun updateItemAt(position: Int, item: Item) {
         _items.value?.set(position, item)
     }
-
 }

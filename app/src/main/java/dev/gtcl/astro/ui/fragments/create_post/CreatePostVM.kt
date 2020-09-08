@@ -10,14 +10,13 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.NewPostData
 import dev.gtcl.astro.models.reddit.listing.Flair
 import dev.gtcl.astro.models.reddit.listing.Post
-import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.File
 import java.io.FileOutputStream
 import java.io.InputStream
-import java.net.URL
 
-class CreatePostVM(private val application: AstroApplication): AstroViewModel(application){
+class CreatePostVM(private val application: AstroApplication) : AstroViewModel(application) {
 
     private val _fetchInput = MutableLiveData<Boolean?>()
     val fetchInput: LiveData<Boolean?>
@@ -51,52 +50,55 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
     val loading: LiveData<Boolean>
         get() = _loading
 
-    fun fetchData(){
+    fun fetchData() {
         _fetchInput.value = true
     }
 
-    fun dataFetched(){
+    fun dataFetched() {
         _fetchInput.value = null
     }
 
-    fun setPostContent(postContent: PostContent){
+    fun setPostContent(postContent: PostContent) {
         _postContent.value = postContent
     }
 
-    fun postContentObserved(){
+    fun postContentObserved() {
         _postContent.value = null
     }
 
-    fun newPostObserved(){
+    fun newPostObserved() {
         _newPostData.value = null
     }
 
-    fun searchSubreddits(q: String){
+    fun searchSubreddits(q: String) {
         coroutineScope.launch {
             try {
-                _subredditSuggestions.postValue(subredditRepository.searchMySubscriptionsExcludingMultireddits(q).map { it.name })
-            } catch (e: Exception){
+                _subredditSuggestions.postValue(
+                    subredditRepository.searchMySubscriptionsExcludingMultireddits(
+                        q
+                    ).map { it.name })
+            } catch (e: Exception) {
                 _errorMessage.value = e.getErrorMessage(application)
             }
         }
     }
 
-    fun validateSubreddit(displayName: String){
+    fun validateSubreddit(displayName: String) {
         coroutineScope.launch {
             try {
                 subredditRepository.getSubreddit(displayName).await()
                 _subredditValid.postValue(true)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _subredditValid.postValue(false)
             }
         }
     }
 
-    fun setSubredditIsValid(isValid: Boolean){
+    fun setSubredditIsValid(isValid: Boolean) {
         _subredditValid.value = isValid
     }
 
-    fun selectFlair(flair: Flair?){
+    fun selectFlair(flair: Flair?) {
         _flair.value = flair
     }
 
@@ -107,7 +109,7 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
         notifications: Boolean,
         nsfw: Boolean,
         spoiler: Boolean
-    ){
+    ) {
         coroutineScope.launch {
             try {
                 _loading.postValue(true)
@@ -120,15 +122,18 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
                     _flair.value
                 ).await()
 
-                if(!notifications){
-                    val sendNotificationsResponse = miscRepository.sendRepliesToInbox(newPostResponse.json.data.name, notifications).await()
-                    if(!sendNotificationsResponse.isSuccessful){
+                if (!notifications) {
+                    val sendNotificationsResponse = miscRepository.sendRepliesToInbox(
+                        newPostResponse.json.data.name,
+                        notifications
+                    ).await()
+                    if (!sendNotificationsResponse.isSuccessful) {
                         throw HttpException(sendNotificationsResponse)
                     }
                 }
 
                 _newPostData.postValue(newPostResponse.json.data)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
                 _loading.postValue(false)
@@ -143,10 +148,10 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
         notifications: Boolean,
         nsfw: Boolean,
         spoiler: Boolean
-    ){
+    ) {
         coroutineScope.launch {
-            val file = createFile(application,photo) ?: return@launch
-            try{
+            val file = createFile(application, photo) ?: return@launch
+            try {
                 _loading.postValue(true)
                 val imgurResponse = imgurRepository.uploadImage(file).await()
                 val newPostResponse = subredditRepository.submitUrlPost(
@@ -159,15 +164,18 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
                     true
                 ).await()
 
-                if(!notifications){
-                    val sendNotificationsResponse = miscRepository.sendRepliesToInbox(newPostResponse.json.data.name, notifications).await()
-                    if(!sendNotificationsResponse.isSuccessful){
+                if (!notifications) {
+                    val sendNotificationsResponse = miscRepository.sendRepliesToInbox(
+                        newPostResponse.json.data.name,
+                        notifications
+                    ).await()
+                    if (!sendNotificationsResponse.isSuccessful) {
                         throw HttpException(sendNotificationsResponse)
                     }
                 }
 
                 _newPostData.postValue(newPostResponse.json.data)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
                 file.delete()
@@ -184,31 +192,34 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
         nsfw: Boolean,
         spoiler: Boolean,
         resubmit: Boolean = false
-        ){
+    ) {
         coroutineScope.launch {
             try {
                 _loading.postValue(true)
                 val newPostResponse = subredditRepository.submitUrlPost(
                     subreddit,
                     title,
-                    url.toString(),
+                    url,
                     nsfw,
                     spoiler,
                     _flair.value,
                     resubmit
                 ).await()
 
-                if(!notifications){
-                    val sendNotificationsResponse = miscRepository.sendRepliesToInbox(newPostResponse.json.data.name, notifications).await()
-                    if(!sendNotificationsResponse.isSuccessful){
+                if (!notifications) {
+                    val sendNotificationsResponse = miscRepository.sendRepliesToInbox(
+                        newPostResponse.json.data.name,
+                        notifications
+                    ).await()
+                    if (!sendNotificationsResponse.isSuccessful) {
                         throw HttpException(sendNotificationsResponse)
                     }
                 }
 
                 _newPostData.postValue(newPostResponse.json.data)
-            } catch (e: Exception){
-                if(e is JsonDataException && e.localizedMessage?.startsWith("Required value 'data' missing") == true){
-                    try{
+            } catch (e: Exception) {
+                if (e is JsonDataException && e.localizedMessage?.startsWith("Required value 'data' missing") == true) {
+                    try {
                         val errorResponse = subredditRepository.submitUrlPostForErrors(
                             subreddit,
                             title,
@@ -218,12 +229,16 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
                             _flair.value
                         ).await()
                         val errorMessage = errorResponse.json.errors[0][1]
-                        if(errorMessage == "that link has already been submitted"){
+                        if (errorMessage == "that link has already been submitted") {
                             _urlResubmit.postValue(url)
                         } else {
-                            _errorMessage.postValue(errorMessage[0].toUpperCase() + errorMessage.substring(1))
+                            _errorMessage.postValue(
+                                errorMessage[0].toUpperCase() + errorMessage.substring(
+                                    1
+                                )
+                            )
                         }
-                    } catch (e2: Exception){
+                    } catch (e2: Exception) {
                         _errorMessage.postValue(application.getString(R.string.unable_fetch_error))
                     }
                 } else {
@@ -235,12 +250,14 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
         }
     }
 
-    fun submitCrosspost(subreddit: String,
-                        title: String,
-                        notifications: Boolean,
-                        nsfw: Boolean,
-                        spoiler: Boolean,
-                        crossPost: Post){
+    fun submitCrosspost(
+        subreddit: String,
+        title: String,
+        notifications: Boolean,
+        nsfw: Boolean,
+        spoiler: Boolean,
+        crossPost: Post
+    ) {
 
         coroutineScope.launch {
             try {
@@ -254,15 +271,18 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
                     crossPost
                 ).await()
 
-                if(!notifications){
-                    val sendNotificationsResponse = miscRepository.sendRepliesToInbox(newPostResponse.json.data.name, notifications).await()
-                    if(!sendNotificationsResponse.isSuccessful){
+                if (!notifications) {
+                    val sendNotificationsResponse = miscRepository.sendRepliesToInbox(
+                        newPostResponse.json.data.name,
+                        notifications
+                    ).await()
+                    if (!sendNotificationsResponse.isSuccessful) {
                         throw HttpException(sendNotificationsResponse)
                     }
                 }
 
                 _newPostData.postValue(newPostResponse.json.data)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
                 _loading.postValue(false)
@@ -271,22 +291,23 @@ class CreatePostVM(private val application: AstroApplication): AstroViewModel(ap
 
     }
 
-    fun urlResubmitObserved(){
+    fun urlResubmitObserved() {
         _urlResubmit.value = null
     }
 
-    companion object{
-        fun createFile(context: Context, uri: Uri): File?{
-            val folder = context.getExternalFilesDirs(Environment.DIRECTORY_DOWNLOADS)[0] ?: return null
+    companion object {
+        fun createFile(context: Context, uri: Uri): File? {
+            val folder =
+                context.getExternalFilesDirs(Environment.DIRECTORY_DOWNLOADS)[0] ?: return null
             val file = File.createTempFile("upload", ".jpg", folder)
             val inputStream: InputStream? = context.contentResolver.openInputStream(uri)
             inputStream.use { input ->
                 val outputStream = FileOutputStream(file)
-                outputStream.use {output ->
+                outputStream.use { output ->
                     val buffer = ByteArray(4 * 1024)
-                    while(true){
+                    while (true) {
                         val byteCount = input?.read(buffer)
-                        if(byteCount ?: -1 < 0) break
+                        if (byteCount ?: -1 < 0) break
                         output.write(buffer, 0, byteCount!!)
                     }
                     output.flush()

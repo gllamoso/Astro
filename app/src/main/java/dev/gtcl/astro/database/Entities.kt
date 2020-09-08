@@ -17,7 +17,8 @@ import kotlinx.android.parcel.Parcelize
 @Entity(tableName = "read_listing")
 data class ItemRead(
     @PrimaryKey
-    val name: String)
+    val name: String
+)
 
 //                                     _
 //      /\                            | |
@@ -34,7 +35,8 @@ data class SavedAccount(
     @PrimaryKey
     val id: String,
     val name: String,
-    val refreshToken: String?): Parcelable
+    val refreshToken: String?
+) : Parcelable
 
 //    _____       _                   _       _   _
 //   / ____|     | |                 (_)     | | (_)
@@ -57,16 +59,16 @@ data class Subscription(
     val url: String,
     var isFavorite: Boolean,
     val type: SubscriptionType
-): Parcelable
+) : Parcelable
 
-class SubscriptionTypeConverter{
+class SubscriptionTypeConverter {
 
     @TypeConverter
     fun fromSubscriptionType(subscriptionType: SubscriptionType) = subscriptionType.name
 
     @TypeConverter
-    fun toSubscriptionType(name: String): SubscriptionType{
-        return when(name){
+    fun toSubscriptionType(name: String): SubscriptionType {
+        return when (name) {
             SubscriptionType.MULTIREDDIT.name -> SubscriptionType.MULTIREDDIT
             SubscriptionType.USER.name -> SubscriptionType.USER
             SubscriptionType.SUBREDDIT.name -> SubscriptionType.SUBREDDIT

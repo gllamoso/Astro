@@ -28,23 +28,23 @@ class SignInVM(private val application: AstroApplication) : AstroViewModel(appli
     val successfullyAddedAccount: LiveData<Boolean>
         get() = _successfullyAddedAccount
 
-    fun incrementStackCount(){
+    fun incrementStackCount() {
         val count = _pageStackCount.value ?: 0
         _pageStackCount.value = count + 1
     }
 
-    fun decrementStackCount(){
+    fun decrementStackCount() {
         val count = _pageStackCount.value ?: 1
         _pageStackCount.value = count - 1
     }
 
-    fun setNewUser(responseUrl: String){
+    fun setNewUser(responseUrl: String) {
         coroutineScope.launch {
             _loading.postValue(true)
             val code: String
             try {
-               code = getCodeFromUrl(responseUrl)
-            } catch(e: IllegalArgumentException){
+                code = getCodeFromUrl(responseUrl)
+            } catch (e: IllegalArgumentException) {
                 _errorMessage.postValue(e.localizedMessage)
                 _loading.postValue(false)
                 return@launch
@@ -63,7 +63,7 @@ class SignInVM(private val application: AstroApplication) : AstroViewModel(appli
         }
     }
 
-    private suspend fun getAccessToken(code: String): AccessToken{
+    private suspend fun getAccessToken(code: String): AccessToken {
         return userRepository.postCode(
             "Basic ${getEncodedAuthString()}",
             code,
@@ -75,10 +75,10 @@ class SignInVM(private val application: AstroApplication) : AstroViewModel(appli
         return userRepository.getAccount(token).await()
     }
 
-    private fun getCodeFromUrl(url: String): String{
+    private fun getCodeFromUrl(url: String): String {
         val uri = Uri.parse(url)
-        if(uri.getQueryParameter("error") != null){
-            if(uri.getQueryParameter("error") == "access_denied"){
+        if (uri.getQueryParameter("error") != null) {
+            if (uri.getQueryParameter("error") == "access_denied") {
                 throw IllegalArgumentException("Access Denied: $url")
             } else {
                 throw IllegalArgumentException("Error URL: $url")
@@ -86,14 +86,15 @@ class SignInVM(private val application: AstroApplication) : AstroViewModel(appli
         }
 
         val state = uri.getQueryParameter("state")
-        if(state == STATE){
-            return uri.getQueryParameter("code") ?: throw IllegalArgumentException("Code parameter not found: $url")
+        if (state == STATE) {
+            return uri.getQueryParameter("code")
+                ?: throw IllegalArgumentException("Code parameter not found: $url")
         } else {
             throw IllegalArgumentException("State parameter did not match: $url")
         }
     }
 
-    private fun saveUserToSharedPreferences(account: Account){
+    private fun saveUserToSharedPreferences(account: Account) {
         val sharedPrefs = application.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
         with(sharedPrefs.edit()) {
             val json = Gson().toJson(account)

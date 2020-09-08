@@ -9,13 +9,16 @@ import androidx.fragment.app.DialogFragment
 import dev.gtcl.astro.URL_KEY
 import dev.gtcl.astro.databinding.FragmentDialogResubmitBinding
 
-class ResubmitDialogFragment : DialogFragment(){
+class ResubmitDialogFragment : DialogFragment() {
 
-    private lateinit var binding: FragmentDialogResubmitBinding
+    private var binding: FragmentDialogResubmitBinding? = null
 
     override fun onStart() {
         super.onStart()
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
 //        dialog?.window?.setBackgroundDrawableResource(android.R.color.black) // This makes the dialog full screen
     }
 
@@ -26,20 +29,27 @@ class ResubmitDialogFragment : DialogFragment(){
     ): View? {
         binding = FragmentDialogResubmitBinding.inflate(inflater)
 
-        binding.fragmentDialogResubmitDialogButtons.dialogPositiveButton.setOnClickListener {
-            parentFragmentManager.setFragmentResult(URL_KEY, bundleOf(URL_KEY to requireArguments().getString(URL_KEY)))
+        binding?.fragmentDialogResubmitDialogButtons?.dialogPositiveButton?.setOnClickListener {
+            parentFragmentManager.setFragmentResult(
+                URL_KEY,
+                bundleOf(URL_KEY to requireArguments().getString(URL_KEY))
+            )
             dismiss()
         }
 
-        binding.fragmentDialogResubmitDialogButtons.dialogNegativeButton.setOnClickListener {
+        binding?.fragmentDialogResubmitDialogButtons?.dialogNegativeButton?.setOnClickListener {
             dismiss()
         }
 
-        return binding.root
+        return binding!!.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+    }
 
-    companion object{
+    companion object {
         fun newInstance(url: String): ResubmitDialogFragment {
             return ResubmitDialogFragment().apply {
                 arguments = bundleOf(URL_KEY to url)

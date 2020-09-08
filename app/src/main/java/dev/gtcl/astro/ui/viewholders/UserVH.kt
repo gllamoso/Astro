@@ -13,9 +13,10 @@ import dev.gtcl.astro.databinding.PopupUserActionsBinding
 import dev.gtcl.astro.models.reddit.User
 import dev.gtcl.astro.models.reddit.UserType
 
-class UserVH private constructor(private val binding: ItemUserBinding): RecyclerView.ViewHolder(binding.root){
+class UserVH private constructor(private val binding: ItemUserBinding) :
+    RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(user: User, userType: UserType, userActions: UserActions){
+    fun bind(user: User, userType: UserType, userActions: UserActions) {
         binding.user = user
 
         binding.itemUserBackground.setOnClickListener {
@@ -29,10 +30,21 @@ class UserVH private constructor(private val binding: ItemUserBinding): Recycler
         binding.executePendingBindings()
     }
 
-    private fun showPopupWindow(user: User, userType: UserType, userActions: UserActions, anchorView: View){
-        val inflater = anchorView.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private fun showPopupWindow(
+        user: User,
+        userType: UserType,
+        userActions: UserActions,
+        anchorView: View
+    ) {
+        val inflater =
+            anchorView.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupUserActionsBinding.inflate(inflater)
-        val popupWindow = PopupWindow(popupBinding.root, RelativeLayout.LayoutParams.WRAP_CONTENT, RelativeLayout.LayoutParams.WRAP_CONTENT, true)
+        val popupWindow = PopupWindow(
+            popupBinding.root,
+            RelativeLayout.LayoutParams.WRAP_CONTENT,
+            RelativeLayout.LayoutParams.WRAP_CONTENT,
+            true
+        )
         popupBinding.apply {
             this.userType = userType
             executePendingBindings()
@@ -40,13 +52,13 @@ class UserVH private constructor(private val binding: ItemUserBinding): Recycler
                 userActions.viewProfile(user)
                 popupWindow.dismiss()
             }
-            if(userType == UserType.FRIEND){
+            if (userType == UserType.FRIEND) {
                 popupUserActionsMessage.root.setOnClickListener {
                     userActions.message(user)
                     popupWindow.dismiss()
                 }
             }
-            popupUserActionsRemove.root.setOnClickListener{
+            popupUserActionsRemove.root.setOnClickListener {
                 userActions.remove(adapterPosition)
                 popupWindow.dismiss()
             }
@@ -63,7 +75,8 @@ class UserVH private constructor(private val binding: ItemUserBinding): Recycler
         popupBinding.executePendingBindings()
     }
 
-    companion object{
-        fun create(parent: ViewGroup) = UserVH(ItemUserBinding.inflate(LayoutInflater.from(parent.context)))
+    companion object {
+        fun create(parent: ViewGroup) =
+            UserVH(ItemUserBinding.inflate(LayoutInflater.from(parent.context)))
     }
 }

@@ -20,14 +20,15 @@ class CommentsAdapter(
     private val itemClickListener: ItemClickListener,
     private val userId: String?,
     allCommentsFetched: Boolean,
-    private val onViewAllClick: (() -> Unit)) : RecyclerView.Adapter<RecyclerView.ViewHolder>(){
+    private val onViewAllClick: (() -> Unit)
+) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     var allCommentsFetched: Boolean = allCommentsFetched
-        set(value){
+        set(value) {
             val previousValue = field
             field = value
-            if(previousValue != value){
-                if(value){
+            if (previousValue != value) {
+                if (value) {
                     notifyItemRemoved(0)
                 } else {
                     notifyItemInserted(0)
@@ -37,9 +38,9 @@ class CommentsAdapter(
 
     private var comments: MutableList<Item>? = null
 
-    fun submitList(items: List<Item>?){
-        val offset = if(allCommentsFetched) 0 else 1
-        if(!comments.isNullOrEmpty()){
+    fun submitList(items: List<Item>?) {
+        val offset = if (allCommentsFetched) 0 else 1
+        if (!comments.isNullOrEmpty()) {
             notifyItemRangeRemoved(offset, comments!!.size)
             comments = items?.toMutableList()
             notifyItemRangeInserted(offset, max(items?.size ?: 1, 1))
@@ -50,9 +51,9 @@ class CommentsAdapter(
         }
     }
 
-    fun addItems(position: Int, items: List<Item>){
-        val offset = if(allCommentsFetched) 0 else 1
-        if(comments.isNullOrEmpty()){
+    fun addItems(position: Int, items: List<Item>) {
+        val offset = if (allCommentsFetched) 0 else 1
+        if (comments.isNullOrEmpty()) {
             notifyItemRemoved(offset)
         }
         comments?.let {
@@ -61,23 +62,23 @@ class CommentsAdapter(
         }
     }
 
-    fun removeAt(position: Int){
+    fun removeAt(position: Int) {
         comments?.let {
             it.removeAt(position)
             notifyItemRemoved(position)
         }
     }
 
-    fun removeRange(position: Int, size: Int){
-        val offset = if(allCommentsFetched) 0 else 1
-        for(i in 1..size){
+    fun removeRange(position: Int, size: Int) {
+        val offset = if (allCommentsFetched) 0 else 1
+        for (i in 1..size) {
             comments!!.removeAt(position - offset)
         }
         notifyItemRangeRemoved(position, size)
     }
 
-    fun updateAt(item: Item, position: Int){
-        val offset = if(allCommentsFetched) 0 else 1
+    fun updateAt(item: Item, position: Int) {
+        val offset = if (allCommentsFetched) 0 else 1
         comments?.let {
             it[position] = item
             notifyItemChanged(position - offset)
@@ -85,7 +86,7 @@ class CommentsAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        return when(viewType){
+        return when (viewType) {
             R.layout.item_view_all_comments -> ViewAllCommentsVH.create(parent)
             R.layout.item_more_comment -> MoreVH.create(parent)
             R.layout.item_comment -> CommentVH.create(parent)
@@ -96,20 +97,29 @@ class CommentsAdapter(
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        val offset = if(allCommentsFetched) 0 else -1
-        when(val viewType = getItemViewType(position)){
+        val offset = if (allCommentsFetched) 0 else -1
+        when (val viewType = getItemViewType(position)) {
             R.layout.item_view_all_comments -> (holder as ViewAllCommentsVH).bind(onViewAllClick)
-            R.layout.item_more_comment -> (holder as MoreVH).bind(comments!![position + offset] as More, itemClickListener)
-            R.layout.item_comment -> (holder as CommentVH).bind(comments!![position + offset] as Comment, markwon, commentActions, userId, itemClickListener)
-            R.layout.item_network_state -> (holder as NetworkStateItemVH).bind(NetworkState.LOADING){}
+            R.layout.item_more_comment -> (holder as MoreVH).bind(
+                comments!![position + offset] as More,
+                itemClickListener
+            )
+            R.layout.item_comment -> (holder as CommentVH).bind(
+                comments!![position + offset] as Comment,
+                markwon,
+                commentActions,
+                userId,
+                itemClickListener
+            )
+            R.layout.item_network_state -> (holder as NetworkStateItemVH).bind(NetworkState.LOADING) {}
             R.layout.item_no_items_found -> (holder as NoItemFoundVH).bind(ItemType.Comment)
             else -> throw IllegalArgumentException("Unknown view type $viewType")
         }
     }
 
     override fun getItemViewType(position: Int): Int {
-        val offset = if(allCommentsFetched) 0 else -1
-        return when{
+        val offset = if (allCommentsFetched) 0 else -1
+        return when {
             position == 0 && !allCommentsFetched -> R.layout.item_view_all_comments
             comments == null -> R.layout.item_network_state
             comments?.isEmpty() ?: false -> R.layout.item_no_items_found
@@ -119,11 +129,11 @@ class CommentsAdapter(
         }
     }
 
-    override fun getItemCount(): Int{
-        return if(!comments.isNullOrEmpty()){
-               comments!!.size + if(!allCommentsFetched) 1 else 0
+    override fun getItemCount(): Int {
+        return if (!comments.isNullOrEmpty()) {
+            comments!!.size + if (!allCommentsFetched) 1 else 0
         } else {
-            if(allCommentsFetched) 1 else 2
+            if (allCommentsFetched) 1 else 2
         }
     }
 

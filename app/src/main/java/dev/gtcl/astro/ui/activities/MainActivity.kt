@@ -29,7 +29,7 @@ class MainActivity : AppCompatActivity() {
         navController = findNavController(R.id.activityMain_navHostFragment)
         model.openChromeTab.observe(this, {
             if (it != null) {
-                val url = if(it.startsWith("/")){
+                val url = if (it.startsWith("/")) {
                     "https://www.reddit.com${it}"
                 } else {
                     it
@@ -41,7 +41,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         model.errorMessage.observe(this, {
-            if(it != null){
+            if (it != null) {
                 Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }

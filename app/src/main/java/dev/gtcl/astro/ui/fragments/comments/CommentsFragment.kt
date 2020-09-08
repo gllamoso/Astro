@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -20,7 +19,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
-import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -45,7 +43,8 @@ import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import io.noties.markwon.Markwon
 
-class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler, DrawerLayout.DrawerListener {
+class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler,
+    DrawerLayout.DrawerListener {
 
     private val model: CommentsVM by lazy {
         val viewModelFactory =
@@ -59,9 +58,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     private val activityModel: MainActivityVM by activityViewModels()
 
-    private lateinit var binding: FragmentCommentsBinding
+    private var binding: FragmentCommentsBinding? = null
 
     private lateinit var adapter: CommentsAdapter
+    private lateinit var mediaAdapter: MediaListFragmentAdapter
 
     private val markwon: Markwon by lazy {
         createMarkwonInstance(requireContext(), ::handleLink)
@@ -81,10 +81,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCommentsBinding.inflate(inflater)
-        binding.lifecycleOwner = viewLifecycleOwner
-        binding.model = model
+        binding?.lifecycleOwner = viewLifecycleOwner
+        binding?.model = model
 
-        if(model.post.value == null && model.loading.value != true){
+        if (model.post.value == null && model.loading.value != true) {
             val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
             if (postPage != null) {
                 model.setPost(postPage.post)
@@ -97,17 +97,19 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         initMedia()
         initOtherObservers()
 
-        binding.executePendingBindings()
-        return binding.root
+        binding?.executePendingBindings()
+        return binding?.root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
+        binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.adapter = null
         model.contentInitialized = false
+        binding = null
     }
 
     private fun initTopBar() {
-        binding.fragmentCommentsToolbar.setNavigationOnClickListener {
+        binding?.fragmentCommentsToolbar?.setNavigationOnClickListener {
             viewPagerModel.navigateToPreviousPage()
         }
     }
@@ -115,12 +117,13 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     private fun initBottomBarAndBottomSheet() {
 
         val userId = (requireActivity().application as AstroApplication).currentAccount?.fullId
-        adapter = CommentsAdapter(markwon, this, this, userId, model.allCommentsFetched.value == true){
-            if(model.loading.value != true){
-                model.fetchFullContext()
+        adapter =
+            CommentsAdapter(markwon, this, this, userId, model.allCommentsFetched.value == true) {
+                if (model.loading.value != true) {
+                    model.fetchFullContext()
+                }
             }
-        }
-        binding.fragmentCommentsComments.adapter = adapter
+        binding?.fragmentCommentsComments?.adapter = adapter
 
         model.allCommentsFetched.observe(viewLifecycleOwner, {
             adapter.allCommentsFetched = it
@@ -138,20 +141,19 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         })
 
         model.removeAt.observe(viewLifecycleOwner, {
-            if(it != null){
+            if (it != null) {
                 adapter.removeAt(it)
                 model.removeAtObserved()
             }
         })
 
-        model.notifyAt.observe(viewLifecycleOwner,{
-            if(it != null){
+        model.notifyAt.observe(viewLifecycleOwner, {
+            if (it != null) {
                 adapter.notifyItemChanged(it)
                 model.notifyAtObserved()
             }
         })
-
-        val behavior = BottomSheetBehavior.from(binding.fragmentCommentsBottomSheet)
+        val behavior = BottomSheetBehavior.from(binding!!.fragmentCommentsBottomSheet)
         behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(p0: View, p1: Float) {
                 viewPagerModel.swipingEnabled(false)
@@ -159,26 +161,28 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
             override fun onStateChanged(p0: View, newState: Int) {
                 viewPagerModel.swipingEnabled(newState == BottomSheetBehavior.STATE_HIDDEN || newState == BottomSheetBehavior.STATE_COLLAPSED)
+                model.commentsExpanded = newState == BottomSheetBehavior.STATE_EXPANDED
             }
         })
 
         val expand = requireArguments().getBoolean(EXPAND_REPLIES_KEY)
-        if(expand){
+        if (expand || model.commentsExpanded) {
             behavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
-        binding.fragmentCommentsReply.setOnClickListener {
+        binding?.fragmentCommentsReply?.setOnClickListener {
             val post = model.post.value!!
-            if(post.locked || post.deleted){
+            if (post.locked || post.deleted) {
                 Snackbar.make(it, R.string.cannot_reply_to_post, Snackbar.LENGTH_LONG).show()
             } else {
-                ReplyOrEditDialogFragment.newInstance(post, -1, true).show(childFragmentManager, null)
+                ReplyOrEditDialogFragment.newInstance(post, -1, true)
+                    .show(childFragmentManager, null)
             }
         }
 
-        binding.fragmentCommentsSort.setOnClickListener {
+        binding?.fragmentCommentsSort?.setOnClickListener {
             val currentSort = model.commentSort.value!!
-            showCommentSortPopup(it, currentSort){ sort ->
+            showCommentSortPopup(it, currentSort) { sort ->
                 model.setCommentSort(sort)
                 refresh(false)
             }
@@ -187,19 +191,24 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         initBottomBarOnClickListeners(behavior)
     }
 
-    private fun refresh(refreshPost: Boolean){
+    private fun refresh(refreshPost: Boolean) {
         model.contentInitialized = false
         val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
-        if(postPage != null){
-            model.fetchComments(postPage.post.permalink,
+        if (postPage != null) {
+            model.fetchComments(
+                postPage.post.permalink,
                 isFullContext = true,
                 refreshPost = refreshPost
             )
         } else {
             val url = requireArguments().getString(URL_KEY)!!
             val fullContextLink = VALID_REDDIT_COMMENTS_URL_REGEX.find(url)!!.value
-            if(model.allCommentsFetched.value == true){
-                model.fetchComments(fullContextLink, isFullContext = true, refreshPost = refreshPost)
+            if (model.allCommentsFetched.value == true) {
+                model.fetchComments(
+                    fullContextLink,
+                    isFullContext = true,
+                    refreshPost = refreshPost
+                )
             } else {
                 val isFullContext = url == fullContextLink
                 model.fetchComments(url, isFullContext = isFullContext, refreshPost = refreshPost)
@@ -209,7 +218,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     private fun initBottomBarOnClickListeners(behavior: BottomSheetBehavior<out ViewGroup>) {
 
-        binding.fragmentCommentsBottomBarLayout.apply {
+        binding?.fragmentCommentsBottomBarLayout?.apply {
             layoutCommentsBottomBarCommentsButton.setOnClickListener {
                 behavior.state = BottomSheetBehavior.STATE_EXPANDED
             }
@@ -226,7 +235,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     }
                     it.updateScore(vote)
                     activityModel.vote(it.name, vote)
-                    binding.invalidateAll()
+                    binding?.invalidateAll()
                 }
             }
 
@@ -242,7 +251,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     }
                     it.updateScore(vote)
                     activityModel.vote(it.name, vote)
-                    binding.invalidateAll()
+                    binding?.invalidateAll()
                 }
             }
 
@@ -253,7 +262,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 model.post.value?.let {
                     it.saved = !it.saved
                     activityModel.save(it.name, it.saved)
-                    binding.invalidateAll()
+                    binding?.invalidateAll()
                 }
             }
 
@@ -264,18 +273,20 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     }
 
-    private fun initPostObservers(){
+    private fun initPostObservers() {
         model.post.observe(viewLifecycleOwner, { post ->
-            if(!model.contentInitialized){
-                if(post.crosspostParentList != null){
-                    binding.fragmentCommentsCrossPostLayout.layoutCrosspostCardView.setOnClickListener {
+            if (!model.contentInitialized) {
+                if (post.crosspostParentList != null) {
+                    binding?.fragmentCommentsCrossPostLayout?.layoutCrosspostCardView?.setOnClickListener {
                         activityModel.newPage(PostPage(post.crosspostParentList[0], -1))
                     }
                 }
-                if(post.isSelf){
-                    markwon.setMarkdown(binding.fragmentCommentsContent.layoutCommentsContentText, post.selftext)
+                if (post.isSelf) {
+                    binding?.fragmentCommentsContent?.layoutCommentsContentText?.let {
+                        markwon.setMarkdown(it, post.selftext)
+                    }
                 } else {
-                    when(post.urlType){
+                    when (post.urlType) {
                         UrlType.OTHER -> initUrlPreview(post.url!!)
                         else -> model.fetchMediaItems(post)
                     }
@@ -285,55 +296,65 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         })
     }
 
-    private fun initUrlPreview(url: String){
-        binding.fragmentCommentsContent.layoutCommentsContentUrlLayout.root.setOnClickListener {
+    private fun initUrlPreview(url: String) {
+        binding?.fragmentCommentsContent?.layoutCommentsContentUrlLayout?.root?.setOnClickListener {
             handleLink(url)
         }
     }
 
-    private fun initMedia(){
-        binding.fragmentCommentsDrawer.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+    private fun initMedia() {
+        binding?.fragmentCommentsDrawer?.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
+
         model.mediaItems.observe(viewLifecycleOwner, {
-            if(it != null){
-                val adapter = MediaListFragmentAdapter(this, it)
-                binding.fragmentCommentsContent.layoutCommentsContentViewPager.apply {
-                    this.adapter = adapter
+            if (it != null) {
+                binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.apply {
+                    mediaAdapter = MediaListFragmentAdapter(
+                        childFragmentManager,
+                        viewLifecycleOwner.lifecycle,
+                        it
+                    )
+                    this.adapter = mediaAdapter
                     (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
-                    if(it.size > 1){
-                        registerOnPageChangeCallback(object: ViewPager2.OnPageChangeCallback(){
+                    if (it.size > 1) {
+                        registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                             override fun onPageScrollStateChanged(state: Int) {
                                 super.onPageScrollStateChanged(state)
-                                if(state == ViewPager2.SCROLL_STATE_IDLE){
-                                    binding.fragmentCommentsContent.apply {
-                                        layoutCommentsContentPreviousButton.visibility = if(currentItem == 0) View.GONE else View.VISIBLE
-                                        layoutCommentsContentNextButton.visibility = if(currentItem == it.size - 1) View.GONE else View.VISIBLE
+                                if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                                    binding?.fragmentCommentsContent?.apply {
+                                        layoutCommentsContentPreviousButton.visibility =
+                                            if (currentItem == 0) View.GONE else View.VISIBLE
+                                        layoutCommentsContentNextButton.visibility =
+                                            if (currentItem == it.size - 1) View.GONE else View.VISIBLE
                                     }
                                 }
                             }
                         })
 
-                        binding.fragmentCommentsContent.apply {
-                            layoutCommentsContentPreviousButton.visibility = if(currentItem == 0) View.GONE else View.VISIBLE
-                            layoutCommentsContentNextButton.visibility = if(currentItem == it.size - 1) View.GONE else View.VISIBLE
+                        binding?.fragmentCommentsContent?.apply {
+                            layoutCommentsContentPreviousButton.visibility =
+                                if (currentItem == 0) View.GONE else View.VISIBLE
+                            layoutCommentsContentNextButton.visibility =
+                                if (currentItem == it.size - 1) View.GONE else View.VISIBLE
                         }
                     }
                 }
 
-                if(it.size > 1){
+                if (it.size > 1) {
 
-                    binding.fragmentCommentsDrawer.apply {
+                    binding?.fragmentCommentsDrawer?.apply {
                         setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
                         addDrawerListener(this@CommentsFragment)
                     }
 
                     val mediaListAdapter =
                         MediaListAdapter { position ->
-                            binding.fragmentCommentsContent.layoutCommentsContentViewPager.currentItem = position
-                            binding.fragmentCommentsDrawer.closeDrawer(GravityCompat.END)
+                            binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem =
+                                position
+                            binding?.fragmentCommentsDrawer?.closeDrawer(GravityCompat.END)
                         }
                     mediaListAdapter.submitList(it)
 
-                    binding.apply {
+                    binding?.apply {
                         fragmentCommentsThumbnailsList.adapter = mediaListAdapter
                         fragmentCommentsThumbnailsIcon.setOnClickListener {
                             fragmentCommentsDrawer.openDrawer(GravityCompat.END)
@@ -352,54 +373,59 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     private fun initOtherObservers() {
-        model.errorMessage.observe(viewLifecycleOwner, {
-            if(it != null){
-                Snackbar.make(binding.fragmentCommentsBottomBar, it, Snackbar.LENGTH_LONG).show()
+        model.errorMessage.observe(viewLifecycleOwner, { errorMessage ->
+            if (errorMessage != null) {
+                binding?.fragmentCommentsBottomBar?.let {
+                    Snackbar.make(it, errorMessage, Snackbar.LENGTH_LONG).show()
+                }
                 model.errorMessageObserved()
             }
         })
 
-        binding.fragmentCommentsSwipeRefresh.setOnRefreshListener {
-            if(model.loading.value == true){
-                binding.fragmentCommentsSwipeRefresh.isRefreshing = false
+        binding?.fragmentCommentsSwipeRefresh?.setOnRefreshListener {
+            if (model.loading.value == true) {
+                binding?.fragmentCommentsSwipeRefresh?.isRefreshing = false
                 return@setOnRefreshListener
             }
             refresh(true)
         }
 
         model.loading.observe(viewLifecycleOwner, {
-            if(it == false){
-                binding.fragmentCommentsSwipeRefresh.isRefreshing = false
+            if (it == false) {
+                binding?.fragmentCommentsSwipeRefresh?.isRefreshing = false
             }
         })
 
-        childFragmentManager.setFragmentResultListener(REPORT_KEY, viewLifecycleOwner, { _, bundle ->
-            val  position = bundle.getInt(POSITION_KEY, -1)
-            if(position == -1 && model.post.value != null){
-                model.post.value!!.hidden = true
-                binding.fragmentCommentsPostLayout.invalidateAll()
-            }
-        })
+        childFragmentManager.setFragmentResultListener(
+            REPORT_KEY,
+            viewLifecycleOwner,
+            { _, bundle ->
+                val position = bundle.getInt(POSITION_KEY, -1)
+                if (position == -1 && model.post.value != null) {
+                    model.post.value!!.hidden = true
+                    binding?.fragmentCommentsPostLayout?.invalidateAll()
+                }
+            })
 
         childFragmentManager.setFragmentResultListener(NEW_REPLY_KEY, viewLifecycleOwner,
             { _, bundle ->
                 val item = bundle.get(ITEM_KEY) as Item
                 val position = bundle.getInt(POSITION_KEY)
                 val reply = bundle.getBoolean(NEW_REPLY_KEY)
-                if(reply && item is Comment){
-                    item.depth = if(position >= 0){
+                if (reply && item is Comment) {
+                    item.depth = if (position >= 0) {
                         ((model.comments.value!![position] as Comment).depth ?: 0) + 1
                     } else {
                         0
                     }
                     model.addItems(position + 1, listOf(item))
                     adapter.addItems(position + 1, listOf(item))
-                } else if(!reply) {
-                    if(item is Post){
+                } else if (!reply) {
+                    if (item is Post) {
                         model.contentInitialized = false
                         model.setPost(item)
-                    } else if(item is Comment){
-                        item.depth = if(position >= 0){
+                    } else if (item is Comment) {
+                        item.depth = if (position >= 0) {
                             ((model.comments.value!![position] as Comment).depth ?: 0)
                         } else {
                             0
@@ -412,7 +438,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
         childFragmentManager.setFragmentResultListener(MANAGE_POST_KEY, viewLifecycleOwner,
             { _, bundle ->
-                if(model.post.value != null){
+                if (model.post.value != null) {
                     val nsfw = bundle.getBoolean(NSFW_KEY)
                     val spoiler = bundle.getBoolean(SPOILER_KEY)
                     val getNotification = bundle.getBoolean(GET_NOTIFICATIONS_KEY)
@@ -427,18 +453,30 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
             if (isGranted) {
-                model.downloadItem(binding.fragmentCommentsContent.layoutCommentsContentViewPager.currentItem)
+                model.downloadItem(
+                    binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem
+                        ?: 0
+                )
             } else {
-                Toast.makeText(requireContext(), getString(R.string.please_grant_necessary_permissions), Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.please_grant_necessary_permissions),
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
 
-        requestPermissionToDownloadAlbum = registerForActivityResult(ActivityResultContracts.RequestPermission()
+        requestPermissionToDownloadAlbum = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
             if (isGranted) {
                 model.downloadAlbum()
             } else {
-                Toast.makeText(requireContext(), getString(R.string.please_grant_necessary_permissions), Toast.LENGTH_LONG).show()
+                Toast.makeText(
+                    requireContext(),
+                    getString(R.string.please_grant_necessary_permissions),
+                    Toast.LENGTH_LONG
+                ).show()
             }
         }
     }
@@ -451,7 +489,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 //    \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 
     override fun vote(comment: Comment, vote: Vote) {
-        checkedIfLoggedInBeforeExecuting(requireContext()){
+        checkedIfLoggedInBeforeExecuting(requireContext()) {
             comment.updateScore(vote)
             activityModel.vote(comment.name, vote)
         }
@@ -470,10 +508,15 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     override fun reply(comment: Comment, position: Int) {
         checkedIfLoggedInBeforeExecuting(requireContext()) {
-            if(comment.locked == true || comment.deleted){
-                Toast.makeText(requireContext(), R.string.cannot_reply_to_comment, Toast.LENGTH_LONG).show()
+            if (comment.locked == true || comment.deleted) {
+                Toast.makeText(
+                    requireContext(),
+                    R.string.cannot_reply_to_comment,
+                    Toast.LENGTH_LONG
+                ).show()
             } else {
-                ReplyOrEditDialogFragment.newInstance(comment, position, true).show(childFragmentManager, null)
+                ReplyOrEditDialogFragment.newInstance(comment, position, true)
+                    .show(childFragmentManager, null)
             }
         }
     }
@@ -494,11 +537,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     override fun viewProfile(comment: Comment) {
-        findNavController().navigate(
-            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
-                AccountPage(comment.author)
-            )
-        )
+        activityModel.newPage(AccountPage(comment.author))
     }
 
     override fun report(comment: Comment, position: Int) {
@@ -509,7 +548,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     override fun edit(comment: Comment, position: Int) {
         checkedIfLoggedInBeforeExecuting(requireContext()) {
-            ReplyOrEditDialogFragment.newInstance(comment, position, false).show(childFragmentManager, null)
+            ReplyOrEditDialogFragment.newInstance(comment, position, false)
+                .show(childFragmentManager, null)
         }
     }
 
@@ -522,10 +562,19 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     override fun itemClicked(item: Item, position: Int) {
-        when(item) {
+        when (item) {
             is More -> {
                 if (item.isContinueThreadLink) {
-                    activityModel.newPage(CommentsPage("https://www.reddit.com${model.post.value!!.permalink}${item.parentId.replace("t1_", "")}", true))
+                    activityModel.newPage(
+                        CommentsPage(
+                            "https://www.reddit.com${model.post.value!!.permalink}${
+                                item.parentId.replace(
+                                    "t1_",
+                                    ""
+                                )
+                            }", true
+                        )
+                    )
                 } else {
                     model.fetchMoreComments(position)
                 }
@@ -534,14 +583,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 val collapse = !item.isCollapsed
                 item.isCollapsed = collapse
                 adapter.notifyItemChanged(position)
-                if(collapse){
+                if (collapse) {
                     val hideSize = model.hideItems(position)
-                    if(hideSize != 0){
+                    if (hideSize != 0) {
                         adapter.removeRange(position + 1, hideSize)
                     }
                 } else {
                     val unhideItems = model.unhideItems(position)
-                    if(unhideItems.isNotEmpty()){
+                    if (unhideItems.isNotEmpty()) {
                         adapter.addItems(position + 1, unhideItems)
                     }
                 }
@@ -583,9 +632,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 //               | |         | |
 //               |_|         |_|
 
-    private fun showCommentSortPopup(anchor: View, commentSort: CommentSort, onSortSelected: (CommentSort) -> Unit){
+    private fun showCommentSortPopup(
+        anchor: View,
+        commentSort: CommentSort,
+        onSortSelected: (CommentSort) -> Unit
+    ) {
 
-        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val inflater =
+            requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupCommentSortBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
@@ -625,34 +679,45 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             )
         }
 
-        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
+        popupWindow.showAsDropdown(
+            anchor,
+            popupBinding.root,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            popupBinding.root.measuredHeight
+        )
     }
 
-    private fun showMoreOptions(anchor: View){
-        if(model.post.value == null){
+    private fun showMoreOptions(anchor: View) {
+        if (model.post.value == null) {
             return
         }
 
-        val inflater = requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+        val inflater =
+            requireContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupCommentsPageActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
             val post = model.post.value!!
-            val currentAccount = (this@CommentsFragment.requireActivity().application as AstroApplication).currentAccount
-            val currentMediaUrl = model.mediaItems.value?.get(binding.fragmentCommentsContent.layoutCommentsContentViewPager.currentItem)
-            val currentMediaType = when(currentMediaUrl?.mediaType){
+            val currentAccount =
+                (this@CommentsFragment.requireActivity().application as AstroApplication).currentAccount
+            val currentMediaUrl = model.mediaItems.value?.get(
+                binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem ?: 0
+            )
+            val currentMediaType = when (currentMediaUrl?.mediaType) {
                 MediaType.GIF, MediaType.PICTURE -> SimpleMediaType.PICTURE
                 MediaType.VIDEO -> SimpleMediaType.VIDEO
                 else -> null
             }
             this.post = post
-            this.createdFromUser = currentAccount != null && currentAccount.fullId == post.authorFullName
+            this.createdFromUser =
+                currentAccount != null && currentAccount.fullId == post.authorFullName
             this.currentItemMediaType = currentMediaType
-            if(createdFromUser == true){
-                if(post.isSelf){
+            if (createdFromUser == true) {
+                if (post.isSelf) {
                     popupCommentsPageActionsEdit.root.setOnClickListener {
-                        checkedIfLoggedInBeforeExecuting(requireContext()){
-                            ReplyOrEditDialogFragment.newInstance(post, -1, false).show(childFragmentManager, null)
+                        checkedIfLoggedInBeforeExecuting(requireContext()) {
+                            ReplyOrEditDialogFragment.newInstance(post, -1, false)
+                                .show(childFragmentManager, null)
                         }
                         popupWindow.dismiss()
                     }
@@ -664,26 +729,26 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     popupWindow.dismiss()
                 }
                 popupCommentsPageActionsDelete.root.setOnClickListener {
-                    checkedIfLoggedInBeforeExecuting(requireContext()){
+                    checkedIfLoggedInBeforeExecuting(requireContext()) {
                         post.author = "[deleted]"
-                        binding.invalidateAll()
+                        binding?.invalidateAll()
                         activityModel.delete(post.name)
                     }
                     popupWindow.dismiss()
                 }
             }
             popupCommentsPageActionsProfile.root.setOnClickListener {
-                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(post.author)))
+                activityModel.newPage(AccountPage(post.author))
                 popupWindow.dismiss()
             }
             popupCommentsPageActionsSubreddits.root.setOnClickListener {
-                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(SubredditListing(post.subreddit))))
+                activityModel.newPage(ListingPage(SubredditListing(post.subreddit)))
                 popupWindow.dismiss()
             }
             popupCommentsPageActionsHide.root.setOnClickListener {
-                checkedIfLoggedInBeforeExecuting(requireContext()){
+                checkedIfLoggedInBeforeExecuting(requireContext()) {
                     post.hidden = !post.hidden
-                    binding.invalidateAll()
+                    binding?.invalidateAll()
                     activityModel.hide(post.name, post.hidden)
                 }
                 popupWindow.dismiss()
@@ -692,22 +757,34 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 SharePostOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
                 popupWindow.dismiss()
             }
-            if(currentItemMediaType != null){
+            if (currentItemMediaType != null) {
                 popupCommentsPageActionsFullScreen.root.setOnClickListener {
-                    MediaDialogFragment.newInstance(post.url!!, model.mediaItems.value!!).show(childFragmentManager, null)
+                    MediaDialogFragment.newInstance(post.url!!, model.mediaItems.value!!)
+                        .show(childFragmentManager, null)
                     popupWindow.dismiss()
                 }
                 popupCommentsPageActionsDownloadSingleItem.root.setOnClickListener {
-                    if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
-                        model.downloadItem(binding.fragmentCommentsContent.layoutCommentsContentViewPager.currentItem)
+                    if (ContextCompat.checkSelfPermission(
+                            requireContext(),
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        ) == PackageManager.PERMISSION_GRANTED
+                    ) {
+                        model.downloadItem(
+                            binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem
+                                ?: 0
+                        )
                     } else {
                         requestPermissionToDownloadItem.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                     }
                     popupWindow.dismiss()
                 }
-                if(post.urlType == UrlType.IMGUR_ALBUM){
+                if (post.urlType == UrlType.IMGUR_ALBUM) {
                     popupCommentsPageActionsDownloadAll.root.setOnClickListener {
-                        if(ContextCompat.checkSelfPermission(requireContext(), Manifest.permission.WRITE_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED){
+                        if (ContextCompat.checkSelfPermission(
+                                requireContext(),
+                                Manifest.permission.WRITE_EXTERNAL_STORAGE
+                            ) == PackageManager.PERMISSION_GRANTED
+                        ) {
                             model.downloadAlbum()
                         } else {
                             requestPermissionToDownloadAlbum.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -716,14 +793,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     }
                 }
             }
-            if(post.url != null){
+            if (post.url != null) {
                 popupCommentsPageActionsLink.root.setOnClickListener {
                     activityModel.openChromeTab(post.url)
                     popupWindow.dismiss()
                 }
             }
             popupCommentsPageActionsReport.root.setOnClickListener {
-                checkedIfLoggedInBeforeExecuting(requireContext()){
+                checkedIfLoggedInBeforeExecuting(requireContext()) {
                     ReportDialogFragment.newInstance(post).show(childFragmentManager, null)
                 }
                 popupWindow.dismiss()
@@ -735,7 +812,12 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             )
         }
 
-        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
+        popupWindow.showAsDropdown(
+            anchor,
+            popupBinding.root,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            popupBinding.root.measuredHeight
+        )
     }
 
     companion object {

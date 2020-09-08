@@ -1,7 +1,6 @@
 package dev.gtcl.astro.ui.fragments.media.list.item
 
 import android.net.Uri
-import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.google.android.exoplayer2.ExoPlaybackException
@@ -14,8 +13,9 @@ import dev.gtcl.astro.models.reddit.MediaURL
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
-class MediaVM(private val application: AstroApplication): AstroViewModel(application){
+class MediaVM(private val application: AstroApplication) : AstroViewModel(application) {
 
     private val _mediaUrl = MutableLiveData<MediaURL>()
     val mediaURL: LiveData<MediaURL>
@@ -31,17 +31,17 @@ class MediaVM(private val application: AstroApplication): AstroViewModel(applica
 
     var initialized = false
 
-    fun setMedia(mediaURL: MediaURL){
+    fun setMedia(mediaURL: MediaURL) {
         coroutineScope.launch {
             _isLoading.postValue(true)
             _mediaUrl.postValue(mediaURL)
-            if(mediaURL.mediaType == MediaType.GFYCAT || mediaURL.mediaType == MediaType.VIDEO){
+            if (mediaURL.mediaType == MediaType.GFYCAT || mediaURL.mediaType == MediaType.VIDEO) {
                 val trackSelector = DefaultTrackSelector()
                 trackSelector.setParameters(trackSelector.buildUponParameters().setMaxVideoSizeSd())
                 var videoUri: Uri = Uri.parse(mediaURL.url)
-                if(mediaURL.mediaType == MediaType.GFYCAT || mediaURL.mediaType == MediaType.REDGIFS){
-                    try{
-                        val videoUrl = if(mediaURL.mediaType == MediaType.GFYCAT) {
+                if (mediaURL.mediaType == MediaType.GFYCAT || mediaURL.mediaType == MediaType.REDGIFS) {
+                    try {
+                        val videoUrl = if (mediaURL.mediaType == MediaType.GFYCAT) {
                             val id = GFYCAT_REGEX.getIdFromUrl(mediaURL.url)!!
                             gfycatRepository
                                 .getGfycatInfo(id)
@@ -56,8 +56,8 @@ class MediaVM(private val application: AstroApplication): AstroViewModel(applica
                                 .mobileUrl
                         }
                         videoUri = Uri.parse(videoUrl)
-                    } catch (e: Exception){
-                        if(mediaURL.backupUrl != null){
+                    } catch (e: Exception) {
+                        if (mediaURL.backupUrl != null) {
                             videoUri = Uri.parse(mediaURL.backupUrl)
                         } else {
                             _errorMessage.postValue(e.getErrorMessage(application))
@@ -65,18 +65,22 @@ class MediaVM(private val application: AstroApplication): AstroViewModel(applica
                     }
                 }
                 var mediaSource = buildMediaSource(application.baseContext, videoUri)
-                withContext(Dispatchers.Main){
-                    val player = ExoPlayerFactory.newSimpleInstance(application.baseContext, trackSelector)
+                withContext(Dispatchers.Main) {
+                    val player =
+                        ExoPlayerFactory.newSimpleInstance(application.baseContext, trackSelector)
                     player!!.apply {
                         repeatMode = Player.REPEAT_MODE_ONE
                         playWhenReady = true
                         seekTo(0, 0)
                         prepare(mediaSource, false, false)
-                        addListener(object: Player.EventListener{
+                        addListener(object : Player.EventListener {
                             override fun onPlayerError(error: ExoPlaybackException?) {
-                                Log.e("Media", "Exception: $error")
-                                if(videoUri.path != mediaURL.backupUrl && mediaURL.backupUrl != null) {
-                                    mediaSource = buildMediaSource(application.baseContext, Uri.parse(mediaURL.backupUrl))
+                                Timber.tag("Media").d("Exception $error")
+                                if (videoUri.path != mediaURL.backupUrl && mediaURL.backupUrl != null) {
+                                    mediaSource = buildMediaSource(
+                                        application.baseContext,
+                                        Uri.parse(mediaURL.backupUrl)
+                                    )
                                     prepare(mediaSource, false, false)
                                 }
                             }
@@ -89,15 +93,15 @@ class MediaVM(private val application: AstroApplication): AstroViewModel(applica
         }
     }
 
-    fun setLoadingState(loading: Boolean){
+    fun setLoadingState(loading: Boolean) {
         _isLoading.value = loading
     }
 
-    fun pausePlayer(){
+    fun pausePlayer() {
         _player.value?.playWhenReady = false
     }
 
-    fun releasePlayer(){
+    fun releasePlayer() {
         _player.value?.release()
         _player.value = null
     }

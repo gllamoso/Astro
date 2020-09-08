@@ -1,10 +1,12 @@
 package dev.gtcl.astro.ui.fragments
 
 import androidx.lifecycle.*
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.AstroViewModel
 
-class ViewPagerVM: ViewModel(){
+class ViewPagerVM(application: AstroApplication) : AstroViewModel(application) {
     var isViewPagerSwipeEnabled = false
-    var pages: MutableList<ViewPagerPage> = mutableListOf()
+    val pages = mutableListOf<ViewPagerPage>()
 
     private val _navigateToPreviousPage = MutableLiveData<Any?>()
     val navigateToPreviousPage: LiveData<Any?>
@@ -26,39 +28,39 @@ class ViewPagerVM: ViewModel(){
     val newPostLink: LiveData<String?>
         get() = _newPostLink
 
-    fun navigateToPreviousPage(){
+    fun navigateToPreviousPage() {
         _navigateToPreviousPage.value = Any()
     }
 
-    fun navigateToPreviousPageObserved(){
+    fun navigateToPreviousPageObserved() {
         _navigateToPreviousPage.value = null
     }
 
-    fun swipingEnabled(enabled: Boolean){
+    fun swipingEnabled(enabled: Boolean) {
         _swipingEnabled.value = enabled
     }
 
-    fun linkClicked(link: String){
+    fun linkClicked(link: String) {
         _linkClicked.value = link
     }
 
-    fun newPost(link: String){
+    fun newPost(link: String) {
         _newPostLink.value = link
     }
 
-    fun newPostObserved(){
+    fun newPostObserved() {
         _newPostLink.value = null
     }
 
-    fun linkObserved(){
+    fun linkObserved() {
         _linkClicked.value = null
     }
 
-    fun notifyViewPager(){
+    fun notifyViewPager() {
         _notifyViewPager.value = Any()
     }
 
-    fun notifyViewPagerObserved(){
+    fun notifyViewPagerObserved() {
         _notifyViewPager.value = null
     }
 }

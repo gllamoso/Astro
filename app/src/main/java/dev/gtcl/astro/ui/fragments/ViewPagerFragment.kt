@@ -23,7 +23,7 @@ import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
 
 class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 
-    private lateinit var binding: FragmentViewpagerBinding
+    private var binding: FragmentViewpagerBinding? = null
 
     private val args: ViewPagerFragmentArgs by navArgs()
 
@@ -34,53 +34,70 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 
     private val activityModel: MainActivityVM by activityViewModels()
 
-    private lateinit var pageAdapter: PageAdapter
     private lateinit var backPressedCallback: OnBackPressedCallback
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    private lateinit var pageAdapter: PageAdapter
+
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = FragmentViewpagerBinding.inflate(inflater)
         initViewPagerAdapter()
         initBackPressedCallback()
         initOtherObservers()
 
-        return binding.root
+        return binding!!.root
     }
 
     override fun onResume() {
         super.onResume()
-        backPressedCallback.isEnabled = binding.fragmentViewPagerViewPager.currentItem != 0
+        backPressedCallback.isEnabled = binding?.fragmentViewPagerViewPager?.currentItem != 0
+        binding?.fragmentViewPagerViewPager?.currentItem = pageAdapter.itemCount - 1
     }
 
-    private fun initViewPagerAdapter(){
-        pageAdapter = PageAdapter(childFragmentManager, lifecycle)
-        if(model.pages.isNotEmpty()){
-            pageAdapter.setPageStack(model.pages)
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding?.fragmentViewPagerViewPager?.adapter = null
+        binding = null
+    }
+
+    private fun initViewPagerAdapter() {
+        pageAdapter = PageAdapter(childFragmentManager, requireActivity().lifecycle)
+
+        if (model.pages.isEmpty()) {
+            val startingPage = args.startingPage
+            pageAdapter.addPage(startingPage)
+            model.pages.add(startingPage)
         } else {
-            pageAdapter.addPage(args.startingPage)
+            pageAdapter.addPages(model.pages)
         }
 
         activityModel.newPage.observe(viewLifecycleOwner, {
-            if(it != null){
+            if (it != null) {
                 newPage(it)
                 activityModel.newPageObserved()
             }
         })
 
-        binding.fragmentViewPagerViewPager.apply {
+        binding?.fragmentViewPagerViewPager?.apply {
             adapter = pageAdapter
             isUserInputEnabled = model.isViewPagerSwipeEnabled
+            currentItem = pageAdapter.itemCount - 1
             offscreenPageLimit = 3
             setPageTransformer(SlidePageTransformer())
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
 
         model.notifyViewPager.observe(viewLifecycleOwner, {
-            if(it != null){
-                val viewPager = binding.fragmentViewPagerViewPager
-                val currentPage = binding.fragmentViewPagerViewPager.currentItem
+            if (it != null) {
+                val viewPager = binding?.fragmentViewPagerViewPager
+                val currentPage = binding?.fragmentViewPagerViewPager?.currentItem
                 val isNotFirstPage = currentPage != 0
-                pageAdapter.popFragmentsGreaterThanPosition(currentPage)
-                viewPager.isUserInputEnabled = isNotFirstPage
+                pageAdapter.popFragmentsGreaterThanPosition(currentPage ?: 0)
+                model.pages.subList((currentPage ?: -1) + 1, model.pages.size).clear()
+                viewPager?.isUserInputEnabled = isNotFirstPage
                 backPressedCallback.isEnabled = isNotFirstPage
                 model.isViewPagerSwipeEnabled = isNotFirstPage
                 model.notifyViewPagerObserved()
@@ -88,38 +105,41 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
         })
     }
 
-    private fun initBackPressedCallback(){
-        backPressedCallback = object: OnBackPressedCallback(true){
+    private fun initBackPressedCallback() {
+        backPressedCallback = object : OnBackPressedCallback(true) {
             override fun handleOnBackPressed() {
-                val currentPage = binding.fragmentViewPagerViewPager.currentItem
-                binding.fragmentViewPagerViewPager.setCurrentItem(currentPage - 1, true)
+                val currentPage = binding?.fragmentViewPagerViewPager?.currentItem ?: 1
+                binding?.fragmentViewPagerViewPager?.setCurrentItem(currentPage - 1, true)
             }
         }
-        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backPressedCallback)
+        requireActivity().onBackPressedDispatcher.addCallback(
+            viewLifecycleOwner,
+            backPressedCallback
+        )
     }
 
     private fun initOtherObservers() {
         model.swipeEnabled.observe(viewLifecycleOwner, {
-            binding.fragmentViewPagerViewPager.isUserInputEnabled = it
+            binding?.fragmentViewPagerViewPager?.isUserInputEnabled = it
         })
 
         model.navigateToPreviousPage.observe(viewLifecycleOwner, {
-            if(it != null){
-                val currentPage = binding.fragmentViewPagerViewPager.currentItem
-                binding.fragmentViewPagerViewPager.setCurrentItem(currentPage - 1, true)
+            if (it != null) {
+                val currentPage = binding?.fragmentViewPagerViewPager?.currentItem ?: 1
+                binding?.fragmentViewPagerViewPager?.setCurrentItem(currentPage - 1, true)
                 model.navigateToPreviousPageObserved()
             }
         })
 
         model.linkClicked.observe(viewLifecycleOwner, {
-            if(it != null){
+            if (it != null) {
                 handleLink(it)
                 model.linkObserved()
             }
         })
 
         model.newPostLink.observe(viewLifecycleOwner, {
-            if(it != null){
+            if (it != null) {
                 activityModel.newPage(CommentsPage(it, false))
                 model.newPostObserved()
             }
@@ -136,19 +156,31 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 //                         |___/
 
     override fun listingSelected(listing: Listing) {
-        if(listing is SubscriptionListing && listing.subscription.type == SubscriptionType.USER){
+        if (listing is SubscriptionListing && listing.subscription.type == SubscriptionType.USER) {
             accountSelected(listing.subscription.displayName)
         } else {
-            findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(listing)))
+            findNavController().navigate(
+                ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                    ListingPage(listing)
+                )
+            )
         }
     }
 
     override fun accountSelected(user: String?) {
-        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(user)))
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                AccountPage(user)
+            )
+        )
     }
 
     override fun messagesSelected() {
-        findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(InboxPage))
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                InboxPage
+            )
+        )
     }
 
     override fun signInNewAccount() {
@@ -159,29 +191,64 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
         activityModel.openChromeTab(url)
     }
 
-    private fun newPage(page: ViewPagerPage){
-        pageAdapter.addPage(page)
-        model.pages.add(page)
-        val currentPage = binding.fragmentViewPagerViewPager.currentItem
-        binding.fragmentViewPagerViewPager.setCurrentItem(currentPage + 1, true)
+    private fun newPage(page: ViewPagerPage) {
+        if (page is PostPage || page is CommentsPage) {
+            pageAdapter.addPage(page)
+            model.pages.add(page)
+            val currentPage = binding?.fragmentViewPagerViewPager?.currentItem ?: 0
+            binding?.fragmentViewPagerViewPager?.setCurrentItem(currentPage + 1, true)
+        } else {
+            binding?.fragmentViewPagerViewPager?.adapter = null
+            findNavController().navigate(
+                ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                    page
+                )
+            )
+        }
     }
 
     override fun handleLink(link: String) {
-        when(link.getUrlType()){
-            UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE)).show(childFragmentManager, null)
-            UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF)).show(childFragmentManager, null)
-            UrlType.GIFV -> MediaDialogFragment.newInstance(MediaURL(link.replace(".gifv", ".mp4"), MediaType.VIDEO)).show(childFragmentManager, null)
-            UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.VIDEO)).show(childFragmentManager, null)
-            UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT)).show(childFragmentManager, null)
-            UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_ALBUM)).show(childFragmentManager, null)
-            UrlType.REDDIT_THREAD ->  activityModel.newPage(CommentsPage(link, true))
+        when (link.getUrlType()) {
+            UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE))
+                .show(childFragmentManager, null)
+            UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF))
+                .show(childFragmentManager, null)
+            UrlType.GIFV -> MediaDialogFragment.newInstance(
+                MediaURL(
+                    link.replace(".gifv", ".mp4"),
+                    MediaType.VIDEO
+                )
+            ).show(childFragmentManager, null)
+            UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(
+                MediaURL(
+                    link,
+                    MediaType.VIDEO
+                )
+            ).show(childFragmentManager, null)
+            UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT))
+                .show(childFragmentManager, null)
+            UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(
+                MediaURL(
+                    link,
+                    MediaType.IMGUR_ALBUM
+                )
+            ).show(childFragmentManager, null)
+            UrlType.REDDIT_THREAD -> activityModel.newPage(CommentsPage(link, true))
             UrlType.REDDIT_COMMENTS -> {
                 val validUrl = VALID_REDDIT_COMMENTS_URL_REGEX.find(link)!!.value
                 activityModel.newPage(CommentsPage(validUrl, false))
             }
-            UrlType.OTHER, UrlType.REDDIT_VIDEO, UrlType.REDDIT_GALLERY -> activityModel.openChromeTab(link)
-            UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.IMGUR_PICTURE)).show(childFragmentManager, null)
-            UrlType.REDGIFS -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.REDGIFS)).show(childFragmentManager, null)
+            UrlType.OTHER, UrlType.REDDIT_VIDEO, UrlType.REDDIT_GALLERY -> activityModel.openChromeTab(
+                link
+            )
+            UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(
+                MediaURL(
+                    link,
+                    MediaType.IMGUR_PICTURE
+                )
+            ).show(childFragmentManager, null)
+            UrlType.REDGIFS -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.REDGIFS))
+                .show(childFragmentManager, null)
             null -> throw IllegalArgumentException("Unable to determine link type: $link")
         }
     }

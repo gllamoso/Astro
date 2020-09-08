@@ -14,13 +14,20 @@ import dev.gtcl.astro.models.reddit.listing.Message
 import dev.gtcl.astro.showAsDropdown
 import io.noties.markwon.Markwon
 
-class MessageVH private constructor(private val binding: ItemMessageBinding): RecyclerView.ViewHolder(binding.root){
-    fun bind(message: Message, markwon: Markwon?, messageActions: MessageActions, username: String?, itemClickListener: ItemClickListener){
+class MessageVH private constructor(private val binding: ItemMessageBinding) :
+    RecyclerView.ViewHolder(binding.root) {
+    fun bind(
+        message: Message,
+        markwon: Markwon?,
+        messageActions: MessageActions,
+        username: String?,
+        itemClickListener: ItemClickListener
+    ) {
         binding.message = message
         binding.root.setOnClickListener {
             itemClickListener.itemClicked(message, adapterPosition)
         }
-        if(markwon != null){
+        if (markwon != null) {
             markwon.setMarkdown(binding.itemMessageBody, message.body)
         } else {
             binding.itemMessageBody.text = message.bodyFormatted
@@ -33,8 +40,14 @@ class MessageVH private constructor(private val binding: ItemMessageBinding): Re
         binding.executePendingBindings()
     }
 
-    private fun showPopupWindow(message: Message, messageActions: MessageActions, createdFromUser: Boolean, anchor: View){
-        val inflater = anchor.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
+    private fun showPopupWindow(
+        message: Message,
+        messageActions: MessageActions,
+        createdFromUser: Boolean,
+        anchor: View
+    ) {
+        val inflater =
+            anchor.context.getSystemService(Context.LAYOUT_INFLATER_SERVICE) as LayoutInflater
         val popupBinding = PopupMessageActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
@@ -58,7 +71,7 @@ class MessageVH private constructor(private val binding: ItemMessageBinding): Re
                 popupWindow.dismiss()
             }
 
-            if(!createdFromUser){
+            if (!createdFromUser) {
                 popupMessageActionsBlock.root.setOnClickListener {
                     messageActions.block(message, adapterPosition)
                     popupWindow.dismiss()
@@ -71,10 +84,15 @@ class MessageVH private constructor(private val binding: ItemMessageBinding): Re
             )
         }
 
-        popupWindow.showAsDropdown(anchor, popupBinding.root, ViewGroup.LayoutParams.WRAP_CONTENT, popupBinding.root.measuredHeight)
+        popupWindow.showAsDropdown(
+            anchor,
+            popupBinding.root,
+            ViewGroup.LayoutParams.WRAP_CONTENT,
+            popupBinding.root.measuredHeight
+        )
     }
 
-    companion object{
+    companion object {
         fun create(parent: ViewGroup): MessageVH {
             return MessageVH(ItemMessageBinding.inflate(LayoutInflater.from(parent.context)))
         }

@@ -11,7 +11,7 @@ data class MediaURL(
     val url: String,
     val mediaType: MediaType,
     val backupUrl: String? = null
-): Parcelable {
+) : Parcelable {
     @IgnoredOnParcel
     val imgurHash = url.getImgurHashFromUrl()
 }

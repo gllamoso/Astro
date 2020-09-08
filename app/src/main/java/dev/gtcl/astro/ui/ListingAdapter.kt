@@ -27,18 +27,20 @@ class ListingAdapter(
     private var items: MutableList<Item>? = null
 
     var networkState: NetworkState = NetworkState.LOADING
-        set(value){
-            val loading = (networkState == NetworkState.LOADED && (value.status == Status.FAILED || value.status == Status.RUNNING))
-            val error = ((networkState == NetworkState.LOADING && value.status == Status.FAILED) || (networkState.status == Status.FAILED && value == NetworkState.LOADING))
+        set(value) {
+            val loading =
+                (networkState == NetworkState.LOADED && (value.status == Status.FAILED || value.status == Status.RUNNING))
+            val error =
+                ((networkState == NetworkState.LOADING && value.status == Status.FAILED) || (networkState.status == Status.FAILED && value == NetworkState.LOADING))
             field = value
-            if(loading){
-                if(items?.size ?: 0 == 0){
+            if (loading) {
+                if (items?.size ?: 0 == 0) {
                     notifyItemChanged(0)
                 } else {
                     notifyItemInserted(items?.size ?: 0)
                 }
             }
-            if(error){
+            if (error) {
                 notifyItemChanged(items?.size ?: 0)
             }
         }
@@ -46,7 +48,7 @@ class ListingAdapter(
     fun submitList(items: List<Item>?) {
         notifyItemRangeRemoved(0, itemCount)
         this.items = items?.toMutableList()
-        if(items.isNullOrEmpty()){
+        if (items.isNullOrEmpty()) {
             notifyItemChanged(0)
         } else {
             notifyItemRangeInserted(0, items.size)
@@ -64,7 +66,7 @@ class ListingAdapter(
         notifyItemRangeInserted(previousSize, items.size)
     }
 
-    fun updateAt(position: Int, item: Item){
+    fun updateAt(position: Int, item: Item) {
         items?.let {
             it[position] = item
             notifyItemChanged(position)
@@ -78,8 +80,8 @@ class ListingAdapter(
         }
     }
 
-    override fun getItemCount(): Int{
-        return if(items.isNullOrEmpty()){
+    override fun getItemCount(): Int {
+        return if (items.isNullOrEmpty()) {
             1
         } else {
             items!!.size + if (networkState.status == Status.RUNNING || networkState.status == Status.FAILED) 1 else 0
@@ -87,9 +89,9 @@ class ListingAdapter(
     }
 
     override fun getItemViewType(position: Int): Int {
-        return when{
+        return when {
             items.isNullOrEmpty() -> {
-                if(items?.isEmpty() == true && networkState == NetworkState.LOADED)  {
+                if (items?.isEmpty() == true && networkState == NetworkState.LOADED) {
                     R.layout.item_no_items_found
                 } else {
                     R.layout.item_network_state
@@ -134,7 +136,14 @@ class ListingAdapter(
                 if (commentActions == null) {
                     throw IllegalStateException("Comment Actions not initialized")
                 }
-                (holder as CommentDetailedVH).bind(comment, markwon, commentActions, username, expected == ItemType.Message, itemClickListener)
+                (holder as CommentDetailedVH).bind(
+                    comment,
+                    markwon,
+                    commentActions,
+                    username,
+                    expected == ItemType.Message,
+                    itemClickListener
+                )
             }
             R.layout.item_subreddit -> {
                 val subreddit = items!![position] as Subreddit
@@ -148,7 +157,13 @@ class ListingAdapter(
                 if (messageActions == null) {
                     throw java.lang.IllegalStateException("Message Actions not initialized")
                 }
-                (holder as MessageVH).bind(message, markwon, messageActions, username, itemClickListener)
+                (holder as MessageVH).bind(
+                    message,
+                    markwon,
+                    messageActions,
+                    username,
+                    itemClickListener
+                )
             }
             R.layout.item_network_state -> (holder as NetworkStateItemVH).bind(networkState, retry)
             R.layout.item_no_items_found -> (holder as NoItemFoundVH).bind(expected)

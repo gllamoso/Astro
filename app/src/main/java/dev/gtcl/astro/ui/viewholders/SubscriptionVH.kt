@@ -11,14 +11,16 @@ import dev.gtcl.astro.database.Subscription
 import dev.gtcl.astro.databinding.ItemSubscriptionBinding
 import dev.gtcl.astro.models.reddit.listing.SubscriptionListing
 
-class SubscriptionVH private constructor(private val binding: ItemSubscriptionBinding): RecyclerView.ViewHolder(binding.root){
+class SubscriptionVH private constructor(private val binding: ItemSubscriptionBinding) :
+    RecyclerView.ViewHolder(binding.root) {
 
     fun bind(
         sub: Subscription,
         listingTypeClickListener: ListingTypeClickListener,
         subscriptionAdapterActions: SubscriptionAdapterActions,
         subscriptionActions: SubscriptionActions,
-        inFavoritesSection: Boolean = false){
+        inFavoritesSection: Boolean = false
+    ) {
 
         binding.sub = sub
         binding.root.setOnClickListener {
@@ -27,9 +29,9 @@ class SubscriptionVH private constructor(private val binding: ItemSubscriptionBi
             )
         }
 
-        if(sub.type == SubscriptionType.MULTIREDDIT){
+        if (sub.type == SubscriptionType.MULTIREDDIT) {
             binding.itemSubscriptionEditButton.setOnClickListener {
-               subscriptionActions.editMultiReddit(sub)
+                subscriptionActions.editMultiReddit(sub)
             }
         }
 
@@ -44,7 +46,8 @@ class SubscriptionVH private constructor(private val binding: ItemSubscriptionBi
         }
     }
 
-    companion object{
-        fun create(parent: ViewGroup) = SubscriptionVH(ItemSubscriptionBinding.inflate(LayoutInflater.from(parent.context)))
+    companion object {
+        fun create(parent: ViewGroup) =
+            SubscriptionVH(ItemSubscriptionBinding.inflate(LayoutInflater.from(parent.context)))
     }
 }

@@ -8,15 +8,17 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.astro.databinding.ItemSubredditInMultiredditBinding
 import dev.gtcl.astro.models.reddit.listing.Subreddit
 
-class MultiRedditSubredditsAdapter(private val onSubredditRemovedListener: OnSubredditRemovedListener) : ListAdapter<Subreddit, MultiRedditSubredditsAdapter.MultiRedditSubredditVH>(DiffCallback){
+class MultiRedditSubredditsAdapter(private val onSubredditRemovedListener: OnSubredditRemovedListener) :
+    ListAdapter<Subreddit, MultiRedditSubredditsAdapter.MultiRedditSubredditVH>(DiffCallback) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MultiRedditSubredditVH = MultiRedditSubredditVH.create(parent)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MultiRedditSubredditVH =
+        MultiRedditSubredditVH.create(parent)
 
     override fun onBindViewHolder(holder: MultiRedditSubredditVH, position: Int) {
         holder.bind(getItem(position), onSubredditRemovedListener)
     }
 
-    companion object DiffCallback : DiffUtil.ItemCallback<Subreddit>(){
+    companion object DiffCallback : DiffUtil.ItemCallback<Subreddit>() {
         override fun areItemsTheSame(oldItem: Subreddit, newItem: Subreddit): Boolean {
             return oldItem.id == newItem.id
         }
@@ -28,10 +30,10 @@ class MultiRedditSubredditsAdapter(private val onSubredditRemovedListener: OnSub
     }
 
 
+    class MultiRedditSubredditVH private constructor(private val binding: ItemSubredditInMultiredditBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-    class MultiRedditSubredditVH private constructor(private val binding: ItemSubredditInMultiredditBinding): RecyclerView.ViewHolder(binding.root){
-
-        fun bind(sub: Subreddit, onSubredditRemovedListener: OnSubredditRemovedListener){
+        fun bind(sub: Subreddit, onSubredditRemovedListener: OnSubredditRemovedListener) {
             binding.sub = sub
             binding.itemSubredditInMultiRedditRemoveButton.setOnClickListener {
                 onSubredditRemovedListener.onRemove(sub, adapterPosition)
@@ -39,7 +41,7 @@ class MultiRedditSubredditsAdapter(private val onSubredditRemovedListener: OnSub
             binding.executePendingBindings()
         }
 
-        companion object{
+        companion object {
             fun create(parent: ViewGroup) =
                 MultiRedditSubredditVH(
                     ItemSubredditInMultiredditBinding.inflate(LayoutInflater.from(parent.context))
@@ -47,7 +49,7 @@ class MultiRedditSubredditsAdapter(private val onSubredditRemovedListener: OnSub
         }
     }
 
-    interface OnSubredditRemovedListener{
+    interface OnSubredditRemovedListener {
         fun onRemove(subreddit: Subreddit, position: Int)
     }
 

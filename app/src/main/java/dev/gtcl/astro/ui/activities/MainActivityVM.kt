@@ -11,7 +11,7 @@ import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.ui.fragments.ViewPagerPage
 import kotlinx.coroutines.*
 
-class MainActivityVM(val application: AstroApplication): AstroViewModel(application) {
+class MainActivityVM(val application: AstroApplication) : AstroViewModel(application) {
 
     val allUsers = userRepository.getAllUsers()
 
@@ -31,62 +31,69 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
     val openChromeTab: LiveData<String?>
         get() = _openChromeTab
 
-    fun refreshObserved(){
+    fun refreshObserved() {
         _refreshState.value = null
     }
 
-    fun newPage(page: ViewPagerPage){
+    fun newPage(page: ViewPagerPage) {
         _newPage.value = page
     }
 
-    fun newPageObserved(){
+    fun newPageObserved() {
         _newPage.value = null
     }
 
-    fun refreshAccessToken(){
+    fun refreshAccessToken() {
         coroutineScope.launch {
             try {
                 val refreshToken = application.accessToken!!.refreshToken!!
                 application.accessToken = fetchAccessToken(refreshToken)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
 
-    fun syncSubscriptionsWithReddit(){
+    fun syncSubscriptionsWithReddit() {
         coroutineScope.launch {
-            withContext(Dispatchers.Default){
+            withContext(Dispatchers.Default) {
                 try {
                     _refreshState.postValue(NetworkState.LOADING)
-                    val favSubs = subredditRepository.getMyFavoriteSubscriptionsExcludingMultireddits().map { it.name }.toHashSet()
-                    if(application.accessToken == null) {
+                    val favSubs =
+                        subredditRepository.getMyFavoriteSubscriptionsExcludingMultireddits()
+                            .map { it.name }.toHashSet()
+                    if (application.accessToken == null) {
                         subredditRepository.deleteAllMySubscriptions()
-                        val subs = subredditRepository.getMySubreddits(100, null).await().data.children.map { it.data as Subreddit }
-                        for(sub: Subreddit in subs){
-                            if(favSubs.contains(sub.displayName)){
+                        val subs = subredditRepository.getMySubreddits(100, null)
+                            .await().data.children.map { it.data as Subreddit }
+                        for (sub: Subreddit in subs) {
+                            if (favSubs.contains(sub.displayName)) {
                                 sub.isFavorite = true
                             }
                         }
                         subredditRepository.insertSubreddits(subs)
-                    }
-                    else {
+                    } else {
                         val allSubs = mutableListOf<Subreddit>()
-                        var subs = subredditRepository.getMySubreddits(100, null).await().data.children.map { it.data as Subreddit }
-                        while(subs.isNotEmpty()) {
+                        var subs = subredditRepository.getMySubreddits(100, null)
+                            .await().data.children.map { it.data as Subreddit }
+                        while (subs.isNotEmpty()) {
                             allSubs.addAll(subs)
                             val lastSub = subs.last()
-                            subs = subredditRepository.getMySubreddits(100, after = lastSub.name).await().data.children.map { it.data as Subreddit }
+                            subs = subredditRepository.getMySubreddits(100, after = lastSub.name)
+                                .await().data.children.map { it.data as Subreddit }
                         }
-                        for(sub: Subreddit in allSubs) {
-                            if (favSubs.contains(sub.displayName)){
+                        for (sub: Subreddit in allSubs) {
+                            if (favSubs.contains(sub.displayName)) {
                                 sub.isFavorite = true
                             }
                         }
-                        val favMultireddits = subredditRepository.getMyFavoriteSubscriptions(SubscriptionType.MULTIREDDIT).map { it.name }.toHashSet()
-                        val multiReddits = subredditRepository.getMyMultiReddits().await().map { it.data }
-                        for(multi: MultiReddit in multiReddits){
-                            if(favMultireddits.contains(multi.name)){
+                        val favMultireddits =
+                            subredditRepository.getMyFavoriteSubscriptions(SubscriptionType.MULTIREDDIT)
+                                .map { it.name }.toHashSet()
+                        val multiReddits =
+                            subredditRepository.getMyMultiReddits().await().map { it.data }
+                        for (multi: MultiReddit in multiReddits) {
+                            if (favMultireddits.contains(multi.name)) {
                                 multi.setFavorite(true)
                             }
                         }
@@ -95,7 +102,7 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
                         subredditRepository.insertSubreddits(allSubs)
                         subredditRepository.insertMultiReddits(multiReddits)
                     }
-                } catch(e: Exception) {
+                } catch (e: Exception) {
                     _errorMessage.postValue(e.getErrorMessage(application))
                 } finally {
                     _refreshState.postValue(NetworkState.LOADED)
@@ -104,108 +111,115 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
         }
     }
 
-    fun unsubscribe(subscription: Subscription){
+    fun unsubscribe(subscription: Subscription) {
         coroutineScope.launch {
-            try{
+            try {
                 if (subscription.type == SubscriptionType.USER || subscription.type == SubscriptionType.SUBREDDIT) {
                     subredditRepository.subscribe(subscription, false).await()
                     subredditRepository.deleteSubscription(subscription)
                 } else {
-                    subredditRepository.deleteMultiReddit(subscription.url.removePrefix("/")).await()
+                    subredditRepository.deleteMultiReddit(subscription.url.removePrefix("/"))
+                        .await()
                     subredditRepository.deleteSubscription(subscription)
                 }
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
 
-    fun favorite(subscription: Subscription, favorite: Boolean){
+    fun favorite(subscription: Subscription, favorite: Boolean) {
         coroutineScope.launch {
             subredditRepository.addToFavorites(subscription, favorite)
         }
     }
 
-    fun subscribe(subreddit: Subreddit, subscribe: Boolean){
+    fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
         coroutineScope.launch {
-            try{
+            try {
                 subredditRepository.subscribe(subreddit, subscribe).await()
-                if(subscribe){
+                if (subscribe) {
                     subredditRepository.insertSubreddit(subreddit)
                 } else {
                     subredditRepository.deleteSubscription(subreddit)
                 }
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
 
-    fun vote(thingId: String, vote: Vote){
+    fun vote(thingId: String, vote: Vote) {
         coroutineScope.launch {
             try {
                 miscRepository.vote(thingId, vote).await()
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
 
         }
     }
 
-    fun save(thingId: String, save: Boolean){
+    fun save(thingId: String, save: Boolean) {
         coroutineScope.launch {
             try {
-                if(save){
+                if (save) {
                     miscRepository.save(thingId).await()
                 } else {
                     miscRepository.unsave(thingId).await()
                 }
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
 
-    fun hide(thingId: String, hide: Boolean){
+    fun hide(thingId: String, hide: Boolean) {
         coroutineScope.launch {
             try {
-                if(hide){
+                if (hide) {
                     miscRepository.hide(thingId).await()
                 } else {
                     miscRepository.unhide(thingId).await()
                 }
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
 
-    fun report(thingId: String, rule: String, ruleType: RuleType){
+    fun report(thingId: String, rule: String, ruleType: RuleType) {
         coroutineScope.launch {
             try {
-                when(ruleType){
+                when (ruleType) {
                     RuleType.RULE -> miscRepository.report(thingId, ruleReason = rule).await()
                     RuleType.SITE_RULE -> miscRepository.report(thingId, siteReason = rule).await()
                     RuleType.OTHER -> miscRepository.report(thingId, otherReason = rule).await()
                 }
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
 
         }
     }
 
-    fun delete(thingId: String){
+    fun delete(thingId: String) {
         coroutineScope.launch {
-            try{
+            try {
                 miscRepository.delete(thingId).await()
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
 
-    fun updatePost(post: Post, nsfw: Boolean, spoiler: Boolean, getNotifications: Boolean, flair: Flair?){
+    fun updatePost(
+        post: Post,
+        nsfw: Boolean,
+        spoiler: Boolean,
+        getNotifications: Boolean,
+        flair: Flair?
+    ) {
         val prevNsfw = post.nsfw
         val prevSpoiler = post.spoiler
         val prevGetNotifications = post.sendReplies
@@ -221,87 +235,88 @@ class MainActivityVM(val application: AstroApplication): AstroViewModel(applicat
         }
 
         coroutineScope.launch {
-            try{
-                if(prevNsfw != nsfw){
+            try {
+                if (prevNsfw != nsfw) {
                     miscRepository.markNsfw(post.name, nsfw).await()
                 }
 
-                if(prevSpoiler != spoiler){
+                if (prevSpoiler != spoiler) {
                     miscRepository.markSpoiler(post.name, spoiler).await()
                 }
 
-                if(prevGetNotifications != getNotifications){
+                if (prevGetNotifications != getNotifications) {
                     miscRepository.sendRepliesToInbox(post.name, getNotifications).await()
                 }
 
-                if(prevFlairTemplateId != flair?.id || prevFlairText != flair?.text){
+                if (prevFlairTemplateId != flair?.id || prevFlairText != flair?.text) {
                     miscRepository.setFlair(post.name, flair).await()
                 }
 
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
 
-    fun block(item: Item){
+    fun block(item: Item) {
         coroutineScope.launch {
             try {
                 miscRepository.block(item.name).await()
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
 
-    fun markMessage(item: Item, read: Boolean){
+    fun markMessage(item: Item, read: Boolean) {
         coroutineScope.launch {
             try {
                 miscRepository.markMessage(item, read).await()
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
 
-    fun deleteMessage(message: Message){
+    fun deleteMessage(message: Message) {
         coroutineScope.launch {
             try {
                 miscRepository.deleteMessage(message).await()
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
     }
 
-    fun showUi(show: Boolean){
+    fun showUi(show: Boolean) {
         _showUi.value = show
     }
 
-    fun toggleUi(){
+    fun toggleUi() {
         _showUi.value = !(_showUi.value ?: true)
     }
 
-    fun openChromeTab(url: String){
+    fun openChromeTab(url: String) {
         _openChromeTab.value = url
     }
 
-    fun chromeTabOpened(){
+    fun chromeTabOpened() {
         _openChromeTab.value = null
     }
 
-    fun removeAccount(account: SavedAccount){
+    fun removeAccount(account: SavedAccount) {
         coroutineScope.launch {
-            withContext(Dispatchers.IO){
+            withContext(Dispatchers.IO) {
                 userRepository.deleteUserInDatabase(account.name)
             }
         }
     }
 
     private suspend fun fetchAccessToken(refreshToken: String): AccessToken {
-        return userRepository.getNewAccessToken("Basic ${getEncodedAuthString()}", refreshToken).await().apply {
-            this.refreshToken = refreshToken
-        }
+        return userRepository.getNewAccessToken("Basic ${getEncodedAuthString()}", refreshToken)
+            .await().apply {
+                this.refreshToken = refreshToken
+            }
     }
 
 }

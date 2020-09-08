@@ -29,10 +29,6 @@
         <item name="tint">?android:attr/textColorPrimary</item>
     </style>
 
-    <style name="Toolbar.Button.Navigation.Tinted2" parent="Widget.AppCompat.Toolbar.Button.Navigation">
-        <item name="tint">?android:attr/colorButtonNormal</item>
-    </style>
-
     <style name="CollapsingToolbarLayoutExpandedTextStyle" parent="AppTheme">
         <item name="android:textColor">@android:color/transparent</item>
         <item name="android:textSize">20sp</item>

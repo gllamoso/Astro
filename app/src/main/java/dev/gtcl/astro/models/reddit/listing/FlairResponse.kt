@@ -9,4 +9,4 @@ data class Flair(
     var text: String,
     @Json(name = "text_editable") val textEditable: Boolean,
     val id: String
-): Parcelable
+) : Parcelable

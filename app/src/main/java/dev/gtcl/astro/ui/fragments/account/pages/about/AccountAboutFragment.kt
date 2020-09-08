@@ -15,20 +15,24 @@ import dev.gtcl.astro.databinding.FragmentAccountAboutBinding
 
 class AccountAboutFragment : Fragment() {
 
-    private lateinit var binding: FragmentAccountAboutBinding
+    private var binding: FragmentAccountAboutBinding? = null
 
     val model: AccountAboutVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
         ViewModelProvider(this, viewModelFactory).get(AccountAboutVM::class.java)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = FragmentAccountAboutBinding.inflate(inflater)
-        binding.lifecycleOwner = this
-        binding.model = model
+        binding!!.lifecycleOwner = this
+        binding!!.model = model
         val user = arguments?.getString(USER_KEY)
         model.fetchAccount(user)
-        if((requireActivity().application as AstroApplication).currentAccount != null){
+        if ((requireActivity().application as AstroApplication).currentAccount != null) {
             model.fetchAwards()
         }
 
@@ -38,18 +42,23 @@ class AccountAboutFragment : Fragment() {
         })
 
         model.errorMessage.observe(viewLifecycleOwner, {
-            if(it != null){
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+            if (it != null) {
+                Snackbar.make(binding!!.root, it, Snackbar.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }
         })
 
-        binding.fragmentAccountAboutAwardsList.adapter = adapter
-        return binding.root
+        binding!!.fragmentAccountAboutAwardsList.adapter = adapter
+        return binding!!.root
     }
 
-    companion object{
-        fun newInstance(user: String?): AccountAboutFragment{
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+    }
+
+    companion object {
+        fun newInstance(user: String?): AccountAboutFragment {
             val fragment = AccountAboutFragment()
             val args = bundleOf(USER_KEY to user)
             fragment.arguments = args

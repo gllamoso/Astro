@@ -6,15 +6,16 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.astro.databinding.ItemExpandableBinding
 import dev.gtcl.astro.rotateView
 
-class ExpandableHeaderVH private constructor(private val binding: ItemExpandableBinding): RecyclerView.ViewHolder(binding.root){
-    fun bind(expandableItem: ExpandableItem, showTopDivider: Boolean){
+class ExpandableHeaderVH private constructor(private val binding: ItemExpandableBinding) :
+    RecyclerView.ViewHolder(binding.root) {
+    fun bind(expandableItem: ExpandableItem, showTopDivider: Boolean) {
         binding.expandableItem = expandableItem
         binding.showTopDivider = showTopDivider
         binding.executePendingBindings()
 
         binding.root.setOnClickListener {
             expandableItem.apply {
-                if(expandable){
+                if (expandable) {
                     expanded = !expanded
                     rotateView(binding.itemExpandableCollapseIndicator, expanded)
                     onExpand(expanded)
@@ -23,7 +24,7 @@ class ExpandableHeaderVH private constructor(private val binding: ItemExpandable
         }
     }
 
-    companion object{
+    companion object {
         fun create(parent: ViewGroup): ExpandableHeaderVH {
             return ExpandableHeaderVH(ItemExpandableBinding.inflate(LayoutInflater.from(parent.context)))
         }

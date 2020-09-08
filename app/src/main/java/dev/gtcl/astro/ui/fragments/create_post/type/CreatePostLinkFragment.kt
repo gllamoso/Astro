@@ -13,11 +13,10 @@ import dev.gtcl.astro.LinkPost
 import dev.gtcl.astro.R
 import dev.gtcl.astro.databinding.FragmentCreatePostLinkBinding
 import dev.gtcl.astro.ui.fragments.create_post.CreatePostVM
-import java.net.URL
 
-class CreatePostLinkFragment: Fragment() {
+class CreatePostLinkFragment : Fragment() {
 
-    private lateinit var binding: FragmentCreatePostLinkBinding
+    private var binding: FragmentCreatePostLinkBinding? = null
 
     val model: CreatePostVM by lazy {
         ViewModelProviders.of(requireParentFragment()).get(CreatePostVM::class.java)
@@ -39,40 +38,47 @@ class CreatePostLinkFragment: Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCreatePostLinkBinding.inflate(inflater)
-        return binding.root
+        return binding!!.root
     }
 
-    private fun initObservers(){
+    private fun initObservers() {
         model.fetchInput.observe(viewLifecycleOwner, {
-            if(it == true){
-                val text = binding.fragmentCreatePostLinkText.text.toString()
-                if(text.isEmpty()){
-                    binding.fragmentCreatePostLinkTextInputLayout.error = getString(R.string.required)
+            if (it == true) {
+                val text = binding?.fragmentCreatePostLinkText?.text.toString()
+                if (text.isEmpty()) {
+                    binding?.fragmentCreatePostLinkTextInputLayout?.error =
+                        getString(R.string.required)
                 } else {
-                    try{
-                        if(!URLUtil.isValidUrl(text)){
+                    try {
+                        if (!URLUtil.isValidUrl(text)) {
                             throw Exception()
                         }
                         model.setPostContent(LinkPost(text))
-                    } catch(e: Exception){
-                        binding.fragmentCreatePostLinkTextInputLayout.error = getString(R.string.invalid)
+                    } catch (e: Exception) {
+                        binding?.fragmentCreatePostLinkTextInputLayout?.error =
+                            getString(R.string.invalid)
                     }
                 }
                 model.dataFetched()
             }
         })
 
-        binding.fragmentCreatePostLinkText.addTextChangedListener(object: TextWatcher{
+        binding?.fragmentCreatePostLinkText?.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
 
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                binding.fragmentCreatePostLinkTextInputLayout.error = null
+                binding?.fragmentCreatePostLinkTextInputLayout?.error = null
             }
         })
     }
 
-    private fun removeObservers(){
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+    }
+
+    private fun removeObservers() {
         model.fetchInput.removeObservers(viewLifecycleOwner)
     }
 }

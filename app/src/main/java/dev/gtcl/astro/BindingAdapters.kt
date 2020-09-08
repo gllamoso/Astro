@@ -37,8 +37,10 @@ import java.util.*
 
 
 @BindingAdapter("loadImageAndHideIfNull")
-fun loadImageAndHideIfNull(imgView: ImageView, imgUrl: String?){
-    if(imgUrl != null && URLUtil.isValidUrl(imgUrl) && Patterns.WEB_URL.matcher(imgUrl).matches()) {
+fun loadImageAndHideIfNull(imgView: ImageView, imgUrl: String?) {
+    if (imgUrl != null && URLUtil.isValidUrl(imgUrl) && Patterns.WEB_URL.matcher(imgUrl)
+            .matches()
+    ) {
         imgView.visibility = View.VISIBLE
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
@@ -50,16 +52,15 @@ fun loadImageAndHideIfNull(imgView: ImageView, imgUrl: String?){
 //                    .placeholder(R.color.background))
 //                    .error(R.drawable.ic_broken_image_24))
             .into(imgView)
-    }
-    else {
+    } else {
         imgView.visibility = View.GONE
     }
 }
 
 @BindingAdapter("loadImage")
-fun loadImage(imgView: ImageView, imgUrl: String?){
-    if(imgUrl.isNullOrBlank()) return
-    if(imgUrl.startsWith("http")){
+fun loadImage(imgView: ImageView, imgUrl: String?) {
+    if (imgUrl.isNullOrBlank()) return
+    if (imgUrl.startsWith("http")) {
         imgView.visibility = View.VISIBLE
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
@@ -73,8 +74,8 @@ fun loadImage(imgView: ImageView, imgUrl: String?){
 }
 
 @BindingAdapter("banner")
-fun loadBanner(imgView: ImageView, url: String?){
-    if (url.isNullOrBlank()){
+fun loadBanner(imgView: ImageView, url: String?) {
+    if (url.isNullOrBlank()) {
         imgView.viewTreeObserver.addOnGlobalLayoutListener(
             object : ViewTreeObserver.OnGlobalLayoutListener {
                 override fun onGlobalLayout() {
@@ -82,7 +83,14 @@ fun loadBanner(imgView: ImageView, url: String?){
                     val width = imgView.width
                     val height = imgView.height
                     val resource = imgView.resources
-                    imgView.setImageBitmap(decodeSampledBitmapFromResource(resource, R.drawable.default_banner, width, height))
+                    imgView.setImageBitmap(
+                        decodeSampledBitmapFromResource(
+                            resource,
+                            R.drawable.default_banner,
+                            width,
+                            height
+                        )
+                    )
                 }
             }
         )
@@ -135,8 +143,8 @@ fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeig
 }
 
 @BindingAdapter("uri")
-fun bindUriToImage(imgView: ImageView, uri: Uri?){
-    if(uri == null){
+fun bindUriToImage(imgView: ImageView, uri: Uri?) {
+    if (uri == null) {
         imgView.visibility = View.GONE
         return
     }
@@ -147,7 +155,8 @@ fun bindUriToImage(imgView: ImageView, uri: Uri?){
         .into(imgView)
 }
 
-class SubsamplingScaleImageViewTarget(view: SubsamplingScaleImageView): CustomViewTarget<SubsamplingScaleImageView, Bitmap>(view){
+class SubsamplingScaleImageViewTarget(view: SubsamplingScaleImageView) :
+    CustomViewTarget<SubsamplingScaleImageView, Bitmap>(view) {
     override fun onLoadFailed(errorDrawable: Drawable?) {}
 
     override fun onResourceCleared(placeholder: Drawable?) {}
@@ -158,8 +167,8 @@ class SubsamplingScaleImageViewTarget(view: SubsamplingScaleImageView): CustomVi
 }
 
 @BindingAdapter("listingType")
-fun loadMultiIcon(imgView: ImageView, listing: Listing){
-    when(listing){
+fun loadMultiIcon(imgView: ImageView, listing: Listing) {
+    when (listing) {
         FrontPage -> imgView.setImageResource(R.drawable.ic_front_page_24)
         All -> imgView.setImageResource(R.drawable.ic_all_24)
         Popular -> imgView.setImageResource(R.drawable.ic_trending_up_24)
@@ -169,73 +178,77 @@ fun loadMultiIcon(imgView: ImageView, listing: Listing){
 }
 
 @BindingAdapter("subredditIcon")
-fun loadSubIcon(imgView: ImageView, imgUrl: String?){
-    if(imgUrl == null || !imgUrl.startsWith("http")){
+fun loadSubIcon(imgView: ImageView, imgUrl: String?) {
+    if (imgUrl == null || !imgUrl.startsWith("http")) {
         imgView.setImageResource(R.drawable.ic_reddit_circle_24)
-    }
-    else {
+    } else {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
-            .apply(RequestOptions()
-                .placeholder(R.drawable.ic_reddit_circle_24)
-                .circleCrop())
+            .apply(
+                RequestOptions()
+                    .placeholder(R.drawable.ic_reddit_circle_24)
+                    .circleCrop()
+            )
             .into(imgView)
     }
 }
 
 @BindingAdapter("accountIcon")
-fun loadAccountIcon(imgView: ImageView, imgUrl: String?){
-    if(imgUrl == null || !imgUrl.startsWith("http")){
+fun loadAccountIcon(imgView: ImageView, imgUrl: String?) {
+    if (imgUrl == null || !imgUrl.startsWith("http")) {
         imgView.setImageResource(R.drawable.ic_profile_24)
-    }
-    else {
+    } else {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
-            .apply(RequestOptions()
-                .placeholder(R.drawable.ic_profile_24)
-                .circleCrop())
+            .apply(
+                RequestOptions()
+                    .placeholder(R.drawable.ic_profile_24)
+                    .circleCrop()
+            )
             .into(imgView)
     }
 }
 
 @BindingAdapter("subscriptionIcon")
-fun loadSubscriptionIcon(imgView: ImageView, subscription: Subscription){
-    val placeHolder = when(subscription.type){
+fun loadSubscriptionIcon(imgView: ImageView, subscription: Subscription) {
+    val placeHolder = when (subscription.type) {
         SubscriptionType.MULTIREDDIT -> R.drawable.ic_collection_24
         SubscriptionType.USER -> R.drawable.ic_profile_24
         SubscriptionType.SUBREDDIT -> R.drawable.ic_reddit_circle_24
     }
 
-    if(subscription.icon == null || !subscription.icon.startsWith("https", true)){
+    if (subscription.icon == null || !subscription.icon.startsWith("https", true)) {
         imgView.setImageResource(placeHolder)
         return
     }
 
     Glide.with(imgView.context)
         .load(subscription.icon)
-        .apply(RequestOptions()
-            .placeholder(placeHolder)
-            .circleCrop())
+        .apply(
+            RequestOptions()
+                .placeholder(placeHolder)
+                .circleCrop()
+        )
         .into(imgView)
 }
 
 
 @BindingAdapter("colorTint")
-fun setTint(imgView: ImageView, color: Int){
+fun setTint(imgView: ImageView, color: Int) {
     imgView.setColorFilter(color)
 }
 
 @BindingAdapter("favorite")
-fun loadFavoriteIcon(imgView: ImageView, isFavorite: Boolean){
-    imgView.setImageResource(if(isFavorite) R.drawable.ic_favorite_filled_24 else R.drawable.ic_favorite_unfilled_24)
+fun loadFavoriteIcon(imgView: ImageView, isFavorite: Boolean) {
+    imgView.setImageResource(if (isFavorite) R.drawable.ic_favorite_filled_24 else R.drawable.ic_favorite_unfilled_24)
 }
 
 @BindingAdapter("added")
-fun loadAddedIcon(imgView: ImageView, added: Boolean){
+fun loadAddedIcon(imgView: ImageView, added: Boolean) {
     imgView.setImageResource(
-        if(added){
+        if (added) {
             R.drawable.ic_remove_circle_outline_24
         } else {
             R.drawable.ic_add_circle_24
@@ -244,26 +257,27 @@ fun loadAddedIcon(imgView: ImageView, added: Boolean){
 }
 
 @BindingAdapter("listingType")
-fun loadListingText(txtView: TextView, listing: Listing?){
+fun loadListingText(txtView: TextView, listing: Listing?) {
     val context = txtView.context
     listing?.let {
-        txtView.text = when(it){
+        txtView.text = when (it) {
             FrontPage -> context.getText(R.string.frontpage)
             All -> context.getText(R.string.all)
             Popular -> context.getText(R.string.popular_tab_label)
             is SearchListing -> String.format(context.getString(R.string.search_title), it.query)
             is MultiRedditListing -> it.multiReddit.name
             is SubredditListing -> it.displayName
-            is ProfileListing -> context.getText(when(it.info){
-                ProfileInfo.OVERVIEW -> R.string.overview
-                ProfileInfo.SUBMITTED -> R.string.submitted
-                ProfileInfo.COMMENTS -> R.string.comments
-                ProfileInfo.UPVOTED -> R.string.upvoted
-                ProfileInfo.DOWNVOTED -> R.string.downvoted
-                ProfileInfo.HIDDEN -> R.string.hidden
-                ProfileInfo.SAVED -> R.string.saved
-                ProfileInfo.GILDED -> R.string.gilded
-            }
+            is ProfileListing -> context.getText(
+                when (it.info) {
+                    ProfileInfo.OVERVIEW -> R.string.overview
+                    ProfileInfo.SUBMITTED -> R.string.submitted
+                    ProfileInfo.COMMENTS -> R.string.comments
+                    ProfileInfo.UPVOTED -> R.string.upvoted
+                    ProfileInfo.DOWNVOTED -> R.string.downvoted
+                    ProfileInfo.HIDDEN -> R.string.hidden
+                    ProfileInfo.SAVED -> R.string.saved
+                    ProfileInfo.GILDED -> R.string.gilded
+                }
             )
             is SubscriptionListing -> it.subscription.name
         }
@@ -277,14 +291,23 @@ fun setVisibility(viewGroup: ViewGroup, listing: Listing?) {
 }
 
 @BindingAdapter("indent")
-fun setIndentation(linearLayout: LinearLayout, indent: Int){
+fun setIndentation(linearLayout: LinearLayout, indent: Int) {
     linearLayout.removeAllViews()
-    val viewSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, .90F, linearLayout.context.resources.displayMetrics).toInt()
-    val indentationSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 8F, linearLayout.context.resources.displayMetrics).toInt()
-    val params = LinearLayout.LayoutParams(viewSize, WindowManager.LayoutParams.MATCH_PARENT).apply {
-        marginStart = indentationSize
-    }
-    for(i in 1..indent){
+    val viewSize = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        .90F,
+        linearLayout.context.resources.displayMetrics
+    ).toInt()
+    val indentationSize = TypedValue.applyDimension(
+        TypedValue.COMPLEX_UNIT_DIP,
+        8F,
+        linearLayout.context.resources.displayMetrics
+    ).toInt()
+    val params =
+        LinearLayout.LayoutParams(viewSize, WindowManager.LayoutParams.MATCH_PARENT).apply {
+            marginStart = indentationSize
+        }
+    for (i in 1..indent) {
         val view = View(linearLayout.context).apply {
             setBackgroundColor(Color.GRAY)
             layoutParams = params
@@ -294,16 +317,19 @@ fun setIndentation(linearLayout: LinearLayout, indent: Int){
 }
 
 @BindingAdapter("moreComment")
-fun setMoreCommentText(textView: TextView, item: More){
-    if(item.isContinueThreadLink)
+fun setMoreCommentText(textView: TextView, item: More) {
+    if (item.isContinueThreadLink)
         textView.text = textView.resources.getString(R.string.continue_to_thread)
     else
-        textView.text = String.format(textView.resources.getText(R.string.more_replies).toString(), item.childrenLeft)
+        textView.text = String.format(
+            textView.resources.getText(R.string.more_replies).toString(),
+            item.childrenLeft
+        )
 }
 
 @BindingAdapter("timestamp")
-fun setTimestamp(textView: TextView, time: Long?){
-    if(time != null){
+fun setTimestamp(textView: TextView, time: Long?) {
+    if (time != null) {
         val timestamp = timeSince(time)
         textView.text = timestamp
     } else {
@@ -312,13 +338,13 @@ fun setTimestamp(textView: TextView, time: Long?){
 }
 
 @BindingAdapter("secondsToDate")
-fun secondsToDate(textView: TextView, time: Long){
+fun secondsToDate(textView: TextView, time: Long) {
     val simpleDateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.ROOT)
     textView.text = simpleDateFormat.format(1000L * time)
 }
 
 @BindingAdapter("viewSize")
-fun setViewSize(view: View, percentOfDeviceHeight: Int){
+fun setViewSize(view: View, percentOfDeviceHeight: Int) {
     val display = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
         view.context.display!!
     } else {
@@ -335,8 +361,8 @@ fun setViewSize(view: View, percentOfDeviceHeight: Int){
 }
 
 @BindingAdapter("read")
-fun setTextColor(textView: TextView, isRead: Boolean?){
-    if(isRead == true){
+fun setTextColor(textView: TextView, isRead: Boolean?) {
+    if (isRead == true) {
         textView.setTextColor(ContextCompat.getColor(textView.context, android.R.color.darker_gray))
     } else {
         textView.setTextColor(textView.context.resolveColorAttr(android.R.attr.textColorPrimary))
@@ -344,60 +370,83 @@ fun setTextColor(textView: TextView, isRead: Boolean?){
 }
 
 @BindingAdapter("invert")
-fun invert(view: View, inverted: Boolean?){
-    if(inverted == null){
+fun invert(view: View, inverted: Boolean?) {
+    if (inverted == null) {
         view.visibility = View.GONE
     } else {
         view.visibility = View.VISIBLE
-        view.rotation = if(inverted){
-                180F
-            } else {
-                0F
-            }
+        view.rotation = if (inverted) {
+            180F
+        } else {
+            0F
+        }
     }
 }
 
 @BindingAdapter("subredditsInMultireddit")
-fun bindRecyclerViewForMultiReddit(recyclerView: RecyclerView, data: MutableList<Subreddit>){
+fun bindRecyclerViewForMultiReddit(recyclerView: RecyclerView, data: MutableList<Subreddit>) {
     val adapter = recyclerView.adapter as MultiRedditSubredditsAdapter
     adapter.submitList(data)
 }
 
 @BindingAdapter("upvoteTint")
-fun applyUpvoteTint(imageView: ImageView, likes: Boolean?){
-    when(likes){
-        true -> imageView.setColorFilter(ContextCompat.getColor(imageView.context, android.R.color.holo_orange_dark))
+fun applyUpvoteTint(imageView: ImageView, likes: Boolean?) {
+    when (likes) {
+        true -> imageView.setColorFilter(
+            ContextCompat.getColor(
+                imageView.context,
+                android.R.color.holo_orange_dark
+            )
+        )
         else -> imageView.clearColorFilter()
     }
 }
 
 @BindingAdapter("downvoteTint")
-fun applyDownvoteTint(imageView: ImageView, likes: Boolean?){
-    when(likes){
-        false -> imageView.setColorFilter(ContextCompat.getColor(imageView.context, android.R.color.holo_blue_dark))
+fun applyDownvoteTint(imageView: ImageView, likes: Boolean?) {
+    when (likes) {
+        false -> imageView.setColorFilter(
+            ContextCompat.getColor(
+                imageView.context,
+                android.R.color.holo_blue_dark
+            )
+        )
         else -> imageView.clearColorFilter()
     }
 }
 
 @BindingAdapter("bookmarkTint")
-fun applyBookmarkTint(imageView: ImageView, bookmarked: Boolean){
-    when(bookmarked){
-        true -> imageView.setColorFilter(ContextCompat.getColor(imageView.context, android.R.color.holo_orange_light))
+fun applyBookmarkTint(imageView: ImageView, bookmarked: Boolean) {
+    when (bookmarked) {
+        true -> imageView.setColorFilter(
+            ContextCompat.getColor(
+                imageView.context,
+                android.R.color.holo_orange_light
+            )
+        )
         else -> imageView.clearColorFilter()
     }
 }
 
 @BindingAdapter("flairListSmall")
-fun addSmallFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?){
+fun addSmallFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?) {
     viewGroup.removeAllViews()
-    if(!list.isNullOrEmpty()){
+    if (!list.isNullOrEmpty()) {
         val context = viewGroup.context
-        val imgViewSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 18f, context.resources.displayMetrics).toInt()
-        val margin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, context.resources.displayMetrics).toInt()
+        val imgViewSize = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            18f,
+            context.resources.displayMetrics
+        ).toInt()
+        val margin = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            4f,
+            context.resources.displayMetrics
+        ).toInt()
         val layoutInflater = LayoutInflater.from(context)
-        for(flair in list){
+        for (flair in list) {
             val view =
-                if(!flair.url.isNullOrBlank()){
+                if (!flair.url.isNullOrBlank()) {
                     ImageView(context).apply {
                         layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
                             marginEnd = margin
@@ -417,16 +466,24 @@ fun addSmallFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?)
 }
 
 @BindingAdapter("flairList")
-fun addFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?){
+fun addFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?) {
     viewGroup.removeAllViews()
-    if(!list.isNullOrEmpty()){
+    if (!list.isNullOrEmpty()) {
         val context = viewGroup.context
-        val imgViewSize = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 24f, context.resources.displayMetrics).toInt()
-        val margin = TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 4f, context.resources.displayMetrics).toInt()
+        val imgViewSize = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            24f,
+            context.resources.displayMetrics
+        ).toInt()
+        val margin = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            4f,
+            context.resources.displayMetrics
+        ).toInt()
         val layoutInflater = LayoutInflater.from(context)
-        for(flair in list){
+        for (flair in list) {
             val view =
-                if(!flair.url.isNullOrBlank()){
+                if (!flair.url.isNullOrBlank()) {
                     ImageView(context).apply {
                         layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
                             marginEnd = margin
@@ -446,9 +503,9 @@ fun addFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?){
 }
 
 @BindingAdapter("ruleType")
-fun setRuleTypeText(textView: TextView, ruleFor: RuleFor){
+fun setRuleTypeText(textView: TextView, ruleFor: RuleFor) {
     val context = textView.context!!
-    textView.text = when(ruleFor){
+    textView.text = when (ruleFor) {
         RuleFor.POST -> context.getText(R.string.posts)
         RuleFor.COMMENT -> context.getText(R.string.comments)
         RuleFor.ALL -> context.getText(R.string.posts_and_comments)
@@ -456,8 +513,8 @@ fun setRuleTypeText(textView: TextView, ruleFor: RuleFor){
 }
 
 @BindingAdapter("flair")
-fun setFlairOnChip(chip: Chip, flair: Flair?){
-    if(flair == null){
+fun setFlairOnChip(chip: Chip, flair: Flair?) {
+    if (flair == null) {
         chip.isChecked = false
         chip.text = chip.context.getText(R.string.no_flair)
     } else {
@@ -467,54 +524,61 @@ fun setFlairOnChip(chip: Chip, flair: Flair?){
 }
 
 @BindingAdapter("postSort")
-fun setSortText(textView: TextView, postSort: PostSort){
-    textView.text = textView.context.getText(when(postSort){
-        PostSort.BEST -> R.string.order_best
-        PostSort.HOT -> R.string.order_hot
-        PostSort.NEW -> R.string.order_new
-        PostSort.TOP -> R.string.order_top
-        PostSort.CONTROVERSIAL -> R.string.order_controversial
-        PostSort.RISING -> R.string.order_rising
-        PostSort.RELEVANCE -> R.string.order_most_relevant
-        PostSort.COMMENTS -> R.string.order_comment_count
-    })
+fun setSortText(textView: TextView, postSort: PostSort) {
+    textView.text = textView.context.getText(
+        when (postSort) {
+            PostSort.BEST -> R.string.order_best
+            PostSort.HOT -> R.string.order_hot
+            PostSort.NEW -> R.string.order_new
+            PostSort.TOP -> R.string.order_top
+            PostSort.CONTROVERSIAL -> R.string.order_controversial
+            PostSort.RISING -> R.string.order_rising
+            PostSort.RELEVANCE -> R.string.order_most_relevant
+            PostSort.COMMENTS -> R.string.order_comment_count
+        }
+    )
 }
 
 @BindingAdapter("time")
-fun setTimeText(textView: TextView, time: Time?){
+fun setTimeText(textView: TextView, time: Time?) {
     time?.let {
-        textView.text = textView.context.getText(when(it){
-            Time.HOUR -> R.string.past_hour
-            Time.DAY -> R.string.past_24_hours
-            Time.WEEK -> R.string.past_week
-            Time.MONTH -> R.string.past_month
-            Time.YEAR -> R.string.past_year
-            Time.ALL -> R.string.all_time
-        })
+        textView.text = textView.context.getText(
+            when (it) {
+                Time.HOUR -> R.string.past_hour
+                Time.DAY -> R.string.past_24_hours
+                Time.WEEK -> R.string.past_week
+                Time.MONTH -> R.string.past_month
+                Time.YEAR -> R.string.past_year
+                Time.ALL -> R.string.all_time
+            }
+        )
     }
 }
 
 @BindingAdapter("commentSort")
-fun setCommentSortText(textView: TextView, commentSort: CommentSort){
-    textView.text = textView.context.getText(when(commentSort){
-        CommentSort.BEST -> R.string.order_best
-        CommentSort.TOP -> R.string.order_top
-        CommentSort.NEW -> R.string.order_new
-        CommentSort.CONTROVERSIAL -> R.string.order_controversial
-        CommentSort.OLD -> R.string.order_old
-        CommentSort.RANDOM -> R.string.order_random
-        CommentSort.QA -> R.string.order_qanda
-    })
+fun setCommentSortText(textView: TextView, commentSort: CommentSort) {
+    textView.text = textView.context.getText(
+        when (commentSort) {
+            CommentSort.BEST -> R.string.order_best
+            CommentSort.TOP -> R.string.order_top
+            CommentSort.NEW -> R.string.order_new
+            CommentSort.CONTROVERSIAL -> R.string.order_controversial
+            CommentSort.OLD -> R.string.order_old
+            CommentSort.RANDOM -> R.string.order_random
+            CommentSort.QA -> R.string.order_qanda
+        }
+    )
 }
 
 @BindingAdapter("isUser")
-fun setUserTextColor(textView: TextView, isUser: Boolean){
+fun setUserTextColor(textView: TextView, isUser: Boolean) {
     val context = textView.context!!
     val typedValue = TypedValue()
     context.theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
-    val arr = context.obtainStyledAttributes(typedValue.data, intArrayOf(android.R.attr.textColorPrimary))
+    val arr =
+        context.obtainStyledAttributes(typedValue.data, intArrayOf(android.R.attr.textColorPrimary))
     textView.setTextColor(
-        if(isUser){
+        if (isUser) {
             context.getColor(R.color.colorPrimary)
         } else {
             arr.getColor(0, -1)

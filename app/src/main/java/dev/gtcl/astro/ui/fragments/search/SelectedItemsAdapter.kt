@@ -7,19 +7,22 @@ import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.astro.databinding.ItemSelectedBinding
 
-class SelectedItemsAdapter(private val onClickListener: (String) -> Unit): ListAdapter<String, SelectedItemsAdapter.SelectedItemVH>(DIFF_CALLBACK) {
+class SelectedItemsAdapter(private val onClickListener: (String) -> Unit) :
+    ListAdapter<String, SelectedItemsAdapter.SelectedItemVH>(DIFF_CALLBACK) {
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = SelectedItemVH.create(parent)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
+        SelectedItemVH.create(parent)
 
     override fun onBindViewHolder(holder: SelectedItemVH, position: Int) {
         val name = getItem(position)
         holder.bind(name, onClickListener)
     }
 
-    class SelectedItemVH private constructor(private val binding: ItemSelectedBinding): RecyclerView.ViewHolder(binding.root){
+    class SelectedItemVH private constructor(private val binding: ItemSelectedBinding) :
+        RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(name: String, onClickListener: (String) -> Unit){
-            val displayName = if(name.startsWith("u_")){
+        fun bind(name: String, onClickListener: (String) -> Unit) {
+            val displayName = if (name.startsWith("u_")) {
                 name.replaceFirst("u_", "u/")
             } else {
                 name
@@ -31,13 +34,14 @@ class SelectedItemsAdapter(private val onClickListener: (String) -> Unit): ListA
             binding.executePendingBindings()
         }
 
-        companion object{
-            fun create(parent: ViewGroup) =  SelectedItemVH(ItemSelectedBinding.inflate(LayoutInflater.from(parent.context)))
+        companion object {
+            fun create(parent: ViewGroup) =
+                SelectedItemVH(ItemSelectedBinding.inflate(LayoutInflater.from(parent.context)))
         }
     }
 
-    companion object{
-        private val DIFF_CALLBACK = object: DiffUtil.ItemCallback<String>(){
+    companion object {
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<String>() {
             override fun areItemsTheSame(oldItem: String, newItem: String) = oldItem == newItem
             override fun areContentsTheSame(oldItem: String, newItem: String) = oldItem == newItem
         }

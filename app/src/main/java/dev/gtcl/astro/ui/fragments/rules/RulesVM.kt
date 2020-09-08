@@ -8,7 +8,7 @@ import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.Rule
 import kotlinx.coroutines.launch
 
-class RulesVM(private val application: AstroApplication): AstroViewModel(application){
+class RulesVM(private val application: AstroApplication) : AstroViewModel(application) {
 
     private val _rules = MutableLiveData<List<Rule>?>().apply { value = null }
     val rules: LiveData<List<Rule>?>
@@ -18,12 +18,12 @@ class RulesVM(private val application: AstroApplication): AstroViewModel(applica
     val loading: LiveData<Boolean>
         get() = _loading
 
-    fun fetchRules(displayName: String){
+    fun fetchRules(displayName: String) {
         coroutineScope.launch {
-            try{
+            try {
                 _loading.postValue(true)
                 _rules.postValue(subredditRepository.getRules(displayName).await().rules)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
                 _loading.postValue(false)

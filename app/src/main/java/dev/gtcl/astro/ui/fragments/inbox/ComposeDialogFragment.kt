@@ -16,7 +16,7 @@ import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentDialogComposeMessageBinding
 
-class ComposeDialogFragment : DialogFragment(){
+class ComposeDialogFragment : DialogFragment() {
 
     private lateinit var binding: FragmentDialogComposeMessageBinding
 
@@ -46,12 +46,13 @@ class ComposeDialogFragment : DialogFragment(){
         binding.model = model
         binding.lifecycleOwner = viewLifecycleOwner
 
-        if(!model.initialized){
+        if (!model.initialized) {
             val user = arguments?.getString(USER_KEY)
-            if(user != null){
+            if (user != null) {
                 binding.fragmentDialogComposeMessageToText.setText(user)
             } else {
-                val sharedPrefs = requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+                val sharedPrefs =
+                    requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
                 val to = sharedPrefs.getString(TO_KEY, "")
                 val subject = sharedPrefs.getString(SUBJECT_KEY, "")
                 val message = sharedPrefs.getString(MESSAGE_KEY, "")
@@ -62,13 +63,13 @@ class ComposeDialogFragment : DialogFragment(){
         }
 
         binding.fragmentDialogComposeMessageToolbar.setNavigationOnClickListener {
-            if(model.isLoading.value != true) {
+            if (model.isLoading.value != true) {
                 dismiss()
             }
         }
 
         binding.fragmentDialogComposeMessageToolbar.setOnMenuItemClickListener {
-            if(model.isLoading.value == true){
+            if (model.isLoading.value == true) {
                 return@setOnMenuItemClickListener false
             }
             val to = binding.fragmentDialogComposeMessageToText.text.toString()
@@ -76,27 +77,31 @@ class ComposeDialogFragment : DialogFragment(){
             val message = binding.fragmentDialogComposeMessageMessageText.text.toString()
             var valid = true
 
-            if(to.isBlank()){
-                binding.fragmentDialogComposeMessageToInputLayout.error = getString(R.string.required)
+            if (to.isBlank()) {
+                binding.fragmentDialogComposeMessageToInputLayout.error =
+                    getString(R.string.required)
                 valid = false
             }
 
-            if(subject.isBlank()){
-                binding.fragmentDialogComposeMessageSubjectInputLayout.error = getString(R.string.required)
+            if (subject.isBlank()) {
+                binding.fragmentDialogComposeMessageSubjectInputLayout.error =
+                    getString(R.string.required)
                 valid = false
             }
 
-            if(subject.length > 100){
-                binding.fragmentDialogComposeMessageSubjectInputLayout.error = getString(R.string.invalid)
+            if (subject.length > 100) {
+                binding.fragmentDialogComposeMessageSubjectInputLayout.error =
+                    getString(R.string.invalid)
                 valid = false
             }
 
-            if(message.isBlank()){
-                binding.fragmentDialogComposeMessageMessageInputLayout.error = getString(R.string.required)
+            if (message.isBlank()) {
+                binding.fragmentDialogComposeMessageMessageInputLayout.error =
+                    getString(R.string.required)
                 valid = false
             }
 
-            if(valid){
+            if (valid) {
                 model.sendMessage(to, subject, message)
                 return@setOnMenuItemClickListener true
             }
@@ -105,7 +110,7 @@ class ComposeDialogFragment : DialogFragment(){
         }
 
         model.errorMessage.observe(viewLifecycleOwner, {
-            if(it != null){
+            if (it != null) {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }
@@ -119,14 +124,15 @@ class ComposeDialogFragment : DialogFragment(){
         })
 
         model.userDoesNotExist.observe(viewLifecycleOwner, {
-            if(it != null){
-                binding.fragmentDialogComposeMessageToInputLayout.error = getString(R.string.user_does_not_exist)
+            if (it != null) {
+                binding.fragmentDialogComposeMessageToInputLayout.error =
+                    getString(R.string.user_does_not_exist)
                 model.userDoesNotExistObserved()
             }
         })
 
         model.messageSent.observe(viewLifecycleOwner, {
-            if(it){
+            if (it) {
                 dismiss()
             }
         })
@@ -138,8 +144,8 @@ class ComposeDialogFragment : DialogFragment(){
         return binding.root
     }
 
-    private fun setTextChangeListeners(){
-        binding.fragmentDialogComposeMessageToText.addTextChangedListener(object: TextWatcher{
+    private fun setTextChangeListeners() {
+        binding.fragmentDialogComposeMessageToText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -147,7 +153,8 @@ class ComposeDialogFragment : DialogFragment(){
             }
         })
 
-        binding.fragmentDialogComposeMessageSubjectText.addTextChangedListener(object: TextWatcher{
+        binding.fragmentDialogComposeMessageSubjectText.addTextChangedListener(object :
+            TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -155,7 +162,8 @@ class ComposeDialogFragment : DialogFragment(){
             }
         })
 
-        binding.fragmentDialogComposeMessageMessageText.addTextChangedListener(object: TextWatcher{
+        binding.fragmentDialogComposeMessageMessageText.addTextChangedListener(object :
+            TextWatcher {
             override fun afterTextChanged(s: Editable?) {}
             override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
@@ -166,21 +174,22 @@ class ComposeDialogFragment : DialogFragment(){
 
     override fun onDismiss(dialog: DialogInterface) {
         super.onDismiss(dialog)
-        if(model.messageSent.value == true){
+        if (model.messageSent.value == true) {
             clearSharedPreferenceDraft()
         } else {
             val to = binding.fragmentDialogComposeMessageToText.text.toString()
             val subject = binding.fragmentDialogComposeMessageSubjectText.text.toString()
             val message = binding.fragmentDialogComposeMessageMessageText.text.toString()
-            if(to.isNotBlank() || subject.isNotBlank() || message.isNotBlank()){
+            if (to.isNotBlank() || subject.isNotBlank() || message.isNotBlank()) {
                 val bundle = bundleOf(TO_KEY to to, SUBJECT_KEY to subject, MESSAGE_KEY to message)
                 setFragmentResult(DRAFT_KEY, bundle)
             }
         }
     }
 
-    private fun clearSharedPreferenceDraft(){
-        val sharedPrefs = requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+    private fun clearSharedPreferenceDraft() {
+        val sharedPrefs =
+            requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
         with(sharedPrefs.edit()) {
             remove(TO_KEY)
             remove(SUBJECT_KEY)
@@ -189,8 +198,8 @@ class ComposeDialogFragment : DialogFragment(){
         }
     }
 
-    companion object{
-        fun newInstance(user: String? = null): ComposeDialogFragment{
+    companion object {
+        fun newInstance(user: String? = null): ComposeDialogFragment {
             return ComposeDialogFragment().apply {
                 arguments = bundleOf(USER_KEY to user)
             }

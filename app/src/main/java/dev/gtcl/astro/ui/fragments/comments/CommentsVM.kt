@@ -16,9 +16,13 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
+import kotlin.collections.HashMap
 
 const val CHILDREN_PER_FETCH = 50
-class CommentsVM(val application: AstroApplication): AstroViewModel(application) {
+
+class CommentsVM(val application: AstroApplication) : AstroViewModel(application) {
+
+    var commentsExpanded = false
 
     private val hiddenItemsMap = HashMap<String, List<Item>>()
 
@@ -70,9 +74,10 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
 
     init {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(application)
-        val defaultSort = sharedPref.getString("default_comment_sort", application.getString(R.string.order_best))
+        val defaultSort =
+            sharedPref.getString("default_comment_sort", application.getString(R.string.order_best))
         val sortArray = application.resources.getStringArray(R.array.comment_sort_entries)
-        _commentSort.value = when(sortArray.indexOf(defaultSort)){
+        _commentSort.value = when (sortArray.indexOf(defaultSort)) {
             1 -> CommentSort.TOP
             2 -> CommentSort.NEW
             3 -> CommentSort.CONTROVERSIAL
@@ -83,38 +88,40 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
         }
     }
 
-    fun setPost(post: Post){
+    fun setPost(post: Post) {
         _post.value = post
     }
 
-    fun setCommentSort(sort: CommentSort){
+    fun setCommentSort(sort: CommentSort) {
         _commentSort.value = sort
     }
 
-    fun fetchFullContext(){
+    fun fetchFullContext() {
         fetchComments(fullContextLink!!, isFullContext = true, refreshPost = false)
     }
 
-    fun fetchComments(permalink: String, isFullContext: Boolean, refreshPost: Boolean){
+    fun fetchComments(permalink: String, isFullContext: Boolean, refreshPost: Boolean) {
         coroutineScope.launch {
-            try{
+            try {
                 _loading.postValue(true)
                 val isLoggedIn = application.accessToken != null
-                val link = if(isLoggedIn){
+                val link = if (isLoggedIn) {
                     permalink.replace("www.", "oauth.")
                 } else {
                     permalink
                 }
-                val commentPage = listingRepository.getPostAndComments(link, _commentSort.value!!, pageSize * 3).await()
-                if(refreshPost){
+                val commentPage =
+                    listingRepository.getPostAndComments(link, _commentSort.value!!, pageSize * 3)
+                        .await()
+                if (refreshPost) {
                     _post.postValue(commentPage.post)
                 }
                 _allCommentsFetched.postValue(isFullContext)
-                if(!isFullContext){
+                if (!isFullContext) {
                     fullContextLink = VALID_REDDIT_COMMENTS_URL_REGEX.find(permalink)!!.value
                 }
                 _comments.postValue(commentPage.comments.toMutableList())
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _comments.postValue(mutableListOf())
                 _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
@@ -123,34 +130,40 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
         }
     }
 
-    fun fetchMoreComments(position: Int){
+    fun fetchMoreComments(position: Int) {
         coroutineScope.launch {
-            val positionOffset = position + if(allCommentsFetched.value == false) -1 else 0
-            if(_loading.value == true || position == -1) {
-                if(position != -1){
+            val positionOffset = position + if (allCommentsFetched.value == false) -1 else 0
+            if (_loading.value == true || position == -1) {
+                if (position != -1) {
                     _notifyAt.value = position
                 }
                 return@launch
             }
             val moreItem = _comments.value?.get(positionOffset)
-            if(moreItem == null || moreItem !is More){
+            if (moreItem == null || moreItem !is More) {
                 throw IllegalArgumentException("Invalid more item: $moreItem")
             }
             val children = moreItem.pollChildrenAsValidString(CHILDREN_PER_FETCH)
-            try{
+            try {
                 _loading.postValue(true)
-                val comments = listingRepository.getMoreComments(children, post.value!!.name, _commentSort.value!!).await().json.data.things.map { it.data }.filter { !(it is More && it.depth == 0) }
-                if(moreItem.lastChildFetched){
+                val comments = listingRepository.getMoreComments(
+                    children,
+                    post.value!!.name,
+                    _commentSort.value!!
+                ).await().json.data.things.map { it.data }.filter { !(it is More && it.depth == 0) }
+                if (moreItem.lastChildFetched) {
                     _comments.value?.removeAt(positionOffset)
                     _removeAt.postValue(position)
                 }
-                _moreComments.postValue(MoreComments(
-                    position,
-                    comments
-                ))
+                _moreComments.postValue(
+                    MoreComments(
+                        position,
+                        comments
+                    )
+                )
 
                 _comments.value?.addAll(positionOffset, comments)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 moreItem.undoChildrenPoll()
                 _notifyAt.postValue(position)
                 _errorMessage.postValue(e.getErrorMessage(application))
@@ -160,44 +173,44 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
         }
     }
 
-    fun removeAtObserved(){
+    fun removeAtObserved() {
         _removeAt.value = null
     }
 
-    fun notifyAtObserved(){
+    fun notifyAtObserved() {
         _notifyAt.value = null
     }
 
-    fun moreCommentsObserved(){
+    fun moreCommentsObserved() {
         _moreComments.value = null
     }
 
-    fun addItems(position: Int, items: List<Item>){
+    fun addItems(position: Int, items: List<Item>) {
         _comments.value?.addAll(position, items)
     }
 
-    fun hideItems(position: Int): Int{
-        val positionOffset = position + if(allCommentsFetched.value == false) -1 else 0
+    fun hideItems(position: Int): Int {
+        val positionOffset = position + if (allCommentsFetched.value == false) -1 else 0
         val itemInPosition = comments.value!![positionOffset]
-        val depth = when(val currItem = comments.value!![positionOffset]){
+        val depth = when (val currItem = comments.value!![positionOffset]) {
             is Comment -> currItem.depth ?: 0
             is More -> currItem.depth
             else -> 0
         }
         var i = positionOffset
-        while(i++ < comments.value!!.size - 1){
-            val currDepth = when(val currItem = comments.value!![i]){
+        while (i++ < comments.value!!.size - 1) {
+            val currDepth = when (val currItem = comments.value!![i]) {
                 is Comment -> currItem.depth ?: 0
                 is More -> currItem.depth
                 else -> 0
             }
-            if(currDepth <= depth){
+            if (currDepth <= depth) {
                 break
             }
         }
-        return if(i - 1 > positionOffset){
+        return if (i - 1 > positionOffset) {
             val listToHide = comments.value!!.subList(positionOffset + 1, i).toList()
-            for(j in listToHide.indices){
+            for (j in listToHide.indices) {
                 comments.value!!.removeAt(positionOffset + 1)
             }
             hiddenItemsMap[itemInPosition.name] = listToHide
@@ -207,11 +220,11 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
         }
     }
 
-    fun unhideItems(position: Int): List<Item>{
-        val positionOffset = position + if(allCommentsFetched.value == false) -1 else 0
+    fun unhideItems(position: Int): List<Item> {
+        val positionOffset = position + if (allCommentsFetched.value == false) -1 else 0
         val itemInPosition = comments.value!![positionOffset]
         val hiddenItems = hiddenItemsMap[itemInPosition.name]
-        return if(hiddenItems != null){
+        return if (hiddenItems != null) {
             comments.value!!.addAll(positionOffset + 1, hiddenItems)
             hiddenItemsMap.remove(itemInPosition.name)
             hiddenItems
@@ -220,11 +233,11 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
         }
     }
 
-    fun removeCommentAt(position: Int){
+    fun removeCommentAt(position: Int) {
         comments.value?.removeAt(position)
     }
 
-    fun setCommentAt(comment: Comment, position: Int){
+    fun setCommentAt(comment: Comment, position: Int) {
         _comments.value?.set(position, comment)
     }
 
@@ -241,13 +254,16 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
                         listOf(MediaURL(post.url!!, MediaType.GIF))
                     }
                     UrlType.HLS, UrlType.GIFV, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> {
-                        if(post.previewVideoUrl != null){
+                        if (post.previewVideoUrl != null) {
                             listOf(MediaURL(post.previewVideoUrl!!, MediaType.VIDEO))
                         } else {
-                            val url = if(urlType == UrlType.GIFV) {
-                                post.url!!.replace(".gifv", ".mp4")
-                            } else {
-                                post.url!!
+                            val url = when (urlType) {
+                                UrlType.GIFV -> {
+                                    post.url!!.replace(".gifv", ".mp4")
+                                }
+                                else -> {
+                                    post.url!!
+                                }
                             }
                             listOf(MediaURL(url, MediaType.VIDEO))
                         }
@@ -260,13 +276,19 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
                                 .await()
                                 .gfyItem
                                 .mobileUrl
-                        } catch (e: Exception){
-                            if(e is HttpException){
+                        } catch (e: Exception) {
+                            if (e is HttpException) {
                                 videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(id)
                                     .await()
                                     .gfyItem
                                     .mobileUrl
-                                listOf(MediaURL(videoUrl, MediaType.VIDEO, post.previewVideoUrl))
+                                listOf(
+                                    MediaURL(
+                                        videoUrl,
+                                        MediaType.VIDEO,
+                                        post.previewVideoUrl
+                                    )
+                                )
                             } else {
                                 throw Exception()
                             }
@@ -333,39 +355,50 @@ class CommentsVM(val application: AstroApplication): AstroViewModel(application)
         }
     }
 
-    fun downloadAlbum(){
-        if(_mediaItems.value == null){
+    fun downloadAlbum() {
+        if (_mediaItems.value == null) {
             return
         }
 
-        DownloadIntentService.enqueueWork(application.applicationContext, _mediaItems.value!!.map { it.url })
+        DownloadIntentService.enqueueWork(
+            application.applicationContext,
+            _mediaItems.value!!.map { it.url })
     }
 
-    fun downloadItem(position: Int){
-        if(_mediaItems.value == null){
+    fun downloadItem(position: Int) {
+        if (_mediaItems.value == null) {
             return
         }
 
         coroutineScope.launch {
-            withContext(Dispatchers.Main){
-                Toast.makeText(application, application.getText(R.string.downloading), Toast.LENGTH_SHORT).show()
+            withContext(Dispatchers.Main) {
+                Toast.makeText(
+                    application,
+                    application.getText(R.string.downloading),
+                    Toast.LENGTH_SHORT
+                ).show()
             }
             val item = _mediaItems.value!![position]
             var downloadUrl = item.url
 
-            if(item.mediaType == MediaType.GFYCAT){
-                try{
+            if (item.mediaType == MediaType.GFYCAT) {
+                try {
                     downloadUrl = gfycatRepository.getGfycatInfo(
-                        item.url.replace("http[s]?://gfycat.com/".toRegex(), "").split("-")[0])
+                        item.url.replace("http[s]?://gfycat.com/".toRegex(), "").split("-")[0]
+                    )
                         .await()
                         .gfyItem
                         .mp4Url
-                } catch (e: Exception){
-                    if(e is HttpException && e.code() == 404 && item.backupUrl != null){
+                } catch (e: Exception) {
+                    if (e is HttpException && e.code() == 404 && item.backupUrl != null) {
                         downloadUrl = item.backupUrl
                     } else {
-                        withContext(Dispatchers.Main){
-                            Toast.makeText(application, application.getText(R.string.unable_to_download_file), Toast.LENGTH_SHORT).show()
+                        withContext(Dispatchers.Main) {
+                            Toast.makeText(
+                                application,
+                                application.getText(R.string.unable_to_download_file),
+                                Toast.LENGTH_SHORT
+                            ).show()
                         }
                     }
                 }

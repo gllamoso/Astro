@@ -13,66 +13,81 @@ import dev.gtcl.astro.databinding.FragmentDialogSharePostOptionsBinding
 import dev.gtcl.astro.models.reddit.listing.Post
 import dev.gtcl.astro.ui.fragments.create_post.CreatePostDialogFragment
 
-class SharePostOptionsDialogFragment : DialogFragment(){
+class SharePostOptionsDialogFragment : DialogFragment() {
 
-    private lateinit var binding: FragmentDialogSharePostOptionsBinding
+    private var binding: FragmentDialogSharePostOptionsBinding? = null
 
     override fun onStart() {
         super.onStart()
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
 //        dialog?.window?.setBackgroundDrawableResource(android.R.color.black) // This makes the dialog full screen
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = FragmentDialogSharePostOptionsBinding.inflate(inflater)
         val post = requireArguments().getParcelable<Post>(POST_KEY)!!
-        binding.post = post
+        binding?.post = post
         initClickListeners(post)
-        binding.invalidateAll()
-        return binding.root
+        binding?.invalidateAll()
+        return binding!!.root
     }
 
-    private fun initClickListeners(post: Post){
+    private fun initClickListeners(post: Post) {
         val shareIntent = Intent(Intent.ACTION_SEND)
         shareIntent.type = "text/plain"
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, getText(R.string.share_subject_message))
 
-        if(post.url != null){
-            binding.fragmentDialogSharePostOptionsLink.root.setOnClickListener {
+        if (post.url != null) {
+            binding?.fragmentDialogSharePostOptionsLink?.root?.setOnClickListener {
                 shareIntent.putExtra(Intent.EXTRA_TEXT, post.url)
                 startActivity(Intent.createChooser(shareIntent, null))
                 dismiss()
             }
         }
 
-        binding.fragmentDialogSharePostOptionsComments.root.setOnClickListener {
+        binding?.fragmentDialogSharePostOptionsComments?.root?.setOnClickListener {
             shareIntent.putExtra(Intent.EXTRA_TEXT, post.permalinkWithRedditDomain)
             startActivity(Intent.createChooser(shareIntent, null))
             dismiss()
         }
 
-        if(post.isCrosspostable){
-            binding.fragmentDialogSharePostOptionsCrosspost.root.setOnClickListener {
+        if (post.isCrosspostable) {
+            binding?.fragmentDialogSharePostOptionsCrosspost?.root?.setOnClickListener {
                 CreatePostDialogFragment.newInstance(post).show(parentFragmentManager, null)
                 dismiss()
             }
         }
 
-        binding.fragmentDialogSharePostOptionsTitleAndLink.root.setOnClickListener {
-            shareIntent.putExtra(Intent.EXTRA_TEXT, "${post.titleFormatted} - ${post.permalinkWithRedditDomain}")
+        binding?.fragmentDialogSharePostOptionsTitleAndLink?.root?.setOnClickListener {
+            shareIntent.putExtra(
+                Intent.EXTRA_TEXT,
+                "${post.titleFormatted} - ${post.permalinkWithRedditDomain}"
+            )
             startActivity(Intent.createChooser(shareIntent, null))
             dismiss()
         }
 
-        binding.fragmentDialogSharePostOptionsShortLink.root.setOnClickListener {
+        binding?.fragmentDialogSharePostOptionsShortLink?.root?.setOnClickListener {
             shareIntent.putExtra(Intent.EXTRA_TEXT, post.shortLink)
             startActivity(Intent.createChooser(shareIntent, null))
             dismiss()
         }
     }
 
-    companion object{
-        fun newInstance(post: Post): SharePostOptionsDialogFragment{
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+    }
+
+    companion object {
+        fun newInstance(post: Post): SharePostOptionsDialogFragment {
             val fragment = SharePostOptionsDialogFragment()
             val args = bundleOf(POST_KEY to post)
             fragment.arguments = args

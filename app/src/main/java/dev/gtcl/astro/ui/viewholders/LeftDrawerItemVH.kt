@@ -6,9 +6,17 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.astro.databinding.ItemLeftDrawerBinding
 
-class LeftDrawerItemVH private constructor(private val binding: ItemLeftDrawerBinding): RecyclerView.ViewHolder(binding.root){
+class LeftDrawerItemVH private constructor(private val binding: ItemLeftDrawerBinding) :
+    RecyclerView.ViewHolder(binding.root) {
 
-    fun bind(selected: Boolean, name: String, leftIcon: Drawable?, rightIcon: Drawable?, onClick: () -> (Unit), onRightIconClicked: (() -> (Unit))? = null){
+    fun bind(
+        selected: Boolean,
+        name: String,
+        leftIcon: Drawable?,
+        rightIcon: Drawable?,
+        onClick: () -> (Unit),
+        onRightIconClicked: (() -> (Unit))? = null
+    ) {
         binding.name = name
         binding.leftIcon = leftIcon
         binding.rightIcon = rightIcon
@@ -18,7 +26,7 @@ class LeftDrawerItemVH private constructor(private val binding: ItemLeftDrawerBi
             onClick()
         }
 
-        if(onRightIconClicked != null){
+        if (onRightIconClicked != null) {
             binding.itemLeftDrawerRightIcon.setOnClickListener {
                 onRightIconClicked()
             }
@@ -27,7 +35,8 @@ class LeftDrawerItemVH private constructor(private val binding: ItemLeftDrawerBi
         binding.executePendingBindings()
     }
 
-    companion object{
-        fun create(parent: ViewGroup) = LeftDrawerItemVH(ItemLeftDrawerBinding.inflate(LayoutInflater.from(parent.context)))
+    companion object {
+        fun create(parent: ViewGroup) =
+            LeftDrawerItemVH(ItemLeftDrawerBinding.inflate(LayoutInflater.from(parent.context)))
     }
 }

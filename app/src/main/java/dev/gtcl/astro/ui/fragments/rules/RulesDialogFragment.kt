@@ -1,6 +1,5 @@
 package dev.gtcl.astro.ui.fragments.rules
 
-import android.app.Dialog
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -14,10 +13,10 @@ import dev.gtcl.astro.databinding.FragmentDialogRulesBinding
 import dev.gtcl.astro.databinding.ItemRuleBinding
 import io.noties.markwon.Markwon
 
-class RulesDialogFragment: DialogFragment() {
+class RulesDialogFragment : DialogFragment() {
 
     private val markwon: Markwon by lazy {
-        createMarkwonInstance(requireContext()){}
+        createMarkwonInstance(requireContext()) {}
     }
 
     private val model: RulesVM by lazy {
@@ -25,11 +24,14 @@ class RulesDialogFragment: DialogFragment() {
         ViewModelProvider(this, viewModelFactory).get(RulesVM::class.java)
     }
 
-    private lateinit var binding: FragmentDialogRulesBinding
+    private var binding: FragmentDialogRulesBinding? = null
 
     override fun onStart() {
         super.onStart()
-        dialog?.window?.setLayout(ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.WRAP_CONTENT)
+        dialog?.window?.setLayout(
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
+        )
 //        dialog?.window?.setBackgroundDrawableResource(android.R.color.black) // This makes the dialog full screen
     }
 
@@ -39,45 +41,50 @@ class RulesDialogFragment: DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentDialogRulesBinding.inflate(inflater)
-        binding.model = model
-        binding.lifecycleOwner = this
+        binding?.model = model
+        binding?.lifecycleOwner = this
 
-        if(model.rules.value == null){
+        if (model.rules.value == null) {
             val displayName = requireArguments().getString(SUBREDDIT_KEY)!!
             model.fetchRules(displayName)
         }
 
         model.rules.observe(this, {
-            if(!it.isNullOrEmpty()){
-                binding.fragmentDialogRulesLinearLayout.removeAllViews()
-                for(rule in it){
+            if (!it.isNullOrEmpty()) {
+                binding?.fragmentDialogRulesLinearLayout?.removeAllViews()
+                for (rule in it) {
                     val ruleBinding = ItemRuleBinding.inflate(LayoutInflater.from(requireContext()))
                     ruleBinding.apply {
                         this.rule = rule
                         itemRuleDescription.text = markwon.toMarkdown(rule.description)
                         ruleBinding.invalidateAll()
                     }
-                    binding.fragmentDialogRulesLinearLayout.addView(ruleBinding.root)
+                    binding?.fragmentDialogRulesLinearLayout?.addView(ruleBinding.root)
                 }
             }
         })
 
         model.errorMessage.observe(this, {
-            if(it != null){
+            if (it != null) {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }
         })
 
-        binding.fragmentDialogRulesDialogButtons.dialogPositiveButton.setOnClickListener {
+        binding?.fragmentDialogRulesDialogButtons?.dialogPositiveButton?.setOnClickListener {
             dismiss()
         }
 
-        return binding.root
+        return binding!!.root
     }
 
-    companion object{
-        fun newInstance(subDisplayName: String): RulesDialogFragment{
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
+    }
+
+    companion object {
+        fun newInstance(subDisplayName: String): RulesDialogFragment {
             return RulesDialogFragment().apply {
                 arguments = bundleOf(SUBREDDIT_KEY to subDisplayName)
             }
