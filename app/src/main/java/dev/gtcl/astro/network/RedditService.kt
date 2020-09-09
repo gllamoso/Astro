@@ -298,7 +298,7 @@ interface RedditApiService {
         @Query("sr_name") srName: String
     ): Deferred<Response<Unit>>
 
-    @GET("/r/{displayName}/about")
+    @GET("/r/{displayName}/about.json")
     fun getSubredditInfo(
         @Header("Authorization") authorization: String? = null,
         @Path("displayName") displayName: String
