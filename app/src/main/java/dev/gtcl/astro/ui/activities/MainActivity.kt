@@ -9,6 +9,7 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.NavHostFragment
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
@@ -27,7 +28,9 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
         supportActionBar?.hide()
-        navController = findNavController(R.id.activityMain_navHostFragment)
+        val navHostFragment =
+            supportFragmentManager.findFragmentById(R.id.activityMain_navHostFragment) as NavHostFragment
+        navController = navHostFragment.navController
         model.openChromeTab.observe(this, {
             if (it != null) {
                 val url = if (it.startsWith("/")) {
@@ -41,7 +44,7 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        model.errorMessage.observe(this, {errorMessage ->
+        model.errorMessage.observe(this, { errorMessage ->
             if (errorMessage != null) {
                 binding?.root?.let {
                     Snackbar.make(it, errorMessage, Snackbar.LENGTH_LONG).show()
