@@ -1,5 +1,6 @@
 package dev.gtcl.astro.ui.fragments.search
 
+import android.app.Activity
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
@@ -7,6 +8,7 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -30,6 +32,7 @@ import dev.gtcl.astro.ui.ListingAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.AccountPage
 import dev.gtcl.astro.ui.fragments.ListingPage
+import timber.log.Timber
 
 
 class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
@@ -278,6 +281,8 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             val inputManager: InputMethodManager =
                 requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
             inputManager.hideSoftInputFromWindow(it.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
+            binding?.fragmentSearchSearchText?.clearFocus()
+            requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
         }
     }
 
