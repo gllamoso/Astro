@@ -75,71 +75,11 @@ fun loadImage(imgView: ImageView, imgUrl: String?) {
 
 @BindingAdapter("banner")
 fun loadBanner(imgView: ImageView, url: String?) {
-    if (url.isNullOrBlank()) {
-        imgView.viewTreeObserver.addOnGlobalLayoutListener(
-            object : ViewTreeObserver.OnGlobalLayoutListener {
-                override fun onGlobalLayout() {
-                    imgView.viewTreeObserver.removeOnGlobalLayoutListener(this)
-                    val width = imgView.width
-                    val height = imgView.height
-                    val resource = imgView.resources
-                    imgView.setImageBitmap(
-                        decodeSampledBitmapFromResource(
-                            resource,
-                            R.drawable.default_banner,
-                            width,
-                            height
-                        )
-                    )
-                }
-            }
-        )
-    } else {
+    if (!url.isNullOrBlank()) {
         Glide.with(imgView.context)
             .load(url)
             .into(imgView)
     }
-}
-
-fun decodeSampledBitmapFromResource(
-    res: Resources,
-    resId: Int,
-    reqWidth: Int,
-    reqHeight: Int
-): Bitmap {
-    // First decode with inJustDecodeBounds=true to check dimensions
-    return BitmapFactory.Options().run {
-        inJustDecodeBounds = true
-        BitmapFactory.decodeResource(res, resId, this)
-
-        // Calculate inSampleSize
-        inSampleSize = calculateInSampleSize(this, reqWidth, reqHeight)
-
-        // Decode bitmap with inSampleSize set
-        inJustDecodeBounds = false
-
-        BitmapFactory.decodeResource(res, resId, this)
-    }
-}
-
-fun calculateInSampleSize(options: BitmapFactory.Options, reqWidth: Int, reqHeight: Int): Int {
-    // Raw height and width of image
-    val (height: Int, width: Int) = options.run { outHeight to outWidth }
-    var inSampleSize = 4
-
-    if (height > reqHeight || width > reqWidth) {
-
-        val halfHeight: Int = height / 2
-        val halfWidth: Int = width / 2
-
-        // Calculate the largest inSampleSize value that is a power of 2 and keeps both
-        // height and width larger than the requested height and width.
-        while (halfHeight / inSampleSize >= reqHeight && halfWidth / inSampleSize >= reqWidth) {
-            inSampleSize *= 2
-        }
-    }
-
-    return inSampleSize
 }
 
 @BindingAdapter("uri")

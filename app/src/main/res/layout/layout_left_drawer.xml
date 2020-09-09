@@ -36,8 +36,7 @@
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     android:scaleType="centerCrop"
-                    app:banner="@{account.validBannerImg}"
-                    tools:background="@drawable/default_banner"/>
+                    app:banner="@{account.validBannerImg}"/>
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/layoutLeftDrawer_avatar"
