@@ -399,7 +399,7 @@ class CommentsMoshiAdapter {
                 }
             }
             jsonReader.endObject()
-            map[id] = MediaMetadata(id, mimeType!!)
+            map[id] = MediaMetadata(id, mimeType)
         }
         jsonReader.endObject()
         return map

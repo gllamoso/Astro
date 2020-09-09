@@ -318,6 +318,7 @@ data class Post(
                 val metaData = mediaMetadata!![id] ?: error("MetaData is null")
                 val mimeType = metaData.mimeType
                 val extension = when {
+                    mimeType == null -> null
                     mimeType.endsWith("png") -> "png"
                     mimeType.endsWith("jpg") -> "jpg"
                     mimeType.endsWith("png") -> "png"
@@ -441,7 +442,7 @@ data class GalleryItem(
 data class MediaMetadata(
     val id: String,
     @Json(name = "m")
-    val mimeType: String
+    val mimeType: String?
 ) : Parcelable
 
 //   _   _  _              __  __
