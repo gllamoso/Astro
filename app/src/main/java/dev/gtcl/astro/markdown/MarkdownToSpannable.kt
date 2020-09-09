@@ -88,8 +88,15 @@ class MarkdownToSpannable {
             while (match != null) {
                 val start = match.range.first
                 val end = match.range.last
-                val quotePrefix = ">\\s*".toRegex().find(match.value)!!.value
-                spannableStringBuilder.delete(start, start + quotePrefix.length)
+                val quotePrefix = (">\\s*".toRegex().find(match.value) ?: return).value
+                if(spannableStringBuilder.length < start + quotePrefix.length){
+                    spannableStringBuilder.delete(start, start + quotePrefix.length)
+                } else {
+                    break
+                }
+                if(match.value == quotePrefix){
+                    continue
+                }
                 spannableStringBuilder.setSpan(
                     CustomQuoteSpan(Color.GREEN, 10, 40),
                     start,
