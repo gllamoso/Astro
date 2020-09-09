@@ -7,6 +7,7 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import kotlinx.coroutines.*
+import timber.log.Timber
 import kotlin.collections.HashSet
 
 const val PAGE_SIZE = 15
@@ -75,6 +76,7 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
                     .await().data
                 _subreddit.postValue(sub)
             } catch (e: Exception) {
+                Timber.tag(this@ListingVM.javaClass.simpleName).e(e.toString())
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
@@ -237,6 +239,7 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
                     _firstPageLoaded = true
                 }
             } catch (e: Exception) {
+                Timber.tag(this@ListingVM.javaClass.simpleName).e(e.toString())
                 lastAction = ::fetchFirstPage
                 after = null
                 _networkState.postValue(NetworkState.error(e.getErrorMessage(application)))
@@ -297,6 +300,7 @@ class ListingVM(val application: AstroApplication) : AstroViewModel(application)
                     _networkState.postValue(NetworkState.LOADED)
                 }
             } catch (e: Exception) {
+                Timber.tag(this@ListingVM.javaClass.simpleName).e(e.toString())
                 after = previousAfter
                 lastAction = ::loadMore
                 _networkState.postValue(NetworkState.error(e.getErrorMessage(application)))

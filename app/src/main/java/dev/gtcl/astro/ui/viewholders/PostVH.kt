@@ -9,11 +9,12 @@ import android.webkit.URLUtil
 import android.widget.PopupWindow
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import dev.gtcl.astro.Vote
 import dev.gtcl.astro.actions.ItemClickListener
-import dev.gtcl.astro.databinding.ItemPostBinding
 import dev.gtcl.astro.actions.PostActions
+import dev.gtcl.astro.databinding.ItemPostBinding
 import dev.gtcl.astro.databinding.PopupPostActionsBinding
 import dev.gtcl.astro.models.reddit.listing.Post
 import dev.gtcl.astro.showAsDropdown
@@ -64,7 +65,11 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
                     if ((post.nsfw && blurNsfw)) {
                         apply(RequestOptions.bitmapTransform(BlurTransformation()))
                     }
-                }.into(binding.itemPostThumbnail)
+                }
+                .thumbnail(0.5F)
+                .skipMemoryCache(true)
+                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .into(binding.itemPostThumbnail)
         } else {
             binding.itemPostThumbnailBackground.visibility = View.GONE
         }

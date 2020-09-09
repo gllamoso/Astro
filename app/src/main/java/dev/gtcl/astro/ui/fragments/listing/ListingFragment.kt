@@ -18,6 +18,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.actions.*
@@ -126,6 +127,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
     override fun onDestroyView() {
         super.onDestroyView()
+        Glide.get(requireContext()).clearMemory()
         binding = null
     }
 

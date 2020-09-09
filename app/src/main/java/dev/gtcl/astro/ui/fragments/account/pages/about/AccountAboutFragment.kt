@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.AstroApplication
 import dev.gtcl.astro.USER_KEY
@@ -54,6 +55,7 @@ class AccountAboutFragment : Fragment() {
 
     override fun onDestroyView() {
         super.onDestroyView()
+        Glide.get(requireContext()).clearMemory()
         binding = null
     }
 

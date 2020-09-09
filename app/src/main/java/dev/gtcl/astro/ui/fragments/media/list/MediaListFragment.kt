@@ -63,6 +63,12 @@ class MediaListFragment : Fragment() {
         return binding!!.root
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding?.fragmentViewPagerViewPager?.adapter = null
+        binding = null
+    }
+
     companion object {
         fun newInstance(mediaItems: List<MediaURL>): MediaListFragment {
             val fragment = MediaListFragment()

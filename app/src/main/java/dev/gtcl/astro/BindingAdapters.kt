@@ -20,6 +20,7 @@ import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
@@ -45,7 +46,8 @@ fun loadImageAndHideIfNull(imgView: ImageView, imgUrl: String?) {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
-//            .apply(RequestOptions.bitmapTransform(BlurTransformation()))
+            .skipMemoryCache(true)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
 //            .apply(
 //                RequestOptions()
 //                    .placeholder(R.drawable.))
@@ -65,6 +67,8 @@ fun loadImage(imgView: ImageView, imgUrl: String?) {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
+            .skipMemoryCache(true)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
 //                .apply(
 //                    RequestOptions()
 //                        .placeholder(R.drawable.anim_loading)
@@ -78,6 +82,8 @@ fun loadBanner(imgView: ImageView, url: String?) {
     if (!url.isNullOrBlank()) {
         Glide.with(imgView.context)
             .load(url)
+            .skipMemoryCache(true)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(imgView)
     }
 }
@@ -92,6 +98,8 @@ fun bindUriToImage(imgView: ImageView, uri: Uri?) {
     imgView.visibility = View.VISIBLE
     Glide.with(imgView.context)
         .load(uri)
+        .skipMemoryCache(true)
+        .diskCacheStrategy(DiskCacheStrategy.ALL)
         .into(imgView)
 }
 
@@ -125,6 +133,9 @@ fun loadSubIcon(imgView: ImageView, imgUrl: String?) {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
+            .thumbnail(0.5F)
+            .skipMemoryCache(true)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .apply(
                 RequestOptions()
                     .placeholder(R.drawable.ic_reddit_circle_24)
@@ -142,6 +153,9 @@ fun loadAccountIcon(imgView: ImageView, imgUrl: String?) {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
+            .thumbnail(0.5F)
+            .skipMemoryCache(true)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .apply(
                 RequestOptions()
                     .placeholder(R.drawable.ic_profile_24)
@@ -166,6 +180,9 @@ fun loadSubscriptionIcon(imgView: ImageView, subscription: Subscription) {
 
     Glide.with(imgView.context)
         .load(subscription.icon)
+        .thumbnail(0.5F)
+        .skipMemoryCache(true)
+        .diskCacheStrategy(DiskCacheStrategy.ALL)
         .apply(
             RequestOptions()
                 .placeholder(placeHolder)

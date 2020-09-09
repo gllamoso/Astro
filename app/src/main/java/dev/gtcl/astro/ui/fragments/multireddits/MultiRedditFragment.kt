@@ -7,6 +7,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentMultiredditSubredditsBinding
@@ -41,6 +42,7 @@ class MultiRedditFragment : Fragment(),
 
     override fun onDestroyView() {
         super.onDestroyView()
+        Glide.get(requireContext()).clearMemory()
         binding = null
     }
 

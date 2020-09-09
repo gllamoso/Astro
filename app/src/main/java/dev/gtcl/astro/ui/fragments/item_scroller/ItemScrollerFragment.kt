@@ -12,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.actions.*
@@ -93,6 +94,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     override fun onDestroyView() {
         super.onDestroyView()
+        Glide.get(requireContext()).clearMemory()
         binding = null
     }
 

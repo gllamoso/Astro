@@ -21,6 +21,7 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentMediaBinding
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.ui.activities.MainActivityVM
+import timber.log.Timber
 import java.lang.IllegalStateException
 
 class MediaFragment : Fragment() {
@@ -177,6 +178,8 @@ class MediaFragment : Fragment() {
             model.releasePlayer()
             model.initialized = false
         }
+        Glide.get(requireContext()).clearMemory()
+        binding = null
     }
 
     companion object {
