@@ -74,17 +74,16 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
             pageAdapter.addPages(model.pages)
         }
 
-        activityModel.newPage.observe(viewLifecycleOwner, {
+        activityModel.newViewPagerPage.observe(viewLifecycleOwner, {
             if (it != null) {
                 newPage(it)
-                activityModel.newPageObserved()
+                activityModel.newViewPagerPageObserved()
             }
         })
 
         binding?.fragmentViewPagerViewPager?.apply {
             adapter = pageAdapter
             isUserInputEnabled = model.isViewPagerSwipeEnabled
-            currentItem = pageAdapter.itemCount - 1
             offscreenPageLimit = 3
             setPageTransformer(SlidePageTransformer())
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
@@ -140,7 +139,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 
         model.newPostLink.observe(viewLifecycleOwner, {
             if (it != null) {
-                activityModel.newPage(CommentsPage(it, false))
+                activityModel.newViewPagerPage(CommentsPage(it, false))
                 model.newPostObserved()
             }
         })
@@ -192,19 +191,10 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
     }
 
     private fun newPage(page: ViewPagerPage) {
-        if (page is PostPage || page is CommentsPage) {
-            pageAdapter.addPage(page)
-            model.pages.add(page)
-            val currentPage = binding?.fragmentViewPagerViewPager?.currentItem ?: 0
-            binding?.fragmentViewPagerViewPager?.setCurrentItem(currentPage + 1, true)
-        } else {
-            binding?.fragmentViewPagerViewPager?.adapter = null
-            findNavController().navigate(
-                ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
-                    page
-                )
-            )
-        }
+        pageAdapter.addPage(page)
+        model.pages.add(page)
+        val currentPage = binding?.fragmentViewPagerViewPager?.currentItem ?: 0
+        binding?.fragmentViewPagerViewPager?.setCurrentItem(currentPage + 1, true)
     }
 
     override fun handleLink(link: String) {
@@ -233,10 +223,10 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
                     MediaType.IMGUR_ALBUM
                 )
             ).show(childFragmentManager, null)
-            UrlType.REDDIT_THREAD -> activityModel.newPage(CommentsPage(link, true))
+            UrlType.REDDIT_THREAD -> activityModel.newViewPagerPage(CommentsPage(link, true))
             UrlType.REDDIT_COMMENTS -> {
                 val validUrl = VALID_REDDIT_COMMENTS_URL_REGEX.find(link)!!.value
-                activityModel.newPage(CommentsPage(validUrl, false))
+                activityModel.newViewPagerPage(CommentsPage(validUrl, false))
             }
             UrlType.OTHER, UrlType.REDDIT_VIDEO, UrlType.REDDIT_GALLERY -> activityModel.openChromeTab(
                 link

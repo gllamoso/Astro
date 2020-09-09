@@ -16,6 +16,7 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentDialogMediaBinding
@@ -172,7 +173,7 @@ class MediaDialogFragment : DialogFragment() {
 
         binding?.fragmentMediaDialogComments?.setOnClickListener {
             if (postPage != null) {
-                activityModel.newPage(postPage)
+                activityModel.newViewPagerPage(postPage)
             }
             dismiss()
         }

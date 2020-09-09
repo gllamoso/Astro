@@ -92,7 +92,11 @@ class BlockedFragment : Fragment(), UserActions {
     }
 
     override fun viewProfile(user: User) {
-        activityModel.newPage(AccountPage(user.name))
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                AccountPage(user.name)
+            )
+        )
     }
 
     override fun message(user: User) {}

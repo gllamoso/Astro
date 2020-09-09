@@ -320,9 +320,17 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             { _, bundle ->
                 val listing = bundle.get(LISTING_KEY) as Listing
                 if (listing is SubscriptionListing && listing.subscription.type == SubscriptionType.USER) {
-                    activityModel.newPage(AccountPage(listing.subscription.displayName))
+                    findNavController().navigate(
+                        ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                            AccountPage(listing.subscription.displayName)
+                        )
+                    )
                 } else {
-                    activityModel.newPage(ListingPage(listing))
+                    findNavController().navigate(
+                        ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                            ListingPage(listing)
+                        )
+                    )
                 }
             })
 
@@ -381,7 +389,11 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun viewProfile(post: Post) {
-        activityModel.newPage(AccountPage(post.author))
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                AccountPage(post.author)
+            )
+        )
     }
 
     override fun save(post: Post) {
@@ -396,7 +408,11 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             if (it is SubredditListing && it.displayName == sub) {
                 return
             }
-            activityModel.newPage(ListingPage(SubredditListing(sub)))
+            findNavController().navigate(
+                ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                    ListingPage(SubredditListing(sub))
+                )
+            )
         }
     }
 
@@ -534,7 +550,11 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun viewProfile(comment: Comment) {
-        activityModel.newPage(AccountPage(comment.author))
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                AccountPage(comment.author)
+            )
+        )
     }
 
     override fun report(comment: Comment, position: Int) {
@@ -582,9 +602,39 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 //    |_____|\__\___|_| |_| |_|  \_____|_|_|\___|_|\_\ |______|_|___/\__\___|_| |_|\___|_|
 
     override fun itemClicked(item: Item, position: Int) {
-        if (item is Post) {
-            model.addReadItem(item)
-            activityModel.newPage(PostPage(item, position))
+        when (item) {
+            is Post -> {
+                model.addReadItem(item)
+                activityModel.newViewPagerPage(PostPage(item, position))
+
+            }
+            is Message -> {
+                ReplyOrEditDialogFragment.newInstance(item, position, true)
+                    .show(childFragmentManager, null)
+            }
+            is Comment -> {
+                if (item.permalink != null) {
+                    val permalink = "https://www.reddit.com${item.permalink}"
+                    activityModel.newViewPagerPage(CommentsPage(permalink, true))
+                } else {
+                    val context = item.context
+                    if (context.isNullOrBlank()) {
+                        throw Exception("Comment has no permalink or context: $item")
+                    }
+                    val regex = "/[a-z0-9]+/\\?context=[0-9]+".toRegex()
+                    val link = if (item.parentId?.startsWith("t1_") == true) {
+                        context.replace(regex, item.parentId.replace("t1_", "/"))
+                    } else {
+                        context
+                    }
+                    activityModel.newViewPagerPage(
+                        CommentsPage(
+                            "https://www.reddit.com$link",
+                            true
+                        )
+                    )
+                }
+            }
         }
     }
 
@@ -638,7 +688,11 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
         checkedIfLoggedInBeforeExecuting(requireContext()) {
-            activityModel.newPage(AccountPage(null))
+            findNavController().navigate(
+                ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                    AccountPage(null)
+                )
+            )
             binding?.fragmentListingDrawer?.closeDrawer(Gravity.LEFT)
         }
     }
@@ -646,7 +700,9 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     @SuppressLint("RtlHardcoded")
     override fun onInboxClicked() {
         checkedIfLoggedInBeforeExecuting(requireContext()) {
-            activityModel.newPage(InboxPage)
+            findNavController().navigate(
+                ViewPagerFragmentDirections.actionViewPagerFragmentSelf(InboxPage)
+            )
             binding?.fragmentListingDrawer?.closeDrawer(Gravity.LEFT)
         }
     }

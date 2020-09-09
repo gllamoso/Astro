@@ -184,7 +184,9 @@ class InboxFragment : Fragment(), LeftDrawerActions {
 
     @SuppressLint("RtlHardcoded")
     override fun onHomeClicked() {
-        activityModel.newPage(ListingPage(FrontPage))
+        findNavController().navigate(
+            ViewPagerFragmentDirections.popBackStack(ListingPage(FrontPage))
+        )
         binding?.fragmentInboxDrawer?.closeDrawer(Gravity.LEFT)
     }
 
@@ -195,7 +197,9 @@ class InboxFragment : Fragment(), LeftDrawerActions {
                 Snackbar.make(it, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
             }
         } else {
-            activityModel.newPage(AccountPage(null))
+            findNavController().navigate(
+                ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(null))
+            )
             binding?.fragmentInboxDrawer?.closeDrawer(Gravity.LEFT)
         }
     }

@@ -9,6 +9,7 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
+import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import com.google.android.material.snackbar.Snackbar
@@ -287,7 +288,11 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun viewProfile(post: Post) {
-        activityModel.newPage(AccountPage(post.author))
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                AccountPage(post.author)
+            )
+        )
     }
 
     override fun save(post: Post) {
@@ -298,7 +303,11 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun subredditSelected(sub: String) {
-        activityModel.newPage(ListingPage(SubredditListing(sub)))
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                ListingPage(SubredditListing(sub))
+            )
+        )
     }
 
     override fun hide(post: Post, position: Int) {
@@ -435,7 +444,11 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun viewProfile(comment: Comment) {
-        activityModel.newPage(AccountPage(comment.author))
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                AccountPage(comment.author)
+            )
+        )
     }
 
     override fun report(comment: Comment, position: Int) {
@@ -491,7 +504,11 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun viewProfile(message: Message) {
-        activityModel.newPage(AccountPage(message.author))
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                AccountPage(message.author)
+            )
+        )
     }
 
     override fun block(message: Message, position: Int) {
@@ -528,7 +545,8 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         when (item) {
             is Post -> {
                 model.addReadItem(item)
-                activityModel.newPage(PostPage(item, position))
+                activityModel.newViewPagerPage(PostPage(item, position))
+
             }
             is Message -> {
                 ReplyOrEditDialogFragment.newInstance(item, position, true)
@@ -537,7 +555,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             is Comment -> {
                 if (item.permalink != null) {
                     val permalink = "https://www.reddit.com${item.permalink}"
-                    activityModel.newPage(CommentsPage(permalink, true))
+                    activityModel.newViewPagerPage(CommentsPage(permalink, true))
                 } else {
                     val context = item.context
                     if (context.isNullOrBlank()) {
@@ -549,7 +567,12 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                     } else {
                         context
                     }
-                    activityModel.newPage(CommentsPage("https://www.reddit.com$link", true))
+                    activityModel.newViewPagerPage(
+                        CommentsPage(
+                            "https://www.reddit.com$link",
+                            true
+                        )
+                    )
                 }
             }
         }

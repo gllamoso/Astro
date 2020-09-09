@@ -19,6 +19,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.RecyclerView
 import androidx.viewpager2.widget.ViewPager2
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -278,7 +279,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             if (!model.contentInitialized) {
                 if (post.crosspostParentList != null) {
                     binding?.fragmentCommentsCrossPostLayout?.layoutCrosspostCardView?.setOnClickListener {
-                        activityModel.newPage(PostPage(post.crosspostParentList[0], -1))
+                        activityModel.newViewPagerPage(PostPage(post.crosspostParentList[0], -1))
                     }
                 }
                 if (post.isSelf) {
@@ -537,7 +538,11 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     override fun viewProfile(comment: Comment) {
-        activityModel.newPage(AccountPage(comment.author))
+        findNavController().navigate(
+            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                AccountPage(comment.author)
+            )
+        )
     }
 
     override fun report(comment: Comment, position: Int) {
@@ -565,7 +570,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         when (item) {
             is More -> {
                 if (item.isContinueThreadLink) {
-                    activityModel.newPage(
+                    activityModel.newViewPagerPage(
                         CommentsPage(
                             "https://www.reddit.com${model.post.value!!.permalink}${
                                 item.parentId.replace(
@@ -738,11 +743,19 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 }
             }
             popupCommentsPageActionsProfile.root.setOnClickListener {
-                activityModel.newPage(AccountPage(post.author))
+                findNavController().navigate(
+                    ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                        AccountPage(post.author)
+                    )
+                )
                 popupWindow.dismiss()
             }
             popupCommentsPageActionsSubreddits.root.setOnClickListener {
-                activityModel.newPage(ListingPage(SubredditListing(post.subreddit)))
+                findNavController().navigate(
+                    ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                        ListingPage(SubredditListing(post.subreddit))
+                    )
+                )
                 popupWindow.dismiss()
             }
             popupCommentsPageActionsHide.root.setOnClickListener {

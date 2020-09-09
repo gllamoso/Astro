@@ -12,7 +12,7 @@ class AstroApplication : Application() {
     var accessToken: AccessToken? = null
         set(value) {
             field = value
-            Timber.d("Access Token: ${value?.authorizationHeader}")
+            Timber.tag("TOKEN").d("Access Token: ${value?.authorizationHeader}")
         }
 
     var currentAccount: Account? = null

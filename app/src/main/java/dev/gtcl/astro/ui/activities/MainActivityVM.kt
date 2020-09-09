@@ -15,9 +15,9 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
 
     val allUsers = userRepository.getAllUsers()
 
-    private val _newPage = MutableLiveData<ViewPagerPage?>()
-    val newPage: LiveData<ViewPagerPage?>
-        get() = _newPage
+    private val _newViewPagerPage = MutableLiveData<ViewPagerPage?>()
+    val newViewPagerPage: LiveData<ViewPagerPage?>
+        get() = _newViewPagerPage
 
     private val _refreshState = MutableLiveData<NetworkState?>()
     val refreshState: LiveData<NetworkState?>
@@ -35,12 +35,12 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
         _refreshState.value = null
     }
 
-    fun newPage(page: ViewPagerPage) {
-        _newPage.value = page
+    fun newViewPagerPage(page: ViewPagerPage) {
+        _newViewPagerPage.value = page
     }
 
-    fun newPageObserved() {
-        _newPage.value = null
+    fun newViewPagerPageObserved() {
+        _newViewPagerPage.value = null
     }
 
     fun refreshAccessToken() {

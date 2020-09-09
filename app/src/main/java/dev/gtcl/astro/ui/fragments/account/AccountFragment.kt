@@ -281,7 +281,7 @@ class AccountFragment : Fragment(), LeftDrawerActions {
 
     @SuppressLint("RtlHardcoded")
     override fun onHomeClicked() {
-        activityModel.newPage(ListingPage(FrontPage))
+        findNavController().navigate(ViewPagerFragmentDirections.popBackStack(ListingPage(FrontPage)))
         binding?.fragmentAccountDrawer?.closeDrawer(Gravity.LEFT)
     }
 
@@ -290,7 +290,11 @@ class AccountFragment : Fragment(), LeftDrawerActions {
         val user = model.account.value
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
         if (user?.name != currentAccount?.name) {
-            activityModel.newPage(AccountPage(null))
+            findNavController().navigate(
+                ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                    AccountPage(null)
+                )
+            )
         }
         binding?.fragmentAccountDrawer?.closeDrawer(Gravity.LEFT)
     }
@@ -302,7 +306,11 @@ class AccountFragment : Fragment(), LeftDrawerActions {
                 Snackbar.make(it, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
             }
         } else {
-            activityModel.newPage(InboxPage)
+            findNavController().navigate(
+                ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                    InboxPage
+                )
+            )
             binding?.fragmentAccountDrawer?.closeDrawer(Gravity.LEFT)
         }
     }
