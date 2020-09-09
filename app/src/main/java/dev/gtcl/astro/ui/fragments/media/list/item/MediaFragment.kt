@@ -76,6 +76,8 @@ class MediaFragment : Fragment() {
                 Glide.with(requireContext())
                     .asBitmap()
                     .load(url)
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .addListener(object : RequestListener<Bitmap> {
                         override fun onLoadFailed(
                             e: GlideException?,
@@ -117,6 +119,8 @@ class MediaFragment : Fragment() {
             binding?.fragmentMediaImageView?.let { imageView ->
                 Glide.with(requireContext())
                     .load(url)
+                    .skipMemoryCache(true)
+                    .diskCacheStrategy(DiskCacheStrategy.ALL)
                     .addListener(object : RequestListener<Drawable> {
                         override fun onLoadFailed(
                             e: GlideException?,
