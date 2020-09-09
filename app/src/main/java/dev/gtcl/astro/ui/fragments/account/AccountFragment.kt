@@ -115,7 +115,6 @@ class AccountFragment : Fragment(), LeftDrawerActions {
 
         viewPager?.apply {
             this.adapter = fragmentAdapter
-//            currentItem = model.selectedPage
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
