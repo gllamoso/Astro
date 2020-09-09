@@ -9,12 +9,13 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.findNavController
+import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
-    lateinit var binding: ActivityMainBinding
+    private var binding: ActivityMainBinding? = null
     private lateinit var navController: NavController
 
     private val model: MainActivityVM by lazy {
@@ -40,9 +41,11 @@ class MainActivity : AppCompatActivity() {
             }
         })
 
-        model.errorMessage.observe(this, {
-            if (it != null) {
-                Snackbar.make(binding.root, it, Snackbar.LENGTH_LONG).show()
+        model.errorMessage.observe(this, {errorMessage ->
+            if (errorMessage != null) {
+                binding?.root?.let {
+                    Snackbar.make(it, errorMessage, Snackbar.LENGTH_LONG).show()
+                }
                 model.errorMessageObserved()
             }
         })
@@ -59,5 +62,11 @@ class MainActivity : AppCompatActivity() {
                 model.refreshAccessToken()
             }
         }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        Glide.get(this).clearMemory()
+        binding = null
     }
 }
