@@ -1,6 +1,7 @@
 package dev.gtcl.astro
 
 import android.content.Context
+import android.content.Context.INPUT_METHOD_SERVICE
 import android.net.Uri
 import android.os.Parcelable
 import android.text.util.Linkify
@@ -8,6 +9,9 @@ import android.util.Base64
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
+import android.view.inputmethod.InputMethodManager
+import android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT
+import android.widget.EditText
 import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.annotation.AttrRes
@@ -600,4 +604,18 @@ fun checkedIfLoggedInBeforeExecuting(context: Context, runnable: () -> Unit) {
         Toast.makeText(context, context.getText(R.string.must_be_logged_in), Toast.LENGTH_LONG)
             .show()
     }
+}
+
+fun EditText.showKeyboard() {
+    if (requestFocus()) {
+        (context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
+            .showSoftInput(this, SHOW_IMPLICIT)
+        setSelection(text.length)
+    }
+}
+
+fun hideKeyboardFrom(context: Context, view: View) {
+    val imm =
+        context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+    imm.hideSoftInputFromWindow(view.windowToken, 0)
 }

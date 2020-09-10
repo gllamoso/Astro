@@ -1,20 +1,13 @@
 package dev.gtcl.astro.ui.fragments.search
 
-import android.app.Activity
-import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
@@ -33,7 +26,6 @@ import dev.gtcl.astro.ui.ListingAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.AccountPage
 import dev.gtcl.astro.ui.fragments.ListingPage
-import timber.log.Timber
 
 
 class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
@@ -72,10 +64,6 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             setPostSearch()
         }
 
-        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
-            showKeyboard()
-        }
-
         model.errorMessage.observe(viewLifecycleOwner, { errorMessage ->
             if (errorMessage != null) {
                 binding?.root?.let {
@@ -88,9 +76,23 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         return binding!!.root
     }
 
+    override fun onResume() {
+        super.onResume()
+        if (resources.configuration.orientation == Configuration.ORIENTATION_PORTRAIT) {
+            binding?.fragmentSearchSearchText?.showKeyboard()
+            binding?.fragmentSearchSearchText?.setOnFocusChangeListener { _, hasFocus ->
+                if (!hasFocus) {
+                    hideKeyboardFrom(
+                        requireContext(),
+                        (binding ?: return@setOnFocusChangeListener).fragmentSearchSearchText
+                    )
+                }
+            }
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
-        hideKeyboard()
         Glide.get(requireContext()).clearMemory()
         binding = null
     }
@@ -183,7 +185,6 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
     private fun initOnClickListeners() {
         binding?.fragmentSearchToolbar?.setNavigationOnClickListener {
             findNavController().popBackStack()
-            hideKeyboard()
         }
     }
 
@@ -217,7 +218,6 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             imeOptions = EditorInfo.IME_ACTION_SEARCH
             setOnEditorActionListener { textView, _, _ ->
                 val query = textView.text.toString()
-                hideKeyboard()
                 findNavController().navigate(
                     SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(
                         ListingPage(SearchListing(query))
@@ -228,7 +228,6 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         }
         binding?.fragmentSearchSearchButton?.setOnClickListener {
             val query = binding?.fragmentSearchSearchText?.text.toString()
-            hideKeyboard()
             findNavController().navigate(
                 SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(
                     ListingPage(SearchListing(query))
@@ -247,7 +246,6 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             }
             model.addSelectedItem(name)
         } else {
-            hideKeyboard()
             if (item is Account) {
                 findNavController().navigate(
                     SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(
@@ -273,20 +271,25 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         }
     }
 
-    private fun showKeyboard() {
-        binding?.fragmentSearchSearchText?.requestFocus()
-        requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
-    }
-
-    private fun hideKeyboard() {
-        requireActivity().currentFocus?.let {
-            val inputManager: InputMethodManager =
-                requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-            inputManager.hideSoftInputFromWindow(it.windowToken, InputMethodManager.HIDE_NOT_ALWAYS)
-            binding?.fragmentSearchSearchText?.clearFocus()
-            requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
-        }
-    }
+//    private fun EditText.showKeyboard() {
+//        if (requestFocus()) {
+//            val imm =
+//                requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//            imm.showSoftInput(this, SHOW_IMPLICIT)
+//            setSelection(text.length)
+//        }
+//    }
+//
+//    private fun hideKeyboard() {
+//        requireActivity().currentFocus?.let {
+//            binding?.fragmentSearchSearchText?.clearFocus()
+//            val inputManager: InputMethodManager =
+//                requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//            inputManager.hideSoftInputFromWindow(it.windowToken, 0)
+//
+////            requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
+//        }
+//    }
 
     companion object {
         fun newInstance(): SearchFragment {
