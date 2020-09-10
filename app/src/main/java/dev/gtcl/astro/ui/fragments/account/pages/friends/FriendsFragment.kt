@@ -17,10 +17,10 @@ import dev.gtcl.astro.models.reddit.User
 import dev.gtcl.astro.models.reddit.UserType
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import dev.gtcl.astro.ui.fragments.AccountPage
-import dev.gtcl.astro.ui.fragments.ViewPagerFragmentDirections
+import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
 import dev.gtcl.astro.ui.fragments.account.pages.UserListAdapter
 import dev.gtcl.astro.ui.fragments.inbox.ComposeDialogFragment
+import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerFragmentDirections
 
 class FriendsFragment : Fragment(), UserActions {
 

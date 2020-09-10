@@ -5,11 +5,11 @@
     app:startDestination="@id/splashFragment">
     <fragment
         android:id="@+id/viewPagerFragment"
-        android:name="dev.gtcl.astro.ui.fragments.ViewPagerFragment"
+        android:name="dev.gtcl.astro.ui.fragments.view_pager.ViewPagerFragment"
         android:label="ViewPagerFragment" >
         <argument
             android:name="startingPage"
-            app:argType="dev.gtcl.astro.ui.fragments.ViewPagerPage"/>
+            app:argType="dev.gtcl.astro.ui.fragments.view_pager.ViewPagerPage"/>
         <action
             android:id="@+id/action_viewPagerFragment_self"
             app:destination="@id/viewPagerFragment"

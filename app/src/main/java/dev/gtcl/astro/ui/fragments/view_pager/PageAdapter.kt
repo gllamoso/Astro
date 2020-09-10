@@ -1,4 +1,4 @@
-package dev.gtcl.astro.ui.fragments
+package dev.gtcl.astro.ui.fragments.view_pager
 
 import android.os.Handler
 import android.os.Looper
@@ -69,30 +69,3 @@ class PageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
 
     override fun containsItem(itemId: Long) = itemId <= pageStack.lastIndex
 }
-
-sealed class ViewPagerPage : Parcelable
-
-@Parcelize
-class ListingPage(
-    val listing: Listing
-) : ViewPagerPage()
-
-@Parcelize
-class AccountPage(
-    val user: String?
-) : ViewPagerPage()
-
-@Parcelize
-class PostPage(
-    val post: Post,
-    val position: Int
-) : ViewPagerPage()
-
-@Parcelize
-class CommentsPage(
-    val url: String,
-    val expandReplies: Boolean
-) : ViewPagerPage()
-
-@Parcelize
-object InboxPage : ViewPagerPage()

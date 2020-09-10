@@ -8,7 +8,7 @@ import dev.gtcl.astro.database.Subscription
 import dev.gtcl.astro.models.reddit.AccessToken
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
-import dev.gtcl.astro.ui.fragments.ViewPagerPage
+import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerPage
 import kotlinx.coroutines.*
 
 class MainActivityVM(val application: AstroApplication) : AstroViewModel(application) {

@@ -31,6 +31,7 @@ import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
+import dev.gtcl.astro.ui.fragments.view_pager.*
 import io.noties.markwon.Markwon
 
 open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, MessageActions,

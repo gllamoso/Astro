@@ -32,7 +32,6 @@ import dev.gtcl.astro.ui.LeftDrawerAdapter
 import dev.gtcl.astro.ui.ListingAdapter
 import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import dev.gtcl.astro.ui.fragments.*
 import dev.gtcl.astro.ui.fragments.create_post.CreatePostDialogFragment
 import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
@@ -41,6 +40,7 @@ import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
 import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.subscriptions.SubscriptionsDialogFragment
+import dev.gtcl.astro.ui.fragments.view_pager.*
 import io.noties.markwon.Markwon
 
 

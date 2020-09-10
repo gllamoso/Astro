@@ -28,6 +28,7 @@ import dev.gtcl.astro.models.reddit.listing.FrontPage
 import dev.gtcl.astro.ui.LeftDrawerAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.*
+import dev.gtcl.astro.ui.fragments.view_pager.*
 
 class AccountFragment : Fragment(), LeftDrawerActions {
 

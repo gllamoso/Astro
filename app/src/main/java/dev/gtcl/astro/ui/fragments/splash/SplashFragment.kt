@@ -15,7 +15,7 @@ import dev.gtcl.astro.database.SavedAccount
 import dev.gtcl.astro.databinding.FragmentSplashBinding
 import dev.gtcl.astro.models.reddit.listing.FrontPage
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import dev.gtcl.astro.ui.fragments.ListingPage
+import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
 
 class SplashFragment : Fragment() {
 

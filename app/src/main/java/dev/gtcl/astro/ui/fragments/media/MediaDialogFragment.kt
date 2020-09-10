@@ -16,14 +16,13 @@ import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentDialogMediaBinding
 import dev.gtcl.astro.databinding.PopupDownloadActionsBinding
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import dev.gtcl.astro.ui.fragments.PostPage
+import dev.gtcl.astro.ui.fragments.view_pager.PostPage
 import dev.gtcl.astro.ui.fragments.media.list.MediaListAdapter
 
 class MediaDialogFragment : DialogFragment() {

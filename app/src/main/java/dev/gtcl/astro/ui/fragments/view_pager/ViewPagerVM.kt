@@ -1,4 +1,4 @@
-package dev.gtcl.astro.ui.fragments
+package dev.gtcl.astro.ui.fragments.view_pager
 
 import androidx.lifecycle.*
 import dev.gtcl.astro.AstroApplication

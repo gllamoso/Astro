@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.account.AccountFragmentVM
-import dev.gtcl.astro.ui.fragments.ViewPagerVM
+import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerVM
 import dev.gtcl.astro.ui.fragments.comments.CommentsVM
 import dev.gtcl.astro.ui.fragments.listing.ListingVM
 import dev.gtcl.astro.ui.fragments.item_scroller.ItemScrollerVM

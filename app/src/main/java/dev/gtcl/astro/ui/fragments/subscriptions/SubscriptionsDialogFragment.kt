@@ -24,8 +24,8 @@ import dev.gtcl.astro.models.reddit.listing.Listing
 import dev.gtcl.astro.models.reddit.listing.MultiRedditUpdate
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import dev.gtcl.astro.ui.fragments.ViewPagerFragmentDirections
 import dev.gtcl.astro.ui.fragments.multireddits.MultiRedditDetailsDialogFragment
+import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerFragmentDirections
 
 class SubscriptionsDialogFragment : BottomSheetDialogFragment(), SubscriptionActions,
     ListingTypeClickListener {

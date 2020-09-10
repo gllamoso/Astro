@@ -24,8 +24,8 @@ import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.ListingAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import dev.gtcl.astro.ui.fragments.AccountPage
-import dev.gtcl.astro.ui.fragments.ListingPage
+import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
+import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
 
 
 class SearchFragment : Fragment(), ItemClickListener, SubredditActions {

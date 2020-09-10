@@ -17,7 +17,7 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentDialogCreatePostBinding
 import dev.gtcl.astro.models.reddit.listing.Flair
 import dev.gtcl.astro.models.reddit.listing.Post
-import dev.gtcl.astro.ui.fragments.ViewPagerVM
+import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerVM
 import dev.gtcl.astro.ui.fragments.create_post.resubmit.ResubmitDialogFragment
 import dev.gtcl.astro.ui.fragments.flair.FlairListDialogFragment
 import dev.gtcl.astro.ui.fragments.rules.RulesDialogFragment

@@ -22,10 +22,10 @@ import dev.gtcl.astro.databinding.FragmentInboxBinding
 import dev.gtcl.astro.models.reddit.listing.FrontPage
 import dev.gtcl.astro.ui.LeftDrawerAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import dev.gtcl.astro.ui.fragments.AccountPage
-import dev.gtcl.astro.ui.fragments.ListingPage
-import dev.gtcl.astro.ui.fragments.ViewPagerFragmentDirections
-import dev.gtcl.astro.ui.fragments.ViewPagerVM
+import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
+import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
+import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerFragmentDirections
+import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerVM
 
 class InboxFragment : Fragment(), LeftDrawerActions {
 
