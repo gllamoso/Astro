@@ -165,12 +165,16 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
             override fun onStateChanged(p0: View, newState: Int) {
                 viewPagerModel.swipingEnabled(newState == BottomSheetBehavior.STATE_HIDDEN || newState == BottomSheetBehavior.STATE_COLLAPSED)
-                model.commentsExpanded = newState == BottomSheetBehavior.STATE_EXPANDED
+                model.setExpand(newState == BottomSheetBehavior.STATE_EXPANDED)
             }
         })
 
-        val expand = requireArguments().getBoolean(EXPAND_REPLIES_KEY)
-        if (expand || model.commentsExpanded) {
+        val expand = when{
+            model.commentsExpanded != null -> model.commentsExpanded ?: return
+            else -> requireArguments().getBoolean(EXPAND_REPLIES_KEY, false)
+        }
+
+        if (expand) {
             behavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
