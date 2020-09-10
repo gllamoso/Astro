@@ -19,24 +19,24 @@ class AccountFragmentAdapter(
     val fragments = if (user == null) {
         listOf(
             AccountAboutFragment.newInstance(user),
-            ItemScrollerFragment.newInstance(ProfileInfo.OVERVIEW, PostSort.BEST, null, 15),
-            ItemScrollerFragment.newInstance(ProfileInfo.SUBMITTED, PostSort.BEST, null, 15),
-            ItemScrollerFragment.newInstance(ProfileInfo.COMMENTS, PostSort.BEST, null, 15),
-            ItemScrollerFragment.newInstance(ProfileInfo.SAVED, PostSort.BEST, null, 15),
-            ItemScrollerFragment.newInstance(ProfileInfo.HIDDEN, PostSort.BEST, null, 15),
-            ItemScrollerFragment.newInstance(ProfileInfo.UPVOTED, PostSort.BEST, null, 15),
-            ItemScrollerFragment.newInstance(ProfileInfo.DOWNVOTED, PostSort.BEST, null, 15),
-            ItemScrollerFragment.newInstance(ProfileInfo.GILDED, PostSort.BEST, null, 15),
+            ItemScrollerFragment.newInstance(ProfileInfo.OVERVIEW, PostSort.BEST, null),
+            ItemScrollerFragment.newInstance(ProfileInfo.SUBMITTED, PostSort.BEST, null),
+            ItemScrollerFragment.newInstance(ProfileInfo.COMMENTS, PostSort.BEST, null),
+            ItemScrollerFragment.newInstance(ProfileInfo.SAVED, PostSort.BEST, null),
+            ItemScrollerFragment.newInstance(ProfileInfo.HIDDEN, PostSort.BEST, null),
+            ItemScrollerFragment.newInstance(ProfileInfo.UPVOTED, PostSort.BEST, null),
+            ItemScrollerFragment.newInstance(ProfileInfo.DOWNVOTED, PostSort.BEST, null),
+            ItemScrollerFragment.newInstance(ProfileInfo.GILDED, PostSort.BEST, null),
             FriendsFragment.newInstance(),
             BlockedFragment.newInstance()
         )
     } else {
         listOf(
             AccountAboutFragment.newInstance(user),
-            ItemScrollerFragment.newInstance(ProfileInfo.OVERVIEW, PostSort.BEST, null, 15, user),
-            ItemScrollerFragment.newInstance(ProfileInfo.SUBMITTED, PostSort.BEST, null, 15, user),
-            ItemScrollerFragment.newInstance(ProfileInfo.COMMENTS, PostSort.BEST, null, 15, user),
-            ItemScrollerFragment.newInstance(ProfileInfo.GILDED, PostSort.BEST, null, 15, user)
+            ItemScrollerFragment.newInstance(ProfileInfo.OVERVIEW, PostSort.BEST, null, user),
+            ItemScrollerFragment.newInstance(ProfileInfo.SUBMITTED, PostSort.BEST, null, user),
+            ItemScrollerFragment.newInstance(ProfileInfo.COMMENTS, PostSort.BEST, null, user),
+            ItemScrollerFragment.newInstance(ProfileInfo.GILDED, PostSort.BEST, null, user)
         )
     }
 

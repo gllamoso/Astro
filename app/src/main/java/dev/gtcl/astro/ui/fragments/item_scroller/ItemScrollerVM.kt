@@ -2,18 +2,21 @@ package dev.gtcl.astro.ui.fragments.item_scroller
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.preference.PreferenceManager
 import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.listing.Item
 import dev.gtcl.astro.models.reddit.listing.Listing
 import dev.gtcl.astro.models.reddit.listing.Post
+import dev.gtcl.astro.models.reddit.listing.SearchListing
 import dev.gtcl.astro.network.NetworkState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
-const val PAGE_SIZE = 15
+open class ItemScrollerVM(private val application: AstroApplication) : AstroViewModel(application) {
 
-class ItemScrollerVM(private val application: AstroApplication) : AstroViewModel(application) {
+    private val pageSize = 15
 
     private val _networkState = MutableLiveData<NetworkState>()
     val networkState: LiveData<NetworkState>
@@ -29,11 +32,19 @@ class ItemScrollerVM(private val application: AstroApplication) : AstroViewModel
 
     private val readItemIds = HashSet<String>()
     private var after: String? = null
-    var user: String? = null
 
-    private lateinit var postSort: PostSort
-    private var t: Time? = null
-    private var pageSize = 15
+    private var _user: String? = null
+    val user: String?
+        get() = _user
+
+    private val _postSort = MutableLiveData<PostSort>()
+    val postSort: LiveData<PostSort>
+        get() = _postSort
+
+    private val _time = MutableLiveData<Time?>().apply { value = null }
+    val time: LiveData<Time?>
+        get() = _time
+
     private var _initialPageLoaded = false
     val initialPageLoaded: Boolean
         get() = _initialPageLoaded
@@ -50,43 +61,135 @@ class ItemScrollerVM(private val application: AstroApplication) : AstroViewModel
 
     private val currentItemIds = HashSet<String>()
 
+    var listing: Listing? = null
+    private var subredditWhere: SubredditWhere? = null
+    private var messageWhere: MessageWhere? = null
+
+    init {
+        val sharedPref = PreferenceManager.getDefaultSharedPreferences(application)
+        _showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
+        val defaultSort =
+            sharedPref.getString(DEFAULT_POST_SORT_KEY, application.getString(R.string.order_hot))
+        val sortArray = application.resources.getStringArray(R.array.post_sort_entries)
+        val postSort: PostSort
+        val time: Time?
+        if (listing is SearchListing) {
+            postSort = PostSort.RELEVANCE
+            time = Time.ALL
+        } else {
+            when (sortArray.indexOf(defaultSort)) {
+                1 -> {
+                    postSort = PostSort.HOT
+                    time = null
+                }
+                2 -> {
+                    postSort = PostSort.NEW
+                    time = null
+                }
+                3 -> {
+                    postSort = PostSort.RISING
+                    time = null
+                }
+                4 -> {
+                    postSort = PostSort.CONTROVERSIAL
+                    time = Time.HOUR
+                }
+                5 -> {
+                    postSort = PostSort.CONTROVERSIAL
+                    time = Time.DAY
+                }
+                6 -> {
+                    postSort = PostSort.CONTROVERSIAL
+                    time = Time.WEEK
+                }
+                7 -> {
+                    postSort = PostSort.CONTROVERSIAL
+                    time = Time.MONTH
+                }
+                8 -> {
+                    postSort = PostSort.CONTROVERSIAL
+                    time = Time.YEAR
+                }
+                9 -> {
+                    postSort = PostSort.CONTROVERSIAL
+                    time = Time.ALL
+                }
+                10 -> {
+                    postSort = PostSort.TOP
+                    time = Time.HOUR
+                }
+                11 -> {
+                    postSort = PostSort.TOP
+                    time = Time.DAY
+                }
+                12 -> {
+                    postSort = PostSort.TOP
+                    time = Time.WEEK
+                }
+                13 -> {
+                    postSort = PostSort.TOP
+                    time = Time.MONTH
+                }
+                14 -> {
+                    postSort = PostSort.TOP
+                    time = Time.YEAR
+                }
+                15 -> {
+                    postSort = PostSort.TOP
+                    time = Time.ALL
+                }
+                else -> {
+                    postSort = PostSort.BEST
+                    time = null
+                }
+            }
+        }
+        setListingSort(postSort, time)
+    }
+
     fun retry() {
         lastAction()
     }
 
-    private lateinit var listing: Listing
-    fun setListingInfo(
-        listing: Listing,
-        postSort: PostSort,
-        t: Time?,
-        pageSize: Int,
-        showNsfw: Boolean
+    open fun setListingInfo(
+        listing: Listing
     ) {
         this.listing = listing
-        this.postSort = postSort
-        this.t = t
-        this.pageSize = pageSize
-        _showNsfw = showNsfw
     }
 
-    private lateinit var subredditWhere: SubredditWhere
-    fun setListingInfo(subredditWhere: SubredditWhere, pageSize: Int, showNsfw: Boolean) {
+    fun setListingSort(
+        postSort: PostSort,
+        time: Time? = null
+    ) {
+        _postSort.value = postSort
+        _time.value = time
+    }
+
+    fun setListingInfo(subredditWhere: SubredditWhere) {
         this.subredditWhere = subredditWhere
-        this.pageSize = pageSize
+    }
+
+    fun setListingInfo(messageWhere: MessageWhere) {
+        this.messageWhere = messageWhere
+    }
+
+    fun setNsfw(showNsfw: Boolean) {
         _showNsfw = showNsfw
     }
 
-    private lateinit var messageWhere: MessageWhere
-    fun setListingInfo(messageWhere: MessageWhere, pageSize: Int, showNsfw: Boolean) {
-        this.messageWhere = messageWhere
-        this.pageSize = pageSize
-        _showNsfw = showNsfw
+    fun setUser(user: String?){
+        _user = user
     }
 
     fun addReadItem(item: Item) {
         readItemIds.add(item.name)
         coroutineScope.launch {
-            listingRepository.addReadItem(item)
+            try {
+                listingRepository.addReadItem(item)
+            } catch (e: Exception) {
+                Timber.tag(this@ItemScrollerVM.javaClass.simpleName).e(e.toString())
+                _errorMessage.postValue(e.toString())
+            }
         }
     }
 
@@ -94,7 +197,7 @@ class ItemScrollerVM(private val application: AstroApplication) : AstroViewModel
         coroutineScope.launch {
             try {
                 // Get listing items
-                val firstPageSize = dev.gtcl.astro.ui.fragments.listing.PAGE_SIZE * 3
+                val firstPageSize = pageSize * 3
                 withContext(Dispatchers.IO) {
                     _lastItemReached.postValue(false)
                     _networkState.postValue(NetworkState.LOADING)
@@ -104,23 +207,23 @@ class ItemScrollerVM(private val application: AstroApplication) : AstroViewModel
                     var emptyItemsCount = 0
                     while (firstPageItems.size < firstPageSize && emptyItemsCount < 3) {
                         val retrieveSize =
-                            if (firstPageItems.size > (firstPageSize * 2 / 3)) dev.gtcl.astro.ui.fragments.listing.PAGE_SIZE else firstPageSize
+                            if (firstPageItems.size > (firstPageSize * 2 / 3)) pageSize else firstPageSize
                         val response = when {
-                            ::listing.isInitialized -> listingRepository.getListing(
-                                listing,
-                                postSort,
-                                t,
+                            listing != null -> listingRepository.getListing(
+                                listing ?: return@withContext,
+                                postSort.value ?: return@withContext,
+                                time.value,
                                 after,
                                 retrieveSize,
                                 user
                             ).await()
-                            ::subredditWhere.isInitialized -> subredditRepository.getSubredditsListing(
-                                subredditWhere,
+                            subredditWhere != null -> subredditRepository.getSubredditsListing(
+                                subredditWhere ?: return@withContext,
                                 after,
                                 retrieveSize
                             ).await()
-                            ::messageWhere.isInitialized -> listingRepository.getMessages(
-                                messageWhere,
+                            messageWhere != null -> listingRepository.getMessages(
+                                messageWhere ?: return@withContext,
                                 after,
                                 retrieveSize
                             ).await()
@@ -159,6 +262,7 @@ class ItemScrollerVM(private val application: AstroApplication) : AstroViewModel
                     currentItemIds.clear()
                     currentItemIds.addAll(firstPageItems.map { it.name })
                     _networkState.postValue(NetworkState.LOADED)
+                    _initialPageLoaded = true
                 }
             } catch (e: Exception) {
                 lastAction = ::fetchFirstPage
@@ -179,25 +283,25 @@ class ItemScrollerVM(private val application: AstroApplication) : AstroViewModel
                     _networkState.postValue(NetworkState.LOADING)
                     val moreItems = mutableListOf<Item>()
                     var emptyItemsCount = 0
-                    while (moreItems.size < PAGE_SIZE && emptyItemsCount < 3) {
+                    while (moreItems.size < this@ItemScrollerVM.pageSize && emptyItemsCount < 3) {
                         val response = when {
-                            ::listing.isInitialized -> listingRepository.getListing(
-                                listing,
-                                postSort,
-                                t,
+                            listing != null -> listingRepository.getListing(
+                                listing ?: return@withContext,
+                                postSort.value ?: return@withContext,
+                                time.value,
                                 after,
-                                PAGE_SIZE,
+                                this@ItemScrollerVM.pageSize,
                                 user
                             ).await()
-                            ::subredditWhere.isInitialized -> subredditRepository.getSubredditsListing(
-                                subredditWhere,
+                            subredditWhere != null -> subredditRepository.getSubredditsListing(
+                                subredditWhere ?: return@withContext,
                                 after,
-                                PAGE_SIZE
+                                this@ItemScrollerVM.pageSize
                             ).await()
-                            ::messageWhere.isInitialized -> listingRepository.getMessages(
-                                messageWhere,
+                            messageWhere != null -> listingRepository.getMessages(
+                                messageWhere ?: return@withContext,
                                 after,
-                                PAGE_SIZE
+                                this@ItemScrollerVM.pageSize
                             ).await()
                             else -> throw IllegalStateException("Not enough info to load listing")
                         }
@@ -235,6 +339,7 @@ class ItemScrollerVM(private val application: AstroApplication) : AstroViewModel
                     _networkState.postValue(NetworkState.LOADED)
                 }
             } catch (e: Exception) {
+                Timber.tag(this@ItemScrollerVM.javaClass.simpleName).e(e.toString())
                 after = previousAfter
                 lastAction = ::loadMore
                 _networkState.postValue(NetworkState.error(e.getErrorMessage(application)))

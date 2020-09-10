@@ -49,8 +49,8 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         binding?.model = model
         binding?.lifecycleOwner = viewLifecycleOwner
 
-        if (!model.firstPageLoaded) {
-            model.loadPopular()
+        if (!model.initialPageLoaded) {
+            model.fetchFirstPage()
         }
 
         initEditTextListener()
@@ -73,7 +73,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             }
         })
 
-        return binding!!.root
+        return (binding ?: return null).root
     }
 
     override fun onResume() {
@@ -116,7 +116,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
                         model.showPopular(false)
                     }
                 }
-                handler.postDelayed(workRunnable!!, DELAY)
+                handler.postDelayed(workRunnable ?: return, DELAY)
             }
 
         })
@@ -127,7 +127,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         val scrollListener = ListingScrollListener(
             15,
             binding?.fragmentSearchPopularList?.layoutManager as GridLayoutManager,
-            model::loadMorePopular
+            model::loadMore
         )
         val listAdapter = ListingAdapter(
             markwon = null,
@@ -147,16 +147,16 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             addOnScrollListener(scrollListener)
         }
 
-        model.popularItems.observe(viewLifecycleOwner, {
+        model.items.observe(viewLifecycleOwner, {
             listAdapter.submitList(it)
             scrollListener.finishedLoading()
         })
 
-        model.morePopularItems.observe(viewLifecycleOwner, {
+        model.moreItems.observe(viewLifecycleOwner, {
             if (it != null) {
                 scrollListener.finishedLoading()
                 listAdapter.addItems(it)
-                model.morePopularItemsObserved()
+                model.moreItemsObserved()
             }
         })
 

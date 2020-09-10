@@ -94,7 +94,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         binding?.fragmentListingRightDrawerLayout?.lifecycleOwner = viewLifecycleOwner
         binding?.model = model
 
-        if (!model.firstPageLoaded) {
+        if (!model.initialPageLoaded) {
             initData()
         }
         initScroller()
@@ -104,11 +104,11 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         initOtherObservers()
 
         binding?.executePendingBindings()
-        return binding!!.root
+        return (binding ?: return null).root
     }
 
     private fun initData() {
-        val listing = requireArguments().getParcelable<Listing>(LISTING_KEY)!!
+        val listing = requireArguments().getParcelable<Listing>(LISTING_KEY) ?: return
         val sharedPref =
             PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
         val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
@@ -121,7 +121,8 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             }
             else -> model.setSubreddit(null)
         }
-        model.setListing(listing, showNsfw)
+        model.setListingInfo(listing)
+        model.setNsfw(showNsfw)
         model.fetchFirstPage()
     }
 
@@ -268,17 +269,17 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     private fun initBottomBar() {
         val bottomBarLayout = binding?.fragmentListingBottomAppBarLayout
         bottomBarLayout?.layoutListingBottomBarSortButton?.setOnClickListener { anchor ->
-            val currentSort = model.postSort.value!!
+            val currentSort = model.postSort.value ?: return@setOnClickListener
             val currentTime = model.time.value
             val onSortSelected: (PostSort) -> Unit = { postSortSelected ->
                 if (model.listing is SearchListing || postSortSelected == PostSort.TOP || postSortSelected == PostSort.CONTROVERSIAL) {
                     val time = if (currentSort == postSortSelected) currentTime else null
                     showTimePopup(anchor, time) { timeSortSelected ->
-                        model.setSort(postSortSelected, timeSortSelected)
+                        model.setListingSort(postSortSelected, timeSortSelected)
                         model.fetchFirstPage()
                     }
                 } else {
-                    model.setSort(postSortSelected)
+                    model.setListingSort(postSortSelected)
                     model.fetchFirstPage()
                 }
             }
@@ -354,7 +355,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                 val spoiler = bundle.getBoolean(SPOILER_KEY)
                 val getNotification = bundle.getBoolean(GET_NOTIFICATIONS_KEY)
                 val flair = bundle.get(FLAIRS_KEY) as Flair?
-                val post = model.items.value!![position] as Post
+                val post = (model.items.value ?: return@setFragmentResultListener)[position] as Post
                 activityModel.updatePost(post, nsfw, spoiler, getNotification, flair)
                 listAdapter.notifyItemChanged(position)
             })
@@ -438,7 +439,10 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         when (val urlType: UrlType? = post.url?.getUrlType()) {
             UrlType.OTHER -> activityModel.openChromeTab(post.url)
             UrlType.REDDIT_GALLERY -> {
-                val dialog = MediaDialogFragment.newInstance(post.url, post.galleryAsMediaItems!!)
+                val dialog = MediaDialogFragment.newInstance(
+                    post.url,
+                    post.galleryAsMediaItems ?: return
+                )
                 dialog.show(parentFragmentManager, null)
             }
             null -> itemClicked(post, position)
@@ -458,7 +462,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                     return
                 }
                 val url = when (mediaType) {
-                    MediaType.VIDEO -> post.previewVideoUrl!!
+                    MediaType.VIDEO -> post.previewVideoUrl ?: return
                     else -> post.url
                 }
                 val backupUrl = when (mediaType) {

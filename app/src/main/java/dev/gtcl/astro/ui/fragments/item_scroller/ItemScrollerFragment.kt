@@ -89,7 +89,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         initScroller()
         initOtherObservers()
 
-        return binding!!.root
+        return (binding ?: return null).root
     }
 
     override fun onDestroyView() {
@@ -107,41 +107,40 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         val sharedPref =
             PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
         val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
+        model.setNsfw(showNsfw)
         val args = requireArguments()
         when {
             args.getSerializable(PROFILE_INFO_KEY) != null -> {
                 val profileInfo = args.getSerializable(PROFILE_INFO_KEY) as ProfileInfo
                 val postSort = args.getSerializable(POST_SORT_KEY) as PostSort
                 val time = args.getSerializable(TIME_KEY) as Time?
-                val pageSize = args.getInt(PAGE_SIZE_KEY)
                 val user = args.getString(USER_KEY)
                 model.setListingInfo(
                     ProfileListing(
                         profileInfo
-                    ), postSort, time, pageSize, showNsfw
+                    )
                 )
-                model.user = user
+                model.setListingSort(postSort, time)
+                model.setUser(user)
             }
             args.getSerializable(SUBREDDIT_KEY) != null -> {
-                val subreddit = args.getString(SUBREDDIT_KEY)!!
+                val subreddit = args.getString(SUBREDDIT_KEY) ?: return
                 val postSort = args.getSerializable(POST_SORT_KEY) as PostSort
                 val time = args.getSerializable(TIME_KEY) as Time?
-                val pageSize = args.getInt(PAGE_SIZE_KEY)
                 model.setListingInfo(
                     SubredditListing(
                         subreddit
-                    ), postSort, time, pageSize, showNsfw
+                    )
                 )
+                model.setListingSort(postSort, time)
             }
             args.getSerializable(MESSAGE_WHERE_KEY) != null -> {
                 val messageWhere = args.getSerializable(MESSAGE_WHERE_KEY) as MessageWhere
-                val pageSize = args.getInt(PAGE_SIZE_KEY)
-                model.setListingInfo(messageWhere, pageSize, showNsfw)
+                model.setListingInfo(messageWhere)
             }
             args.getSerializable(SUBREDDIT_WHERE_KEY) != null -> {
                 val subredditWhere = args.getSerializable(SUBREDDIT_WHERE_KEY) as SubredditWhere
-                val pageSize = args.getInt(PAGE_SIZE_KEY)
-                model.setListingInfo(subredditWhere, pageSize, showNsfw)
+                model.setListingInfo(subredditWhere)
             }
             else -> throw IllegalStateException("Missing key arguments")
         }
@@ -253,7 +252,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                 val spoiler = bundle.getBoolean(SPOILER_KEY)
                 val getNotification = bundle.getBoolean(GET_NOTIFICATIONS_KEY)
                 val flair = bundle.get(FLAIRS_KEY) as Flair?
-                val post = model.items.value!![position] as Post
+                val post = (model.items.value ?: return@setFragmentResultListener)[position] as Post
                 activityModel.updatePost(post, nsfw, spoiler, getNotification, flair)
                 listAdapter.notifyItemChanged(position)
             })
@@ -333,7 +332,10 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         when (val urlType: UrlType? = post.url?.getUrlType()) {
             UrlType.OTHER -> activityModel.openChromeTab(post.url)
             UrlType.REDDIT_GALLERY -> {
-                val dialog = MediaDialogFragment.newInstance(post.url, post.galleryAsMediaItems!!)
+                val dialog = MediaDialogFragment.newInstance(
+                    post.url,
+                    post.galleryAsMediaItems ?: return
+                )
                 dialog.show(parentFragmentManager, null)
             }
             null -> itemClicked(post, position)
@@ -353,7 +355,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                     return
                 }
                 val url = when (mediaType) {
-                    MediaType.VIDEO -> post.previewVideoUrl!!
+                    MediaType.VIDEO -> post.previewVideoUrl ?: return
                     else -> post.url
                 }
                 val backupUrl = when (mediaType) {
@@ -597,7 +599,6 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             profileInfo: ProfileInfo,
             postSort: PostSort,
             time: Time?,
-            pageSize: Int,
             user: String? = null
         ): ItemScrollerFragment {
             val fragment =
@@ -606,7 +607,6 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                 PROFILE_INFO_KEY to profileInfo,
                 POST_SORT_KEY to postSort,
                 TIME_KEY to time,
-                PAGE_SIZE_KEY to pageSize,
                 USER_KEY to user
             )
             fragment.arguments = args
@@ -616,35 +616,31 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         fun newInstance(
             subreddit: String,
             postSort: PostSort,
-            time: Time?,
-            pageSize: Int,
-            useTrendingAdapter: Boolean = false
+            time: Time?
         ): ItemScrollerFragment {
             val fragment =
                 ItemScrollerFragment()
             val args = bundleOf(
                 SUBREDDIT_KEY to subreddit,
                 POST_SORT_KEY to postSort,
-                TIME_KEY to time,
-                PAGE_SIZE_KEY to pageSize,
-                USE_TRENDING_ADAPTER_KEY to useTrendingAdapter
+                TIME_KEY to time
             )
             fragment.arguments = args
             return fragment
         }
 
-        fun newInstance(messageWhere: MessageWhere, pageSize: Int): ItemScrollerFragment {
+        fun newInstance(messageWhere: MessageWhere): ItemScrollerFragment {
             val fragment =
                 ItemScrollerFragment()
-            val args = bundleOf(MESSAGE_WHERE_KEY to messageWhere, PAGE_SIZE_KEY to pageSize)
+            val args = bundleOf(MESSAGE_WHERE_KEY to messageWhere)
             fragment.arguments = args
             return fragment
         }
 
-        fun newInstance(subredditWhere: SubredditWhere, pageSize: Int): ItemScrollerFragment {
+        fun newInstance(subredditWhere: SubredditWhere): ItemScrollerFragment {
             val fragment =
                 ItemScrollerFragment()
-            val args = bundleOf(SUBREDDIT_WHERE_KEY to subredditWhere, PAGE_SIZE_KEY to pageSize)
+            val args = bundleOf(SUBREDDIT_WHERE_KEY to subredditWhere)
             fragment.arguments = args
             return fragment
         }
