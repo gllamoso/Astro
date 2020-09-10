@@ -80,7 +80,7 @@ class DownloadIntentService : JobIntentService() {
             return
         }
 
-        val downloadUrl = intent.extras!![URL_KEY] as String?
+        val downloadUrl = (intent.extras ?: return)[URL_KEY] as String?
         if (downloadUrl != null) { // Download single item
             val filename = createFileName(downloadUrl)
             startForeground(JOB_ID, createForegroundNotificationForSingleItem(filename))
@@ -91,7 +91,7 @@ class DownloadIntentService : JobIntentService() {
             stopForeground(true)
             stopSelf()
         } else { // Download album
-            val urls = intent.extras!![ALBUM_KEY] as List<*>
+            val urls = (intent.extras ?: return)[ALBUM_KEY] as List<*>
             val notification = createForegroundNotificationForAlbum()
             startForeground(JOB_ID, notification.build())
             var itemsComplete = 0
@@ -259,8 +259,8 @@ class DownloadIntentService : JobIntentService() {
     private fun downloadItem(url: String, saveDestination: File): Uri? {
         val filename = createFileName(url)
         val fileUri = Uri.withAppendedPath(Uri.fromFile(saveDestination), filename)
-        val file = File(fileUri.path!!)
-        val fileExtension = getExtension(Uri.parse(url).lastPathSegment!!)
+        val file = File(fileUri.path ?: return null)
+        val fileExtension = getExtension(Uri.parse(url).lastPathSegment ?: return null)
 
         if (fileExtension.toLowerCase(Locale.getDefault()) == HLS_EXTENSION) { // For downloading HLS videos
             if (FFmpeg.execute("-i $url -acodec copy -bsf:a aac_adtstoasc -vcodec copy ${file.path}") != Config.RETURN_CODE_SUCCESS) {
@@ -277,36 +277,42 @@ class DownloadIntentService : JobIntentService() {
                 return null
             }
         } else {
-            downloadStandardFile(url, fileUri.path!!)
+            downloadStandardFile(url, fileUri.path ?: return null)
         }
 
         // Move file to MediaStore
-        val mimeType = when (file.extension) {
-            "mp4", "wav" -> "video/*"
-            "jpeg", "bmp", "gif", "jpg", "png" -> "image/*"
-            else -> throw IllegalArgumentException("Invalid file type: $fileExtension")
+        val isVideo = file.extension == "mp4" || file.extension == "wav"
+        val mimeType = if (isVideo) {
+            "video/*"
+        } else {
+            "image/*"
         }
         val contentValues = ContentValues().apply {
             put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
             put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+            put(MediaStore.MediaColumns.DATE_ADDED, System.currentTimeMillis())
+            put(MediaStore.MediaColumns.DATE_MODIFIED, System.currentTimeMillis() / 1000)
+
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val folder = when (mimeType) {
-                    "video/*" -> "Movies"
-                    else -> "DCIM"
+                val folder = if (isVideo) {
+                    Environment.DIRECTORY_MOVIES
+                } else {
+                    Environment.DIRECTORY_PICTURES
                 }
                 put(
                     MediaStore.MediaColumns.RELATIVE_PATH,
                     "$folder/${getString(R.string.app_name)}"
                 )
             }
+
         }
-        val externalUri = if (mimeType == "video/*") {
+        val externalUri = if (isVideo) {
             MediaStore.Video.Media.EXTERNAL_CONTENT_URI
         } else {
             MediaStore.Images.Media.EXTERNAL_CONTENT_URI
         }
         val uri = contentResolver.insert(externalUri, contentValues)
-        contentResolver.openOutputStream(uri!!).use {
+        contentResolver.openOutputStream(uri ?: return null).use {
             val test = file.readBytes()
             if (it != null) {
                 it.write(test)
