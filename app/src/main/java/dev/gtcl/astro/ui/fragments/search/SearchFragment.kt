@@ -271,26 +271,6 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         }
     }
 
-//    private fun EditText.showKeyboard() {
-//        if (requestFocus()) {
-//            val imm =
-//                requireContext().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//            imm.showSoftInput(this, SHOW_IMPLICIT)
-//            setSelection(text.length)
-//        }
-//    }
-//
-//    private fun hideKeyboard() {
-//        requireActivity().currentFocus?.let {
-//            binding?.fragmentSearchSearchText?.clearFocus()
-//            val inputManager: InputMethodManager =
-//                requireActivity().getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//            inputManager.hideSoftInputFromWindow(it.windowToken, 0)
-//
-////            requireActivity().window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
-//        }
-//    }
-
     companion object {
         fun newInstance(): SearchFragment {
             return SearchFragment()
