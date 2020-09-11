@@ -3,6 +3,7 @@ package dev.gtcl.astro.ui.fragments.media.list.item
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -38,7 +39,7 @@ class MediaFragment : Fragment() {
         super.onPause()
         val isChangingConfigurations = requireActivity().isChangingConfigurations
         if (!isChangingConfigurations) {
-            model.pausePlayer()
+            pausePlayer()
         }
     }
 
@@ -65,6 +66,10 @@ class MediaFragment : Fragment() {
         binding?.executePendingBindings()
 
         return binding!!.root
+    }
+
+    fun pausePlayer(){
+        model.pausePlayer()
     }
 
     private fun initSubsamplingImageView() {

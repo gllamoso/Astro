@@ -39,6 +39,7 @@ import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.astro.ui.fragments.media.list.MediaListAdapter
 import dev.gtcl.astro.ui.fragments.media.list.MediaListFragmentAdapter
+import dev.gtcl.astro.ui.fragments.media.list.item.MediaFragment
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
 import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
@@ -169,7 +170,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
         })
 
-        val expand = when{
+        val expand = when {
             model.commentsExpanded != null -> model.commentsExpanded ?: return
             else -> requireArguments().getBoolean(EXPAND_REPLIES_KEY, false)
         }
@@ -779,8 +780,16 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
             if (currentItemMediaType != null) {
                 popupCommentsPageActionsFullScreen.root.setOnClickListener {
-                    MediaDialogFragment.newInstance(post.url!!, model.mediaItems.value!!)
+                    MediaDialogFragment.newInstance(
+                        post.url ?: return@setOnClickListener,
+                        model.mediaItems.value ?: return@setOnClickListener
+                    )
                         .show(childFragmentManager, null)
+                    for (fragment in childFragmentManager.fragments) {
+                        if (fragment is MediaFragment) {
+                            fragment.pausePlayer()
+                        }
+                    }
                     popupWindow.dismiss()
                 }
                 popupCommentsPageActionsDownloadSingleItem.root.setOnClickListener {
