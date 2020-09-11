@@ -44,7 +44,7 @@ class PageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
         }
         val itemsRemoved = pageStack.lastIndex - currentPage
         pageStack.subList(currentPage + 1, pageStack.size).clear()
-        Handler(Looper.getMainLooper()).post {
+        Handler(Looper.getMainLooper()).post {  // To prevent IllegalStateException: FragmentManager is already executing transactions
             notifyItemRangeRemoved(pageStack.lastIndex + 1, itemsRemoved)
         }
     }

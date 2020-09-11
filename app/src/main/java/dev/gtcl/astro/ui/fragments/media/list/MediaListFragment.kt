@@ -24,6 +24,8 @@ class MediaListFragment : Fragment() {
         ViewModelProviders.of(requireParentFragment()).get(MediaDialogVM::class.java)
     }
 
+    private var mediaAdapter: MediaListFragmentAdapter? = null
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -32,14 +34,16 @@ class MediaListFragment : Fragment() {
         binding = FragmentViewpagerBinding.inflate(inflater)
 
         val items = requireArguments().get(MEDIA_KEY) as List<MediaURL>
-        val adapter =
+        mediaAdapter?.clear()
+        mediaAdapter =
             MediaListFragmentAdapter(
                 childFragmentManager,
                 viewLifecycleOwner.lifecycle,
-                items
+                items,
+                true
             )
         binding?.fragmentViewPagerViewPager?.apply {
-            this.adapter = adapter
+            this.adapter = mediaAdapter
             model.setItemPosition(0)
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {

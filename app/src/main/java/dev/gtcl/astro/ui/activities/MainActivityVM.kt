@@ -31,8 +31,16 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
     val openChromeTab: LiveData<String?>
         get() = _openChromeTab
 
+    private val _mediaDialogOpened = MutableLiveData<Boolean>().apply { value = false }
+    val mediaDialogOpened: LiveData<Boolean>
+        get() = _mediaDialogOpened
+
     fun refreshObserved() {
         _refreshState.value = null
+    }
+
+    fun mediaDialogOpened(opened: Boolean){
+        _mediaDialogOpened.value = opened
     }
 
     fun newViewPagerPage(page: ViewPagerPage) {

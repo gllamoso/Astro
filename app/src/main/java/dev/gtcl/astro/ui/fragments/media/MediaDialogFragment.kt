@@ -2,6 +2,7 @@ package dev.gtcl.astro.ui.fragments.media
 
 import android.Manifest
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Bundle
@@ -56,6 +57,7 @@ class MediaDialogFragment : DialogFragment() {
         binding?.model = model
         binding?.activityModel = activityModel
         activityModel.showMediaControls(true)
+        activityModel.mediaDialogOpened(true)
         if (!model.mediaInitialized && model.isLoading.value != true) {
             val url = requireArguments().get(MEDIA_KEY) as MediaURL?
             if (url != null) {
@@ -72,13 +74,18 @@ class MediaDialogFragment : DialogFragment() {
         initTopBar()
         initBottomBar()
 
-        return binding!!.root
+        return (binding ?: return null).root
     }
 
     override fun onDestroyView() {
         super.onDestroyView()
         binding?.fragmentMediaDialogViewpager?.adapter = null
         binding = null
+    }
+
+    override fun onDismiss(dialog: DialogInterface) {
+        super.onDismiss(dialog)
+        activityModel.mediaDialogOpened(false)
     }
 
     private fun initAdapters() {
@@ -192,7 +199,9 @@ class MediaDialogFragment : DialogFragment() {
             ActivityResultContracts.RequestPermission()
         ) { isGranted: Boolean ->
             if (isGranted) {
-                if (model.mediaItems.value != null && model.mediaItems.value!!.size > 1) {
+                if (model.mediaItems.value != null && (model.mediaItems.value
+                        ?: return@registerForActivityResult).size > 1
+                ) {
                     binding?.fragmentMediaDialogDownload?.let {
                         showDownloadOptionsPopup(it)
                     }
@@ -214,7 +223,9 @@ class MediaDialogFragment : DialogFragment() {
                     Manifest.permission.WRITE_EXTERNAL_STORAGE
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
-                if (model.mediaItems.value != null && model.mediaItems.value!!.size > 1) {
+                if (model.mediaItems.value != null && (model.mediaItems.value
+                        ?: return@setOnClickListener).size > 1
+                ) {
                     showDownloadOptionsPopup(it)
                 } else {
                     model.downloadCurrentItem()
@@ -225,7 +236,7 @@ class MediaDialogFragment : DialogFragment() {
         }
 
         binding?.fragmentMediaDialogLink?.setOnClickListener {
-            activityModel.openChromeTab(mediaUrl?.url ?: albumUrl!!)
+            activityModel.openChromeTab(mediaUrl?.url ?: (albumUrl ?: return@setOnClickListener))
         }
     }
 

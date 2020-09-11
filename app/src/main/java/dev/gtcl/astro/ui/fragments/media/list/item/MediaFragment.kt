@@ -21,6 +21,7 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentMediaBinding
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.ui.activities.MainActivityVM
+import dev.gtcl.astro.ui.fragments.media.list.MediaListFragment
 import java.lang.IllegalStateException
 
 class MediaFragment : Fragment() {
@@ -37,7 +38,7 @@ class MediaFragment : Fragment() {
         super.onPause()
         val isChangingConfigurations = requireActivity().isChangingConfigurations
         if (!isChangingConfigurations) {
-            pausePlayer()
+            model.pausePlayer()
         }
     }
 
@@ -52,7 +53,8 @@ class MediaFragment : Fragment() {
 
         val mediaURL = requireArguments().get(MEDIA_KEY) as MediaURL
         if (!model.initialized) {
-            model.setMedia(mediaURL)
+            val playWhenReady = requireArguments().getBoolean(PLAY_WHEN_READY_KEY)
+            model.setMedia(mediaURL, playWhenReady)
         }
         when (mediaURL.mediaType) {
             MediaType.GIF -> initGifToImageView()
@@ -61,13 +63,15 @@ class MediaFragment : Fragment() {
             else -> throw IllegalStateException("Invalid media type: ${mediaURL.mediaType}")
         }
 
+        activityModel.mediaDialogOpened.observe(viewLifecycleOwner, {
+            if (it == true && requireParentFragment() !is MediaListFragment) {
+                model.pausePlayer()
+            }
+        })
+
         binding?.executePendingBindings()
 
         return binding!!.root
-    }
-
-    fun pausePlayer(){
-        model.pausePlayer()
     }
 
     private fun initSubsamplingImageView() {
@@ -190,9 +194,9 @@ class MediaFragment : Fragment() {
     }
 
     companion object {
-        fun newInstance(mediaURL: MediaURL): MediaFragment {
+        fun newInstance(mediaURL: MediaURL, playWhenReady: Boolean): MediaFragment {
             val fragment = MediaFragment()
-            val args = bundleOf(MEDIA_KEY to mediaURL)
+            val args = bundleOf(MEDIA_KEY to mediaURL, PLAY_WHEN_READY_KEY to playWhenReady)
             fragment.arguments = args
             return fragment
         }

@@ -22,9 +22,7 @@ const val CHILDREN_PER_FETCH = 50
 
 class CommentsVM(val application: AstroApplication) : AstroViewModel(application) {
 
-    private var _commentsExpanded: Boolean? = null
-    val commentsExpanded: Boolean?
-        get() = _commentsExpanded
+    var commentsExpanded: Boolean? = null
 
     private val hiddenItemsMap = HashMap<String, List<Item>>()
 
@@ -74,6 +72,8 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
 
     var contentInitialized = false
 
+    var viewPagerInitialized = false
+
     init {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(application)
         val defaultSort =
@@ -100,10 +100,6 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
 
     fun fetchFullContext() {
         fetchComments(fullContextLink!!, isFullContext = true, refreshPost = false)
-    }
-
-    fun setExpand(expand: Boolean){
-        _commentsExpanded = expand
     }
 
     fun fetchComments(permalink: String, isFullContext: Boolean, refreshPost: Boolean) {

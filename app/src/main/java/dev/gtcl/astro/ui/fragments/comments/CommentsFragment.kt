@@ -32,13 +32,13 @@ import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.databinding.FragmentCommentsBinding
 import dev.gtcl.astro.databinding.PopupCommentSortBinding
 import dev.gtcl.astro.databinding.PopupCommentsPageActionsBinding
+import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.astro.ui.fragments.media.list.MediaListAdapter
 import dev.gtcl.astro.ui.fragments.media.list.MediaListFragmentAdapter
-import dev.gtcl.astro.ui.fragments.media.list.item.MediaFragment
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
 import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
@@ -64,7 +64,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     private var binding: FragmentCommentsBinding? = null
 
     private lateinit var adapter: CommentsAdapter
-    private lateinit var mediaAdapter: MediaListFragmentAdapter
+
+    private var mediaAdapter: MediaListFragmentAdapter? = null
 
     private val markwon: Markwon by lazy {
         createMarkwonInstance(requireContext(), ::handleLink)
@@ -110,6 +111,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         Glide.get(requireContext()).clearMemory()
         binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.adapter = null
         model.contentInitialized = false
+        model.viewPagerInitialized = false
         binding = null
     }
 
@@ -158,7 +160,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 model.notifyAtObserved()
             }
         })
-        val behavior = BottomSheetBehavior.from(binding!!.fragmentCommentsBottomSheet)
+        val behavior = BottomSheetBehavior.from((binding ?: return).fragmentCommentsBottomSheet)
         behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
             override fun onSlide(p0: View, p1: Float) {
                 viewPagerModel.swipingEnabled(false)
@@ -166,7 +168,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
             override fun onStateChanged(p0: View, newState: Int) {
                 viewPagerModel.swipingEnabled(newState == BottomSheetBehavior.STATE_HIDDEN || newState == BottomSheetBehavior.STATE_COLLAPSED)
-                model.setExpand(newState == BottomSheetBehavior.STATE_EXPANDED)
+                model.commentsExpanded = newState == BottomSheetBehavior.STATE_EXPANDED
             }
         })
 
@@ -180,7 +182,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         }
 
         binding?.fragmentCommentsReply?.setOnClickListener {
-            val post = model.post.value!!
+            val post = model.post.value ?: return@setOnClickListener
             if (post.locked || post.deleted) {
                 Snackbar.make(it, R.string.cannot_reply_to_post, Snackbar.LENGTH_LONG).show()
             } else {
@@ -190,7 +192,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         }
 
         binding?.fragmentCommentsSort?.setOnClickListener {
-            val currentSort = model.commentSort.value!!
+            val currentSort = model.commentSort.value ?: return@setOnClickListener
             showCommentSortPopup(it, currentSort) { sort ->
                 model.setCommentSort(sort)
                 refresh(false)
@@ -210,8 +212,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 refreshPost = refreshPost
             )
         } else {
-            val url = requireArguments().getString(URL_KEY)!!
-            val fullContextLink = VALID_REDDIT_COMMENTS_URL_REGEX.find(url)!!.value
+            val url = requireArguments().getString(URL_KEY) ?: return
+            val fullContextLink = (VALID_REDDIT_COMMENTS_URL_REGEX.find(url) ?: return).value
             if (model.allCommentsFetched.value == true) {
                 model.fetchComments(
                     fullContextLink,
@@ -296,7 +298,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     }
                 } else {
                     when (post.urlType) {
-                        UrlType.OTHER -> initUrlPreview(post.url!!)
+                        UrlType.OTHER -> initUrlPreview(post.url ?: return@observe)
                         else -> model.fetchMediaItems(post)
                     }
                 }
@@ -315,70 +317,86 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         binding?.fragmentCommentsDrawer?.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
         model.mediaItems.observe(viewLifecycleOwner, {
-            if (it != null) {
-                binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.apply {
-                    mediaAdapter = MediaListFragmentAdapter(
-                        childFragmentManager,
-                        viewLifecycleOwner.lifecycle,
-                        it
-                    )
-                    this.adapter = mediaAdapter
-                    (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
-                    if (it.size > 1) {
-                        registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                            override fun onPageScrollStateChanged(state: Int) {
-                                super.onPageScrollStateChanged(state)
-                                if (state == ViewPager2.SCROLL_STATE_IDLE) {
-                                    binding?.fragmentCommentsContent?.apply {
-                                        layoutCommentsContentPreviousButton.visibility =
-                                            if (currentItem == 0) View.GONE else View.VISIBLE
-                                        layoutCommentsContentNextButton.visibility =
-                                            if (currentItem == it.size - 1) View.GONE else View.VISIBLE
-                                    }
-                                }
-                            }
-                        })
-
-                        binding?.fragmentCommentsContent?.apply {
-                            layoutCommentsContentPreviousButton.visibility =
-                                if (currentItem == 0) View.GONE else View.VISIBLE
-                            layoutCommentsContentNextButton.visibility =
-                                if (currentItem == it.size - 1) View.GONE else View.VISIBLE
-                        }
-                    }
-                }
-
-                if (it.size > 1) {
-
-                    binding?.fragmentCommentsDrawer?.apply {
-                        setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-                        addDrawerListener(this@CommentsFragment)
-                    }
-
-                    val mediaListAdapter =
-                        MediaListAdapter { position ->
-                            binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem =
-                                position
-                            binding?.fragmentCommentsDrawer?.closeDrawer(GravityCompat.END)
-                        }
-                    mediaListAdapter.submitList(it)
-
-                    binding?.apply {
-                        fragmentCommentsThumbnailsList.adapter = mediaListAdapter
-                        fragmentCommentsThumbnailsIcon.setOnClickListener {
-                            fragmentCommentsDrawer.openDrawer(GravityCompat.END)
-                        }
-                        fragmentCommentsContent.layoutCommentsContentPreviousButton.setOnClickListener {
-                            fragmentCommentsContent.layoutCommentsContentViewPager.currentItem -= 1
-                        }
-                        fragmentCommentsContent.layoutCommentsContentNextButton.setOnClickListener {
-                            fragmentCommentsContent.layoutCommentsContentViewPager.currentItem += 1
-                        }
-                    }
-
-                }
+            if (it != null && !model.viewPagerInitialized) {
+                setMediaInViewPager(it)
+                model.viewPagerInitialized = true
             }
         })
+
+        activityModel.mediaDialogOpened.observe(viewLifecycleOwner, {
+            if (!it && !model.viewPagerInitialized) {
+                setMediaInViewPager(model.mediaItems.value ?: return@observe)
+                model.viewPagerInitialized = true
+            }
+        })
+    }
+
+    private fun setMediaInViewPager(mediaUrls: List<MediaURL>) {
+        mediaAdapter?.clear()
+        binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.apply {
+            mediaAdapter = MediaListFragmentAdapter(
+                childFragmentManager,
+                viewLifecycleOwner.lifecycle,
+                mediaUrls,
+                activityModel.mediaDialogOpened.value != true
+            )
+            this.adapter = mediaAdapter
+            (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
+            if (mediaUrls.size > 1) {
+                registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
+                    override fun onPageScrollStateChanged(state: Int) {
+                        super.onPageScrollStateChanged(state)
+                        if (state == ViewPager2.SCROLL_STATE_IDLE) {
+                            binding?.fragmentCommentsContent?.apply {
+                                layoutCommentsContentPreviousButton.visibility =
+                                    if (currentItem == 0) View.GONE else View.VISIBLE
+                                layoutCommentsContentNextButton.visibility =
+                                    if (currentItem == mediaUrls.size - 1) View.GONE else View.VISIBLE
+                            }
+                        }
+                    }
+                })
+
+                binding?.fragmentCommentsContent?.apply {
+                    layoutCommentsContentPreviousButton.visibility =
+                        if (currentItem == 0) View.GONE else View.VISIBLE
+                    layoutCommentsContentNextButton.visibility =
+                        if (currentItem == mediaUrls.size - 1) View.GONE else View.VISIBLE
+                }
+            }
+        }
+
+        if (mediaUrls.size > 1) {
+
+            binding?.fragmentCommentsDrawer?.apply {
+                setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
+                addDrawerListener(this@CommentsFragment)
+            }
+
+            val mediaListAdapter =
+                MediaListAdapter { position ->
+                    binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem =
+                        position
+                    binding?.fragmentCommentsDrawer?.closeDrawer(GravityCompat.END)
+                }
+            mediaListAdapter.submitList(mediaUrls)
+
+            binding?.apply {
+                fragmentCommentsThumbnailsList.adapter = mediaListAdapter
+                fragmentCommentsThumbnailsIcon.setOnClickListener {
+                    fragmentCommentsDrawer.openDrawer(GravityCompat.END)
+                }
+                fragmentCommentsContent.layoutCommentsContentPreviousButton.setOnClickListener {
+                    fragmentCommentsContent.layoutCommentsContentViewPager.currentItem -= 1
+                }
+                fragmentCommentsContent.layoutCommentsContentNextButton.setOnClickListener {
+                    fragmentCommentsContent.layoutCommentsContentViewPager.currentItem += 1
+                }
+            }
+
+        }
+
+        model
     }
 
     private fun initOtherObservers() {
@@ -411,7 +429,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             { _, bundle ->
                 val position = bundle.getInt(POSITION_KEY, -1)
                 if (position == -1 && model.post.value != null) {
-                    model.post.value!!.hidden = true
+                    (model.post.value ?: return@setFragmentResultListener).hidden = true
                     binding?.fragmentCommentsPostLayout?.invalidateAll()
                 }
             })
@@ -423,7 +441,9 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 val reply = bundle.getBoolean(NEW_REPLY_KEY)
                 if (reply && item is Comment) {
                     item.depth = if (position >= 0) {
-                        ((model.comments.value!![position] as Comment).depth ?: 0) + 1
+                        (((model.comments.value
+                            ?: return@setFragmentResultListener)[position] as Comment).depth
+                            ?: 0) + 1
                     } else {
                         0
                     }
@@ -435,7 +455,9 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                         model.setPost(item)
                     } else if (item is Comment) {
                         item.depth = if (position >= 0) {
-                            ((model.comments.value!![position] as Comment).depth ?: 0)
+                            (((model.comments.value
+                                ?: return@setFragmentResultListener)[position] as Comment).depth
+                                ?: 0)
                         } else {
                             0
                         }
@@ -452,7 +474,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     val spoiler = bundle.getBoolean(SPOILER_KEY)
                     val getNotification = bundle.getBoolean(GET_NOTIFICATIONS_KEY)
                     val flair = bundle.get(FLAIRS_KEY) as Flair?
-                    val post = model.post.value!!
+                    val post = model.post.value ?: return@setFragmentResultListener
                     activityModel.updatePost(post, nsfw, spoiler, getNotification, flair)
                 }
             })
@@ -580,7 +602,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 if (item.isContinueThreadLink) {
                     activityModel.newViewPagerPage(
                         CommentsPage(
-                            "https://www.reddit.com${model.post.value!!.permalink}${
+                            "https://www.reddit.com${(model.post.value ?: return).permalink}${
                                 item.parentId.replace(
                                     "t1_",
                                     ""
@@ -710,7 +732,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         val popupBinding = PopupCommentsPageActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
-            val post = model.post.value!!
+            val post = model.post.value ?: return@apply
             val currentAccount =
                 (this@CommentsFragment.requireActivity().application as AstroApplication).currentAccount
             val currentMediaUrl = model.mediaItems.value?.get(
@@ -785,11 +807,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                         model.mediaItems.value ?: return@setOnClickListener
                     )
                         .show(childFragmentManager, null)
-                    for (fragment in childFragmentManager.fragments) {
-                        if (fragment is MediaFragment) {
-                            fragment.pausePlayer()
-                        }
-                    }
                     popupWindow.dismiss()
                 }
                 popupCommentsPageActionsDownloadSingleItem.root.setOnClickListener {

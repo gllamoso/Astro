@@ -14,6 +14,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import timber.log.Timber
+import java.util.*
 
 class MediaVM(private val application: AstroApplication) : AstroViewModel(application) {
 
@@ -31,7 +32,7 @@ class MediaVM(private val application: AstroApplication) : AstroViewModel(applic
 
     var initialized = false
 
-    fun setMedia(mediaURL: MediaURL) {
+    fun setMedia(mediaURL: MediaURL, playWhenReady: Boolean) {
         coroutineScope.launch {
             _isLoading.postValue(true)
             _mediaUrl.postValue(mediaURL)
@@ -68,9 +69,9 @@ class MediaVM(private val application: AstroApplication) : AstroViewModel(applic
                 withContext(Dispatchers.Main) {
                     val player =
                         ExoPlayerFactory.newSimpleInstance(application.baseContext, trackSelector)
-                    player!!.apply {
+                    (player ?: return@withContext).apply {
                         repeatMode = Player.REPEAT_MODE_ONE
-                        playWhenReady = true
+                        this.playWhenReady = playWhenReady
                         seekTo(0, 0)
                         prepare(mediaSource, false, false)
                         addListener(object : Player.EventListener {
