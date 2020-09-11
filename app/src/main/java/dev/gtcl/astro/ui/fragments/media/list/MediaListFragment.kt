@@ -34,7 +34,6 @@ class MediaListFragment : Fragment() {
         binding = FragmentViewpagerBinding.inflate(inflater)
 
         val items = requireArguments().get(MEDIA_KEY) as List<MediaURL>
-        mediaAdapter?.clear()
         mediaAdapter =
             MediaListFragmentAdapter(
                 childFragmentManager,

@@ -332,7 +332,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     private fun setMediaInViewPager(mediaUrls: List<MediaURL>) {
-        mediaAdapter?.clear()
         binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.apply {
             mediaAdapter = MediaListFragmentAdapter(
                 childFragmentManager,

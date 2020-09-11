@@ -15,12 +15,4 @@ class MediaListFragmentAdapter(
     val fragments = items.map { MediaFragment.newInstance(it, playWhenReady) }
     override fun getItemCount() = fragments.size
     override fun createFragment(position: Int) = fragments[position]
-
-    fun clear() {
-        val transaction = fragmentManager.beginTransaction()
-        for (fragment in fragments) {
-            transaction.remove(fragment)
-        }
-        transaction.commitAllowingStateLoss()
-    }
 }
