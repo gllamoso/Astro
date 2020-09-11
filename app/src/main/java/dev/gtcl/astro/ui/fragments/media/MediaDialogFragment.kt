@@ -55,7 +55,7 @@ class MediaDialogFragment : DialogFragment() {
         binding?.lifecycleOwner = viewLifecycleOwner
         binding?.model = model
         binding?.activityModel = activityModel
-        activityModel.showUi(true)
+        activityModel.showMediaControls(true)
         if (!model.mediaInitialized && model.isLoading.value != true) {
             val url = requireArguments().get(MEDIA_KEY) as MediaURL?
             if (url != null) {

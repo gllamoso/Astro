@@ -3,7 +3,6 @@ package dev.gtcl.astro.ui.fragments.media.list.item
 import android.graphics.Bitmap
 import android.graphics.drawable.Drawable
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -22,7 +21,6 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentMediaBinding
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import timber.log.Timber
 import java.lang.IllegalStateException
 
 class MediaFragment : Fragment() {
@@ -167,7 +165,7 @@ class MediaFragment : Fragment() {
             }
         })
 
-        activityModel.showUi.observe(viewLifecycleOwner, {
+        activityModel.showMediaControls.observe(viewLifecycleOwner, {
             if (it) {
                 binding?.fragmentMediaPlayerController?.show()
             } else {

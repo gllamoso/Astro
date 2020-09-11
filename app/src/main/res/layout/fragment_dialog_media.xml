@@ -31,7 +31,7 @@
                 android:background="@drawable/gradient_transparent_bottom_to_top"
                 android:elevation="1dp"
                 app:contentInsetStart="0dp"
-                android:visibility="@{activityModel.showUi &amp;&amp; !model.loading ? View.VISIBLE : View.GONE}">
+                android:visibility="@{activityModel.showMediaControls &amp;&amp; !model.loading ? View.VISIBLE : View.GONE}">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -100,7 +100,7 @@
                 android:layout_gravity="bottom"
                 android:background="@drawable/gradient_transparent_top_to_bottom"
                 android:gravity="center"
-                android:visibility="@{activityModel.showUi &amp;&amp; !model.loading ? View.VISIBLE : View.GONE}">
+                android:visibility="@{activityModel.showMediaControls &amp;&amp; !model.loading ? View.VISIBLE : View.GONE}">
 
                 <View
                     android:layout_width="0dp"

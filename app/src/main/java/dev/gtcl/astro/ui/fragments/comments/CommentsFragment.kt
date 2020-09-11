@@ -34,7 +34,6 @@ import dev.gtcl.astro.databinding.PopupCommentSortBinding
 import dev.gtcl.astro.databinding.PopupCommentsPageActionsBinding
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import dev.gtcl.astro.ui.fragments.*
 import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.astro.ui.fragments.media.list.MediaListAdapter
@@ -87,6 +86,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         binding = FragmentCommentsBinding.inflate(inflater)
         binding?.lifecycleOwner = viewLifecycleOwner
         binding?.model = model
+        activityModel.showMediaControls(true)
 
         if (model.post.value == null && model.loading.value != true) {
             val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?

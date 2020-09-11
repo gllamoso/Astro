@@ -23,9 +23,9 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
     val refreshState: LiveData<NetworkState?>
         get() = _refreshState
 
-    private val _showUi = MutableLiveData<Boolean>()
-    val showUi: LiveData<Boolean>
-        get() = _showUi
+    private val _showMediaControls = MutableLiveData<Boolean>()
+    val showMediaControls: LiveData<Boolean>
+        get() = _showMediaControls
 
     private val _openChromeTab = MutableLiveData<String?>()
     val openChromeTab: LiveData<String?>
@@ -288,12 +288,12 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
         }
     }
 
-    fun showUi(show: Boolean) {
-        _showUi.value = show
+    fun showMediaControls(show: Boolean) {
+        _showMediaControls.value = show
     }
 
     fun toggleUi() {
-        _showUi.value = !(_showUi.value ?: true)
+        _showMediaControls.value = !(_showMediaControls.value ?: true)
     }
 
     fun openChromeTab(url: String) {
