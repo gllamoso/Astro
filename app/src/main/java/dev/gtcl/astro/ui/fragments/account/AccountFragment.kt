@@ -27,7 +27,6 @@ import dev.gtcl.astro.models.reddit.listing.Account
 import dev.gtcl.astro.models.reddit.listing.FrontPage
 import dev.gtcl.astro.ui.LeftDrawerAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import dev.gtcl.astro.ui.fragments.*
 import dev.gtcl.astro.ui.fragments.view_pager.*
 
 class AccountFragment : Fragment(), LeftDrawerActions {
@@ -47,7 +46,7 @@ class AccountFragment : Fragment(), LeftDrawerActions {
 
     override fun onResume() {
         super.onResume()
-        viewPagerModel.notifyViewPager()
+        viewPagerModel.syncViewPager()
         binding?.fragmentAccountViewPager?.currentItem = model.selectedPage
     }
 

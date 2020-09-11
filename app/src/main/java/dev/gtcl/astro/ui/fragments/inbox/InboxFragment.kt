@@ -41,7 +41,7 @@ class InboxFragment : Fragment(), LeftDrawerActions {
 
     override fun onResume() {
         super.onResume()
-        viewPagerModel.notifyViewPager()
+        viewPagerModel.syncViewPager()
     }
 
     override fun onCreateView(

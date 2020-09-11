@@ -20,9 +20,9 @@ class ViewPagerVM(application: AstroApplication) : AstroViewModel(application) {
     val linkClicked: LiveData<String?>
         get() = _linkClicked
 
-    private val _notifyViewPager = MutableLiveData<Any?>()
-    val notifyViewPager: LiveData<Any?>
-        get() = _notifyViewPager
+    private val _syncViewPager = MutableLiveData<Any?>()
+    val syncViewPager: LiveData<Any?>
+        get() = _syncViewPager
 
     private val _newPostLink = MutableLiveData<String?>()
     val newPostLink: LiveData<String?>
@@ -56,11 +56,11 @@ class ViewPagerVM(application: AstroApplication) : AstroViewModel(application) {
         _linkClicked.value = null
     }
 
-    fun notifyViewPager() {
-        _notifyViewPager.value = Any()
+    fun syncViewPager() {
+        _syncViewPager.value = Any()
     }
 
     fun notifyViewPagerObserved() {
-        _notifyViewPager.value = null
+        _syncViewPager.value = null
     }
 }

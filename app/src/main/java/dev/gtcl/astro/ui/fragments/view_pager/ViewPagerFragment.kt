@@ -89,7 +89,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
 
-        model.notifyViewPager.observe(viewLifecycleOwner, {
+        model.syncViewPager.observe(viewLifecycleOwner, {
             if (it != null) {
                 val viewPager = binding?.fragmentViewPagerViewPager
                 val currentPage = binding?.fragmentViewPagerViewPager?.currentItem

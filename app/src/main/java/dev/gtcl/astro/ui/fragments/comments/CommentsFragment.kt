@@ -75,7 +75,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     override fun onResume() {
         super.onResume()
-        viewPagerModel.notifyViewPager()
+        viewPagerModel.syncViewPager()
     }
 
     override fun onCreateView(
