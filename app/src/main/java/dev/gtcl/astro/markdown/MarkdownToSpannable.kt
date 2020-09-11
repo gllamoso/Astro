@@ -16,7 +16,7 @@ class MarkdownToSpannable {
 
         private val SPOILER_REGEX = ">!.+!<".toRegex()
         private val NONSENSE_TEXT_REGEX = "^&#x200B;$".toRegex(RegexOption.MULTILINE)
-        private val QUOTE_TEXT_REGEX = "^>.+$".toRegex(RegexOption.MULTILINE)
+        private val QUOTE_TEXT_REGEX = "^>.*$".toRegex(RegexOption.MULTILINE)
 
         fun setSpannableStringBuilder(
             context: Context,
@@ -89,18 +89,22 @@ class MarkdownToSpannable {
                 val start = match.range.first
                 val end = match.range.last
                 val quotePrefix = (">\\s*".toRegex().find(match.value) ?: return).value
-                if(spannableStringBuilder.length < start + quotePrefix.length){
+                if (spannableStringBuilder.length > start + quotePrefix.length) {
                     spannableStringBuilder.delete(start, start + quotePrefix.length)
                 } else {
                     break
                 }
-                if(match.value == quotePrefix){
-                    continue
+                val addedWhiteSpace: Int
+                addedWhiteSpace = if (match.value == quotePrefix) {
+                    spannableStringBuilder.insert(start, " ")
+                    2
+                } else {
+                    0
                 }
                 spannableStringBuilder.setSpan(
                     CustomQuoteSpan(Color.GREEN, 10, 40),
                     start,
-                    end - quotePrefix.length,
+                    end - quotePrefix.length + addedWhiteSpace,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
                 match = QUOTE_TEXT_REGEX.find(spannableStringBuilder)
