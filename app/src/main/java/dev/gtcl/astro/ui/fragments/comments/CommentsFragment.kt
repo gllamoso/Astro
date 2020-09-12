@@ -65,8 +65,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     private lateinit var adapter: CommentsAdapter
 
-    private var mediaAdapter: MediaListFragmentAdapter? = null
-
     private val markwon: Markwon by lazy {
         createMarkwonInstance(requireContext(), ::handleLink)
     }
@@ -332,13 +330,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     private fun setMediaInViewPager(mediaUrls: List<MediaURL>) {
+        val mediaAdapter = MediaListFragmentAdapter(
+            childFragmentManager,
+            viewLifecycleOwner.lifecycle,
+            mediaUrls,
+            activityModel.mediaDialogOpened.value != true
+        )
+
         binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.apply {
-            mediaAdapter = MediaListFragmentAdapter(
-                childFragmentManager,
-                viewLifecycleOwner.lifecycle,
-                mediaUrls,
-                activityModel.mediaDialogOpened.value != true
-            )
             this.adapter = mediaAdapter
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
             if (mediaUrls.size > 1) {

@@ -24,8 +24,6 @@ class MediaListFragment : Fragment() {
         ViewModelProviders.of(requireParentFragment()).get(MediaDialogVM::class.java)
     }
 
-    private var mediaAdapter: MediaListFragmentAdapter? = null
-
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -34,7 +32,7 @@ class MediaListFragment : Fragment() {
         binding = FragmentViewpagerBinding.inflate(inflater)
 
         val items = requireArguments().get(MEDIA_KEY) as List<MediaURL>
-        mediaAdapter =
+        val mediaAdapter =
             MediaListFragmentAdapter(
                 childFragmentManager,
                 viewLifecycleOwner.lifecycle,
@@ -63,7 +61,7 @@ class MediaListFragment : Fragment() {
             }
         })
 
-        return binding!!.root
+        return binding?.root
     }
 
     override fun onDestroyView() {

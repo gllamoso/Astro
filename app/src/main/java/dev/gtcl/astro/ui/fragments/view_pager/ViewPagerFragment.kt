@@ -48,7 +48,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
         initBackPressedCallback()
         initOtherObservers()
 
-        return binding!!.root
+        return binding?.root
     }
 
     override fun onResume() {
