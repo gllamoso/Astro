@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.DataSource
@@ -166,6 +167,9 @@ class MediaFragment : Fragment() {
                 binding?.fragmentMediaPlayerView?.player = simpleExoPlayer
                 binding?.fragmentMediaPlayerController?.player = simpleExoPlayer
                 model.setLoadingState(false)
+                if (lifecycle.currentState != Lifecycle.State.RESUMED) {
+                    model.pausePlayer()
+                }
             }
         })
 

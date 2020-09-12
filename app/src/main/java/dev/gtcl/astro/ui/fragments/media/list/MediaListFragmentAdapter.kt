@@ -7,7 +7,7 @@ import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.ui.fragments.media.list.item.MediaFragment
 
 class MediaListFragmentAdapter(
-    private val fragmentManager: FragmentManager,
+    fragmentManager: FragmentManager,
     lifecycle: Lifecycle,
     items: List<MediaURL>,
     playWhenReady: Boolean
