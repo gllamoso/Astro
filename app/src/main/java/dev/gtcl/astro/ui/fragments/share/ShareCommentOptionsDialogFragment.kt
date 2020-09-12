@@ -33,7 +33,7 @@ class ShareCommentOptionsDialogFragment : DialogFragment() {
         binding = FragmentDialogShareCommentOptionsBinding.inflate(inflater)
         val comment = requireArguments().getParcelable<Comment>(COMMENT_KEY)!!
         initClickListeners(comment)
-        return binding!!.root
+        return binding?.root
     }
 
     private fun initClickListeners(comment: Comment) {

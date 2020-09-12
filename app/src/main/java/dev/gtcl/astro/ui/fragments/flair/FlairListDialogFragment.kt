@@ -44,7 +44,12 @@ class FlairListDialogFragment : DialogFragment(), FlairListAdapter.FlairSelectio
         initList()
         initOtherObservers()
 
-        return binding!!.root
+        return binding?.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 
     private fun initList() {

@@ -32,11 +32,11 @@ class SharePostOptionsDialogFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentDialogSharePostOptionsBinding.inflate(inflater)
-        val post = requireArguments().getParcelable<Post>(POST_KEY)!!
+        val post = requireArguments().getParcelable<Post>(POST_KEY) ?: return null
         binding?.post = post
         initClickListeners(post)
         binding?.invalidateAll()
-        return binding!!.root
+        return binding?.root
     }
 
     private fun initClickListeners(post: Post) {

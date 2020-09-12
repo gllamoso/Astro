@@ -29,8 +29,8 @@ class AccountAboutFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentAccountAboutBinding.inflate(inflater)
-        binding!!.lifecycleOwner = this
-        binding!!.model = model
+        binding?.lifecycleOwner = this
+        binding?.model = model
         val user = arguments?.getString(USER_KEY)
         model.fetchAccount(user)
         if ((requireActivity().application as AstroApplication).currentAccount != null) {
@@ -49,8 +49,8 @@ class AccountAboutFragment : Fragment() {
             }
         })
 
-        binding!!.fragmentAccountAboutAwardsList.adapter = adapter
-        return binding!!.root
+        binding?.fragmentAccountAboutAwardsList?.adapter = adapter
+        return binding?.root
     }
 
     override fun onDestroyView() {

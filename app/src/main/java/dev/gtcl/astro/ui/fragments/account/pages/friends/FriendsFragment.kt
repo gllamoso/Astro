@@ -16,7 +16,6 @@ import dev.gtcl.astro.databinding.FragmentItemScrollerBinding
 import dev.gtcl.astro.models.reddit.User
 import dev.gtcl.astro.models.reddit.UserType
 import dev.gtcl.astro.network.NetworkState
-import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
 import dev.gtcl.astro.ui.fragments.account.pages.UserListAdapter
 import dev.gtcl.astro.ui.fragments.inbox.ComposeDialogFragment
@@ -30,8 +29,6 @@ class FriendsFragment : Fragment(), UserActions {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
         ViewModelProvider(this, viewModelFactory).get(FriendsVM::class.java)
     }
-
-    private val activityModel: MainActivityVM by activityViewModels()
 
     override fun onResume() {
         super.onResume()
@@ -87,7 +84,7 @@ class FriendsFragment : Fragment(), UserActions {
             }
         })
 
-        return binding!!.root
+        return binding?.root
     }
 
     override fun onDestroyView() {

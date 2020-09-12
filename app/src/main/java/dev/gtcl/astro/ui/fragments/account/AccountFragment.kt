@@ -70,7 +70,7 @@ class AccountFragment : Fragment(), LeftDrawerActions {
         initLeftDrawer()
         initOtherObservers()
 
-        return binding!!.root
+        return binding?.root
     }
 
     override fun onDestroyView() {

@@ -41,7 +41,7 @@ class MultiRedditDetailsDialogFragment : DialogFragment() {
         setSpinner(multi)
         setOnClickListeners()
         binding?.executePendingBindings()
-        return binding!!.root
+        return binding?.root
     }
 
     override fun onDestroyView() {

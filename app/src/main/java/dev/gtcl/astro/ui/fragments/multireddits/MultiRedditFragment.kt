@@ -37,7 +37,7 @@ class MultiRedditFragment : Fragment(),
         binding?.model = model
         binding?.lifecycleOwner = viewLifecycleOwner
         navController = findNavController()
-        return binding!!.root
+        return binding?.root
     }
 
     override fun onDestroyView() {

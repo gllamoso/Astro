@@ -74,7 +74,7 @@ class MediaDialogFragment : DialogFragment() {
         initTopBar()
         initBottomBar()
 
-        return (binding ?: return null).root
+        return binding?.root
     }
 
     override fun onDestroyView() {

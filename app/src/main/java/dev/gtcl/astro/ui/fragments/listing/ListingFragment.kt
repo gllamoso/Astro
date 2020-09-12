@@ -104,7 +104,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         initOtherObservers()
 
         binding?.executePendingBindings()
-        return (binding ?: return null).root
+        return binding?.root
     }
 
     private fun initData() {

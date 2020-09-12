@@ -74,7 +74,7 @@ class InboxFragment : Fragment(), LeftDrawerActions {
             viewPagerModel.linkClicked(url)
         })
 
-        return binding!!.root
+        return binding?.root
     }
 
     override fun onDestroyView() {

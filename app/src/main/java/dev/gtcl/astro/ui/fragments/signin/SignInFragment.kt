@@ -44,7 +44,7 @@ class SignInFragment : Fragment() {
         clearCookies()
         setWebview()
         binding?.executePendingBindings()
-        return binding!!.root
+        return binding?.root
     }
 
     override fun onDestroyView() {

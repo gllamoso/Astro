@@ -90,7 +90,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         initScroller()
         initOtherObservers()
 
-        return (binding ?: return null).root
+        return binding?.root
     }
 
     override fun onDestroyView() {

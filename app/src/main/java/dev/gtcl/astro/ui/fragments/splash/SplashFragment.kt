@@ -55,7 +55,7 @@ class SplashFragment : Fragment() {
             setUserFromSharedPreferences()
         }
 
-        return binding!!.root
+        return binding?.root
     }
 
     override fun onDestroyView() {

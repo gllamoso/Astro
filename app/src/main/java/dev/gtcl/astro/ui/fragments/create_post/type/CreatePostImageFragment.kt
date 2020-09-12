@@ -77,7 +77,7 @@ class CreatePostImageFragment : Fragment() {
         binding?.lifecycleOwner = viewLifecycleOwner
         binding?.model = model
         initClickListeners()
-        return binding!!.root
+        return binding?.root
     }
 
     override fun onDestroyView() {

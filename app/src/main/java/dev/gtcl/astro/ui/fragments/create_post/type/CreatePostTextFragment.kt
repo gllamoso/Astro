@@ -38,7 +38,7 @@ class CreatePostTextFragment : Fragment() {
         binding = FragmentCreatePostTextBinding.inflate(inflater)
         binding?.lifecycleOwner = this
         initObservers()
-        return binding!!.root
+        return binding?.root
     }
 
     private fun initObservers() {

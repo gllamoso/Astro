@@ -73,7 +73,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             }
         })
 
-        return (binding ?: return null).root
+        return binding?.root
     }
 
     override fun onResume() {

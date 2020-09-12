@@ -71,7 +71,7 @@ class MediaFragment : Fragment() {
 
         binding?.executePendingBindings()
 
-        return binding!!.root
+        return binding?.root
     }
 
     private fun initSubsamplingImageView() {

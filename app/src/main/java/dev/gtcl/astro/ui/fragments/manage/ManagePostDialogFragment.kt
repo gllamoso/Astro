@@ -80,7 +80,12 @@ class ManagePostDialogFragment : DialogFragment() {
             dismiss()
         }
 
-        return binding!!.root
+        return binding?.root
+    }
+
+    override fun onDestroyView() {
+        super.onDestroyView()
+        binding = null
     }
 
     companion object {

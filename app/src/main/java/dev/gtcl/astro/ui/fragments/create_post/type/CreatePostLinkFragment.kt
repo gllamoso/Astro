@@ -38,7 +38,7 @@ class CreatePostLinkFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentCreatePostLinkBinding.inflate(inflater)
-        return binding!!.root
+        return binding?.root
     }
 
     private fun initObservers() {

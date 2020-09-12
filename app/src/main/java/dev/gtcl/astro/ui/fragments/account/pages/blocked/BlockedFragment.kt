@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
@@ -16,7 +15,6 @@ import dev.gtcl.astro.databinding.FragmentItemScrollerBinding
 import dev.gtcl.astro.models.reddit.User
 import dev.gtcl.astro.models.reddit.UserType
 import dev.gtcl.astro.network.NetworkState
-import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
 import dev.gtcl.astro.ui.fragments.account.pages.UserListAdapter
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerFragmentDirections
@@ -29,8 +27,6 @@ class BlockedFragment : Fragment(), UserActions {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
         ViewModelProvider(this, viewModelFactory).get(BlockedVM::class.java)
     }
-
-    private val activityModel: MainActivityVM by activityViewModels()
 
     override fun onResume() {
         super.onResume()
@@ -56,16 +52,16 @@ class BlockedFragment : Fragment(), UserActions {
         model.networkState.observe(viewLifecycleOwner, {
             adapter.networkState = it
             if (it == NetworkState.LOADED) {
-                binding!!.fragmentItemScrollerSwipeRefresh.isRefreshing = false
+                binding?.fragmentItemScrollerSwipeRefresh?.isRefreshing = false
             }
         })
 
         model.blocked.observe(viewLifecycleOwner, {
             adapter.submitList(it)
-            binding!!.fragmentItemScrollerList.scrollToPosition(0)
+            binding?.fragmentItemScrollerList?.scrollToPosition(0)
         })
 
-        binding!!.fragmentItemScrollerSwipeRefresh.setOnRefreshListener {
+        binding?.fragmentItemScrollerSwipeRefresh?.setOnRefreshListener {
             model.getBlocked()
         }
 
@@ -76,14 +72,16 @@ class BlockedFragment : Fragment(), UserActions {
             }
         })
 
-        model.errorMessage.observe(viewLifecycleOwner, {
-            if (it != null) {
-                Snackbar.make(binding!!.root, it, Snackbar.LENGTH_LONG).show()
+        model.errorMessage.observe(viewLifecycleOwner, { errorMessage ->
+            if (errorMessage != null) {
+                binding?.root?.let{
+                    Snackbar.make(it, errorMessage, Snackbar.LENGTH_LONG).show()
+                }
                 model.errorMessageObserved()
             }
         })
 
-        return binding!!.root
+        return binding?.root
     }
 
     override fun onDestroyView() {

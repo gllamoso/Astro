@@ -67,7 +67,7 @@ class SubscriptionsDialogFragment : BottomSheetDialogFragment(), SubscriptionAct
         binding = FragmentDialogSubscriptionsBinding.inflate(inflater)
         setRecyclerView()
         setListeners()
-        return binding!!.root
+        return binding?.root
     }
 
     override fun onDestroyView() {
