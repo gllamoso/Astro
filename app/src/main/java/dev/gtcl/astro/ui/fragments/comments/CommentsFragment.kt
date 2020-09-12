@@ -322,13 +322,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 model.viewPagerInitialized = true
             }
         })
-
-        activityModel.mediaDialogOpened.observe(viewLifecycleOwner, {
-            if (!it && !model.viewPagerInitialized) {
-                setMediaInViewPager(model.mediaItems.value ?: return@observe)
-                model.viewPagerInitialized = true
-            }
-        })
     }
 
     private fun setMediaInViewPager(mediaUrls: List<MediaURL>) {
