@@ -162,12 +162,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         })
         val behavior = BottomSheetBehavior.from((binding ?: return).fragmentCommentsBottomSheet)
         behavior.addBottomSheetCallback(object : BottomSheetBehavior.BottomSheetCallback() {
-            override fun onSlide(p0: View, p1: Float) {
-                viewPagerModel.swipingEnabled(false)
-            }
+            override fun onSlide(p0: View, p1: Float) {}
 
             override fun onStateChanged(p0: View, newState: Int) {
-                viewPagerModel.swipingEnabled(newState == BottomSheetBehavior.STATE_HIDDEN || newState == BottomSheetBehavior.STATE_COLLAPSED)
+                viewPagerModel.swipingEnabled(
+                    newState == BottomSheetBehavior.STATE_HIDDEN ||
+                            newState == BottomSheetBehavior.STATE_COLLAPSED ||
+                            newState == BottomSheetBehavior.STATE_EXPANDED
+                )
                 model.commentsExpanded = newState == BottomSheetBehavior.STATE_EXPANDED
             }
         })
