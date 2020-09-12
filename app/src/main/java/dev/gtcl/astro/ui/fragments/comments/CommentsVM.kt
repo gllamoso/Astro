@@ -191,6 +191,10 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
         _comments.value?.addAll(position, items)
     }
 
+    fun clearComments() {
+        _comments.value = null
+    }
+
     fun hideItems(position: Int): Int {
         val positionOffset = position + if (allCommentsFetched.value == false) -1 else 0
         val itemInPosition = comments.value!![positionOffset]

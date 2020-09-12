@@ -183,6 +183,11 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             behavior.state = BottomSheetBehavior.STATE_EXPANDED
         }
 
+        binding?.fragmentCommentsRefresh?.setOnClickListener {
+            model.clearComments()
+            refresh(false)
+        }
+
         binding?.fragmentCommentsReply?.setOnClickListener {
             val post = model.post.value ?: return@setOnClickListener
             if (post.locked || post.deleted) {
@@ -390,7 +395,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
         }
 
-        model
     }
 
     private fun initOtherObservers() {
@@ -426,6 +430,9 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 if (position == -1 && model.post.value != null) {
                     (model.post.value ?: return@setFragmentResultListener).hidden = true
                     binding?.fragmentCommentsPostLayout?.invalidateAll()
+                } else {
+                    adapter.removeAt(position)
+                    model.removeCommentAt(position)
                 }
             })
 
