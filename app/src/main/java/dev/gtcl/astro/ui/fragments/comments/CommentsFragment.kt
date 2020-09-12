@@ -406,6 +406,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 binding?.fragmentCommentsSwipeRefresh?.isRefreshing = false
                 return@setOnRefreshListener
             }
+            model.viewPagerInitialized = false
             refresh(true)
         }
 
