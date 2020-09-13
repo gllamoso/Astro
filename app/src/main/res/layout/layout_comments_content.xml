@@ -30,6 +30,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             layout="@layout/layout_url_with_thumbnail"
+            android:layout_margin="8dp"
             app:thumbnailUrl="@{model.post.thumbnail}"
             app:url="@{model.post.url}"
             android:visibility="@{(model.post.urlType == UrlType.OTHER) ? View.VISIBLE : View.GONE}"/>

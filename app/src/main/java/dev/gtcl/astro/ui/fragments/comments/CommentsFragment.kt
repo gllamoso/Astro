@@ -313,7 +313,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     private fun initUrlPreview(url: String) {
-        binding?.fragmentCommentsContent?.layoutCommentsContentUrlLayout?.root?.setOnClickListener {
+        binding?.fragmentCommentsContent?.layoutCommentsContentUrlLayout?.layoutUrlWithThumbnailCardView?.setOnClickListener {
             handleLink(url)
         }
     }

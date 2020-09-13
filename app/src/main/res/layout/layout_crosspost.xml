@@ -44,7 +44,6 @@
                     android:id="@+id/layoutCrosspost_thumbnail"
                     android:layout_width="56dp"
                     android:layout_height="56dp"
-                    android:background="?android:attr/selectableItemBackground"
                     app:loadImageAndHideIfNull="@{post.thumbnail}"
                     app:srcCompat="@android:drawable/ic_menu_gallery" />
 
