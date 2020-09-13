@@ -3,6 +3,7 @@ package dev.gtcl.astro.ui.activities
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
+import android.view.WindowManager
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.databinding.DataBindingUtil
@@ -50,6 +51,14 @@ class MainActivity : AppCompatActivity() {
                     Snackbar.make(it, errorMessage, Snackbar.LENGTH_LONG).show()
                 }
                 model.errorMessageObserved()
+            }
+        })
+
+        model.mediaDialogOpened.observe(this, {
+            if(it){
+                window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+            } else {
+                window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             }
         })
 
