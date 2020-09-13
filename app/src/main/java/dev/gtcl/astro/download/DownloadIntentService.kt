@@ -8,6 +8,8 @@ import android.content.*
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.provider.MediaStore
 import android.service.notification.StatusBarNotification
 import android.widget.Toast
@@ -20,10 +22,7 @@ import dev.gtcl.astro.ALBUM_KEY
 import dev.gtcl.astro.R
 import dev.gtcl.astro.URL_KEY
 import timber.log.Timber
-import java.io.BufferedInputStream
-import java.io.File
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
 import java.net.URL
 import java.util.*
 import kotlin.IllegalArgumentException
@@ -82,31 +81,54 @@ class DownloadIntentService : JobIntentService() {
 
         val downloadUrl = (intent.extras ?: return)[URL_KEY] as String?
         if (downloadUrl != null) { // Download single item
-            val filename = createFileName(downloadUrl)
-            startForeground(JOB_ID, createForegroundNotificationForSingleItem(filename))
-            val uri = downloadItem(downloadUrl, saveDestination)
-            if (uri != null) {
-                showDownloadCompleteNotificationForSingleItem(uri, filename)
-            }
-            stopForeground(true)
-            stopSelf()
-        } else { // Download album
-            val urls = (intent.extras ?: return)[ALBUM_KEY] as List<*>
-            val notification = createForegroundNotificationForAlbum()
-            startForeground(JOB_ID, notification.build())
-            var itemsComplete = 0
-            urls.forEach { url: Any? ->
-                if (url is String) {
-                    downloadItem(url, saveDestination)
-                    itemsComplete++
-                    val completionPercentage = ((itemsComplete.toDouble()) / urls.size) * 100
-                    notification.setProgress(100, completionPercentage.toInt(), false)
-                    NotificationManagerCompat.from(this).notify(JOB_ID, notification.build())
+            try {
+                val filename = createFileName(downloadUrl)
+                startForeground(JOB_ID, createForegroundNotificationForSingleItem(filename))
+                val uri = downloadItem(downloadUrl, saveDestination)
+                if (uri != null) {
+                    showDownloadCompleteNotificationForSingleItem(uri, filename)
                 }
+            } catch (e: Exception) {
+                Handler(Looper.getMainLooper()).post {
+                    Toast.makeText(
+                        applicationContext,
+                        applicationContext.getString(R.string.unable_to_download_file),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } finally {
+                stopForeground(true)
+                stopSelf()
             }
-            showDownloadCompleteNotificationForAlbum()
-            stopForeground(true)
-            stopSelf()
+
+        } else { // Download album
+            try {
+                val urls = (intent.extras ?: return)[ALBUM_KEY] as List<*>
+                val notification = createForegroundNotificationForAlbum()
+                startForeground(JOB_ID, notification.build())
+                var itemsComplete = 0
+                urls.forEach { url: Any? ->
+                    if (url is String) {
+                        downloadItem(url, saveDestination)
+                        itemsComplete++
+                        val completionPercentage = ((itemsComplete.toDouble()) / urls.size) * 100
+                        notification.setProgress(100, completionPercentage.toInt(), false)
+                        NotificationManagerCompat.from(this).notify(JOB_ID, notification.build())
+                    }
+                }
+                showDownloadCompleteNotificationForAlbum()
+            } catch (e: Exception) {
+                Handler(Looper.getMainLooper()).post {
+                    Toast.makeText(
+                        applicationContext,
+                        applicationContext.getString(R.string.unable_to_download_file),
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
+            } finally {
+                stopForeground(true)
+                stopSelf()
+            }
         }
     }
 
@@ -218,29 +240,26 @@ class DownloadIntentService : JobIntentService() {
         return true
     }
 
-    private fun downloadStandardFile(url: String, savePath: String) {
-        val downloadUrl = URL(url)
-        val connection = downloadUrl.openConnection()
-//        val fileLength = connection.contentLength
-        val input = BufferedInputStream(connection.getInputStream())
-        val output = FileOutputStream(savePath)
-
+    private fun downloadStandardFile(url: String, outputFile: File) {
         try {
-            val data = ByteArray(1024)
-            var total = 0L
-            var count = input.read(data)
-            while (count != -1) {
-                total += count
-//                val progress = total * 100 / fileLength
-                output.write(data, 0, count)
-                count = input.read(data)
+            val downloadUrl = URL(url)
+            val connection = downloadUrl.openConnection()
+            val fileLength = connection.contentLength
+            val stream = DataInputStream(downloadUrl.openStream())
+            val buffer = ByteArray(fileLength)
+            stream.apply {
+                readFully(buffer)
+                close()
             }
-        } catch (e: IOException) {
-            Timber.tag(TAG).e("IOException $e")
-        } finally {
-            output.flush()
-            output.close()
-            input.close()
+
+            DataOutputStream(FileOutputStream(outputFile)).apply {
+                write(buffer)
+                flush()
+                close()
+            }
+
+        } catch (e: Exception) {
+            Timber.tag(TAG).e("Exception $e")
         }
     }
 
@@ -277,7 +296,7 @@ class DownloadIntentService : JobIntentService() {
                 return null
             }
         } else {
-            downloadStandardFile(url, fileUri.path ?: return null)
+            downloadStandardFile(url, file)
         }
 
         // Move file to MediaStore
