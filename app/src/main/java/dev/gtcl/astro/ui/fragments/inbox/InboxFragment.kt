@@ -58,15 +58,11 @@ class InboxFragment : Fragment(), LeftDrawerActions {
         }
 
         childFragmentManager.setFragmentResultListener(DRAFT_KEY, viewLifecycleOwner, { _, bundle ->
-            AlertDialog.Builder(requireContext())
-                .setMessage(getString(R.string.save_draft_question))
-                .setPositiveButton(R.string.save) { _, _ ->
-                    saveDraft(bundle)
-                }
-                .setNegativeButton(R.string.discard) { _, _ ->
-                    clearSharedPreferenceDraft()
-                }
-                .show()
+            val to = bundle.getString(TO_KEY)
+            val subject = bundle.getString(SUBJECT_KEY)
+            val message = bundle.getString(MESSAGE_KEY)
+            SaveDraftDialogFragment.newInstance(to, subject, message)
+                .show(childFragmentManager, null)
         })
 
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
@@ -213,31 +209,6 @@ class InboxFragment : Fragment(), LeftDrawerActions {
     override fun onSettingsClicked() {
         findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSettingsFragment())
         binding?.fragmentInboxDrawer?.closeDrawer(Gravity.LEFT)
-    }
-
-    private fun clearSharedPreferenceDraft() {
-        val sharedPrefs =
-            requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
-        with(sharedPrefs.edit()) {
-            remove(TO_KEY)
-            remove(SUBJECT_KEY)
-            remove(MESSAGE_KEY)
-            commit()
-        }
-    }
-
-    private fun saveDraft(bundle: Bundle) {
-        val to = bundle.getString(TO_KEY)
-        val subject = bundle.getString(SUBJECT_KEY)
-        val message = bundle.getString(MESSAGE_KEY)
-        val sharedPrefs =
-            requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
-        with(sharedPrefs.edit()) {
-            putString(TO_KEY, to)
-            putString(SUBJECT_KEY, subject)
-            putString(MESSAGE_KEY, message)
-            commit()
-        }
     }
 
     companion object {
