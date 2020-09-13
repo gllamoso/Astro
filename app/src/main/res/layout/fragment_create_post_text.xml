@@ -18,7 +18,7 @@
             <androidx.appcompat.widget.AppCompatEditText
                 android:id="@+id/fragmentCreatePostText_text"
                 android:layout_width="match_parent"
-                android:layout_height="match_parent"
+                android:layout_height="wrap_content"
                 android:background="@null"
                 android:maxLines="15"
                 android:gravity="top"
