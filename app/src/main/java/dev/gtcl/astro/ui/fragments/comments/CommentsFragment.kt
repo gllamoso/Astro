@@ -37,7 +37,7 @@ import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
-import dev.gtcl.astro.ui.fragments.media.list.MediaListAdapter
+import dev.gtcl.astro.ui.fragments.media.list.MediaThumbnailsAdapter
 import dev.gtcl.astro.ui.fragments.media.list.MediaListFragmentAdapter
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
@@ -337,20 +337,30 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             false
         )
 
+        val currentPosition = binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem ?: 0
+        val mediaThumbnails =
+            MediaThumbnailsAdapter(currentPosition) { position ->
+                binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem =
+                    position
+                binding?.fragmentCommentsDrawer?.closeDrawer(GravityCompat.END)
+            }
+
         binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.apply {
             this.adapter = mediaAdapter
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
             if (mediaUrls.size > 1) {
                 registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-                    override fun onPageScrollStateChanged(state: Int) {
-                        super.onPageScrollStateChanged(state)
-                        if (state == ViewPager2.SCROLL_STATE_IDLE) {
-                            binding?.fragmentCommentsContent?.apply {
-                                layoutCommentsContentPreviousButton.visibility =
-                                    if (currentItem == 0) View.GONE else View.VISIBLE
-                                layoutCommentsContentNextButton.visibility =
-                                    if (currentItem == mediaUrls.size - 1) View.GONE else View.VISIBLE
-                            }
+
+                    override fun onPageSelected(position: Int) {
+                        super.onPageSelected(position)
+                        binding?.fragmentCommentsContent?.apply {
+                            layoutCommentsContentPreviousButton.visibility =
+                                if (position == 0) View.GONE else View.VISIBLE
+                            layoutCommentsContentNextButton.visibility =
+                                if (position == mediaUrls.size - 1) View.GONE else View.VISIBLE
+                        }
+                        if (mediaUrls.size > 1){
+                            mediaThumbnails.setCurrentPosition(position)
                         }
                     }
                 })
@@ -371,16 +381,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 addDrawerListener(this@CommentsFragment)
             }
 
-            val mediaListAdapter =
-                MediaListAdapter { position ->
-                    binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem =
-                        position
-                    binding?.fragmentCommentsDrawer?.closeDrawer(GravityCompat.END)
-                }
-            mediaListAdapter.submitList(mediaUrls)
+            mediaThumbnails.submitList(mediaUrls)
 
             binding?.apply {
-                fragmentCommentsThumbnailsList.adapter = mediaListAdapter
+                fragmentCommentsThumbnailsList.adapter = mediaThumbnails
                 fragmentCommentsThumbnailsIcon.setOnClickListener {
                     fragmentCommentsDrawer.openDrawer(GravityCompat.END)
                 }

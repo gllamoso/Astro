@@ -24,7 +24,7 @@ import dev.gtcl.astro.databinding.PopupDownloadActionsBinding
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.view_pager.PostPage
-import dev.gtcl.astro.ui.fragments.media.list.MediaListAdapter
+import dev.gtcl.astro.ui.fragments.media.list.MediaThumbnailsAdapter
 
 class MediaDialogFragment : DialogFragment() {
 
@@ -89,8 +89,9 @@ class MediaDialogFragment : DialogFragment() {
     }
 
     private fun initAdapters() {
+        val currentPosition = model.itemPosition.value ?: 0
         val mediaListAdapter =
-            MediaListAdapter { position ->
+            MediaThumbnailsAdapter(currentPosition) { position ->
                 model.setItemPosition(position)
                 binding?.fragmentMediaDialogDrawer?.closeDrawer(GravityCompat.END)
             }
@@ -140,7 +141,9 @@ class MediaDialogFragment : DialogFragment() {
             )
         })
 
-
+        model.itemPosition.observe(viewLifecycleOwner, {
+            mediaListAdapter.setCurrentPosition(it)
+        })
 
         binding?.fragmentMediaDialogAlbumThumbnails?.adapter = mediaListAdapter
     }
