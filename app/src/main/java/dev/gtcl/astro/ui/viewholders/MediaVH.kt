@@ -36,7 +36,7 @@ class MediaVH private constructor(private val binding: ItemMediaSelectableBindin
     }
 
     private fun setVideoPreviewImage(context: Context, url: String) {
-        val thumb = layoutPosition * 1000.toLong()
+        val thumb = 1000L
         val requestOptions = RequestOptions().fitCenter().override(128, 128)
         val options = RequestOptions().frame(thumb)
         Glide.with(context).load(url).apply(options)

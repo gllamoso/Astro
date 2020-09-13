@@ -24,16 +24,26 @@
             app:zoomEnabled="true"/>
 
         <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/fragmentMedia_playPreview"
+            android:layout_width="128dp"
+            android:layout_height="128dp"
+            android:elevation="10dp"
+            android:src="@drawable/ic_play_arrow_24"
+            android:tint="@android:color/white"
+            android:layout_gravity="center"
+            android:visibility="@{(model.mediaURL.mediaType == MediaType.VIDEO_PREVIEW &amp;&amp; model.isLoading != true) ? View.VISIBLE : View.GONE}"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/fragmentMedia_imageView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="@{model.mediaURL.mediaType == MediaType.GIF ? View.VISIBLE : View.GONE}" />
+            android:visibility="@{(model.mediaURL.mediaType == MediaType.GIF || model.mediaURL.mediaType == MediaType.VIDEO_PREVIEW) ? View.VISIBLE : View.GONE}" />
 
         <com.google.android.exoplayer2.ui.PlayerView
             android:id="@+id/fragmentMedia_playerView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:visibility="@{(model.mediaURL.mediaType == MediaType.GFYCAT || model.mediaURL.mediaType == MediaType.VIDEO) ? View.VISIBLE : View.GONE}"
+            android:visibility="@{model.mediaURL.mediaType == MediaType.VIDEO ? View.VISIBLE : View.GONE}"
             android:layout_gravity="center"
             android:layout_marginVertical="?android:attr/actionBarSize"
             app:show_buffering="always"
@@ -54,7 +64,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:visibility="@{model.loading ? View.VISIBLE : View.GONE}"
+            android:visibility="@{model.isLoading ? View.VISIBLE : View.GONE}"
             android:elevation="10dp"/>
 
     </FrameLayout>

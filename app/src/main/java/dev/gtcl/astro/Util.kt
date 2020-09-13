@@ -28,7 +28,6 @@ import com.google.android.exoplayer2.source.dash.DashMediaSource
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.android.exoplayer2.upstream.DefaultHttpDataSourceFactory
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
@@ -240,6 +239,7 @@ enum class MediaType {
     IMGUR_PICTURE,
     GIF,
     VIDEO,
+    VIDEO_PREVIEW,
     GFYCAT,
     REDGIFS,
     IMGUR_ALBUM
@@ -326,21 +326,16 @@ fun numFormatted(num: Int): String {
 
 fun buildMediaSource(context: Context, uri: Uri): MediaSource {
     val userAgent = "exoplayer"
-
+    val factory = DefaultDataSourceFactory(context, userAgent)
     return if (uri.lastPathSegment!!.contains("mp3") || uri.lastPathSegment!!.contains("mp4")) {
-        ProgressiveMediaSource.Factory(DefaultHttpDataSourceFactory(userAgent))
+        ProgressiveMediaSource.Factory(factory)
             .createMediaSource(uri)
     } else if (uri.lastPathSegment!!.contains("m3u8")) {
-        HlsMediaSource.Factory(DefaultHttpDataSourceFactory(userAgent))
+        HlsMediaSource.Factory(factory)
             .createMediaSource(uri)
     } else {
-//        val dataSourceFactory = DefaultDataSourceFactory(context, userAgent)
-//        val mediaSourceFactory = DashMediaSource.Factory(dataSourceFactory)
-//        mediaSourceFactory.createMediaSource(uri)
-        val dataSourceFactory = DefaultDataSourceFactory(context, userAgent)
-        val dashChunkSourceFactory = DefaultDashChunkSource.Factory(dataSourceFactory)
-
-        DashMediaSource.Factory(dashChunkSourceFactory, dataSourceFactory)
+        val dashChunkSourceFactory = DefaultDashChunkSource.Factory(factory)
+        DashMediaSource.Factory(dashChunkSourceFactory, factory)
             .createMediaSource(uri)
     }
 }
@@ -477,7 +472,7 @@ fun String.getImgurHashFromUrl(): String? {
 
 fun Regex.getIdFromUrl(str: String): String? {
     val validUrl = this.find(str)?.value
-    return validUrl?.substring(validUrl.lastIndexOf('/'))
+    return validUrl?.substring(validUrl.lastIndexOf('/') + 1)
 }
 
 @ColorInt
@@ -616,6 +611,6 @@ fun EditText.showKeyboard() {
 
 fun hideKeyboardFrom(context: Context, view: View) {
     val imm =
-        context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+        context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(view.windowToken, 0)
 }

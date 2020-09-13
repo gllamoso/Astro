@@ -37,11 +37,11 @@ class MediaListFragment : Fragment() {
                 childFragmentManager,
                 viewLifecycleOwner.lifecycle,
                 items,
-                true
+                items.size == 1
             )
         binding?.fragmentViewPagerViewPager?.apply {
             this.adapter = mediaAdapter
-            model.setItemPosition(currentItem)
+            currentItem = (model.itemPosition.value ?: return@apply)
             registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
                     super.onPageSelected(position)
@@ -50,6 +50,10 @@ class MediaListFragment : Fragment() {
             })
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
+
+        model.itemPosition.observe(viewLifecycleOwner, {
+            binding?.fragmentViewPagerViewPager?.currentItem = it
+        })
 
         model.errorMessage.observe(viewLifecycleOwner, {
             if (it != null) {

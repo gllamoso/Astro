@@ -334,7 +334,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             childFragmentManager,
             viewLifecycleOwner.lifecycle,
             mediaUrls,
-            activityModel.mediaDialogOpened.value != true
+            false
         )
 
         binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.apply {
