@@ -8,6 +8,7 @@ import android.text.TextPaint
 import android.text.style.BackgroundColorSpan
 import android.text.style.ClickableSpan
 import android.text.style.ForegroundColorSpan
+import android.text.style.SuperscriptSpan
 import android.view.View
 
 
@@ -17,6 +18,8 @@ class MarkdownToSpannable {
         private val SPOILER_REGEX = ">!.+!<".toRegex()
         private val NONSENSE_TEXT_REGEX = "^&(#x200B|nbsp);$".toRegex(RegexOption.MULTILINE)
         private val QUOTE_TEXT_REGEX = "^>.*$".toRegex(RegexOption.MULTILINE)
+        private val SUPERSCRIPT_GROUP_REGEX = "\\^\\(.+\\)".toRegex()
+        private val SUPERSCRIPT_WORD_REGEX = "\\^[^\\s()]+".toRegex()
 
         fun setSpannableStringBuilder(
             context: Context,
@@ -29,6 +32,7 @@ class MarkdownToSpannable {
                 spannableStringBuilder,
                 defaultTextColor
             )
+            setSuperscriptInMarkdown(spannableStringBuilder)
             setQuoteMarkdown(spannableStringBuilder)
         }
 
@@ -101,13 +105,56 @@ class MarkdownToSpannable {
                 } else {
                     0
                 }
-                spannableStringBuilder.setSpan(
-                    CustomQuoteSpan(Color.GREEN, 10, 40),
-                    start,
-                    end - quotePrefix.length + addedWhiteSpace,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                )
+
+                if (end - quotePrefix.length + addedWhiteSpace - start != 0) {
+                    spannableStringBuilder.setSpan(
+                        CustomQuoteSpan(Color.GREEN, 10, 40),
+                        start,
+                        end - quotePrefix.length + addedWhiteSpace,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+
                 match = QUOTE_TEXT_REGEX.find(spannableStringBuilder)
+            }
+        }
+
+        private fun setSuperscriptInMarkdown(spannableStringBuilder: SpannableStringBuilder) {
+            var match = SUPERSCRIPT_GROUP_REGEX.find(spannableStringBuilder)
+            while (match != null) {
+                val start = match.range.first
+                val end = match.range.last
+
+                spannableStringBuilder.delete(end, end + 1)
+                spannableStringBuilder.delete(start, start + 2)
+                if (end - 2 - start != 0) {
+                    spannableStringBuilder.setSpan(
+                        SuperscriptSpan(),
+                        start,
+                        end - 2,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+
+                match = SUPERSCRIPT_GROUP_REGEX.find(spannableStringBuilder)
+            }
+
+            match = SUPERSCRIPT_WORD_REGEX.find(spannableStringBuilder)
+            while(match != null){
+                val start = match.range.first
+                val end = match.range.last
+
+                spannableStringBuilder.delete(start, start + 1)
+                if (end - start != 0) {
+                    spannableStringBuilder.setSpan(
+                        SuperscriptSpan(),
+                        start,
+                        end,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+
+                match = SUPERSCRIPT_WORD_REGEX.find(spannableStringBuilder)
             }
         }
 
