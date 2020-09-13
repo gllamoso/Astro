@@ -343,6 +343,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem =
                     position
                 binding?.fragmentCommentsDrawer?.closeDrawer(GravityCompat.END)
+                val behavior = BottomSheetBehavior.from(((binding ?: return@MediaThumbnailsAdapter).fragmentCommentsBottomSheet))
+                behavior.state = BottomSheetBehavior.STATE_COLLAPSED
             }
 
         binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.apply {
