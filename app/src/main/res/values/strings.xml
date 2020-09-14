@@ -165,6 +165,7 @@
     <string name="retry">Retry</string>
     <string name="my_subscriptions">My Subscriptions</string>
     <string name="subscribe">Subscribe</string>
+    <string name="unsubscribe">Unsubscribe</string>
     <string name="subscribed">Subscribed</string>
     <string name="done">Done</string>
     <string name="send">Send</string>

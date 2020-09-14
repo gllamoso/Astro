@@ -27,6 +27,7 @@ import dev.gtcl.astro.models.reddit.listing.Account
 import dev.gtcl.astro.models.reddit.listing.FrontPage
 import dev.gtcl.astro.ui.LeftDrawerAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
+import dev.gtcl.astro.ui.fragments.inbox.ComposeDialogFragment
 import dev.gtcl.astro.ui.fragments.inbox.SaveDraftDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.*
 
@@ -57,8 +58,8 @@ class AccountFragment : Fragment(), LeftDrawerActions {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentAccountBinding.inflate(inflater)
-        binding!!.lifecycleOwner = this
-        binding!!.model = model
+        binding?.lifecycleOwner = viewLifecycleOwner
+        binding?.model = model
         val username = requireArguments().getString(USER_KEY)
         if (model.username == null) {
             model.setUsername(username)
@@ -179,7 +180,10 @@ class AccountFragment : Fragment(), LeftDrawerActions {
             checkedIfLoggedInBeforeExecuting(requireContext()) {
                 val sub = model.account.value?.subreddit ?: return@checkedIfLoggedInBeforeExecuting
                 sub.userSubscribed = sub.userSubscribed != true
-                binding?.invalidateAll()
+                binding?.fragmentAccountSubscribeToggle?.apply {
+                    isSubscribed = sub.userSubscribed
+                    executePendingBindings()
+                }
                 activityModel.subscribe(sub, (sub.userSubscribed == true))
             }
         }
@@ -230,6 +234,21 @@ class AccountFragment : Fragment(), LeftDrawerActions {
                     model.blockUser(account.name)
                     findNavController().popBackStack()
                 }
+                popupWindow.dismiss()
+            }
+            popupAccountActionsSubscribe.root.setOnClickListener {
+                val sub = model.account.value?.subreddit ?: return@setOnClickListener
+                sub.userSubscribed = sub.userSubscribed != true
+                binding?.fragmentAccountSubscribeToggle?.apply {
+                    isSubscribed = sub.userSubscribed
+                    executePendingBindings()
+                }
+                activityModel.subscribe(sub, (sub.userSubscribed == true))
+                popupWindow.dismiss()
+            }
+            popupAccountActionsMessage.root.setOnClickListener {
+                ComposeDialogFragment.newInstance(model.account.value?.name)
+                    .show(childFragmentManager, null)
                 popupWindow.dismiss()
             }
             executePendingBindings()

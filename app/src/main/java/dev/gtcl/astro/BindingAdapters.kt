@@ -133,7 +133,6 @@ fun loadSubIcon(imgView: ImageView, imgUrl: String?) {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
-            .skipMemoryCache(true)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
             .apply(
                 RequestOptions()
@@ -152,7 +151,6 @@ fun loadAccountIcon(imgView: ImageView, imgUrl: String?) {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
-            .skipMemoryCache(true)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
             .apply(
                 RequestOptions()
@@ -178,7 +176,6 @@ fun loadSubscriptionIcon(imgView: ImageView, subscription: Subscription) {
 
     Glide.with(imgView.context)
         .load(subscription.icon)
-        .skipMemoryCache(true)
         .diskCacheStrategy(DiskCacheStrategy.ALL)
         .apply(
             RequestOptions()
