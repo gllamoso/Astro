@@ -28,6 +28,14 @@
                     app:title="@string/inbox"
                     app:navigationIcon="@drawable/ic_menu_24" />
 
+            </com.google.android.material.appbar.AppBarLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
                 <com.google.android.material.tabs.TabLayout
                     android:id="@+id/fragmentInbox_tabLayout"
                     android:layout_width="match_parent"
@@ -36,13 +44,6 @@
                     app:tabMode="fixed"
                     app:tabGravity="fill"
                     app:layout_scrollFlags="scroll|enterAlways"/>
-
-            </com.google.android.material.appbar.AppBarLayout>
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
                 <androidx.viewpager2.widget.ViewPager2
                     android:id="@+id/fragmentInbox_viewPager"
