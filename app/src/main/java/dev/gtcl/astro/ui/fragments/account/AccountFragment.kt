@@ -27,6 +27,7 @@ import dev.gtcl.astro.models.reddit.listing.Account
 import dev.gtcl.astro.models.reddit.listing.FrontPage
 import dev.gtcl.astro.ui.LeftDrawerAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
+import dev.gtcl.astro.ui.fragments.inbox.SaveDraftDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.*
 
 class AccountFragment : Fragment(), LeftDrawerActions {
@@ -195,6 +196,14 @@ class AccountFragment : Fragment(), LeftDrawerActions {
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
             val url = bundle.getString(URL_KEY)!!
             viewPagerModel.linkClicked(url)
+        })
+
+        childFragmentManager.setFragmentResultListener(DRAFT_KEY, viewLifecycleOwner, { _, bundle ->
+            val to = bundle.getString(TO_KEY)
+            val subject = bundle.getString(SUBJECT_KEY)
+            val message = bundle.getString(MESSAGE_KEY)
+            SaveDraftDialogFragment.newInstance(to, subject, message)
+                .show(childFragmentManager, null)
         })
     }
 

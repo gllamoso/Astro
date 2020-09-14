@@ -48,18 +48,14 @@ class ComposeDialogFragment : DialogFragment() {
 
         if (!model.initialized) {
             val user = arguments?.getString(USER_KEY)
-            if (user != null) {
-                binding?.fragmentDialogComposeMessageToText?.setText(user)
-            } else {
-                val sharedPrefs =
-                    requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
-                val to = sharedPrefs.getString(TO_KEY, "")
-                val subject = sharedPrefs.getString(SUBJECT_KEY, "")
-                val message = sharedPrefs.getString(MESSAGE_KEY, "")
-                binding?.fragmentDialogComposeMessageToText?.setText(to)
-                binding?.fragmentDialogComposeMessageSubjectText?.setText(subject)
-                binding?.fragmentDialogComposeMessageMessageText?.setText(message)
-            }
+            val sharedPrefs =
+                requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+            val to = sharedPrefs.getString(TO_KEY, "")
+            val subject = sharedPrefs.getString(SUBJECT_KEY, "")
+            val message = sharedPrefs.getString(MESSAGE_KEY, "")
+            binding?.fragmentDialogComposeMessageToText?.setText(user ?: to)
+            binding?.fragmentDialogComposeMessageSubjectText?.setText(subject)
+            binding?.fragmentDialogComposeMessageMessageText?.setText(message)
         }
 
         binding?.fragmentDialogComposeMessageToolbar?.setNavigationOnClickListener {

@@ -101,7 +101,7 @@ class FriendsFragment : Fragment(), UserActions {
     }
 
     override fun message(user: User) {
-        ComposeDialogFragment.newInstance(user.name).show(childFragmentManager, null)
+        ComposeDialogFragment.newInstance(user.name).show(parentFragmentManager, null)
     }
 
     override fun remove(position: Int) {
