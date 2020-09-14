@@ -15,10 +15,10 @@ import android.view.View
 class MarkdownToSpannable {
     companion object {
 
-        private val SPOILER_REGEX = ">!.+!<".toRegex()
+        private val SPOILER_REGEX = ">![^<>]+!<".toRegex()
         private val NONSENSE_TEXT_REGEX = "^&(#x200B|nbsp);".toRegex(RegexOption.MULTILINE)
         private val QUOTE_TEXT_REGEX = "^>.*$".toRegex(RegexOption.MULTILINE)
-        private val SUPERSCRIPT_GROUP_REGEX = "\\^\\(.+\\)".toRegex()
+        private val SUPERSCRIPT_GROUP_REGEX = "\\^\\([^()]+\\)".toRegex()
         private val SUPERSCRIPT_WORD_REGEX = "\\^[^\\s()]+".toRegex()
 
         fun setSpannableStringBuilder(
@@ -120,7 +120,25 @@ class MarkdownToSpannable {
         }
 
         private fun setSuperscriptInMarkdown(spannableStringBuilder: SpannableStringBuilder) {
-            var match = SUPERSCRIPT_GROUP_REGEX.find(spannableStringBuilder)
+            var match = SUPERSCRIPT_WORD_REGEX.find(spannableStringBuilder)
+            while(match != null){
+                val start = match.range.first
+                val end = match.range.last
+
+                spannableStringBuilder.delete(start, start + 1)
+                if (end - start != 0) {
+                    spannableStringBuilder.setSpan(
+                        SuperscriptSpan(),
+                        start,
+                        end,
+                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                    )
+                }
+
+                match = SUPERSCRIPT_WORD_REGEX.find(spannableStringBuilder)
+            }
+
+            match = SUPERSCRIPT_GROUP_REGEX.find(spannableStringBuilder)
             while (match != null) {
                 val start = match.range.first
                 val end = match.range.last
@@ -139,23 +157,7 @@ class MarkdownToSpannable {
                 match = SUPERSCRIPT_GROUP_REGEX.find(spannableStringBuilder)
             }
 
-            match = SUPERSCRIPT_WORD_REGEX.find(spannableStringBuilder)
-            while(match != null){
-                val start = match.range.first
-                val end = match.range.last
 
-                spannableStringBuilder.delete(start, start + 1)
-                if (end - start != 0) {
-                    spannableStringBuilder.setSpan(
-                        SuperscriptSpan(),
-                        start,
-                        end,
-                        Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                    )
-                }
-
-                match = SUPERSCRIPT_WORD_REGEX.find(spannableStringBuilder)
-            }
         }
 
         private fun removeNonsenseText(spannableStringBuilder: SpannableStringBuilder) {
