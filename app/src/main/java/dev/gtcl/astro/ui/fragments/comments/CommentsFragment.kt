@@ -853,7 +853,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
             if (post.url != null) {
                 popupCommentsPageActionsLink.root.setOnClickListener {
-                    handleLink(post.url)
+                    activityModel.openChromeTab(post.url)
                     popupWindow.dismiss()
                 }
             }

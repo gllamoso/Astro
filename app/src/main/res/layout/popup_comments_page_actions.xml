@@ -114,7 +114,7 @@
                 android:layout_width="match_parent"
                 android:visibility="@{post.url != null ? View.VISIBLE : View.GONE}"
                 app:iconDrawable="@{@drawable/ic_link_24}"
-                app:text="@{@string/open_link}" />
+                app:text="@{@string/open_link_externally}" />
 
             <include
                 android:id="@+id/popupCommentsPageActions_report"

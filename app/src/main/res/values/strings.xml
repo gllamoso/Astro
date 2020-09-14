@@ -106,7 +106,7 @@
     <string name="unable_to_download_file">Unable to download file</string>
     <string name="download">Download</string>
     <string name="download_all">Download all</string>
-    <string name="open_link">Open link</string>
+    <string name="open_link_externally">Open link externally</string>
     <string name="view_fullscreen">View fullscreen</string>
 
     <!--Inbox-->
