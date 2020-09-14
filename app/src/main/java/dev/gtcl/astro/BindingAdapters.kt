@@ -1,9 +1,7 @@
 package dev.gtcl.astro
 
 import android.content.Context
-import android.content.res.Resources
 import android.graphics.Bitmap
-import android.graphics.BitmapFactory
 import android.graphics.Color
 import android.graphics.Point
 import android.graphics.drawable.Drawable
@@ -46,7 +44,7 @@ fun loadImageAndHideIfNull(imgView: ImageView, imgUrl: String?) {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
-            .skipMemoryCache(true)
+//            .skipMemoryCache(true)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
 //            .apply(
 //                RequestOptions()
@@ -67,7 +65,7 @@ fun loadImage(imgView: ImageView, imgUrl: String?) {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
         Glide.with(imgView.context)
             .load(imgUri)
-            .skipMemoryCache(true)
+//            .skipMemoryCache(true)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
 //                .apply(
 //                    RequestOptions()
