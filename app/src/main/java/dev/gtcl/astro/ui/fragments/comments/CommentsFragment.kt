@@ -303,7 +303,9 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     }
                 } else {
                     when (post.urlType) {
-                        UrlType.OTHER -> initUrlPreview(post.url ?: return@observe)
+                        UrlType.OTHER, UrlType.REDDIT_COMMENTS, UrlType.REDDIT_THREAD -> initUrlPreview(
+                            post.url ?: return@observe
+                        )
                         else -> model.fetchMediaItems(post)
                     }
                 }
@@ -322,8 +324,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         binding?.fragmentCommentsDrawer?.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
 
         model.mediaItems.observe(viewLifecycleOwner, {
-            if (it != null && !model.viewPagerInitialized) {
-                setMediaInViewPager(it)
+            if (it?.size ?: 0 > 0 && !model.viewPagerInitialized) {
+                setMediaInViewPager(it ?: return@observe)
                 model.viewPagerInitialized = true
             }
         })
@@ -337,13 +339,16 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             false
         )
 
-        val currentPosition = binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem ?: 0
+        val currentPosition =
+            binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem ?: 0
         val mediaThumbnails =
             MediaThumbnailsAdapter(currentPosition) { position ->
                 binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem =
                     position
                 binding?.fragmentCommentsDrawer?.closeDrawer(GravityCompat.END)
-                val behavior = BottomSheetBehavior.from(((binding ?: return@MediaThumbnailsAdapter).fragmentCommentsBottomSheet))
+                val behavior = BottomSheetBehavior.from(
+                    ((binding ?: return@MediaThumbnailsAdapter).fragmentCommentsBottomSheet)
+                )
                 behavior.state = BottomSheetBehavior.STATE_COLLAPSED
             }
 
@@ -361,7 +366,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                             layoutCommentsContentNextButton.visibility =
                                 if (position == mediaUrls.size - 1) View.GONE else View.VISIBLE
                         }
-                        if (mediaUrls.size > 1){
+                        if (mediaUrls.size > 1) {
                             mediaThumbnails.setCurrentPosition(position)
                         }
                     }
@@ -848,7 +853,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
             if (post.url != null) {
                 popupCommentsPageActionsLink.root.setOnClickListener {
-                    activityModel.openChromeTab(post.url)
+                    handleLink(post.url)
                     popupWindow.dismiss()
                 }
             }

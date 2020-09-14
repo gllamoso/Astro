@@ -16,7 +16,7 @@ class MarkdownToSpannable {
     companion object {
 
         private val SPOILER_REGEX = ">!.+!<".toRegex()
-        private val NONSENSE_TEXT_REGEX = "^&(#x200B|nbsp);$".toRegex(RegexOption.MULTILINE)
+        private val NONSENSE_TEXT_REGEX = "^&(#x200B|nbsp);".toRegex(RegexOption.MULTILINE)
         private val QUOTE_TEXT_REGEX = "^>.*$".toRegex(RegexOption.MULTILINE)
         private val SUPERSCRIPT_GROUP_REGEX = "\\^\\(.+\\)".toRegex()
         private val SUPERSCRIPT_WORD_REGEX = "\\^[^\\s()]+".toRegex()

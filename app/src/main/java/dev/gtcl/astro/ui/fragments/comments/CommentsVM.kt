@@ -376,10 +376,14 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                         listOf(MediaURL(imgurData.link, mediaType))
                     }
                     UrlType.REDDIT_GALLERY -> {
-                        post.galleryAsMediaItems ?: return@launch
+                        if (post.galleryAsMediaItems?.size ?: 0 == 0) {
+                            null
+                        } else {
+                            post.galleryAsMediaItems
+                        }
                     }
                     else -> {
-                        listOf()
+                        null
                     }
                 }
                 )

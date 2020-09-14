@@ -20,6 +20,7 @@ import dev.gtcl.astro.models.reddit.listing.Listing
 import dev.gtcl.astro.models.reddit.listing.SubscriptionListing
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
+import timber.log.Timber
 
 class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 
@@ -225,7 +226,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
             ).show(childFragmentManager, null)
             UrlType.REDDIT_THREAD -> activityModel.newViewPagerPage(CommentsPage(link, true))
             UrlType.REDDIT_COMMENTS -> {
-                val validUrl = VALID_REDDIT_COMMENTS_URL_REGEX.find(link)!!.value
+                val validUrl = (VALID_REDDIT_COMMENTS_URL_REGEX.find(link) ?: return).value
                 activityModel.newViewPagerPage(CommentsPage(validUrl, false))
             }
             UrlType.OTHER, UrlType.REDDIT_VIDEO, UrlType.REDDIT_GALLERY -> activityModel.openChromeTab(

@@ -352,7 +352,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                     else -> null
                 }
                 if (mediaType == null) {
-                    activityModel.openChromeTab(post.url)
+                    handleLink(post.url)
                     return
                 }
                 val url = when (mediaType) {

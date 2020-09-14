@@ -33,7 +33,7 @@
             android:layout_margin="8dp"
             app:thumbnailUrl="@{model.post.thumbnail}"
             app:url="@{model.post.url}"
-            android:visibility="@{(model.post.urlType == UrlType.OTHER) ? View.VISIBLE : View.GONE}"/>
+            android:visibility="@{(model.post.urlType == UrlType.OTHER || model.post.urlType == UrlType.REDDIT_COMMENTS || model.post.urlType == UrlType.REDDIT_THREAD) ? View.VISIBLE : View.GONE}"/>
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/layoutCommentsContent_viewPager"
@@ -41,7 +41,7 @@
             android:layout_height="525dp"
             android:orientation="horizontal"
             app:viewSize="@{70}"
-            android:visibility="@{model.mediaItems != null ? View.VISIBLE : View.GONE}"/>
+            android:visibility="@{model.mediaItems != null &amp;&amp; model.mediaItems.size() > 0 ? View.VISIBLE : View.GONE}"/>
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/layoutCommentsContent_previousButton"

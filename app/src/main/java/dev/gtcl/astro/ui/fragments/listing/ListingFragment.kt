@@ -458,7 +458,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                     else -> null
                 }
                 if (mediaType == null) {
-                    activityModel.openChromeTab(post.url)
+                    viewPagerModel.linkClicked(post.url)
                     return
                 }
                 val url = when (mediaType) {
