@@ -74,7 +74,13 @@ class DownloadIntentService : JobIntentService() {
                 getString(R.string.unable_to_create_directory),
                 saveDestination.absolutePath
             )
-            Toast.makeText(applicationContext, error, Toast.LENGTH_SHORT).show()
+            Handler(Looper.getMainLooper()).post {
+                Toast.makeText(
+                    applicationContext,
+                    error,
+                    Toast.LENGTH_SHORT
+                ).show()
+            }
             stopForeground(false)
             return
         }
@@ -82,13 +88,15 @@ class DownloadIntentService : JobIntentService() {
         val downloadUrl = (intent.extras ?: return)[URL_KEY] as String?
         if (downloadUrl != null) { // Download single item
             try {
-                val filename = createFileName(downloadUrl)
+                val filename = getFileName(downloadUrl)
                 startForeground(JOB_ID, createForegroundNotificationForSingleItem(filename))
                 val uri = downloadItem(downloadUrl, saveDestination)
-                if (uri != null) {
-                    showDownloadCompleteNotificationForSingleItem(uri, filename)
-                }
+                showDownloadCompleteNotificationForSingleItem(
+                    uri ?: throw Exception("Unable to download file"),
+                    filename
+                )
             } catch (e: Exception) {
+                Timber.tag(TAG).e(e.toString())
                 Handler(Looper.getMainLooper()).post {
                     Toast.makeText(
                         applicationContext,
@@ -103,25 +111,23 @@ class DownloadIntentService : JobIntentService() {
 
         } else { // Download album
             try {
-                val urls = (intent.extras ?: return)[ALBUM_KEY] as List<*>
+                val urls = (intent.extras ?: return)[ALBUM_KEY] as List<String>
                 val notification = createForegroundNotificationForAlbum()
                 startForeground(JOB_ID, notification.build())
                 var itemsComplete = 0
-                urls.forEach { url: Any? ->
-                    if (url is String) {
-                        downloadItem(url, saveDestination)
-                        itemsComplete++
-                        val completionPercentage = ((itemsComplete.toDouble()) / urls.size) * 100
-                        notification.setProgress(100, completionPercentage.toInt(), false)
-                        NotificationManagerCompat.from(this).notify(JOB_ID, notification.build())
-                    }
+                urls.forEach { url: String ->
+                    downloadItem(url, saveDestination) ?: throw Exception()
+                    itemsComplete++
+                    val completionPercentage = ((itemsComplete.toDouble()) / urls.size) * 100
+                    notification.setProgress(100, completionPercentage.toInt(), false)
+                    NotificationManagerCompat.from(this).notify(JOB_ID, notification.build())
                 }
                 showDownloadCompleteNotificationForAlbum()
             } catch (e: Exception) {
                 Handler(Looper.getMainLooper()).post {
                     Toast.makeText(
                         applicationContext,
-                        applicationContext.getString(R.string.unable_to_download_file),
+                        applicationContext.getString(R.string.unable_to_download_album),
                         Toast.LENGTH_SHORT
                     ).show()
                 }
@@ -240,46 +246,17 @@ class DownloadIntentService : JobIntentService() {
         return true
     }
 
-    private fun downloadStandardFile(url: String, outputFile: File) {
-        try {
-            val downloadUrl = URL(url)
-            val connection = downloadUrl.openConnection()
-            val fileLength = connection.contentLength
-            val stream = DataInputStream(downloadUrl.openStream())
-            val buffer = ByteArray(fileLength)
-            stream.apply {
-                readFully(buffer)
-                close()
-            }
-
-            DataOutputStream(FileOutputStream(outputFile)).apply {
-                write(buffer)
-                flush()
-                close()
-            }
-
-        } catch (e: Exception) {
-            Timber.tag(TAG).e("Exception $e")
-        }
-    }
-
-    private fun getExtension(filename: String) =
-        filename.replace("[a-zA-Z\\-0-9]+\\.".toRegex(), "")
-
-    private fun createFileName(url: String): String {
-        val fileExtension = getExtension(Uri.parse(url).lastPathSegment!!)
-        return if (fileExtension.equals(HLS_EXTENSION, true)) {
-            "${Calendar.getInstance().timeInMillis}.mp4"
-        } else {
-            Uri.parse(url).lastPathSegment!!
-        }
-    }
-
     private fun downloadItem(url: String, saveDestination: File): Uri? {
-        val filename = createFileName(url)
+        val filename = getFileName(url)
         val fileUri = Uri.withAppendedPath(Uri.fromFile(saveDestination), filename)
         val file = File(fileUri.path ?: return null)
         val fileExtension = getExtension(Uri.parse(url).lastPathSegment ?: return null)
+
+        val existingFile =
+            findInMediaStore(filename, fileExtension == "mp4" || fileExtension == "wav")
+        if (existingFile != null) {
+            return existingFile
+        }
 
         if (fileExtension.toLowerCase(Locale.getDefault()) == HLS_EXTENSION) { // For downloading HLS videos
             if (FFmpeg.execute("-i $url -acodec copy -bsf:a aac_adtstoasc -vcodec copy ${file.path}") != Config.RETURN_CODE_SUCCESS) {
@@ -296,48 +273,125 @@ class DownloadIntentService : JobIntentService() {
                 return null
             }
         } else {
-            downloadStandardFile(url, file)
+            downloadToFile(url, file)
         }
 
-        // Move file to MediaStore
-        val isVideo = file.extension == "mp4" || file.extension == "wav"
-        val mimeType = if (isVideo) {
-            "video/*"
+        val uri = moveFileToMediaStore(file)
+        file.delete()
+
+        return uri
+    }
+
+    private fun getExtension(filename: String) =
+        filename.substring(filename.lastIndexOf('.') + 1)
+
+    private fun getFileName(url: String): String {
+        val fileExtension = getExtension(Uri.parse(url).lastPathSegment!!)
+        return if (fileExtension.equals(HLS_EXTENSION, true)) {
+            "${Calendar.getInstance().timeInMillis}.mp4"
         } else {
-            "image/*"
+            Uri.parse(url).lastPathSegment!!
         }
-        val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, filename)
-            put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
-            put(MediaStore.MediaColumns.DATE_ADDED, System.currentTimeMillis())
-            put(MediaStore.MediaColumns.DATE_MODIFIED, System.currentTimeMillis() / 1000)
+    }
 
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                val folder = if (isVideo) {
-                    Environment.DIRECTORY_MOVIES
-                } else {
-                    Environment.DIRECTORY_PICTURES
-                }
-                put(
-                    MediaStore.MediaColumns.RELATIVE_PATH,
-                    "$folder/${getString(R.string.app_name)}"
+    private fun downloadToFile(url: String, outputFile: File) {
+        val downloadUrl = URL(url)
+        val connection = downloadUrl.openConnection()
+        val fileLength = connection.contentLength
+        val stream = DataInputStream(downloadUrl.openStream())
+        val buffer = ByteArray(fileLength)
+        stream.apply {
+            readFully(buffer)
+            close()
+        }
+
+        DataOutputStream(FileOutputStream(outputFile)).apply {
+            write(buffer)
+            flush()
+            close()
+        }
+    }
+
+    private fun findInMediaStore(fileName: String, isVideo: Boolean): Uri? {
+        var result: Uri? = null
+        val projection = arrayOf(
+            MediaStore.MediaColumns._ID,
+            MediaStore.MediaColumns.DISPLAY_NAME
+        )
+        val selection = "${MediaStore.MediaColumns.DISPLAY_NAME} == ?"
+        val selectionArgs = arrayOf(fileName)
+        val query = contentResolver.query(
+            if (isVideo) MediaStore.Video.Media.EXTERNAL_CONTENT_URI else MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+            projection,
+            selection,
+            selectionArgs,
+            null
+        )
+
+        query?.use { cursor ->
+            val idColumn = cursor.getColumnIndexOrThrow(MediaStore.MediaColumns._ID)
+            if (cursor.moveToFirst()) {
+                val id = cursor.getLong(idColumn)
+                result = ContentUris.withAppendedId(
+                    if (isVideo) MediaStore.Video.Media.EXTERNAL_CONTENT_URI else MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                    id
                 )
             }
+        }
 
-        }
-        val externalUri = if (isVideo) {
-            MediaStore.Video.Media.EXTERNAL_CONTENT_URI
-        } else {
-            MediaStore.Images.Media.EXTERNAL_CONTENT_URI
-        }
-        val uri = contentResolver.insert(externalUri, contentValues)
-        contentResolver.openOutputStream(uri ?: return null).use {
-            val test = file.readBytes()
-            if (it != null) {
-                it.write(test)
-                it.close()
-                file.delete()
+
+        query?.close()
+        return result
+    }
+
+    private fun moveFileToMediaStore(file: File): Uri? {
+        var uri: Uri? = null
+
+        try {
+            val isVideo = file.extension == "mp4" || file.extension == "wav"
+            val mimeType = if (isVideo) {
+                "video/*"
+            } else {
+                "image/*"
             }
+            val contentValues = ContentValues().apply {
+                put(MediaStore.MediaColumns.DISPLAY_NAME, file.name)
+                put(MediaStore.MediaColumns.MIME_TYPE, mimeType)
+                put(MediaStore.MediaColumns.DATE_ADDED, System.currentTimeMillis())
+                put(MediaStore.MediaColumns.DATE_MODIFIED, System.currentTimeMillis() / 1000)
+
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    val folder = if (isVideo) {
+                        Environment.DIRECTORY_MOVIES
+                    } else {
+                        Environment.DIRECTORY_PICTURES
+                    }
+                    put(
+                        MediaStore.MediaColumns.RELATIVE_PATH,
+                        "$folder/${getString(R.string.app_name)}"
+                    )
+                }
+
+            }
+            val externalUri = if (isVideo) {
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+            } else {
+                MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+            }
+            uri = contentResolver.insert(externalUri, contentValues)
+            contentResolver.openOutputStream(uri ?: return null).use {
+                val bytes = file.readBytes()
+                if (it != null) {
+                    it.write(bytes)
+                    it.close()
+                }
+            }
+        } catch (e: Exception) {
+            Timber.tag(TAG).e(e.toString())
+            uri?.let {
+                contentResolver.delete(it, null, null)
+            }
+            uri = null
         }
 
         return uri

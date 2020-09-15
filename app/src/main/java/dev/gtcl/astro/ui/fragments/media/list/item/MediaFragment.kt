@@ -45,7 +45,7 @@ class MediaFragment : Fragment() {
 
     override fun onResume() {
         super.onResume()
-        if(player == null && model.mediaURL.value?.mediaType == MediaType.VIDEO){
+        if (player == null && model.mediaURL.value?.mediaType == MediaType.VIDEO) {
             initVideoPlayer(model.mediaURL.value ?: return)
         }
     }
@@ -126,18 +126,17 @@ class MediaFragment : Fragment() {
     }
 
     private fun initSubsamplingImageView(mediaURL: MediaURL) {
-
-        val url =
-            (IMAGE_REGEX.find(mediaURL.url)?.value ?: mediaURL.url).replaceFirst(
-                "http://",
-                "https://"
-            )
+        val url = (IMAGE_REGEX.find(mediaURL.url)?.value ?: mediaURL.url)
         binding?.fragmentMediaScaleImageView?.let { subsamplingScaleImageView ->
             GlideApp.with(requireContext())
                 .asBitmap()
                 .load(url)
                 .skipMemoryCache(true)
                 .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .apply(
+                    RequestOptions()
+                        .error(R.drawable.ic_broken_image_24)
+                )
                 .addListener(object : RequestListener<Bitmap> {
                     override fun onLoadFailed(
                         e: GlideException?,
@@ -170,7 +169,7 @@ class MediaFragment : Fragment() {
     }
 
     private fun initGifToImageView(mediaURL: MediaURL) {
-        val url = mediaURL.url.replaceFirst("http://", "https://")
+        val url = mediaURL.url
         binding?.fragmentMediaImageView?.let { imageView ->
             imageView.clearColorFilter()
             GlideApp.with(requireContext())

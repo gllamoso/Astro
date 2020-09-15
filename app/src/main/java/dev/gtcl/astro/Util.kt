@@ -427,7 +427,7 @@ enum class UrlType : Parcelable {
 
 fun String.getUrlType(): UrlType? {
     return when {
-        IMAGE_REGEX.matches(this) -> UrlType.IMAGE
+        IMAGE_REGEX.containsMatchIn(this) -> UrlType.IMAGE
         GIFV_REGEX.matches(this) -> UrlType.GIFV
         GIF_REGEX.matches(this) -> UrlType.GIF
         HLS_REGEX.matches(this) -> UrlType.HLS

@@ -206,7 +206,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
                 .show(childFragmentManager, null)
             UrlType.GIFV -> MediaDialogFragment.newInstance(
                 MediaURL(
-                    link.replace(".gifv", ".mp4"),
+                    link.replaceFirst(".gifv", ".mp4"),
                     MediaType.VIDEO
                 )
             ).show(childFragmentManager, null)
