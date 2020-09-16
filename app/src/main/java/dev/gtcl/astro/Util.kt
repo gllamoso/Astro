@@ -591,7 +591,7 @@ fun PopupWindow.showAsDropdown(anchor: View, content: View, width: Int, height: 
     }
 }
 
-fun checkedIfLoggedInBeforeExecuting(context: Context, runnable: () -> Unit) {
+fun checkIfLoggedInBeforeExecuting(context: Context, runnable: () -> Unit) {
     val isLoggedIn = (context.applicationContext as AstroApplication).accessToken != null
     if (isLoggedIn) {
         runnable()

@@ -20,7 +20,8 @@
             app:destination="@id/viewPagerFragment"
             app:enterAnim="@anim/slide_left"
             app:popExitAnim="@anim/slide_right"
-            app:popUpTo="@id/viewPagerFragment"
+            app:launchSingleTop="true"
+            app:popUpTo="@id/navigation"
             app:popUpToInclusive="true"/>
         <action
             android:id="@+id/action_viewPagerFragment_to_signInFragment"

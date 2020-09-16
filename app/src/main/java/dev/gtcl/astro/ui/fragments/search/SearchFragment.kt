@@ -265,7 +265,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
     }
 
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             subreddit.userSubscribed = subscribe
             activityModel.subscribe(subreddit, subscribe)
         }

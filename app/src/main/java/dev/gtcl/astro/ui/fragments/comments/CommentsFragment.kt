@@ -187,12 +187,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         }
 
         binding?.fragmentCommentsReply?.setOnClickListener {
-            val post = model.post.value ?: return@setOnClickListener
-            if (post.locked || post.deleted) {
-                Snackbar.make(it, R.string.cannot_reply_to_post, Snackbar.LENGTH_LONG).show()
-            } else {
-                ReplyOrEditDialogFragment.newInstance(post, -1, true)
-                    .show(childFragmentManager, null)
+            checkIfLoggedInBeforeExecuting(requireContext()){
+                val post = model.post.value ?: return@checkIfLoggedInBeforeExecuting
+                if (post.locked || post.deleted) {
+                    Snackbar.make(it, R.string.cannot_reply_to_post, Snackbar.LENGTH_LONG).show()
+                } else {
+                    ReplyOrEditDialogFragment.newInstance(post, -1, true)
+                        .show(childFragmentManager, null)
+                }
             }
         }
 
@@ -240,45 +242,51 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
 
             layoutCommentsBottomBarUpvoteButton.setOnClickListener {
-                if (model.loading.value == true) {
-                    return@setOnClickListener
-                }
-                model.post.value?.let {
-                    val vote = if (it.likes == true) {
-                        Vote.UNVOTE
-                    } else {
-                        Vote.UPVOTE
+                checkIfLoggedInBeforeExecuting(requireContext()){
+                    if (model.loading.value == true) {
+                        return@checkIfLoggedInBeforeExecuting
                     }
-                    it.updateScore(vote)
-                    activityModel.vote(it.name, vote)
-                    binding?.invalidateAll()
+                    model.post.value?.let {
+                        val vote = if (it.likes == true) {
+                            Vote.UNVOTE
+                        } else {
+                            Vote.UPVOTE
+                        }
+                        it.updateScore(vote)
+                        activityModel.vote(it.name, vote)
+                        binding?.invalidateAll()
+                    }
                 }
             }
 
             layoutCommentsBottomBarDownvoteButton.setOnClickListener {
-                if (model.loading.value == true) {
-                    return@setOnClickListener
-                }
-                model.post.value?.let {
-                    val vote = if (it.likes == false) {
-                        Vote.UNVOTE
-                    } else {
-                        Vote.DOWNVOTE
+                checkIfLoggedInBeforeExecuting(requireContext()){
+                    if (model.loading.value == true) {
+                        return@checkIfLoggedInBeforeExecuting
                     }
-                    it.updateScore(vote)
-                    activityModel.vote(it.name, vote)
-                    binding?.invalidateAll()
+                    model.post.value?.let {
+                        val vote = if (it.likes == false) {
+                            Vote.UNVOTE
+                        } else {
+                            Vote.DOWNVOTE
+                        }
+                        it.updateScore(vote)
+                        activityModel.vote(it.name, vote)
+                        binding?.invalidateAll()
+                    }
                 }
             }
 
             layoutCommentsBottomBarSaveButton.setOnClickListener {
-                if (model.loading.value == true) {
-                    return@setOnClickListener
-                }
-                model.post.value?.let {
-                    it.saved = !it.saved
-                    activityModel.save(it.name, it.saved)
-                    binding?.invalidateAll()
+                checkIfLoggedInBeforeExecuting(requireContext()){
+                    if (model.loading.value == true) {
+                        return@checkIfLoggedInBeforeExecuting
+                    }
+                    model.post.value?.let {
+                        it.saved = !it.saved
+                        activityModel.save(it.name, it.saved)
+                        binding?.invalidateAll()
+                    }
                 }
             }
 
@@ -532,14 +540,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 //    \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 
     override fun vote(comment: Comment, vote: Vote) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             comment.updateScore(vote)
             activityModel.vote(comment.name, vote)
         }
     }
 
     override fun save(comment: Comment) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             comment.saved = comment.saved != true
             activityModel.save(comment.name, comment.saved == true)
         }
@@ -550,7 +558,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     override fun reply(comment: Comment, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             if (comment.locked == true || comment.deleted) {
                 Toast.makeText(
                     requireContext(),
@@ -565,14 +573,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     override fun mark(comment: Comment) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             comment.new = !(comment.new ?: false)
             activityModel.markMessage(comment, !(comment.new ?: false))
         }
     }
 
     override fun block(comment: Comment, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.block(comment)
             adapter.removeAt(position)
             model.removeCommentAt(position)
@@ -588,20 +596,20 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     override fun report(comment: Comment, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             ReportDialogFragment.newInstance(comment, position).show(childFragmentManager, null)
         }
     }
 
     override fun edit(comment: Comment, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             ReplyOrEditDialogFragment.newInstance(comment, position, false)
                 .show(childFragmentManager, null)
         }
     }
 
     override fun delete(comment: Comment, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.delete(comment.name)
             model.removeCommentAt(position)
             adapter.removeAt(position)
@@ -762,7 +770,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             if (createdFromUser == true) {
                 if (post.isSelf) {
                     popupCommentsPageActionsEdit.root.setOnClickListener {
-                        checkedIfLoggedInBeforeExecuting(requireContext()) {
+                        checkIfLoggedInBeforeExecuting(requireContext()) {
                             ReplyOrEditDialogFragment.newInstance(post, -1, false)
                                 .show(childFragmentManager, null)
                         }
@@ -770,13 +778,13 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     }
                 }
                 popupCommentsPageActionsManage.root.setOnClickListener {
-                    checkedIfLoggedInBeforeExecuting(requireContext()) {
+                    checkIfLoggedInBeforeExecuting(requireContext()) {
                         ManagePostDialogFragment.newInstance(post).show(childFragmentManager, null)
                     }
                     popupWindow.dismiss()
                 }
                 popupCommentsPageActionsDelete.root.setOnClickListener {
-                    checkedIfLoggedInBeforeExecuting(requireContext()) {
+                    checkIfLoggedInBeforeExecuting(requireContext()) {
                         post.author = "[deleted]"
                         binding?.invalidateAll()
                         activityModel.delete(post.name)
@@ -801,7 +809,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 popupWindow.dismiss()
             }
             popupCommentsPageActionsHide.root.setOnClickListener {
-                checkedIfLoggedInBeforeExecuting(requireContext()) {
+                checkIfLoggedInBeforeExecuting(requireContext()) {
                     post.hidden = !post.hidden
                     binding?.invalidateAll()
                     activityModel.hide(post.name, post.hidden)
@@ -858,7 +866,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 }
             }
             popupCommentsPageActionsReport.root.setOnClickListener {
-                checkedIfLoggedInBeforeExecuting(requireContext()) {
+                checkIfLoggedInBeforeExecuting(requireContext()) {
                     ReportDialogFragment.newInstance(post).show(childFragmentManager, null)
                 }
                 popupWindow.dismiss()

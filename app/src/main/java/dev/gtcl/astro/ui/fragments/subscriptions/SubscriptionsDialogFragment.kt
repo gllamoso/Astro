@@ -22,6 +22,7 @@ import dev.gtcl.astro.databinding.FragmentDialogSubscriptionsBinding
 import dev.gtcl.astro.databinding.PopupSubscriptionActionsBinding
 import dev.gtcl.astro.models.reddit.listing.Listing
 import dev.gtcl.astro.models.reddit.listing.MultiRedditUpdate
+import dev.gtcl.astro.models.reddit.listing.ProfileListing
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.multireddits.MultiRedditDetailsDialogFragment
@@ -151,7 +152,7 @@ class SubscriptionsDialogFragment : BottomSheetDialogFragment(), SubscriptionAct
         val popupWindow = PopupWindow()
         popupBinding.apply {
             popupSubscriptionActionsCreateCustomFeed.root.setOnClickListener {
-                checkedIfLoggedInBeforeExecuting(requireContext()) {
+                checkIfLoggedInBeforeExecuting(requireContext()) {
                     MultiRedditDetailsDialogFragment.newInstance(null)
                         .show(childFragmentManager, null)
                 }
@@ -172,8 +173,18 @@ class SubscriptionsDialogFragment : BottomSheetDialogFragment(), SubscriptionAct
     }
 
     override fun listingTypeClicked(listing: Listing) {
-        parentFragmentManager.setFragmentResult(LISTING_KEY, bundleOf(LISTING_KEY to listing))
-        dismiss()
+        if (listing is ProfileListing && listing.info == ProfileInfo.SAVED) {
+            checkIfLoggedInBeforeExecuting(requireContext()) {
+                parentFragmentManager.setFragmentResult(
+                    LISTING_KEY,
+                    bundleOf(LISTING_KEY to listing)
+                )
+                dismiss()
+            }
+        } else {
+            parentFragmentManager.setFragmentResult(LISTING_KEY, bundleOf(LISTING_KEY to listing))
+            dismiss()
+        }
     }
 
 //      _____       _                   _       _   _                            _   _
@@ -196,13 +207,13 @@ class SubscriptionsDialogFragment : BottomSheetDialogFragment(), SubscriptionAct
     }
 
     override fun remove(sub: Subscription) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.unsubscribe(sub)
         }
     }
 
     override fun editMultiReddit(sub: Subscription) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             findNavController().navigate(
                 ViewPagerFragmentDirections.actionViewPagerFragmentToMultiRedditFragment(
                     sub

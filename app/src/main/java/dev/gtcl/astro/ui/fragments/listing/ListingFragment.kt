@@ -239,7 +239,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         model.subreddit.observe(viewLifecycleOwner, { sub ->
             if (sub != null) {
                 rightDrawerLayout?.layoutRightDrawerSubscribeToggle?.iconSubscribeBackground?.setOnClickListener {
-                    checkedIfLoggedInBeforeExecuting(requireContext()) {
+                    checkIfLoggedInBeforeExecuting(requireContext()) {
                         subscribe(sub, !(sub.userSubscribed ?: false))
                         rightDrawerLayout.invalidateAll()
                     }
@@ -381,7 +381,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 //
 
     override fun vote(post: Post, vote: Vote) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             post.updateScore(vote)
             activityModel.vote(post.name, vote)
         }
@@ -400,7 +400,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun save(post: Post) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             post.saved = post.saved != true
             activityModel.save(post.name, post.saved)
         }
@@ -420,7 +420,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun hide(post: Post, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             post.hidden = !post.hidden
             activityModel.hide(post.name, post.hidden)
             model.removeItemAt(position)
@@ -429,7 +429,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun report(post: Post, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             ReportDialogFragment.newInstance(post, position).show(childFragmentManager, null)
         }
     }
@@ -479,20 +479,20 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun edit(post: Post, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             ReplyOrEditDialogFragment.newInstance(post, position, false)
                 .show(childFragmentManager, null)
         }
     }
 
     override fun manage(post: Post, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             ManagePostDialogFragment.newInstance(post, position).show(childFragmentManager, null)
         }
     }
 
     override fun delete(post: Post, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.delete(post.name)
             model.removeItemAt(position)
             listAdapter.removeAt(position)
@@ -508,14 +508,14 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
 
     override fun vote(comment: Comment, vote: Vote) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             comment.updateScore(vote)
             activityModel.vote(comment.name, vote)
         }
     }
 
     override fun save(comment: Comment) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             comment.saved = comment.saved != true
             activityModel.save(comment.name, comment.saved == true)
         }
@@ -526,7 +526,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun reply(comment: Comment, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             if (comment.locked == true || comment.deleted) {
                 Toast.makeText(
                     requireContext(),
@@ -541,14 +541,14 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun mark(comment: Comment) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             comment.new = !(comment.new ?: false)
             activityModel.markMessage(comment, !(comment.new ?: false))
         }
     }
 
     override fun block(comment: Comment, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.block(comment)
             listAdapter.removeAt(position)
             model.removeItemAt(position)
@@ -564,20 +564,20 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun report(comment: Comment, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             ReportDialogFragment.newInstance(comment, position).show(childFragmentManager, null)
         }
     }
 
     override fun edit(comment: Comment, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             ReplyOrEditDialogFragment.newInstance(comment, position, false)
                 .show(childFragmentManager, null)
         }
     }
 
     override fun delete(comment: Comment, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.delete(comment.name)
             model.removeItemAt(position)
             listAdapter.removeAt(position)
@@ -593,7 +593,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 //
 
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             subreddit.userSubscribed = subscribe
             activityModel.subscribe(subreddit, subscribe)
         }
@@ -693,7 +693,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             findNavController().navigate(
                 ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
                     AccountPage(null)
@@ -705,7 +705,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
     @SuppressLint("RtlHardcoded")
     override fun onInboxClicked() {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             findNavController().navigate(
                 ViewPagerFragmentDirections.actionViewPagerFragmentSelf(InboxPage)
             )

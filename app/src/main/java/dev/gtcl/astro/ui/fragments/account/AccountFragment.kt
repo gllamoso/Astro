@@ -177,8 +177,8 @@ class AccountFragment : Fragment(), LeftDrawerActions {
         })
 
         binding?.fragmentAccountSubscribeToggle?.root?.setOnClickListener {
-            checkedIfLoggedInBeforeExecuting(requireContext()) {
-                val sub = model.account.value?.subreddit ?: return@checkedIfLoggedInBeforeExecuting
+            checkIfLoggedInBeforeExecuting(requireContext()) {
+                val sub = model.account.value?.subreddit ?: return@checkIfLoggedInBeforeExecuting
                 sub.userSubscribed = sub.userSubscribed != true
                 binding?.fragmentAccountSubscribeToggle?.apply {
                     isSubscribed = sub.userSubscribed
@@ -219,7 +219,7 @@ class AccountFragment : Fragment(), LeftDrawerActions {
         popupBinding.apply {
             this.account = account
             popupAccountActionsFriend.root.setOnClickListener {
-                checkedIfLoggedInBeforeExecuting(requireContext()) {
+                checkIfLoggedInBeforeExecuting(requireContext()) {
                     account.isFriend = !(account.isFriend ?: false)
                     if (account.isFriend == true) {
                         model.addFriend(account.name)
@@ -230,25 +230,29 @@ class AccountFragment : Fragment(), LeftDrawerActions {
                 popupWindow.dismiss()
             }
             popupAccountActionsBlock.root.setOnClickListener {
-                checkedIfLoggedInBeforeExecuting(requireContext()) {
+                checkIfLoggedInBeforeExecuting(requireContext()) {
                     model.blockUser(account.name)
                     findNavController().popBackStack()
                 }
                 popupWindow.dismiss()
             }
             popupAccountActionsSubscribe.root.setOnClickListener {
-                val sub = model.account.value?.subreddit ?: return@setOnClickListener
-                sub.userSubscribed = sub.userSubscribed != true
-                binding?.fragmentAccountSubscribeToggle?.apply {
-                    isSubscribed = sub.userSubscribed
-                    executePendingBindings()
+                checkIfLoggedInBeforeExecuting(requireContext()) {
+                    val sub = model.account.value?.subreddit ?: return@checkIfLoggedInBeforeExecuting
+                    sub.userSubscribed = sub.userSubscribed != true
+                    binding?.fragmentAccountSubscribeToggle?.apply {
+                        isSubscribed = sub.userSubscribed
+                        executePendingBindings()
+                    }
+                    activityModel.subscribe(sub, (sub.userSubscribed == true))
                 }
-                activityModel.subscribe(sub, (sub.userSubscribed == true))
                 popupWindow.dismiss()
             }
             popupAccountActionsMessage.root.setOnClickListener {
-                ComposeDialogFragment.newInstance(model.account.value?.name)
-                    .show(childFragmentManager, null)
+                checkIfLoggedInBeforeExecuting(requireContext()){
+                    ComposeDialogFragment.newInstance(model.account.value?.name)
+                        .show(childFragmentManager, null)
+                }
                 popupWindow.dismiss()
             }
             executePendingBindings()
@@ -316,25 +320,23 @@ class AccountFragment : Fragment(), LeftDrawerActions {
 
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
-        val user = model.account.value
-        val currentAccount = (requireActivity().application as AstroApplication).currentAccount
-        if (user?.name != currentAccount?.name) {
-            findNavController().navigate(
-                ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
-                    AccountPage(null)
+        checkIfLoggedInBeforeExecuting(requireContext()){
+            val user = model.account.value
+            val currentAccount = (requireActivity().application as AstroApplication).currentAccount
+            if (user?.name != currentAccount?.name) {
+                findNavController().navigate(
+                    ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                        AccountPage(null)
+                    )
                 )
-            )
+            }
+            binding?.fragmentAccountDrawer?.closeDrawer(Gravity.LEFT)
         }
-        binding?.fragmentAccountDrawer?.closeDrawer(Gravity.LEFT)
     }
 
     @SuppressLint("RtlHardcoded")
     override fun onInboxClicked() {
-        if ((activity?.application as AstroApplication).accessToken == null) {
-            binding?.fragmentAccountDrawer?.let {
-                Snackbar.make(it, R.string.must_be_logged_in, Snackbar.LENGTH_SHORT).show()
-            }
-        } else {
+        checkIfLoggedInBeforeExecuting(requireContext()){
             findNavController().navigate(
                 ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
                     InboxPage

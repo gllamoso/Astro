@@ -24,7 +24,6 @@ import dev.gtcl.astro.network.Status
 import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.ListingAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import dev.gtcl.astro.ui.fragments.*
 import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
@@ -279,7 +278,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 //
 
     override fun vote(post: Post, vote: Vote) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             post.updateScore(vote)
             activityModel.vote(post.name, vote)
         }
@@ -298,7 +297,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun save(post: Post) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             post.saved = !post.saved
             activityModel.save(post.name, post.saved)
         }
@@ -313,7 +312,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun hide(post: Post, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.hide(post.name, post.hidden)
             if (post.hidden) {
                 model.removeItemAt(position)
@@ -323,7 +322,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun report(post: Post, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             ReportDialogFragment.newInstance(post, position).show(childFragmentManager, null)
         }
     }
@@ -373,20 +372,20 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun edit(post: Post, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             ReplyOrEditDialogFragment.newInstance(post, position, false)
                 .show(childFragmentManager, null)
         }
     }
 
     override fun manage(post: Post, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             ManagePostDialogFragment.newInstance(post, position).show(childFragmentManager, null)
         }
     }
 
     override fun delete(post: Post, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.delete(post.name)
             model.removeItemAt(position)
             listAdapter.removeAt(position)
@@ -401,14 +400,14 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 //     \_____\___/|_| |_| |_|_| |_| |_|\___|_| |_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 
     override fun vote(comment: Comment, vote: Vote) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             comment.updateScore(vote)
             activityModel.vote(comment.name, vote)
         }
     }
 
     override fun save(comment: Comment) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             comment.saved = comment.saved != true
             activityModel.save(comment.name, comment.saved == true)
         }
@@ -419,7 +418,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun reply(comment: Comment, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             if (comment.locked == true || comment.deleted) {
                 Toast.makeText(
                     requireContext(),
@@ -434,14 +433,14 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun mark(comment: Comment) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             comment.new = !(comment.new ?: false)
             activityModel.markMessage(comment, !(comment.new ?: false))
         }
     }
 
     override fun block(comment: Comment, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.block(comment)
             listAdapter.removeAt(position)
             model.removeItemAt(position)
@@ -457,20 +456,20 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun report(comment: Comment, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             ReportDialogFragment.newInstance(comment, position).show(childFragmentManager, null)
         }
     }
 
     override fun edit(comment: Comment, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             ReplyOrEditDialogFragment.newInstance(comment, position, false)
                 .show(childFragmentManager, null)
         }
     }
 
     override fun delete(comment: Comment, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.delete(comment.name)
             model.removeItemAt(position)
             listAdapter.removeAt(position)
@@ -487,21 +486,21 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 //                                |___/
 
     override fun reply(message: Message) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             ReplyOrEditDialogFragment.newInstance(message, -1, true)
                 .show(childFragmentManager, null)
         }
     }
 
     override fun mark(message: Message) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             message.new = !message.new
             activityModel.markMessage(message, !message.new)
         }
     }
 
     override fun delete(message: Message, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.deleteMessage(message)
             listAdapter.removeAt(position)
             model.removeItemAt(position)
@@ -517,7 +516,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun block(message: Message, position: Int) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.block(message)
             listAdapter.removeAt(position)
             model.removeItemAt(position)
@@ -533,7 +532,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 //
 
     override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-        checkedIfLoggedInBeforeExecuting(requireContext()) {
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             subreddit.userSubscribed = subscribe
             activityModel.subscribe(subreddit, subscribe)
         }
