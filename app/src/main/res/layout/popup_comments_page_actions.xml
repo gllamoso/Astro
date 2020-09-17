@@ -103,7 +103,7 @@
                 layout="@layout/item_selectable"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
-                android:visibility="@{post.urlType == UrlType.IMGUR_ALBUM ? View.VISIBLE : View.GONE}"
+                android:visibility="@{(post.urlType == UrlType.IMGUR_ALBUM || post.urlType == UrlType.REDDIT_GALLERY) ? View.VISIBLE : View.GONE}"
                 app:iconDrawable="@{@drawable/ic_photo_library_24}"
                 app:text="@{@string/download_all}" />
 

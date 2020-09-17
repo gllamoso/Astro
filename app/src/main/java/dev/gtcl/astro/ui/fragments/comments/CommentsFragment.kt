@@ -844,7 +844,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     }
                     popupWindow.dismiss()
                 }
-                if (post.urlType == UrlType.IMGUR_ALBUM) {
+                if (post.urlType == UrlType.IMGUR_ALBUM || post.urlType == UrlType.REDDIT_GALLERY) {
                     popupCommentsPageActionsDownloadAll.root.setOnClickListener {
                         if (ContextCompat.checkSelfPermission(
                                 requireContext(),
