@@ -441,7 +441,8 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             UrlType.REDDIT_GALLERY -> {
                 val dialog = MediaDialogFragment.newInstance(
                     post.url,
-                    post.galleryAsMediaItems ?: return
+                    post.galleryAsMediaItems ?: return,
+                    PostPage(post, position)
                 )
                 dialog.show(parentFragmentManager, null)
             }

@@ -286,9 +286,17 @@ class MediaDialogFragment : DialogFragment() {
             }
         }
 
-        fun newInstance(albumUrl: String, mediaItems: List<MediaURL>): MediaDialogFragment {
+        fun newInstance(
+            albumUrl: String,
+            mediaItems: List<MediaURL>,
+            postPage: PostPage? = null
+        ): MediaDialogFragment {
             return MediaDialogFragment().apply {
-                arguments = bundleOf(URL_KEY to albumUrl, MEDIA_ITEMS_KEY to mediaItems)
+                arguments = bundleOf(
+                    URL_KEY to albumUrl,
+                    MEDIA_ITEMS_KEY to mediaItems,
+                    POST_PAGE_KEY to postPage
+                )
             }
         }
     }

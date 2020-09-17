@@ -334,7 +334,8 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             UrlType.REDDIT_GALLERY -> {
                 val dialog = MediaDialogFragment.newInstance(
                     post.url,
-                    post.galleryAsMediaItems ?: return
+                    post.galleryAsMediaItems ?: return,
+                    PostPage(post, position)
                 )
                 dialog.show(parentFragmentManager, null)
             }
