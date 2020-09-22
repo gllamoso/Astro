@@ -16,7 +16,7 @@ import timber.log.Timber
 
 open class ItemScrollerVM(private val application: AstroApplication) : AstroViewModel(application) {
 
-    private val pageSize = 15
+    private val pageSize = 25
 
     private val _networkState = MutableLiveData<NetworkState>()
     val networkState: LiveData<NetworkState>
