@@ -284,6 +284,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
         }
         coroutineScope.launch {
             val previousAfter = after
+            val previousCount = count
             try {
                 withContext(Dispatchers.IO) {
                     _networkState.postValue(NetworkState.LOADING)
@@ -349,6 +350,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
             } catch (e: Exception) {
                 Timber.tag(this@ItemScrollerVM.javaClass.simpleName).e(e.toString())
                 after = previousAfter
+                count = previousCount
                 lastAction = ::loadMore
                 _networkState.postValue(NetworkState.error(e.getErrorMessage(application)))
             }
