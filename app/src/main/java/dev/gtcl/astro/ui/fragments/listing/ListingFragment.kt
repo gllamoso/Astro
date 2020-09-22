@@ -295,6 +295,14 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         }
 
         bottomBarLayout?.layoutListingBottomBarRefreshButton?.setOnClickListener {
+            if (model.networkState.value == NetworkState.LOADING) {
+                return@setOnClickListener
+            }
+
+            binding?.fragmentListingList?.apply {
+                removeOnScrollListener(scrollListener)
+                addOnScrollListener(scrollListener)
+            }
             initData()
         }
 
