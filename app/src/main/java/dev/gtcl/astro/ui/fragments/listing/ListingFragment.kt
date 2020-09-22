@@ -295,6 +295,10 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         }
 
         bottomBarLayout?.layoutListingBottomBarRefreshButton?.setOnClickListener {
+            binding?.fragmentListingList?.apply {
+                removeOnScrollListener(scrollListener)
+                addOnScrollListener(scrollListener)
+            }
             initData()
         }
 
