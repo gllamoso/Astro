@@ -26,6 +26,7 @@ class ListingRepository private constructor(private val application: AstroApplic
         t: Time? = null,
         after: String?,
         pageSize: Int,
+        count: Int,
         user: String? = null
     ): Deferred<ListingResponse> {
         val accessToken = application.accessToken
@@ -34,18 +35,26 @@ class ListingRepository private constructor(private val application: AstroApplic
             FrontPage -> if (accessToken != null) {
                 RedditApi.oauth.getPostFromFrontPage(
                     accessToken.authorizationHeader,
-                    postSort, t, after, pageSize
+                    postSort, t, after, count, pageSize
                 )
             } else {
-                RedditApi.base.getPostFromFrontPage(null, postSort, t, after, pageSize)
+                RedditApi.base.getPostFromFrontPage(null, postSort, t, after, count, pageSize)
             }
             All -> if (accessToken != null) {
                 RedditApi.oauth.getPostsFromSubreddit(
                     accessToken.authorizationHeader, "all",
-                    postSort, t, after, pageSize
+                    postSort, t, after, count, pageSize
                 )
             } else {
-                RedditApi.base.getPostsFromSubreddit(null, "all", postSort, t, after, pageSize)
+                RedditApi.base.getPostsFromSubreddit(
+                    null,
+                    "all",
+                    postSort,
+                    t,
+                    after,
+                    count,
+                    pageSize
+                )
             }
             Popular -> if (accessToken != null) {
                 RedditApi.oauth.getPostsFromSubreddit(
@@ -54,10 +63,19 @@ class ListingRepository private constructor(private val application: AstroApplic
                     postSort,
                     t,
                     after,
+                    count,
                     pageSize
                 )
             } else {
-                RedditApi.base.getPostsFromSubreddit(null, "popular", postSort, t, after, pageSize)
+                RedditApi.base.getPostsFromSubreddit(
+                    null,
+                    "popular",
+                    postSort,
+                    t,
+                    after,
+                    count,
+                    pageSize
+                )
             }
             is SearchListing -> if (accessToken != null) {
                 RedditApi.oauth.searchPosts(
@@ -66,10 +84,11 @@ class ListingRepository private constructor(private val application: AstroApplic
                     postSort,
                     t,
                     after,
+                    count,
                     pageSize
                 )
             } else {
-                RedditApi.base.searchPosts(null, listing.query, postSort, t, after, pageSize)
+                RedditApi.base.searchPosts(null, listing.query, postSort, t, after, count, pageSize)
             }
             is MultiRedditListing -> if (accessToken != null) {
                 RedditApi.oauth.getMultiRedditListing(
@@ -78,6 +97,7 @@ class ListingRepository private constructor(private val application: AstroApplic
                     postSort,
                     t,
                     after,
+                    count,
                     pageSize
                 )
             } else {
@@ -87,6 +107,7 @@ class ListingRepository private constructor(private val application: AstroApplic
                     postSort,
                     t,
                     after,
+                    count,
                     pageSize
                 )
             }
@@ -97,6 +118,7 @@ class ListingRepository private constructor(private val application: AstroApplic
                     postSort,
                     t,
                     after,
+                    count,
                     pageSize
                 )
             } else {
@@ -106,6 +128,7 @@ class ListingRepository private constructor(private val application: AstroApplic
                     postSort,
                     t,
                     after,
+                    count,
                     pageSize
                 )
             }
@@ -115,10 +138,18 @@ class ListingRepository private constructor(private val application: AstroApplic
                     userName!!,
                     listing.info,
                     after,
+                    count,
                     pageSize
                 )
             } else {
-                RedditApi.base.getPostsFromUser(null, userName!!, listing.info, after, pageSize)
+                RedditApi.base.getPostsFromUser(
+                    null,
+                    userName!!,
+                    listing.info,
+                    after,
+                    count,
+                    pageSize
+                )
             }
             is SubscriptionListing -> {
                 if (accessToken != null) {
@@ -129,6 +160,7 @@ class ListingRepository private constructor(private val application: AstroApplic
                             postSort,
                             t,
                             after,
+                            count,
                             pageSize
                         )
                         SubscriptionType.MULTIREDDIT -> RedditApi.oauth.getMultiRedditListing(
@@ -137,6 +169,7 @@ class ListingRepository private constructor(private val application: AstroApplic
                             postSort,
                             t,
                             after,
+                            count,
                             pageSize
                         )
                     }
@@ -148,6 +181,7 @@ class ListingRepository private constructor(private val application: AstroApplic
                             postSort,
                             t,
                             after,
+                            count,
                             pageSize
                         )
                         SubscriptionType.MULTIREDDIT -> RedditApi.base.getMultiRedditListing(
@@ -156,6 +190,7 @@ class ListingRepository private constructor(private val application: AstroApplic
                             postSort,
                             t,
                             after,
+                            count,
                             pageSize
                         )
                     }

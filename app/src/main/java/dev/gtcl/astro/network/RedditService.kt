@@ -184,6 +184,7 @@ interface RedditApiService {
         @Path("sort") sort: PostSort,
         @Query("t") t: Time?,
         @Query("after") after: String? = null,
+        @Query("count") count: Int,
         @Query("limit") limit: Int
     ): Deferred<ListingResponse>
 
@@ -196,6 +197,7 @@ interface RedditApiService {
         @Path("user") user: String,
         @Path("where") where: ProfileInfo,
         @Query("after") after: String? = null,
+        @Query("count") count: Int,
         @Query("limit") limit: Int
     ): Deferred<ListingResponse>
 
@@ -206,6 +208,7 @@ interface RedditApiService {
         @Path("sort") sort: PostSort,
         @Query("t") t: Time?,
         @Query("after") after: String? = null,
+        @Query("count") count: Int,
         @Query("limit") limit: Int
     ): Deferred<ListingResponse>
 
@@ -216,6 +219,7 @@ interface RedditApiService {
         @Query("sort") sort: PostSort,
         @Query("t") time: Time?,
         @Query("after") after: String? = null,
+        @Query("count") count: Int,
         @Query("limit") limit: Int
     ): Deferred<ListingResponse>
 
@@ -331,6 +335,7 @@ interface RedditApiService {
         @Path("sort") sort: PostSort,
         @Query("t") t: Time?,
         @Query("after") after: String? = null,
+        @Query("count") count: Int,
         @Query("limit") limit: Int
     ): Deferred<ListingResponse>
 

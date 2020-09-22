@@ -65,6 +65,8 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
     private var subredditWhere: SubredditWhere? = null
     private var messageWhere: MessageWhere? = null
 
+    private var count = 0
+
     init {
         val sharedPref = PreferenceManager.getDefaultSharedPreferences(application)
         _showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
@@ -177,7 +179,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
         _showNsfw = showNsfw
     }
 
-    fun setUser(user: String?){
+    fun setUser(user: String?) {
         _user = user
     }
 
@@ -202,6 +204,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                     _lastItemReached.postValue(false)
                     _networkState.postValue(NetworkState.LOADING)
                     after = null
+                    count = 0
 
                     val firstPageItems = mutableListOf<Item>()
                     var emptyItemsCount = 0
@@ -215,6 +218,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                                 time.value,
                                 after,
                                 retrieveSize,
+                                count,
                                 user
                             ).await()
                             subredditWhere != null -> subredditRepository.getSubredditsListing(
@@ -230,6 +234,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                             else -> throw IllegalStateException("Not enough info to load listing")
                         }
                         after = response.data.after
+                        count += response.data.children.size
 
                         if (response.data.children.isNullOrEmpty()) {
                             _lastItemReached.postValue(true)
@@ -267,6 +272,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
             } catch (e: Exception) {
                 lastAction = ::fetchFirstPage
                 after = null
+                count = 0
                 _networkState.postValue(NetworkState.error(e.getErrorMessage(application)))
             }
         }
@@ -291,6 +297,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                                 time.value,
                                 after,
                                 this@ItemScrollerVM.pageSize,
+                                count,
                                 user
                             ).await()
                             subredditWhere != null -> subredditRepository.getSubredditsListing(
@@ -307,6 +314,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                         }
 
                         after = response.data.after
+                        count += response.data.children.size
 
                         if (response.data.children.isNullOrEmpty()) {
                             _lastItemReached.postValue(true)
