@@ -328,11 +328,17 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                                 emptyItemsCount++
                             } else {
                                 moreItems.addAll(items)
+                                currentItemIds.addAll(items.map { it.name })
                             }
 
                             if (after == null) {
-                                _lastItemReached.postValue(true)
-                                break
+                                if (items.isEmpty()) {
+                                    _lastItemReached.postValue(true)
+                                    break
+                                } else {
+                                    val lastIndex = response.data.children.lastIndex
+                                    after = response.data.children[lastIndex].data.name
+                                }
                             }
                         }
                     }
@@ -344,7 +350,6 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                     setItemsReadStatus(moreItems, readItemIds)
                     _moreItems.postValue(moreItems)
                     _items.value?.addAll(moreItems)
-                    currentItemIds.addAll(moreItems.map { it.name })
                     _networkState.postValue(NetworkState.LOADED)
                 }
             } catch (e: Exception) {
