@@ -258,28 +258,39 @@ class DownloadIntentService : JobIntentService() {
             return existingFile
         }
 
-        if (fileExtension.toLowerCase(Locale.getDefault()) == HLS_EXTENSION) { // For downloading HLS videos
-            if (FFmpeg.execute("-i $url -acodec copy -bsf:a aac_adtstoasc -vcodec copy ${file.path}") != Config.RETURN_CODE_SUCCESS) {
-                Timber.tag(TAG).e("ffmpeg execution failed")
-                stopForeground(true)
-                val notification = NotificationCompat.Builder(this, JOB_ID.toString())
-                    .setContentTitle(getString(R.string.unable_to_download_file))
-                    .setContentText(filename)
-                    .setSmallIcon(R.drawable.ic_error_outline_24)
-                    .build()
-                val notificationManager =
-                    getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-                notificationManager.notify(FAILURE_ID, notification)
-                return null
+        val maxAttempts = 5
+        var attempts = 0
+        while (attempts < maxAttempts) {
+            try {
+                if (fileExtension.toLowerCase(Locale.getDefault()) == HLS_EXTENSION) { // For downloading HLS videos
+                    val failure =
+                        FFmpeg.execute("-i $url -acodec copy -bsf:a aac_adtstoasc -vcodec copy ${file.path}") != Config.RETURN_CODE_SUCCESS
+                    if (failure) {
+                        Timber.tag(TAG).e("ffmpeg execution failed")
+                        stopForeground(true)
+                        val notification = NotificationCompat.Builder(this, JOB_ID.toString())
+                            .setContentTitle(getString(R.string.unable_to_download_file))
+                            .setContentText(filename)
+                            .setSmallIcon(R.drawable.ic_error_outline_24)
+                            .build()
+                        val notificationManager =
+                            getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+                        notificationManager.notify(FAILURE_ID, notification)
+                        return null
+                    }
+                } else {
+                    downloadToFile(url, file)
+                }
+                val uri = moveFileToMediaStore(file)
+                file.delete()
+                return uri
+            } catch (e: Exception) {
+                file.delete()
+                attempts++
             }
-        } else {
-            downloadToFile(url, file)
         }
 
-        val uri = moveFileToMediaStore(file)
-        file.delete()
-
-        return uri
+        return null
     }
 
     private fun getExtension(filename: String) =
