@@ -207,8 +207,9 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                     count = 0
 
                     val firstPageItems = mutableListOf<Item>()
-                    var emptyItemsCount = 0
-                    while (firstPageItems.size < firstPageSize && emptyItemsCount < 3) {
+                    var attempts = 0
+                    val maxAttempts = 3
+                    while (firstPageItems.size < firstPageSize && attempts < maxAttempts) {
                         val retrieveSize =
                             if (firstPageItems.size > (firstPageSize * 2 / 3)) pageSize else firstPageSize
                         val response = when {
@@ -243,7 +244,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                             val items = response.data.children.map { it.data }
                                 .filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList()
                             if (items.isNullOrEmpty()) {
-                                emptyItemsCount++
+                                attempts++
                             } else {
                                 firstPageItems.addAll(items)
                             }
@@ -255,9 +256,9 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                         }
                     }
 
-                    if (emptyItemsCount >= 3) { // Show no items if there are 3 results of empty items
+                    if (attempts >= maxAttempts && firstPageItems.isEmpty()) { // Show no items if there are 3 results of empty items
                         _lastItemReached.postValue(true)
-                        _items.postValue(mutableListOf())
+                        _items.postValue(firstPageItems)
                     } else {
                         listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
                         setItemsReadStatus(firstPageItems, readItemIds)
@@ -289,8 +290,9 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                 withContext(Dispatchers.IO) {
                     _networkState.postValue(NetworkState.LOADING)
                     val moreItems = mutableListOf<Item>()
-                    var emptyItemsCount = 0
-                    while (moreItems.size < this@ItemScrollerVM.pageSize && emptyItemsCount < 3) {
+                    var attempts = 0
+                    val maxAttempts = 3
+                    while (moreItems.size < this@ItemScrollerVM.pageSize && attempts < maxAttempts) {
                         val response = when {
                             listing != null -> listingRepository.getListing(
                                 listing ?: return@withContext,
@@ -325,7 +327,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                                 .filterNot { currentItemIds.contains(it.name) || !(showNsfw) && it is Post && it.nsfw }
                                 .toMutableList()
                             if (items.isNullOrEmpty()) {
-                                emptyItemsCount++
+                                attempts++
                             } else {
                                 moreItems.addAll(items)
                                 currentItemIds.addAll(items.map { it.name })
@@ -343,7 +345,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                         }
                     }
 
-                    if (emptyItemsCount >= 3) {
+                    if (attempts >= maxAttempts && moreItems.isEmpty()) {
                         _lastItemReached.postValue(true)
                     }
 
