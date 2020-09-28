@@ -91,7 +91,7 @@
                 android:id="@+id/popupPostActions_subreddit"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_reddit_circle_24}"
-                app:text="@{post.subreddit}"/>
+                app:text="@{post.subredditPrefixed}"/>
 
             <include
                 android:id="@+id/popupPostActions_report"

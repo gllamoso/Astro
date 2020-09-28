@@ -544,7 +544,13 @@ fun getListingTitle(context: Context, listing: Listing): String {
         is Popular -> context.getString(R.string.popular_tab_label)
         is SearchListing -> String.format(context.getString(R.string.search_title), listing.query)
         is MultiRedditListing -> listing.multiReddit.displayName
-        is SubredditListing -> listing.displayName
+        is SubredditListing -> {
+            if (listing.displayName.startsWith("u_")) {
+                listing.displayName.replaceFirst("u_", "")
+            } else {
+                listing.displayName
+            }
+        }
         is SubscriptionListing -> listing.subscription.displayName
         is ProfileListing -> {
             context.getString(

@@ -268,6 +268,12 @@ data class Post(
     val locked: Boolean
 ) : Item(ItemType.Post) {
 
+    val subredditDisplayName = if(subreddit.startsWith("u_")){
+        subreddit.replaceFirst("u_", "")
+    } else {
+        subreddit
+    }
+
     @IgnoredOnParcel
     var isRead = false
 
