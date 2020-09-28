@@ -1,5 +1,6 @@
 package dev.gtcl.astro.ui.fragments.item_scroller
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -52,6 +53,10 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     private val activityModel: MainActivityVM by activityViewModels()
 
+    private val sharedPref: SharedPreferences by lazy {
+        PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
+    }
+
     override fun onResume() {
         super.onResume()
         val scrollPosition =
@@ -59,8 +64,6 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         if (scrollPosition == 0) { // Fix for recyclerview items not being updated
             binding?.fragmentItemScrollerList?.scrollToPosition(0)
         }
-        val sharedPref =
-            PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
         val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
         val blurNsfwThumbnail = sharedPref.getBoolean(NSFW_THUMBNAIL_KEY, false)
         if (showNsfw != model.showNsfw) {
@@ -104,8 +107,6 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     private fun initListingInfo() {
-        val sharedPref =
-            PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
         val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
         model.setNsfw(showNsfw)
         val args = requireArguments()

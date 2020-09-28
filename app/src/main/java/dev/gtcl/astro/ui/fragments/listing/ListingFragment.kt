@@ -2,6 +2,7 @@ package dev.gtcl.astro.ui.fragments.listing
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -64,14 +65,16 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         createMarkwonInstance(requireContext(), viewPagerModel::linkClicked)
     }
 
+    private val sharedPref: SharedPreferences by lazy {
+        PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
+    }
+
     private lateinit var scrollListener: ListingScrollListener
     private lateinit var listAdapter: ListingAdapter
 
     override fun onResume() {
         super.onResume()
         viewPagerModel.syncViewPager()
-        val sharedPref =
-            PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
         val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
         val blurNsfwThumbnail = sharedPref.getBoolean(NSFW_THUMBNAIL_KEY, false)
         if (showNsfw != model.showNsfw) {
@@ -109,8 +112,6 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
     private fun initData() {
         val listing = requireArguments().getParcelable<Listing>(LISTING_KEY) ?: return
-        val sharedPref =
-            PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
         val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
         when (listing) {
             is SubredditListing -> model.fetchSubreddit(listing.displayName)
