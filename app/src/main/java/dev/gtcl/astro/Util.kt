@@ -364,7 +364,8 @@ suspend fun setItemsReadStatus(items: List<Item>, readIds: HashSet<String>) {
     }
 }
 
-fun String.toValidImgUrl(): String? = IMAGE_REGEX.find(this)?.value
+fun String.toValidImgUrl(): String? =
+    IMAGE_REGEX.find(this)?.value?.replace("preview.redd.it", "i.redd.it")
 
 operator fun <T> MutableLiveData<MutableList<T>>.plusAssign(values: List<T>) {
     val value = this.value ?: arrayListOf()

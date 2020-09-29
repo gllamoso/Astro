@@ -130,7 +130,7 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
 
         DownloadIntentService.enqueueWork(
             application.applicationContext,
-            _mediaItems.value!!.map { it.url })
+            (_mediaItems.value ?: return).map { it.url })
     }
 
     fun downloadCurrentItem() {
@@ -170,6 +170,8 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                         }
                     }
                 }
+            } else if (item.mediaType == MediaType.PICTURE) {
+                downloadUrl = item.url.toValidImgUrl() ?: item.url
             }
 
             DownloadIntentService.enqueueWork(application.applicationContext, downloadUrl)

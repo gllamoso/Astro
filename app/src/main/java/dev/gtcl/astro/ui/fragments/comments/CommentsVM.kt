@@ -443,6 +443,8 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                         }
                     }
                 }
+            } else if (item.mediaType == MediaType.PICTURE) {
+                downloadUrl = item.url.toValidImgUrl() ?: item.url
             }
 
             DownloadIntentService.enqueueWork(application.applicationContext, downloadUrl)
