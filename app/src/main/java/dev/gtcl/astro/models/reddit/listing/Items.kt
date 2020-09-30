@@ -447,7 +447,7 @@ data class GalleryItem(
 
 @Parcelize
 data class MediaMetadata(
-    val id: String,
+    val id: String?,
     @Json(name = "m")
     val mimeType: String?
 ) : Parcelable
