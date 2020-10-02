@@ -20,6 +20,7 @@ class MarkdownToSpannable {
         private val QUOTE_TEXT_REGEX = "^>.*$".toRegex(RegexOption.MULTILINE)
         private val SUPERSCRIPT_GROUP_REGEX = "\\^\\([^()]+\\)".toRegex()
         private val SUPERSCRIPT_WORD_REGEX = "\\^[^\\s()]+".toRegex()
+        private val PERCENT_MARKDOWN_REGEX = "&#37;".toRegex()
 
         fun setSpannableStringBuilder(
             context: Context,
@@ -83,7 +84,7 @@ class MarkdownToSpannable {
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
                 )
 
-                match = SPOILER_REGEX.find(spannableStringBuilder)
+                match = SPOILER_REGEX.find(spannableStringBuilder, start)
             }
         }
 
@@ -115,7 +116,7 @@ class MarkdownToSpannable {
                     )
                 }
 
-                match = QUOTE_TEXT_REGEX.find(spannableStringBuilder)
+                match = QUOTE_TEXT_REGEX.find(spannableStringBuilder, start)
             }
         }
 
@@ -135,7 +136,7 @@ class MarkdownToSpannable {
                     )
                 }
 
-                match = SUPERSCRIPT_WORD_REGEX.find(spannableStringBuilder)
+                match = SUPERSCRIPT_WORD_REGEX.find(spannableStringBuilder, start)
             }
 
             match = SUPERSCRIPT_GROUP_REGEX.find(spannableStringBuilder)
@@ -154,7 +155,7 @@ class MarkdownToSpannable {
                     )
                 }
 
-                match = SUPERSCRIPT_GROUP_REGEX.find(spannableStringBuilder)
+                match = SUPERSCRIPT_GROUP_REGEX.find(spannableStringBuilder, start)
             }
 
 
@@ -166,7 +167,16 @@ class MarkdownToSpannable {
                 val start = match.range.first
                 val end = match.range.last
                 spannableStringBuilder.delete(start, end + 1)
-                match = NONSENSE_TEXT_REGEX.find(spannableStringBuilder)
+                match = NONSENSE_TEXT_REGEX.find(spannableStringBuilder, start)
+            }
+
+            match = PERCENT_MARKDOWN_REGEX.find(spannableStringBuilder)
+            while(match != null){
+                val start = match.range.first
+                val end = match.range.last
+                spannableStringBuilder.delete(start, end + 1)
+                spannableStringBuilder.insert(match.range.first, "%")
+                match = PERCENT_MARKDOWN_REGEX.find(spannableStringBuilder, start)
             }
         }
     }
