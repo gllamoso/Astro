@@ -284,9 +284,10 @@ class AccountFragment : Fragment(), LeftDrawerActions {
     }
 
     override fun onRemoveAccountClicked(account: SavedAccount) {
-        val currentAccount = (requireActivity().application as AstroApplication).currentAccount
+        val application = (requireActivity().application as AstroApplication)
+        val currentAccount = application.currentAccount
         if (account.id == currentAccount?.id) {
-            saveAccountToPreferences(requireContext(), null)
+            saveAccountToPreferences(application, null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
         activityModel.removeAccount(account)
@@ -294,9 +295,10 @@ class AccountFragment : Fragment(), LeftDrawerActions {
 
     @SuppressLint("RtlHardcoded")
     override fun onAccountClicked(account: SavedAccount) {
-        val currentAccount = (requireActivity().application as AstroApplication).currentAccount
+        val application = (requireActivity().application as AstroApplication)
+        val currentAccount = application.currentAccount
         if (account.id != currentAccount?.id) {
-            saveAccountToPreferences(requireContext(), account)
+            saveAccountToPreferences(application, account)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
         binding?.fragmentAccountDrawer?.closeDrawer(Gravity.LEFT)
@@ -304,9 +306,10 @@ class AccountFragment : Fragment(), LeftDrawerActions {
 
     @SuppressLint("RtlHardcoded")
     override fun onLogoutClicked() {
-        val currentAccount = (requireActivity().application as AstroApplication).currentAccount
+        val application = (requireActivity().application as AstroApplication)
+        val currentAccount = application.currentAccount
         if (currentAccount != null) {
-            saveAccountToPreferences(requireContext(), null)
+            saveAccountToPreferences(application, null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
         binding?.fragmentAccountDrawer?.closeDrawer(Gravity.LEFT)

@@ -95,6 +95,13 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         return binding?.root
     }
 
+    private fun resetOnScrollListener() {
+        binding?.fragmentItemScrollerList?.apply {
+            removeOnScrollListener(scrollListener)
+            addOnScrollListener(scrollListener)
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         Glide.get(requireContext()).clearMemory()
@@ -169,11 +176,8 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             itemClickListener = this,
             username = currentAccount?.name
         ) {
-            recyclerView.apply {
-                removeOnScrollListener(scrollListener)
-                addOnScrollListener(scrollListener)
-                model.retry()
-            }
+            resetOnScrollListener()
+            model.retry()
         }
         recyclerView.apply {
             this.adapter = listAdapter
@@ -213,10 +217,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                 return@setOnRefreshListener
             }
 
-            recyclerView.apply {
-                removeOnScrollListener(scrollListener)
-                addOnScrollListener(scrollListener)
-            }
+            resetOnScrollListener()
             initData()
         }
     }

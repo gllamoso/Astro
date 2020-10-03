@@ -508,8 +508,8 @@ enum class LeftDrawerHeader {
     SETTINGS
 }
 
-fun saveAccountToPreferences(context: Context, account: SavedAccount?) {
-    val sharedPrefs = context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+fun saveAccountToPreferences(application: AstroApplication, account: SavedAccount?) {
+    val sharedPrefs = application.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
     with(sharedPrefs.edit()) {
         val json = Gson().toJson(account)
         putString(CURRENT_USER_KEY, json)

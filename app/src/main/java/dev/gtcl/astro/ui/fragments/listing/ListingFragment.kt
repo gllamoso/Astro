@@ -127,6 +127,13 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         model.fetchFirstPage()
     }
 
+    private fun resetOnScrollListener(){
+        binding?.fragmentListingList?.apply {
+            removeOnScrollListener(scrollListener)
+            addOnScrollListener(scrollListener)
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
         Glide.get(requireContext()).clearMemory()
@@ -150,11 +157,8 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             itemClickListener = this,
             username = currentAccount?.name
         ) {
-            listView.apply {
-                removeOnScrollListener(scrollListener)
-                addOnScrollListener(scrollListener)
-                model.retry()
-            }
+            resetOnScrollListener()
+            model.retry()
         }
         listView.apply {
             this.adapter = listAdapter
@@ -193,10 +197,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                 return@setOnRefreshListener
             }
 
-            listView.apply {
-                removeOnScrollListener(scrollListener)
-                addOnScrollListener(scrollListener)
-            }
+            resetOnScrollListener()
             initData()
         }
     }
@@ -276,10 +277,12 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                 if (model.listing is SearchListing || postSortSelected == PostSort.TOP || postSortSelected == PostSort.CONTROVERSIAL) {
                     val time = if (currentSort == postSortSelected) currentTime else null
                     showTimePopup(anchor, time) { timeSortSelected ->
+                        resetOnScrollListener()
                         model.setListingSort(postSortSelected, timeSortSelected)
                         model.fetchFirstPage()
                     }
                 } else {
+                    resetOnScrollListener()
                     model.setListingSort(postSortSelected)
                     model.fetchFirstPage()
                 }
@@ -299,11 +302,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             if (model.networkState.value == NetworkState.LOADING) {
                 return@setOnClickListener
             }
-
-            binding?.fragmentListingList?.apply {
-                removeOnScrollListener(scrollListener)
-                addOnScrollListener(scrollListener)
-            }
+            resetOnScrollListener()
             initData()
         }
 
@@ -668,9 +667,10 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun onRemoveAccountClicked(account: SavedAccount) {
-        val currentAccount = (requireActivity().application as AstroApplication).currentAccount
+        val application = (requireActivity().application as AstroApplication)
+        val currentAccount = application.currentAccount
         if (account.id == currentAccount?.id) {
-            saveAccountToPreferences(requireContext(), null)
+            saveAccountToPreferences(application, null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
         activityModel.removeAccount(account)
@@ -678,9 +678,10 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
     @SuppressLint("RtlHardcoded")
     override fun onAccountClicked(account: SavedAccount) {
-        val currentAccount = (requireActivity().application as AstroApplication).currentAccount
+        val application = requireActivity().application as AstroApplication
+        val currentAccount = application.currentAccount
         if (account.id != currentAccount?.id) {
-            saveAccountToPreferences(requireContext(), account)
+            saveAccountToPreferences(application, account)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
         binding?.fragmentListingDrawer?.closeDrawer(Gravity.LEFT)
@@ -688,9 +689,10 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 
     @SuppressLint("RtlHardcoded")
     override fun onLogoutClicked() {
-        val currentAccount = (requireActivity().application as AstroApplication).currentAccount
+        val application = (requireActivity().application as AstroApplication)
+        val currentAccount = application.currentAccount
         if (currentAccount != null) {
-            saveAccountToPreferences(requireContext(), null)
+            saveAccountToPreferences(application, null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
         binding?.fragmentListingDrawer?.closeDrawer(Gravity.LEFT)
