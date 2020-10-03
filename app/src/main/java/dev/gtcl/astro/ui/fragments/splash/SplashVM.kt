@@ -33,7 +33,9 @@ class SplashVM(val application: AstroApplication) : AstroViewModel(application) 
                     }
 
                     if (saveToPreferences) {
-                        saveAccountToPreferences(application, account)
+                        withContext(Dispatchers.Main){
+                            saveAccountToPreferences(application, account)
+                        }
                     }
                     _ready.postValue(true)
                 } catch (e: Exception) {
