@@ -314,6 +314,9 @@ interface RedditApiService {
         @Path("displayName") displayName: String
     ): Deferred<RulesResponse>
 
+    // TODO: Get moderated subreddits
+    // /user/{username}/moderated_subreddits.json
+
 //     __  __       _ _   _        _____          _     _ _ _
 //    |  \/  |     | | | (_)      |  __ \        | |   | (_) |
 //    | \  / |_   _| | |_ _ ______| |__) |___  __| | __| |_| |_ ___
@@ -373,6 +376,9 @@ interface RedditApiService {
         @Query("model", encoded = true) model: MultiRedditUpdate,
         @Query("expand_srs") expandSubs: Boolean = true
     ): Deferred<MultiRedditChild>
+
+    // TODO: Get public multis belonging to username
+    // /api/multi/user/{username}
 
 //      _____                                     _
 //     / ____|                                   | |
