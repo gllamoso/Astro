@@ -45,7 +45,7 @@ class SplashFragment : Fragment() {
                         ListingPage(FrontPage)
                     )
                 )
-                model.readyComplete()
+                model.readyObserved()
                 activityModel.syncSubscriptionsWithReddit()
             }
         })

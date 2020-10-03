@@ -15,7 +15,7 @@ class SplashVM(val application: AstroApplication) : AstroViewModel(application) 
     val ready: LiveData<Boolean?>
         get() = _ready
 
-    fun readyComplete() {
+    fun readyObserved() {
         _ready.value = null
     }
 
