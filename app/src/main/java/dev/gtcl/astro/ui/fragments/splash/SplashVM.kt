@@ -19,7 +19,7 @@ class SplashVM(val application: AstroApplication) : AstroViewModel(application) 
         _ready.value = null
     }
 
-    fun setCurrentUser(account: SavedAccount?, saveToPreferences: Boolean) {
+    fun setCurrentUser(account: SavedAccount?) {
         coroutineScope.launch {
             withContext(Dispatchers.IO) {
                 try {
@@ -30,12 +30,6 @@ class SplashVM(val application: AstroApplication) : AstroViewModel(application) 
                         val accessToken = fetchAccessToken(account.refreshToken!!)
                         application.accessToken = accessToken
                         application.currentAccount = userRepository.getAccount(accessToken).await()
-                    }
-
-                    if (saveToPreferences) {
-                        withContext(Dispatchers.Main){
-                            saveAccountToPreferences(application, account)
-                        }
                     }
                     _ready.postValue(true)
                 } catch (e: Exception) {
