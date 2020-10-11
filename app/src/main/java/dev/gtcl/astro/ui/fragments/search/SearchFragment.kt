@@ -29,7 +29,7 @@ import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
 import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
 
 
-class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
+class SearchFragment : Fragment(), ItemClickListener {
     private var binding: FragmentSearchBinding? = null
 
     private val model: SearchVM by lazy {
@@ -143,7 +143,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         )
         val listAdapter = ListingAdapter(
             markwon = null,
-            subredditActions = this,
+            subredditActions = null,
             expected = ItemType.Subreddit,
             itemClickListener = this,
             username = null
@@ -184,7 +184,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
     }
 
     private fun initSearchRecyclerViewAdapter() {
-        val adapter = SimpleItemAdapter(this, this)
+        val adapter = SimpleItemAdapter(null, this)
         val searchList = binding?.fragmentSearchSearchList
         searchList?.adapter = adapter
 
@@ -274,10 +274,6 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
                 )
             }
         }
-    }
-
-    override fun viewMoreInfo(displayName: String) {
-        SubredditInfoDialogFragment.newInstance(displayName).show(childFragmentManager, null)
     }
 
     companion object {

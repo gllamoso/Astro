@@ -13,7 +13,7 @@ import dev.gtcl.astro.ui.viewholders.AccountVH
 import dev.gtcl.astro.ui.viewholders.SubredditVH
 
 class SimpleItemAdapter(
-    private val subredditActions: SubredditActions,
+    private val subredditActions: SubredditActions?,
     private val itemClickListener: ItemClickListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
     private var items: MutableList<Item> = ArrayList()

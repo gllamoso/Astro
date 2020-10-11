@@ -13,7 +13,7 @@ class SubredditVH private constructor(private val binding: ItemSubredditBinding)
     RecyclerView.ViewHolder(binding.root) {
     fun bind(
         sub: Subreddit,
-        subredditActions: SubredditActions,
+        subredditActions: SubredditActions?,
         itemClickListener: ItemClickListener
     ) {
         binding.apply {
@@ -21,12 +21,15 @@ class SubredditVH private constructor(private val binding: ItemSubredditBinding)
             icon = sub.icon
             title = sub.title
             subscribers = sub.subscribers
+            moreInfoAvailable = subredditActions != null
         }
         binding.root.setOnClickListener {
             itemClickListener.itemClicked(sub, adapterPosition)
         }
-        binding.itemSubredditInfoButton.setOnClickListener {
-            subredditActions.viewMoreInfo(sub.displayName)
+        subredditActions?.let {
+            binding.itemSubredditInfoButton.setOnClickListener {
+                subredditActions.viewMoreInfo(sub.displayName)
+            }
         }
         binding.executePendingBindings()
     }

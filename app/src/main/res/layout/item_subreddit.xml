@@ -16,6 +16,9 @@
         <variable
             name="subscribers"
             type="Integer" />
+        <variable
+            name="moreInfoAvailable"
+            type="Boolean" />
         <import type="dev.gtcl.astro.UtilKt" />
         <import type="android.view.View"/>
     </data>
@@ -51,13 +54,13 @@
                 tools:text="Subreddit Name" />
 
             <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
                 android:text="@{title}"
                 tools:text="Subreddit Title"/>
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:textSize="12sp"
                 android:singleLine="true"
@@ -73,6 +76,7 @@
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
             android:padding="8dp"
+            android:visibility="@{moreInfoAvailable ? View.VISIBLE : View.GONE}"
             android:background="?attr/selectableItemBackgroundBorderless"
             android:src="@drawable/ic_info_24" />
 

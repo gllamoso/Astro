@@ -147,9 +147,6 @@ class ListingAdapter(
             }
             R.layout.item_subreddit -> {
                 val subreddit = items!![position] as Subreddit
-                if (subredditActions == null) {
-                    throw IllegalStateException("Subreddit Actions not initialized")
-                }
                 (holder as SubredditVH).bind(subreddit, subredditActions, itemClickListener)
             }
             R.layout.item_message -> {
