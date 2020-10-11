@@ -113,11 +113,12 @@ class SubsamplingScaleImageViewTarget(view: SubsamplingScaleImageView) :
 }
 
 @BindingAdapter("listingType")
-fun loadMultiIcon(imgView: ImageView, listing: Listing) {
-    when (listing) {
+fun loadMultiIcon(imgView: ImageView, postListing: PostListing) {
+    when (postListing) {
         FrontPage -> imgView.setImageResource(R.drawable.ic_front_page_24)
         All -> imgView.setImageResource(R.drawable.ic_all_24)
         Popular -> imgView.setImageResource(R.drawable.ic_trending_up_24)
+        is ProfileListing -> imgView.setImageResource(R.drawable.ic_bookmark_24)
         is MultiRedditListing -> imgView.setImageResource(R.drawable.ic_collection_24)
         else -> imgView.setImageResource(R.drawable.ic_reddit_circle_24)
     }
@@ -125,6 +126,24 @@ fun loadMultiIcon(imgView: ImageView, listing: Listing) {
 
 @BindingAdapter("subredditIcon")
 fun loadSubIcon(imgView: ImageView, imgUrl: String?) {
+    if (imgUrl == null || !imgUrl.startsWith("http")) {
+        imgView.setImageResource(R.drawable.ic_reddit_24)
+    } else {
+        val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
+        Glide.with(imgView.context)
+            .load(imgUri)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .apply(
+                RequestOptions()
+                    .placeholder(R.drawable.ic_reddit_24)
+                    .circleCrop()
+            )
+            .into(imgView)
+    }
+}
+
+@BindingAdapter("subredditCircularIcon")
+fun loadCircularSubIcon(imgView: ImageView, imgUrl: String?) {
     if (imgUrl == null || !imgUrl.startsWith("http")) {
         imgView.setImageResource(R.drawable.ic_reddit_circle_24)
     } else {
@@ -153,6 +172,24 @@ fun loadAccountIcon(imgView: ImageView, imgUrl: String?) {
             .apply(
                 RequestOptions()
                     .placeholder(R.drawable.ic_profile_24)
+                    .circleCrop()
+            )
+            .into(imgView)
+    }
+}
+
+@BindingAdapter("multiIcon")
+fun loadMultiRedditIcon(imgView: ImageView, imgUrl: String?) {
+    if (imgUrl == null || !imgUrl.startsWith("http")) {
+        imgView.setImageResource(R.drawable.ic_collection_24)
+    } else {
+        val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
+        Glide.with(imgView.context)
+            .load(imgUri)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .apply(
+                RequestOptions()
+                    .placeholder(R.drawable.ic_collection_24)
                     .circleCrop()
             )
             .into(imgView)
@@ -206,15 +243,15 @@ fun loadAddedIcon(imgView: ImageView, added: Boolean) {
 }
 
 @BindingAdapter("listingType")
-fun loadListingText(txtView: TextView, listing: Listing?) {
+fun loadListingText(txtView: TextView, postListing: PostListing?) {
     val context = txtView.context
-    listing?.let {
+    postListing?.let {
         txtView.text = when (it) {
             FrontPage -> context.getText(R.string.frontpage)
             All -> context.getText(R.string.all)
             Popular -> context.getText(R.string.popular_tab_label)
             is SearchListing -> String.format(context.getString(R.string.search_title), it.query)
-            is MultiRedditListing -> it.multiReddit.name
+            is MultiRedditListing -> it.name
             is SubredditListing -> it.displayName
             is ProfileListing -> context.getText(
                 when (it.info) {
@@ -228,15 +265,14 @@ fun loadListingText(txtView: TextView, listing: Listing?) {
                     ProfileInfo.GILDED -> R.string.gilded
                 }
             )
-            is SubscriptionListing -> it.subscription.name
         }
     }
 }
 
 @BindingAdapter("listingType")
-fun setVisibility(viewGroup: ViewGroup, listing: Listing?) {
-    if (listing == null) return
-    viewGroup.visibility = if (listing is SubredditListing) View.VISIBLE else View.GONE
+fun setVisibility(viewGroup: ViewGroup, postListing: PostListing?) {
+    if (postListing == null) return
+    viewGroup.visibility = if (postListing is SubredditListing) View.VISIBLE else View.GONE
 }
 
 @BindingAdapter("indent")
@@ -249,7 +285,7 @@ fun setIndentation(linearLayout: LinearLayout, indent: Int) {
     ).toInt()
     val indentationSize = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP,
-        8F,
+        12F,
         linearLayout.context.resources.displayMetrics
     ).toInt()
     val params =
@@ -288,14 +324,14 @@ fun setTimestamp(textView: TextView, time: Long?) {
 
 @BindingAdapter("secondsToDate")
 fun secondsToDate(textView: TextView, time: Long) {
-    val simpleDateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.ROOT)
+    val simpleDateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.US)
     textView.text = simpleDateFormat.format(1000L * time)
 }
 
 @BindingAdapter("viewSize")
 fun setViewSize(view: View, percentOfDeviceHeight: Int) {
     val display = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-        view.context.display!!
+        view.context.display ?: return
     } else {
         val wm = view.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
         wm.defaultDisplay

@@ -5,7 +5,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
 import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.listing.Item
-import dev.gtcl.astro.models.reddit.listing.Listing
+import dev.gtcl.astro.models.reddit.listing.PostListing
 import dev.gtcl.astro.models.reddit.listing.Post
 import dev.gtcl.astro.models.reddit.listing.SearchListing
 import dev.gtcl.astro.network.NetworkState
@@ -33,10 +33,6 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
     private val readItemIds = HashSet<String>()
     private var after: String? = null
 
-    private var _user: String? = null
-    val user: String?
-        get() = _user
-
     private val _postSort = MutableLiveData<PostSort>()
     val postSort: LiveData<PostSort>
         get() = _postSort
@@ -61,7 +57,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
 
     private val currentItemIds = HashSet<String>()
 
-    var listing: Listing? = null
+    var postListing: PostListing? = null
     private var subredditWhere: SubredditWhere? = null
     private var messageWhere: MessageWhere? = null
 
@@ -75,7 +71,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
         val sortArray = application.resources.getStringArray(R.array.post_sort_entries)
         val postSort: PostSort
         val time: Time?
-        if (listing is SearchListing) {
+        if (postListing is SearchListing) {
             postSort = PostSort.RELEVANCE
             time = Time.ALL
         } else {
@@ -154,9 +150,9 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
     }
 
     open fun setListingInfo(
-        listing: Listing
+        postListing: PostListing
     ) {
-        this.listing = listing
+        this.postListing = postListing
     }
 
     fun setListingSort(
@@ -179,15 +175,11 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
         _showNsfw = showNsfw
     }
 
-    fun setUser(user: String?) {
-        _user = user
-    }
-
     fun addReadItem(item: Item) {
         readItemIds.add(item.name)
         coroutineScope.launch {
             try {
-                listingRepository.addReadItem(item)
+                miscRepository.addReadItem(item)
             } catch (e: Exception) {
                 Timber.tag(this@ItemScrollerVM.javaClass.simpleName).e(e.toString())
                 _errorMessage.postValue(e.toString())
@@ -213,16 +205,15 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                         val retrieveSize =
                             if (firstPageItems.size > (firstPageSize * 2 / 3)) pageSize else firstPageSize
                         val response = when {
-                            listing != null -> listingRepository.getListing(
-                                listing ?: return@withContext,
+                            postListing != null -> listingRepository.getPostListing(
+                                postListing ?: return@withContext,
                                 postSort.value ?: return@withContext,
                                 time.value,
                                 after,
                                 retrieveSize,
-                                count,
-                                user
+                                count
                             ).await()
-                            subredditWhere != null -> subredditRepository.getSubredditsListing(
+                            subredditWhere != null -> listingRepository.getSubredditsListing(
                                 subredditWhere ?: return@withContext,
                                 after,
                                 retrieveSize
@@ -260,7 +251,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                         _lastItemReached.postValue(true)
                         _items.postValue(firstPageItems)
                     } else {
-                        listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
+                        miscRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
                         setItemsReadStatus(firstPageItems, readItemIds)
                         _items.postValue(firstPageItems)
                     }
@@ -294,16 +285,15 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                     val maxAttempts = 3
                     while (moreItems.size < this@ItemScrollerVM.pageSize && attempts < maxAttempts) {
                         val response = when {
-                            listing != null -> listingRepository.getListing(
-                                listing ?: return@withContext,
+                            postListing != null -> listingRepository.getPostListing(
+                                postListing ?: return@withContext,
                                 postSort.value ?: return@withContext,
                                 time.value,
                                 after,
                                 this@ItemScrollerVM.pageSize,
-                                count,
-                                user
+                                count
                             ).await()
-                            subredditWhere != null -> subredditRepository.getSubredditsListing(
+                            subredditWhere != null -> listingRepository.getSubredditsListing(
                                 subredditWhere ?: return@withContext,
                                 after,
                                 this@ItemScrollerVM.pageSize

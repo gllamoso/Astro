@@ -5,9 +5,6 @@
 
     <data>
         <variable
-            name="subreddit"
-            type="dev.gtcl.astro.models.reddit.listing.Subreddit" />
-        <variable
             name="titleText"
             type="String" />
         <variable
@@ -16,6 +13,9 @@
         <variable
             name="time"
             type="dev.gtcl.astro.Time" />
+        <variable
+            name="bannerImg"
+            type="String" />
         <import type="android.view.View"/>
         <import type="android.R"/>
     </data>
@@ -40,14 +40,14 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:layout_collapseMode="parallax"
-                android:visibility="@{subreddit == null ? View.GONE : View.VISIBLE}">
+                android:visibility="@{bannerImg != null ? View.VISIBLE : View.GONE}">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/layoutTopAppBarListing_profileBanner"
                     android:layout_width="match_parent"
                     android:layout_height="150dp"
                     android:scaleType="centerCrop"
-                    app:loadImageAndHideIfNull="@{subreddit.banner}"/>
+                    app:loadImageAndHideIfNull="@{bannerImg}"/>
 
             </LinearLayout>
 
@@ -133,15 +133,13 @@
                         android:id="@+id/layoutTopAppBarListing_sideBarButton"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:src="@drawable/ic_reddit_circle_24"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:padding="8dp"
                         android:layout_marginEnd="16dp"
-                        android:visibility="@{subreddit == null ? View.GONE : View.VISIBLE}"
-                        app:subredditIcon="@{subreddit.icon}"
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintBottom_toBottomOf="parent"/>
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        tools:src="@drawable/ic_reddit_circle_24"/>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 

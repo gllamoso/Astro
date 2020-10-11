@@ -7,6 +7,7 @@ import dev.gtcl.astro.models.reddit.listing.Item
 import dev.gtcl.astro.models.reddit.listing.SubredditChild
 import dev.gtcl.astro.ui.fragments.item_scroller.ItemScrollerVM
 import kotlinx.coroutines.*
+import timber.log.Timber
 import java.util.*
 
 class SearchVM(private val application: AstroApplication) : ItemScrollerVM(application) {
@@ -69,6 +70,7 @@ class SearchVM(private val application: AstroApplication) : ItemScrollerVM(appli
             limit = 10,
             query = query
         ).await().data.children.map { (it as SubredditChild).data }
+            .filter { it.subredditType == "public" }
         results.addAll(subs)
     }
 

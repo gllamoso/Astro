@@ -17,6 +17,7 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         android:usesCleartextTraffic="true"
+        android:hardwareAccelerated="true"
         tools:ignore="GoogleAppIndexingWarning">
         <activity android:name="dev.gtcl.astro.ui.activities.MainActivity"
             android:windowSoftInputMode="stateAlwaysHidden">

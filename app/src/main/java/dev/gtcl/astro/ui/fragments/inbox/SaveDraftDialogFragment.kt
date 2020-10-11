@@ -7,10 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
-import dev.gtcl.astro.MESSAGE_KEY
-import dev.gtcl.astro.PREFERENCES_KEY
-import dev.gtcl.astro.SUBJECT_KEY
-import dev.gtcl.astro.TO_KEY
+import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentDialogSaveDraftBinding
 
 class SaveDraftDialogFragment : DialogFragment() {
@@ -47,15 +44,13 @@ class SaveDraftDialogFragment : DialogFragment() {
 
     private fun saveDraft() {
         val arguments = requireArguments()
-        val to = arguments.getString(TO_KEY)
-        val subject = arguments.getString(SUBJECT_KEY)
-        val message = arguments.getString(MESSAGE_KEY)
+        val draft = arguments.get(DRAFT_KEY) as Draft
         val sharedPrefs =
             requireContext().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
         with(sharedPrefs.edit()) {
-            putString(TO_KEY, to)
-            putString(SUBJECT_KEY, subject)
-            putString(MESSAGE_KEY, message)
+            putString(TO_KEY, draft.to)
+            putString(SUBJECT_KEY, draft.subject)
+            putString(MESSAGE_KEY, draft.message)
             commit()
         }
     }
@@ -77,10 +72,16 @@ class SaveDraftDialogFragment : DialogFragment() {
     }
 
     companion object {
-        fun newInstance(to: String?, subject: String?, message: String?): SaveDraftDialogFragment {
+        fun newInstance(draft: Draft): SaveDraftDialogFragment {
             return SaveDraftDialogFragment().apply {
-                arguments = bundleOf(TO_KEY to to, SUBJECT_KEY to subject, MESSAGE_KEY to message)
+                arguments = bundleOf(DRAFT_KEY to draft)
             }
         }
     }
 }
+
+data class Draft(
+    val to: String?,
+    val subject: String?,
+    val message: String?
+)

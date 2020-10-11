@@ -34,6 +34,7 @@
                 android:id="@+id/fragmentDialogFlairSelection_recyclerView"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:scrollIndicators="top|bottom"
                 app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
                 app:spanCount="1"
                 android:visibility="@{model.flairs != null &amp;&amp; !model.flairs.empty ? View.VISIBLE : View.GONE}"

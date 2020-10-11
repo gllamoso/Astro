@@ -30,8 +30,8 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
     val post: LiveData<Post>
         get() = _post
 
-    private val _comments = MutableLiveData<MutableList<Item>>()
-    val comments: LiveData<MutableList<Item>>
+    private val _comments = MutableLiveData<MutableList<Item>?>()
+    val comments: LiveData<MutableList<Item>?>
         get() = _comments
 
     private val _moreComments = MutableLiveData<MoreComments?>()
@@ -113,7 +113,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                     permalink
                 }
                 val commentPage =
-                    listingRepository.getPostAndComments(
+                    miscRepository.getPostAndComments(
                         link,
                         _commentSort.value ?: return@launch, pageSize * 3
                     )
@@ -152,7 +152,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
             val children = moreItem.pollChildrenAsValidString(CHILDREN_PER_FETCH)
             try {
                 _loading.postValue(true)
-                val comments = listingRepository.getMoreComments(
+                val comments = miscRepository.getMoreComments(
                     children,
                     (post.value ?: return@launch).name,
                     _commentSort.value ?: return@launch
@@ -256,33 +256,37 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
             try {
                 _mediaItemsLoading.postValue(true)
                 _loading.postValue(true)
-                _mediaItems.postValue(when (val urlType = post.urlType) {
+                _mediaItems.postValue(when (post.urlType) {
                     UrlType.IMAGE -> {
                         listOf(MediaURL(post.url ?: return@launch, MediaType.PICTURE))
                     }
                     UrlType.GIF -> {
                         listOf(MediaURL(post.url ?: return@launch, MediaType.GIF))
                     }
-                    UrlType.HLS, UrlType.GIFV, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> {
+                    UrlType.HLS, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> {
                         if (post.previewVideoUrl != null) {
+                            val url = post.previewVideoUrl
                             listOf(
                                 MediaURL(
-                                    post.previewVideoUrl ?: return@launch,
+                                    url ?: return@launch,
                                     MediaType.VIDEO,
                                     thumbnail = post.thumbnail
                                 )
                             )
                         } else {
-                            val url = when (urlType) {
-                                UrlType.GIFV -> {
-                                    (post.url ?: return@launch).replace(".gifv", ".mp4")
-                                }
-                                else -> {
-                                    post.url ?: return@launch
-                                }
-                            }
+                            val url = post.url ?: return@launch
                             listOf(MediaURL(url, MediaType.VIDEO, thumbnail = post.thumbnail))
                         }
+                    }
+                    UrlType.GIFV -> {
+                        listOf(
+                            MediaURL(
+                                (post.url ?: return@launch).replace(".gifv", ".mp4"),
+                                MediaType.VIDEO,
+                                backupUrl = post.previewVideoUrl,
+                                thumbnail = post.thumbnail
+                            )
+                        )
                     }
                     UrlType.GFYCAT -> {
                         val id = GFYCAT_REGEX.getIdFromUrl(post.url ?: return@launch)

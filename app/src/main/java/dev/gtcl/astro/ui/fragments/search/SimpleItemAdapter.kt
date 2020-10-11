@@ -12,7 +12,7 @@ import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.ui.viewholders.AccountVH
 import dev.gtcl.astro.ui.viewholders.SubredditVH
 
-class SearchAdapter(
+class SimpleItemAdapter(
     private val subredditActions: SubredditActions,
     private val itemClickListener: ItemClickListener
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
@@ -50,7 +50,6 @@ class SearchAdapter(
         when (getItemViewType(position)) {
             R.layout.item_account -> (holder as AccountVH).bind(
                 items[position] as Account,
-                subredditActions,
                 itemClickListener
             )
             R.layout.item_subreddit -> (holder as SubredditVH).bind(

@@ -9,7 +9,7 @@
         <import type="android.view.View"/>
         <variable
             name="model"
-            type="dev.gtcl.astro.ui.fragments.listing.ListingVM" />
+            type="dev.gtcl.astro.ui.fragments.post_listing.PostListingVM" />
     </data>
 
 
@@ -26,10 +26,10 @@
             <include
                 android:id="@+id/fragmentListing_topAppBarLayout"
                 layout="@layout/layout_top_app_bar_listing"
-                app:subreddit="@{model.subreddit}"
                 app:titleText="@{model.title}"
                 app:postSort="@{model.postSort}"
-                app:time="@{model.time}"/>
+                app:time="@{model.time}"
+                app:bannerImg="@{model.bannerImg}"/>
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -78,7 +78,7 @@
                 android:layout_height="?android:attr/actionBarSize"
                 android:layout_gravity="bottom"
                 app:contentInsetStart="0dp"
-                app:layout_behavior="dev.gtcl.astro.ui.fragments.listing.BottomNavigationBehavior">
+                app:layout_behavior="dev.gtcl.astro.ui.fragments.post_listing.BottomNavigationBehavior">
 
                 <include
                     android:id="@+id/fragmentListing_bottomAppBarLayout"
@@ -90,18 +90,17 @@
 
         <include
             android:id="@+id/fragmentListing_leftDrawerLayout"
-            android:layout_width="240dp"
+            android:layout_width="300dp"
             android:layout_height="match_parent"
             android:layout_gravity="start"
             layout="@layout/layout_left_drawer"/>
 
         <include
             android:id="@+id/fragmentListing_rightDrawerLayout"
-            android:layout_width="240dp"
+            android:layout_width="300dp"
             android:layout_height="match_parent"
             android:layout_gravity="end"
-            layout="@layout/layout_right_drawer"
-            app:sub="@{model.subreddit}"/>
+            layout="@layout/layout_right_drawer"/>
 
 
     </androidx.drawerlayout.widget.DrawerLayout>

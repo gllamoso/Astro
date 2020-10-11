@@ -135,7 +135,9 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         })
 
         model.comments.observe(viewLifecycleOwner, {
-            adapter.submitList(it)
+            if (it != null) {
+                adapter.submitList(it)
+            }
         })
 
         model.moreComments.observe(viewLifecycleOwner, {
@@ -187,7 +189,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         }
 
         binding?.fragmentCommentsReply?.setOnClickListener {
-            checkIfLoggedInBeforeExecuting(requireContext()){
+            checkIfLoggedInBeforeExecuting(requireContext()) {
                 val post = model.post.value ?: return@checkIfLoggedInBeforeExecuting
                 if (post.locked || post.deleted) {
                     Snackbar.make(it, R.string.cannot_reply_to_post, Snackbar.LENGTH_LONG).show()
@@ -242,7 +244,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
 
             layoutCommentsBottomBarUpvoteButton.setOnClickListener {
-                checkIfLoggedInBeforeExecuting(requireContext()){
+                checkIfLoggedInBeforeExecuting(requireContext()) {
                     if (model.loading.value == true) {
                         return@checkIfLoggedInBeforeExecuting
                     }
@@ -260,7 +262,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
 
             layoutCommentsBottomBarDownvoteButton.setOnClickListener {
-                checkIfLoggedInBeforeExecuting(requireContext()){
+                checkIfLoggedInBeforeExecuting(requireContext()) {
                     if (model.loading.value == true) {
                         return@checkIfLoggedInBeforeExecuting
                     }
@@ -278,7 +280,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
 
             layoutCommentsBottomBarSaveButton.setOnClickListener {
-                checkIfLoggedInBeforeExecuting(requireContext()){
+                checkIfLoggedInBeforeExecuting(requireContext()) {
                     if (model.loading.value == true) {
                         return@checkIfLoggedInBeforeExecuting
                     }

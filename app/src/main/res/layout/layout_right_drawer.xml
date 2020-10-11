@@ -6,64 +6,139 @@
 
     <data>
         <variable
-            name="sub"
-            type="dev.gtcl.astro.models.reddit.listing.Subreddit" />
+            name="iconImg"
+            type="String" />
+        <variable
+            name="name"
+            type="String" />
+        <variable
+            name="title"
+            type="String" />
+        <variable
+            name="subscribers"
+            type="Integer" />
+        <variable
+            name="subscribed"
+            type="Boolean" />
+        <variable
+            name="editable"
+            type="Boolean" />
+        <import type="dev.gtcl.astro.UtilKt" />
+        <import type="android.view.View"/>
     </data>
 
-    <ScrollView
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:background="@color/colorBackground">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <androidx.appcompat.widget.AppCompatImageView
-                android:id="@+id/layoutRightDrawer_subIcon"
-                android:layout_width="64dp"
-                android:layout_height="64dp"
-                android:layout_margin="16dp"
-                android:src="@drawable/ic_reddit_circle_24"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:subredditIcon="@{sub.icon}" />
-
-            <include
-                android:id="@+id/layoutRightDrawer_subscribeToggle"
-                android:layout_width="wrap_content"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                layout="@layout/icon_subscribe"
-                android:layout_marginTop="8dp"
-                app:isSubscribed="@{sub.userSubscribed}"
-                app:layout_constraintTop_toBottomOf="@id/layoutRightDrawer_subIcon"
-                app:layout_constraintStart_toStartOf="@id/layoutRightDrawer_subIcon" />
+                android:padding="16dp">
 
-            <TextView
-                android:id="@+id/layoutRightDrawer_subName"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginHorizontal="8dp"
-                android:ellipsize="end"
-                android:singleLine="true"
-                android:text="@{sub.displayName}"
-                android:textAppearance="@style/TextAppearance.AppCompat.Large"
-                app:layout_constraintBottom_toBottomOf="@id/layoutRightDrawer_subIcon"
-                app:layout_constraintTop_toTopOf="@id/layoutRightDrawer_subIcon"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@id/layoutRightDrawer_subIcon"
-                tools:text="Subreddit Name" />
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:id="@+id/layoutRightDrawer_subIcon"
+                    android:layout_width="80dp"
+                    android:layout_height="80dp"
+                    android:src="@drawable/ic_reddit_circle_24"
+                    android:visibility="@{iconImg != null ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:subredditIcon="@{iconImg}" />
+
+                <TextView
+                    android:id="@+id/layoutRightDrawer_subName"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:singleLine="true"
+                    android:text="@{name}"
+                    android:layout_marginStart="8dp"
+                    android:textSize="18sp"
+                    android:visibility="@{name != null ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintVertical_bias="10"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintStart_toEndOf="@id/layoutRightDrawer_subIcon"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/layoutRightDrawer_subTitle"
+                    tools:text="Name" />
+
+                <TextView
+                    android:id="@+id/layoutRightDrawer_subTitle"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{title != null ? View.VISIBLE : View.GONE}"
+                    android:text="@{title}"
+                    android:layout_marginStart="8dp"
+                    app:layout_constraintStart_toEndOf="@id/layoutRightDrawer_subIcon"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/layoutRightDrawer_subSubscribers"
+                    tools:text="Title"/>
+
+                <TextView
+                    android:id="@+id/layoutRightDrawer_subSubscribers"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:textSize="12sp"
+                    android:singleLine="true"
+                    android:layout_marginStart="8dp"
+                    android:layout_marginBottom="4dp"
+                    android:visibility="@{subscribers != null ? View.VISIBLE : View.GONE}"
+                    android:text="@{String.format(@string/num_subscribers, UtilKt.numFormatted(subscribers))}"
+                    app:layout_constraintStart_toEndOf="@id/layoutRightDrawer_subIcon"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintBottom_toTopOf="@id/layoutRightDrawer_subscribeToggle"
+                    tools:text="Subtitle"/>
+
+                <include
+                    android:id="@+id/layoutRightDrawer_subscribeToggle"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    layout="@layout/icon_subscribe"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="8dp"
+                    android:visibility="@{subscribed != null ? View.VISIBLE : View.GONE}"
+                    app:isSubscribed="@{subscribed}"
+                    app:layout_constraintStart_toEndOf="@id/layoutRightDrawer_subIcon"
+                    app:layout_constraintBottom_toTopOf="@id/layoutRightDrawer_editButton"/>
+
+                <ImageView
+                    android:id="@+id/layoutRightDrawer_editButton"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:layout_marginStart="8dp"
+                    android:src="@drawable/ic_pencil_24"
+                    android:visibility="@{editable ? View.VISIBLE : View.GONE}"
+                    app:layout_constraintStart_toEndOf="@id/layoutRightDrawer_subIcon"
+                    app:layout_constraintBottom_toBottomOf="parent"/>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
             <TextView
                 android:id="@+id/layoutRightDrawer_publicDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                app:layout_constraintTop_toBottomOf="@id/layoutRightDrawer_subscribeToggle"
+                android:textSize="16sp"
                 android:padding="16dp"
                 tools:text="This is a long piece of text. Abcdefghijklmnopqrstuvwxyz. How are you today?"/>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/layoutRightDrawer_subreddits"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                app:spanCount="1"
+                tools:listitem="@layout/item_subreddit"/>
 
-    </ScrollView>
+        </LinearLayout>
+
+    </androidx.core.widget.NestedScrollView>
 
 </layout>

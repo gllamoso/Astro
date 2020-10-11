@@ -88,20 +88,21 @@
             android:id="@+id/action_searchFragment_to_viewPagerFragment"
             app:destination="@id/viewPagerFragment"
             app:enterAnim="@anim/slide_left"
-            app:popExitAnim="@anim/slide_right"
-            app:popUpTo="@id/searchFragment"
-            app:popUpToInclusive="true"/>
+            app:popExitAnim="@anim/slide_right"/>
     </fragment>
     <fragment
         android:id="@+id/multiRedditFragment"
         android:name="dev.gtcl.astro.ui.fragments.multireddits.MultiRedditFragment"
         android:label="MultiRedditFragment" >
         <argument
-            android:name="multiReddit"
-            app:argType="dev.gtcl.astro.database.Subscription" />
+            android:name="path"
+            app:argType="string" />
         <action
             android:id="@+id/action_multiRedditFragment_to_searchFragment"
             app:destination="@id/searchFragment" />
+        <action
+            android:id="@+id/action_multiRedditFragment_to_viewPagerFragment"
+            app:destination="@id/viewPagerFragment" />
     </fragment>
     <fragment
         android:id="@+id/settingsFragment"

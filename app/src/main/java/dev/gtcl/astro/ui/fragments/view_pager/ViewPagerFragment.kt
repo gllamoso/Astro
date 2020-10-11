@@ -16,11 +16,10 @@ import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.actions.NavigationActions
 import dev.gtcl.astro.databinding.FragmentViewpagerBinding
 import dev.gtcl.astro.models.reddit.MediaURL
-import dev.gtcl.astro.models.reddit.listing.Listing
-import dev.gtcl.astro.models.reddit.listing.SubscriptionListing
+import dev.gtcl.astro.models.reddit.listing.PostListing
+import dev.gtcl.astro.models.reddit.listing.ProfileListing
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
-import timber.log.Timber
 
 class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 
@@ -144,6 +143,13 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
                 model.newPostObserved()
             }
         })
+
+        activityModel.handleLink.observe(viewLifecycleOwner, {
+            if (it != null) {
+                handleLink(it)
+                activityModel.handleLinkObserved()
+            }
+        })
     }
 
 //     _   _             _             _   _                            _   _
@@ -155,13 +161,13 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 //                          __/ |
 //                         |___/
 
-    override fun listingSelected(listing: Listing) {
-        if (listing is SubscriptionListing && listing.subscription.type == SubscriptionType.USER) {
-            accountSelected(listing.subscription.displayName)
+    override fun listingSelected(postListing: PostListing) {
+        if (postListing is ProfileListing) {
+            accountSelected(postListing.user)
         } else {
             findNavController().navigate(
                 ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
-                    ListingPage(listing)
+                    ListingPage(postListing)
                 )
             )
         }

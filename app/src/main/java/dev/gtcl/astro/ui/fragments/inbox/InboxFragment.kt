@@ -58,10 +58,8 @@ class InboxFragment : Fragment(), LeftDrawerActions {
         }
 
         childFragmentManager.setFragmentResultListener(DRAFT_KEY, viewLifecycleOwner, { _, bundle ->
-            val to = bundle.getString(TO_KEY)
-            val subject = bundle.getString(SUBJECT_KEY)
-            val message = bundle.getString(MESSAGE_KEY)
-            SaveDraftDialogFragment.newInstance(to, subject, message)
+            val draft = bundle.get(DRAFT_KEY) as Draft
+            SaveDraftDialogFragment.newInstance(draft)
                 .show(childFragmentManager, null)
         })
 

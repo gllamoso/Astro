@@ -7,17 +7,23 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentDialogRulesBinding
 import dev.gtcl.astro.databinding.ItemRuleBinding
+import dev.gtcl.astro.ui.activities.MainActivityVM
 import io.noties.markwon.Markwon
 
 class RulesDialogFragment : DialogFragment() {
 
     private val markwon: Markwon by lazy {
-        createMarkwonInstance(requireContext()) {}
+        createMarkwonInstance(requireContext()) {
+            activityModel.handleLink(it)
+        }
     }
+
+    private val activityModel: MainActivityVM by activityViewModels()
 
     private val model: RulesVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
@@ -45,7 +51,7 @@ class RulesDialogFragment : DialogFragment() {
         binding?.lifecycleOwner = this
 
         if (model.rules.value == null) {
-            val displayName = requireArguments().getString(SUBREDDIT_KEY)!!
+            val displayName = requireArguments().getString(SUBREDDIT_KEY) ?: return null
             model.fetchRules(displayName)
         }
 

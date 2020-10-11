@@ -1,17 +1,20 @@
-package dev.gtcl.astro.ui.fragments.listing
+package dev.gtcl.astro.ui.fragments.post_listing
 
 import android.annotation.SuppressLint
 import android.content.Context
 import android.content.SharedPreferences
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.TypedValue
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
 import android.widget.Toast
+import androidx.appcompat.content.res.AppCompatResources
+import androidx.core.graphics.drawable.DrawableCompat
 import androidx.core.os.bundleOf
-import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
@@ -20,6 +23,8 @@ import androidx.navigation.fragment.findNavController
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
+import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.actions.*
@@ -38,21 +43,23 @@ import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
+import dev.gtcl.astro.ui.fragments.search.SimpleItemAdapter
 import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
+import dev.gtcl.astro.ui.fragments.subreddits.SubredditInfoDialogFragment
 import dev.gtcl.astro.ui.fragments.subscriptions.SubscriptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.*
 import io.noties.markwon.Markwon
 
 
-class ListingFragment : Fragment(), PostActions, CommentActions, SubredditActions,
+class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditActions,
     ItemClickListener, LeftDrawerActions {
 
     private var binding: FragmentListingBinding? = null
 
-    private val model: ListingVM by lazy {
+    private val model: PostListingVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
-        ViewModelProvider(this, viewModelFactory).get(ListingVM::class.java)
+        ViewModelProvider(this, viewModelFactory).get(PostListingVM::class.java)
     }
 
     private val viewPagerModel: ViewPagerVM by lazy {
@@ -103,7 +110,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
         initScroller()
         initBottomBar()
         initLeftDrawer()
-        initRightDrawer()
+        initRightDrawerAndTopBar()
         initOtherObservers()
 
         binding?.executePendingBindings()
@@ -111,23 +118,21 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     private fun initData() {
-        val listing = requireArguments().getParcelable<Listing>(LISTING_KEY) ?: return
+        val listing = requireArguments().getParcelable<PostListing>(LISTING_KEY) ?: return
         val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
         when (listing) {
-            is SubredditListing -> model.fetchSubreddit(listing.displayName)
-            is SubscriptionListing -> {
-                if (listing.subscription.type == SubscriptionType.SUBREDDIT) {
-                    model.fetchSubreddit(listing.subscription.displayName)
-                }
+            FrontPage, All, Popular, is SearchListing, is ProfileListing -> {
+                model.fetchTrendingSubreddits()
             }
-            else -> model.setSubreddit(null)
+            is SubredditListing -> model.fetchSubreddit(listing.displayName)
+            is MultiRedditListing -> model.fetchMultiReddit(listing.path)
         }
         model.setListingInfo(listing)
         model.setNsfw(showNsfw)
         model.fetchFirstPage()
     }
 
-    private fun resetOnScrollListener(){
+    private fun resetOnScrollListener() {
         binding?.fragmentListingList?.apply {
             removeOnScrollListener(scrollListener)
             addOnScrollListener(scrollListener)
@@ -229,7 +234,8 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     @SuppressLint("RtlHardcoded")
-    private fun initRightDrawer() {
+    private fun initRightDrawerAndTopBar() {
+        val listing = requireArguments().getParcelable<PostListing>(LISTING_KEY) ?: return
         val topAppBar = binding?.fragmentListingTopAppBarLayout
         val drawer = binding?.fragmentListingDrawer
         val rightDrawerLayout = binding?.fragmentListingRightDrawerLayout
@@ -237,35 +243,129 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             drawer?.openDrawer(Gravity.RIGHT)
         }
 
-        rightDrawerLayout?.lifecycleOwner = this
+        val topRightIcon = when (listing) {
+            FrontPage, All, Popular, is SearchListing, is ProfileListing -> R.drawable.ic_trending_up_24
+            is MultiRedditListing -> R.drawable.ic_collection_24
+            else -> R.drawable.ic_reddit_circle_24
+        }
+
+        // Set tinted sidebar button
+        val drawable = AppCompatResources.getDrawable(requireContext(), topRightIcon) ?: return
+        val tintedDrawable = DrawableCompat.wrap(drawable)
+        val typedValue = TypedValue()
+        val theme = requireContext().theme
+        theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
+        val typedArr = requireContext().obtainStyledAttributes(
+            typedValue.data,
+            intArrayOf(android.R.attr.textColorPrimary)
+        )
+        val color = typedArr.getColor(0, -1)
+        typedArr.recycle()
+        DrawableCompat.setTint(tintedDrawable, color)
+        topAppBar?.layoutTopAppBarListingSideBarButton?.setImageDrawable(tintedDrawable)
+
         model.subreddit.observe(viewLifecycleOwner, { sub ->
             if (sub != null) {
-                rightDrawerLayout?.layoutRightDrawerSubscribeToggle?.iconSubscribeBackground?.setOnClickListener {
-                    checkIfLoggedInBeforeExecuting(requireContext()) {
-                        subscribe(sub, !(sub.userSubscribed ?: false))
-                        rightDrawerLayout.invalidateAll()
+                rightDrawerLayout?.apply {
+                    iconImg = sub.icon ?: ""
+                    name = sub.displayName.replaceFirst("u_", "u/")
+                    title = sub.title
+                    subscribers = if (sub.subscribers ?: 0 > 0) sub.subscribers else null
+                    subscribed = sub.userSubscribed
+                    layoutRightDrawerSubscribeToggle.iconSubscribeBackground.setOnClickListener {
+                        checkIfLoggedInBeforeExecuting(requireContext()) {
+                            val subscribe = !(sub.userSubscribed ?: false)
+                            sub.userSubscribed = subscribe
+                            activityModel.subscribe(sub, subscribe)
+                            subscribed = sub.userSubscribed
+                            rightDrawerLayout.invalidateAll()
+                        }
                     }
                 }
-                drawer?.setDrawerLockMode(
-                    DrawerLayout.LOCK_MODE_UNLOCKED,
-                    Gravity.RIGHT
-                )
                 if (sub.banner == null) {
                     topAppBar?.layoutTopAppBarListingCollapsingToolbar?.contentScrim = null
                 }
-                rightDrawerLayout?.layoutRightDrawerPublicDescription?.let {
-                    markwon.setMarkdown(it, sub.publicDescription + "\n\n" + sub.description)
+                sub.icon?.let {
+                    loadTopBarIcon(it, tintedDrawable)
                 }
-            } else {
-                rightDrawerLayout?.layoutRightDrawerSubscribeToggle?.iconSubscribeBackground?.isClickable =
-                    false
-                drawer?.setDrawerLockMode(
-                    DrawerLayout.LOCK_MODE_LOCKED_CLOSED,
-                    Gravity.RIGHT
-                )
-                topAppBar?.layoutTopAppBarListingCollapsingToolbar?.contentScrim = null
+                rightDrawerLayout?.layoutRightDrawerPublicDescription?.let {
+                    markwon.setMarkdown(it, sub.publicDescription + "\n" + sub.description)
+                }
+
+                if (sub.displayName.startsWith("u_")) {
+                    rightDrawerLayout?.layoutRightDrawerSubIcon?.setOnClickListener {
+                        binding?.fragmentListingDrawer?.closeDrawer(Gravity.RIGHT)
+                        findNavController().navigate(
+                            ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                                AccountPage(sub.displayName.removePrefix("u_"))
+                            )
+                        )
+                    }
+                }
             }
         })
+
+        model.trendingSubreddits.observe(viewLifecycleOwner, {
+            if (it != null) {
+                val adapter = SimpleItemAdapter(this, this)
+                binding?.fragmentListingRightDrawerLayout?.layoutRightDrawerSubreddits?.adapter =
+                    adapter
+                adapter.submitList(it)
+                binding?.fragmentListingRightDrawerLayout?.layoutRightDrawerPublicDescription?.visibility =
+                    View.GONE
+                binding?.fragmentListingRightDrawerLayout?.name =
+                    getString(R.string.trending_subreddits)
+            }
+        })
+
+        model.multiReddit.observe(viewLifecycleOwner, { multi ->
+            if (multi != null) {
+                binding?.fragmentListingRightDrawerLayout?.apply {
+                    iconImg = multi.iconUrl
+                    name = multi.displayName
+                    title = when (multi.visibility) {
+                        Visibility.PUBLIC -> getString(R.string.public_label)
+                        Visibility.HIDDEN -> getString(R.string.hidden)
+                        Visibility.PRIVATE -> getString(R.string.private_label)
+                    }
+                    editable = multi.canEdit
+                    markwon.setMarkdown(layoutRightDrawerPublicDescription, multi.description)
+                }
+
+                val adapter = SimpleItemAdapter(this, this)
+                binding?.fragmentListingRightDrawerLayout?.layoutRightDrawerSubreddits?.adapter =
+                    adapter
+                adapter.submitList(multi.subreddits.mapNotNull { it.data })
+
+                loadTopBarIcon(multi.iconUrl, tintedDrawable)
+
+                binding?.fragmentListingRightDrawerLayout?.layoutRightDrawerEditButton?.setOnClickListener {
+                    findNavController().navigate(
+                        ViewPagerFragmentDirections.actionViewPagerFragmentToMultiRedditFragment(
+                            multi.path
+                        )
+                    )
+                }
+            }
+        })
+
+    }
+
+    private fun loadTopBarIcon(imgUrl: String, placeholder: Drawable) {
+        val imageView =
+            (binding?.fragmentListingTopAppBarLayout?.layoutTopAppBarListingSideBarButton ?: return)
+
+        Glide.with(requireContext())
+            .load(imgUrl)
+            .skipMemoryCache(true)
+            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .apply(
+                RequestOptions()
+                    .placeholder(placeholder)
+                    .error(placeholder)
+                    .circleCrop()
+            )
+            .into(imageView)
     }
 
     private fun initBottomBar() {
@@ -274,7 +374,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             val currentSort = model.postSort.value ?: return@setOnClickListener
             val currentTime = model.time.value
             val onSortSelected: (PostSort) -> Unit = { postSortSelected ->
-                if (model.listing is SearchListing || postSortSelected == PostSort.TOP || postSortSelected == PostSort.CONTROVERSIAL) {
+                if (model.postListing is SearchListing || postSortSelected == PostSort.TOP || postSortSelected == PostSort.CONTROVERSIAL) {
                     val time = if (currentSort == postSortSelected) currentTime else null
                     showTimePopup(anchor, time) { timeSortSelected ->
                         resetOnScrollListener()
@@ -287,7 +387,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                     model.fetchFirstPage()
                 }
             }
-            if (model.listing is SearchListing) {
+            if (model.postListing is SearchListing) {
                 showSearchSortPopup(anchor, currentSort, onSortSelected)
             } else {
                 showPostSortPopup(anchor, currentSort, onSortSelected)
@@ -329,11 +429,11 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
             LISTING_KEY,
             viewLifecycleOwner,
             { _, bundle ->
-                val listing = bundle.get(LISTING_KEY) as Listing
-                if (listing is SubscriptionListing && listing.subscription.type == SubscriptionType.USER) {
+                val listing = bundle.get(LISTING_KEY) as PostListing
+                if (listing is ProfileListing && listing.user != null) {
                     findNavController().navigate(
                         ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
-                            AccountPage(listing.subscription.displayName)
+                            AccountPage(listing.user)
                         )
                     )
                 } else {
@@ -378,6 +478,18 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                     listAdapter.updateAt(position, item)
                 }
             })
+
+        activityModel.subredditSelected.observe(viewLifecycleOwner, {
+            if (it != null) {
+                binding?.fragmentListingDrawer?.closeDrawer(Gravity.RIGHT)
+                findNavController().navigate(
+                    ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                        ListingPage(SubredditListing(it.displayName))
+                    )
+                )
+                activityModel.subredditObserved()
+            }
+        })
     }
 
 //     _____          _                  _   _
@@ -415,7 +527,7 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     override fun subredditSelected(sub: String) {
-        model.listing.let {
+        model.postListing.let {
             if (it is SubredditListing && it.displayName == sub) {
                 return
             }
@@ -471,7 +583,13 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                     return
                 }
                 val url = when (mediaType) {
-                    MediaType.VIDEO -> post.previewVideoUrl ?: return
+                    MediaType.VIDEO -> {
+                        if (urlType == UrlType.GIFV) {
+                            post.url.replace(".gifv", ".mp4")
+                        } else {
+                            post.previewVideoUrl ?: return
+                        }
+                    }
                     else -> post.url
                 }
                 val backupUrl = when (mediaType) {
@@ -601,11 +719,8 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
 //    |_____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 //
 
-    override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-        checkIfLoggedInBeforeExecuting(requireContext()) {
-            subreddit.userSubscribed = subscribe
-            activityModel.subscribe(subreddit, subscribe)
-        }
+    override fun viewMoreInfo(displayName: String) {
+        SubredditInfoDialogFragment.newInstance(displayName).show(childFragmentManager, null)
     }
 
 
@@ -649,6 +764,14 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
                         )
                     )
                 }
+            }
+            is Subreddit -> {
+                binding?.fragmentListingDrawer?.closeDrawer(Gravity.RIGHT)
+                findNavController().navigate(
+                    ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                        ListingPage(SubredditListing(item.displayName))
+                    )
+                )
             }
         }
     }
@@ -936,9 +1059,9 @@ class ListingFragment : Fragment(), PostActions, CommentActions, SubredditAction
     }
 
     companion object {
-        fun newInstance(listing: Listing): ListingFragment {
-            return ListingFragment().apply {
-                arguments = bundleOf(LISTING_KEY to listing)
+        fun newInstance(postListing: PostListing): PostListingFragment {
+            return PostListingFragment().apply {
+                arguments = bundleOf(LISTING_KEY to postListing)
             }
         }
     }

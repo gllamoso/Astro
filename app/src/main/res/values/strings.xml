@@ -83,6 +83,9 @@
     <string name="block">Block</string>
     <string name="unfriend">Unfriend</string>
     <string name="unblock">Unblock</string>
+    <string name="public_feeds">Public Feeds</string>
+    <string name="moderated_subs">Moderated Subreddits</string>
+    <string name="awards">Awards</string>
 
     <!--Share-->
     <string name="share_link">Share link</string>
@@ -124,13 +127,13 @@
     <string name="mark_unread">Mark unread</string>
 
     <!--Multi-Reddit-->
-    <string name="edit_custom_feed">Edit Custom Feed</string>
     <string name="create_custom_feed">Create Custom Feed</string>
     <string name="custom_feed_name">Custom Feed Name</string>
     <string name="description_optional">Description (Optional)</string>
     <string name="private_label">Private</string>
     <string name="public_label">Public</string>
     <string name="conflict_error">Custom feed conflicts with another</string>
+    <string name="copy_multi">Copy</string>
 
     <!--Create Post-->
     <string name="create_post">Create Post</string>
@@ -187,6 +190,10 @@
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
     <string name="num_comments">%s comments</string>
+    <string name="num_subscribers">%s subscribers</string>
+    <string name="total_karma">Total Karma: %s</string>
+    <string name="trending_subreddits">Trending Subreddits</string>
+    <string name="view">View</string>
 
     <!--Errors-->
     <string name="user_does_not_exist">User does not exist</string>

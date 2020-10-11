@@ -197,6 +197,7 @@ class SubscriptionsAdapter(
             )
             position == multisHeaderIndex + 4 -> (holder as ListingVH).bind(
                 ProfileListing(
+                    null,
                     ProfileInfo.SAVED
                 ), listingTypeClickListener
             )

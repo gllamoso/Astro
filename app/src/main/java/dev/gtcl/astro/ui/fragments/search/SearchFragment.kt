@@ -24,6 +24,7 @@ import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.ListingAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
+import dev.gtcl.astro.ui.fragments.subreddits.SubredditInfoDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
 import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
 
@@ -70,6 +71,17 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
                     Snackbar.make(it, errorMessage, Snackbar.LENGTH_LONG).show()
                 }
                 model.errorMessageObserved()
+            }
+        })
+
+        activityModel.subredditSelected.observe(viewLifecycleOwner, {
+            if (it != null) {
+                findNavController().navigate(
+                    SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(
+                        ListingPage(SubredditListing(it.displayName))
+                    )
+                )
+                activityModel.subredditObserved()
             }
         })
 
@@ -172,7 +184,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
     }
 
     private fun initSearchRecyclerViewAdapter() {
-        val adapter = SearchAdapter(this, this)
+        val adapter = SimpleItemAdapter(this, this)
         val searchList = binding?.fragmentSearchSearchList
         searchList?.adapter = adapter
 
@@ -264,11 +276,8 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         }
     }
 
-    override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-        checkIfLoggedInBeforeExecuting(requireContext()) {
-            subreddit.userSubscribed = subscribe
-            activityModel.subscribe(subreddit, subscribe)
-        }
+    override fun viewMoreInfo(displayName: String) {
+        SubredditInfoDialogFragment.newInstance(displayName).show(childFragmentManager, null)
     }
 
     companion object {

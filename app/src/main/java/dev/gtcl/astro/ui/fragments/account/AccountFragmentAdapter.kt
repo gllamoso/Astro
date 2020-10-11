@@ -5,6 +5,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
 import dev.gtcl.astro.PostSort
 import dev.gtcl.astro.ProfileInfo
+import dev.gtcl.astro.models.reddit.listing.ProfileListing
 import dev.gtcl.astro.ui.fragments.account.pages.about.AccountAboutFragment
 import dev.gtcl.astro.ui.fragments.account.pages.blocked.BlockedFragment
 import dev.gtcl.astro.ui.fragments.account.pages.friends.FriendsFragment
@@ -19,24 +20,72 @@ class AccountFragmentAdapter(
     val fragments = if (user == null) {
         listOf(
             AccountAboutFragment.newInstance(user),
-            ItemScrollerFragment.newInstance(ProfileInfo.OVERVIEW, PostSort.BEST, null),
-            ItemScrollerFragment.newInstance(ProfileInfo.SUBMITTED, PostSort.BEST, null),
-            ItemScrollerFragment.newInstance(ProfileInfo.COMMENTS, PostSort.BEST, null),
-            ItemScrollerFragment.newInstance(ProfileInfo.SAVED, PostSort.BEST, null),
-            ItemScrollerFragment.newInstance(ProfileInfo.HIDDEN, PostSort.BEST, null),
-            ItemScrollerFragment.newInstance(ProfileInfo.UPVOTED, PostSort.BEST, null),
-            ItemScrollerFragment.newInstance(ProfileInfo.DOWNVOTED, PostSort.BEST, null),
-            ItemScrollerFragment.newInstance(ProfileInfo.GILDED, PostSort.BEST, null),
+            ItemScrollerFragment.newInstance(
+                ProfileListing(user, ProfileInfo.OVERVIEW),
+                PostSort.BEST,
+                null
+            ),
+            ItemScrollerFragment.newInstance(
+                ProfileListing(user, ProfileInfo.SUBMITTED),
+                PostSort.BEST,
+                null
+            ),
+            ItemScrollerFragment.newInstance(
+                ProfileListing(user, ProfileInfo.COMMENTS),
+                PostSort.BEST,
+                null
+            ),
+            ItemScrollerFragment.newInstance(
+                ProfileListing(user, ProfileInfo.SAVED),
+                PostSort.BEST,
+                null
+            ),
+            ItemScrollerFragment.newInstance(
+                ProfileListing(user, ProfileInfo.HIDDEN),
+                PostSort.BEST,
+                null
+            ),
+            ItemScrollerFragment.newInstance(
+                ProfileListing(user, ProfileInfo.UPVOTED),
+                PostSort.BEST,
+                null
+            ),
+            ItemScrollerFragment.newInstance(
+                ProfileListing(user, ProfileInfo.DOWNVOTED),
+                PostSort.BEST,
+                null
+            ),
+            ItemScrollerFragment.newInstance(
+                ProfileListing(user, ProfileInfo.GILDED),
+                PostSort.BEST,
+                null
+            ),
             FriendsFragment.newInstance(),
             BlockedFragment.newInstance()
         )
     } else {
         listOf(
             AccountAboutFragment.newInstance(user),
-            ItemScrollerFragment.newInstance(ProfileInfo.OVERVIEW, PostSort.BEST, null, user),
-            ItemScrollerFragment.newInstance(ProfileInfo.SUBMITTED, PostSort.BEST, null, user),
-            ItemScrollerFragment.newInstance(ProfileInfo.COMMENTS, PostSort.BEST, null, user),
-            ItemScrollerFragment.newInstance(ProfileInfo.GILDED, PostSort.BEST, null, user)
+            ItemScrollerFragment.newInstance(
+                ProfileListing(user, ProfileInfo.OVERVIEW),
+                PostSort.BEST,
+                null
+            ),
+            ItemScrollerFragment.newInstance(
+                ProfileListing(user, ProfileInfo.SUBMITTED),
+                PostSort.BEST,
+                null
+            ),
+            ItemScrollerFragment.newInstance(
+                ProfileListing(user, ProfileInfo.COMMENTS),
+                PostSort.BEST,
+                null
+            ),
+            ItemScrollerFragment.newInstance(
+                ProfileListing(user, ProfileInfo.GILDED),
+                PostSort.BEST,
+                null
+            )
         )
     }
 

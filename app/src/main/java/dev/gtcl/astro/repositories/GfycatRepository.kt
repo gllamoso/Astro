@@ -1,14 +1,11 @@
 package dev.gtcl.astro.repositories
 
-import androidx.annotation.MainThread
 import dev.gtcl.astro.network.GfycatApi
 import dev.gtcl.astro.network.RedgifsApi
 
 class GfycatRepository private constructor() {
-    @MainThread
     fun getGfycatInfo(gfyid: String) = GfycatApi.retrofit.getGfycatInfo(gfyid)
 
-    @MainThread
     fun getGfycatInfoFromRedgifs(gfyid: String) = RedgifsApi.retrofit.getGfycatInfo(gfyid)
 
     companion object {

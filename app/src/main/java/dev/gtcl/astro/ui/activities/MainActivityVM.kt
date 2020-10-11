@@ -10,6 +10,8 @@ import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerPage
 import kotlinx.coroutines.*
+import retrofit2.HttpException
+import timber.log.Timber
 
 class MainActivityVM(val application: AstroApplication) : AstroViewModel(application) {
 
@@ -31,15 +33,27 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
     val openChromeTab: LiveData<String?>
         get() = _openChromeTab
 
+    private val _handleLink = MutableLiveData<String?>()
+    val handleLink: LiveData<String?>
+        get() = _handleLink
+
     private val _mediaDialogOpened = MutableLiveData<Boolean>().apply { value = false }
     val mediaDialogOpened: LiveData<Boolean>
         get() = _mediaDialogOpened
+
+    private val _newMulti = MutableLiveData<MultiReddit?>()
+    val newMulti: LiveData<MultiReddit?>
+        get() = _newMulti
+
+    private val _subredditSelected = MutableLiveData<Subreddit?>()
+    val subredditSelected: LiveData<Subreddit?>
+        get() = _subredditSelected
 
     fun refreshObserved() {
         _refreshState.value = null
     }
 
-    fun mediaDialogOpened(opened: Boolean){
+    fun mediaDialogOpened(opened: Boolean) {
         _mediaDialogOpened.value = opened
     }
 
@@ -312,12 +326,36 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
         _openChromeTab.value = null
     }
 
+    fun handleLink(url: String){
+        _handleLink.value = url
+    }
+
+    fun handleLinkObserved(){
+        _handleLink.value = null
+    }
+
     fun removeAccount(account: SavedAccount) {
         coroutineScope.launch {
             withContext(Dispatchers.IO) {
                 userRepository.deleteUserInDatabase(account.name)
             }
         }
+    }
+
+    fun newMultiReddit(multi: MultiReddit){
+        _newMulti.value = multi
+    }
+
+    fun newMultiObserved(){
+        _newMulti.value = null
+    }
+
+    fun subredditSelected(sub: Subreddit){
+        _subredditSelected.value = sub
+    }
+
+    fun subredditObserved(){
+        _subredditSelected.value = null
     }
 
     private suspend fun fetchAccessToken(refreshToken: String): AccessToken {

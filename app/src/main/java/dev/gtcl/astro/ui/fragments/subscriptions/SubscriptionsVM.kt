@@ -14,10 +14,6 @@ class SubscriptionsVM(private val application: AstroApplication) : AstroViewMode
     val subscriptions: LiveData<Subscriptions?>
         get() = _subscriptions
 
-    private val _editSubscription = MutableLiveData<Subscription?>()
-    val editSubscription: LiveData<Subscription?>
-        get() = _editSubscription
-
     fun fetchSubscriptions() {
         coroutineScope.launch {
             val favorites = subredditRepository.getMyFavoriteSubscriptions()
@@ -30,25 +26,6 @@ class SubscriptionsVM(private val application: AstroApplication) : AstroViewMode
 
     fun subscriptionsObserved() {
         _subscriptions.value = null
-    }
-
-    fun createMulti(model: MultiRedditUpdate) {
-        coroutineScope.launch {
-            try {
-                val multiReddit = subredditRepository.createMulti(model).await().data
-                subredditRepository.insertMultiReddit(multiReddit)
-                _editSubscription.postValue(multiReddit.asSubscription())
-            } catch (e: Exception) {
-                _errorMessage.postValue(
-                    if (e is HttpException && e.code() == 409) {
-                        application.getString(R.string.conflict_error)
-                    } else {
-                        e.getErrorMessage(application)
-                    }
-                )
-
-            }
-        }
     }
 
 }

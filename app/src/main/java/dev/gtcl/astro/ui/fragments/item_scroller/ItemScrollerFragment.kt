@@ -31,6 +31,7 @@ import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
+import dev.gtcl.astro.ui.fragments.subreddits.SubredditInfoDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.*
 import io.noties.markwon.Markwon
 
@@ -118,28 +119,11 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         model.setNsfw(showNsfw)
         val args = requireArguments()
         when {
-            args.getSerializable(PROFILE_INFO_KEY) != null -> {
-                val profileInfo = args.getSerializable(PROFILE_INFO_KEY) as ProfileInfo
+            args.getSerializable(LISTING_KEY) != null -> {
+                val listing = args.getSerializable(LISTING_KEY) as PostListing
                 val postSort = args.getSerializable(POST_SORT_KEY) as PostSort
                 val time = args.getSerializable(TIME_KEY) as Time?
-                val user = args.getString(USER_KEY)
-                model.setListingInfo(
-                    ProfileListing(
-                        profileInfo
-                    )
-                )
-                model.setListingSort(postSort, time)
-                model.setUser(user)
-            }
-            args.getSerializable(SUBREDDIT_KEY) != null -> {
-                val subreddit = args.getString(SUBREDDIT_KEY) ?: return
-                val postSort = args.getSerializable(POST_SORT_KEY) as PostSort
-                val time = args.getSerializable(TIME_KEY) as Time?
-                model.setListingInfo(
-                    SubredditListing(
-                        subreddit
-                    )
-                )
+                model.setListingInfo(listing)
                 model.setListingSort(postSort, time)
             }
             args.getSerializable(MESSAGE_WHERE_KEY) != null -> {
@@ -358,11 +342,24 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                     return
                 }
                 val url = when (mediaType) {
-                    MediaType.VIDEO -> post.previewVideoUrl ?: return
+                    MediaType.VIDEO -> {
+                        if (urlType == UrlType.GIFV) {
+                            post.url.replace(".gifv", ".mp4")
+                        } else {
+                            post.previewVideoUrl ?: return
+                        }
+                    }
                     else -> post.url
                 }
                 val backupUrl = when (mediaType) {
                     MediaType.GFYCAT, MediaType.REDGIFS -> post.previewVideoUrl
+                    MediaType.VIDEO -> {
+                        if (urlType == UrlType.GIFV) {
+                            post.previewVideoUrl
+                        } else {
+                            null
+                        }
+                    }
                     else -> null
                 }
                 val dialog = MediaDialogFragment.newInstance(
@@ -534,11 +531,8 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 //    |_____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 //
 
-    override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-        checkIfLoggedInBeforeExecuting(requireContext()) {
-            subreddit.userSubscribed = subscribe
-            activityModel.subscribe(subreddit, subscribe)
-        }
+    override fun viewMoreInfo(displayName: String) {
+        SubredditInfoDialogFragment.newInstance(displayName).show(childFragmentManager, null)
     }
 
 //     _____ _                    _____ _ _      _      _      _     _
@@ -553,7 +547,6 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             is Post -> {
                 model.addReadItem(item)
                 activityModel.newViewPagerPage(PostPage(item, position))
-
             }
             is Message -> {
                 ReplyOrEditDialogFragment.newInstance(item, position, true)
@@ -586,7 +579,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun handleLink(link: String) {
-        parentFragmentManager.setFragmentResult(URL_KEY, bundleOf(URL_KEY to link))
+        activityModel.handleLink(link)
     }
 
 //     _   _                 _____           _
@@ -599,37 +592,17 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     companion object {
         fun newInstance(
-            profileInfo: ProfileInfo,
-            postSort: PostSort,
-            time: Time?,
-            user: String? = null
-        ): ItemScrollerFragment {
-            val fragment =
-                ItemScrollerFragment()
-            val args = bundleOf(
-                PROFILE_INFO_KEY to profileInfo,
-                POST_SORT_KEY to postSort,
-                TIME_KEY to time,
-                USER_KEY to user
-            )
-            fragment.arguments = args
-            return fragment
-        }
-
-        fun newInstance(
-            subreddit: String,
+            postListing: PostListing,
             postSort: PostSort,
             time: Time?
         ): ItemScrollerFragment {
-            val fragment =
-                ItemScrollerFragment()
-            val args = bundleOf(
-                SUBREDDIT_KEY to subreddit,
-                POST_SORT_KEY to postSort,
-                TIME_KEY to time
-            )
-            fragment.arguments = args
-            return fragment
+            return ItemScrollerFragment().apply {
+                arguments = bundleOf(
+                    LISTING_KEY to postListing,
+                    POST_SORT_KEY to postSort,
+                    TIME_KEY to time
+                )
+            }
         }
 
         fun newInstance(messageWhere: MessageWhere): ItemScrollerFragment {

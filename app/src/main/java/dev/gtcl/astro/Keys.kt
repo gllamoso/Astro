@@ -28,6 +28,7 @@ const val DEFAULT_POST_SORT_KEY = "default_post_sort"
 const val GET_NOTIFICATIONS_KEY = "notifications"
 const val MANAGE_POST_KEY = "manage_post"
 const val ALBUM_KEY = "album_name"
+const val COPY_KEY = "copy"
 
 // Draft
 const val DRAFT_KEY = "draft"
@@ -41,5 +42,4 @@ const val POST_SORT_KEY = "post_sort"
 const val TIME_KEY = "time"
 const val MESSAGE_WHERE_KEY = "message_where"
 const val SUBREDDIT_WHERE_KEY = "subreddit_where"
-const val PAGE_SIZE_KEY = "page_size"
 const val LISTING_KEY = "listing"

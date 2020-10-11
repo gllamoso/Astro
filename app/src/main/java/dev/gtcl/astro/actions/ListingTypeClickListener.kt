@@ -1,7 +1,7 @@
 package dev.gtcl.astro.actions
 
-import dev.gtcl.astro.models.reddit.listing.Listing
+import dev.gtcl.astro.models.reddit.listing.PostListing
 
 interface ListingTypeClickListener {
-    fun listingTypeClicked(listing: Listing)
+    fun listingTypeClicked(postListing: PostListing)
 }

@@ -296,7 +296,11 @@ fun timeSince(seconds: Long): String {
     return sb.toString()
 }
 
-fun numFormatted(num: Int): String {
+fun numFormatted(num: Int?): String {
+    if (num == null) {
+        return ""
+    }
+
     val sb = StringBuilder()
     when {
         num >= 1_000_000 -> {
@@ -532,30 +536,29 @@ fun createMarkwonInstance(context: Context, handleLink: (String) -> Unit): Markw
     return Markwon.builder(context)
         .usePlugin(StrikethroughPlugin.create())
         .usePlugin(TablePlugin.create(context))
-        .usePlugin(CustomMarkwonPlugin(handleLink))
         .usePlugin(LinkifyPlugin.create(Linkify.WEB_URLS))
         .usePlugin(MovementMethodPlugin.create(BetterLinkMovementMethod.getInstance()))
+        .usePlugin(CustomMarkwonPlugin(handleLink))
         .build()
 }
 
-fun getListingTitle(context: Context, listing: Listing): String {
-    return when (listing) {
+fun getListingTitle(context: Context, postListing: PostListing): String {
+    return when (postListing) {
         is FrontPage -> context.getString(R.string.frontpage)
         is All -> context.getString(R.string.all)
         is Popular -> context.getString(R.string.popular_tab_label)
-        is SearchListing -> String.format(context.getString(R.string.search_title), listing.query)
-        is MultiRedditListing -> listing.multiReddit.displayName
+        is SearchListing -> String.format(context.getString(R.string.search_title), postListing.query)
+        is MultiRedditListing -> postListing.name
         is SubredditListing -> {
-            if (listing.displayName.startsWith("u_")) {
-                listing.displayName.replaceFirst("u_", "")
+            if (postListing.displayName.startsWith("u_")) {
+                postListing.displayName.replaceFirst("u_", "")
             } else {
-                listing.displayName
+                postListing.displayName
             }
         }
-        is SubscriptionListing -> listing.subscription.displayName
         is ProfileListing -> {
             context.getString(
-                when (listing.info) {
+                when (postListing.info) {
                     ProfileInfo.OVERVIEW -> R.string.overview
                     ProfileInfo.SUBMITTED -> R.string.submitted
                     ProfileInfo.COMMENTS -> R.string.comments

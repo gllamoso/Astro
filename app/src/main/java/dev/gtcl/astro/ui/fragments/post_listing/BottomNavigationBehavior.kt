@@ -1,4 +1,4 @@
-package dev.gtcl.astro.ui.fragments.listing
+package dev.gtcl.astro.ui.fragments.post_listing
 
 import android.content.Context
 import android.util.AttributeSet

@@ -7,6 +7,7 @@
         <variable
             name="model"
             type="dev.gtcl.astro.ui.fragments.account.pages.about.AccountAboutVM" />
+        <import type="android.view.View"/>
     </data>
 
     <androidx.core.widget.NestedScrollView
@@ -14,175 +15,221 @@
         android:layout_height="match_parent"
         android:background="@color/colorBackground">
 
-        <androidx.constraintlayout.widget.ConstraintLayout
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content">
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/fragmentAccountAbout_karmaLabel"
-                android:layout_width="0dp"
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/karma"
-                android:textColor="@android:color/darker_gray"
-                android:singleLine="true"
-                android:layout_marginTop="8dp"
-                android:layout_marginStart="8dp"
-                app:layout_constraintEnd_toStartOf="@id/fragmentAccountAbout_centerLine"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintHorizontal_bias="0"/>
-
-            <TextView
-                android:id="@+id/fragmentAccountAbout_totalKarma"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:singleLine="true"
-                android:layout_marginStart="8dp"
-                app:layout_constraintTop_toBottomOf="@id/fragmentAccountAbout_karmaLabel"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/fragmentAccountAbout_centerLine"
-                android:text="@{String.format(&quot;%,d&quot;, model.account.commentKarma + model.account.linkKarma)}"
-                android:textSize="16sp"
-                app:layout_constraintHorizontal_bias="0"
-                tools:text="9,999"/>
-
-            <LinearLayout
-                android:id="@+id/fragmentAccountAbout_scoreGroup"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginStart="8dp"
-                app:layout_constraintTop_toBottomOf="@id/fragmentAccountAbout_totalKarma"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="@id/fragmentAccountAbout_centerLine"
-                android:gravity="center_vertical">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    app:tint="@android:color/darker_gray"
-                    android:src="@drawable/ic_link_24"/>
+                android:paddingHorizontal="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp">
 
                 <TextView
-                    android:id="@+id/fragmentAccountAbout_linkKarmaCount"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/fragmentAccountAbout_karmaLabel"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:text="@string/karma"
+                    android:textStyle="bold"
+                    android:singleLine="true"
+                    app:layout_constraintEnd_toStartOf="@id/fragmentAccountAbout_centerLine"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintHorizontal_bias="0"/>
+
+                <TextView
+                    android:id="@+id/fragmentAccountAbout_totalKarma"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:singleLine="true"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp"
-                    tools:text="9,999"
-                    android:text="@{String.format(&quot;%,d&quot;, model.account.linkKarma)}"/>
+                    app:layout_constraintTop_toBottomOf="@id/fragmentAccountAbout_karmaLabel"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toStartOf="@id/fragmentAccountAbout_centerLine"
+                    android:text="@{String.format(&quot;%,d&quot;, model.account.commentKarma + model.account.linkKarma)}"
+                    android:textSize="16sp"
+                    app:layout_constraintHorizontal_bias="0"
+                    tools:text="9,999"/>
 
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    android:layout_marginStart="4dp"
-                    app:tint="@android:color/darker_gray"
-                    android:src="@drawable/ic_comments_24"/>
+                <LinearLayout
+                    android:id="@+id/fragmentAccountAbout_scoreGroup"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    app:layout_constraintTop_toBottomOf="@id/fragmentAccountAbout_totalKarma"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="@id/fragmentAccountAbout_centerLine"
+                    android:gravity="center_vertical">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        app:tint="@android:color/darker_gray"
+                        android:src="@drawable/ic_link_24"/>
+
+                    <TextView
+                        android:id="@+id/fragmentAccountAbout_linkKarmaCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="12sp"
+                        tools:text="9,999"
+                        android:text="@{String.format(&quot;%,d&quot;, model.account.linkKarma)}"/>
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginStart="4dp"
+                        app:tint="@android:color/darker_gray"
+                        android:src="@drawable/ic_comments_24"/>
+
+                    <TextView
+                        android:id="@+id/fragmentAccountAbout_commentKarmaCount"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:textColor="@android:color/darker_gray"
+                        android:textSize="12sp"
+                        tools:text="9,999"
+                        android:text="@{String.format(&quot;%,d&quot;, model.account.commentKarma)}"/>
+
+                </LinearLayout>
+
+                <View
+                    android:id="@+id/fragmentAccountAbout_centerLine"
+                    android:layout_width="0.01dp"
+                    android:layout_height="wrap_content"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintEnd_toEndOf="parent"/>
 
                 <TextView
-                    android:id="@+id/fragmentAccountAbout_commentKarmaCount"
-                    android:layout_width="wrap_content"
+                    android:id="@+id/fragmentAccountAbout_ageLabel"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:textStyle="bold"
+                    android:text="@string/reddit_age"
                     android:singleLine="true"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp"
-                    tools:text="9,999"
-                    android:text="@{String.format(&quot;%,d&quot;, model.account.commentKarma)}"/>
-
-            </LinearLayout>
-
-            <View
-                android:id="@+id/fragmentAccountAbout_centerLine"
-                android:layout_width="0.01dp"
-                android:layout_height="wrap_content"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
-
-            <TextView
-                android:id="@+id/fragmentAccountAbout_ageLabel"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:text="@string/reddit_age"
-                android:singleLine="true"
-                android:layout_marginTop="8dp"
-                android:layout_marginEnd="8dp"
-                android:textColor="@android:color/darker_gray"
-                android:layout_marginStart="8dp"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/fragmentAccountAbout_centerLine"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintHorizontal_bias="0"/>
-
-            <TextView
-                android:id="@+id/accountAbout_ageText"
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintTop_toBottomOf="@id/fragmentAccountAbout_ageLabel"
-                app:layout_constraintStart_toEndOf="@id/fragmentAccountAbout_centerLine"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:timestamp="@{model.account.created}"
-                android:layout_marginStart="8dp"
-                android:textSize="16sp"
-                android:singleLine="true"
-                app:layout_constraintHorizontal_bias="0"
-                tools:text="12 year 6 days"/>
-
-            <LinearLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:gravity="center_vertical"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                app:layout_constraintStart_toStartOf="@id/fragmentAccountAbout_centerLine"
-                app:layout_constraintTop_toBottomOf="@id/accountAbout_ageText"
-                app:layout_constraintEnd_toEndOf="parent">
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="16dp"
-                    android:layout_height="16dp"
-                    app:tint="@android:color/darker_gray"
-                    android:src="@drawable/ic_cake_24"/>
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:layout_constraintStart_toEndOf="@+id/fragmentAccountAbout_centerLine"
+                    app:layout_constraintTop_toTopOf="parent"
+                    app:layout_constraintHorizontal_bias="0"/>
 
                 <TextView
-                    android:layout_width="wrap_content"
+                    android:id="@+id/accountAbout_ageText"
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    app:secondsToDate="@{model.account.created}"
-                    android:textSize="12sp"
-                    android:textColor="@android:color/darker_gray"
-                    tools:text="Jan 31, 2001"/>
+                    app:layout_constraintTop_toBottomOf="@id/fragmentAccountAbout_ageLabel"
+                    app:layout_constraintStart_toEndOf="@id/fragmentAccountAbout_centerLine"
+                    app:layout_constraintEnd_toEndOf="parent"
+                    app:timestamp="@{model.account.created}"
+                    android:textSize="16sp"
+                    android:singleLine="true"
+                    app:layout_constraintHorizontal_bias="0"
+                    tools:text="12 year 6 days"/>
 
-            </LinearLayout>
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    app:layout_constraintStart_toStartOf="@id/fragmentAccountAbout_centerLine"
+                    app:layout_constraintTop_toBottomOf="@id/accountAbout_ageText"
+                    app:layout_constraintEnd_toEndOf="parent">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        app:tint="@android:color/darker_gray"
+                        android:src="@drawable/ic_cake_24"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        app:secondsToDate="@{model.account.created}"
+                        android:textSize="12sp"
+                        android:textColor="@android:color/darker_gray"
+                        tools:text="Jan 31, 2001"/>
+
+                </LinearLayout>
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
+            <TextView
+                android:id="@+id/fragmentAccountAbout_publicDescription"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="18sp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="8dp"
+                android:visibility="@{!model.account.subreddit.publicDescription.empty ? View.VISIBLE : View.GONE}"
+                android:text="@{model.account.subreddit.publicDescription}"
+                tools:text="Public description. This is to test what it would look like if there is a paragraph in the public description"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="8dp"
+                android:visibility="@{!model.awards.empty ? View.VISIBLE : View.GONE}"
+                android:text="@string/awards"/>
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/fragmentAccountAbout_awardsList"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:layout_marginTop="8dp"
+                android:layout_marginBottom="8dp"
+                android:scrollbars="horizontal"
+                android:visibility="@{!model.awards.empty ? View.VISIBLE : View.GONE}"
                 app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
-                tools:listitem="@layout/item_award"
-                app:layout_constraintTop_toBottomOf="@id/fragmentAccountAbout_scoreGroup"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"/>
+                tools:listitem="@layout/item_award" />
 
             <TextView
-                android:id="@+id/fragmentAccountAbout_publicDescription"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="8dp"
-                android:text="@{model.account.subreddit.publicDescription}"
-                app:layout_constraintTop_toBottomOf="@id/fragmentAccountAbout_awardsList"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                tools:text="Public description. This is to test what it would look like if there is a paragraph in the public description"/>
+                android:textStyle="bold"
+                android:layout_marginHorizontal="16dp"
+                android:visibility="@{!model.multiReddits.empty ? View.VISIBLE : View.GONE}"
+                android:text="@string/public_feeds"/>
 
-        </androidx.constraintlayout.widget.ConstraintLayout>
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fragmentAccountAbout_multis"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="8dp"
+                android:visibility="@{!model.multiReddits.empty ? View.VISIBLE : View.GONE}"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                android:overScrollMode="never"
+                app:spanCount="1"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_multireddit"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textStyle="bold"
+                android:layout_marginHorizontal="16dp"
+                android:visibility="@{!model.moderatedSubs.empty ? View.VISIBLE : View.GONE}"
+                android:text="@string/moderated_subs"/>
+
+            <androidx.recyclerview.widget.RecyclerView
+                android:id="@+id/fragmentAccountAbout_moderatedSubs"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:visibility="@{!model.moderatedSubs.empty ? View.VISIBLE : View.GONE}"
+                app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+                android:overScrollMode="never"
+                android:layout_marginBottom="8dp"
+                app:spanCount="1"
+                tools:itemCount="3"
+                tools:listitem="@layout/item_subreddit_moderated"/>
+
+        </LinearLayout>
 
     </androidx.core.widget.NestedScrollView>
 

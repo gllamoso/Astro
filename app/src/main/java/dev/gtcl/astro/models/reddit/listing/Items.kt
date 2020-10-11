@@ -177,6 +177,7 @@ data class Account(
     @Json(name = "icon_img") val iconImg: String?,
     @Json(name = "link_karma") val linkKarma: Int,
     @Json(name = "comment_karma") val commentKarma: Int,
+    @Json(name = "total_karma") val totalKarma: Int,
     @Json(name = "created_utc") val created: Long,
     val subreddit: Subreddit,
     @Json(name = "is_friend") var isFriend: Boolean?,
@@ -213,7 +214,7 @@ data class Account(
 @Parcelize
 data class Post(
     override val name: String,
-    override val id: String = name.replace("t3_", ""),
+    override val id: String = name.replaceFirst("t3_", ""),
     var saved: Boolean,
     val title: String,
     var score: Int,
@@ -269,7 +270,7 @@ data class Post(
 ) : Item(ItemType.Post) {
 
     @IgnoredOnParcel
-    val subredditDisplayName = if(subreddit.startsWith("u_")){
+    val subredditDisplayName = if (subreddit.startsWith("u_")) {
         subreddit.replaceFirst("u_", "")
     } else {
         subreddit
@@ -319,34 +320,38 @@ data class Post(
     val urlType = url?.getUrlType()
 
     @IgnoredOnParcel
-    val galleryAsMediaItems: List<MediaURL>? = if (galleryData != null) {
-        mutableListOf<MediaURL>().apply {
-            for (id: String in galleryData.items.map { it.mediaId }) {
-                val metaData = mediaMetadata!![id] ?: error("MetaData is null")
-                val mimeType = metaData.mimeType
-                val extension = when {
-                    mimeType == null -> null
-                    mimeType.endsWith("png") -> "png"
-                    mimeType.endsWith("jpg") -> "jpg"
-                    mimeType.endsWith("png") -> "png"
-                    mimeType.endsWith("svg") -> "svg"
-                    mimeType.endsWith("jpeg") -> "jpeg"
-                    mimeType.endsWith("gif") -> "gif"
-                    else -> null
+    val galleryAsMediaItems: List<MediaURL>? = when {
+        galleryData != null -> {
+            mutableListOf<MediaURL>().apply {
+                for (id: String in galleryData.items.map { it.mediaId }) {
+                    val metaData = mediaMetadata!![id] ?: error("MetaData is null")
+                    val mimeType = metaData.mimeType
+                    val extension = when {
+                        mimeType == null -> null
+                        mimeType.endsWith("png") -> "png"
+                        mimeType.endsWith("jpg") -> "jpg"
+                        mimeType.endsWith("png") -> "png"
+                        mimeType.endsWith("svg") -> "svg"
+                        mimeType.endsWith("jpeg") -> "jpeg"
+                        mimeType.endsWith("gif") -> "gif"
+                        else -> null
+                    }
+                    if (extension.isNullOrBlank()) {
+                        continue
+                    }
+                    val mediaType = if (extension == "gif") {
+                        MediaType.GIF
+                    } else {
+                        MediaType.PICTURE
+                    }
+                    add(MediaURL("https://i.redd.it/$id.$extension", mediaType))
                 }
-                if (extension.isNullOrBlank()) {
-                    continue
-                }
-                val mediaType = if (extension == "gif") {
-                    MediaType.GIF
-                } else {
-                    MediaType.PICTURE
-                }
-                add(MediaURL("https://i.redd.it/$id.$extension", mediaType))
             }
         }
-    } else {
-        null
+        crosspostParentList != null -> {
+            crosspostParentList?.get(0).galleryAsMediaItems
+        }
+        else -> null
     }
 
     fun updateScore(vote: Vote) {
@@ -503,6 +508,8 @@ data class Subreddit(
     val title: String,
     @Json(name = "community_icon")
     val communityIcon: String?,
+    @Json(name = "mobile_banner_image")
+    val mobileBannerImg: String?,
     @Json(name = "banner_img")
     val bannerImg: String?,
     @Json(name = "banner_background_image")
@@ -512,10 +519,13 @@ data class Subreddit(
     @Json(name = "public_description")
     val publicDescription: String,
     val description: String?,
-    val url: String
+    val url: String,
+    val subscribers: Int?,
+    @Json(name = "subreddit_type")
+    val subredditType: String,
 ) : Item(ItemType.Subreddit) {
     @IgnoredOnParcel
-    override val id = name.replace("t5_", "")
+    override val id = name.replaceFirst("t5_", "")
 
     @IgnoredOnParcel
     var isFavorite = false
@@ -546,6 +556,7 @@ data class Subreddit(
     val banner: String?
         get() {
             return when {
+                !mobileBannerImg.isNullOrBlank() -> mobileBannerImg.toValidImgUrl()
                 !bannerImg.isNullOrBlank() -> bannerImg.toValidImgUrl()
                 !bannerBackgroundImg.isNullOrBlank() -> bannerBackgroundImg.toValidImgUrl()
                 else -> null
@@ -583,7 +594,7 @@ data class Award(
 @Parcelize
 data class More(
     override val name: String,
-    override val id: String = name.replace("t1_", ""),
+    override val id: String = name.replaceFirst("t1_", ""),
     val depth: Int,
     @Json(name = "parent_id") val parentId: String,
     val children: List<String>,
@@ -666,10 +677,10 @@ data class MultiReddit(
     }
 
     fun asSubscription() = Subscription(
-        "${name}__${ownerId.replace("t2_", "")}",
+        "${name}__${ownerId.replaceFirst("t2_", "")}",
         name,
         displayName,
-        ownerId.replace("t2_", ""),
+        ownerId.replaceFirst("t2_", ""),
         iconUrl,
         path,
         isFavorite,
@@ -696,3 +707,30 @@ data class MultiRedditUpdate(
 }
 
 fun List<MultiReddit>.asSubscriptions() = map { it.asSubscription() }
+
+data class ModeratedList(val data: List<SubredditInModeratedList>?)
+
+@Parcelize
+data class SubredditInModeratedList(
+    @Json(name = "icon_img")
+    val iconImg: String?,
+    @Json(name = "community_icon")
+    val communityIcon: String?,
+    override val name: String,
+    val title: String,
+    @Json(name = "sr")
+    val displayName: String,
+    @Json(name = "user_is_subscriber")
+    var userSubscribed: Boolean?,
+    val subscribers: Int?
+) : Parcelable, Item(ItemType.Subreddit) {
+    @IgnoredOnParcel
+    override val id = name.replaceFirst("t5_", "")
+
+    @IgnoredOnParcel
+    val icon: String? = when {
+        !iconImg.isNullOrBlank() -> iconImg.toValidImgUrl()
+        !communityIcon.isNullOrBlank() -> communityIcon.toValidImgUrl()
+        else -> null
+    }
+}

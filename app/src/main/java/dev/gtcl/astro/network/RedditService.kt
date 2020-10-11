@@ -314,8 +314,14 @@ interface RedditApiService {
         @Path("displayName") displayName: String
     ): Deferred<RulesResponse>
 
-    // TODO: Get moderated subreddits
-    // /user/{username}/moderated_subreddits.json
+    @GET("/user/{username}/moderated_subreddits.json")
+    fun getModeratedSubs(
+        @Header("Authorization") authorization: String?,
+        @Path("username") username: String
+    ): Deferred<ModeratedList>
+
+    @GET("/api/trending_subreddits.json")
+    fun getTrendingSubredditNames(): Deferred<TrendingSubredditsResponse>
 
 //     __  __       _ _   _        _____          _     _ _ _
 //    |  \/  |     | | | (_)      |  __ \        | |   | (_) |
@@ -328,6 +334,13 @@ interface RedditApiService {
     @GET("/api/multi/mine")
     fun getMyMultiReddits(
         @Header("Authorization") authorization: String,
+        @Query("expand_srs") expandSubs: Boolean = true
+    ): Deferred<List<MultiRedditChild>>
+
+    @GET("/api/multi/user/{username}.json")
+    fun getMultiReddits(
+        @Header("Authorization") authorization: String?,
+        @Path("username") username: String,
         @Query("expand_srs") expandSubs: Boolean = true
     ): Deferred<List<MultiRedditChild>>
 
@@ -372,13 +385,19 @@ interface RedditApiService {
 
     @POST("/api/multi/.json")
     fun createMulti(
-        @Header("Authorization") authorization: String? = null,
+        @Header("Authorization") authorization: String,
         @Query("model", encoded = true) model: MultiRedditUpdate,
         @Query("expand_srs") expandSubs: Boolean = true
     ): Deferred<MultiRedditChild>
 
-    // TODO: Get public multis belonging to username
-    // /api/multi/user/{username}
+    @POST("/api/multi/copy.json")
+    fun copyMulti(
+        @Header("Authorization") authorization: String,
+        @Query("from") multiPath: String,
+        @Query("display_name") displayName: String,
+        @Query("description_md") descriptionMd: String?,
+        @Query("expand_srs") expandSubs: Boolean = true
+    ): Deferred<MultiRedditChild>
 
 //      _____                                     _
 //     / ____|                                   | |

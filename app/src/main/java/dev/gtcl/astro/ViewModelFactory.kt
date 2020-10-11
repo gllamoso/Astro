@@ -6,9 +6,10 @@ import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.account.AccountFragmentVM
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerVM
 import dev.gtcl.astro.ui.fragments.comments.CommentsVM
-import dev.gtcl.astro.ui.fragments.listing.ListingVM
+import dev.gtcl.astro.ui.fragments.post_listing.PostListingVM
 import dev.gtcl.astro.ui.fragments.item_scroller.ItemScrollerVM
 import dev.gtcl.astro.ui.fragments.account.pages.about.AccountAboutVM
+import dev.gtcl.astro.ui.fragments.subreddits.SubredditInfoVM
 import dev.gtcl.astro.ui.fragments.account.pages.blocked.BlockedVM
 import dev.gtcl.astro.ui.fragments.account.pages.friends.FriendsVM
 import dev.gtcl.astro.ui.fragments.create_post.CreatePostVM
@@ -18,6 +19,7 @@ import dev.gtcl.astro.ui.fragments.inbox.ComposeVM
 import dev.gtcl.astro.ui.fragments.manage.ManagePostVM
 import dev.gtcl.astro.ui.fragments.media.MediaDialogVM
 import dev.gtcl.astro.ui.fragments.media.list.item.MediaVM
+import dev.gtcl.astro.ui.fragments.multireddits.MultiRedditCreationVM
 import dev.gtcl.astro.ui.fragments.signin.SignInVM
 import dev.gtcl.astro.ui.fragments.splash.SplashVM
 import dev.gtcl.astro.ui.fragments.subscriptions.SubscriptionsVM
@@ -34,7 +36,7 @@ class ViewModelFactory(private val application: AstroApplication) : ViewModelPro
         return when {
             modelClass.isAssignableFrom(SplashVM::class.java) -> SplashVM(application) as T
             modelClass.isAssignableFrom(SignInVM::class.java) -> SignInVM(application) as T
-            modelClass.isAssignableFrom(ListingVM::class.java) -> ListingVM(application) as T
+            modelClass.isAssignableFrom(PostListingVM::class.java) -> PostListingVM(application) as T
             modelClass.isAssignableFrom(ViewPagerVM::class.java) -> ViewPagerVM(application) as T
             modelClass.isAssignableFrom(CommentsVM::class.java) -> CommentsVM(application) as T
             modelClass.isAssignableFrom(MainActivityVM::class.java) -> MainActivityVM(application) as T
@@ -58,6 +60,10 @@ class ViewModelFactory(private val application: AstroApplication) : ViewModelPro
             modelClass.isAssignableFrom(RulesVM::class.java) -> RulesVM(application) as T
             modelClass.isAssignableFrom(FlairListVM::class.java) -> FlairListVM(application) as T
             modelClass.isAssignableFrom(ManagePostVM::class.java) -> ManagePostVM(application) as T
+            modelClass.isAssignableFrom(SubredditInfoVM::class.java) -> SubredditInfoVM(application) as T
+            modelClass.isAssignableFrom(MultiRedditCreationVM::class.java) -> MultiRedditCreationVM(
+                application
+            ) as T
             else -> throw IllegalArgumentException("Unknown ViewModel class: $modelClass")
         }
     }

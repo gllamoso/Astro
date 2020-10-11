@@ -20,12 +20,11 @@ import dev.gtcl.astro.actions.SubscriptionActions
 import dev.gtcl.astro.database.Subscription
 import dev.gtcl.astro.databinding.FragmentDialogSubscriptionsBinding
 import dev.gtcl.astro.databinding.PopupSubscriptionActionsBinding
-import dev.gtcl.astro.models.reddit.listing.Listing
-import dev.gtcl.astro.models.reddit.listing.MultiRedditUpdate
+import dev.gtcl.astro.models.reddit.listing.PostListing
 import dev.gtcl.astro.models.reddit.listing.ProfileListing
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import dev.gtcl.astro.ui.fragments.multireddits.MultiRedditDetailsDialogFragment
+import dev.gtcl.astro.ui.fragments.multireddits.MultiRedditCreationDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerFragmentDirections
 
 class SubscriptionsDialogFragment : BottomSheetDialogFragment(), SubscriptionActions,
@@ -133,16 +132,14 @@ class SubscriptionsDialogFragment : BottomSheetDialogFragment(), SubscriptionAct
             }
         })
 
-        childFragmentManager.setFragmentResultListener(MULTI_KEY, viewLifecycleOwner, { _, bundle ->
-            val multiUpdate = bundle.get(MULTI_KEY) as MultiRedditUpdate
-            model.createMulti(multiUpdate)
-        })
-
-        model.editSubscription.observe(viewLifecycleOwner, {
+        activityModel.newMulti.observe(viewLifecycleOwner, {
             if (it != null) {
-                editMultiReddit(it)
+                editMultiReddit(it.asSubscription())
+                activityModel.newMultiObserved()
             }
         })
+
+
     }
 
     private fun showMoreOptionsPopupWindow(anchor: View) {
@@ -153,7 +150,7 @@ class SubscriptionsDialogFragment : BottomSheetDialogFragment(), SubscriptionAct
         popupBinding.apply {
             popupSubscriptionActionsCreateCustomFeed.root.setOnClickListener {
                 checkIfLoggedInBeforeExecuting(requireContext()) {
-                    MultiRedditDetailsDialogFragment.newInstance(null)
+                    MultiRedditCreationDialogFragment.newInstance(null)
                         .show(childFragmentManager, null)
                 }
                 popupWindow.dismiss()
@@ -172,17 +169,20 @@ class SubscriptionsDialogFragment : BottomSheetDialogFragment(), SubscriptionAct
         )
     }
 
-    override fun listingTypeClicked(listing: Listing) {
-        if (listing is ProfileListing && listing.info == ProfileInfo.SAVED) {
+    override fun listingTypeClicked(postListing: PostListing) {
+        if (postListing is ProfileListing && postListing.info == ProfileInfo.SAVED) {
             checkIfLoggedInBeforeExecuting(requireContext()) {
                 parentFragmentManager.setFragmentResult(
                     LISTING_KEY,
-                    bundleOf(LISTING_KEY to listing)
+                    bundleOf(LISTING_KEY to postListing)
                 )
                 dismiss()
             }
         } else {
-            parentFragmentManager.setFragmentResult(LISTING_KEY, bundleOf(LISTING_KEY to listing))
+            parentFragmentManager.setFragmentResult(
+                LISTING_KEY,
+                bundleOf(LISTING_KEY to postListing)
+            )
             dismiss()
         }
     }
@@ -215,9 +215,7 @@ class SubscriptionsDialogFragment : BottomSheetDialogFragment(), SubscriptionAct
     override fun editMultiReddit(sub: Subscription) {
         checkIfLoggedInBeforeExecuting(requireContext()) {
             findNavController().navigate(
-                ViewPagerFragmentDirections.actionViewPagerFragmentToMultiRedditFragment(
-                    sub
-                )
+                ViewPagerFragmentDirections.actionViewPagerFragmentToMultiRedditFragment(sub.url)
             )
             dismiss()
         }
