@@ -241,25 +241,14 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         }
 
         val topRightIcon = when (listing) {
-            FrontPage, All, Popular, is SearchListing, is ProfileListing -> R.drawable.ic_trending_up_24
-            is MultiRedditListing -> R.drawable.ic_collection_24
-            else -> R.drawable.ic_reddit_circle_24
+            FrontPage, All, Popular, is SearchListing, is ProfileListing -> R.drawable.ic_trending_up_colored_24
+            is MultiRedditListing -> R.drawable.ic_collection_colored_24
+            else -> R.drawable.ic_reddit_circle_colored_24
         }
 
         // Set tinted sidebar button
         val drawable = AppCompatResources.getDrawable(requireContext(), topRightIcon) ?: return
-        val tintedDrawable = DrawableCompat.wrap(drawable)
-        val typedValue = TypedValue()
-        val theme = requireContext().theme
-        theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
-        val typedArr = requireContext().obtainStyledAttributes(
-            typedValue.data,
-            intArrayOf(android.R.attr.textColorPrimary)
-        )
-        val color = typedArr.getColor(0, -1)
-        typedArr.recycle()
-        DrawableCompat.setTint(tintedDrawable, color)
-        topAppBar?.layoutTopAppBarListingSideBarButton?.setImageDrawable(tintedDrawable)
+        topAppBar?.layoutTopAppBarListingSideBarButton?.setImageDrawable(drawable)
 
         model.subreddit.observe(viewLifecycleOwner, { sub ->
             if (sub != null) {
@@ -283,7 +272,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                     topAppBar?.layoutTopAppBarListingCollapsingToolbar?.contentScrim = null
                 }
                 sub.icon?.let {
-                    loadTopBarIcon(it, tintedDrawable)
+                    loadTopBarIcon(it, drawable)
                 }
                 rightDrawerLayout?.layoutRightDrawerPublicDescription?.let {
                     markwon.setMarkdown(it, sub.publicDescription + "\n" + sub.description)
@@ -334,7 +323,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                     adapter
                 adapter.submitList(multi.subreddits.mapNotNull { it.data })
 
-                loadTopBarIcon(multi.iconUrl, tintedDrawable)
+                loadTopBarIcon(multi.iconUrl, drawable)
 
                 binding?.fragmentListingRightDrawerLayout?.layoutRightDrawerEditButton?.setOnClickListener {
                     findNavController().navigate(
