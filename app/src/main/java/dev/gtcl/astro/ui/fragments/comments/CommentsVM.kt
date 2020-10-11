@@ -75,7 +75,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
     var viewPagerInitialized = false
 
     init {
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(application)
+        val sharedPref = application.sharedPref
         val defaultSort =
             sharedPref.getString("default_comment_sort", application.getString(R.string.order_best))
         val sortArray = application.resources.getStringArray(R.array.comment_sort_entries)
