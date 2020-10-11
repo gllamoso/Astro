@@ -2,7 +2,6 @@ package dev.gtcl.astro.ui.fragments.post_listing
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.content.SharedPreferences
 import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.util.TypedValue
@@ -20,7 +19,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
@@ -72,8 +70,8 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         createMarkwonInstance(requireContext(), viewPagerModel::linkClicked)
     }
 
-    private val sharedPref: SharedPreferences by lazy {
-        PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
+    private val sharedPref by lazy {
+        (requireActivity().application as AstroApplication).sharedPref
     }
 
     private lateinit var scrollListener: ListingScrollListener
@@ -150,8 +148,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         val swipeRefresh = binding?.fragmentListingSwipeRefresh
         scrollListener =
             ListingScrollListener(15, listView?.layoutManager as GridLayoutManager, model::loadMore)
-        val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val blurNsfw = preferences.getBoolean("blur_nsfw_thumbnail", false)
+        val blurNsfw = sharedPref.getBoolean("blur_nsfw_thumbnail", false)
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
         listAdapter = ListingAdapter(
             markwon,

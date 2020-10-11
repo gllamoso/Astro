@@ -1,6 +1,5 @@
 package dev.gtcl.astro.ui.fragments.item_scroller
 
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -11,7 +10,6 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
@@ -54,8 +52,8 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     private val activityModel: MainActivityVM by activityViewModels()
 
-    private val sharedPref: SharedPreferences by lazy {
-        PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
+    private val sharedPref by lazy {
+        (requireActivity().application as AstroApplication).sharedPref
     }
 
     override fun onResume() {
@@ -146,8 +144,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             recyclerView?.layoutManager as GridLayoutManager,
             model::loadMore
         )
-        val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val blurNsfw = preferences.getBoolean(NSFW_THUMBNAIL_KEY, false)
+        val blurNsfw = sharedPref.getBoolean(NSFW_THUMBNAIL_KEY, false)
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
         val inInbox = requireArguments().getSerializable(MESSAGE_WHERE_KEY) != null
         listAdapter = ListingAdapter(
