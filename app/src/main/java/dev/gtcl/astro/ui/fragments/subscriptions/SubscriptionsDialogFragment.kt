@@ -20,6 +20,7 @@ import dev.gtcl.astro.actions.SubscriptionActions
 import dev.gtcl.astro.database.Subscription
 import dev.gtcl.astro.databinding.FragmentDialogSubscriptionsBinding
 import dev.gtcl.astro.databinding.PopupSubscriptionActionsBinding
+import dev.gtcl.astro.models.reddit.listing.Friends
 import dev.gtcl.astro.models.reddit.listing.PostListing
 import dev.gtcl.astro.models.reddit.listing.ProfileListing
 import dev.gtcl.astro.network.NetworkState
@@ -170,7 +171,7 @@ class SubscriptionsDialogFragment : BottomSheetDialogFragment(), SubscriptionAct
     }
 
     override fun listingTypeClicked(postListing: PostListing) {
-        if (postListing is ProfileListing && postListing.info == ProfileInfo.SAVED) {
+        if ((postListing is ProfileListing && postListing.info == ProfileInfo.SAVED) || postListing is Friends) {
             checkIfLoggedInBeforeExecuting(requireContext()) {
                 parentFragmentManager.setFragmentResult(
                     LISTING_KEY,

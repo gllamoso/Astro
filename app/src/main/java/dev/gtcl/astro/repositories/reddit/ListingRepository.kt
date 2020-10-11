@@ -71,6 +71,21 @@ class ListingRepository private constructor(private val application: AstroApplic
                     pageSize
                 )
             }
+            Friends -> {
+                if (accessToken == null){
+                    throw NotLoggedInException()
+                } else {
+                    RedditApi.oauth.getPostsFromSubreddit(
+                        accessToken.authorizationHeader,
+                        "friends",
+                        postSort,
+                        t,
+                        after,
+                        count,
+                        pageSize
+                    )
+                }
+            }
             is SearchListing -> if (accessToken != null) {
                 RedditApi.oauth.searchPosts(
                     accessToken.authorizationHeader,

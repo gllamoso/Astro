@@ -10,10 +10,7 @@ import dev.gtcl.astro.actions.ListingTypeClickListener
 import dev.gtcl.astro.actions.SubscriptionActions
 import dev.gtcl.astro.actions.SubscriptionAdapterActions
 import dev.gtcl.astro.database.Subscription
-import dev.gtcl.astro.models.reddit.listing.All
-import dev.gtcl.astro.models.reddit.listing.FrontPage
-import dev.gtcl.astro.models.reddit.listing.Popular
-import dev.gtcl.astro.models.reddit.listing.ProfileListing
+import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.viewholders.ListingVH
 import dev.gtcl.astro.ui.viewholders.ExpandableItem
 import dev.gtcl.astro.ui.viewholders.ExpandableHeaderVH
@@ -33,10 +30,13 @@ class SubscriptionsAdapter(
     //  - All
     //  - Popular
     //  - Saved
+    //  - Friends
     // Subreddits
     //  - List of Subreddits
     // Users
     // - List of Users
+
+    private val defaultMultis = 5
 
     private val favHeader = object : ExpandableItem(context.getString(R.string.favorites)) {
         override fun onExpand(expand: Boolean) {
@@ -74,9 +74,9 @@ class SubscriptionsAdapter(
     private val multiHeader = object : ExpandableItem(context.getString(R.string.multireddits)) {
         override fun onExpand(expand: Boolean) {
             if (expand) {
-                notifyItemRangeInserted(multisHeaderIndex + 1, 4 + multis.size)
+                notifyItemRangeInserted(multisHeaderIndex + 1, defaultMultis + multis.size)
             } else {
-                notifyItemRangeRemoved(multisHeaderIndex + 1, 4 + multis.size)
+                notifyItemRangeRemoved(multisHeaderIndex + 1, defaultMultis + multis.size)
             }
         }
     }
@@ -102,7 +102,7 @@ class SubscriptionsAdapter(
                 }
             }
             if (multiHeader.expanded) {
-                idx += 4 + multis.size
+                idx += defaultMultis + multis.size
             }
             return idx
         }
@@ -135,7 +135,7 @@ class SubscriptionsAdapter(
             }
 
             if (multiHeader.expanded) {
-                idx += 4 + multis.size
+                idx += defaultMultis + multis.size
             }
 
             if (subsHeader.expanded) {
@@ -189,27 +189,30 @@ class SubscriptionsAdapter(
                 subsHeader,
                 position != 0
             )
-            position > multisHeaderIndex + 4 -> (holder as SubscriptionVH).bind(
-                multis[position - multisHeaderIndex - 4 - 1],
+            position > multisHeaderIndex + defaultMultis -> (holder as SubscriptionVH).bind(
+                multis[position - multisHeaderIndex - defaultMultis - 1],
                 listingTypeClickListener,
                 this,
                 subscriptionActions
             )
-            position == multisHeaderIndex + 4 -> (holder as ListingVH).bind(
+            position == multisHeaderIndex + defaultMultis -> (holder as ListingVH).bind(
+                Friends, listingTypeClickListener
+            )
+            position == multisHeaderIndex + defaultMultis - 1 -> (holder as ListingVH).bind(
                 ProfileListing(
                     null,
                     ProfileInfo.SAVED
                 ), listingTypeClickListener
             )
-            position == multisHeaderIndex + 3 -> (holder as ListingVH).bind(
+            position == multisHeaderIndex + defaultMultis - 2 -> (holder as ListingVH).bind(
                 Popular,
                 listingTypeClickListener
             )
-            position == multisHeaderIndex + 2 -> (holder as ListingVH).bind(
+            position == multisHeaderIndex + defaultMultis - 3 -> (holder as ListingVH).bind(
                 All,
                 listingTypeClickListener
             )
-            position == multisHeaderIndex + 1 -> (holder as ListingVH).bind(
+            position == multisHeaderIndex + defaultMultis - 4 -> (holder as ListingVH).bind(
                 FrontPage,
                 listingTypeClickListener
             )
@@ -244,7 +247,7 @@ class SubscriptionsAdapter(
                 R.layout.item_subscription
             }
             position > multisHeaderIndex -> {
-                if (position <= multisHeaderIndex + 4) {
+                if (position <= multisHeaderIndex + defaultMultis) {
                     R.layout.item_listing
                 } else {
                     R.layout.item_subscription
@@ -303,7 +306,7 @@ class SubscriptionsAdapter(
                 val changePosition = binarySearch(multis, sub)
                 if (changePosition != -1) {
                     multis[changePosition].isFavorite = false
-                    notifyItemChanged(multisHeaderIndex + 5 + changePosition)
+                    notifyItemChanged(multisHeaderIndex + defaultMultis + changePosition)
                 }
             }
         }
@@ -334,7 +337,7 @@ class SubscriptionsAdapter(
                     )
                 if (changePosition != -1) {
                     multis.removeAt(changePosition)
-                    notifyItemRemoved(multisHeaderIndex + 5 + changePosition)
+                    notifyItemRemoved(multisHeaderIndex + defaultMultis + changePosition)
                 }
             }
             SubscriptionType.USER -> {
@@ -384,7 +387,7 @@ class SubscriptionsAdapter(
         }
         count++ // MultiReddits header
         if (multiHeader.expanded) {
-            count += 4 + multis.size
+            count += defaultMultis + multis.size
         }
         count++ // All Subscriptions header
         if (subsHeader.expanded) {

@@ -533,16 +533,17 @@ fun createMarkwonInstance(context: Context, handleLink: (String) -> Unit): Markw
         .build()
 }
 
-fun getListingTitle(context: Context, postListing: PostListing): String {
+fun getListingTitle(context: Context, postListing: PostListing?): String? {
     return when (postListing) {
         is FrontPage -> context.getString(R.string.frontpage)
         is All -> context.getString(R.string.all)
         is Popular -> context.getString(R.string.popular_tab_label)
+        is Friends -> context.getString(R.string.friends)
         is SearchListing -> String.format(context.getString(R.string.search_title), postListing.query)
         is MultiRedditListing -> postListing.name
         is SubredditListing -> {
             if (postListing.displayName.startsWith("u_")) {
-                postListing.displayName.replaceFirst("u_", "")
+                postListing.displayName.replaceFirst("u_", "u/")
             } else {
                 postListing.displayName
             }
@@ -561,6 +562,7 @@ fun getListingTitle(context: Context, postListing: PostListing): String {
                 }
             )
         }
+        else -> null
     }
 }
 

@@ -118,6 +118,7 @@ fun loadMultiIcon(imgView: ImageView, postListing: PostListing) {
         FrontPage -> imgView.setImageResource(R.drawable.ic_front_page_24)
         All -> imgView.setImageResource(R.drawable.ic_all_24)
         Popular -> imgView.setImageResource(R.drawable.ic_trending_up_24)
+        Friends -> imgView.setImageResource(R.drawable.ic_people_24)
         is ProfileListing -> imgView.setImageResource(R.drawable.ic_bookmark_24)
         is MultiRedditListing -> imgView.setImageResource(R.drawable.ic_collection_24)
         else -> imgView.setImageResource(R.drawable.ic_reddit_circle_24)
@@ -244,29 +245,8 @@ fun loadAddedIcon(imgView: ImageView, added: Boolean) {
 
 @BindingAdapter("listingType")
 fun loadListingText(txtView: TextView, postListing: PostListing?) {
-    val context = txtView.context
-    postListing?.let {
-        txtView.text = when (it) {
-            FrontPage -> context.getText(R.string.frontpage)
-            All -> context.getText(R.string.all)
-            Popular -> context.getText(R.string.popular_tab_label)
-            is SearchListing -> String.format(context.getString(R.string.search_title), it.query)
-            is MultiRedditListing -> it.name
-            is SubredditListing -> it.displayName
-            is ProfileListing -> context.getText(
-                when (it.info) {
-                    ProfileInfo.OVERVIEW -> R.string.overview
-                    ProfileInfo.SUBMITTED -> R.string.submitted
-                    ProfileInfo.COMMENTS -> R.string.comments
-                    ProfileInfo.UPVOTED -> R.string.upvoted
-                    ProfileInfo.DOWNVOTED -> R.string.downvoted
-                    ProfileInfo.HIDDEN -> R.string.hidden
-                    ProfileInfo.SAVED -> R.string.saved
-                    ProfileInfo.GILDED -> R.string.gilded
-                }
-            )
-        }
-    }
+    val text = getListingTitle(txtView.context, postListing)
+    txtView.text = text
 }
 
 @BindingAdapter("listingType")

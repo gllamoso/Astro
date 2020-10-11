@@ -17,6 +17,9 @@ object All : PostListing()
 object Popular : PostListing()
 
 @Parcelize
+object Friends : PostListing()
+
+@Parcelize
 class SearchListing(val query: String) : PostListing()
 
 @Parcelize
