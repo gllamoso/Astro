@@ -87,7 +87,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         if (showNsfw != model.showNsfw) {
             binding?.fragmentListingSwipeRefresh?.isRefreshing = true
             listAdapter.blurNsfw = blurNsfwThumbnail
-            initData()
+            initData(false)
         } else if (blurNsfwThumbnail != listAdapter.blurNsfw) {
             listAdapter.blurNsfw = blurNsfwThumbnail
             listAdapter.notifyDataSetChanged()
@@ -105,7 +105,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         binding?.model = model
 
         if (!model.initialPageLoaded) {
-            initData()
+            initData(true)
         }
         initScroller()
         initBottomBar()
@@ -117,7 +117,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         return binding?.root
     }
 
-    private fun initData() {
+    private fun initData(loadDefaults: Boolean) {
         val listing = requireArguments().getParcelable<PostListing>(LISTING_KEY) ?: return
         val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
         when (listing) {
@@ -127,7 +127,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
             is SubredditListing -> model.fetchSubreddit(listing.displayName)
             is MultiRedditListing -> model.fetchMultiReddit(listing.path)
         }
-        model.setListingInfo(listing)
+        model.setListingInfo(listing, loadDefaults)
         model.setNsfw(showNsfw)
         model.fetchFirstPage()
     }
@@ -203,7 +203,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
             }
 
             resetOnScrollListener()
-            initData()
+            initData(false)
         }
     }
 
@@ -403,7 +403,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                 return@setOnClickListener
             }
             resetOnScrollListener()
-            initData()
+            initData(false)
         }
 
         bottomBarLayout?.layoutListingBottomBarMoreOptionsButton?.setOnClickListener {
@@ -802,7 +802,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         val application = (requireActivity().application as AstroApplication)
         val currentAccount = application.currentAccount
         if (account.id == currentAccount?.id) {
-            saveAccountToPreferences(application, null)
+            application.saveAccount(null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
         activityModel.removeAccount(account)
@@ -813,7 +813,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         val application = requireActivity().application as AstroApplication
         val currentAccount = application.currentAccount
         if (account.id != currentAccount?.id) {
-            saveAccountToPreferences(application, account)
+            application.saveAccount(account)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
         binding?.fragmentListingDrawer?.closeDrawer(Gravity.LEFT)
@@ -824,7 +824,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         val application = (requireActivity().application as AstroApplication)
         val currentAccount = application.currentAccount
         if (currentAccount != null) {
-            saveAccountToPreferences(application, null)
+            application.saveAccount(null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
         binding?.fragmentListingDrawer?.closeDrawer(Gravity.LEFT)

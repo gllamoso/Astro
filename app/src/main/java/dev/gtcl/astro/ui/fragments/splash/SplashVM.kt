@@ -23,13 +23,21 @@ class SplashVM(val application: AstroApplication) : AstroViewModel(application) 
         coroutineScope.launch {
             withContext(Dispatchers.IO) {
                 try {
-                    if (account == null) {
-                        application.accessToken = null
-                        application.currentAccount = null
-                    } else {
-                        val accessToken = fetchAccessToken(account.refreshToken!!)
-                        application.accessToken = accessToken
-                        application.currentAccount = userRepository.getAccount(accessToken).await()
+                    withContext(Dispatchers.Main) {
+                        if (account == null) {
+                            application.apply {
+                                setAccessToken(null)
+                                setCurrentAccount(null)
+                            }
+                        } else {
+                            val accessToken = fetchAccessToken(account.refreshToken!!)
+                            application.apply {
+                                setAccessToken(accessToken)
+                                setCurrentAccount(
+                                    userRepository.getAccount(accessToken).await()
+                                )
+                            }
+                        }
                     }
                     _ready.postValue(true)
                 } catch (e: Exception) {

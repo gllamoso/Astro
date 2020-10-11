@@ -512,15 +512,6 @@ enum class LeftDrawerHeader {
     SETTINGS
 }
 
-fun saveAccountToPreferences(application: AstroApplication, account: SavedAccount?) {
-    val sharedPrefs = application.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
-    with(sharedPrefs.edit()) {
-        val json = Gson().toJson(account)
-        putString(CURRENT_USER_KEY, json)
-        commit()
-    }
-}
-
 fun rotateView(view: View, rotate: Boolean) {
     view.animate().rotation(
         if (rotate) {

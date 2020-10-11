@@ -284,7 +284,7 @@ class AccountFragment : Fragment(), LeftDrawerActions {
         val application = (requireActivity().application as AstroApplication)
         val currentAccount = application.currentAccount
         if (account.id == currentAccount?.id) {
-            saveAccountToPreferences(application, null)
+            application.saveAccount(null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
         activityModel.removeAccount(account)
@@ -295,7 +295,7 @@ class AccountFragment : Fragment(), LeftDrawerActions {
         val application = (requireActivity().application as AstroApplication)
         val currentAccount = application.currentAccount
         if (account.id != currentAccount?.id) {
-            saveAccountToPreferences(application, account)
+            application.saveAccount(account)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
         binding?.fragmentAccountDrawer?.closeDrawer(Gravity.LEFT)
@@ -306,7 +306,7 @@ class AccountFragment : Fragment(), LeftDrawerActions {
         val application = (requireActivity().application as AstroApplication)
         val currentAccount = application.currentAccount
         if (currentAccount != null) {
-            saveAccountToPreferences(application, null)
+            application.saveAccount(null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
         binding?.fragmentAccountDrawer?.closeDrawer(Gravity.LEFT)

@@ -68,8 +68,12 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
     fun refreshAccessToken() {
         coroutineScope.launch {
             try {
-                val refreshToken = application.accessToken!!.refreshToken!!
-                application.accessToken = fetchAccessToken(refreshToken)
+                val refreshToken =
+                    (application.accessToken ?: return@launch).refreshToken ?: return@launch
+                val accessToken = fetchAccessToken(refreshToken)
+                withContext(Dispatchers.Main) {
+                    application.setAccessToken(accessToken)
+                }
             } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
@@ -326,11 +330,11 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
         _openChromeTab.value = null
     }
 
-    fun handleLink(url: String){
+    fun handleLink(url: String) {
         _handleLink.value = url
     }
 
-    fun handleLinkObserved(){
+    fun handleLinkObserved() {
         _handleLink.value = null
     }
 
@@ -342,19 +346,19 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
         }
     }
 
-    fun newMultiReddit(multi: MultiReddit){
+    fun newMultiReddit(multi: MultiReddit) {
         _newMulti.value = multi
     }
 
-    fun newMultiObserved(){
+    fun newMultiObserved() {
         _newMulti.value = null
     }
 
-    fun subredditSelected(sub: Subreddit){
+    fun subredditSelected(sub: Subreddit) {
         _subredditSelected.value = sub
     }
 
-    fun subredditObserved(){
+    fun subredditObserved() {
         _subredditSelected.value = null
     }
 

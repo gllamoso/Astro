@@ -1,7 +1,5 @@
 package dev.gtcl.astro.ui.fragments.splash
 
-import android.content.Context
-import android.content.SharedPreferences
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -29,8 +27,8 @@ class SplashFragment : Fragment() {
 
     private val activityModel: MainActivityVM by activityViewModels()
 
-    private val sharedPref: SharedPreferences by lazy {
-        requireActivity().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
+    private val application by lazy {
+        requireActivity().application as AstroApplication
     }
 
     override fun onCreateView(
@@ -69,8 +67,7 @@ class SplashFragment : Fragment() {
     }
 
     private fun setUserFromSharedPreferences() {
-        val userString = sharedPref.getString(CURRENT_USER_KEY, null)
-        val account = Gson().fromJson(userString, SavedAccount::class.java)
+        val account = application.getSavedAccount()
         model.setCurrentUser(account)
     }
 }

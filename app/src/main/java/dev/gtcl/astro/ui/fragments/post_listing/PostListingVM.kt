@@ -30,8 +30,8 @@ class PostListingVM(val application: AstroApplication) : ItemScrollerVM(applicat
     val multiReddit: LiveData<MultiReddit?>
         get() = _multiReddit
 
-    override fun setListingInfo(postListing: PostListing) {
-        super.setListingInfo(postListing)
+    override fun setListingInfo(postListing: PostListing, loadDefaultSorting: Boolean) {
+        super.setListingInfo(postListing, loadDefaultSorting)
         _title.value = getListingTitle(application, postListing)
     }
 

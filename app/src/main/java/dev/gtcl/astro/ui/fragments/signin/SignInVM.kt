@@ -55,9 +55,13 @@ class SignInVM(private val application: AstroApplication) : AstroViewModel(appli
             account.refreshToken = token.refreshToken
             userRepository.insertUserToDatabase(account)
 
-            application.accessToken = token
-            application.currentAccount = account
-            saveUserToSharedPreferences(account)
+            withContext(Dispatchers.Main){
+                application.apply {
+                    setAccessToken(token)
+                    setCurrentAccount(account)
+                    saveAccount(account.asDbModel())
+                }
+            }
             _successfullyAddedAccount.postValue(true)
             _loading.postValue(false)
         }
@@ -91,15 +95,6 @@ class SignInVM(private val application: AstroApplication) : AstroViewModel(appli
                 ?: throw IllegalArgumentException("Code parameter not found: $url")
         } else {
             throw IllegalArgumentException("State parameter did not match: $url")
-        }
-    }
-
-    private fun saveUserToSharedPreferences(account: Account) {
-        val sharedPrefs = application.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
-        with(sharedPrefs.edit()) {
-            val json = Gson().toJson(account)
-            putString(CURRENT_USER_KEY, json)
-            commit()
         }
     }
 

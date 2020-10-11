@@ -63,15 +63,15 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
 
     private var count = 0
 
-    init {
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(application)
+    private fun loadDefaultSorting(listing: PostListing) {
+        val sharedPref = application.sharedPref
         _showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
         val defaultSort =
             sharedPref.getString(DEFAULT_POST_SORT_KEY, application.getString(R.string.order_hot))
         val sortArray = application.resources.getStringArray(R.array.post_sort_entries)
         val postSort: PostSort
         val time: Time?
-        if (postListing is SearchListing) {
+        if (listing is SearchListing) {
             postSort = PostSort.RELEVANCE
             time = Time.ALL
         } else {
@@ -149,10 +149,11 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
         lastAction()
     }
 
-    open fun setListingInfo(
-        postListing: PostListing
-    ) {
+    open fun setListingInfo(postListing: PostListing, loadDefaultSorting: Boolean) {
         this.postListing = postListing
+        if (loadDefaultSorting) {
+            loadDefaultSorting(postListing)
+        }
     }
 
     fun setListingSort(

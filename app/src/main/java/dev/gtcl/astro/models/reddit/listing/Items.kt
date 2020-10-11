@@ -180,7 +180,7 @@ data class Account(
     @Json(name = "comment_karma") val commentKarma: Int,
     @Json(name = "total_karma") val totalKarma: Int,
     @Json(name = "created_utc") val created: Long,
-    val subreddit: Subreddit,
+    val subreddit: Subreddit?,
     @Json(name = "is_friend") var isFriend: Boolean?,
     var refreshToken: String?
 ) : Item(ItemType.Account) {
@@ -191,7 +191,7 @@ data class Account(
     }
 
     fun getValidBannerImg(): String {
-        return IMAGE_REGEX.find(subreddit.bannerImg ?: "")?.value ?: ""
+        return IMAGE_REGEX.find(subreddit?.bannerImg ?: "")?.value ?: ""
     }
 
     fun asDbModel() = SavedAccount(

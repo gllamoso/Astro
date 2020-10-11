@@ -253,7 +253,7 @@ class SearchFragment : Fragment(), ItemClickListener {
         if (multiSelectMode) {
             val name = when (item) {
                 is Subreddit -> item.displayName
-                is Account -> item.subreddit.displayName
+                is Account -> item.subreddit?.displayName ?: ""
                 else -> throw IllegalStateException("Invalid account: $item")
             }
             model.addSelectedItem(name)

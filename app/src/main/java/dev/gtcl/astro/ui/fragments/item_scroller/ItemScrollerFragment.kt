@@ -123,7 +123,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                 val listing = args.getSerializable(LISTING_KEY) as PostListing
                 val postSort = args.getSerializable(POST_SORT_KEY) as PostSort
                 val time = args.getSerializable(TIME_KEY) as Time?
-                model.setListingInfo(listing)
+                model.setListingInfo(listing, true)
                 model.setListingSort(postSort, time)
             }
             args.getSerializable(MESSAGE_WHERE_KEY) != null -> {
