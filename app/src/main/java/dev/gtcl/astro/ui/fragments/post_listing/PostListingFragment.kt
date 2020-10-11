@@ -720,7 +720,15 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
 //
 
     override fun viewMoreInfo(displayName: String) {
-        SubredditInfoDialogFragment.newInstance(displayName).show(childFragmentManager, null)
+        if (displayName.startsWith("u_")) {
+            findNavController().navigate(
+                ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                    AccountPage(displayName.removePrefix("u_"))
+                )
+            )
+        } else {
+            SubredditInfoDialogFragment.newInstance(displayName).show(childFragmentManager, null)
+        }
     }
 
 

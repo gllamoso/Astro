@@ -17,10 +17,10 @@ class SubredditVH private constructor(private val binding: ItemSubredditBinding)
         itemClickListener: ItemClickListener
     ) {
         binding.apply {
-            displayName = sub.displayName
+            displayName = sub.displayNameFormatted
             icon = sub.icon
             title = sub.title
-            subscribers = sub.subscribers
+            subscribers = if (!sub.isUser) sub.subscribers else null
             moreInfoAvailable = subredditActions != null
         }
         binding.root.setOnClickListener {
@@ -40,10 +40,10 @@ class SubredditVH private constructor(private val binding: ItemSubredditBinding)
         itemClickListener: ItemClickListener
     ) {
         binding.apply {
-            displayName = sub.displayName
+            displayName = sub.displayNameFormatted
             icon = sub.icon
             title = sub.title
-            subscribers = sub.subscribers
+            subscribers = if (!sub.isUser) sub.subscribers else null
             moreInfoAvailable = subredditActions != null
         }
         binding.root.setOnClickListener {

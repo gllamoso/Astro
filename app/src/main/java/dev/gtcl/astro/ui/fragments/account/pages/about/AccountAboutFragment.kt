@@ -21,6 +21,7 @@ import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.account.pages.about.dialogs.MultiRedditInfoDialogFragment
 import dev.gtcl.astro.ui.fragments.subreddits.SubredditInfoDialogFragment
+import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
 import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerFragmentDirections
 import io.noties.markwon.Markwon
@@ -108,7 +109,15 @@ class AccountAboutFragment : Fragment(), SubredditActions, MultiRedditActions,
     }
 
     override fun viewMoreInfo(displayName: String) {
-        SubredditInfoDialogFragment.newInstance(displayName).show(childFragmentManager, null)
+        if (displayName.startsWith("u_")) {
+            findNavController().navigate(
+                ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                    AccountPage(displayName.removePrefix("u_"))
+                )
+            )
+        } else {
+            SubredditInfoDialogFragment.newInstance(displayName).show(childFragmentManager, null)
+        }
     }
 
     override fun viewMoreInfo(multi: MultiReddit) {

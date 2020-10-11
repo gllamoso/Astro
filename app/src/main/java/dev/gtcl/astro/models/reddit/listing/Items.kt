@@ -2,6 +2,7 @@ package dev.gtcl.astro.models.reddit.listing
 
 import android.os.Parcelable
 import android.text.Html
+import androidx.room.Ignore
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
@@ -528,6 +529,12 @@ data class Subreddit(
     override val id = name.replaceFirst("t5_", "")
 
     @IgnoredOnParcel
+    val displayNameFormatted = displayName.replaceFirst("u_", "u/")
+
+    @IgnoredOnParcel
+    val isUser = displayName.startsWith("u_")
+
+    @IgnoredOnParcel
     var isFavorite = false
 
     fun asSubscription(userId: String) = Subscription(
@@ -726,6 +733,12 @@ data class SubredditInModeratedList(
 ) : Parcelable, Item(ItemType.Subreddit) {
     @IgnoredOnParcel
     override val id = name.replaceFirst("t5_", "")
+
+    @IgnoredOnParcel
+    val displayNameFormatted = displayName.replaceFirst("u_", "u/")
+
+    @IgnoredOnParcel
+    val isUser = displayName.startsWith("u_")
 
     @IgnoredOnParcel
     val icon: String? = when {

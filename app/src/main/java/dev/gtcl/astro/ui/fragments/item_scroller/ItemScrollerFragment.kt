@@ -532,7 +532,15 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 //
 
     override fun viewMoreInfo(displayName: String) {
-        SubredditInfoDialogFragment.newInstance(displayName).show(childFragmentManager, null)
+        if (displayName.startsWith("u_")) {
+            findNavController().navigate(
+                ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                    AccountPage(displayName.removePrefix("u_"))
+                )
+            )
+        } else {
+            SubredditInfoDialogFragment.newInstance(displayName).show(childFragmentManager, null)
+        }
     }
 
 //     _____ _                    _____ _ _      _      _      _     _
