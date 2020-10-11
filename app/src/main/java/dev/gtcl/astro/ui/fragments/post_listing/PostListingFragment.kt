@@ -411,7 +411,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         }
     }
 
-    @SuppressLint("WrongConstant")
+    @SuppressLint("WrongConstant", "RtlHardcoded")
     private fun initOtherObservers() {
         model.errorMessage.observe(viewLifecycleOwner, { error ->
             if (error != null) {
@@ -739,6 +739,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
 //     _| |_| ||  __/ | | | | | | |____| | | (__|   <  | |____| \__ \ ||  __/ | | |  __/ |
 //    |_____|\__\___|_| |_| |_|  \_____|_|_|\___|_|\_\ |______|_|___/\__\___|_| |_|\___|_|
 
+    @SuppressLint("RtlHardcoded")
     override fun itemClicked(item: Item, position: Int) {
         when (item) {
             is Post -> {
