@@ -8,6 +8,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.PopupWindow
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -179,7 +180,16 @@ class AccountFragment : Fragment(), LeftDrawerActions {
 
         binding?.fragmentAccountSubscribeToggle?.root?.setOnClickListener {
             checkIfLoggedInBeforeExecuting(requireContext()) {
-                val sub = model.account.value?.subreddit ?: return@checkIfLoggedInBeforeExecuting
+                val account = model.account.value ?: return@checkIfLoggedInBeforeExecuting
+                val sub = model.account.value?.subreddit
+                if (sub == null) {
+                    Toast.makeText(
+                        requireContext(),
+                        String.format(getString(R.string.unable_to_subscribe), account.name),
+                        Toast.LENGTH_LONG
+                    ).show()
+                    return@checkIfLoggedInBeforeExecuting
+                }
                 sub.userSubscribed = sub.userSubscribed != true
                 binding?.fragmentAccountSubscribeToggle?.apply {
                     isSubscribed = sub.userSubscribed
@@ -235,7 +245,16 @@ class AccountFragment : Fragment(), LeftDrawerActions {
             }
             popupAccountActionsSubscribe.root.setOnClickListener {
                 checkIfLoggedInBeforeExecuting(requireContext()) {
-                    val sub = model.account.value?.subreddit ?: return@checkIfLoggedInBeforeExecuting
+                    val sub =
+                        model.account.value?.subreddit
+                    if (sub == null) {
+                        Toast.makeText(
+                            requireContext(),
+                            String.format(getString(R.string.unable_to_subscribe), account.name),
+                            Toast.LENGTH_LONG
+                        ).show()
+                        return@checkIfLoggedInBeforeExecuting
+                    }
                     sub.userSubscribed = sub.userSubscribed != true
                     binding?.fragmentAccountSubscribeToggle?.apply {
                         isSubscribed = sub.userSubscribed
@@ -246,7 +265,7 @@ class AccountFragment : Fragment(), LeftDrawerActions {
                 popupWindow.dismiss()
             }
             popupAccountActionsMessage.root.setOnClickListener {
-                checkIfLoggedInBeforeExecuting(requireContext()){
+                checkIfLoggedInBeforeExecuting(requireContext()) {
                     ComposeDialogFragment.newInstance(model.account.value?.name)
                         .show(childFragmentManager, null)
                 }
@@ -320,7 +339,7 @@ class AccountFragment : Fragment(), LeftDrawerActions {
 
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
-        checkIfLoggedInBeforeExecuting(requireContext()){
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             val user = model.account.value
             val currentAccount = (requireActivity().application as AstroApplication).currentAccount
             if (user?.name != currentAccount?.name) {
@@ -336,7 +355,7 @@ class AccountFragment : Fragment(), LeftDrawerActions {
 
     @SuppressLint("RtlHardcoded")
     override fun onInboxClicked() {
-        checkIfLoggedInBeforeExecuting(requireContext()){
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             findNavController().navigate(
                 ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
                     InboxPage

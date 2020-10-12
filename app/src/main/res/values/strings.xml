@@ -86,6 +86,7 @@
     <string name="public_feeds">Public Feeds</string>
     <string name="moderated_subs">Moderated Subreddits</string>
     <string name="awards">Awards</string>
+    <string name="unable_to_subscribe">Unable to subscribe to %s</string>
 
     <!--Share-->
     <string name="share_link">Share link</string>
