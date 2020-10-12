@@ -147,7 +147,7 @@ class SearchFragment : Fragment(), ItemClickListener {
             username = null
         ) {
             recycler?.apply {
-                removeOnScrollListener(scrollListener)
+                clearOnScrollListeners()
                 addOnScrollListener(scrollListener)
                 model.retry()
             }
@@ -176,7 +176,7 @@ class SearchFragment : Fragment(), ItemClickListener {
 
         model.lastItemReached.observe(viewLifecycleOwner, {
             if (it == true) {
-                recycler?.removeOnScrollListener(scrollListener)
+                recycler?.clearOnScrollListeners()
             }
         })
     }

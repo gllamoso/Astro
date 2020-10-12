@@ -130,7 +130,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
 
     private fun resetOnScrollListener() {
         binding?.fragmentListingList?.apply {
-            removeOnScrollListener(scrollListener)
+            clearOnScrollListeners()
             addOnScrollListener(scrollListener)
         }
     }
@@ -187,7 +187,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
 
         model.lastItemReached.observe(viewLifecycleOwner, {
             if (it == true) {
-                listView.removeOnScrollListener(scrollListener)
+                listView.clearOnScrollListeners()
             }
         })
 

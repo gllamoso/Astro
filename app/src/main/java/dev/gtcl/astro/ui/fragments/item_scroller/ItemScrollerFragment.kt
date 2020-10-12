@@ -96,7 +96,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     private fun resetOnScrollListener() {
         binding?.fragmentItemScrollerList?.apply {
-            removeOnScrollListener(scrollListener)
+            clearOnScrollListeners()
             addOnScrollListener(scrollListener)
         }
     }
@@ -188,7 +188,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
         model.lastItemReached.observe(viewLifecycleOwner, {
             if (it == true) {
-                recyclerView.removeOnScrollListener(scrollListener)
+                recyclerView.clearOnScrollListeners()
             }
         })
 
