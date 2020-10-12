@@ -112,6 +112,7 @@
     <string name="download_all">Download all</string>
     <string name="open_link_externally">Open link externally</string>
     <string name="view_fullscreen">View fullscreen</string>
+    <string name="media_failed">Failed to load media</string>
 
     <!--Inbox-->
     <string name="inbox">Inbox</string>

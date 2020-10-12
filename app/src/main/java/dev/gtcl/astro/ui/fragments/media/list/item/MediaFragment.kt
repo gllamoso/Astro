@@ -9,6 +9,7 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -145,6 +146,11 @@ class MediaFragment : Fragment() {
                         isFirstResource: Boolean
                     ): Boolean {
                         model.setLoadingState(false)
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.media_failed),
+                            Toast.LENGTH_LONG
+                        ).show()
                         return false
                     }
 
@@ -184,6 +190,11 @@ class MediaFragment : Fragment() {
                         isFirstResource: Boolean
                     ): Boolean {
                         model.setLoadingState(false)
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.media_failed),
+                            Toast.LENGTH_LONG
+                        ).show()
                         return false
                     }
 
@@ -248,6 +259,12 @@ class MediaFragment : Fragment() {
                             Uri.parse(mediaURL.backupUrl)
                         )
                         prepare(mediaSource, false, false)
+                    } else {
+                        Toast.makeText(
+                            requireContext(),
+                            getString(R.string.media_failed),
+                            Toast.LENGTH_LONG
+                        ).show()
                     }
                 }
 
