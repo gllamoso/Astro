@@ -1,7 +1,6 @@
 package dev.gtcl.astro
 
 import android.app.Application
-import android.content.Context
 import android.content.SharedPreferences
 import androidx.annotation.MainThread
 import androidx.appcompat.app.AppCompatDelegate
@@ -30,6 +29,14 @@ class AstroApplication : Application() {
     val currentAccount: Account?
         get() = _currentAccount
 
+    private var lastTokenUpdate: Long = 0
+
+    val needsTokenRefresh: Boolean
+        get() {
+            val currentTime = System.currentTimeMillis()
+            return accessToken != null && currentTime >= (lastTokenUpdate + 1_800_000) // if it's been 30 mins since last token refresh
+        }
+
     override fun onCreate() {
         super.onCreate()
         AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
@@ -49,14 +56,17 @@ class AstroApplication : Application() {
             Gson().fromJson(sharedPref.getString(ACCESS_TOKEN_KEY, null), AccessToken::class.java)
         _currentAccount =
             Gson().fromJson(sharedPref.getString(CURRENT_USER_KEY, null), Account::class.java)
+        lastTokenUpdate = sharedPref.getLong(LAST_TOKEN_REFRESH_KEY, 0)
     }
 
     @MainThread
     fun setAccessToken(accessToken: AccessToken?) {
         _accessToken = accessToken
+        lastTokenUpdate = System.currentTimeMillis()
         with(sharedPref.edit()) {
             val json = Gson().toJson(accessToken)
             putString(ACCESS_TOKEN_KEY, json)
+            putLong(LAST_TOKEN_REFRESH_KEY, lastTokenUpdate)
             commit()
         }
     }

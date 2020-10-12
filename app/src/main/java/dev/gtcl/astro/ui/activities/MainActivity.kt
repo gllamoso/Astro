@@ -1,5 +1,9 @@
 package dev.gtcl.astro.ui.activities
 
+import android.content.Context
+import android.net.ConnectivityManager
+import android.net.Network
+import android.net.NetworkCapabilities
 import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
@@ -9,7 +13,6 @@ import androidx.browser.customtabs.CustomTabsIntent
 import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
-import androidx.navigation.findNavController
 import androidx.navigation.fragment.NavHostFragment
 import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
@@ -17,13 +20,43 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
+
     private var binding: ActivityMainBinding? = null
     private lateinit var navController: NavController
 
+    private val application by lazy {
+        getApplication() as AstroApplication
+    }
+
     private val model: MainActivityVM by lazy {
-        val viewModelFactory = ViewModelFactory(application as AstroApplication)
+        val viewModelFactory = ViewModelFactory(application)
         ViewModelProvider(this, viewModelFactory).get(MainActivityVM::class.java)
     }
+
+    private val networkCallback = object : ConnectivityManager.NetworkCallback() {
+        override fun onAvailable(network: Network) {
+            if (application.needsTokenRefresh) {
+                model.refreshAccessToken()
+            }
+        }
+    }
+
+    private val connectivityManager by lazy {
+        getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+    }
+
+    private val isNetworkAvailable: Boolean
+        get() {
+            val networkCapabilities = connectivityManager.activeNetwork ?: return false
+            val activeNetwork =
+                connectivityManager.getNetworkCapabilities(networkCapabilities) ?: return false
+            return when {
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) -> true
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) -> true
+                activeNetwork.hasTransport(NetworkCapabilities.TRANSPORT_ETHERNET) -> true
+                else -> false
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,7 +88,7 @@ class MainActivity : AppCompatActivity() {
         })
 
         model.mediaDialogOpened.observe(this, {
-            if(it){
+            if (it) {
                 window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
             } else {
                 window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -64,15 +97,14 @@ class MainActivity : AppCompatActivity() {
 
         // Preemptively create external directories
         getExternalFilesDirs(Environment.DIRECTORY_DOWNLOADS)
+
+        connectivityManager.registerDefaultNetworkCallback(networkCallback)
     }
 
     override fun onResume() {
         super.onResume()
-        if (!isChangingConfigurations) {
-            val thisApplication = application as AstroApplication
-            thisApplication.currentAccount?.let {
-                model.refreshAccessToken()
-            }
+        if (application.needsTokenRefresh && isNetworkAvailable) {
+            model.refreshAccessToken()
         }
     }
 

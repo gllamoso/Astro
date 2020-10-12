@@ -31,6 +31,7 @@ const val MANAGE_POST_KEY = "manage_post"
 const val ALBUM_KEY = "album_name"
 const val COPY_KEY = "copy"
 const val ACCESS_TOKEN_KEY = "access_token"
+const val LAST_TOKEN_REFRESH_KEY = "last_token_refresh"
 
 // Draft
 const val DRAFT_KEY = "draft"
