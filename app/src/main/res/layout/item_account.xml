@@ -37,7 +37,7 @@
                 android:layout_height="wrap_content"
                 android:singleLine="true"
                 android:textSize="18sp"
-                android:text="@{account.subreddit.displayNamePrefixed}"
+                android:text="@{String.format(&quot;u/%s&quot;, account.name)}"
                 tools:text="Account Name"/>
 
             <TextView

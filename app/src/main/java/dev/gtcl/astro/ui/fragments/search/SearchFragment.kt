@@ -18,13 +18,11 @@ import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.actions.ItemClickListener
-import dev.gtcl.astro.actions.SubredditActions
 import dev.gtcl.astro.databinding.FragmentSearchBinding
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.ListingAdapter
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import dev.gtcl.astro.ui.fragments.subreddits.SubredditInfoDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
 import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
 
