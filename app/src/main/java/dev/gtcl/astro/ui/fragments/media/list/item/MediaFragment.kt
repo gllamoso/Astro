@@ -146,11 +146,13 @@ class MediaFragment : Fragment() {
                         isFirstResource: Boolean
                     ): Boolean {
                         model.setLoadingState(false)
-                        Toast.makeText(
-                            requireContext(),
-                            getString(R.string.media_failed),
-                            Toast.LENGTH_LONG
-                        ).show()
+                        context?.let {
+                            Toast.makeText(
+                                it,
+                                getString(R.string.media_failed),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                         return false
                     }
 
@@ -190,11 +192,13 @@ class MediaFragment : Fragment() {
                         isFirstResource: Boolean
                     ): Boolean {
                         model.setLoadingState(false)
-                        Toast.makeText(
-                            requireContext(),
-                            getString(R.string.media_failed),
-                            Toast.LENGTH_LONG
-                        ).show()
+                        context?.let {
+                            Toast.makeText(
+                                it,
+                                getString(R.string.media_failed),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                         return false
                     }
 
@@ -260,11 +264,13 @@ class MediaFragment : Fragment() {
                         )
                         prepare(mediaSource, false, false)
                     } else {
-                        Toast.makeText(
-                            requireContext(),
-                            getString(R.string.media_failed),
-                            Toast.LENGTH_LONG
-                        ).show()
+                        context?.let {
+                            Toast.makeText(
+                                it,
+                                getString(R.string.media_failed),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                     }
                 }
 
@@ -294,6 +300,13 @@ class MediaFragment : Fragment() {
                         isFirstResource: Boolean
                     ): Boolean {
                         model.setLoadingState(false)
+                        context?.let {
+                            Toast.makeText(
+                                it,
+                                getString(R.string.media_failed),
+                                Toast.LENGTH_LONG
+                            ).show()
+                        }
                         return false
                     }
 
