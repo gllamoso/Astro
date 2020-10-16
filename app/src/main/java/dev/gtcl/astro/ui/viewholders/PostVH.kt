@@ -45,6 +45,10 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
         }
 
         binding.executePendingBindings()
+
+        // Force TextView to redraw and remeasure to prevent unintentional bottom padding
+        binding.itemPostTitle.invalidate()
+        binding.itemPostTitle.forceLayout()
     }
 
     private fun setThumbnail(post: Post, blurNsfw: Boolean, postActions: PostActions) {
