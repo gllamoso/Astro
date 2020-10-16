@@ -89,7 +89,7 @@ class AccountAboutFragment : Fragment(), SubredditActions, MultiRedditActions,
         activityModel.newMulti.observe(viewLifecycleOwner, {
             if (it != null) {
                 findNavController().navigate(
-                    ViewPagerFragmentDirections.actionViewPagerFragmentToMultiRedditFragment(it.path)
+                    ViewPagerFragmentDirections.actionViewPagerFragmentToMultiRedditFragment(it.pathFormatted)
                 )
                 activityModel.newMultiObserved()
             }
@@ -136,7 +136,7 @@ class AccountAboutFragment : Fragment(), SubredditActions, MultiRedditActions,
             is MultiReddit -> {
                 findNavController().navigate(
                     ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
-                        ListingPage(MultiRedditListing(item.displayName, item.path))
+                        ListingPage(MultiRedditListing(item.displayName, item.pathFormatted))
                     )
                 )
             }

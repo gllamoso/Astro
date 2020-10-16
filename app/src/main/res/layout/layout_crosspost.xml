@@ -44,7 +44,7 @@
                     android:id="@+id/layoutCrosspost_thumbnail"
                     android:layout_width="56dp"
                     android:layout_height="56dp"
-                    app:loadImageAndHideIfNull="@{post.thumbnail}"
+                    app:loadImageAndHideIfNull="@{post.thumbnailFormatted}"
                     app:srcCompat="@android:drawable/ic_menu_gallery" />
 
             </FrameLayout>

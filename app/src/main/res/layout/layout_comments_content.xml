@@ -31,8 +31,8 @@
             android:layout_height="wrap_content"
             layout="@layout/layout_url_with_thumbnail"
             android:layout_margin="8dp"
-            app:thumbnailUrl="@{model.post.thumbnail}"
-            app:url="@{model.post.url}"
+            app:thumbnailUrl="@{model.post.thumbnailFormatted}"
+            app:url="@{model.post.urlFormatted}"
             android:visibility="@{(!model.post.self &amp;&amp; (model.post.urlType == UrlType.OTHER || model.post.urlType == UrlType.REDDIT_COMMENTS || model.post.urlType == UrlType.REDDIT_THREAD)) ? View.VISIBLE : View.GONE}"/>
 
         <androidx.viewpager2.widget.ViewPager2

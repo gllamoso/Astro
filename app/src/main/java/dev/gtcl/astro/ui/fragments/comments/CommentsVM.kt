@@ -258,10 +258,10 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                 _loading.postValue(true)
                 _mediaItems.postValue(when (post.urlType) {
                     UrlType.IMAGE -> {
-                        listOf(MediaURL(post.url ?: return@launch, MediaType.PICTURE))
+                        listOf(MediaURL(post.urlFormatted ?: return@launch, MediaType.PICTURE))
                     }
                     UrlType.GIF -> {
-                        listOf(MediaURL(post.url ?: return@launch, MediaType.GIF))
+                        listOf(MediaURL(post.urlFormatted ?: return@launch, MediaType.GIF))
                     }
                     UrlType.HLS, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> {
                         if (post.previewVideoUrl != null) {
@@ -270,26 +270,26 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                                 MediaURL(
                                     url ?: return@launch,
                                     MediaType.VIDEO,
-                                    thumbnail = post.thumbnail
+                                    thumbnail = post.thumbnailFormatted
                                 )
                             )
                         } else {
-                            val url = post.url ?: return@launch
-                            listOf(MediaURL(url, MediaType.VIDEO, thumbnail = post.thumbnail))
+                            val url = post.urlFormatted ?: return@launch
+                            listOf(MediaURL(url, MediaType.VIDEO, thumbnail = post.thumbnailFormatted))
                         }
                     }
                     UrlType.GIFV -> {
                         listOf(
                             MediaURL(
-                                (post.url ?: return@launch).replace(".gifv", ".mp4"),
+                                (post.urlFormatted ?: return@launch).replace(".gifv", ".mp4"),
                                 MediaType.VIDEO,
                                 backupUrl = post.previewVideoUrl,
-                                thumbnail = post.thumbnail
+                                thumbnail = post.thumbnailFormatted
                             )
                         )
                     }
                     UrlType.GFYCAT -> {
-                        val id = GFYCAT_REGEX.getIdFromUrl(post.url ?: return@launch)
+                        val id = GFYCAT_REGEX.getIdFromUrl(post.urlFormatted ?: return@launch)
                             ?: return@launch
                         var videoUrl: String
                         try {
@@ -308,7 +308,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                                         videoUrl,
                                         MediaType.VIDEO,
                                         post.previewVideoUrl,
-                                        post.thumbnail
+                                        post.thumbnailFormatted
                                     )
                                 )
                             } else {
@@ -320,12 +320,12 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                                 videoUrl,
                                 MediaType.VIDEO,
                                 post.previewVideoUrl,
-                                post.thumbnail
+                                post.thumbnailFormatted
                             )
                         )
                     }
                     UrlType.REDGIFS -> {
-                        val id = REDGIFS_REGEX.getIdFromUrl(post.url ?: return@launch)
+                        val id = REDGIFS_REGEX.getIdFromUrl(post.urlFormatted ?: return@launch)
                             ?: return@launch
                         val videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(id)
                             .await()
@@ -336,14 +336,14 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                                 videoUrl,
                                 MediaType.VIDEO,
                                 post.previewVideoUrl,
-                                post.thumbnail
+                                post.thumbnailFormatted
                             )
                         )
                     }
                     UrlType.IMGUR_ALBUM -> {
                         val album =
                             imgurRepository.getAlbumImages(
-                                (post.url ?: return@launch).getImgurHashFromUrl() ?: return@launch
+                                (post.urlFormatted ?: return@launch).getImgurHashFromUrl() ?: return@launch
                             )
                                 .await().data.images ?: return@launch
                         album.map {
@@ -363,7 +363,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                     }
                     UrlType.IMGUR_IMAGE -> {
                         val imgurData = imgurRepository.getImage(
-                            (post.url ?: return@launch).getImgurHashFromUrl() ?: return@launch
+                            (post.urlFormatted ?: return@launch).getImgurHashFromUrl() ?: return@launch
                         )
                             .await().data
                         val mediaType = when {
@@ -448,7 +448,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                     }
                 }
             } else if (item.mediaType == MediaType.PICTURE) {
-                downloadUrl = item.url.toValidImgUrl() ?: item.url
+                downloadUrl = item.url.formatHtmlEntities()
             }
 
             DownloadIntentService.enqueueWork(application.applicationContext, downloadUrl)

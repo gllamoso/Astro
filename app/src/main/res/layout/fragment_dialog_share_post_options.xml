@@ -19,11 +19,11 @@
             android:id="@+id/fragmentDialogSharePostOptions_link"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="@{post.url != null ? View.VISIBLE : View.GONE}"
+            android:visibility="@{post.urlFormatted != null ? View.VISIBLE : View.GONE}"
             layout="@layout/item_icon_and_text"
             app:iconDrawable="@{@drawable/ic_link_24}"
             app:title="@{@string/share_link}"
-            app:subtext="@{post.url != null ? post.url : &quot;&quot;}"/>
+            app:subtext="@{post.urlFormatted != null ? post.urlFormatted : &quot;&quot;}"/>
 
         <include
             android:id="@+id/fragmentDialogSharePostOptions_comments"

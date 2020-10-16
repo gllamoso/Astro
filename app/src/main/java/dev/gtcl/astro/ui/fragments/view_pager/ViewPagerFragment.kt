@@ -20,6 +20,7 @@ import dev.gtcl.astro.models.reddit.listing.PostListing
 import dev.gtcl.astro.models.reddit.listing.ProfileListing
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
+import timber.log.Timber
 
 class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 
@@ -232,7 +233,13 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
             ).show(childFragmentManager, null)
             UrlType.REDDIT_THREAD -> activityModel.newViewPagerPage(CommentsPage(link, true))
             UrlType.REDDIT_COMMENTS -> {
-                val validUrl = (VALID_REDDIT_COMMENTS_URL_REGEX.find(link) ?: return).value
+                val linkWithBaseUrl = when {
+                    link.startsWith("/r/") -> "https://www.reddit.com$link"
+                    link.startsWith("r/") -> "https://www.reddit.com/$link"
+                    else -> link
+                }
+                val validUrl =
+                    (VALID_REDDIT_COMMENTS_URL_REGEX.find(linkWithBaseUrl) ?: return).value
                 activityModel.newViewPagerPage(CommentsPage(validUrl, false))
             }
             UrlType.OTHER, UrlType.REDDIT_VIDEO, UrlType.REDDIT_GALLERY -> activityModel.openChromeTab(
@@ -246,7 +253,6 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
             ).show(childFragmentManager, null)
             UrlType.REDGIFS -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.REDGIFS))
                 .show(childFragmentManager, null)
-            null -> throw IllegalArgumentException("Unable to determine link type: $link")
         }
     }
 

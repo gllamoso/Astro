@@ -216,7 +216,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
         if (postPage != null) {
             model.fetchComments(
-                postPage.post.permalink,
+                postPage.post.permalinkFormatted,
                 isFullContext = true,
                 refreshPost = refreshPost
             )
@@ -314,7 +314,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 } else {
                     when (post.urlType) {
                         UrlType.OTHER, UrlType.REDDIT_COMMENTS, UrlType.REDDIT_THREAD -> initUrlPreview(
-                            post.url ?: return@observe
+                            post.urlFormatted ?: return@observe
                         )
                         else -> model.fetchMediaItems(post)
                     }
@@ -624,7 +624,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 if (item.isContinueThreadLink) {
                     activityModel.newViewPagerPage(
                         CommentsPage(
-                            "https://www.reddit.com${(model.post.value ?: return).permalink}${
+                            "${(model.post.value ?: return).permalinkWithRedditDomain}${
                                 item.parentId.replace(
                                     "t1_",
                                     ""
@@ -825,7 +825,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             if (currentItemMediaType != null) {
                 popupCommentsPageActionsFullScreen.root.setOnClickListener {
                     MediaDialogFragment.newInstance(
-                        post.url ?: return@setOnClickListener,
+                        post.urlFormatted ?: return@setOnClickListener,
                         model.mediaItems.value ?: return@setOnClickListener
                     )
                         .show(childFragmentManager, null)
@@ -861,9 +861,9 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     }
                 }
             }
-            if (post.url != null) {
+            if (post.urlFormatted != null) {
                 popupCommentsPageActionsLink.root.setOnClickListener {
-                    activityModel.openChromeTab(post.url)
+                    activityModel.openChromeTab(post.urlFormatted)
                     popupWindow.dismiss()
                 }
             }

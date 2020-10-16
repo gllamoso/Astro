@@ -44,9 +44,9 @@ class SharePostOptionsDialogFragment : DialogFragment() {
         shareIntent.type = "text/plain"
         shareIntent.putExtra(Intent.EXTRA_SUBJECT, getText(R.string.share_subject_message))
 
-        if (post.url != null) {
+        if (post.urlFormatted != null) {
             binding?.fragmentDialogSharePostOptionsLink?.root?.setOnClickListener {
-                shareIntent.putExtra(Intent.EXTRA_TEXT, post.url)
+                shareIntent.putExtra(Intent.EXTRA_TEXT, post.urlFormatted)
                 startActivity(Intent.createChooser(shareIntent, null))
                 dismiss()
             }

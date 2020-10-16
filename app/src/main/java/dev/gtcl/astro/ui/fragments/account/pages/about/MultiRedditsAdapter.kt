@@ -25,7 +25,7 @@ class MultiRedditsAdapter(
     companion object {
         private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<MultiReddit>() {
             override fun areItemsTheSame(oldItem: MultiReddit, newItem: MultiReddit) =
-                oldItem.path == newItem.path
+                oldItem.pathFormatted == newItem.pathFormatted
 
             override fun areContentsTheSame(oldItem: MultiReddit, newItem: MultiReddit) =
                 oldItem == newItem

@@ -127,7 +127,7 @@ class MediaFragment : Fragment() {
     }
 
     private fun initSubsamplingImageView(mediaURL: MediaURL) {
-        val url = (mediaURL.url.toValidImgUrl() ?: mediaURL.url)
+        val url = (mediaURL.url.formatHtmlEntities())
         binding?.fragmentMediaScaleImageView?.let { subsamplingScaleImageView ->
             GlideApp.with(requireContext())
                 .asBitmap()

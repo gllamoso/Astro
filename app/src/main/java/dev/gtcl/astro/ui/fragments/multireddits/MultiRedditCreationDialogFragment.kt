@@ -110,13 +110,13 @@ class MultiRedditCreationDialogFragment : DialogFragment() {
                 }
                 isCopying -> {
                     model.copyMulti(
-                        multi.path,
+                        multi.pathFormatted,
                         displayName,
                         description
                     )
                 }
                 else -> {
-                    model.updateMultiReddit(multi.path, update)
+                    model.updateMultiReddit(multi.pathFormatted, update)
                 }
             }
         }

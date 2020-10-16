@@ -112,7 +112,7 @@
                 layout="@layout/item_selectable"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
-                android:visibility="@{post.url != null ? View.VISIBLE : View.GONE}"
+                android:visibility="@{post.urlFormatted != null ? View.VISIBLE : View.GONE}"
                 app:iconDrawable="@{@drawable/ic_link_24}"
                 app:text="@{@string/open_link_externally}" />
 

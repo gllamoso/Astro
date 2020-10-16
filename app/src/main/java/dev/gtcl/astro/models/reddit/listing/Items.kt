@@ -80,10 +80,10 @@ data class Comment(
     @Json(name = "author_flair_richtext")
     val authorFlairRichtext: List<AuthorFlairRichtext>?,
     val gildings: Gildings?,
-    val permalink: String?,
+    private val permalink: String?,
     @Json(name = "link_permalink")
-    val linkPermalink: String?,
-    val context: String?,
+    private val linkPermalink: String?,
+    private val context: String?,
     @Json(name = "parent_id")
     val parentId: String?,
     val subreddit: String,
@@ -106,10 +106,20 @@ data class Comment(
     }
 
     @IgnoredOnParcel
-    val bodyFormatted: CharSequence = Html.fromHtml(body, Html.FROM_HTML_MODE_COMPACT)
+    val permalinkFormatted = permalink?.formatHtmlEntities()
 
     @IgnoredOnParcel
-    val permalinkWithRedditDomain = "https://www.reddit.com$permalink"
+    val contextFormatted = context?.formatHtmlEntities()
+
+    @IgnoredOnParcel
+    val bodyFormatted: String = body.formatHtmlEntities()
+
+    @IgnoredOnParcel
+    val permalinkWithRedditDomain = if (permalinkFormatted != null) {
+        "https://www.reddit.com${permalinkFormatted}"
+    } else {
+        null
+    }
 
     @IgnoredOnParcel
     val deleted = author == "[deleted]"
@@ -161,8 +171,11 @@ data class AuthorFlairRichtext(
     @Json(name = "t")
     val text: String?,
     @Json(name = "u")
-    val url: String?
-) : Parcelable
+    private val url: String?
+) : Parcelable {
+    @IgnoredOnParcel
+    val urlFormatted = url?.formatHtmlEntities()
+}
 
 //   _   ___                                               _
 //  | | |__ \               /\                            | |
@@ -185,14 +198,11 @@ data class Account(
     var refreshToken: String?
 ) : Item(ItemType.Account) {
 
-    fun getValidProfileImg(): String {
-        val imgRegex = "http.+\\.(png|jpg|gif)".toRegex()
-        return imgRegex.find(iconImg ?: "")?.value ?: ""
-    }
+    @IgnoredOnParcel
+    val validProfileImg = iconImg?.formatHtmlEntities()
 
-    fun getValidBannerImg(): String {
-        return IMAGE_REGEX.find(subreddit?.bannerImg ?: "")?.value ?: ""
-    }
+    @IgnoredOnParcel
+    val validBannerImg = subreddit?.banner
 
     fun asDbModel() = SavedAccount(
         id = this.id,
@@ -229,11 +239,11 @@ data class Post(
     val numComments: Int,
     @Json(name = "created_utc")
     val created: Long,
-    val thumbnail: String?,
-    val url: String?,
+    private val thumbnail: String?,
+    private val url: String?,
     var likes: Boolean?,
     var hidden: Boolean,
-    val permalink: String,
+    private val permalink: String,
     val selftext: String,
     @Json(name = "is_self")
     val isSelf: Boolean, // if true, post is a text
@@ -271,11 +281,20 @@ data class Post(
 ) : Item(ItemType.Post) {
 
     @IgnoredOnParcel
+    val urlFormatted = url?.formatHtmlEntities()
+
+    @IgnoredOnParcel
+    val thumbnailFormatted = thumbnail?.formatHtmlEntities()
+
+    @IgnoredOnParcel
     val subredditDisplayName = if (subreddit.startsWith("u_")) {
         subreddit.replaceFirst("u_", "")
     } else {
         subreddit
     }
+
+    @IgnoredOnParcel
+    val permalinkFormatted = permalink.formatHtmlEntities()
 
     @IgnoredOnParcel
     var isRead = false
@@ -284,13 +303,13 @@ data class Post(
     val previewVideoUrl: String?
         get() {
             return when {
-                secureMedia?.redditVideo?.hlsUrl != null -> secureMedia.redditVideo.hlsUrl
-                media?.redditVideo?.hlsUrl != null -> media.redditVideo.hlsUrl
-                preview?.redditVideo?.hlsUrl != null -> preview.redditVideo.hlsUrl
+                secureMedia?.redditVideo?.hlsUrlFormatted != null -> secureMedia.redditVideo.hlsUrlFormatted
+                media?.redditVideo?.hlsUrlFormatted != null -> media.redditVideo.hlsUrlFormatted
+                preview?.redditVideo?.hlsUrlFormatted != null -> preview.redditVideo.hlsUrlFormatted
                 crosspostParentList?.get(0)?.previewVideoUrl != null -> crosspostParentList[0].previewVideoUrl
                 REDDIT_VIDEO_REGEX.containsMatchIn(
-                    url ?: ""
-                ) -> "${REDDIT_VIDEO_REGEX.find(url ?: "")!!.value}/HLSPlaylist.m3u8"
+                    urlFormatted ?: ""
+                ) -> "${REDDIT_VIDEO_REGEX.find(urlFormatted ?: "")!!.value}/HLSPlaylist.m3u8"
                 else -> null
             }
         }
@@ -308,24 +327,24 @@ data class Post(
         }
 
     @IgnoredOnParcel
-    val permalinkWithRedditDomain = "https://www.reddit.com$permalink"
+    val permalinkWithRedditDomain = "https://www.reddit.com${permalink.formatHtmlEntities()}"
 
     @IgnoredOnParcel
-    val titleFormatted: CharSequence = Html.fromHtml(title, Html.FROM_HTML_MODE_COMPACT)
+    val titleFormatted: CharSequence = title.formatHtmlEntities()
 
     @IgnoredOnParcel
     val deleted: Boolean
         get() = author == "[deleted]"
 
     @IgnoredOnParcel
-    val urlType = url?.getUrlType()
+    val urlType = url?.formatHtmlEntities()?.getUrlType()
 
     @IgnoredOnParcel
     val galleryAsMediaItems: List<MediaURL>? = when {
         galleryData != null -> {
             mutableListOf<MediaURL>().apply {
                 for (id: String in galleryData.items.map { it.mediaId }) {
-                    val metaData = mediaMetadata!![id] ?: error("MetaData is null")
+                    val metaData = (mediaMetadata ?: return@apply)[id] ?: error("MetaData is null")
                     val mimeType = metaData.mimeType
                     val extension = when {
                         mimeType == null -> null
@@ -350,7 +369,7 @@ data class Post(
             }
         }
         crosspostParentList != null -> {
-            crosspostParentList?.get(0).galleryAsMediaItems
+            crosspostParentList[0].galleryAsMediaItems
         }
         else -> null
     }
@@ -426,8 +445,11 @@ data class Media(
 @Parcelize
 data class RedditVideo(
     @Json(name = "hls_url")
-    val hlsUrl: String?
-) : Parcelable
+    private val hlsUrl: String?
+) : Parcelable {
+    @IgnoredOnParcel
+    val hlsUrlFormatted = hlsUrl?.formatHtmlEntities()
+}
 
 @Parcelize
 data class Gildings(
@@ -487,7 +509,7 @@ data class Message(
 ) : Item(ItemType.Message) {
 
     @IgnoredOnParcel
-    val bodyFormatted: CharSequence = Html.fromHtml(body, Html.FROM_HTML_MODE_COMPACT)
+    val bodyFormatted: String = body.formatHtmlEntities()
 }
 
 //   _   _____             _____       _                  _     _ _ _
@@ -505,16 +527,16 @@ data class Subreddit(
     @Json(name = "display_name_prefixed")
     val displayNamePrefixed: String,
     @Json(name = "icon_img")
-    val iconImg: String?,
+    private val iconImg: String?,
     val title: String,
     @Json(name = "community_icon")
-    val communityIcon: String?,
+    private val communityIcon: String?,
     @Json(name = "mobile_banner_image")
-    val mobileBannerImg: String?,
+    private val mobileBannerImg: String?,
     @Json(name = "banner_img")
-    val bannerImg: String?,
+    private val bannerImg: String?,
     @Json(name = "banner_background_image")
-    val bannerBackgroundImg: String?,
+    private val bannerBackgroundImg: String?,
     @Json(name = "user_is_subscriber")
     var userSubscribed: Boolean?,
     @Json(name = "public_description")
@@ -554,21 +576,18 @@ data class Subreddit(
 
     @IgnoredOnParcel
     val icon: String? = when {
-        !iconImg.isNullOrBlank() -> iconImg.toValidImgUrl()
-        !communityIcon.isNullOrBlank() -> communityIcon.toValidImgUrl()
+        !iconImg.isNullOrBlank() -> iconImg.formatHtmlEntities()
+        !communityIcon.isNullOrBlank() -> communityIcon.formatHtmlEntities()
         else -> null
     }
 
     @IgnoredOnParcel
-    val banner: String?
-        get() {
-            return when {
-                !mobileBannerImg.isNullOrBlank() -> mobileBannerImg.toValidImgUrl()
-                !bannerImg.isNullOrBlank() -> bannerImg.toValidImgUrl()
-                !bannerBackgroundImg.isNullOrBlank() -> bannerBackgroundImg.toValidImgUrl()
-                else -> null
-            }
-        }
+    val banner: String? = when {
+        !mobileBannerImg.isNullOrBlank() -> mobileBannerImg.formatHtmlEntities().stripImageUrl()
+        !bannerImg.isNullOrBlank() -> bannerImg.formatHtmlEntities().stripImageUrl()
+        !bannerBackgroundImg.isNullOrBlank() -> bannerBackgroundImg.formatHtmlEntities().stripImageUrl()
+        else -> null
+    }
 
 }
 
@@ -588,9 +607,18 @@ class TrophyListingData(val trophies: List<TrophyChild>)
 data class Award(
     override val name: String,
     override val id: String?,
-    @Json(name = "icon_70") val icon70: String,
-    @Json(name = "icon_40") val icon40: String
-) : Parcelable, Item(ItemType.Award)
+    @Json(name = "icon_70")
+    private val icon70: String,
+    @Json(name = "icon_40")
+    private val icon40: String
+) : Parcelable, Item(ItemType.Award) {
+
+    @IgnoredOnParcel
+    val icon70Formatted = icon70.formatHtmlEntities()
+
+    @IgnoredOnParcel
+    val icon40Formatted = icon40.formatHtmlEntities()
+}
 
 //                                        __  __
 //     _ __ ___   ___  _ __ ___          |  \/  | ___  _ __ ___
@@ -665,7 +693,7 @@ data class MultiReddit(
     val displayName: String,
     override val name: String,
     val subreddits: List<SubredditData>,
-    val path: String,
+    private val path: String,
     val owner: String,
     @Json(name = "owner_id")
     val ownerId: String,
@@ -676,6 +704,9 @@ data class MultiReddit(
 ) : Item(ItemType.MultiReddit) {
     @IgnoredOnParcel
     override val id = ""
+
+    @IgnoredOnParcel
+    val pathFormatted = path.formatHtmlEntities()
 
     @IgnoredOnParcel
     private var isFavorite = false
@@ -720,9 +751,9 @@ data class ModeratedList(val data: List<SubredditInModeratedList>?)
 @Parcelize
 data class SubredditInModeratedList(
     @Json(name = "icon_img")
-    val iconImg: String?,
+    private val iconImg: String?,
     @Json(name = "community_icon")
-    val communityIcon: String?,
+    private val communityIcon: String?,
     override val name: String,
     val title: String,
     @Json(name = "sr")
@@ -742,8 +773,8 @@ data class SubredditInModeratedList(
 
     @IgnoredOnParcel
     val icon: String? = when {
-        !iconImg.isNullOrBlank() -> iconImg.toValidImgUrl()
-        !communityIcon.isNullOrBlank() -> communityIcon.toValidImgUrl()
+        !iconImg.isNullOrBlank() -> iconImg.formatHtmlEntities()
+        !communityIcon.isNullOrBlank() -> communityIcon.formatHtmlEntities()
         else -> null
     }
 }

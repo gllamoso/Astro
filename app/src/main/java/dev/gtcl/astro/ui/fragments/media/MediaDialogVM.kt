@@ -171,7 +171,7 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                     }
                 }
             } else if (item.mediaType == MediaType.PICTURE) {
-                downloadUrl = item.url.toValidImgUrl() ?: item.url
+                downloadUrl = item.url.formatHtmlEntities()
             }
 
             DownloadIntentService.enqueueWork(application.applicationContext, downloadUrl)

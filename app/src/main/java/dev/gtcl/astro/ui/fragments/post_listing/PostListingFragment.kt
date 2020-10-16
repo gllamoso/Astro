@@ -326,7 +326,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                 binding?.fragmentListingRightDrawerLayout?.layoutRightDrawerEditButton?.setOnClickListener {
                     findNavController().navigate(
                         ViewPagerFragmentDirections.actionViewPagerFragmentToMultiRedditFragment(
-                            multi.path
+                            multi.pathFormatted
                         )
                     )
                 }
@@ -540,19 +540,19 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
 
     override fun thumbnailClicked(post: Post, position: Int) {
         model.addReadItem(post)
-        when (val urlType: UrlType? = post.url?.getUrlType()) {
-            UrlType.OTHER -> activityModel.openChromeTab(post.url)
+        when (post.urlType) {
+            null -> itemClicked(post, position)
+            UrlType.OTHER -> activityModel.openChromeTab(post.urlFormatted ?: return)
             UrlType.REDDIT_GALLERY -> {
                 val dialog = MediaDialogFragment.newInstance(
-                    post.url,
+                    post.urlFormatted ?: return,
                     post.galleryAsMediaItems ?: return,
                     PostPage(post, position)
                 )
                 dialog.show(parentFragmentManager, null)
             }
-            null -> itemClicked(post, position)
             else -> {
-                val mediaType = when (urlType) {
+                val mediaType = when (post.urlType) {
                     UrlType.IMGUR_ALBUM -> MediaType.IMGUR_ALBUM
                     UrlType.IMGUR_IMAGE -> MediaType.IMGUR_PICTURE
                     UrlType.GIF -> MediaType.GIF
@@ -563,25 +563,25 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                     else -> null
                 }
                 if (mediaType == null) {
-                    viewPagerModel.linkClicked(post.url)
+                    viewPagerModel.linkClicked(post.urlFormatted ?: return)
                     return
                 }
                 val url = when (mediaType) {
                     MediaType.VIDEO -> {
-                        if (urlType == UrlType.GIFV) {
-                            post.url.replace(".gifv", ".mp4")
+                        if (post.urlType == UrlType.GIFV) {
+                            post.urlFormatted?.replace(".gifv", ".mp4")
                         } else {
                             post.previewVideoUrl ?: return
                         }
                     }
-                    else -> post.url
+                    else -> post.urlFormatted
                 }
                 val backupUrl = when (mediaType) {
                     MediaType.GFYCAT, MediaType.REDGIFS -> post.previewVideoUrl
                     else -> null
                 }
                 val dialog = MediaDialogFragment.newInstance(
-                    MediaURL(url, mediaType, backupUrl),
+                    MediaURL(url ?: return, mediaType, backupUrl),
                     PostPage(post, position)
                 )
                 dialog.show(parentFragmentManager, null)
@@ -736,11 +736,15 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                     .show(childFragmentManager, null)
             }
             is Comment -> {
-                if (item.permalink != null) {
-                    val permalink = "https://www.reddit.com${item.permalink}"
-                    activityModel.newViewPagerPage(CommentsPage(permalink, true))
+                if (item.permalinkWithRedditDomain != null) {
+                    activityModel.newViewPagerPage(
+                        CommentsPage(
+                            item.permalinkWithRedditDomain,
+                            true
+                        )
+                    )
                 } else {
-                    val context = item.context
+                    val context = item.contextFormatted
                     if (context.isNullOrBlank()) {
                         throw Exception("Comment has no permalink or context: $item")
                     }

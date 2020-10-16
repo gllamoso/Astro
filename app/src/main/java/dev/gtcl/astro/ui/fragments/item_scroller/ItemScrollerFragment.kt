@@ -312,11 +312,11 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     override fun thumbnailClicked(post: Post, position: Int) {
         model.addReadItem(post)
-        when (val urlType: UrlType? = post.url?.getUrlType()) {
-            UrlType.OTHER -> activityModel.openChromeTab(post.url)
+        when (val urlType: UrlType? = post.urlFormatted?.getUrlType()) {
+            UrlType.OTHER -> activityModel.openChromeTab(post.urlFormatted)
             UrlType.REDDIT_GALLERY -> {
                 val dialog = MediaDialogFragment.newInstance(
-                    post.url,
+                    post.urlFormatted,
                     post.galleryAsMediaItems ?: return,
                     PostPage(post, position)
                 )
@@ -335,18 +335,18 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                     else -> null
                 }
                 if (mediaType == null) {
-                    handleLink(post.url)
+                    handleLink(post.urlFormatted)
                     return
                 }
                 val url = when (mediaType) {
                     MediaType.VIDEO -> {
                         if (urlType == UrlType.GIFV) {
-                            post.url.replace(".gifv", ".mp4")
+                            post.urlFormatted.replace(".gifv", ".mp4")
                         } else {
                             post.previewVideoUrl ?: return
                         }
                     }
-                    else -> post.url
+                    else -> post.urlFormatted.formatHtmlEntities()
                 }
                 val backupUrl = when (mediaType) {
                     MediaType.GFYCAT, MediaType.REDGIFS -> post.previewVideoUrl
@@ -558,11 +558,11 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                     .show(childFragmentManager, null)
             }
             is Comment -> {
-                if (item.permalink != null) {
-                    val permalink = "https://www.reddit.com${item.permalink}"
+                if (item.permalinkFormatted != null) {
+                    val permalink = "https://www.reddit.com${item.permalinkFormatted}"
                     activityModel.newViewPagerPage(CommentsPage(permalink, true))
                 } else {
-                    val context = item.context
+                    val context = item.contextFormatted
                     if (context.isNullOrBlank()) {
                         throw Exception("Comment has no permalink or context: $item")
                     }

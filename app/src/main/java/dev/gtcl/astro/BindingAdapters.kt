@@ -82,6 +82,7 @@ fun loadBanner(imgView: ImageView, url: String?) {
             .load(url)
             .skipMemoryCache(true)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .fitCenter()
             .into(imgView)
     }
 }
@@ -411,12 +412,12 @@ fun addSmallFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?)
         val layoutInflater = LayoutInflater.from(context)
         for (flair in list) {
             val view =
-                if (!flair.url.isNullOrBlank()) {
+                if (!flair.urlFormatted.isNullOrBlank()) {
                     ImageView(context).apply {
                         layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
                             marginEnd = margin
                         }
-                        loadImage(this, flair.url)
+                        loadImage(this, flair.urlFormatted)
                     }
                 } else {
                     IconFlairSmallBinding.inflate(layoutInflater).apply {
@@ -448,12 +449,12 @@ fun addFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?) {
         val layoutInflater = LayoutInflater.from(context)
         for (flair in list) {
             val view =
-                if (!flair.url.isNullOrBlank()) {
+                if (!flair.urlFormatted.isNullOrBlank()) {
                     ImageView(context).apply {
                         layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
                             marginEnd = margin
                         }
-                        loadImage(this, flair.url)
+                        loadImage(this, flair.urlFormatted)
                     }
                 } else {
                     IconFlairBinding.inflate(layoutInflater).apply {

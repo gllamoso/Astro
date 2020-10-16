@@ -52,7 +52,7 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
     }
 
     private fun setThumbnail(post: Post, blurNsfw: Boolean, postActions: PostActions) {
-        val thumbnailUrl = post.thumbnail
+        val thumbnailUrl = post.thumbnailFormatted
         if (thumbnailUrl != null && URLUtil.isValidUrl(thumbnailUrl) && Patterns.WEB_URL.matcher(
                 thumbnailUrl
             ).matches()

@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.net.Uri
 import android.os.Parcelable
+import android.text.Html
 import android.text.util.Linkify
 import android.util.Base64
 import android.util.TypedValue
@@ -368,8 +369,11 @@ suspend fun setItemsReadStatus(items: List<Item>, readIds: HashSet<String>) {
     }
 }
 
-fun String.toValidImgUrl(): String? =
-    IMAGE_REGEX.find(this)?.value?.replaceFirst("preview.redd.it", "i.redd.it")
+fun String.formatHtmlEntities(): String {
+    return Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY).toString()
+}
+
+fun String.stripImageUrl() = IMAGE_REGEX.find(this)?.value
 
 operator fun <T> MutableLiveData<MutableList<T>>.plusAssign(values: List<T>) {
     val value = this.value ?: arrayListOf()
@@ -394,23 +398,25 @@ class TextPost(val body: String) : PostContent()
 class ImagePost(val uri: Uri) : PostContent()
 class LinkPost(val url: String) : PostContent()
 
-val IMGUR_GALLERY_REGEX = "http[s]?://(m\\.)?imgur\\.com/gallery/\\w+".toRegex()
-val IMGUR_ALBUM_REGEX = "http[s]?://(m\\.)?imgur\\.com/a/\\w+".toRegex()
-val IMGUR_IMAGE_REGEX = "http[s]?://(m\\.)?imgur\\.com/\\w+".toRegex()
-val IMAGE_REGEX = "http[s]?://.+\\.(jpg|png|svg|jpeg)".toRegex()
+val IMGUR_GALLERY_REGEX = "http[s]?://(?:m\\.)?imgur\\.com/gallery/\\w+".toRegex()
+val IMGUR_ALBUM_REGEX = "http[s]?://(?:m\\.)?imgur\\.com/a/\\w+".toRegex()
+val IMGUR_IMAGE_REGEX = "http[s]?://(?:m\\.)?imgur\\.com/\\w+".toRegex()
+val IMAGE_REGEX = "http[s]?://.+\\.(?:jpg|png|svg|jpeg|webp)".toRegex()
 val GIF_REGEX = "http[s]?://.+\\.gif".toRegex()
 val GIFV_REGEX = "http[s]?://.+\\.gifv".toRegex()
-val GFYCAT_REGEX = "http[s]?://(www\\.)?gfycat\\.com/(gifs/detail/)?\\w+".toRegex()
-val REDGIFS_REGEX = "http[s]?://(www\\.)?redgifs\\.com/watch/\\w+".toRegex()
+val GFYCAT_REGEX = "http[s]?://(?:www\\.)?gfycat\\.com/(?:gifs/detail/)?\\w+".toRegex()
+val REDGIFS_REGEX = "http[s]?://(?:www\\.)?redgifs\\.com/watch/\\w+".toRegex()
 val HLS_REGEX = "http[s]?://.+/HLSPlaylist\\.m3u8.*".toRegex()
 val REDDIT_VIDEO_REGEX = "http[s]?://v\\.redd\\.it/\\w+".toRegex()
 val STANDARD_VIDEO = "http[s]?://.+\\.(mp4)".toRegex()
-val REDDIT_COMMENTS_REGEX = "http[s]?://(www|oauth)\\.reddit\\.com/r/[^/]+/comments/.+".toRegex()
+val REDDIT_COMMENTS_REGEX =
+    "(?:http[s]?://(?:www|oauth)\\.reddit\\.com)?/r/[^/]+/comments/.+".toRegex()
 val REDDIT_THREAD_REGEX =
-    "http[s]?://(www|oauth)\\.reddit\\.com/r/[^/]+/comments/\\w+/\\w+/\\w+[/]?".toRegex()
+    "(?:http[s]?://(?:www|oauth)\\.reddit\\.com)?/r/[^/]+/comments/\\w+/\\w+/\\w+[/]?".toRegex()
 val VALID_REDDIT_COMMENTS_URL_REGEX =
-    "http[s]?://(www|oauth)\\.reddit\\.com/r/[^/]+/comments/\\w+".toRegex()
-val REDDIT_GALLERY_REGEX = "http[s]?://www\\.reddit\\.com/gallery/\\w+".toRegex()
+    "http[s]?://(?:www|oauth)\\.reddit\\.com/r/[^/]+/comments/\\w+".toRegex()
+val REDDIT_GALLERY_REGEX =
+    "http[s]?://www\\.reddit\\.com/gallery/\\w+".toRegex()
 
 @Parcelize
 enum class UrlType : Parcelable {
@@ -430,7 +436,7 @@ enum class UrlType : Parcelable {
     OTHER
 }
 
-fun String.getUrlType(): UrlType? {
+fun String.getUrlType(): UrlType {
     return when {
         IMAGE_REGEX.containsMatchIn(this) -> UrlType.IMAGE
         GIFV_REGEX.matches(this) -> UrlType.GIFV
@@ -539,7 +545,10 @@ fun getListingTitle(context: Context, postListing: PostListing?): String? {
         is All -> context.getString(R.string.all)
         is Popular -> context.getString(R.string.popular_tab_label)
         is Friends -> context.getString(R.string.friends)
-        is SearchListing -> String.format(context.getString(R.string.search_title), postListing.query)
+        is SearchListing -> String.format(
+            context.getString(R.string.search_title),
+            postListing.query
+        )
         is MultiRedditListing -> postListing.name
         is SubredditListing -> {
             if (postListing.displayName.startsWith("u_")) {
