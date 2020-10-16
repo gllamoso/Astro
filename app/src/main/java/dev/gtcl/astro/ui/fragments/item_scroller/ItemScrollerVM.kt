@@ -346,7 +346,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                     _networkState.postValue(NetworkState.LOADED)
                 }
             } catch (e: Exception) {
-                Timber.tag(this@ItemScrollerVM.javaClass.simpleName).e(e.toString())
+                Timber.tag(this@ItemScrollerVM.javaClass.simpleName).e(e)
                 after = previousAfter
                 count = previousCount
                 lastAction = ::loadMore

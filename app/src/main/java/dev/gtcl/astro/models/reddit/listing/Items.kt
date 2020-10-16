@@ -368,8 +368,8 @@ data class Post(
                 }
             }
         }
-        crosspostParentList != null -> {
-            crosspostParentList[0].galleryAsMediaItems
+        !(crosspostParentList?.isEmpty() ?: true) -> {
+            crosspostParentList!![0].galleryAsMediaItems
         }
         else -> null
     }

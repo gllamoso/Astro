@@ -63,7 +63,7 @@ fun loadImage(imgView: ImageView, imgUrl: String?) {
     if (imgUrl.startsWith("http")) {
         imgView.visibility = View.VISIBLE
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
-        Glide.with(imgView.context)
+        GlideApp.with(imgView.context)
             .load(imgUri)
 //            .skipMemoryCache(true)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -78,7 +78,7 @@ fun loadImage(imgView: ImageView, imgUrl: String?) {
 @BindingAdapter("banner")
 fun loadBanner(imgView: ImageView, url: String?) {
     if (!url.isNullOrBlank()) {
-        Glide.with(imgView.context)
+        GlideApp.with(imgView.context)
             .load(url)
             .skipMemoryCache(true)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
@@ -95,7 +95,7 @@ fun bindUriToImage(imgView: ImageView, uri: Uri?) {
     }
 
     imgView.visibility = View.VISIBLE
-    Glide.with(imgView.context)
+    GlideApp.with(imgView.context)
         .load(uri)
         .skipMemoryCache(true)
         .diskCacheStrategy(DiskCacheStrategy.ALL)
