@@ -223,6 +223,14 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
                     MediaType.VIDEO
                 )
             ).show(childFragmentManager, null)
+            UrlType.REDDIT_VIDEO -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(
+                        "$link/HLSPlaylist.m3u8",
+                        MediaType.VIDEO
+                    )
+                ).show(childFragmentManager, null)
+            }
             UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT))
                 .show(childFragmentManager, null)
             UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(
@@ -242,7 +250,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
                     (VALID_REDDIT_COMMENTS_URL_REGEX.find(linkWithBaseUrl) ?: return).value
                 activityModel.newViewPagerPage(CommentsPage(validUrl, false))
             }
-            UrlType.OTHER, UrlType.REDDIT_VIDEO, UrlType.REDDIT_GALLERY -> activityModel.openChromeTab(
+            UrlType.OTHER, UrlType.REDDIT_GALLERY -> activityModel.openChromeTab(
                 link
             )
             UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(
