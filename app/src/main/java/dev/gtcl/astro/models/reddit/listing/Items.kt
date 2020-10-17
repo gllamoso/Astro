@@ -227,7 +227,7 @@ data class Post(
     override val name: String,
     override val id: String = name.replaceFirst("t3_", ""),
     var saved: Boolean,
-    val title: String,
+    private val title: String,
     var score: Int,
     var author: String,
     @Json(name = "author_fullname")
@@ -330,7 +330,7 @@ data class Post(
     val permalinkWithRedditDomain = "https://www.reddit.com${permalink.formatHtmlEntities()}"
 
     @IgnoredOnParcel
-    val titleFormatted: CharSequence = title.formatHtmlEntities()
+    val titleFormatted = title.formatHtmlEntities()
 
     @IgnoredOnParcel
     val deleted: Boolean
@@ -501,7 +501,7 @@ data class Message(
     val author: String,
     @Json(name = "created_utc")
     val created: Long,
-    val body: String,
+    private val body: String,
     val dest: String,
     var new: Boolean,
     @Json(name = "subreddit_name_prefixed")
@@ -528,7 +528,7 @@ data class Subreddit(
     val displayNamePrefixed: String,
     @Json(name = "icon_img")
     private val iconImg: String?,
-    val title: String,
+    private val title: String,
     @Json(name = "community_icon")
     private val communityIcon: String?,
     @Json(name = "mobile_banner_image")
@@ -555,6 +555,9 @@ data class Subreddit(
 
     @IgnoredOnParcel
     val isUser = displayName.startsWith("u_")
+
+    @IgnoredOnParcel
+    val titleFormatted = title.formatHtmlEntities()
 
     @IgnoredOnParcel
     var isFavorite = false

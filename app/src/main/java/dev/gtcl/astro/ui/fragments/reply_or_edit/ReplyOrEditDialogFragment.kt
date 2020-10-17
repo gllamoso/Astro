@@ -70,7 +70,7 @@ class ReplyOrEditDialogFragment : DialogFragment() {
             is Post -> {
                 binding?.replyToUser = parent.author
                 if (reply) {
-                    binding?.replyToBody = parent.title
+                    binding?.replyToBody = parent.titleFormatted
                 } else {
                     binding?.fragmentDialogReplyResponseText?.setText(parent.selftext)
                 }
@@ -85,7 +85,7 @@ class ReplyOrEditDialogFragment : DialogFragment() {
             }
             is Message -> {
                 binding?.replyToUser = parent.author
-                binding?.replyToBody = parent.body
+                binding?.replyToBody = parent.bodyFormatted
             }
             else -> {
                 throw IllegalArgumentException("Unable to reply to the following item type: ${parent.kind}")

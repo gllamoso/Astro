@@ -19,7 +19,7 @@ class SubredditVH private constructor(private val binding: ItemSubredditBinding)
         binding.apply {
             displayName = sub.displayNameFormatted
             icon = sub.icon
-            title = sub.title
+            title = sub.titleFormatted
             subscribers = if (!sub.isUser) sub.subscribers else null
             moreInfoAvailable = subredditActions != null
         }

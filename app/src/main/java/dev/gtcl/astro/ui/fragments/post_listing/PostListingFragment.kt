@@ -253,7 +253,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                 rightDrawerLayout?.apply {
                     iconImg = sub.icon ?: ""
                     name = sub.displayName.replaceFirst("u_", "u/")
-                    title = sub.title
+                    title = sub.titleFormatted
                     subscribers = if (sub.subscribers ?: 0 > 0) sub.subscribers else null
                     subscribed = sub.userSubscribed
                     layoutRightDrawerSubscribeToggle.iconSubscribeBackground.setOnClickListener {
