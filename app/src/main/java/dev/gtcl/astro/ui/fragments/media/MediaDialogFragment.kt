@@ -74,6 +74,16 @@ class MediaDialogFragment : DialogFragment() {
         initTopBar()
         initBottomBar()
 
+        model.errorMessage.observe(viewLifecycleOwner, { errorMessage ->
+            if (errorMessage != null) {
+                context?.let {
+                    Toast.makeText(it, errorMessage, Toast.LENGTH_LONG).show()
+                }
+                model.errorMessageObserved()
+                dismiss()
+            }
+        })
+
         return binding?.root
     }
 
