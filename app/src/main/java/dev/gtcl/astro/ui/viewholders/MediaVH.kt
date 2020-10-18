@@ -7,6 +7,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
+import dev.gtcl.astro.GlideApp
 import dev.gtcl.astro.MediaType
 import dev.gtcl.astro.R
 import dev.gtcl.astro.databinding.ItemMediaSelectableBinding
@@ -36,10 +37,10 @@ class MediaVH private constructor(private val binding: ItemMediaSelectableBindin
             .fitCenter()
             .override(256, 256)
             .error(R.drawable.ic_broken_image_24)
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
-            .skipMemoryCache(true)
+//            .diskCacheStrategy(DiskCacheStrategy.NONE)
+//            .skipMemoryCache(true)
 
-        Glide.with(context)
+        GlideApp.with(context)
             .load(url)
             .apply(requestOptions)
             .into(binding.itemMediaSelectableImage)
