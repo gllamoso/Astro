@@ -80,7 +80,6 @@ class MediaDialogFragment : DialogFragment() {
                     Toast.makeText(it, errorMessage, Toast.LENGTH_LONG).show()
                 }
                 model.errorMessageObserved()
-                dismiss()
             }
         })
 

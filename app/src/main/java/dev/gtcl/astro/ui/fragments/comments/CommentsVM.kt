@@ -66,6 +66,10 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
     val mediaItemsLoading: LiveData<Boolean>
         get() = _mediaItemsLoading
 
+    private val _mediaItemsFailed = MutableLiveData<Boolean>().apply { value = false }
+    val mediaItemsFailed: LiveData<Boolean>
+        get() = _mediaItemsFailed
+
     private val pageSize = 15
 
     private var fullContextLink: String? = null
@@ -255,6 +259,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
         coroutineScope.launch {
             try {
                 _mediaItemsLoading.postValue(true)
+                _mediaItemsFailed.postValue(false)
                 _loading.postValue(true)
                 _mediaItems.postValue(when (post.urlType) {
                     UrlType.IMAGE -> {
@@ -392,6 +397,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                 }
                 )
             } catch (e: Exception) {
+                _mediaItemsFailed.postValue(true)
                 _errorMessage.postValue(e.getErrorMessage(application))
             } finally {
                 _loading.postValue(false)

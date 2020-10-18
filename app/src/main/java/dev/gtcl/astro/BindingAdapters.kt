@@ -48,9 +48,8 @@ fun loadImageAndHideIfNull(imgView: ImageView, imgUrl: String?) {
             .diskCacheStrategy(DiskCacheStrategy.ALL)
 //            .apply(
 //                RequestOptions()
-//                    .placeholder(R.drawable.))
-//                    .placeholder(R.color.background))
-//                    .error(R.drawable.ic_broken_image_24))
+//                    .error(R.drawable.ic_broken_image_24)
+//            )
             .into(imgView)
     } else {
         imgView.visibility = View.GONE
@@ -67,10 +66,10 @@ fun loadImage(imgView: ImageView, imgUrl: String?) {
             .load(imgUri)
 //            .skipMemoryCache(true)
             .diskCacheStrategy(DiskCacheStrategy.ALL)
-//                .apply(
-//                    RequestOptions()
-//                        .placeholder(R.drawable.anim_loading)
-//                        .error(R.drawable.ic_broken_image_24))
+//            .apply(
+//                RequestOptions()
+//                    .error(R.drawable.ic_broken_image_24)
+//            )
             .into(imgView)
     }
 }

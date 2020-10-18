@@ -12,7 +12,12 @@ class MediaListFragmentAdapter(
     items: List<MediaURL>,
     playWhenReady: Boolean
 ) : FragmentStateAdapter(fragmentManager, lifecycle) {
-    val fragments = items.map { MediaFragment.newInstance(it, playWhenReady) }
+    val fragments = if (items.isEmpty()) {
+        listOf(BrokenImageFragment())
+    } else {
+        items.map { MediaFragment.newInstance(it, playWhenReady) }
+    }
+
     override fun getItemCount() = fragments.size
     override fun createFragment(position: Int) = fragments[position]
 }

@@ -107,9 +107,11 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                 }
                 )
                 _mediaInitialized = true
-                _isLoading.postValue(false)
             } catch (e: Exception) {
+                _mediaItems.postValue(listOf())
                 _errorMessage.postValue(e.getErrorMessage(application))
+            } finally {
+                _isLoading.postValue(false)
             }
 
         }
@@ -134,7 +136,7 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
     }
 
     fun downloadCurrentItem() {
-        if (_mediaItems.value == null && _itemPosition.value == null) {
+        if (_mediaItems.value?.isEmpty() != false || _itemPosition.value == null) {
             return
         }
 

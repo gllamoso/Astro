@@ -67,6 +67,14 @@
             android:visibility="@{model.isLoading ? View.VISIBLE : View.GONE}"
             android:elevation="10dp"/>
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:layout_gravity="center"
+            android:tint="@android:color/white"
+            android:src="@drawable/ic_broken_image_24"
+            android:visibility="@{model.hasFailed ? View.VISIBLE : View.GONE}"/>
+
     </FrameLayout>
 
 </layout>

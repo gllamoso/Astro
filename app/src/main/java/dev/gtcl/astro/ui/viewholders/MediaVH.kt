@@ -8,6 +8,7 @@ import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import dev.gtcl.astro.MediaType
+import dev.gtcl.astro.R
 import dev.gtcl.astro.databinding.ItemMediaSelectableBinding
 import dev.gtcl.astro.models.reddit.MediaURL
 
@@ -31,12 +32,16 @@ class MediaVH private constructor(private val binding: ItemMediaSelectableBindin
     }
 
     private fun setImage(context: Context, url: String) {
-        val requestOptions = RequestOptions().fitCenter().override(256, 256)
-
-        Glide.with(context).load(url)
-            .apply(requestOptions)
+        val requestOptions = RequestOptions()
+            .fitCenter()
+            .override(256, 256)
+            .error(R.drawable.ic_broken_image_24)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
             .skipMemoryCache(true)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
+
+        Glide.with(context)
+            .load(url)
+            .apply(requestOptions)
             .into(binding.itemMediaSelectableImage)
     }
 

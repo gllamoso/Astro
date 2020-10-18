@@ -79,6 +79,15 @@
             app:viewSize="@{70}"
             android:visibility="@{model.mediaItemsLoading ? View.VISIBLE : View.GONE}"/>
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="160dp"
+            android:layout_height="160dp"
+            android:src="@drawable/ic_broken_image_24"
+            android:tint="?android:attr/textColorPrimary"
+            android:layout_gravity="center"
+            android:layout_margin="120dp"
+            android:visibility="@{model.mediaItemsFailed ? View.VISIBLE : View.GONE}"/>
+
     </FrameLayout>
 
 </layout>

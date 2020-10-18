@@ -9,7 +9,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -128,16 +127,14 @@ class MediaFragment : Fragment() {
 
     private fun initSubsamplingImageView(mediaURL: MediaURL) {
         val url = (mediaURL.url.formatHtmlEntities())
+        val requestOptions = RequestOptions()
+            .skipMemoryCache(true)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
         binding?.fragmentMediaScaleImageView?.let { subsamplingScaleImageView ->
             GlideApp.with(requireContext())
                 .asBitmap()
                 .load(url)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
-                .apply(
-                    RequestOptions()
-                        .error(R.drawable.ic_broken_image_24)
-                )
+                .apply(requestOptions)
                 .addListener(object : RequestListener<Bitmap> {
                     override fun onLoadFailed(
                         e: GlideException?,
@@ -146,13 +143,7 @@ class MediaFragment : Fragment() {
                         isFirstResource: Boolean
                     ): Boolean {
                         model.setLoadingState(false)
-                        context?.let {
-                            Toast.makeText(
-                                it,
-                                getString(R.string.media_failed),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
+                        model.fail()
                         return false
                     }
 
@@ -178,12 +169,14 @@ class MediaFragment : Fragment() {
 
     private fun initGifToImageView(mediaURL: MediaURL) {
         val url = mediaURL.url
+        val requestOptions = RequestOptions()
+            .skipMemoryCache(true)
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
         binding?.fragmentMediaImageView?.let { imageView ->
             imageView.clearColorFilter()
             GlideApp.with(requireContext())
                 .load(url)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.NONE)
+                .apply(requestOptions)
                 .addListener(object : RequestListener<Drawable> {
                     override fun onLoadFailed(
                         e: GlideException?,
@@ -192,13 +185,7 @@ class MediaFragment : Fragment() {
                         isFirstResource: Boolean
                     ): Boolean {
                         model.setLoadingState(false)
-                        context?.let {
-                            Toast.makeText(
-                                it,
-                                getString(R.string.media_failed),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
+                        model.fail()
                         return false
                     }
 
@@ -239,8 +226,8 @@ class MediaFragment : Fragment() {
     }
 
     private fun initExoPlayer(mediaURL: MediaURL) {
-        val videoUri = Uri.parse(mediaURL.url)
-        var mediaSource = buildMediaSource(requireContext(), videoUri)
+        var videoUri = Uri.parse(mediaURL.url)
+        var mediaSource = buildMediaSource(context ?: return, videoUri)
         player =
             ExoPlayerFactory.newSimpleInstance(
                 requireContext()
@@ -257,20 +244,15 @@ class MediaFragment : Fragment() {
             addListener(object : Player.EventListener {
                 override fun onPlayerError(error: ExoPlaybackException?) {
                     Timber.tag("Media").d("Exception $error")
-                    if (videoUri.path != mediaURL.backupUrl && mediaURL.backupUrl != null) {
+                    if (mediaURL.backupUrl != null && videoUri.path != mediaURL.backupUrl) {
+                        videoUri = Uri.parse(mediaURL.backupUrl)
                         mediaSource = buildMediaSource(
-                            requireContext(),
+                            context ?: return,
                             Uri.parse(mediaURL.backupUrl)
                         )
                         prepare(mediaSource, false, false)
                     } else {
-                        context?.let {
-                            Toast.makeText(
-                                it,
-                                getString(R.string.media_failed),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
+                        model.fail()
                     }
                 }
 
@@ -286,12 +268,19 @@ class MediaFragment : Fragment() {
 
     private fun initVideoPreview(mediaURL: MediaURL) {
         val url = (mediaURL.thumbnail ?: mediaURL.url).replaceFirst("http://", "https://")
+        var requestOptions = RequestOptions()
+            .diskCacheStrategy(DiskCacheStrategy.NONE)
+            .skipMemoryCache(true)
+
+        if (mediaURL.thumbnail == null) {
+            requestOptions = requestOptions.frame(1000L)
+        }
+
         binding?.fragmentMediaImageView?.let { imageView ->
             imageView.setColorFilter(Color.argb(155, 40, 40, 40), PorterDuff.Mode.SRC_ATOP)
-            val glideBuilder = GlideApp.with(requireContext())
+            GlideApp.with(requireContext())
                 .load(url)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
+                .apply(requestOptions)
                 .addListener(object : RequestListener<Drawable> {
                     override fun onLoadFailed(
                         e: GlideException?,
@@ -300,13 +289,7 @@ class MediaFragment : Fragment() {
                         isFirstResource: Boolean
                     ): Boolean {
                         model.setLoadingState(false)
-                        context?.let {
-                            Toast.makeText(
-                                it,
-                                getString(R.string.media_failed),
-                                Toast.LENGTH_LONG
-                            ).show()
-                        }
+                        model.fail()
                         return false
                     }
 
@@ -321,13 +304,7 @@ class MediaFragment : Fragment() {
                         return false
                     }
                 })
-
-            if (mediaURL.thumbnail == null) {
-                val requestOptions = RequestOptions().frame(1000L)
-                glideBuilder.apply(requestOptions)
-            }
-
-            glideBuilder.into(imageView)
+                .into(imageView)
         }
 
         binding?.fragmentMediaPlayPreview?.setOnClickListener {

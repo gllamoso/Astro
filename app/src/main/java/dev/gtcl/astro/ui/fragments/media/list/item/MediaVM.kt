@@ -4,9 +4,6 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.MediaURL
-import kotlinx.coroutines.launch
-import timber.log.Timber
-import java.util.*
 
 class MediaVM(application: AstroApplication) : AstroViewModel(application) {
 
@@ -22,25 +19,34 @@ class MediaVM(application: AstroApplication) : AstroViewModel(application) {
     val isLoading: LiveData<Boolean>
         get() = _isLoading
 
+    private val _hasFailed = MutableLiveData<Boolean>().apply { value = false }
+    val hasFailed: LiveData<Boolean>
+        get() = _hasFailed
+
     fun setMedia(mediaURL: MediaURL, playWhenReady: Boolean) {
-        coroutineScope.launch {
-            _isLoading.postValue(true)
-            if (mediaURL.mediaType == MediaType.VIDEO && !playWhenReady) {
-                _mediaUrl.postValue(
-                    MediaURL(
-                        mediaURL.url,
-                        MediaType.VIDEO_PREVIEW,
-                        mediaURL.backupUrl,
-                        mediaURL.thumbnail
-                    )
+        _isLoading.value = true
+        _hasFailed.value = false
+        if (mediaURL.mediaType == MediaType.VIDEO && !playWhenReady) {
+            _mediaUrl.postValue(
+                MediaURL(
+                    mediaURL.url,
+                    MediaType.VIDEO_PREVIEW,
+                    mediaURL.backupUrl,
+                    mediaURL.thumbnail
                 )
-            } else{
-                _mediaUrl.postValue(mediaURL)
-            }
+            )
+        } else {
+            _mediaUrl.postValue(mediaURL)
         }
     }
 
     fun setLoadingState(loading: Boolean) {
         _isLoading.value = loading
     }
+
+    fun fail() {
+        _hasFailed.value = true
+    }
+
+
 }

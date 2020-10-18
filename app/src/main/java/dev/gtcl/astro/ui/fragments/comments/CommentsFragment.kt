@@ -420,8 +420,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     private fun initOtherObservers() {
         model.errorMessage.observe(viewLifecycleOwner, { errorMessage ->
             if (errorMessage != null) {
-                binding?.fragmentCommentsBottomBar?.let {
-                    Snackbar.make(it, errorMessage, Snackbar.LENGTH_LONG).show()
+                context?.let {
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
                 }
                 model.errorMessageObserved()
             }
