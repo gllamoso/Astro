@@ -52,6 +52,7 @@
             app:tint="@android:color/darker_gray"
             tools:ignore="RtlHardcoded"
             android:rotation="90"
+            android:padding="8dp"
             android:layout_margin="16dp"
             android:visibility="gone"
             tools:visibility="visible"/>
@@ -66,6 +67,7 @@
             tools:ignore="RtlHardcoded"
             android:rotation="-90"
             android:layout_margin="16dp"
+            android:padding="8dp"
             android:visibility="gone"
             tools:visibility="visible"/>
 

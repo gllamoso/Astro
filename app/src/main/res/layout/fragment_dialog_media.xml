@@ -118,7 +118,7 @@
                     android:elevation="10dp"
                     android:visibility="@{model.post != null ? View.VISIBLE : View.GONE}"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="2dp"/>
+                    android:padding="8dp"/>
 
                 <View
                     android:layout_width="0dp"
@@ -134,7 +134,7 @@
                     app:tint="@android:color/white"
                     android:layout_margin="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="2dp"/>
+                    android:padding="8dp"/>
 
                 <View
                     android:layout_width="0dp"
@@ -149,7 +149,7 @@
                     app:tint="@android:color/white"
                     android:layout_margin="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="2dp"
+                    android:padding="8dp"
                     />
 
                 <View
@@ -165,7 +165,7 @@
                     app:tint="@android:color/white"
                     android:layout_margin="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="2dp"
+                    android:padding="8dp"
                     />
 
                 <View
