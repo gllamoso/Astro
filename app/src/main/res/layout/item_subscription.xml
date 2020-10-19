@@ -29,8 +29,7 @@
             android:layout_margin="8dp"
             app:subscriptionIcon="@{sub}"
             app:colorTint="@{iconTint}"
-            tools:src="@drawable/ic_reddit_circle_24"
-            tools:tint="@color/colorAccent"/>
+            tools:src="@drawable/ic_saturn_24"/>
 
         <TextView
             android:layout_width="0dp"

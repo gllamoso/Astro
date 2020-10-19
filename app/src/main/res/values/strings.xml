@@ -62,6 +62,7 @@
     <string name="add_response">Add response…</string>
     <string name="view_all_comments">View all comments</string>
     <string name="you_are_viewing_a_single_thread">You are viewing a single thread</string>
+    <string name="post_has_no_text">Post has no text.</string>
 
     <!--Account-->
     <string name="overview">Overview</string>

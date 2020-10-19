@@ -46,7 +46,7 @@
                     android:id="@+id/layoutRightDrawer_subIcon"
                     android:layout_width="80dp"
                     android:layout_height="80dp"
-                    android:src="@drawable/ic_reddit_circle_24"
+                    android:src="@drawable/ic_saturn_24"
                     android:visibility="@{iconImg != null ? View.VISIBLE : View.GONE}"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"

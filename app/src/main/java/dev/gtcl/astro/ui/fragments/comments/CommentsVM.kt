@@ -16,6 +16,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
+import timber.log.Timber
 import kotlin.collections.HashMap
 
 const val CHILDREN_PER_FETCH = 50
@@ -398,7 +399,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                 )
             } catch (e: Exception) {
                 _mediaItemsFailed.postValue(true)
-                _errorMessage.postValue(e.getErrorMessage(application))
+                Timber.tag(this::javaClass.name).d(e)
             } finally {
                 _loading.postValue(false)
                 _mediaItemsLoading.postValue(false)

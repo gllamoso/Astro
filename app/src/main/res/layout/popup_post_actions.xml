@@ -90,7 +90,7 @@
             <include
                 android:id="@+id/popupPostActions_subreddit"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_reddit_circle_24}"
+                app:iconDrawable="@{@drawable/ic_saturn_simple_24}"
                 app:text="@{post.subredditPrefixed}"/>
 
             <include

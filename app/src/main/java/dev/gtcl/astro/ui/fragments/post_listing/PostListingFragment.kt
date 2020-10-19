@@ -18,7 +18,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.google.android.material.snackbar.Snackbar
@@ -137,7 +136,6 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Glide.get(requireContext()).clearMemory()
         binding = null
     }
 
@@ -241,7 +239,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         val topRightIcon = when (listing) {
             FrontPage, All, Popular, is SearchListing, is ProfileListing -> R.drawable.ic_trending_up_colored_24
             is MultiRedditListing -> R.drawable.ic_collection_colored_24
-            else -> R.drawable.ic_reddit_circle_colored_24
+            else -> R.drawable.ic_saturn_colored_24
         }
 
         // Set tinted sidebar button
@@ -339,7 +337,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         val imageView =
             (binding?.fragmentListingTopAppBarLayout?.layoutTopAppBarListingSideBarButton ?: return)
 
-        Glide.with(requireContext())
+        GlideApp.with(requireContext())
             .load(imgUrl)
             .skipMemoryCache(true)
             .diskCacheStrategy(DiskCacheStrategy.ALL)

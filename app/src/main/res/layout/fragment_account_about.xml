@@ -25,6 +25,7 @@
                 android:layout_height="wrap_content"
                 android:paddingHorizontal="16dp"
                 android:paddingTop="16dp"
+                android:visibility="@{model.account != null ? View.VISIBLE : View.GONE}"
                 android:paddingBottom="8dp">
 
                 <TextView

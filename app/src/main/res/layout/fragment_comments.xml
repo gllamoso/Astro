@@ -123,6 +123,8 @@
 
                             <include
                                 android:id="@+id/fragmentComments_content"
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content"
                                 layout="@layout/layout_comments_content"
                                 app:model="@{model}"/>
 

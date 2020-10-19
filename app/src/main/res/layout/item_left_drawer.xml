@@ -32,7 +32,7 @@
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@{leftIcon}"
-            tools:src="@drawable/ic_reddit_circle_24"/>
+            tools:src="@drawable/ic_saturn_24"/>
 
         <TextView
             android:id="@+id/itemLeftDrawer_text"

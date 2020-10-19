@@ -15,7 +15,6 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
-import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.ImagePost
 import dev.gtcl.astro.R
@@ -85,7 +84,6 @@ class CreatePostImageFragment : Fragment() {
         if (!requireActivity().isChangingConfigurations) {
             requireContext().contentResolver.delete(photoUri, null, null)
         }
-        Glide.get(requireContext()).clearMemory()
         binding = null
     }
 

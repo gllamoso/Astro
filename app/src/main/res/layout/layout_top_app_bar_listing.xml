@@ -139,7 +139,7 @@
                         app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintBottom_toBottomOf="parent"
-                        tools:src="@drawable/ic_reddit_circle_24"/>
+                        tools:src="@drawable/ic_saturn_24"/>
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
