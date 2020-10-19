@@ -25,6 +25,7 @@ import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.view_pager.PostPage
 import dev.gtcl.astro.ui.fragments.media.list.MediaThumbnailsAdapter
+import timber.log.Timber
 
 class MediaDialogFragment : DialogFragment() {
 
@@ -76,9 +77,7 @@ class MediaDialogFragment : DialogFragment() {
 
         model.errorMessage.observe(viewLifecycleOwner, { errorMessage ->
             if (errorMessage != null) {
-                context?.let {
-                    Toast.makeText(it, errorMessage, Toast.LENGTH_LONG).show()
-                }
+                Timber.tag(this::javaClass.name).d(errorMessage)
                 model.errorMessageObserved()
             }
         })

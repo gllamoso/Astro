@@ -8,9 +8,9 @@ import android.view.ViewGroup
 import android.webkit.URLUtil
 import android.widget.PopupWindow
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
+import dev.gtcl.astro.GlideApp
 import dev.gtcl.astro.Vote
 import dev.gtcl.astro.actions.ItemClickListener
 import dev.gtcl.astro.actions.PostActions
@@ -64,7 +64,7 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
                 postActions.thumbnailClicked(post, adapterPosition)
             }
 
-            Glide.with(binding.root.context)
+            GlideApp.with(binding.root.context)
                 .load(thumbnailUrl).apply {
                     if ((post.nsfw && blurNsfw)) {
                         apply(RequestOptions.bitmapTransform(BlurTransformation()))

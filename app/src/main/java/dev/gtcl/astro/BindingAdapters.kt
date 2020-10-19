@@ -17,8 +17,6 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
@@ -42,10 +40,10 @@ fun loadImageAndHideIfNull(imgView: ImageView, imgUrl: String?) {
     ) {
         imgView.visibility = View.VISIBLE
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
-        Glide.with(imgView.context)
+        GlideApp.with(imgView.context)
             .load(imgUri)
-//            .skipMemoryCache(true)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .skipMemoryCache(true)
+//            .diskCacheStrategy(DiskCacheStrategy.ALL)
 //            .apply(
 //                RequestOptions()
 //                    .error(R.drawable.ic_broken_image_24)
@@ -65,7 +63,7 @@ fun loadImage(imgView: ImageView, imgUrl: String?) {
         GlideApp.with(imgView.context)
             .load(imgUri)
 //            .skipMemoryCache(true)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
+//            .diskCacheStrategy(DiskCacheStrategy.ALL)
 //            .apply(
 //                RequestOptions()
 //                    .error(R.drawable.ic_broken_image_24)
@@ -80,7 +78,7 @@ fun loadBanner(imgView: ImageView, url: String?) {
         GlideApp.with(imgView.context)
             .load(url)
             .skipMemoryCache(true)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
+//            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .fitCenter()
             .into(imgView)
     }
@@ -97,7 +95,7 @@ fun bindUriToImage(imgView: ImageView, uri: Uri?) {
     GlideApp.with(imgView.context)
         .load(uri)
         .skipMemoryCache(true)
-        .diskCacheStrategy(DiskCacheStrategy.ALL)
+//        .diskCacheStrategy(DiskCacheStrategy.NONE)
         .into(imgView)
 }
 
@@ -121,40 +119,22 @@ fun loadMultiIcon(imgView: ImageView, postListing: PostListing) {
         Friends -> imgView.setImageResource(R.drawable.ic_people_24)
         is ProfileListing -> imgView.setImageResource(R.drawable.ic_bookmark_24)
         is MultiRedditListing -> imgView.setImageResource(R.drawable.ic_collection_24)
-        else -> imgView.setImageResource(R.drawable.ic_reddit_circle_24)
+        else -> imgView.setImageResource(R.drawable.ic_saturn_24)
     }
 }
 
 @BindingAdapter("subredditIcon")
 fun loadSubIcon(imgView: ImageView, imgUrl: String?) {
     if (imgUrl == null || !imgUrl.startsWith("http")) {
-        imgView.setImageResource(R.drawable.ic_reddit_24)
+        imgView.setImageResource(R.drawable.ic_saturn_colored_24)
     } else {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
-        Glide.with(imgView.context)
+        GlideApp.with(imgView.context)
             .load(imgUri)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
+//            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .apply(
                 RequestOptions()
-                    .placeholder(R.drawable.ic_reddit_24)
-                    .circleCrop()
-            )
-            .into(imgView)
-    }
-}
-
-@BindingAdapter("subredditCircularIcon")
-fun loadCircularSubIcon(imgView: ImageView, imgUrl: String?) {
-    if (imgUrl == null || !imgUrl.startsWith("http")) {
-        imgView.setImageResource(R.drawable.ic_reddit_circle_24)
-    } else {
-        val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
-        Glide.with(imgView.context)
-            .load(imgUri)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
-            .apply(
-                RequestOptions()
-                    .placeholder(R.drawable.ic_reddit_circle_24)
+                    .placeholder(R.drawable.ic_saturn_colored_24)
                     .circleCrop()
             )
             .into(imgView)
@@ -167,9 +147,10 @@ fun loadAccountIcon(imgView: ImageView, imgUrl: String?) {
         imgView.setImageResource(R.drawable.ic_profile_24)
     } else {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
-        Glide.with(imgView.context)
+        GlideApp.with(imgView.context)
             .load(imgUri)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .skipMemoryCache(true)
+//            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .apply(
                 RequestOptions()
                     .placeholder(R.drawable.ic_profile_24)
@@ -185,9 +166,10 @@ fun loadMultiRedditIcon(imgView: ImageView, imgUrl: String?) {
         imgView.setImageResource(R.drawable.ic_collection_24)
     } else {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
-        Glide.with(imgView.context)
+        GlideApp.with(imgView.context)
             .load(imgUri)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .skipMemoryCache(true)
+//            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .apply(
                 RequestOptions()
                     .placeholder(R.drawable.ic_collection_24)
@@ -202,7 +184,7 @@ fun loadSubscriptionIcon(imgView: ImageView, subscription: Subscription) {
     val placeHolder = when (subscription.type) {
         SubscriptionType.MULTIREDDIT -> R.drawable.ic_collection_24
         SubscriptionType.USER -> R.drawable.ic_profile_24
-        SubscriptionType.SUBREDDIT -> R.drawable.ic_reddit_circle_24
+        SubscriptionType.SUBREDDIT -> R.drawable.ic_saturn_24
     }
 
     if (subscription.icon == null || !subscription.icon.startsWith("https", true)) {
@@ -210,9 +192,9 @@ fun loadSubscriptionIcon(imgView: ImageView, subscription: Subscription) {
         return
     }
 
-    Glide.with(imgView.context)
+    GlideApp.with(imgView.context)
         .load(subscription.icon)
-        .diskCacheStrategy(DiskCacheStrategy.ALL)
+//        .diskCacheStrategy(DiskCacheStrategy.ALL)
         .apply(
             RequestOptions()
                 .placeholder(placeHolder)
@@ -230,17 +212,6 @@ fun setTint(imgView: ImageView, color: Int) {
 @BindingAdapter("favorite")
 fun loadFavoriteIcon(imgView: ImageView, isFavorite: Boolean) {
     imgView.setImageResource(if (isFavorite) R.drawable.ic_favorite_filled_24 else R.drawable.ic_favorite_unfilled_24)
-}
-
-@BindingAdapter("added")
-fun loadAddedIcon(imgView: ImageView, added: Boolean) {
-    imgView.setImageResource(
-        if (added) {
-            R.drawable.ic_remove_circle_outline_24
-        } else {
-            R.drawable.ic_add_circle_24
-        }
-    )
 }
 
 @BindingAdapter("listingType")
@@ -469,7 +440,7 @@ fun addFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?) {
 
 @BindingAdapter("ruleType")
 fun setRuleTypeText(textView: TextView, ruleFor: RuleFor) {
-    val context = textView.context!!
+    val context = textView.context ?: return
     textView.text = when (ruleFor) {
         RuleFor.POST -> context.getText(R.string.posts)
         RuleFor.COMMENT -> context.getText(R.string.comments)
@@ -537,7 +508,7 @@ fun setCommentSortText(textView: TextView, commentSort: CommentSort) {
 
 @BindingAdapter("isUser")
 fun setUserTextColor(textView: TextView, isUser: Boolean) {
-    val context = textView.context!!
+    val context = textView.context ?: return
     val typedValue = TypedValue()
     context.theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
     val arr =

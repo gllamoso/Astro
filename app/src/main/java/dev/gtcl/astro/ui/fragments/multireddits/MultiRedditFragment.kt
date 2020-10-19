@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.actions.ItemClickListener
@@ -18,7 +17,6 @@ import dev.gtcl.astro.models.reddit.listing.Subreddit
 import dev.gtcl.astro.models.reddit.listing.SubredditListing
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
-import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerFragmentDirections
 import dev.gtcl.astro.ui.viewholders.OnSubredditRemovedListener
 
 class MultiRedditFragment : Fragment(),
@@ -52,7 +50,6 @@ class MultiRedditFragment : Fragment(),
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Glide.get(requireContext()).clearMemory()
         binding = null
     }
 

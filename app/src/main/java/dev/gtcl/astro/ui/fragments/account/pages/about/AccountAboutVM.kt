@@ -9,8 +9,8 @@ import kotlinx.coroutines.launch
 
 class AccountAboutVM(val application: AstroApplication) : AstroViewModel(application) {
 
-    private val _account = MutableLiveData<Account>()
-    val account: LiveData<Account>
+    private val _account = MutableLiveData<Account?>().apply { value = null }
+    val account: LiveData<Account?>
         get() = _account
 
     private val _awards = MutableLiveData<List<Award>>().apply { value = listOf() }

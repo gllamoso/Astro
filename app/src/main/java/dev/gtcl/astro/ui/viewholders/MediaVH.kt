@@ -4,8 +4,6 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import dev.gtcl.astro.GlideApp
 import dev.gtcl.astro.MediaType
@@ -50,10 +48,11 @@ class MediaVH private constructor(private val binding: ItemMediaSelectableBindin
         val thumb = 1000L
         val requestOptions = RequestOptions().fitCenter().override(256, 256)
         val options = RequestOptions().frame(thumb)
-        Glide.with(context).load(url).apply(options)
+        GlideApp.with(context).load(url)
+            .apply(options)
             .apply(requestOptions)
             .skipMemoryCache(true)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
+//            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .into(binding.itemMediaSelectableImage)
     }
 

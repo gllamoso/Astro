@@ -129,7 +129,7 @@ class MediaFragment : Fragment() {
         val url = (mediaURL.url.formatHtmlEntities())
         val requestOptions = RequestOptions()
             .skipMemoryCache(true)
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
+//            .diskCacheStrategy(DiskCacheStrategy.NONE)
         binding?.fragmentMediaScaleImageView?.let { subsamplingScaleImageView ->
             GlideApp.with(requireContext())
                 .asBitmap()
@@ -171,7 +171,7 @@ class MediaFragment : Fragment() {
         val url = mediaURL.url
         val requestOptions = RequestOptions()
             .skipMemoryCache(true)
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
+//            .diskCacheStrategy(DiskCacheStrategy.NONE)
         binding?.fragmentMediaImageView?.let { imageView ->
             imageView.clearColorFilter()
             GlideApp.with(requireContext())
@@ -268,17 +268,13 @@ class MediaFragment : Fragment() {
 
     private fun initVideoPreview(mediaURL: MediaURL) {
         val url = (mediaURL.thumbnail ?: mediaURL.url).replaceFirst("http://", "https://")
-        var requestOptions = RequestOptions()
-            .diskCacheStrategy(DiskCacheStrategy.NONE)
+        val requestOptions = RequestOptions()
+//            .diskCacheStrategy(DiskCacheStrategy.NONE)
             .skipMemoryCache(true)
-
-        if (mediaURL.thumbnail == null) {
-            requestOptions = requestOptions.frame(1000L)
-        }
 
         binding?.fragmentMediaImageView?.let { imageView ->
             imageView.setColorFilter(Color.argb(155, 40, 40, 40), PorterDuff.Mode.SRC_ATOP)
-            GlideApp.with(requireContext())
+            var glide = GlideApp.with(requireContext())
                 .load(url)
                 .apply(requestOptions)
                 .addListener(object : RequestListener<Drawable> {
@@ -304,7 +300,14 @@ class MediaFragment : Fragment() {
                         return false
                     }
                 })
-                .into(imageView)
+
+            if (mediaURL.thumbnail == null) {
+                glide = glide.apply(
+                    RequestOptions().frame(1000L)
+                )
+            }
+
+            glide.into(imageView)
         }
 
         binding?.fragmentMediaPlayPreview?.setOnClickListener {
