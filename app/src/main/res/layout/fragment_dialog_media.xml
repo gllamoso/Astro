@@ -114,7 +114,6 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_comments_24"
                     app:tint="@android:color/white"
-                    android:layout_margin="8dp"
                     android:elevation="10dp"
                     android:visibility="@{model.post != null ? View.VISIBLE : View.GONE}"
                     android:background="?attr/selectableItemBackgroundBorderless"
@@ -132,7 +131,6 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_share_24"
                     app:tint="@android:color/white"
-                    android:layout_margin="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:padding="8dp"/>
 
@@ -147,7 +145,6 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_download_24"
                     app:tint="@android:color/white"
-                    android:layout_margin="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:padding="8dp"
                     />
@@ -163,7 +160,6 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_link_24"
                     app:tint="@android:color/white"
-                    android:layout_margin="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
                     android:padding="8dp"
                     />
