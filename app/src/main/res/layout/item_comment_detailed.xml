@@ -44,6 +44,7 @@
                     android:layout_marginTop="8dp"
                     android:gravity="center_vertical|start"
                     android:orientation="horizontal"
+                    android:paddingVertical="2dp"
                     app:layout_constraintEnd_toStartOf="@id/itemCommentDetailed_moreOptions"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent">

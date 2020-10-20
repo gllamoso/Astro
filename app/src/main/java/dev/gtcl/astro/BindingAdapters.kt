@@ -327,7 +327,7 @@ fun bindRecyclerViewForMultiReddit(recyclerView: RecyclerView, data: MutableList
 }
 
 @BindingAdapter("likes")
-fun applyLikeTint(imageView: AppCompatImageView, likes: Boolean?) {
+fun applyLikeTint(imageView: ImageView, likes: Boolean?) {
     when (likes) {
         true -> imageView.setColorFilter(
             ContextCompat.getColor(
@@ -348,7 +348,7 @@ fun applyLikeTint(imageView: AppCompatImageView, likes: Boolean?) {
 }
 
 @BindingAdapter("upvoteTint")
-fun applyUpvoteTint(imageView: AppCompatImageView, likes: Boolean?) {
+fun applyUpvoteTint(imageView: ImageView, likes: Boolean?) {
     when (likes) {
         true -> imageView.setColorFilter(
             ContextCompat.getColor(
@@ -361,7 +361,7 @@ fun applyUpvoteTint(imageView: AppCompatImageView, likes: Boolean?) {
 }
 
 @BindingAdapter("downvoteTint")
-fun applyDownvoteTint(imageView: AppCompatImageView, likes: Boolean?) {
+fun applyDownvoteTint(imageView: ImageView, likes: Boolean?) {
     when (likes) {
         false -> {
             imageView.setColorFilter(
