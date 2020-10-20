@@ -185,72 +185,20 @@
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginHorizontal="8dp"
-                    android:orientation="horizontal"
-                    app:layout_constraintEnd_toStartOf="@id/itemPost_thumbnailBackground"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/itemPost_postInfo1">
-
-                    <TextView
-                        android:id="@+id/itemPost_scoreInfo"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:text="@{UtilKt.numFormatted(post.score)}"
-                        android:textColor="@{post.likes == null ? @android:color/darker_gray : post.likes == true ? @android:color/holo_orange_dark : @android:color/holo_blue_dark}"
-                        tools:text="9k"
-                        tools:textColor="@android:color/holo_orange_dark" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:text=" • "
-                        android:textColor="@android:color/darker_gray"
-                        tools:ignore="HardcodedText" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:text="@{String.format(@string/num_comments, UtilKt.numFormatted(post.numComments))}"
-                        android:textColor="@android:color/darker_gray"
-                        tools:text="9k comments" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:text=" • "
-                        android:textColor="@android:color/darker_gray"
-                        tools:ignore="HardcodedText" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:text="@{UtilKt.timeSince(post.created)}"
-                        android:textColor="@android:color/darker_gray"
-                        tools:text="3h" />
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginHorizontal="8dp"
-                    android:gravity="center_vertical"
                     android:layout_marginBottom="8dp"
-                    app:layout_constraintStart_toStartOf="parent"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    app:layout_constraintVertical_bias="0"
                     app:layout_constraintEnd_toStartOf="@id/itemPost_thumbnailBackground"
-                    app:layout_constraintTop_toBottomOf="@id/itemPost_postInfo2"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintVertical_bias="0">
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toBottomOf="@id/itemPost_postInfo1"
+                    app:layout_constraintBottom_toBottomOf="parent">
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:layout_marginEnd="2dp"
+                        android:padding="1dp"
                         android:src="@drawable/ic_reddit_silver"
                         android:visibility="@{post.gildings != null &amp;&amp; post.gildings.silver != null ? View.VISIBLE : View.GONE}"/>
 
@@ -258,7 +206,8 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="@{(post.gildings != null &amp;&amp; post.gildings.silver != null ? post.gildings.silver : 0).toString()}"
-                        android:textColor="#919191"
+                        android:textColor="@android:color/darker_gray"
+                        android:singleLine="true"
                         android:layout_marginEnd="4dp"
                         android:visibility="@{post.gildings != null &amp;&amp; post.gildings.silver != null ? View.VISIBLE : View.GONE}"
                         tools:text="99"/>
@@ -267,6 +216,7 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:layout_marginEnd="2dp"
+                        android:padding="1dp"
                         android:src="@drawable/ic_reddit_gold"
                         android:visibility="@{post.gildings != null &amp;&amp; post.gildings.gold != null ? View.VISIBLE : View.GONE}"/>
 
@@ -275,6 +225,7 @@
                         android:layout_height="wrap_content"
                         android:text="@{(post.gildings != null &amp;&amp; post.gildings.gold != null ? post.gildings.gold : 0).toString()}"
                         android:textColor="#ffd54f"
+                        android:singleLine="true"
                         android:layout_marginEnd="4dp"
                         android:visibility="@{post.gildings != null &amp;&amp; post.gildings.gold != null ? View.VISIBLE : View.GONE}"
                         tools:text="99"/>
@@ -283,6 +234,7 @@
                         android:layout_width="16dp"
                         android:layout_height="16dp"
                         android:layout_marginEnd="2dp"
+                        android:padding="1dp"
                         android:src="@drawable/ic_reddit_platinum"
                         android:visibility="@{post.gildings != null &amp;&amp; post.gildings.platinum != null ? View.VISIBLE : View.GONE}"/>
 
@@ -291,9 +243,63 @@
                         android:layout_height="wrap_content"
                         android:text="@{(post.gildings != null &amp;&amp; post.gildings.platinum != null ? post.gildings.platinum : 0).toString()}"
                         android:textColor="#00bfa5"
+                        android:singleLine="true"
                         android:layout_marginEnd="4dp"
                         android:visibility="@{post.gildings != null &amp;&amp; post.gildings.platinum != null ? View.VISIBLE : View.GONE}"
                         tools:text="99"/>
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="16dp"
+                        android:layout_height="16dp"
+                        android:layout_marginEnd="2dp"
+                        android:padding="1dp"
+                        android:src="@drawable/ic_reddit_platinum"
+                        android:visibility="@{post.gildings != null &amp;&amp; post.gildings.platinum != null ? View.VISIBLE : View.GONE}"/>
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_upvote_24"
+                        app:likes="@{post.likes}"
+                        tools:tint="@android:color/holo_orange_dark"/>
+
+                    <TextView
+                        android:id="@+id/itemPost_scoreInfo"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:layout_marginEnd="4dp"
+                        android:text="@{UtilKt.numFormatted(post.score)}"
+                        android:textColor="@{post.likes == null ? @android:color/darker_gray : post.likes == true ? @android:color/holo_orange_dark : @android:color/holo_blue_dark}"
+                        tools:text="9k"
+                        tools:textColor="@android:color/holo_orange_dark" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_comment_24"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:text="@{UtilKt.numFormatted(post.numComments)}"
+                        android:layout_marginEnd="4dp"
+                        android:textColor="@android:color/darker_gray"
+                        tools:text="9k" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:src="@drawable/ic_timer_24"/>
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:singleLine="true"
+                        android:text="@{UtilKt.timeSince(post.created)}"
+                        android:textColor="@android:color/darker_gray"
+                        tools:text="3h" />
 
                 </LinearLayout>
 

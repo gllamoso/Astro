@@ -13,6 +13,7 @@ import android.webkit.URLUtil
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
+import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
@@ -325,8 +326,8 @@ fun bindRecyclerViewForMultiReddit(recyclerView: RecyclerView, data: MutableList
     adapter.submitList(data)
 }
 
-@BindingAdapter("upvoteTint")
-fun applyUpvoteTint(imageView: ImageView, likes: Boolean?) {
+@BindingAdapter("likes")
+fun applyLikeTint(imageView: AppCompatImageView, likes: Boolean?) {
     when (likes) {
         true -> imageView.setColorFilter(
             ContextCompat.getColor(
@@ -334,20 +335,43 @@ fun applyUpvoteTint(imageView: ImageView, likes: Boolean?) {
                 android.R.color.holo_orange_dark
             )
         )
-        else -> imageView.clearColorFilter()
+        false -> {
+            imageView.setColorFilter(
+                ContextCompat.getColor(
+                    imageView.context,
+                    android.R.color.holo_blue_dark
+                )
+            )
+        }
+        null -> imageView.clearColorFilter()
+    }
+}
+
+@BindingAdapter("upvoteTint")
+fun applyUpvoteTint(imageView: AppCompatImageView, likes: Boolean?) {
+    when (likes) {
+        true -> imageView.setColorFilter(
+            ContextCompat.getColor(
+                imageView.context,
+                android.R.color.holo_orange_dark
+            )
+        )
+        null -> imageView.clearColorFilter()
     }
 }
 
 @BindingAdapter("downvoteTint")
-fun applyDownvoteTint(imageView: ImageView, likes: Boolean?) {
+fun applyDownvoteTint(imageView: AppCompatImageView, likes: Boolean?) {
     when (likes) {
-        false -> imageView.setColorFilter(
-            ContextCompat.getColor(
-                imageView.context,
-                android.R.color.holo_blue_dark
+        false -> {
+            imageView.setColorFilter(
+                ContextCompat.getColor(
+                    imageView.context,
+                    android.R.color.holo_blue_dark
+                )
             )
-        )
-        else -> imageView.clearColorFilter()
+        }
+        null -> imageView.clearColorFilter()
     }
 }
 
@@ -368,6 +392,7 @@ fun applyBookmarkTint(imageView: ImageView, bookmarked: Boolean) {
 fun addSmallFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?) {
     viewGroup.removeAllViews()
     if (!list.isNullOrEmpty()) {
+        viewGroup.visibility = View.VISIBLE
         val context = viewGroup.context
         val imgViewSize = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
@@ -398,6 +423,8 @@ fun addSmallFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?)
 
             viewGroup.addView(view)
         }
+    } else {
+        viewGroup.visibility = View.GONE
     }
 }
 
@@ -405,6 +432,7 @@ fun addSmallFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?)
 fun addFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?) {
     viewGroup.removeAllViews()
     if (!list.isNullOrEmpty()) {
+        viewGroup.visibility = View.VISIBLE
         val context = viewGroup.context
         val imgViewSize = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
@@ -435,6 +463,8 @@ fun addFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?) {
 
             viewGroup.addView(view)
         }
+    } else {
+        viewGroup.visibility = View.GONE
     }
 }
 
