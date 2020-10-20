@@ -177,6 +177,7 @@
                 android:layout_width="18dp"
                 android:layout_height="18dp"
                 android:src="@drawable/ic_upvote_24"
+                android:tint="@android:color/darker_gray"
                 app:likes="@{comment.likes}"/>
 
             <TextView
@@ -193,6 +194,7 @@
             <androidx.appcompat.widget.AppCompatImageView
                 android:layout_width="18dp"
                 android:layout_height="18dp"
+                android:tint="@android:color/darker_gray"
                 android:src="@drawable/ic_timer_24"/>
 
             <TextView

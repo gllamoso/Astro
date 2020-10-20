@@ -275,6 +275,7 @@
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     app:likes="@{post.likes}"
+                    android:tint="@android:color/darker_gray"
                     android:src="@drawable/ic_upvote_24"
                     tools:tint="@android:color/holo_orange_dark"/>
 
@@ -293,6 +294,7 @@
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="14dp"
                     android:layout_height="14dp"
+                    android:tint="@android:color/darker_gray"
                     android:src="@drawable/ic_comment_24"/>
 
                 <TextView
@@ -308,6 +310,7 @@
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="14dp"
                     android:layout_height="14dp"
+                    android:tint="@android:color/darker_gray"
                     android:src="@drawable/ic_timer_24"/>
 
                 <TextView
