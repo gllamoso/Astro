@@ -146,6 +146,7 @@
                 android:layout_height="match_parent"
                 android:orientation="horizontal"
                 android:layout_marginEnd="4dp"
+                android:gravity="center_vertical"
                 android:visibility="@{comment.authorFlairRichtext != null &amp;&amp; !comment.authorFlairRichtext.empty ? View.VISIBLE : View.GONE}"
                 app:flairListSmall="@{comment.authorFlairRichtext}" />
 
