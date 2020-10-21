@@ -406,22 +406,25 @@ fun addSmallFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?)
         ).toInt()
         val layoutInflater = LayoutInflater.from(context)
         for (flair in list) {
-            val view =
-                if (!flair.urlFormatted.isNullOrBlank()) {
-                    ImageView(context).apply {
-                        layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
-                            marginEnd = margin
+            if (!flair.urlFormatted.isNullOrBlank() || flair.text.toString().isNotBlank()) {
+                val view =
+                    if (!flair.urlFormatted.isNullOrBlank()) {
+                        ImageView(context).apply {
+                            layoutParams =
+                                LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
+                                    marginEnd = margin
+                                }
+                            loadImage(this, flair.urlFormatted)
                         }
-                        loadImage(this, flair.urlFormatted)
+                    } else {
+                        IconFlairSmallBinding.inflate(layoutInflater).apply {
+                            charSequence = flair.text.toString()
+                            executePendingBindings()
+                        }.root
                     }
-                } else {
-                    IconFlairSmallBinding.inflate(layoutInflater).apply {
-                        charSequence = flair.text.toString()
-                        executePendingBindings()
-                    }.root
-                }
 
-            viewGroup.addView(view)
+                viewGroup.addView(view)
+            }
         }
     } else {
         viewGroup.visibility = View.GONE
@@ -446,22 +449,25 @@ fun addFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?) {
         ).toInt()
         val layoutInflater = LayoutInflater.from(context)
         for (flair in list) {
-            val view =
-                if (!flair.urlFormatted.isNullOrBlank()) {
-                    ImageView(context).apply {
-                        layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
-                            marginEnd = margin
+            if (!flair.urlFormatted.isNullOrBlank() || flair.text.toString().isNotBlank()) {
+                val view =
+                    if (!flair.urlFormatted.isNullOrBlank()) {
+                        ImageView(context).apply {
+                            layoutParams =
+                                LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
+                                    marginEnd = margin
+                                }
+                            loadImage(this, flair.urlFormatted)
                         }
-                        loadImage(this, flair.urlFormatted)
+                    } else {
+                        IconFlairBinding.inflate(layoutInflater).apply {
+                            charSequence = flair.text.toString()
+                            executePendingBindings()
+                        }.root
                     }
-                } else {
-                    IconFlairBinding.inflate(layoutInflater).apply {
-                        charSequence = flair.text.toString()
-                        executePendingBindings()
-                    }.root
-                }
 
-            viewGroup.addView(view)
+                viewGroup.addView(view)
+            }
         }
     } else {
         viewGroup.visibility = View.GONE
