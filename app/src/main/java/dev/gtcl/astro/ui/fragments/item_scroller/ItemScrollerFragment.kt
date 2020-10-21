@@ -313,9 +313,20 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         when (val urlType: UrlType? = post.urlFormatted?.getUrlType()) {
             UrlType.OTHER -> activityModel.openChromeTab(post.urlFormatted)
             UrlType.REDDIT_GALLERY -> {
+                val galleryItems = post.galleryAsMediaItems
+                if (galleryItems == null) {
+                    context?.let { thisContext ->
+                        Toast.makeText(
+                            thisContext,
+                            getString(R.string.media_failed),
+                            Toast.LENGTH_LONG
+                        )
+                            .show()
+                    }
+                }
                 val dialog = MediaDialogFragment.newInstance(
                     post.urlFormatted,
-                    post.galleryAsMediaItems ?: return,
+                    galleryItems ?: return,
                     PostPage(post, position)
                 )
                 dialog.show(parentFragmentManager, null)

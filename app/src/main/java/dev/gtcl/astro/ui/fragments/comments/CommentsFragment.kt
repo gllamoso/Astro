@@ -752,10 +752,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         val popupBinding = PopupCommentsPageActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
-            val post = model.post.value ?: return@apply
-            val currentAccount =
-                (this@CommentsFragment.requireActivity().application as AstroApplication).currentAccount
-            val currentMediaUrl = model.mediaItems.value?.get(
+            val viewModel = this@CommentsFragment.model
+            this.model = viewModel
+            val post = viewModel.post.value ?: return@apply
+            val currentMediaUrl = viewModel.mediaItems.value?.get(
                 binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem ?: 0
             )
             val currentMediaType = when (currentMediaUrl?.mediaType) {
@@ -763,11 +763,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 MediaType.VIDEO -> SimpleMediaType.VIDEO
                 else -> null
             }
-            this.post = post
-            this.createdFromUser =
-                currentAccount != null && currentAccount.fullId == post.authorFullName
             this.currentItemMediaType = currentMediaType
-            if (createdFromUser == true) {
+            if (viewModel.postCreatedFromUser) {
                 if (post.isSelf) {
                     popupCommentsPageActionsEdit.root.setOnClickListener {
                         checkIfLoggedInBeforeExecuting(requireContext()) {
@@ -824,7 +821,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 popupCommentsPageActionsFullScreen.root.setOnClickListener {
                     MediaDialogFragment.newInstance(
                         post.urlFormatted ?: return@setOnClickListener,
-                        model.mediaItems.value ?: return@setOnClickListener
+                        viewModel.mediaItems.value ?: return@setOnClickListener
                     )
                         .show(childFragmentManager, null)
                     popupWindow.dismiss()
@@ -835,7 +832,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                             Manifest.permission.WRITE_EXTERNAL_STORAGE
                         ) == PackageManager.PERMISSION_GRANTED
                     ) {
-                        model.downloadItem(
+                        viewModel.downloadItem(
                             binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem
                                 ?: 0
                         )
@@ -844,14 +841,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     }
                     popupWindow.dismiss()
                 }
-                if (post.urlType == UrlType.IMGUR_ALBUM || post.urlType == UrlType.REDDIT_GALLERY) {
+                if (viewModel.mediaItems.value?.size ?: 0 > 1) {
                     popupCommentsPageActionsDownloadAll.root.setOnClickListener {
                         if (ContextCompat.checkSelfPermission(
                                 requireContext(),
                                 Manifest.permission.WRITE_EXTERNAL_STORAGE
                             ) == PackageManager.PERMISSION_GRANTED
                         ) {
-                            model.downloadAlbum()
+                            viewModel.downloadAlbum()
                         } else {
                             requestPermissionToDownloadAlbum.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
                         }

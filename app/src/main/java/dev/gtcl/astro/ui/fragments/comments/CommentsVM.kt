@@ -79,6 +79,13 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
 
     var viewPagerInitialized = false
 
+    val postCreatedFromUser: Boolean
+        get() {
+            val currentAccount = application.currentAccount ?: return false
+            val post = _post.value ?: return false
+            return currentAccount.fullId == post.authorFullName
+        }
+
     init {
         val sharedPref = application.sharedPref
         val defaultSort =
@@ -135,6 +142,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
             } catch (e: Exception) {
                 _comments.postValue(mutableListOf())
                 _errorMessage.postValue(e.getErrorMessage(application))
+                Timber.tag(this@CommentsVM::class.simpleName).d(e)
             } finally {
                 _loading.postValue(false)
             }
@@ -281,7 +289,13 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                             )
                         } else {
                             val url = post.urlFormatted ?: return@launch
-                            listOf(MediaURL(url, MediaType.VIDEO, thumbnail = post.thumbnailFormatted))
+                            listOf(
+                                MediaURL(
+                                    url,
+                                    MediaType.VIDEO,
+                                    thumbnail = post.thumbnailFormatted
+                                )
+                            )
                         }
                     }
                     UrlType.GIFV -> {
@@ -349,7 +363,8 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                     UrlType.IMGUR_ALBUM -> {
                         val album =
                             imgurRepository.getAlbumImages(
-                                (post.urlFormatted ?: return@launch).getImgurHashFromUrl() ?: return@launch
+                                (post.urlFormatted ?: return@launch).getImgurHashFromUrl()
+                                    ?: return@launch
                             )
                                 .await().data.images ?: return@launch
                         album.map {
@@ -369,7 +384,8 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                     }
                     UrlType.IMGUR_IMAGE -> {
                         val imgurData = imgurRepository.getImage(
-                            (post.urlFormatted ?: return@launch).getImgurHashFromUrl() ?: return@launch
+                            (post.urlFormatted ?: return@launch).getImgurHashFromUrl()
+                                ?: return@launch
                         )
                             .await().data
                         val mediaType = when {

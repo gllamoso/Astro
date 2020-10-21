@@ -5,14 +5,11 @@
 
     <data>
         <variable
-            name="post"
-            type="dev.gtcl.astro.models.reddit.listing.Post" />
-        <variable
-            name="createdFromUser"
-            type="Boolean" />
-        <variable
             name="currentItemMediaType"
             type="dev.gtcl.astro.SimpleMediaType" />
+        <variable
+            name="model"
+            type="dev.gtcl.astro.ui.fragments.comments.CommentsVM" />
         <import type="android.view.View" />
         <import type="dev.gtcl.astro.UrlType"/>
         <import type="dev.gtcl.astro.SimpleMediaType"/>
@@ -33,7 +30,7 @@
                 android:id="@+id/popupCommentsPageActions_edit"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
-                android:visibility="@{createdFromUser &amp;&amp; post.self? View.VISIBLE : View.GONE}"
+                android:visibility="@{model.postCreatedFromUser &amp;&amp; model.post.self? View.VISIBLE : View.GONE}"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_pencil_24}"
                 app:text="@{@string/edit}"/>
@@ -42,7 +39,7 @@
                 android:id="@+id/popupCommentsPageActions_manage"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
-                android:visibility="@{createdFromUser ? View.VISIBLE : View.GONE}"
+                android:visibility="@{model.postCreatedFromUser ? View.VISIBLE : View.GONE}"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_check_box_24}"
                 app:text="@{@string/manage}"/>
@@ -51,7 +48,7 @@
                 android:id="@+id/popupCommentsPageActions_delete"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
-                android:visibility="@{createdFromUser ? View.VISIBLE : View.GONE}"
+                android:visibility="@{model.postCreatedFromUser ? View.VISIBLE : View.GONE}"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_delete_24}"
                 app:text="@{@string/delete}"/>
@@ -60,19 +57,19 @@
                 android:id="@+id/popupCommentsPageActions_profile"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_profile_24}"
-                app:text="@{post.author}"/>
+                app:text="@{model.post.author}"/>
 
             <include
                 android:id="@+id/popupCommentsPageActions_subreddits"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_saturn_simple_24}"
-                app:text="@{post.subredditPrefixed}"/>
+                app:text="@{model.post.subredditPrefixed}"/>
 
             <include
                 android:id="@+id/popupCommentsPageActions_hide"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{post.hidden ? @drawable/ic_unhide_24 : @drawable/ic_hide_24}"
-                app:text="@{post.hidden ? @string/unhide : @string/hide}"/>
+                app:iconDrawable="@{model.post.hidden ? @drawable/ic_unhide_24 : @drawable/ic_hide_24}"
+                app:text="@{model.post.hidden ? @string/unhide : @string/hide}"/>
 
             <include
                 android:id="@+id/popupCommentsPageActions_share"
@@ -103,7 +100,7 @@
                 layout="@layout/item_selectable"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
-                android:visibility="@{(post.urlType == UrlType.IMGUR_ALBUM || post.urlType == UrlType.REDDIT_GALLERY) ? View.VISIBLE : View.GONE}"
+                android:visibility="@{model.mediaItems.size() > 1 ? View.VISIBLE : View.GONE}"
                 app:iconDrawable="@{@drawable/ic_photo_library_24}"
                 app:text="@{@string/download_all}" />
 
@@ -112,7 +109,7 @@
                 layout="@layout/item_selectable"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
-                android:visibility="@{post.urlFormatted != null ? View.VISIBLE : View.GONE}"
+                android:visibility="@{model.post.urlFormatted != null ? View.VISIBLE : View.GONE}"
                 app:iconDrawable="@{@drawable/ic_link_24}"
                 app:text="@{@string/open_link_externally}" />
 

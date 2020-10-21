@@ -181,10 +181,18 @@ class CommentsMoshiAdapter {
                     }
                 }
                 "media_metadata" -> {
-                    mediaMetaData = getMediaMetadata(jsonReader)
+                    if (jsonReader.peek() != JsonReader.Token.NULL) {
+                        mediaMetaData = getMediaMetadata(jsonReader)
+                    } else {
+                        jsonReader.skipValue()
+                    }
                 }
                 "gallery_data" -> {
-                    galleryData = getGalleryData(jsonReader)
+                    if (jsonReader.peek() != JsonReader.Token.NULL) {
+                        galleryData = getGalleryData(jsonReader)
+                    } else {
+                        jsonReader.skipValue()
+                    }
                 }
                 "preview" -> {
                     preview = getPreview(jsonReader)

@@ -542,9 +542,21 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
             null -> itemClicked(post, position)
             UrlType.OTHER -> activityModel.openChromeTab(post.urlFormatted ?: return)
             UrlType.REDDIT_GALLERY -> {
+                val galleryItems = post.galleryAsMediaItems
+                val urlFormatted = post.urlFormatted
+                if (galleryItems == null || urlFormatted == null) {
+                    context?.let { thisContext ->
+                        Toast.makeText(
+                            thisContext,
+                            getString(R.string.media_failed),
+                            Toast.LENGTH_LONG
+                        )
+                            .show()
+                    }
+                }
                 val dialog = MediaDialogFragment.newInstance(
-                    post.urlFormatted ?: return,
-                    post.galleryAsMediaItems ?: return,
+                    urlFormatted ?: return,
+                    galleryItems ?: return,
                     PostPage(post, position)
                 )
                 dialog.show(parentFragmentManager, null)
