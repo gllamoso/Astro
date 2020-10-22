@@ -414,7 +414,7 @@ val REDDIT_COMMENTS_REGEX =
 val REDDIT_THREAD_REGEX =
     "(?:http[s]?://(?:www|oauth)\\.reddit\\.com)?/r/[^/]+/comments/\\w+/\\w+/\\w+[/]?".toRegex()
 val VALID_REDDIT_COMMENTS_URL_REGEX =
-    "http[s]?://(?:www|oauth)\\.reddit\\.com/r/[^/]+/comments/\\w+".toRegex()
+    "http[s]?://(?:www|oauth)\\.reddit\\.com/r/[^/]+/comments/\\w+/\\w+/?".toRegex()
 val REDDIT_GALLERY_REGEX =
     "http[s]?://www\\.reddit\\.com/gallery/\\w+".toRegex()
 
