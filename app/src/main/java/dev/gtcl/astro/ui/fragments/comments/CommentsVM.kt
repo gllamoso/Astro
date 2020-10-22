@@ -3,7 +3,6 @@ package dev.gtcl.astro.ui.fragments.comments
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.preference.PreferenceManager
 import dev.gtcl.astro.*
 import dev.gtcl.astro.download.DownloadIntentService
 import dev.gtcl.astro.models.reddit.MediaURL
@@ -115,6 +114,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
     }
 
     fun fetchComments(permalink: String, isFullContext: Boolean, refreshPost: Boolean) {
+        _allCommentsFetched.value = isFullContext
         coroutineScope.launch {
             try {
                 _loading.postValue(true)
@@ -133,7 +133,6 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                 if (refreshPost) {
                     _post.postValue(commentPage.post)
                 }
-                _allCommentsFetched.postValue(isFullContext)
                 if (!isFullContext) {
                     fullContextLink = (VALID_REDDIT_COMMENTS_URL_REGEX.find(permalink)
                         ?: return@launch).value
