@@ -403,6 +403,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                     }
                     UrlType.REDDIT_GALLERY -> {
                         if (post.galleryAsMediaItems?.size ?: 0 == 0) {
+                            _mediaItemsFailed.postValue(true)
                             null
                         } else {
                             post.galleryAsMediaItems
