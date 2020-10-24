@@ -10,18 +10,13 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.astro.*
+import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.databinding.FragmentDialogRulesBinding
 import dev.gtcl.astro.databinding.ItemRuleBinding
+import dev.gtcl.astro.html.createHtmlViews
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import io.noties.markwon.Markwon
 
-class RulesDialogFragment : DialogFragment() {
-
-    private val markwon: Markwon by lazy {
-        createMarkwonInstance(requireContext()) {
-            activityModel.handleLink(it)
-        }
-    }
+class RulesDialogFragment : DialogFragment(), LinkHandler {
 
     private val activityModel: MainActivityVM by activityViewModels()
 
@@ -62,7 +57,10 @@ class RulesDialogFragment : DialogFragment() {
                     val ruleBinding = ItemRuleBinding.inflate(LayoutInflater.from(requireContext()))
                     ruleBinding.apply {
                         this.rule = rule
-                        itemRuleDescription.text = markwon.toMarkdown(rule.description)
+                        itemRuleDescriptionLayout.createHtmlViews(
+                            rule.parseDescription(),
+                            this@RulesDialogFragment
+                        )
                         ruleBinding.invalidateAll()
                     }
                     binding?.fragmentDialogRulesLinearLayout?.addView(ruleBinding.root)
@@ -95,5 +93,9 @@ class RulesDialogFragment : DialogFragment() {
                 arguments = bundleOf(SUBREDDIT_KEY to subDisplayName)
             }
         }
+    }
+
+    override fun handleLink(link: String) {
+        activityModel.handleLink(link)
     }
 }

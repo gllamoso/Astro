@@ -138,7 +138,7 @@ class SearchFragment : Fragment(), ItemClickListener {
             model::loadMore
         )
         val listAdapter = ListingAdapter(
-            markwon = null,
+            linkHandler = null,
             subredditActions = null,
             expected = ItemType.Subreddit,
             itemClickListener = this,

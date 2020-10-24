@@ -25,6 +25,7 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.actions.*
 import dev.gtcl.astro.database.SavedAccount
 import dev.gtcl.astro.databinding.*
+import dev.gtcl.astro.html.createHtmlViews
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
@@ -44,11 +45,10 @@ import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.subreddits.SubredditInfoDialogFragment
 import dev.gtcl.astro.ui.fragments.subscriptions.SubscriptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.*
-import io.noties.markwon.Markwon
 
 
 class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditActions,
-    ItemClickListener, LeftDrawerActions {
+    ItemClickListener, LeftDrawerActions, LinkHandler {
 
     private var binding: FragmentListingBinding? = null
 
@@ -62,10 +62,6 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
     }
 
     private val activityModel: MainActivityVM by activityViewModels()
-
-    private val markwon: Markwon by lazy {
-        createMarkwonInstance(requireContext(), viewPagerModel::linkClicked)
-    }
 
     private val sharedPref by lazy {
         (requireActivity().application as AstroApplication).sharedPref
@@ -96,6 +92,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
     ): View? {
         binding = FragmentListingBinding.inflate(inflater)
         binding?.lifecycleOwner = viewLifecycleOwner
+        binding?.fragmentListingTopAppBarLayout?.lifecycleOwner = viewLifecycleOwner
         binding?.fragmentListingRightDrawerLayout?.lifecycleOwner = viewLifecycleOwner
         binding?.model = model
 
@@ -147,7 +144,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         val blurNsfw = sharedPref.getBoolean("blur_nsfw_thumbnail", false)
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
         listAdapter = ListingAdapter(
-            markwon,
+            linkHandler = this,
             postActions = this,
             commentActions = this,
             expected = ItemType.Post,
@@ -270,9 +267,10 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                 sub.icon?.let {
                     loadTopBarIcon(it, drawable)
                 }
-                rightDrawerLayout?.layoutRightDrawerPublicDescription?.let {
-                    markwon.setMarkdown(it, sub.publicDescription + "\n" + sub.description)
-                }
+                rightDrawerLayout?.layoutRightDrawerPublicDescriptionLayout?.createHtmlViews(
+                    sub.parseDescription(),
+                    this
+                )
 
                 if (sub.displayName.startsWith("u_")) {
                     rightDrawerLayout?.layoutRightDrawerSubIcon?.setOnClickListener {
@@ -293,7 +291,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                 binding?.fragmentListingRightDrawerLayout?.layoutRightDrawerSubreddits?.adapter =
                     adapter
                 adapter.submitList(it)
-                binding?.fragmentListingRightDrawerLayout?.layoutRightDrawerPublicDescription?.visibility =
+                binding?.fragmentListingRightDrawerLayout?.layoutRightDrawerPublicDescriptionLayout?.visibility =
                     View.GONE
                 binding?.fragmentListingRightDrawerLayout?.name =
                     getString(R.string.trending_subreddits)
@@ -311,7 +309,10 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                         Visibility.PRIVATE -> getString(R.string.private_label)
                     }
                     editable = multi.canEdit
-                    markwon.setMarkdown(layoutRightDrawerPublicDescription, multi.description)
+                    layoutRightDrawerPublicDescriptionLayout.createHtmlViews(
+                        multi.parseDescription(),
+                        this@PostListingFragment
+                    )
                 }
 
                 val adapter = SimpleItemAdapter(this, this)
@@ -1071,6 +1072,10 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                 arguments = bundleOf(LISTING_KEY to postListing)
             }
         }
+    }
+
+    override fun handleLink(link: String) {
+        activityModel.handleLink(link)
     }
 
 }

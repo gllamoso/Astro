@@ -72,15 +72,15 @@ class ReplyOrEditDialogFragment : DialogFragment() {
                 if (reply) {
                     binding?.replyToBody = parent.titleFormatted
                 } else {
-                    binding?.fragmentDialogReplyResponseText?.setText(parent.selftext)
+                    binding?.fragmentDialogReplyResponseText?.setText(parent.titleFormatted)
                 }
             }
             is Comment -> {
                 binding?.replyToUser = parent.author
                 if (reply) {
-                    binding?.replyToBody = parent.body
+                    binding?.replyToBody = parent.bodyFormatted
                 } else {
-                    binding?.fragmentDialogReplyResponseText?.setText(parent.body)
+                    binding?.fragmentDialogReplyResponseText?.setText(parent.bodyFormatted)
                 }
             }
             is Message -> {

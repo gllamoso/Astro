@@ -30,7 +30,6 @@ import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
 import dev.gtcl.astro.ui.fragments.subreddits.SubredditInfoDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.*
-import io.noties.markwon.Markwon
 
 open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, MessageActions,
     SubredditActions, ItemClickListener, LinkHandler {
@@ -43,10 +42,6 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     val model: ItemScrollerVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
         ViewModelProvider(this, viewModelFactory).get(ItemScrollerVM::class.java)
-    }
-
-    private val markwon: Markwon by lazy {
-        createMarkwonInstance(requireContext(), ::handleLink)
     }
 
     private val activityModel: MainActivityVM by activityViewModels()
@@ -146,7 +141,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
         val inInbox = requireArguments().getSerializable(MESSAGE_WHERE_KEY) != null
         listAdapter = ListingAdapter(
-            markwon,
+            linkHandler = this,
             postActions = this,
             commentActions = this,
             messageActions = this,

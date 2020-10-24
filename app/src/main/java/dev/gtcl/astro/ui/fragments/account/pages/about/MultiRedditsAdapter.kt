@@ -4,22 +4,22 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import dev.gtcl.astro.actions.ItemClickListener
+import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.actions.MultiRedditActions
 import dev.gtcl.astro.models.reddit.listing.MultiReddit
 import dev.gtcl.astro.ui.viewholders.MultiRedditVH
-import io.noties.markwon.Markwon
 
 class MultiRedditsAdapter(
     private val itemClickListener: ItemClickListener,
     private val multiRedditActions: MultiRedditActions,
-    private val markwon: Markwon
+    private val linkHandler: LinkHandler
 ) : ListAdapter<MultiReddit, MultiRedditVH>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MultiRedditVH =
         MultiRedditVH.create(parent)
 
     override fun onBindViewHolder(holder: MultiRedditVH, position: Int) {
-        holder.bind(getItem(position), itemClickListener, multiRedditActions, markwon)
+        holder.bind(getItem(position), itemClickListener, multiRedditActions, linkHandler)
     }
 
     companion object {

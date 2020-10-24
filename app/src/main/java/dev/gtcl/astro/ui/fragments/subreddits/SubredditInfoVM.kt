@@ -30,6 +30,7 @@ class SubredditInfoVM(private val application: AstroApplication) : AstroViewMode
                 _loading.postValue(true)
                 val sub = subredditRepository.getSubreddit(displayName)
                     .await().data
+                sub.parseDescription()
                 _subreddit.postValue(sub)
             } catch (e: Exception) {
                 Timber.tag(this@SubredditInfoVM.javaClass.simpleName).e(e.toString())

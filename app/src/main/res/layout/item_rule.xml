@@ -31,10 +31,11 @@
             android:textSize="12sp"
             tools:text="Posts and comments"/>
         
-        <TextView
-            android:id="@+id/itemRule_description"
+        <LinearLayout
+            android:id="@+id/itemRule_descriptionLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             tools:text="Rule description"/>
 
     </LinearLayout>

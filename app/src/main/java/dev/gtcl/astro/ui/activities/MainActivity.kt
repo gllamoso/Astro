@@ -8,6 +8,7 @@ import android.net.Uri
 import android.os.Bundle
 import android.os.Environment
 import android.view.WindowManager
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.browser.customtabs.CustomTabsIntent
 import androidx.databinding.DataBindingUtil
@@ -79,9 +80,7 @@ class MainActivity : AppCompatActivity() {
 
         model.errorMessage.observe(this, { errorMessage ->
             if (errorMessage != null) {
-                binding?.root?.let {
-                    Snackbar.make(it, errorMessage, Snackbar.LENGTH_LONG).show()
-                }
+                Toast.makeText(baseContext, errorMessage, Toast.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }
         })

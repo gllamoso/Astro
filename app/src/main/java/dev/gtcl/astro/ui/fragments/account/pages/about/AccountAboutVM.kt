@@ -28,11 +28,13 @@ class AccountAboutVM(val application: AstroApplication) : AstroViewModel(applica
     fun fetchAccount(user: String?) {
         coroutineScope.launch {
             try {
-                if (user != null) {
-                    _account.postValue(userRepository.getAccountInfo(user).await().data)
+                val account = if (user != null) {
+                    userRepository.getAccountInfo(user).await().data
                 } else {
-                    _account.postValue(userRepository.getCurrentAccountInfo().await())
+                    userRepository.getCurrentAccountInfo().await()
                 }
+                account.subreddit?.parseDescription()
+                _account.postValue(account)
             } catch (e: Exception) {
                 _errorMessage.postValue(
                     if (e is JsonDataException) {
@@ -71,6 +73,7 @@ class AccountAboutVM(val application: AstroApplication) : AstroViewModel(applica
                 val publicFeeds = subredditRepository.getMultiReddits(
                     user ?: application.currentAccount!!.name
                 ).await().map { it.data }.filter { it.visibility == Visibility.PUBLIC }
+                publicFeeds.parseAllText()
                 _multiReddits.postValue(publicFeeds)
             } catch (e: Exception) {
                 _multiReddits.postValue(listOf())

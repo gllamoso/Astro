@@ -2,13 +2,14 @@ package dev.gtcl.astro.models.reddit.listing
 
 import android.os.Parcelable
 import android.text.Html
-import androidx.room.Ignore
 import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
 import dev.gtcl.astro.*
 import dev.gtcl.astro.database.SavedAccount
 import dev.gtcl.astro.database.Subscription
+import dev.gtcl.astro.html.ParsedHtmlSegment
+import dev.gtcl.astro.html.parseToHtmlSegments
 import dev.gtcl.astro.models.reddit.MediaURL
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
@@ -64,9 +65,9 @@ data class Comment(
     val authorFullName: String?,
     @Json(name = "author_cakeday")
     val authorCakeday: Boolean?,
-    val body: String,
+    private val body: String,
     @Json(name = "body_html")
-    val bodyHtml: String,
+    private val bodyHtml: String,
     var score: Int,
     @Json(name = "score_hidden")
     var scoreHidden: Boolean?,
@@ -99,6 +100,20 @@ data class Comment(
 ) : Item(ItemType.Comment) {
 
     @IgnoredOnParcel
+    @Transient
+    private var _parsedBody: List<ParsedHtmlSegment>? = null
+
+    fun parseBody(): List<ParsedHtmlSegment> {
+        if (_parsedBody == null) {
+            _parsedBody = bodyHtml.parseToHtmlSegments()
+        }
+        return _parsedBody!!
+    }
+
+    @IgnoredOnParcel
+    val bodyFormatted = body.formatHtmlEntities()
+
+    @IgnoredOnParcel
     val linkTitleFormatted: CharSequence? = if (linkTitle != null) {
         Html.fromHtml(linkTitle, Html.FROM_HTML_MODE_COMPACT)
     } else {
@@ -110,9 +125,6 @@ data class Comment(
 
     @IgnoredOnParcel
     val contextFormatted = context?.formatHtmlEntities()
-
-    @IgnoredOnParcel
-    val bodyFormatted: String = body.formatHtmlEntities()
 
     @IgnoredOnParcel
     val permalinkWithRedditDomain = if (permalinkFormatted != null) {
@@ -244,7 +256,8 @@ data class Post(
     var likes: Boolean?,
     var hidden: Boolean,
     private val permalink: String,
-    val selftext: String,
+    @Json(name = "selftext_html")
+    val selfTextHtml: String?,
     @Json(name = "is_self")
     val isSelf: Boolean, // if true, post is a text
     @Json(name = "upvote_ratio")
@@ -279,6 +292,17 @@ data class Post(
     val pinned: Boolean,
     val locked: Boolean
 ) : Item(ItemType.Post) {
+
+    @IgnoredOnParcel
+    @Transient
+    private var _parsedSelfText: List<ParsedHtmlSegment>? = null
+
+    fun parseSelfText(): List<ParsedHtmlSegment> {
+        if (_parsedSelfText == null) {
+            _parsedSelfText = selfTextHtml?.parseToHtmlSegments() ?: listOf()
+        }
+        return _parsedSelfText!!
+    }
 
     @IgnoredOnParcel
     val urlFormatted = url?.formatHtmlEntities()
@@ -502,6 +526,8 @@ data class Message(
     @Json(name = "created_utc")
     val created: Long,
     private val body: String,
+    @Json(name = "body_html")
+    private val bodyHtml: String,
     val dest: String,
     var new: Boolean,
     @Json(name = "subreddit_name_prefixed")
@@ -509,7 +535,18 @@ data class Message(
 ) : Item(ItemType.Message) {
 
     @IgnoredOnParcel
-    val bodyFormatted: String = body.formatHtmlEntities()
+    @Transient
+    private var _parsedBody: List<ParsedHtmlSegment>? = null
+
+    fun parseBody(): List<ParsedHtmlSegment> {
+        if (_parsedBody == null) {
+            _parsedBody = bodyHtml.parseToHtmlSegments()
+        }
+        return _parsedBody!!
+    }
+
+    @IgnoredOnParcel
+    val bodyFormatted = body.formatHtmlEntities()
 }
 
 //   _   _____             _____       _                  _     _ _ _
@@ -539,9 +576,11 @@ data class Subreddit(
     private val bannerBackgroundImg: String?,
     @Json(name = "user_is_subscriber")
     var userSubscribed: Boolean?,
-    @Json(name = "public_description")
-    val publicDescription: String,
-    val description: String?,
+    @Json(name = "description_html")
+    val descriptionHtml: String?,
+//    @Json(name = "public_description")
+//    val publicDescription: String,
+//    val description: String?,
     val url: String,
     val subscribers: Int?,
     @Json(name = "subreddit_type")
@@ -549,6 +588,17 @@ data class Subreddit(
 ) : Item(ItemType.Subreddit) {
     @IgnoredOnParcel
     override val id = name.replaceFirst("t5_", "")
+
+    @IgnoredOnParcel
+    @Transient
+    private var _parsedDescription: List<ParsedHtmlSegment>? = null
+
+    fun parseDescription(): List<ParsedHtmlSegment> {
+        if (_parsedDescription == null) {
+            _parsedDescription = descriptionHtml?.parseToHtmlSegments() ?: listOf()
+        }
+        return _parsedDescription!!
+    }
 
     @IgnoredOnParcel
     val displayNameFormatted = displayName.replaceFirst("u_", "u/")
@@ -588,7 +638,8 @@ data class Subreddit(
     val banner: String? = when {
         !mobileBannerImg.isNullOrBlank() -> mobileBannerImg.formatHtmlEntities().stripImageUrl()
         !bannerImg.isNullOrBlank() -> bannerImg.formatHtmlEntities().stripImageUrl()
-        !bannerBackgroundImg.isNullOrBlank() -> bannerBackgroundImg.formatHtmlEntities().stripImageUrl()
+        !bannerBackgroundImg.isNullOrBlank() -> bannerBackgroundImg.formatHtmlEntities()
+            .stripImageUrl()
         else -> null
     }
 
@@ -703,10 +754,24 @@ data class MultiReddit(
     @Json(name = "icon_url")
     val iconUrl: String,
     val visibility: Visibility,
-    @Json(name = "description_md") val description: String
+    @Json(name = "description_md")
+    val description: String,
+    @Json(name = "description_html")
+    val descriptionHtml: String?
 ) : Item(ItemType.MultiReddit) {
     @IgnoredOnParcel
     override val id = ""
+
+    @IgnoredOnParcel
+    @Transient
+    private var _parsedDescription: List<ParsedHtmlSegment>? = null
+
+    fun parseDescription(): List<ParsedHtmlSegment> {
+        if (_parsedDescription == null) {
+            _parsedDescription = descriptionHtml?.parseToHtmlSegments() ?: listOf()
+        }
+        return _parsedDescription!!
+    }
 
     @IgnoredOnParcel
     val pathFormatted = path.formatHtmlEntities()
@@ -779,5 +844,18 @@ data class SubredditInModeratedList(
         !iconImg.isNullOrBlank() -> iconImg.formatHtmlEntities()
         !communityIcon.isNullOrBlank() -> communityIcon.formatHtmlEntities()
         else -> null
+    }
+}
+
+fun List<Item>.parseAllText() {
+    for (item in this) {
+        when (item) {
+            is Post -> item.parseSelfText()
+            is Comment -> item.parseBody()
+            is Message -> item.parseBody()
+            is MultiReddit -> item.parseDescription()
+            is Subreddit -> item.parseDescription()
+            else -> continue
+        }
     }
 }

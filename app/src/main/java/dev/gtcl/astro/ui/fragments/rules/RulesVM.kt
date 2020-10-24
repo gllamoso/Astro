@@ -22,7 +22,11 @@ class RulesVM(private val application: AstroApplication) : AstroViewModel(applic
         coroutineScope.launch {
             try {
                 _loading.postValue(true)
-                _rules.postValue(subredditRepository.getRules(displayName).await().rules)
+                val rules = subredditRepository.getRules(displayName).await().rules
+                for (rule in rules) {
+                    rule.parseDescription()
+                }
+                _rules.postValue(rules)
             } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             } finally {

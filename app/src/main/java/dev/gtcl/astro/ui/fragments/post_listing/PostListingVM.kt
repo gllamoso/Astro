@@ -60,6 +60,7 @@ class PostListingVM(val application: AstroApplication) : ItemScrollerVM(applicat
                 }
                 _trendingSubreddits.postValue(subsListMutable.toList())
             } catch (e: Exception) {
+                Timber.tag(this@PostListingVM.javaClass.simpleName).e(e.toString())
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }
@@ -68,8 +69,12 @@ class PostListingVM(val application: AstroApplication) : ItemScrollerVM(applicat
     fun fetchMultiReddit(path: String) {
         coroutineScope.launch {
             try {
-                _multiReddit.postValue(subredditRepository.getMultiReddit(path).await().data)
+                val multi = subredditRepository.getMultiReddit(path).await().data.apply {
+                    parseDescription()
+                }
+                _multiReddit.postValue(multi)
             } catch (e: Exception) {
+                Timber.tag(this@PostListingVM.javaClass.simpleName).e(e.toString())
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
         }

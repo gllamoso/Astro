@@ -6,10 +6,7 @@ import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.*
 import dev.gtcl.astro.download.DownloadIntentService
 import dev.gtcl.astro.models.reddit.MediaURL
-import dev.gtcl.astro.models.reddit.listing.Comment
-import dev.gtcl.astro.models.reddit.listing.Item
-import dev.gtcl.astro.models.reddit.listing.More
-import dev.gtcl.astro.models.reddit.listing.Post
+import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.MoreComments
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -102,7 +99,10 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
     }
 
     fun setPost(post: Post) {
-        _post.value = post
+        coroutineScope.launch {
+            post.parseSelfText()
+            _post.postValue(post)
+        }
     }
 
     fun setCommentSort(sort: CommentSort) {
@@ -131,12 +131,14 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                     )
                         .await()
                 if (refreshPost) {
+                    commentPage.post.parseSelfText()
                     _post.postValue(commentPage.post)
                 }
                 if (!isFullContext) {
                     fullContextLink = (VALID_REDDIT_COMMENTS_URL_REGEX.find(permalink)
                         ?: return@launch).value
                 }
+                commentPage.comments.parseAllText()
                 _comments.postValue(commentPage.comments.toMutableList())
             } catch (e: Exception) {
                 _comments.postValue(mutableListOf())

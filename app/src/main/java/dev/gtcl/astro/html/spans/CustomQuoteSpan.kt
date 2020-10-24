@@ -1,11 +1,10 @@
-package dev.gtcl.astro.markdown
+package dev.gtcl.astro.html.spans
 
 import android.graphics.Canvas
 import android.graphics.Paint
 import android.text.Layout
 import android.text.style.LeadingMarginSpan
 import androidx.annotation.ColorInt
-
 
 class CustomQuoteSpan(
     @ColorInt private val color: Int, stripeWidth: Int, gapWidth: Int

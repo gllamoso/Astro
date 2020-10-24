@@ -5,21 +5,21 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.astro.R
 import dev.gtcl.astro.actions.CommentActions
 import dev.gtcl.astro.actions.ItemClickListener
+import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.models.reddit.listing.Comment
 import dev.gtcl.astro.models.reddit.listing.Item
 import dev.gtcl.astro.models.reddit.listing.ItemType
 import dev.gtcl.astro.models.reddit.listing.More
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.ui.viewholders.*
-import io.noties.markwon.Markwon
 import kotlin.math.max
 
 class CommentsAdapter(
-    private val markwon: Markwon,
     private val commentActions: CommentActions,
     private val itemClickListener: ItemClickListener,
     private val userId: String?,
     allCommentsFetched: Boolean,
+    private val linkHandler: LinkHandler,
     private val onViewAllClick: (() -> Unit)
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -41,7 +41,7 @@ class CommentsAdapter(
     fun submitList(items: List<Item>?) {
         val offset = if (allCommentsFetched) 0 else 1
         if (!comments.isNullOrEmpty()) {
-            notifyItemRangeRemoved(offset, comments!!.size)
+            notifyItemRangeRemoved(offset, (comments ?: return).size)
             comments = items?.toMutableList()
             notifyItemRangeInserted(offset, max(items?.size ?: 1, 1))
         } else {
@@ -72,7 +72,7 @@ class CommentsAdapter(
     fun removeRange(position: Int, size: Int) {
         val offset = if (allCommentsFetched) 0 else 1
         for (i in 1..size) {
-            comments!!.removeAt(position - offset)
+            (comments ?: return).removeAt(position - offset)
         }
         notifyItemRangeRemoved(position, size)
     }
@@ -101,12 +101,12 @@ class CommentsAdapter(
         when (val viewType = getItemViewType(position)) {
             R.layout.item_view_all_comments -> (holder as ViewAllCommentsVH).bind(onViewAllClick)
             R.layout.item_more_comment -> (holder as MoreVH).bind(
-                comments!![position + offset] as More,
+                (comments ?: return)[position + offset] as More,
                 itemClickListener
             )
             R.layout.item_comment -> (holder as CommentVH).bind(
-                comments!![position + offset] as Comment,
-                markwon,
+                (comments ?: return)[position + offset] as Comment,
+                linkHandler,
                 commentActions,
                 userId,
                 itemClickListener

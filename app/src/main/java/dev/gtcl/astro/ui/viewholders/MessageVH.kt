@@ -7,18 +7,19 @@ import android.view.ViewGroup
 import android.widget.PopupWindow
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.astro.actions.ItemClickListener
+import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.actions.MessageActions
 import dev.gtcl.astro.databinding.ItemMessageBinding
 import dev.gtcl.astro.databinding.PopupMessageActionsBinding
+import dev.gtcl.astro.html.createHtmlViews
 import dev.gtcl.astro.models.reddit.listing.Message
 import dev.gtcl.astro.showAsDropdown
-import io.noties.markwon.Markwon
 
 class MessageVH private constructor(private val binding: ItemMessageBinding) :
     RecyclerView.ViewHolder(binding.root) {
     fun bind(
         message: Message,
-        markwon: Markwon?,
+        linkHandler: LinkHandler,
         messageActions: MessageActions,
         username: String?,
         itemClickListener: ItemClickListener
@@ -27,11 +28,7 @@ class MessageVH private constructor(private val binding: ItemMessageBinding) :
         binding.root.setOnClickListener {
             itemClickListener.itemClicked(message, adapterPosition)
         }
-        if (markwon != null) {
-            markwon.setMarkdown(binding.itemMessageBody, message.bodyFormatted)
-        } else {
-            binding.itemMessageBody.text = message.bodyFormatted
-        }
+        binding.itemMessageBodyLayout.createHtmlViews(message.parseBody(), linkHandler)
 
         binding.itemMessageMoreOptions.setOnClickListener {
             showPopupWindow(message, messageActions, username == message.author, it)

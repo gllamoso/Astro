@@ -159,16 +159,14 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/fragmentAccountAbout_publicDescription"
+            <LinearLayout
+                android:id="@+id/fragmentAccountAbout_descriptionLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textSize="18sp"
+                android:orientation="vertical"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginBottom="8dp"
-                android:visibility="@{!model.account.subreddit.publicDescription.empty ? View.VISIBLE : View.GONE}"
-                android:text="@{model.account.subreddit.publicDescription}"
-                tools:text="Public description. This is to test what it would look like if there is a paragraph in the public description"/>
+                android:visibility="@{model.account.subreddit.descriptionHtml != null &amp;&amp; !model.account.subreddit.descriptionHtml.empty ? View.VISIBLE : View.GONE}" />
 
             <TextView
                 android:layout_width="match_parent"

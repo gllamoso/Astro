@@ -85,7 +85,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
         binding?.fragmentViewPagerViewPager?.apply {
             adapter = pageAdapter
             isUserInputEnabled = model.isViewPagerSwipeEnabled
-            offscreenPageLimit = 3
+            offscreenPageLimit = 4
             setPageTransformer(SlidePageTransformer())
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }

@@ -8,11 +8,10 @@ import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.network.Status
 import dev.gtcl.astro.ui.viewholders.*
-import io.noties.markwon.Markwon
 import java.io.InvalidObjectException
 
 class ListingAdapter(
-    private val markwon: Markwon?,
+    private val linkHandler: LinkHandler?,
     private val postActions: PostActions? = null,
     private val subredditActions: SubredditActions? = null,
     private val messageActions: MessageActions? = null,
@@ -138,7 +137,7 @@ class ListingAdapter(
                 }
                 (holder as CommentDetailedVH).bind(
                     comment,
-                    markwon,
+                    linkHandler ?: return,
                     commentActions,
                     username,
                     expected == ItemType.Message,
@@ -156,7 +155,7 @@ class ListingAdapter(
                 }
                 (holder as MessageVH).bind(
                     message,
-                    markwon,
+                    linkHandler ?: return,
                     messageActions,
                     username,
                     itemClickListener

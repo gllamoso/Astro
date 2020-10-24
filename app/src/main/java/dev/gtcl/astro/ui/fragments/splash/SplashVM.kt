@@ -8,6 +8,7 @@ import dev.gtcl.astro.models.reddit.AccessToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 class SplashVM(val application: AstroApplication) : AstroViewModel(application) {
 
@@ -41,6 +42,7 @@ class SplashVM(val application: AstroApplication) : AstroViewModel(application) 
                     }
                     _ready.postValue(true)
                 } catch (e: Exception) {
+                    Timber.tag(this::class.simpleName).d(e.toString())
                     _errorMessage.postValue(e.getErrorMessage(application))
                 }
             }

@@ -121,10 +121,11 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <TextView
-                android:id="@+id/layoutRightDrawer_publicDescription"
+            <LinearLayout
+                android:id="@+id/layoutRightDrawer_publicDescriptionLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:orientation="vertical"
                 android:textSize="16sp"
                 android:padding="16dp"
                 tools:text="This is a long piece of text. Abcdefghijklmnopqrstuvwxyz. How are you today?"/>

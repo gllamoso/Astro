@@ -5,7 +5,6 @@ import android.content.Context.INPUT_METHOD_SERVICE
 import android.net.Uri
 import android.os.Parcelable
 import android.text.Html
-import android.text.util.Linkify
 import android.util.Base64
 import android.util.TypedValue
 import android.view.View
@@ -29,22 +28,13 @@ import com.google.android.exoplayer2.source.dash.DashMediaSource
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonDataException
-import dev.gtcl.astro.database.SavedAccount
-import dev.gtcl.astro.markdown.CustomMarkwonPlugin
 import dev.gtcl.astro.models.reddit.listing.*
-import io.noties.markwon.Markwon
-import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
-import io.noties.markwon.ext.tables.TablePlugin
-import io.noties.markwon.linkify.LinkifyPlugin
-import io.noties.markwon.movement.MovementMethodPlugin
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import me.saket.bettermovementmethod.BetterLinkMovementMethod
 import java.lang.reflect.Field
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -528,18 +518,7 @@ fun rotateView(view: View, rotate: Boolean) {
     )
 }
 
-
-fun createMarkwonInstance(context: Context, handleLink: (String) -> Unit): Markwon {
-    return Markwon.builder(context)
-        .usePlugin(StrikethroughPlugin.create())
-        .usePlugin(TablePlugin.create(context))
-        .usePlugin(LinkifyPlugin.create(Linkify.WEB_URLS))
-        .usePlugin(MovementMethodPlugin.create(BetterLinkMovementMethod.getInstance()))
-        .usePlugin(CustomMarkwonPlugin(handleLink))
-        .build()
-}
-
-fun getListingTitle(context: Context, postListing: PostListing?): String? {
+fun getListingTitle(context: Context, postListing: PostListing?): String {
     return when (postListing) {
         is FrontPage -> context.getString(R.string.frontpage)
         is All -> context.getString(R.string.all)
@@ -571,7 +550,7 @@ fun getListingTitle(context: Context, postListing: PostListing?): String? {
                 }
             )
         }
-        else -> null
+        null -> ""
     }
 }
 

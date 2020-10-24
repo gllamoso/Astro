@@ -31,6 +31,7 @@ import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.databinding.FragmentCommentsBinding
 import dev.gtcl.astro.databinding.PopupCommentSortBinding
 import dev.gtcl.astro.databinding.PopupCommentsPageActionsBinding
+import dev.gtcl.astro.html.createHtmlViews
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.activities.MainActivityVM
@@ -43,7 +44,7 @@ import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
 import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.*
-import io.noties.markwon.Markwon
+import timber.log.Timber
 
 class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler,
     DrawerLayout.DrawerListener {
@@ -63,10 +64,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     private var binding: FragmentCommentsBinding? = null
 
     private lateinit var adapter: CommentsAdapter
-
-    private val markwon: Markwon by lazy {
-        createMarkwonInstance(requireContext(), ::handleLink)
-    }
 
     private lateinit var requestPermissionToDownloadItem: ActivityResultLauncher<String>
     private lateinit var requestPermissionToDownloadAlbum: ActivityResultLauncher<String>
@@ -121,7 +118,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
         val userId = (requireActivity().application as AstroApplication).currentAccount?.fullId
         adapter =
-            CommentsAdapter(markwon, this, this, userId, model.allCommentsFetched.value == true) {
+            CommentsAdapter(this, this, userId, model.allCommentsFetched.value == true, this) {
                 if (model.loading.value != true) {
                     model.fetchFullContext()
                 }
@@ -306,9 +303,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     }
                 }
                 if (post.isSelf) {
-                    binding?.fragmentCommentsContent?.layoutCommentsContentText?.let {
-                        markwon.setMarkdown(it, post.selftext)
-                    }
+                    binding?.fragmentCommentsContent?.layoutCommentsContentTextLayout?.createHtmlViews(
+                        post.parseSelfText(),
+                        this
+                    )
                 } else {
                     when (post.urlType) {
                         UrlType.OTHER, UrlType.REDDIT_COMMENTS, UrlType.REDDIT_THREAD -> initUrlPreview(

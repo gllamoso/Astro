@@ -9,17 +9,12 @@ import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.astro.*
+import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.databinding.FragmentDialogSubredditInfoBinding
+import dev.gtcl.astro.html.createHtmlViews
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import io.noties.markwon.Markwon
 
-class SubredditInfoDialogFragment : DialogFragment() {
-
-    private val markwon: Markwon by lazy {
-        createMarkwonInstance(requireContext()) {
-            activityModel.handleLink(it)
-        }
-    }
+class SubredditInfoDialogFragment : DialogFragment(), LinkHandler {
 
     private val activityModel: MainActivityVM by activityViewModels()
 
@@ -53,9 +48,9 @@ class SubredditInfoDialogFragment : DialogFragment() {
 
         model.subreddit.observe(viewLifecycleOwner, {
             if (it != null) {
-                markwon.setMarkdown(
-                    binding?.fragmentDialogSubredditInfoText ?: return@observe,
-                    it.description ?: it.publicDescription
+                binding?.fragmentDialogSubredditInfoTextLayout?.createHtmlViews(
+                    it.parseDescription(),
+                    this
                 )
             }
         })
@@ -95,5 +90,9 @@ class SubredditInfoDialogFragment : DialogFragment() {
                 arguments = bundleOf(SUBREDDIT_KEY to subredditName)
             }
         }
+    }
+
+    override fun handleLink(link: String) {
+        activityModel.handleLink(link)
     }
 }

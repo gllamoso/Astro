@@ -4,10 +4,7 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.preference.PreferenceManager
 import dev.gtcl.astro.*
-import dev.gtcl.astro.models.reddit.listing.Item
-import dev.gtcl.astro.models.reddit.listing.PostListing
-import dev.gtcl.astro.models.reddit.listing.Post
-import dev.gtcl.astro.models.reddit.listing.SearchListing
+import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -250,10 +247,12 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
 
                     if (attempts >= maxAttempts && firstPageItems.isEmpty()) { // Show no items if there are 3 results of empty items
                         _lastItemReached.postValue(true)
+                        firstPageItems.parseAllText()
                         _items.postValue(firstPageItems)
                     } else {
                         miscRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
                         setItemsReadStatus(firstPageItems, readItemIds)
+                        firstPageItems.parseAllText()
                         _items.postValue(firstPageItems)
                     }
 
@@ -263,6 +262,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                     _initialPageLoaded = true
                 }
             } catch (e: Exception) {
+                Timber.tag(this@ItemScrollerVM.javaClass.simpleName).e(e)
                 lastAction = ::fetchFirstPage
                 after = null
                 count = 0
@@ -341,6 +341,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                     }
 
                     setItemsReadStatus(moreItems, readItemIds)
+                    moreItems.parseAllText()
                     _moreItems.postValue(moreItems)
                     _items.value?.addAll(moreItems)
                     _networkState.postValue(NetworkState.LOADED)

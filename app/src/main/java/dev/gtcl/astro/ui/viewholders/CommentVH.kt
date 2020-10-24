@@ -9,17 +9,18 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.astro.Vote
 import dev.gtcl.astro.actions.CommentActions
 import dev.gtcl.astro.actions.ItemClickListener
+import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.databinding.ItemCommentBinding
 import dev.gtcl.astro.databinding.PopupCommentActionsBinding
+import dev.gtcl.astro.html.createHtmlViews
 import dev.gtcl.astro.models.reddit.listing.Comment
 import dev.gtcl.astro.showAsDropdown
-import io.noties.markwon.Markwon
 
 class CommentVH private constructor(private val binding: ItemCommentBinding) :
     RecyclerView.ViewHolder(binding.root) {
     fun bind(
         comment: Comment,
-        markwon: Markwon,
+        linkHandler: LinkHandler,
         commentActions: CommentActions,
         userId: String?,
         itemClickListener: ItemClickListener
@@ -34,7 +35,7 @@ class CommentVH private constructor(private val binding: ItemCommentBinding) :
         binding.itemCommentMoreOptions.setOnClickListener {
             showPopupWindow(comment, commentActions, isUser, it)
         }
-        markwon.setMarkdown(binding.itemCommentBodyMessage, comment.body)
+        binding.itemCommentBodyMessageLayout.createHtmlViews(comment.parseBody(), linkHandler)
         binding.executePendingBindings()
     }
 
