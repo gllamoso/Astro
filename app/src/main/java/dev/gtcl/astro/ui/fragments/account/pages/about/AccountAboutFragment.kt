@@ -10,13 +10,14 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
-import dev.gtcl.astro.*
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.USER_KEY
+import dev.gtcl.astro.ViewModelFactory
 import dev.gtcl.astro.actions.ItemClickListener
 import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.actions.MultiRedditActions
 import dev.gtcl.astro.actions.SubredditActions
 import dev.gtcl.astro.databinding.FragmentAccountAboutBinding
-import dev.gtcl.astro.html.createHtmlViews
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.account.pages.about.dialogs.MultiRedditInfoDialogFragment
@@ -52,14 +53,6 @@ class AccountAboutFragment : Fragment(), SubredditActions, MultiRedditActions,
         }
         model.fetchModeratedSubs(user)
         model.fetchPublicFeeds(user)
-
-        model.account.observe(viewLifecycleOwner, {
-            if (it != null) {
-                binding?.fragmentAccountAboutDescriptionLayout?.createHtmlViews(
-                    it.subreddit?.parseDescription() ?: listOf(), this
-                )
-            }
-        })
 
         val awardsAdapter = AwardsAdapter()
         model.awards.observe(viewLifecycleOwner, {

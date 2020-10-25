@@ -159,14 +159,15 @@
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
-            <LinearLayout
+            <TextView
                 android:id="@+id/fragmentAccountAbout_descriptionLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_marginHorizontal="16dp"
                 android:layout_marginBottom="8dp"
-                android:visibility="@{model.account.subreddit.descriptionHtml != null &amp;&amp; !model.account.subreddit.descriptionHtml.empty ? View.VISIBLE : View.GONE}" />
+                android:text="@{model.account.subreddit.publicDescriptionFormatted}"
+                android:visibility="@{model.account.subreddit != null &amp;&amp; !model.account.subreddit.publicDescriptionFormatted.empty ? View.VISIBLE : View.GONE}" />
 
             <TextView
                 android:layout_width="match_parent"

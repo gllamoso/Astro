@@ -578,8 +578,8 @@ data class Subreddit(
     var userSubscribed: Boolean?,
     @Json(name = "description_html")
     val descriptionHtml: String?,
-//    @Json(name = "public_description")
-//    val publicDescription: String,
+    @Json(name = "public_description")
+    private val publicDescription: String,
 //    val description: String?,
     val url: String,
     val subscribers: Int?,
@@ -588,6 +588,9 @@ data class Subreddit(
 ) : Item(ItemType.Subreddit) {
     @IgnoredOnParcel
     override val id = name.replaceFirst("t5_", "")
+
+    @IgnoredOnParcel
+    val publicDescriptionFormatted = publicDescription.formatHtmlEntities()
 
     @IgnoredOnParcel
     @Transient
