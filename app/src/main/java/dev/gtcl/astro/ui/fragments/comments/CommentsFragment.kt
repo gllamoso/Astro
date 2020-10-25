@@ -36,7 +36,6 @@ import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
-import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.astro.ui.fragments.media.list.MediaThumbnailsAdapter
 import dev.gtcl.astro.ui.fragments.media.list.MediaListFragmentAdapter
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
@@ -44,7 +43,6 @@ import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
 import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.*
-import timber.log.Timber
 
 class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler,
     DrawerLayout.DrawerListener {
@@ -816,14 +814,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 popupWindow.dismiss()
             }
             if (currentItemMediaType != null) {
-                popupCommentsPageActionsFullScreen.root.setOnClickListener {
-                    MediaDialogFragment.newInstance(
-                        post.urlFormatted ?: return@setOnClickListener,
-                        viewModel.mediaItems.value ?: return@setOnClickListener
-                    )
-                        .show(childFragmentManager, null)
-                    popupWindow.dismiss()
-                }
                 popupCommentsPageActionsDownloadSingleItem.root.setOnClickListener {
                     if (ContextCompat.checkSelfPermission(
                             requireContext(),

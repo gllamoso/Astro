@@ -78,15 +78,6 @@
                 app:text="@{@string/share}"/>
 
             <include
-                android:id="@+id/popupCommentsPageActions_fullScreen"
-                layout="@layout/item_selectable"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:visibility="@{currentItemMediaType != null ? View.VISIBLE : View.GONE}"
-                app:iconDrawable="@{@drawable/ic_fullscreen_24}"
-                app:text="@{@string/view_fullscreen}" />
-
-            <include
                 android:id="@+id/popupCommentsPageActions_downloadSingleItem"
                 layout="@layout/item_selectable"
                 android:layout_height="wrap_content"
