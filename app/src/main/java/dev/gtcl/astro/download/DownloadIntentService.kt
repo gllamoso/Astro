@@ -382,7 +382,6 @@ class DownloadIntentService : JobIntentService() {
                         "$folder/${getString(R.string.app_name)}"
                     )
                 }
-
             }
             val externalUri = if (isVideo) {
                 MediaStore.Video.Media.EXTERNAL_CONTENT_URI

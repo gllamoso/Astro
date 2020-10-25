@@ -3,6 +3,7 @@ package dev.gtcl.astro.ui.fragments.comments
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -815,11 +816,11 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
             if (currentItemMediaType != null) {
                 popupCommentsPageActionsDownloadSingleItem.root.setOnClickListener {
-                    if (ContextCompat.checkSelfPermission(
-                            requireContext(),
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE
-                        ) == PackageManager.PERMISSION_GRANTED
-                    ) {
+                    val permissionGranted = ContextCompat.checkSelfPermission(
+                        requireContext(),
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    ) == PackageManager.PERMISSION_GRANTED
+                    if (permissionGranted || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                         viewModel.downloadItem(
                             binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem
                                 ?: 0
@@ -831,11 +832,11 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 }
                 if (viewModel.mediaItems.value?.size ?: 0 > 1) {
                     popupCommentsPageActionsDownloadAll.root.setOnClickListener {
-                        if (ContextCompat.checkSelfPermission(
-                                requireContext(),
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE
-                            ) == PackageManager.PERMISSION_GRANTED
-                        ) {
+                        val permissionGranted = ContextCompat.checkSelfPermission(
+                            requireContext(),
+                            Manifest.permission.WRITE_EXTERNAL_STORAGE
+                        ) == PackageManager.PERMISSION_GRANTED
+                        if (permissionGranted || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                             viewModel.downloadAlbum()
                         } else {
                             requestPermissionToDownloadAlbum.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)

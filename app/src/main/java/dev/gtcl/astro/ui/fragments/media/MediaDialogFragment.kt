@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.os.Build
 import android.os.Bundle
 import android.view.*
 import android.widget.PopupWindow
@@ -229,13 +230,12 @@ class MediaDialogFragment : DialogFragment() {
         }
 
         binding?.fragmentMediaDialogDownload?.setOnClickListener {
-            if (ContextCompat.checkSelfPermission(
-                    requireContext(),
-                    Manifest.permission.WRITE_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED
-            ) {
-                if (model.mediaItems.value != null && (model.mediaItems.value
-                        ?: return@setOnClickListener).size > 1
+            val permissionGranted = ContextCompat.checkSelfPermission(
+                requireContext(),
+                Manifest.permission.WRITE_EXTERNAL_STORAGE
+            ) == PackageManager.PERMISSION_GRANTED
+            if (permissionGranted || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                if (model.mediaItems.value?.size ?: 0 > 1
                 ) {
                     showDownloadOptionsPopup(it)
                 } else {
