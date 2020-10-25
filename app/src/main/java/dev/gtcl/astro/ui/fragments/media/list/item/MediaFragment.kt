@@ -133,6 +133,7 @@ class MediaFragment : Fragment() {
             .skipMemoryCache(true)
 //            .diskCacheStrategy(DiskCacheStrategy.NONE)
         binding?.fragmentMediaScaleImageView?.let { subsamplingScaleImageView ->
+            subsamplingScaleImageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null)
             GlideApp.with(requireContext())
                 .asBitmap()
                 .load(url)
