@@ -17,9 +17,7 @@ import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
-import com.bumptech.glide.request.target.CustomTarget
 import com.bumptech.glide.request.target.Target
-import com.bumptech.glide.request.transition.Transition
 import com.google.android.exoplayer2.ExoPlaybackException
 import com.google.android.exoplayer2.ExoPlayerFactory
 import com.google.android.exoplayer2.Player
@@ -29,9 +27,7 @@ import dev.gtcl.astro.databinding.FragmentMediaBinding
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.media.list.MediaListFragment
-import kotlinx.android.synthetic.main.fragment_media.*
 import timber.log.Timber
-import java.lang.IllegalStateException
 
 class MediaFragment : Fragment() {
     private var binding: FragmentMediaBinding? = null

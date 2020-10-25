@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.navigation.fragment.findNavController
-import dev.gtcl.astro.*
+import dev.gtcl.astro.MULTI_KEY
 import dev.gtcl.astro.actions.ItemClickListener
 import dev.gtcl.astro.databinding.FragmentDialogMultiredditInfoBinding
 import dev.gtcl.astro.models.reddit.listing.Item
@@ -18,7 +18,6 @@ import dev.gtcl.astro.ui.fragments.multireddits.MultiRedditCreationDialogFragmen
 import dev.gtcl.astro.ui.fragments.multireddits.MultiRedditSubredditsAdapter
 import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerFragmentDirections
-import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerPage
 
 class MultiRedditInfoDialogFragment : DialogFragment(), ItemClickListener {
 

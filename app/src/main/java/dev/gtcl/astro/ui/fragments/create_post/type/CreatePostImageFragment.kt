@@ -150,7 +150,7 @@ class CreatePostImageFragment : Fragment() {
             if (fetchInput == true) {
                 if (model.uri.value != null) {
                     parentModel.setPostContent(
-                        ImagePost(model.uri.value!!)
+                        ImagePost(model.uri.value ?: return@observe)
                     )
                 } else {
                     binding?.root?.let {

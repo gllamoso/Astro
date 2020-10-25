@@ -61,7 +61,7 @@ class ListingAdapter(
         if (this.items == null) {
             this.items = mutableListOf()
         }
-        this.items!!.addAll(items)
+        (this.items ?: return).addAll(items)
         notifyItemRangeInserted(previousSize, items.size)
     }
 
@@ -127,11 +127,11 @@ class ListingAdapter(
                 if (postActions == null) {
                     throw IllegalStateException("Post Actions not initialized")
                 }
-                val post = items!![position] as Post
+                val post = (items ?: return)[position] as Post
                 (holder as PostVH).bind(post, postActions, blurNsfw, username, itemClickListener)
             }
             R.layout.item_comment_detailed -> {
-                val comment = items!![position] as Comment
+                val comment = (items ?: return)[position] as Comment
                 if (commentActions == null) {
                     throw IllegalStateException("Comment Actions not initialized")
                 }
@@ -145,11 +145,11 @@ class ListingAdapter(
                 )
             }
             R.layout.item_subreddit -> {
-                val subreddit = items!![position] as Subreddit
+                val subreddit = (items ?: return)[position] as Subreddit
                 (holder as SubredditVH).bind(subreddit, subredditActions, itemClickListener)
             }
             R.layout.item_message -> {
-                val message = items!![position] as Message
+                val message = (items ?: return)[position] as Message
                 if (messageActions == null) {
                     throw java.lang.IllegalStateException("Message Actions not initialized")
                 }

@@ -1,8 +1,6 @@
 package dev.gtcl.astro.ui.fragments.inbox
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
-import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -13,7 +11,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.astro.*
 import dev.gtcl.astro.actions.LeftDrawerActions
@@ -64,7 +61,7 @@ class InboxFragment : Fragment(), LeftDrawerActions {
         })
 
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
-            val url = bundle.getString(URL_KEY)!!
+            val url = bundle.getString(URL_KEY) ?: return@setFragmentResultListener
             viewPagerModel.linkClicked(url)
         })
 
@@ -82,8 +79,8 @@ class InboxFragment : Fragment(), LeftDrawerActions {
         binding?.fragmentInboxViewPager?.adapter = adapter
         if (binding?.fragmentInboxViewPager != null && binding?.fragmentInboxTabLayout != null) {
             TabLayoutMediator(
-                binding!!.fragmentInboxTabLayout,
-                binding!!.fragmentInboxViewPager
+                (binding ?: return).fragmentInboxTabLayout,
+                (binding ?: return).fragmentInboxViewPager
             ) { tab, position ->
                 tab.text = getText(
                     when (position) {
@@ -189,7 +186,7 @@ class InboxFragment : Fragment(), LeftDrawerActions {
 
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
-        checkIfLoggedInBeforeExecuting(requireContext()){
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             findNavController().navigate(
                 ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(null))
             )

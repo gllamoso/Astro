@@ -6,7 +6,6 @@ import dev.gtcl.astro.database.redditDatabase
 import dev.gtcl.astro.models.reddit.ErrorResponse
 import dev.gtcl.astro.models.reddit.NewPostResponse
 import dev.gtcl.astro.models.reddit.RulesResponse
-import dev.gtcl.astro.models.reddit.TrendingSubredditsResponse
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.RedditApi
 import kotlinx.coroutines.Deferred
@@ -90,7 +89,7 @@ class SubredditRepository private constructor(private val application: AstroAppl
 
     fun getTrendingSubreddits() = RedditApi.base.getTrendingSubredditNames()
 
-//                                       _
+    //                                       _
 //        /\                            | |
 //       /  \   ___ ___ ___  _   _ _ __ | |_ ___
 //      / /\ \ / __/ __/ _ \| | | | '_ \| __/ __|

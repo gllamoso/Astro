@@ -61,7 +61,11 @@ class UserListAdapter(
         when (val viewType = getItemViewType(position)) {
             R.layout.item_network_state -> (holder as NetworkStateItemVH).bind(networkState, retry)
             R.layout.item_no_items_found -> (holder as NoItemFoundVH).bind(null)
-            R.layout.item_user -> (holder as UserVH).bind(users!![position], userType, userActions)
+            R.layout.item_user -> (holder as UserVH).bind(
+                (users ?: return)[position],
+                userType,
+                userActions
+            )
             else -> throw IllegalArgumentException("Unknown view type $viewType")
         }
     }

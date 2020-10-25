@@ -40,8 +40,9 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                 _isLoading.postValue(true)
                 _mediaItems.postValue(when (mediaURL.mediaType) {
                     MediaType.IMGUR_ALBUM -> {
-                        val album = imgurRepository.getAlbumImages(mediaURL.imgurHash!!)
-                            .await().data.images!!
+                        val album =
+                            imgurRepository.getAlbumImages(mediaURL.imgurHash ?: return@launch)
+                                .await().data.images ?: return@launch
                         album.map {
                             val mediaType = when {
                                 it.type.startsWith("video") -> {
@@ -58,7 +59,9 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                         }
                     }
                     MediaType.IMGUR_PICTURE -> {
-                        val imgurData = imgurRepository.getImage(mediaURL.imgurHash!!).await().data
+                        val imgurData =
+                            imgurRepository.getImage(mediaURL.imgurHash ?: return@launch)
+                                .await().data
                         val mediaType = when {
                             imgurData.type?.startsWith("video") ?: false -> {
                                 MediaType.VIDEO
@@ -73,7 +76,7 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                         listOf(MediaURL(imgurData.link, mediaType))
                     }
                     MediaType.GFYCAT -> {
-                        val id = GFYCAT_REGEX.getIdFromUrl(mediaURL.url)!!
+                        val id = GFYCAT_REGEX.getIdFromUrl(mediaURL.url) ?: return@launch
                         var videoUrl: String
                         try {
                             videoUrl = gfycatRepository.getGfycatInfo(id)
@@ -94,7 +97,7 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                         listOf(MediaURL(videoUrl, MediaType.VIDEO, mediaURL.backupUrl))
                     }
                     MediaType.REDGIFS -> {
-                        val id = REDGIFS_REGEX.getIdFromUrl(mediaURL.url)!!
+                        val id = REDGIFS_REGEX.getIdFromUrl(mediaURL.url) ?: return@launch
                         val videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(id)
                             .await()
                             .gfyItem
@@ -148,7 +151,7 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                     Toast.LENGTH_SHORT
                 ).show()
             }
-            val item = _mediaItems.value!![_itemPosition.value!!]
+            val item = (_mediaItems.value ?: return@launch)[_itemPosition.value ?: return@launch]
             var downloadUrl = item.url
 
             if (item.mediaType == MediaType.GFYCAT) {
@@ -185,5 +188,7 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
         _mediaInitialized = true
     }
 
-    fun getCurrentMediaItem() = _mediaItems.value?.get(_itemPosition.value!!)
+    fun getCurrentMediaItem() = _mediaItems.value?.get(
+        _itemPosition.value ?: throw IllegalStateException("Unable to fetch current media item")
+    )
 }

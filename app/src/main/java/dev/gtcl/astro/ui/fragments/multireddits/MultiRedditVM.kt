@@ -4,13 +4,12 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.AstroApplication
 import dev.gtcl.astro.AstroViewModel
-import dev.gtcl.astro.database.Subscription
 import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.listing.MultiReddit
 import dev.gtcl.astro.models.reddit.listing.MultiRedditUpdate
 import dev.gtcl.astro.models.reddit.listing.Subreddit
 import dev.gtcl.astro.models.reddit.listing.SubredditData
-import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
 import retrofit2.HttpException
 
 class MultiRedditVM(private val application: AstroApplication) : AstroViewModel(application) {
@@ -92,7 +91,7 @@ class MultiRedditVM(private val application: AstroApplication) : AstroViewModel(
         }
     }
 
-    fun updateMulti(multiReddit: MultiReddit){
+    fun updateMulti(multiReddit: MultiReddit) {
         _multi.value = multiReddit
     }
 }

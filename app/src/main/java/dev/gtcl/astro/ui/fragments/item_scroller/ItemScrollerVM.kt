@@ -2,7 +2,6 @@ package dev.gtcl.astro.ui.fragments.item_scroller
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.preference.PreferenceManager
 import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState

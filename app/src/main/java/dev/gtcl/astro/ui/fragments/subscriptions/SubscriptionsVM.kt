@@ -2,13 +2,13 @@ package dev.gtcl.astro.ui.fragments.subscriptions
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import dev.gtcl.astro.*
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.AstroViewModel
+import dev.gtcl.astro.SubscriptionType
 import dev.gtcl.astro.database.Subscription
-import dev.gtcl.astro.models.reddit.listing.MultiRedditUpdate
 import kotlinx.coroutines.launch
-import retrofit2.HttpException
 
-class SubscriptionsVM(private val application: AstroApplication) : AstroViewModel(application) {
+class SubscriptionsVM(application: AstroApplication) : AstroViewModel(application) {
 
     private val _subscriptions = MutableLiveData<Subscriptions?>()
     val subscriptions: LiveData<Subscriptions?>

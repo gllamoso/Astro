@@ -225,8 +225,7 @@
                 android:overScrollMode="never"
                 android:layout_marginBottom="8dp"
                 app:spanCount="1"
-                tools:itemCount="3"
-                tools:listitem="@layout/item_subreddit_moderated"/>
+                tools:itemCount="3"/>
 
         </LinearLayout>
 

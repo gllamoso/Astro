@@ -21,7 +21,8 @@ class AccountAboutVM(val application: AstroApplication) : AstroViewModel(applica
     val multiReddits: LiveData<List<MultiReddit>?>
         get() = _multiReddits
 
-    private val _moderatedSubs = MutableLiveData<List<SubredditInModeratedList>>().apply { value = listOf() }
+    private val _moderatedSubs =
+        MutableLiveData<List<SubredditInModeratedList>>().apply { value = listOf() }
     val moderatedSubs: LiveData<List<SubredditInModeratedList>>
         get() = _moderatedSubs
 
@@ -51,7 +52,7 @@ class AccountAboutVM(val application: AstroApplication) : AstroViewModel(applica
         coroutineScope.launch {
             try {
                 val trophies = miscRepository.getAwards(
-                    user ?: application.currentAccount!!.name
+                    user ?: (application.currentAccount ?: return@launch).name
                 ).await().data.trophies.map { (data) -> data }
                 _awards.postValue(trophies)
             } catch (e: Exception) {
@@ -71,7 +72,7 @@ class AccountAboutVM(val application: AstroApplication) : AstroViewModel(applica
         coroutineScope.launch {
             try {
                 val publicFeeds = subredditRepository.getMultiReddits(
-                    user ?: application.currentAccount!!.name
+                    user ?: (application.currentAccount ?: return@launch).name
                 ).await().map { it.data }.filter { it.visibility == Visibility.PUBLIC }
                 publicFeeds.parseAllText()
                 _multiReddits.postValue(publicFeeds)

@@ -78,7 +78,7 @@ class AccountAboutFragment : Fragment(), SubredditActions, MultiRedditActions,
 
         model.errorMessage.observe(viewLifecycleOwner, {
             if (it != null) {
-                Snackbar.make(binding!!.root, it, Snackbar.LENGTH_LONG).show()
+                Snackbar.make((binding ?: return@observe).root, it, Snackbar.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }
         })

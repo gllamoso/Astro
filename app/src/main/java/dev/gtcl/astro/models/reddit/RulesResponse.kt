@@ -22,7 +22,7 @@ data class Rule(
     private var _parsedDescription: List<ParsedHtmlSegment>? = null
 
     fun parseDescription(): List<ParsedHtmlSegment> {
-        if(_parsedDescription == null){
+        if (_parsedDescription == null) {
             _parsedDescription = descriptionHtml.parseToHtmlSegments()
         }
         return _parsedDescription!!

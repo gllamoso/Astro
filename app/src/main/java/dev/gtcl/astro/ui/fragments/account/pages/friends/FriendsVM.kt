@@ -40,13 +40,14 @@ class FriendsVM(private val application: AstroApplication) : AstroViewModel(appl
     }
 
     fun removeAndUnfriendAt(position: Int) {
-        if (position < 0 || position >= _friends.value!!.size) {
+        if (position < 0 || position >= (_friends.value ?: return).size) {
             return
         }
         coroutineScope.launch {
             try {
-                userRepository.removeFriend(_friends.value!![position].name).await()
-                _friends.value!!.removeAt(position)
+                userRepository.removeFriend((_friends.value ?: return@launch)[position].name)
+                    .await()
+                (_friends.value ?: return@launch).removeAt(position)
                 _removeAt.postValue(position)
             } catch (e: Exception) {
                 _errorMessage.value = e.getErrorMessage(application)

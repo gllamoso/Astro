@@ -20,7 +20,6 @@ import dev.gtcl.astro.models.reddit.listing.PostListing
 import dev.gtcl.astro.models.reddit.listing.ProfileListing
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
-import timber.log.Timber
 
 class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 

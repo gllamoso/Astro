@@ -308,7 +308,7 @@ class CreatePostVM(private val application: AstroApplication) : AstroViewModel(a
                     while (true) {
                         val byteCount = input?.read(buffer)
                         if (byteCount ?: -1 < 0) break
-                        output.write(buffer, 0, byteCount!!)
+                        output.write(buffer, 0, byteCount ?: return@use)
                     }
                     output.flush()
                 }

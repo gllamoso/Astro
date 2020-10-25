@@ -31,14 +31,19 @@ class UnorderedListItemSpan(
         l: Layout?
     ) {
         if (first) {
-            val leadingText = when(item.depth % 2){
+            val leadingText = when (item.depth % 2) {
                 1 -> "•"
                 else -> "◦"
             }
             val orgStyle = p.style
             p.style = Paint.Style.FILL
             val width = p.measureText(leadingText)
-            c.drawText(leadingText, ((leadWidth*item.depth) + x - width / 2) * dir, bottom - p.descent(), p)
+            c.drawText(
+                leadingText,
+                ((leadWidth * item.depth) + x - width / 2) * dir,
+                bottom - p.descent(),
+                p
+            )
             p.style = orgStyle
         }
     }

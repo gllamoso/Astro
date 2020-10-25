@@ -42,11 +42,7 @@ interface ImgurService {
         private val URL = "https://api.imgur.com/".toHttpUrl()
 
         fun create(): ImgurService {
-            val logger = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
-                override fun log(message: String) {
-                    Timber.tag("API").d(message)
-                }
-            })
+            val logger = HttpLoggingInterceptor { message -> Timber.tag("API").d(message) }
             logger.level = HttpLoggingInterceptor.Level.BASIC
 
             val client = OkHttpClient.Builder()

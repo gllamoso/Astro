@@ -7,7 +7,7 @@ import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import dev.gtcl.astro.databinding.LayoutBrokenImageBinding
 
-class BrokenImageFragment : Fragment(){
+class BrokenImageFragment : Fragment() {
     private var binding: LayoutBrokenImageBinding? = null
 
     override fun onCreateView(

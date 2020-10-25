@@ -4,7 +4,7 @@ data class Cell(
     val text: SimpleText,
     val alignment: Alignment
 ) {
-    enum class Alignment{
+    enum class Alignment {
         LEFT,
         CENTER,
         RIGHT

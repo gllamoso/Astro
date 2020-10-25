@@ -9,7 +9,7 @@ import dev.gtcl.astro.models.reddit.listing.Subreddit
 import kotlinx.coroutines.launch
 import timber.log.Timber
 
-class SubredditInfoVM(private val application: AstroApplication) : AstroViewModel(application){
+class SubredditInfoVM(private val application: AstroApplication) : AstroViewModel(application) {
 
     private val _subreddit = MutableLiveData<Subreddit?>()
     val subreddit: LiveData<Subreddit?>

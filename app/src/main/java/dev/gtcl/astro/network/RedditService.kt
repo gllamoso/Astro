@@ -6,7 +6,6 @@ import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.*
-import dev.gtcl.astro.models.reddit.AccessToken
 import dev.gtcl.astro.models.reddit.listing.*
 import kotlinx.coroutines.Deferred
 import okhttp3.HttpUrl
@@ -530,11 +529,7 @@ interface RedditApiService {
             )
 
         fun create(httpUrl: HttpUrl): RedditApiService {
-            val logger = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
-                override fun log(message: String) {
-                    Timber.tag("API").d(message)
-                }
-            })
+            val logger = HttpLoggingInterceptor { message -> Timber.tag("API").d(message) }
             logger.level = HttpLoggingInterceptor.Level.BASIC
 
             val client = OkHttpClient.Builder()

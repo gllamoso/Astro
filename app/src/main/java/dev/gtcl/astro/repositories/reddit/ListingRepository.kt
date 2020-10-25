@@ -1,15 +1,9 @@
 package dev.gtcl.astro.repositories.reddit
 
 import dev.gtcl.astro.*
-import dev.gtcl.astro.database.ItemRead
-import dev.gtcl.astro.database.redditDatabase
-import dev.gtcl.astro.models.reddit.*
 import dev.gtcl.astro.models.reddit.listing.*
-import dev.gtcl.astro.network.CommentPage
 import dev.gtcl.astro.network.RedditApi
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 const val GUEST_ID = "guest"
 
@@ -72,7 +66,7 @@ class ListingRepository private constructor(private val application: AstroApplic
                 )
             }
             Friends -> {
-                if (accessToken == null){
+                if (accessToken == null) {
                     throw NotLoggedInException()
                 } else {
                     RedditApi.oauth.getPostsFromSubreddit(
@@ -97,7 +91,15 @@ class ListingRepository private constructor(private val application: AstroApplic
                     pageSize
                 )
             } else {
-                RedditApi.base.searchPosts(null, postListing.query, postSort, t, after, count, pageSize)
+                RedditApi.base.searchPosts(
+                    null,
+                    postListing.query,
+                    postSort,
+                    t,
+                    after,
+                    count,
+                    pageSize
+                )
             }
             is MultiRedditListing -> if (accessToken != null) {
                 RedditApi.oauth.getMultiRedditListing(

@@ -8,12 +8,14 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.Patterns
 import android.util.TypedValue
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.webkit.URLUtil
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
-import androidx.appcompat.widget.AppCompatImageView
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
@@ -25,7 +27,6 @@ import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.material.chip.Chip
 import dev.gtcl.astro.database.Subscription
-import dev.gtcl.astro.databinding.IconFlairBinding
 import dev.gtcl.astro.databinding.IconFlairSmallBinding
 import dev.gtcl.astro.models.reddit.RuleFor
 import dev.gtcl.astro.models.reddit.listing.*
@@ -418,49 +419,6 @@ fun addSmallFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?)
                         }
                     } else {
                         IconFlairSmallBinding.inflate(layoutInflater).apply {
-                            charSequence = flair.text.toString()
-                            executePendingBindings()
-                        }.root
-                    }
-
-                viewGroup.addView(view)
-            }
-        }
-    } else {
-        viewGroup.visibility = View.GONE
-    }
-}
-
-@BindingAdapter("flairList")
-fun addFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?) {
-    viewGroup.removeAllViews()
-    if (!list.isNullOrEmpty()) {
-        viewGroup.visibility = View.VISIBLE
-        val context = viewGroup.context
-        val imgViewSize = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            24f,
-            context.resources.displayMetrics
-        ).toInt()
-        val margin = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            4f,
-            context.resources.displayMetrics
-        ).toInt()
-        val layoutInflater = LayoutInflater.from(context)
-        for (flair in list) {
-            if (!flair.urlFormatted.isNullOrBlank() || flair.text.toString().isNotBlank()) {
-                val view =
-                    if (!flair.urlFormatted.isNullOrBlank()) {
-                        ImageView(context).apply {
-                            layoutParams =
-                                LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
-                                    marginEnd = margin
-                                }
-                            loadImage(this, flair.urlFormatted)
-                        }
-                    } else {
-                        IconFlairBinding.inflate(layoutInflater).apply {
                             charSequence = flair.text.toString()
                             executePendingBindings()
                         }.root

@@ -38,12 +38,12 @@ class BlockedVM(private val application: AstroApplication) : AstroViewModel(appl
     }
 
     fun removeAndUnblockAt(position: Int) {
-        if (position < 0 || position >= _blocked.value!!.size) {
+        if (position < 0 || position >= (_blocked.value ?: return).size) {
             return
         }
         coroutineScope.launch {
             try {
-                val username = _blocked.value!![position].name
+                val username = (_blocked.value ?: return@launch)[position].name
                 userRepository.unblockUser(username).await()
                 _removeAt.postValue(position)
             } catch (e: Exception) {

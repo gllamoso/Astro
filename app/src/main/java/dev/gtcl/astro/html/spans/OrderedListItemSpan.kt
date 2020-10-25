@@ -13,7 +13,7 @@ class OrderedListItemSpan(
 ) : LeadingMarginSpan {
 
     override fun getLeadingMargin(first: Boolean): Int {
-        return  (leadWidth * item.depth) + gapWidth
+        return (leadWidth * item.depth) + gapWidth
     }
 
     override fun drawLeadingMargin(
@@ -35,28 +35,34 @@ class OrderedListItemSpan(
             val orgStyle = p.style
             p.style = Paint.Style.FILL
             val width = p.measureText(leadingText)
-            c.drawText(leadingText, ((leadWidth*item.depth) + x - width / 2) * dir.toFloat(), bottom - p.descent(), p)
+            c.drawText(
+                leadingText,
+                ((leadWidth * item.depth) + x - width / 2) * dir.toFloat(),
+                bottom - p.descent(),
+                p
+            )
             p.style = orgStyle
         }
     }
 
-    private fun OrderedListItem.getStringValue(): String{
-        return when(depth){
+    private fun OrderedListItem.getStringValue(): String {
+        return when (depth) {
             1 -> value.toString()
             2 -> value.toExcelColumn()
             else -> value.toRomanNumeral()
         }
     }
 
-    private fun Int.toRomanNumeral(uppercase: Boolean = false): String{
+    private fun Int.toRomanNumeral(uppercase: Boolean = false): String {
         val m = listOf("", "m", "mm", "mmm")
         val c = listOf("", "c", "cc", "ccc", "cd", "d", "dc", "dcc", "dccc", "cm")
         val x = listOf("", "x", "xx", "xxx", "xl", "l", "lx", "lxx", "lxxx", "xc")
         val i = listOf("", "i", "ii", "iii", "iv", "v", "vi", "vii", "viii", "ix")
 
-        val result = "${m[this/1000]}${c[(this%1000)/100]}${x[(this%100)/10]}${i[this%10]}"
+        val result =
+            "${m[this / 1000]}${c[(this % 1000) / 100]}${x[(this % 100) / 10]}${i[this % 10]}"
 
-        return if(uppercase){
+        return if (uppercase) {
             result.toUpperCase(Locale.ENGLISH)
         } else {
             result
@@ -66,15 +72,15 @@ class OrderedListItemSpan(
     private fun Int.toExcelColumn(uppercase: Boolean = false): String {
         val sb = StringBuilder()
         var num = this
-        while(num > 0){
-            val modulo = (num - 1)%26
+        while (num > 0) {
+            val modulo = (num - 1) % 26
             sb.insert(0, 'a' + modulo)
-            num = (num - modulo)/26
+            num = (num - modulo) / 26
         }
         val result = sb.toString()
-        return if(uppercase){
+        return if (uppercase) {
             result.toUpperCase(Locale.ENGLISH)
-        } else{
+        } else {
             result
         }
     }

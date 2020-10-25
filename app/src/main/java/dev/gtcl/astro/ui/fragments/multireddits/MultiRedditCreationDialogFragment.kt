@@ -150,7 +150,7 @@ class MultiRedditCreationDialogFragment : DialogFragment() {
         )
     }
 
-    private fun initObservers(){
+    private fun initObservers() {
         model.newMulti.observe(viewLifecycleOwner, {
             if (it != null) {
                 activityModel.newMultiReddit(it)
@@ -160,7 +160,7 @@ class MultiRedditCreationDialogFragment : DialogFragment() {
         })
 
         model.errorMessage.observe(viewLifecycleOwner, {
-            if(it != null){
+            if (it != null) {
                 Toast.makeText(requireContext(), it, Toast.LENGTH_LONG).show()
                 model.errorMessageObserved()
             }

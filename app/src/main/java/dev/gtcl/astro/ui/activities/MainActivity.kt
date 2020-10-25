@@ -15,8 +15,9 @@ import androidx.databinding.DataBindingUtil
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.NavHostFragment
-import com.google.android.material.snackbar.Snackbar
-import dev.gtcl.astro.*
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.R
+import dev.gtcl.astro.ViewModelFactory
 import dev.gtcl.astro.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {

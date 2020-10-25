@@ -8,9 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.google.gson.Gson
-import dev.gtcl.astro.*
-import dev.gtcl.astro.database.SavedAccount
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.ViewModelFactory
 import dev.gtcl.astro.databinding.FragmentSplashBinding
 import dev.gtcl.astro.models.reddit.listing.FrontPage
 import dev.gtcl.astro.ui.activities.MainActivityVM

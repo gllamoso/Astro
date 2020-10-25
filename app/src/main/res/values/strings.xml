@@ -113,7 +113,6 @@
     <string name="download">Download</string>
     <string name="download_all">Download all</string>
     <string name="open_link_externally">Open link externally</string>
-    <string name="view_fullscreen">View fullscreen</string>
     <string name="media_failed">Failed to load media</string>
 
     <!--Inbox-->
@@ -192,7 +191,6 @@
     <string name="clear">Clear</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
-    <string name="num_comments">%s comments</string>
     <string name="num_subscribers">%s subscribers</string>
     <string name="total_karma">Total Karma: %s</string>
     <string name="trending_subreddits">Trending Subreddits</string>

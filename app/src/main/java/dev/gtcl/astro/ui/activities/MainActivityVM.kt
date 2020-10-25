@@ -9,9 +9,9 @@ import dev.gtcl.astro.models.reddit.AccessToken
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerPage
-import kotlinx.coroutines.*
-import retrofit2.HttpException
-import timber.log.Timber
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivityVM(val application: AstroApplication) : AstroViewModel(application) {
 
