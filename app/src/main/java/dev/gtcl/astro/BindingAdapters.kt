@@ -18,6 +18,7 @@ import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
+import androidx.core.view.setPadding
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.request.RequestOptions
@@ -405,26 +406,36 @@ fun addSmallFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?)
             4f,
             context.resources.displayMetrics
         ).toInt()
+        var start = true
         val layoutInflater = LayoutInflater.from(context)
         for (flair in list) {
             if (!flair.urlFormatted.isNullOrBlank() || flair.text.toString().isNotBlank()) {
                 val view =
                     if (!flair.urlFormatted.isNullOrBlank()) {
                         ImageView(context).apply {
-                            layoutParams =
-                                LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
-                                    marginEnd = margin
+                            layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
+                                if(!start) {
+                                    marginStart = margin
                                 }
+                            }
                             loadImage(this, flair.urlFormatted)
                         }
                     } else {
                         IconFlairSmallBinding.inflate(layoutInflater).apply {
-                            charSequence = flair.text.toString()
+                            charSequence = flair.text.toString().trim()
                             executePendingBindings()
-                        }.root
+                        }.root.apply {
+                            setPadding(margin/2)
+                            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                                if(!start) {
+                                    marginStart = margin
+                                }
+                            }
+                        }
                     }
 
                 viewGroup.addView(view)
+                start = false
             }
         }
     } else {
