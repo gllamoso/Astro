@@ -242,13 +242,13 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
     this.removeAllViews()
     val context = this.context
     val margin = 8.toDp(context)
-    val parentView = (this@createHtmlViews.parent as View)
-    val parentBackground = parentView.background
+
     for (i in htmlSegments.indices) {
         val segment = htmlSegments[i]
         val view = when (segment) {
             is SimpleText -> segment.createView(context, linkHandler)
             is CodeBlock -> segment.createView(context, linkHandler)
+            is HorizontalLine -> segment.createView(context)
             is Table -> {
                 val tableLayout = segment.createView(context, linkHandler)
                 val horizontalScrollView = HorizontalScrollView(context)
@@ -257,27 +257,13 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
                     addView(tableLayout)
                     var isScrolling: Boolean? = null
                     val detector = GestureDetector(context, object : GestureDetector.OnGestureListener {
-
-                        override fun onDown(ev: MotionEvent?): Boolean {
-                            if(ev != null){
-                                parentBackground.apply {
-                                    setHotspot(ev.rawX, ev.rawY)
-                                    state = intArrayOf(android.R.attr.state_pressed, android.R.attr.state_enabled)
-                                }
-                            }
-                            return false
-                        }
-
+                        override fun onDown(ev: MotionEvent?) = false
                         override fun onShowPress(p0: MotionEvent?) {}
-
-                        override fun onSingleTapUp(p0: MotionEvent?): Boolean {
-                            parentView.performClick()
-                            return true
-                        }
+                        override fun onSingleTapUp(p0: MotionEvent?) = false
+                        override fun onLongPress(p0: MotionEvent?) {}
+                        override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float) = false
 
                         override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
-                            parentView.isPressed = false
-                            parentBackground.state = intArrayOf()
                             if(isScrolling == null){
                                 if(distanceX < 0){
                                     val canScrollToLeft = horizontalScrollView.canScrollHorizontally(-1)
@@ -291,22 +277,16 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
                             return isScrolling == false
                         }
 
-                        override fun onLongPress(p0: MotionEvent?) {}
-
-                        override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float) = false
                     })
                     setOnTouchListener { _, event ->
                         if(event.actionMasked == MotionEvent.ACTION_CANCEL || event.actionMasked == MotionEvent.ACTION_UP){
                             isScrolling = null
-                            parentView.isPressed = false
-                            parentBackground.state = intArrayOf()
                         }
                         detector.onTouchEvent(event)
                         isScrolling == false
                     }
                 }
             }
-            is HorizontalLine -> segment.createView(context)
         }
 
         val layoutParams = if (segment is HorizontalLine) {
@@ -316,7 +296,7 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
             )
         } else {
             LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.WRAP_CONTENT,
                 LinearLayout.LayoutParams.WRAP_CONTENT
             )
         }
