@@ -11,10 +11,7 @@ import android.text.style.*
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.TableLayout
-import android.widget.TableRow
-import android.widget.TextView
+import android.widget.*
 import androidx.core.view.setPadding
 import dev.gtcl.astro.R
 import dev.gtcl.astro.actions.LinkHandler
@@ -252,31 +249,52 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
             is CodeBlock -> segment.createView(context, linkHandler)
             is Table -> {
                 val tableLayout = segment.createView(context, linkHandler)
-                HorizontalScrollView(context).apply {
+                val horizontalScrollView = HorizontalScrollView(context)
+                horizontalScrollView.apply {
                     overScrollMode = View.OVER_SCROLL_NEVER
                     addView(tableLayout)
-                    requestDisallowInterceptTouchEvent(false)
-                    val detector = GestureDetector(context, object: GestureDetector.OnGestureListener{
-                        override fun onDown(p0: MotionEvent?) = true
+                    var isScrolling: Boolean? = null
+                    val detector = GestureDetector(context, object : GestureDetector.OnGestureListener {
+
+                        override fun onDown(p0: MotionEvent?): Boolean = false
 
                         override fun onShowPress(p0: MotionEvent?) {}
 
                         override fun onSingleTapUp(p0: MotionEvent?): Boolean {
                             (this@createHtmlViews.parent as View).performClick()
-                            return false
-                        }
-
-                        override fun onScroll(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean {
                             return true
                         }
 
-                        override fun onLongPress(p0: MotionEvent?){}
+                        override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
+                            if(distanceX < 0){
+                               val canScrollToLeft = horizontalScrollView.canScrollHorizontally(-1)
+                                isScrolling = canScrollToLeft
+                            } else if(distanceX > 0){
+                                val canScrollToRight = horizontalScrollView.canScrollHorizontally(1)
+                                isScrolling = canScrollToRight
+                            }
 
-                        override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float) = true
+                            return if(isScrolling != null){
+                                !isScrolling!!
+                            } else {
+                                return false
+                            }
+                        }
+
+                        override fun onLongPress(p0: MotionEvent?) {}
+
+                        override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float) = false
                     })
                     setOnTouchListener { _, event ->
+                        if(event.actionMasked == MotionEvent.ACTION_CANCEL || event.actionMasked == MotionEvent.ACTION_UP){
+                            isScrolling = null
+                        }
                         detector.onTouchEvent(event)
-                        false
+                        if(isScrolling != null){
+                            !isScrolling!!
+                        } else {
+                            false
+                        }
                     }
                 }
             }
