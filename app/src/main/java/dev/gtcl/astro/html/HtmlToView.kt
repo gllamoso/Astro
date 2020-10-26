@@ -4,6 +4,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
+import android.os.Handler
+import android.os.Looper
 import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextPaint
@@ -242,6 +244,7 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
     this.removeAllViews()
     val context = this.context
     val margin = 8.toDp(context)
+    val parentView = (this@createHtmlViews.parent as View)
 
     for (i in htmlSegments.indices) {
         val segment = htmlSegments[i]
@@ -259,9 +262,24 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
                     val detector = GestureDetector(context, object : GestureDetector.OnGestureListener {
                         override fun onDown(ev: MotionEvent?) = false
                         override fun onShowPress(p0: MotionEvent?) {}
-                        override fun onSingleTapUp(p0: MotionEvent?) = false
                         override fun onLongPress(p0: MotionEvent?) {}
                         override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float) = false
+
+                        override fun onSingleTapUp(ev: MotionEvent?): Boolean {
+                            if(ev != null){
+                                parentView.background?.apply {
+                                    setHotspot(horizontalScrollView.x + ev.x, horizontalScrollView.y + ev.y)
+                                    state = intArrayOf(android.R.attr.state_pressed, android.R.attr.state_enabled)
+                                    Handler(Looper.getMainLooper()).postDelayed({
+                                        parentView.isPressed = false
+                                        state = intArrayOf()
+                                        parentView.callOnClick()
+                                    }, 100)
+                                }
+                            }
+
+                            return false
+                        }
 
                         override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
                             if(isScrolling == null){
