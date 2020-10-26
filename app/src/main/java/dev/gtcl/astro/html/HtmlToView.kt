@@ -266,19 +266,17 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
                         }
 
                         override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
-                            if(distanceX < 0){
-                               val canScrollToLeft = horizontalScrollView.canScrollHorizontally(-1)
-                                isScrolling = canScrollToLeft
-                            } else if(distanceX > 0){
-                                val canScrollToRight = horizontalScrollView.canScrollHorizontally(1)
-                                isScrolling = canScrollToRight
+                            if(isScrolling == null){
+                                if(distanceX < 0){
+                                    val canScrollToLeft = horizontalScrollView.canScrollHorizontally(-1)
+                                    isScrolling = canScrollToLeft
+                                } else if(distanceX > 0){
+                                    val canScrollToRight = horizontalScrollView.canScrollHorizontally(1)
+                                    isScrolling = canScrollToRight
+                                }
                             }
 
-                            return if(isScrolling != null){
-                                !isScrolling!!
-                            } else {
-                                return false
-                            }
+                            return isScrolling == false
                         }
 
                         override fun onLongPress(p0: MotionEvent?) {}
@@ -290,11 +288,7 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
                             isScrolling = null
                         }
                         detector.onTouchEvent(event)
-                        if(isScrolling != null){
-                            !isScrolling!!
-                        } else {
-                            false
-                        }
+                        isScrolling == false
                     }
                 }
             }
