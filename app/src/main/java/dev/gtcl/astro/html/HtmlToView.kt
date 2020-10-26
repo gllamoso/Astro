@@ -242,6 +242,8 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
     this.removeAllViews()
     val context = this.context
     val margin = 8.toDp(context)
+    val parentView = (this@createHtmlViews.parent as View)
+    val parentBackground = parentView.background
     for (i in htmlSegments.indices) {
         val segment = htmlSegments[i]
         val view = when (segment) {
@@ -256,16 +258,26 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
                     var isScrolling: Boolean? = null
                     val detector = GestureDetector(context, object : GestureDetector.OnGestureListener {
 
-                        override fun onDown(p0: MotionEvent?): Boolean = false
+                        override fun onDown(ev: MotionEvent?): Boolean {
+                            if(ev != null){
+                                parentBackground.apply {
+                                    setHotspot(ev.rawX, ev.rawY)
+                                    state = intArrayOf(android.R.attr.state_pressed, android.R.attr.state_enabled)
+                                }
+                            }
+                            return false
+                        }
 
                         override fun onShowPress(p0: MotionEvent?) {}
 
                         override fun onSingleTapUp(p0: MotionEvent?): Boolean {
-                            (this@createHtmlViews.parent as View).performClick()
+                            parentView.performClick()
                             return true
                         }
 
                         override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
+                            parentView.isPressed = false
+                            parentBackground.state = intArrayOf()
                             if(isScrolling == null){
                                 if(distanceX < 0){
                                     val canScrollToLeft = horizontalScrollView.canScrollHorizontally(-1)
@@ -286,6 +298,8 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
                     setOnTouchListener { _, event ->
                         if(event.actionMasked == MotionEvent.ACTION_CANCEL || event.actionMasked == MotionEvent.ACTION_UP){
                             isScrolling = null
+                            parentView.isPressed = false
+                            parentBackground.state = intArrayOf()
                         }
                         detector.onTouchEvent(event)
                         isScrolling == false
