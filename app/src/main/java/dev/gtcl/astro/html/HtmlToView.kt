@@ -1,5 +1,6 @@
 package dev.gtcl.astro.html
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
 import android.graphics.Typeface
@@ -7,8 +8,13 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextPaint
 import android.text.style.*
+import android.view.GestureDetector
+import android.view.MotionEvent
 import android.view.View
-import android.widget.*
+import android.widget.LinearLayout
+import android.widget.TableLayout
+import android.widget.TableRow
+import android.widget.TextView
 import androidx.core.view.setPadding
 import dev.gtcl.astro.R
 import dev.gtcl.astro.actions.LinkHandler
@@ -29,8 +35,6 @@ fun SimpleText.createView(context: Context, linkHandler: LinkHandler): TextView 
 //        setPadding(margin)
         setLineSpacing(margin / 4F, 1F)
         text = spannableString
-        isClickable = false
-        isLongClickable = false
         movementMethod = BetterLinkMovementMethod.getInstance()
     }
 }
@@ -48,11 +52,12 @@ fun SimpleText.createCellView(context: Context, linkHandler: LinkHandler): TextV
     return textView.apply {
         setPadding(margin)
         text = spannableString
-        isClickable = false
-        isLongClickable = false
         setLineSpacing(margin / 4F, 1F)
         setBackgroundResource(R.drawable.cell_shape)
         movementMethod = BetterLinkMovementMethod.getInstance()
+        isClickable = false
+        isFocusable = false
+        isLongClickable = false
     }
 }
 
@@ -72,8 +77,6 @@ fun CodeBlock.createView(context: Context, linkHandler: LinkHandler): TextView {
         setBackgroundResource(android.R.color.darker_gray)
         typeface = Typeface.MONOSPACE
         text = spannableString
-        isClickable = false
-        isLongClickable = false
         movementMethod = BetterLinkMovementMethod.getInstance()
     }
 }
@@ -81,9 +84,16 @@ fun CodeBlock.createView(context: Context, linkHandler: LinkHandler): TextView {
 fun Table.createView(context: Context, linkHandler: LinkHandler): TableLayout {
     val tableLayout = TableLayout(context).apply {
         setPadding(8.toDp(context))
+        isClickable = false
+        isLongClickable = false
+        isFocusable = false
     }
 
-    val headerRow = TableRow(context)
+    val headerRow = TableRow(context).apply {
+        isClickable = false
+        isLongClickable = false
+        isFocusable = false
+    }
     for ((text, alignment) in headers) {
         val textView = text.createCellView(
             context, linkHandler
@@ -101,7 +111,11 @@ fun Table.createView(context: Context, linkHandler: LinkHandler): TableLayout {
 
     for (row in cellRows) {
         if (row.isNotEmpty()) {
-            val tableRow = TableRow(context)
+            val tableRow = TableRow(context).apply {
+                isClickable = false
+                isLongClickable = false
+                isFocusable = false
+            }
             for ((text, alignment) in row) {
                 val textView = text.createCellView(context, linkHandler).apply {
                     textAlignment = when (alignment) {
@@ -221,6 +235,7 @@ fun HorizontalLine.createView(context: Context): View {
     }
 }
 
+@SuppressLint("ClickableViewAccessibility")
 fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHandler: LinkHandler) {
     if (htmlSegments.isEmpty()) {
         this.visibility = View.GONE
@@ -240,6 +255,29 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
                 HorizontalScrollView(context).apply {
                     overScrollMode = View.OVER_SCROLL_NEVER
                     addView(tableLayout)
+                    requestDisallowInterceptTouchEvent(false)
+                    val detector = GestureDetector(context, object: GestureDetector.OnGestureListener{
+                        override fun onDown(p0: MotionEvent?) = true
+
+                        override fun onShowPress(p0: MotionEvent?) {}
+
+                        override fun onSingleTapUp(p0: MotionEvent?): Boolean {
+                            (this@createHtmlViews.parent as View).performClick()
+                            return false
+                        }
+
+                        override fun onScroll(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float): Boolean {
+                            return true
+                        }
+
+                        override fun onLongPress(p0: MotionEvent?){}
+
+                        override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float) = true
+                    })
+                    setOnTouchListener { _, event ->
+                        detector.onTouchEvent(event)
+                        false
+                    }
                 }
             }
             is HorizontalLine -> segment.createView(context)
@@ -261,11 +299,13 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
             layoutParams.topMargin = margin
         }
 
-        view.layoutParams = layoutParams
-        this.addView(view)
+        this.addView(view.apply {
+            this.layoutParams = layoutParams
+            isClickable = false
+            isFocusable = false
+            isLongClickable = false
+        })
     }
-    this.isClickable = false
-    this.isLongClickable = false
 }
 
 fun Int.toDp(context: Context): Int {
