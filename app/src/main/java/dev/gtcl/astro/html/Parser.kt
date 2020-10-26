@@ -81,8 +81,7 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
                                 parseList(
                                     html.substring(start, closingBracket + 1),
                                     parsedText,
-                                    spanPlaceholders,
-                                    true
+                                    spanPlaceholders
                                 )
                                 start = html.findNext('<', closingBracket)
                                 break
@@ -105,8 +104,7 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
                                 parseList(
                                     html.substring(start, closingBracket + 1),
                                     parsedText,
-                                    spanPlaceholders,
-                                    false
+                                    spanPlaceholders
                                 )
                                 start = html.findNext('<', closingBracket)
                                 break
@@ -194,7 +192,7 @@ fun parseLine(html: String, sb: StringBuilder, spanPlaceholders: MutableList<Spa
     val htmlTrimmed = html
         .trimEnd()
 
-    var strIndex = 0
+    var i = 0
     var boldStart = sb.length
     var italicStart = sb.length
     var superScriptStart = sb.length
@@ -204,17 +202,17 @@ fun parseLine(html: String, sb: StringBuilder, spanPlaceholders: MutableList<Spa
     var hyperlinkStart = sb.length
     var hyperLink = Hyperlink("")
 
-    while (strIndex in htmlTrimmed.indices) {
-        val currentChar = htmlTrimmed[strIndex]
+    while (i in htmlTrimmed.indices) {
+        val currentChar = htmlTrimmed[i]
         if (currentChar == '<') { // start of tag
-            val closingBracket = htmlTrimmed.findNext('>', strIndex)
-            val tag = htmlTrimmed.substring(strIndex + 1, closingBracket)
+            val closingBracket = htmlTrimmed.findNext('>', i)
+            val tag = htmlTrimmed.substring(i + 1, closingBracket)
             when {
                 tag.startsWith("span") -> {
                     spoilerStart = sb.length
                 }
                 tag.startsWith("a ") -> {
-                    val linkStart = htmlTrimmed.findNext("(?<=\").".toRegex(), strIndex + 1)
+                    val linkStart = htmlTrimmed.findNext("(?<=\").".toRegex(), i + 1)
                     val linkEnd = htmlTrimmed.findNext("\"".toRegex(), linkStart + 1)
                     hyperLink = Hyperlink(
                         htmlTrimmed.substring(linkStart, linkEnd)
@@ -289,58 +287,61 @@ fun parseLine(html: String, sb: StringBuilder, spanPlaceholders: MutableList<Spa
                 }
             }
 
-            strIndex = closingBracket + 1
+            i = closingBracket + 1
         } else { // start of text
             if (currentChar == '&') {
-                val nextSemiColonIndex = htmlTrimmed.findNext(';', strIndex + 1)
+                val nextSemiColonIndex = htmlTrimmed.findNext(';', i + 1)
                 if (nextSemiColonIndex in htmlTrimmed.indices) {
-                    when (htmlTrimmed.substring(strIndex, nextSemiColonIndex + 1)) {
+                    when (htmlTrimmed.substring(i, nextSemiColonIndex + 1)) {
                         "&lt;" -> {
                             sb.append("<")
-                            strIndex = nextSemiColonIndex + 1
+                            i = nextSemiColonIndex + 1
                         }
                         "&gt;" -> {
                             sb.append(">")
-                            strIndex = nextSemiColonIndex + 1
+                            i = nextSemiColonIndex + 1
                         }
                         "&quot;" -> {
                             sb.append("\"")
-                            strIndex = nextSemiColonIndex + 1
+                            i = nextSemiColonIndex + 1
                         }
                         "&#x200B;" -> {
-                            strIndex = nextSemiColonIndex + 1
+                            i = nextSemiColonIndex + 1
                         }
                         "&#32;" -> {
                             sb.append(" ")
-                            strIndex = nextSemiColonIndex + 1
+                            i = nextSemiColonIndex + 1
                         }
                         "&amp;" -> {
                             sb.append("&")
-                            strIndex = nextSemiColonIndex + 1
+                            i = nextSemiColonIndex + 1
                         }
                         "&#37;" -> {
                             sb.append("%")
-                            strIndex = nextSemiColonIndex + 1
+                            i = nextSemiColonIndex + 1
                         }
                         "&#39;" -> {
                             sb.append("'")
-                            strIndex = nextSemiColonIndex + 1
+                            i = nextSemiColonIndex + 1
                         }
                         "&nbsp;" -> {
-                            strIndex = nextSemiColonIndex + 1
+                            i = nextSemiColonIndex + 1
                         }
                         else -> {
                             sb.append(currentChar)
-                            strIndex++
+                            i++
                         }
                     }
                 } else {
                     sb.append(currentChar)
-                    strIndex++
+                    i++
                 }
+            } else if (currentChar == '\n'){
+                sb.append(' ')
+                i++
             } else {
                 sb.append(currentChar)
-                strIndex++
+                i++
             }
         }
     }
@@ -423,20 +424,29 @@ fun parseTable(html: String): Table {
 fun parseList(
     html: String,
     sb: StringBuilder,
-    spanPlaceholders: MutableList<SpanPlaceholder>,
-    ordered: Boolean
+    spanPlaceholders: MutableList<SpanPlaceholder>
 ) {
-    val openingTag = if (ordered) "ol" else "ul"
-    val closingTag = if (ordered) "/ol" else "/ul"
     var depth = 0
     var bracketStart = 0
     var bracketEnd = html.findNext('>', bracketStart + 1)
     val itemsInEachDepth = arrayListOf<Int>()
+    val depthOrdered = arrayListOf<Boolean>(true)
 
     while (bracketStart in html.indices) {
         when (html.substring(bracketStart + 1, bracketEnd)) {
-            openingTag -> depth++
-            closingTag -> {
+            "ol" -> {
+                depth++
+                if(depth > depthOrdered.lastIndex){
+                    depthOrdered.add(true)
+                }
+            }
+            "ul" -> {
+                depth++
+                if(depth > depthOrdered.lastIndex){
+                    depthOrdered.add(false)
+                }
+            }
+            "/ul", "/ol" -> {
                 depth--
                 for (i in depth + 1 until itemsInEachDepth.size) {
                     itemsInEachDepth[i] = 0
@@ -448,7 +458,7 @@ fun parseList(
                 }
                 itemsInEachDepth[depth]++
                 val itemStart = bracketEnd + 1
-                val itemEnd = html.findNext("(?:\n|</li>)".toRegex(), itemStart + 1)
+                val itemEnd = html.findNext("(?:\n\n|</li>)".toRegex(), itemStart + 1)
                 if (sb.isNotEmpty()) {
                     sb.append("\n")
                 }
@@ -460,7 +470,7 @@ fun parseList(
                     SpanPlaceholder(
                         sbIndex,
                         sb.length,
-                        if (ordered) {
+                        if (depthOrdered[depth]) {
                             OrderedListItem(depth, itemsInEachDepth[depth])
                         } else {
                             UnorderedListItem(depth)
@@ -469,7 +479,7 @@ fun parseList(
                 )
             }
         }
-        bracketStart = html.findNext("(?:</?${openingTag}>|<li>)".toRegex(), bracketEnd + 1)
+        bracketStart = html.findNext("(?:</?ol>|</?ul>|<li>)".toRegex(), bracketEnd + 1)
         bracketEnd = html.findNext('>', bracketStart + 1)
     }
 }
