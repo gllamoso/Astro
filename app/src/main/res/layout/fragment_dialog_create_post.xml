@@ -42,6 +42,7 @@
                 android:id="@+id/fragmentDialogCreatePost_scrollView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:scrollIndicators="top|bottom"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
                 <LinearLayout

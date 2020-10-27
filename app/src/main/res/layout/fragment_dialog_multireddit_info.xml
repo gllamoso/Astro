@@ -28,6 +28,7 @@
             android:id="@+id/fragmentDialogMultiRedditInfo_subredditList"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:scrollIndicators="top|bottom"
             app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
             app:spanCount="1"
             tools:itemCount="3"
