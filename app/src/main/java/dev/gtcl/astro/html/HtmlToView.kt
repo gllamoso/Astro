@@ -292,17 +292,33 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
                         }
 
                     })
+                    var xWhenFirstTouched = 0F
                     setOnTouchListener { _, event ->
-                        if(event.actionMasked == MotionEvent.ACTION_DOWN){
-                            val canScrollToLeft = horizontalScrollView.canScrollHorizontally(-1)
-                            val canScrollToRight = horizontalScrollView.canScrollHorizontally(1)
-                            isScrolling = canScrollToLeft || canScrollToRight
-                            if(isScrolling == true){
-                                drawerLayout?.requestDisallowInterceptTouchEvent(true)
+                        when(event.actionMasked){
+                            MotionEvent.ACTION_DOWN -> {
+                                xWhenFirstTouched = event.x
                             }
-                        } else if(event.actionMasked == MotionEvent.ACTION_CANCEL || event.actionMasked == MotionEvent.ACTION_UP){
-                            isScrolling = null
-                            drawerLayout?.requestDisallowInterceptTouchEvent(false)
+                            MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
+                                isScrolling = null
+                                drawerLayout?.requestDisallowInterceptTouchEvent(false)
+                            }
+                            else -> {
+                                if(isScrolling == null){
+                                    if(event.x - xWhenFirstTouched > 0){
+                                        val canScrollToLeft = horizontalScrollView.canScrollHorizontally(-1)
+                                        isScrolling = canScrollToLeft
+                                        if(isScrolling == true){
+                                            drawerLayout?.requestDisallowInterceptTouchEvent(true)
+                                        }
+                                    } else if(event.x - xWhenFirstTouched < 0){
+                                        val canScrollToRight = horizontalScrollView.canScrollHorizontally(1)
+                                        isScrolling = canScrollToRight
+                                        if(isScrolling == true){
+                                            drawerLayout?.requestDisallowInterceptTouchEvent(true)
+                                        }
+                                    }
+                                }
+                            }
                         }
 
                         detector.onTouchEvent(event)
