@@ -286,13 +286,9 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
 
                         override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float): Boolean {
                             if(isScrolling == null){
-                                if(distanceX < 0){
-                                    val canScrollToLeft = horizontalScrollView.canScrollHorizontally(-1)
-                                    isScrolling = canScrollToLeft
-                                } else if(distanceX > 0){
-                                    val canScrollToRight = horizontalScrollView.canScrollHorizontally(1)
-                                    isScrolling = canScrollToRight
-                                }
+                                val canScrollToLeft = horizontalScrollView.canScrollHorizontally(-1)
+                                val canScrollToRight = horizontalScrollView.canScrollHorizontally(1)
+                                isScrolling = canScrollToLeft || canScrollToRight
                             }
 
                             return isScrolling == false
