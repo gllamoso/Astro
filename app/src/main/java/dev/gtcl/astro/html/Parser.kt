@@ -430,26 +430,29 @@ fun parseList(
     var bracketStart = 0
     var bracketEnd = html.findNext('>', bracketStart + 1)
     val itemsInEachDepth = arrayListOf<Int>()
-    val depthOrdered = arrayListOf<Boolean>(true)
+    val depthOrdered = arrayListOf(true)
 
     while (bracketStart in html.indices) {
         when (html.substring(bracketStart + 1, bracketEnd)) {
             "ol" -> {
                 depth++
-                if(depth > depthOrdered.lastIndex){
+                while(depth > depthOrdered.lastIndex){
                     depthOrdered.add(true)
                 }
             }
             "ul" -> {
                 depth++
-                if(depth > depthOrdered.lastIndex){
+                while(depth > depthOrdered.lastIndex){
                     depthOrdered.add(false)
                 }
             }
             "/ul", "/ol" -> {
                 depth--
                 for (i in depth + 1 until itemsInEachDepth.size) {
-                    itemsInEachDepth[i] = 0
+                    itemsInEachDepth.removeAt(i)
+                }
+                for (i in depth + 1 until depthOrdered.size){
+                    depthOrdered.removeAt(i)
                 }
             }
             "li" -> {
