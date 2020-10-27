@@ -15,6 +15,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.widget.*
 import androidx.core.view.setPadding
+import androidx.drawerlayout.widget.DrawerLayout
 import dev.gtcl.astro.R
 import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.html.spans.*
@@ -248,6 +249,11 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
     val context = this.context
     val margin = 8.toDp(context)
     val parentView = (this@createHtmlViews.parent as View)
+    val drawerLayout = if(parentView.parent?.parent is DrawerLayout){
+        (parentView.parent.parent as DrawerLayout)
+    } else {
+        null
+    }
 
     for (i in htmlSegments.indices) {
         val segment = htmlSegments[i]
@@ -265,8 +271,18 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
                     val detector = GestureDetector(context, object : GestureDetector.OnGestureListener {
                         override fun onDown(ev: MotionEvent?) = false
                         override fun onShowPress(p0: MotionEvent?) {}
-                        override fun onLongPress(p0: MotionEvent?) {}
                         override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float) = false
+
+                        override fun onLongPress(p0: MotionEvent?) {
+                            if(isScrolling == null){
+                                val canScrollToLeft = horizontalScrollView.canScrollHorizontally(-1)
+                                val canScrollToRight = horizontalScrollView.canScrollHorizontally(1)
+                                isScrolling = canScrollToLeft || canScrollToRight
+                                if(isScrolling == true){
+                                    drawerLayout?.requestDisallowInterceptTouchEvent(true)
+                                }
+                            }
+                        }
 
                         override fun onSingleTapUp(ev: MotionEvent?): Boolean {
                             if(ev != null){
@@ -298,6 +314,7 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
                     setOnTouchListener { _, event ->
                         if(event.actionMasked == MotionEvent.ACTION_CANCEL || event.actionMasked == MotionEvent.ACTION_UP){
                             isScrolling = null
+                            drawerLayout?.requestDisallowInterceptTouchEvent(false)
                         }
                         detector.onTouchEvent(event)
                         isScrolling == false
