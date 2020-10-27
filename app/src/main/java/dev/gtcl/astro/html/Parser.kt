@@ -44,11 +44,13 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
                 start = html.findNext('<', end + 1)
             }
             "p" -> {
+                if (parsedText.isNotEmpty()) { // Add spacing
+                    parsedText.append("\n\n")
+                    spanPlaceholders.add(SpanPlaceholder(parsedText.length - 1, parsedText.length, Spacing))
+                }
+
                 val paragraphStart = end + 1
                 val paragraphEnd = html.findNext("</p>".toRegex(), paragraphStart)
-                if (parsedText.isNotEmpty()) {
-                    parsedText.append("\n")
-                }
                 val paragraph = html.substring(paragraphStart, paragraphEnd)
                 if (paragraph.startsWith("<code>\n") && paragraph.endsWith("\n</code>")) { // Check if codeblock
                     val textSoFar = createParsedHtmlText(parsedText, spanPlaceholders, quoteStack)
@@ -69,6 +71,11 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
                 start = html.findNext('<', paragraphEnd + 1)
             }
             "ol" -> {
+                if (parsedText.isNotEmpty()) { // Add spacing
+                    parsedText.append("\n\n")
+                    spanPlaceholders.add(SpanPlaceholder(parsedText.length - 1, parsedText.length, Spacing))
+                }
+
                 var olUnclosed = 1
                 var nextOlTag = html.findNext("</?ol>".toRegex(), end + 1)
                 while (nextOlTag in end until length) {
@@ -92,6 +99,11 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
                 }
             }
             "ul" -> {
+                if (parsedText.isNotEmpty()) { // Add spacing
+                    parsedText.append("\n\n")
+                    spanPlaceholders.add(SpanPlaceholder(parsedText.length - 1, parsedText.length, Spacing))
+                }
+
                 var ulUnclosed = 1
                 var nextUlTag = html.findNext("</?ul>".toRegex(), end + 1)
                 while (nextUlTag in end..html.length) {
@@ -115,20 +127,22 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
                 }
             }
             "blockquote" -> {
-                val startQuote = parsedText.length + if (parsedText.isNotEmpty()) 1 else 0
+                val startQuote = parsedText.length + if (parsedText.isNotEmpty()) 2 else 0
                 quoteStack.add(QuoteStart(startQuote, spanPlaceholders.size))
                 start = html.findNext('<', end + 1)
             }
             "/blockquote" -> {
                 val quoteStart = quoteStack.pop()
-                spanPlaceholders.add(
-                    quoteStart.placeholderPosition,
-                    SpanPlaceholder(
-                        quoteStart.start,
-                        parsedText.length,
-                        Quote
+                if(parsedText.isNotEmpty()){
+                    spanPlaceholders.add(
+                            quoteStart.placeholderPosition,
+                            SpanPlaceholder(
+                                    quoteStart.start,
+                                    parsedText.length,
+                                    Quote
+                            )
                     )
-                )
+                }
                 start = html.findNext('<', end + 1)
             }
             "pre" -> { // Code block
@@ -147,10 +161,13 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
                 start = html.findNext('<', preEnd)
             }
             "h1", "h2", "h3", "h4", "h5", "h6" -> {
-                val size = 7 - Integer.parseInt(html.substring(start + 2, end))
-                if (parsedText.isNotEmpty()) {
-                    parsedText.append("\n")
+                if (parsedText.isNotEmpty()) { // Add spacing
+                    parsedText.append("\n\n")
+                    spanPlaceholders.add(SpanPlaceholder(parsedText.length - 1, parsedText.length, Spacing))
                 }
+
+                val size = 7 - Integer.parseInt(html.substring(start + 2, end))
+
                 val sbStartIndex = parsedText.length
                 val placeholderIndex = spanPlaceholders.size
                 val headingStart = end + 1
@@ -431,6 +448,7 @@ fun parseList(
     var bracketEnd = html.findNext('>', bracketStart + 1)
     val itemsInEachDepth = arrayListOf<Int>()
     val depthOrdered = arrayListOf(true)
+    var firstItemFound = false
 
     while (bracketStart in html.indices) {
         when (html.substring(bracketStart + 1, bracketEnd)) {
@@ -462,8 +480,10 @@ fun parseList(
                 itemsInEachDepth[depth]++
                 val itemStart = bracketEnd + 1
                 val itemEnd = html.findNext("(?:\n\n|</li>)".toRegex(), itemStart + 1)
-                if (sb.isNotEmpty()) {
+                if (firstItemFound) {
                     sb.append("\n")
+                } else {
+                    firstItemFound = true
                 }
                 val sbIndex = sb.length
                 val spanPlaceholderIndex = spanPlaceholders.size

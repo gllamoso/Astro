@@ -194,6 +194,9 @@ fun createSpannableString(
                 spannableString.setSpan(SuperscriptSpan(), start, end)
                 spannableString.setSpan(RelativeSizeSpan(0.75f), start, end)
             }
+            Spacing -> {
+                spannableString.setSpan(RelativeSizeSpan(0.5f), start, end)
+            }
             Quote -> {
                 val margin = 8.toDp(context)
                 spannableString.setSpan(
