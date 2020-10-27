@@ -308,6 +308,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 if (post.isSelf) {
                     binding?.fragmentCommentsContent?.layoutCommentsContentTextLayout?.createHtmlViews(
                         post.parseSelfText(),
+                            null,
                         this
                     )
                 } else {

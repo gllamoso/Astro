@@ -22,6 +22,7 @@ class MultiRedditVH private constructor(private val binding: ItemMultiredditBind
         binding.multi = multi
         binding.itemMultiRedditDescriptionLayout.createHtmlViews(
             multi.parseDescription(),
+                null,
             linkHandler
         )
         binding.executePendingBindings()

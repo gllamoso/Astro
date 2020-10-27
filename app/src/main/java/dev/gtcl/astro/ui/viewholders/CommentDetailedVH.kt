@@ -1,7 +1,5 @@
 package dev.gtcl.astro.ui.viewholders
 
-import dev.gtcl.astro.databinding.ItemCommentDetailedBinding
-
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -12,6 +10,7 @@ import dev.gtcl.astro.Vote
 import dev.gtcl.astro.actions.CommentActions
 import dev.gtcl.astro.actions.ItemClickListener
 import dev.gtcl.astro.actions.LinkHandler
+import dev.gtcl.astro.databinding.ItemCommentDetailedBinding
 import dev.gtcl.astro.databinding.PopupCommentActionsBinding
 import dev.gtcl.astro.html.createHtmlViews
 import dev.gtcl.astro.models.reddit.listing.Comment
@@ -40,6 +39,7 @@ class CommentDetailedVH private constructor(private val binding: ItemCommentDeta
         }
         binding.itemCommentDetailedBodyMessageLayout.createHtmlViews(
             comment.parseBody(),
+                null,
             linkHandler
         )
 

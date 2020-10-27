@@ -8,8 +8,11 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
-import dev.gtcl.astro.*
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.SUBREDDIT_KEY
+import dev.gtcl.astro.ViewModelFactory
 import dev.gtcl.astro.actions.LinkHandler
+import dev.gtcl.astro.checkIfLoggedInBeforeExecuting
 import dev.gtcl.astro.databinding.FragmentDialogSubredditInfoBinding
 import dev.gtcl.astro.html.createHtmlViews
 import dev.gtcl.astro.ui.activities.MainActivityVM
@@ -50,6 +53,7 @@ class SubredditInfoDialogFragment : DialogFragment(), LinkHandler {
             if (it != null) {
                 binding?.fragmentDialogSubredditInfoTextLayout?.createHtmlViews(
                     it.parseDescription(),
+                        null,
                     this
                 )
             }

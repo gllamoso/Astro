@@ -35,7 +35,7 @@ class CommentVH private constructor(private val binding: ItemCommentBinding) :
         binding.itemCommentMoreOptions.setOnClickListener {
             showPopupWindow(comment, commentActions, isUser, it)
         }
-        binding.itemCommentBodyMessageLayout.createHtmlViews(comment.parseBody(), linkHandler)
+        binding.itemCommentBodyMessageLayout.createHtmlViews(comment.parseBody(), null, linkHandler)
         binding.executePendingBindings()
     }
 

@@ -28,7 +28,7 @@ class MessageVH private constructor(private val binding: ItemMessageBinding) :
         binding.root.setOnClickListener {
             itemClickListener.itemClicked(message, adapterPosition)
         }
-        binding.itemMessageBodyLayout.createHtmlViews(message.parseBody(), linkHandler)
+        binding.itemMessageBodyLayout.createHtmlViews(message.parseBody(), null, linkHandler)
 
         binding.itemMessageMoreOptions.setOnClickListener {
             showPopupWindow(message, messageActions, username == message.author, it)

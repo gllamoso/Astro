@@ -9,7 +9,9 @@ import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
-import dev.gtcl.astro.*
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.SUBREDDIT_KEY
+import dev.gtcl.astro.ViewModelFactory
 import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.databinding.FragmentDialogRulesBinding
 import dev.gtcl.astro.databinding.ItemRuleBinding
@@ -59,6 +61,7 @@ class RulesDialogFragment : DialogFragment(), LinkHandler {
                         this.rule = rule
                         itemRuleDescriptionLayout.createHtmlViews(
                             rule.parseDescription(),
+                                null,
                             this@RulesDialogFragment
                         )
                         ruleBinding.invalidateAll()

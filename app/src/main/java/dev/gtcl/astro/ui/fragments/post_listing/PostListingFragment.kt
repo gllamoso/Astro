@@ -269,6 +269,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                 }
                 rightDrawerLayout?.layoutRightDrawerPublicDescriptionLayout?.createHtmlViews(
                     sub.parseDescription(),
+                        binding?.fragmentListingDrawer,
                     this
                 )
 
@@ -311,6 +312,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                     editable = multi.canEdit
                     layoutRightDrawerPublicDescriptionLayout.createHtmlViews(
                         multi.parseDescription(),
+                            binding?.fragmentListingDrawer,
                         this@PostListingFragment
                     )
                 }

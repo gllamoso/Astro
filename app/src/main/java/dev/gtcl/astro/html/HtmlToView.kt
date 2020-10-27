@@ -13,9 +13,9 @@ import android.text.style.*
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
+import android.view.ViewGroup
 import android.widget.*
 import androidx.core.view.setPadding
-import androidx.drawerlayout.widget.DrawerLayout
 import dev.gtcl.astro.R
 import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.html.spans.*
@@ -239,7 +239,7 @@ fun HorizontalLine.createView(context: Context): View {
 }
 
 @SuppressLint("ClickableViewAccessibility")
-fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHandler: LinkHandler) {
+fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, interceptingAncestor: ViewGroup?,  linkHandler: LinkHandler) {
     if (htmlSegments.isEmpty()) {
         this.visibility = View.GONE
         return
@@ -249,11 +249,6 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
     val context = this.context
     val margin = 8.toDp(context)
     val parentView = (this@createHtmlViews.parent as View)
-    val drawerLayout = if(parentView.parent?.parent is DrawerLayout){
-        (parentView.parent.parent as DrawerLayout)
-    } else {
-        null
-    }
 
     for (i in htmlSegments.indices) {
         val segment = htmlSegments[i]
@@ -300,7 +295,7 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
                             }
                             MotionEvent.ACTION_CANCEL, MotionEvent.ACTION_UP -> {
                                 isScrolling = null
-                                drawerLayout?.requestDisallowInterceptTouchEvent(false)
+                                interceptingAncestor?.requestDisallowInterceptTouchEvent(false)
                             }
                             else -> {
                                 if(isScrolling == null){
@@ -308,13 +303,13 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, linkHand
                                         val canScrollToLeft = horizontalScrollView.canScrollHorizontally(-1)
                                         isScrolling = canScrollToLeft
                                         if(isScrolling == true){
-                                            drawerLayout?.requestDisallowInterceptTouchEvent(true)
+                                            interceptingAncestor?.requestDisallowInterceptTouchEvent(true)
                                         }
                                     } else if(event.x - xWhenFirstTouched < 0){
                                         val canScrollToRight = horizontalScrollView.canScrollHorizontally(1)
                                         isScrolling = canScrollToRight
                                         if(isScrolling == true){
-                                            drawerLayout?.requestDisallowInterceptTouchEvent(true)
+                                            interceptingAncestor?.requestDisallowInterceptTouchEvent(true)
                                         }
                                     }
                                 }
