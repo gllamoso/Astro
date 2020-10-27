@@ -40,7 +40,9 @@
             <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:padding="16dp">
+                android:paddingHorizontal="16dp"
+                android:paddingTop="16dp"
+                android:paddingBottom="8dp">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/layoutRightDrawer_subIcon"
@@ -115,9 +117,9 @@
                     android:layout_marginTop="8dp"
                     android:layout_marginStart="8dp"
                     android:src="@drawable/ic_pencil_24"
-                    android:visibility="@{editable ? View.VISIBLE : View.GONE}"
+                    android:visibility="@{editable == true ? View.VISIBLE : View.GONE}"
                     app:layout_constraintStart_toEndOf="@id/layoutRightDrawer_subIcon"
-                    app:layout_constraintBottom_toBottomOf="parent"/>
+                    app:layout_constraintBottom_toBottomOf="parent" />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -127,7 +129,8 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:textSize="16sp"
-                android:padding="16dp"
+                android:paddingVertical="8dp"
+                android:paddingHorizontal="16dp"
                 tools:text="This is a long piece of text. Abcdefghijklmnopqrstuvwxyz. How are you today?"/>
 
             <androidx.recyclerview.widget.RecyclerView
