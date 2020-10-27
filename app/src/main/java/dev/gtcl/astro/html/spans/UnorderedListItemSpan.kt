@@ -41,7 +41,7 @@ class UnorderedListItemSpan(
             c.drawText(
                 leadingText,
                 ((leadWidth * item.depth) + x - width / 2) * dir,
-                bottom - p.descent(),
+                baseline.toFloat(),
                 p
             )
             p.style = orgStyle
