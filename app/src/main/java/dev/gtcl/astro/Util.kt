@@ -39,7 +39,6 @@ import java.lang.reflect.Field
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.*
-import kotlin.Exception
 
 const val REDDIT_CLIENT_ID = "NjgsWrF6i2B0Jw"
 const val REDDIT_REDIRECT_URL = "http://reddit.gtcl.com/redirect"
@@ -402,7 +401,7 @@ val STANDARD_VIDEO = "http[s]?://.+\\.(mp4)".toRegex()
 val REDDIT_COMMENTS_REGEX =
     "(?:http[s]?://(?:www|oauth)\\.reddit\\.com)?/r/[^/]+/comments/.+".toRegex()
 val REDDIT_THREAD_REGEX =
-    "(?:http[s]?://(?:www|oauth)\\.reddit\\.com)?/r/[^/]+/comments/\\w+/\\w+/\\w+[/]?".toRegex()
+    "(?:http[s]?://(?:www|oauth)\\.reddit\\.com)?/r/[^/]+/comments/\\w+/\\w+/\\w+[/]?.*".toRegex()
 val VALID_REDDIT_COMMENTS_URL_REGEX =
     "http[s]?://(?:www|oauth)\\.reddit\\.com/r/[^/]+/comments/\\w+/\\w+/?".toRegex()
 val REDDIT_GALLERY_REGEX =
