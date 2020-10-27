@@ -37,8 +37,8 @@ import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
-import dev.gtcl.astro.ui.fragments.media.list.MediaThumbnailsAdapter
 import dev.gtcl.astro.ui.fragments.media.list.MediaListFragmentAdapter
+import dev.gtcl.astro.ui.fragments.media.list.MediaThumbnailsAdapter
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
 import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
@@ -209,6 +209,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         model.contentInitialized = false
         val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
         if (postPage != null) {
+            model.setAllCommentsFetched(true)
             model.fetchComments(
                 postPage.post.permalinkFormatted,
                 isFullContext = true,
@@ -225,6 +226,9 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 )
             } else {
                 val isFullContext = url == fullContextLink
+                if(isFullContext){
+                    model.setAllCommentsFetched(true)
+                }
                 model.fetchComments(url, isFullContext = isFullContext, refreshPost = refreshPost)
             }
         }

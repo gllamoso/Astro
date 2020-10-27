@@ -13,7 +13,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 import timber.log.Timber
-import kotlin.collections.HashMap
 
 const val CHILDREN_PER_FETCH = 50
 
@@ -113,8 +112,12 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
         fetchComments(fullContextLink ?: return, isFullContext = true, refreshPost = false)
     }
 
+    fun setAllCommentsFetched(fetched: Boolean){
+        _allCommentsFetched.value = fetched
+    }
+
     fun fetchComments(permalink: String, isFullContext: Boolean, refreshPost: Boolean) {
-        _allCommentsFetched.value = isFullContext
+        val previousValueOfAllCommentsFetched = _allCommentsFetched.value ?: false
         coroutineScope.launch {
             try {
                 _loading.postValue(true)
@@ -138,10 +141,16 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                     fullContextLink = (VALID_REDDIT_COMMENTS_URL_REGEX.find(permalink)
                         ?: return@launch).value
                 }
+                if(_allCommentsFetched.value != isFullContext){
+                    _allCommentsFetched.postValue(isFullContext)
+                }
                 commentPage.comments.parseAllText()
                 _comments.postValue(commentPage.comments.toMutableList())
             } catch (e: Exception) {
-                _comments.postValue(mutableListOf())
+                if(_comments.value == null){
+                    _comments.postValue(mutableListOf())
+                }
+                _allCommentsFetched.postValue(previousValueOfAllCommentsFetched)
                 _errorMessage.postValue(e.getErrorMessage(application))
                 Timber.tag(this@CommentsVM::class.simpleName).d(e)
             } finally {
