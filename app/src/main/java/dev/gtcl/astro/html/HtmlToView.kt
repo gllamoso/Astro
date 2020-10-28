@@ -10,6 +10,7 @@ import android.text.Spannable
 import android.text.SpannableString
 import android.text.TextPaint
 import android.text.style.*
+import android.util.TypedValue
 import android.view.GestureDetector
 import android.view.MotionEvent
 import android.view.View
@@ -33,6 +34,7 @@ fun SimpleText.createView(context: Context, linkHandler: LinkHandler): TextView 
     )
     return textView.apply {
 //        setPadding(margin)
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F)
         setLineSpacing(margin / 4F, 1F)
         text = spannableString
         movementMethod = BetterLinkMovementMethod.getInstance()
@@ -52,6 +54,7 @@ fun SimpleText.createCellView(context: Context, linkHandler: LinkHandler): TextV
     return textView.apply {
         setPadding(margin)
         text = spannableString
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F)
         setLineSpacing(margin / 4F, 1F)
         setBackgroundResource(R.drawable.cell_shape)
         movementMethod = BetterLinkMovementMethod.getInstance()
@@ -73,6 +76,7 @@ fun CodeBlock.createView(context: Context, linkHandler: LinkHandler): TextView {
     )
     return textView.apply {
         setPadding(margin)
+        setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F)
         setLineSpacing(margin / 4F, 1F)
         setBackgroundResource(android.R.color.darker_gray)
         typeface = Typeface.MONOSPACE
