@@ -229,7 +229,7 @@ fun parseLine(html: String, sb: StringBuilder, spanPlaceholders: MutableList<Spa
                     spoilerStart = sb.length
                 }
                 tag.startsWith("a ") -> {
-                    val linkStart = htmlTrimmed.findNext("(?<=\").".toRegex(), i + 1)
+                    val linkStart = htmlTrimmed.findNext("(?<=href=\").".toRegex(), i + 1)
                     val linkEnd = htmlTrimmed.findNext("\"".toRegex(), linkStart + 1)
                     hyperLink = Hyperlink(
                         htmlTrimmed.substring(linkStart, linkEnd)
