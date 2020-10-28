@@ -330,7 +330,7 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, intercep
         val layoutParams = if (segment is HorizontalLine) {
             LinearLayout.LayoutParams(
                 LinearLayout.LayoutParams.MATCH_PARENT,
-                margin / 16
+                margin / 8
             )
         } else {
             LinearLayout.LayoutParams(
