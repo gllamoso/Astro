@@ -195,6 +195,7 @@
     <string name="total_karma">Total Karma: %s</string>
     <string name="trending_subreddits">Trending Subreddits</string>
     <string name="view">View</string>
+    <string name="no_description">No description.</string>
 
     <!--Errors-->
     <string name="user_does_not_exist">User does not exist</string>
