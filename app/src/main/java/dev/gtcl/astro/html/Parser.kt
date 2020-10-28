@@ -487,19 +487,21 @@ fun parseList(
                 }
                 val sbIndex = sb.length
                 val spanPlaceholderIndex = spanPlaceholders.size
-                parseLine(html.substring(itemStart, itemEnd), sb, spanPlaceholders)
-                spanPlaceholders.add(
-                    spanPlaceholderIndex,
-                    SpanPlaceholder(
-                        sbIndex,
-                        sb.length,
-                        if (depthOrdered[depth]) {
-                            OrderedListItem(depth, itemsInEachDepth[depth])
-                        } else {
-                            UnorderedListItem(depth)
-                        }
+                if(itemStart < itemEnd && itemStart in html.indices && itemEnd in html.indices){
+                    parseLine(html.substring(itemStart, itemEnd), sb, spanPlaceholders)
+                    spanPlaceholders.add(
+                            spanPlaceholderIndex,
+                            SpanPlaceholder(
+                                    sbIndex,
+                                    sb.length,
+                                    if (depthOrdered[depth]) {
+                                        OrderedListItem(depth, itemsInEachDepth[depth])
+                                    } else {
+                                        UnorderedListItem(depth)
+                                    }
+                            )
                     )
-                )
+                }
             }
         }
         bracketStart = html.findNext("(?:</?ol>|</?ul>|<li>)".toRegex(), bracketEnd + 1)
