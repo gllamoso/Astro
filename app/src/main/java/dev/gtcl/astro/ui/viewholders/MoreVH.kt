@@ -11,15 +11,17 @@ import dev.gtcl.astro.models.reddit.listing.More
 class MoreVH private constructor(private val binding: ItemMoreCommentBinding) :
     RecyclerView.ViewHolder(binding.root) {
     fun bind(item: More, itemClickListener: ItemClickListener) {
-        binding.more = item
-        binding.itemMoreCommentProgressBar.visibility = View.GONE
-        binding.itemMoreCommentBackground.setOnClickListener {
-            if (!item.isContinueThreadLink) {
-                binding.itemMoreCommentProgressBar.visibility = View.VISIBLE
+        binding.apply {
+            this.more = item
+            itemMoreCommentProgressBar.visibility = View.GONE
+            itemMoreCommentBackground.setOnClickListener {
+                if (!item.isContinueThreadLink) {
+                    binding.itemMoreCommentProgressBar.visibility = View.VISIBLE
+                }
+                itemClickListener.itemClicked(item, adapterPosition)
             }
-            itemClickListener.itemClicked(item, adapterPosition)
+            executePendingBindings()
         }
-        binding.executePendingBindings()
     }
 
     companion object {

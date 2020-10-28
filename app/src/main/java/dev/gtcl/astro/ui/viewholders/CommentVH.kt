@@ -23,20 +23,24 @@ class CommentVH private constructor(private val binding: ItemCommentBinding) :
         linkHandler: LinkHandler,
         commentActions: CommentActions,
         userId: String?,
+        isLastItem: Boolean,
         itemClickListener: ItemClickListener
     ) {
         val isUser = (userId != null && comment.authorFullName == userId)
-        binding.comment = comment
-        binding.isUser = isUser
-        binding.showTopDivider = (adapterPosition != 0 && comment.depth ?: 0 == 0)
-        binding.itemCommentBackground.setOnClickListener {
-            itemClickListener.itemClicked(comment, adapterPosition)
+        binding.apply {
+            showBottomDivider = isLastItem
+            this.comment = comment
+            this.isUser = isUser
+            showTopDivider = (adapterPosition != 0 && comment.depth ?: 0 == 0)
+            itemCommentBackground.setOnClickListener {
+                itemClickListener.itemClicked(comment, adapterPosition)
+            }
+            itemCommentMoreOptions.setOnClickListener {
+                showPopupWindow(comment, commentActions, isUser, it)
+            }
+            itemCommentBodyMessageLayout.createHtmlViews(comment.parseBody(), null, linkHandler)
+            executePendingBindings()
         }
-        binding.itemCommentMoreOptions.setOnClickListener {
-            showPopupWindow(comment, commentActions, isUser, it)
-        }
-        binding.itemCommentBodyMessageLayout.createHtmlViews(comment.parseBody(), null, linkHandler)
-        binding.executePendingBindings()
     }
 
     private fun showPopupWindow(

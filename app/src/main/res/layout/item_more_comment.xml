@@ -7,33 +7,47 @@
         <variable
             name="more"
             type="dev.gtcl.astro.models.reddit.listing.More" />
+        <import type="android.view.View"/>
     </data>
 
-    <LinearLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/itemMoreComment_background"
-        android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:gravity="center_vertical"
         android:foreground="?android:attr/selectableItemBackground"
         android:background="@color/colorBackground">
+
+        <View
+            android:id="@+id/itemComment_topDivider"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@android:color/darker_gray"
+            android:visibility="@{more.depth == 0 ? View.VISIBLE : View.GONE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <LinearLayout
             android:id="@+id/itemMoreComment_indent"
             android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
             android:orientation="horizontal"
-            android:layout_marginEnd="16dp"
-            app:indent="@{more == null ? 0 : more.depth}"/>
+            app:indent="@{more.depth}"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"/>
 
         <TextView
             android:id="@+id/itemMoreComment_text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginVertical="16dp"
-            android:layout_marginEnd="8dp"
+            android:layout_marginStart="16dp"
             android:textStyle="bold"
             android:singleLine="true"
+            app:layout_constraintStart_toEndOf="@id/itemMoreComment_indent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:moreComment="@{more}"
             tools:text="99 more replies" />
 
@@ -42,8 +56,22 @@
             android:layout_width="18dp"
             android:layout_height="18dp"
             android:visibility="gone"
+            android:layout_marginStart="8dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/itemMoreComment_text"
             tools:visibility="visible"/>
 
-    </LinearLayout>
+        <View
+            android:id="@+id/itemComment_bottomDivider"
+            android:layout_width="match_parent"
+            android:layout_height="0.5dp"
+            android:background="@android:color/darker_gray"
+            android:visibility="@{more.depth == 0 ? View.VISIBLE : View.GONE}"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"/>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </layout>

@@ -109,6 +109,7 @@ class CommentsAdapter(
                 linkHandler,
                 commentActions,
                 userId,
+                    (itemCount - 1) == position,
                 itemClickListener
             )
             R.layout.item_network_state -> (holder as NetworkStateItemVH).bind(NetworkState.LOADING) {}
