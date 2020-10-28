@@ -28,22 +28,61 @@ class CommentDetailedVH private constructor(private val binding: ItemCommentDeta
         itemClickListener: ItemClickListener
     ) {
         val isUser = (username != null && comment.author == username)
-        binding.comment = comment
-        binding.isUser = isUser
-        binding.inInbox = inInbox
-        binding.itemCommentDetailedBackground.setOnClickListener {
-            itemClickListener.itemClicked(comment, adapterPosition)
-        }
-        binding.itemCommentDetailedMoreOptions.setOnClickListener {
-            showPopupWindow(comment, commentActions, isUser, inInbox, it)
-        }
-        binding.itemCommentDetailedBodyMessageLayout.createHtmlViews(
-            comment.parseBody(),
-                null,
-            linkHandler
-        )
+        binding.apply {
+            this.comment = comment
+            this.isUser = isUser
+            this.inInbox = inInbox
 
-        binding.executePendingBindings()
+            itemCommentDetailedBackground.apply {
+                setOnClickListener {
+                    itemClickListener.clicked(comment, adapterPosition)
+                }
+                setOnLongClickListener {
+                    itemClickListener.longClicked(comment, adapterPosition)
+                    true
+                }
+            }
+
+            itemCommentDetailedBottomPanel.apply {
+                layoutItemBottomPanelUpvoteButton.setOnClickListener {
+                    commentActions.vote(
+                            comment,
+                            if (comment.likes == true) Vote.UNVOTE else Vote.UPVOTE
+                    )
+                    binding.invalidateAll()
+                }
+
+                layoutItemBottomPanelDownvoteButton.setOnClickListener {
+                    commentActions.vote(
+                            comment,
+                            if (comment.likes == false) Vote.UNVOTE else Vote.DOWNVOTE
+                    )
+                    binding.invalidateAll()
+                }
+
+                layoutItemBottomPanelSaveButton.setOnClickListener {
+                    commentActions.save(comment)
+                    binding.invalidateAll()
+                }
+
+                layoutItemBottomPanelReplyButton.setOnClickListener {
+                    commentActions.reply(comment, adapterPosition)
+                }
+
+                layoutItemBottomPanelMoreOptions.setOnClickListener {
+                    showPopupWindow(comment, commentActions, isUser, inInbox, it)
+                }
+            }
+
+            itemCommentDetailedBodyMessageLayout.createHtmlViews(
+                    comment.parseBody(),
+                    null,
+                    linkHandler
+            )
+
+            executePendingBindings()
+        }
+
     }
 
     private fun showPopupWindow(
@@ -71,29 +110,8 @@ class CommentDetailedVH private constructor(private val binding: ItemCommentDeta
                     popupWindow.dismiss()
                 }
             }
-            popupCommentActionsUpvote.root.setOnClickListener {
-                commentActions.vote(
-                    comment,
-                    if (comment.likes == true) Vote.UNVOTE else Vote.UPVOTE
-                )
-                binding.invalidateAll()
-                popupWindow.dismiss()
-            }
-            popupCommentActionsDownvote.root.setOnClickListener {
-                commentActions.vote(
-                    comment,
-                    if (comment.likes == false) Vote.UNVOTE else Vote.DOWNVOTE
-                )
-                binding.invalidateAll()
-                popupWindow.dismiss()
-            }
-            popupCommentActionsReply.root.setOnClickListener {
-                commentActions.reply(comment, adapterPosition)
-                popupWindow.dismiss()
-            }
-            popupCommentActionsSave.root.setOnClickListener {
-                commentActions.save(comment)
-                binding.invalidateAll()
+            popupCommentActionsShare.root.setOnClickListener {
+                commentActions.share(comment)
                 popupWindow.dismiss()
             }
             if (inInbox) {
@@ -111,10 +129,6 @@ class CommentDetailedVH private constructor(private val binding: ItemCommentDeta
             }
             popupCommentActionsProfile.root.setOnClickListener {
                 commentActions.viewProfile(comment)
-                popupWindow.dismiss()
-            }
-            popupCommentActionsShare.root.setOnClickListener {
-                commentActions.share(comment)
                 popupWindow.dismiss()
             }
             popupCommentActionsReport.root.setOnClickListener {

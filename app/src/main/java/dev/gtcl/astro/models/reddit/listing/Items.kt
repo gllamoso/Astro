@@ -18,6 +18,10 @@ import java.util.*
 sealed class Item(val kind: ItemType) : Parcelable {
     abstract val id: String?
     abstract val name: String
+
+    @IgnoredOnParcel
+    @Transient
+    var isExpanded = false
 }
 
 enum class ItemType {
@@ -95,8 +99,7 @@ data class Comment(
     @Json(name = "is_submitter")
     val isSubmitter: Boolean?,
     val stickied: Boolean?,
-    val locked: Boolean?,
-    var isCollapsed: Boolean = false
+    val locked: Boolean?
 ) : Item(ItemType.Comment) {
 
     @IgnoredOnParcel
@@ -172,6 +175,10 @@ data class Comment(
             }
         }
     }
+
+    @IgnoredOnParcel
+    @Transient
+    var isCollapsed: Boolean = false
 }
 
 @Parcelize

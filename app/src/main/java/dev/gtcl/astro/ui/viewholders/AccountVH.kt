@@ -17,7 +17,7 @@ class AccountVH private constructor(private val binding: ItemAccountBinding) :
         binding.account = account
 
         binding.root.setOnClickListener {
-            itemClickListener.itemClicked(account, adapterPosition)
+            itemClickListener.clicked(account, adapterPosition)
         }
 
         binding.executePendingBindings()

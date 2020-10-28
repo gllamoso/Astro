@@ -6,7 +6,9 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -19,8 +21,8 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.actions.ItemClickListener
 import dev.gtcl.astro.databinding.FragmentSearchBinding
 import dev.gtcl.astro.models.reddit.listing.*
-import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.ListingAdapter
+import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
 import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
@@ -244,7 +246,7 @@ class SearchFragment : Fragment(), ItemClickListener {
         }
     }
 
-    override fun itemClicked(item: Item, position: Int) {
+    override fun clicked(item: Item, position: Int) {
         val multiSelectMode = args.multiSelectMode
         if (multiSelectMode) {
             val name = when (item) {
@@ -271,6 +273,8 @@ class SearchFragment : Fragment(), ItemClickListener {
             }
         }
     }
+
+    override fun longClicked(item: Item, position: Int) {} // Unused
 
     companion object {
         fun newInstance(): SearchFragment {

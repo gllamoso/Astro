@@ -46,28 +46,10 @@
                 app:text="@{@string/delete}"/>
 
             <include
-                android:id="@+id/popupCommentActions_upvote"
+                android:id="@+id/popupCommentActions_share"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_upvote_24}"
-                app:text="@{@string/upvote}"/>
-
-            <include
-                android:id="@+id/popupCommentActions_downvote"
-                layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_downvote_24}"
-                app:text="@{@string/downvote}"/>
-
-            <include
-                android:id="@+id/popupCommentActions_reply"
-                layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_reply_24}"
-                app:text="@{@string/reply}"/>
-
-            <include
-                android:id="@+id/popupCommentActions_save"
-                layout="@layout/item_selectable"
-                app:iconDrawable="@{comment.saved ? @drawable/ic_remove_circle_outline_24 : @drawable/ic_bookmark_24}"
-                app:text="@{comment.saved ? @string/unsave : @string/save}"/>
+                app:iconDrawable="@{@drawable/ic_share_24}"
+                app:text="@{@string/share}"/>
 
             <include
                 android:id="@+id/popupCommentActions_mark"
@@ -94,19 +76,12 @@
                 app:text="@{comment.author}"/>
 
             <include
-                android:id="@+id/popupCommentActions_share"
-                layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_share_24}"
-                app:text="@{@string/share}"/>
-
-            <include
                 android:id="@+id/popupCommentActions_report"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_report_24}"
                 app:text="@{@string/report}"/>
 
         </LinearLayout>
-
 
     </androidx.cardview.widget.CardView>
 

@@ -1,7 +1,9 @@
 package dev.gtcl.astro.ui.fragments.multireddits
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
@@ -9,7 +11,10 @@ import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import com.google.android.material.snackbar.Snackbar
-import dev.gtcl.astro.*
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.R
+import dev.gtcl.astro.SELECTED_SUBREDDITS_KEY
+import dev.gtcl.astro.ViewModelFactory
 import dev.gtcl.astro.actions.ItemClickListener
 import dev.gtcl.astro.databinding.FragmentMultiredditSubredditsBinding
 import dev.gtcl.astro.models.reddit.listing.Item
@@ -113,7 +118,7 @@ class MultiRedditFragment : Fragment(),
         adapter.notifyItemRemoved(position)
     }
 
-    override fun itemClicked(item: Item, position: Int) {
+    override fun clicked(item: Item, position: Int) {
         if (item is Subreddit) {
             findNavController().navigate(
                 MultiRedditFragmentDirections.actionMultiRedditFragmentToViewPagerFragment(
@@ -122,6 +127,8 @@ class MultiRedditFragment : Fragment(),
             )
         }
     }
+
+    override fun longClicked(item: Item, position: Int) {} // Unused
 
 
 }

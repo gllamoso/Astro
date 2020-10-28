@@ -254,7 +254,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                         }
                         it.updateScore(vote)
                         activityModel.vote(it.name, vote)
-                        binding?.invalidateAll()
+                        binding?.fragmentCommentsPostLayout?.invalidateAll()
+                        binding?.fragmentCommentsBottomBarLayout?.invalidateAll()
                     }
                 }
             }
@@ -272,7 +273,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                         }
                         it.updateScore(vote)
                         activityModel.vote(it.name, vote)
-                        binding?.invalidateAll()
+                        binding?.fragmentCommentsPostLayout?.invalidateAll()
+                        binding?.fragmentCommentsBottomBarLayout?.invalidateAll()
                     }
                 }
             }
@@ -618,7 +620,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         }
     }
 
-    override fun itemClicked(item: Item, position: Int) {
+    override fun clicked(item: Item, position: Int) {
         when (item) {
             is More -> {
                 if (item.isContinueThreadLink) {
@@ -639,6 +641,9 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             is Comment -> {
                 val collapse = !item.isCollapsed
                 item.isCollapsed = collapse
+                if(collapse) {
+                    item.isExpanded = false
+                }
                 adapter.notifyItemChanged(position)
                 if (collapse) {
                     val hideSize = model.hideItems(position)
@@ -653,6 +658,11 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 }
             }
         }
+    }
+
+    override fun longClicked(item: Item, position: Int) {
+        item.isExpanded = !item.isExpanded
+        adapter.notifyItemChanged(position)
     }
 
     override fun handleLink(link: String) {

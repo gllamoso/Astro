@@ -34,8 +34,8 @@
                     android:id="@+id/itemPost_tagsGroup"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="8dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginTop="12dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     app:layout_constraintEnd_toStartOf="@+id/itemPost_thumbnailBackground"
@@ -118,7 +118,7 @@
                     android:id="@+id/itemPost_title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="8dp"
+                    android:layout_marginHorizontal="12dp"
                     android:textSize="16sp"
                     android:text="@{post.titleFormatted}"
                     app:layout_constraintEnd_toStartOf="@id/itemPost_thumbnailBackground"
@@ -131,7 +131,7 @@
                     android:id="@+id/itemPost_postInfo1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="8dp"
+                    android:layout_marginHorizontal="12dp"
                     android:orientation="horizontal"
                     app:layout_constraintEnd_toStartOf="@id/itemPost_thumbnailBackground"
                     app:layout_constraintStart_toStartOf="parent"
@@ -184,8 +184,8 @@
                     android:id="@+id/itemPost_postInfo2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="8dp"
-                    android:layout_marginBottom="8dp"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginBottom="10dp"
                     android:paddingVertical="2dp"
                     android:orientation="horizontal"
                     android:gravity="center_vertical"
@@ -193,7 +193,7 @@
                     app:layout_constraintEnd_toStartOf="@id/itemPost_thumbnailBackground"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@id/itemPost_postInfo1"
-                    app:layout_constraintBottom_toBottomOf="parent">
+                    app:layout_constraintBottom_toTopOf="@id/itemPost_bottomPanel">
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="16dp"
@@ -303,11 +303,12 @@
                     android:id="@+id/itemPost_thumbnailBackground"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginVertical="8dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginVertical="12dp"
+                    android:layout_marginEnd="12dp"
                     android:background="@android:color/black"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/itemPost_moreOptions"
+                    app:layout_constraintVertical_bias="0"
+                    app:layout_constraintBottom_toTopOf="@id/itemPost_bottomPanel"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <androidx.appcompat.widget.AppCompatImageView
@@ -319,18 +320,17 @@
 
                 </FrameLayout>
 
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/itemPost_moreOptions"
-                    android:layout_width="wrap_content"
+                <include
+                    layout="@layout/layout_post_bottom_panel"
+                    android:id="@+id/itemPost_bottomPanel"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginVertical="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:padding="2dp"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_more_vert_24"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:itemLiked="@{post.likes}"
+                    app:itemSaved="@{post.saved}"
+                    app:show="@{post.expanded}"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintBottom_toBottomOf="parent"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

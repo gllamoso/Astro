@@ -358,7 +358,7 @@ fun applyUpvoteTint(imageView: ImageView, likes: Boolean?) {
                 android.R.color.holo_orange_dark
             )
         )
-        null -> imageView.clearColorFilter()
+        else -> imageView.clearColorFilter()
     }
 }
 
@@ -373,7 +373,7 @@ fun applyDownvoteTint(imageView: ImageView, likes: Boolean?) {
                 )
             )
         }
-        null -> imageView.clearColorFilter()
+        else -> imageView.clearColorFilter()
     }
 }
 

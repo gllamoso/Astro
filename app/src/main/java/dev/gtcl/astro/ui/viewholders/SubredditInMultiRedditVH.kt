@@ -23,7 +23,7 @@ class SubredditInMultiRedditVH private constructor(private val binding: ItemSubr
             }
         }
         binding.root.setOnClickListener {
-            itemClickListener.itemClicked(sub, adapterPosition)
+            itemClickListener.clicked(sub, adapterPosition)
         }
         binding.executePendingBindings()
     }

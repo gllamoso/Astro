@@ -30,25 +30,57 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
         username: String?,
         itemClickListener: ItemClickListener
     ) {
-        binding.post = post
 
-        binding.itemPostCardView.setOnClickListener {
-            post.isRead = true
-            binding.invalidateAll()
-            itemClickListener.itemClicked(post, adapterPosition)
+        binding.apply {
+            this.post = post
+
+            itemPostCardView.apply {
+                setOnClickListener {
+                    post.isRead = true
+                    binding.invalidateAll()
+                    itemClickListener.clicked(post, adapterPosition)
+                }
+                setOnLongClickListener {
+                    itemClickListener.longClicked(post, adapterPosition)
+                    true
+                }
+            }
+
+            setThumbnail(post, blurNsfw, postActions)
+
+            itemPostBottomPanel.apply {
+                layoutPostBottomPanelUpvoteButton.setOnClickListener {
+                    postActions.vote(post, if (post.likes == true) Vote.UNVOTE else Vote.UPVOTE)
+                    binding.invalidateAll()
+                }
+
+                layoutPostBottomPanelDownvoteButton.setOnClickListener {
+                    postActions.vote(post, if (post.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
+                    binding.invalidateAll()
+                }
+
+                layoutPostBottomPanelSaveButton.setOnClickListener {
+                    postActions.save(post)
+                    binding.invalidateAll()
+                }
+
+                layoutPostBottomPanelShareButton.setOnClickListener {
+                    postActions.share(post)
+                }
+
+                layoutPostBottomPanelMoreOptions.setOnClickListener {
+                    showPopupWindow(post, postActions, (post.author == username), it)
+                }
+            }
+
+            executePendingBindings()
+            binding.itemPostBottomPanel.invalidateAll()
+
+            // Force TextView to redraw and remeasure to prevent unintentional bottom padding
+            itemPostTitle.invalidate()
+            itemPostTitle.forceLayout()
         }
 
-        setThumbnail(post, blurNsfw, postActions)
-
-        binding.itemPostMoreOptions.setOnClickListener {
-            showPopupWindow(post, postActions, (post.author == username), it)
-        }
-
-        binding.executePendingBindings()
-
-        // Force TextView to redraw and remeasure to prevent unintentional bottom padding
-        binding.itemPostTitle.invalidate()
-        binding.itemPostTitle.forceLayout()
     }
 
     private fun setThumbnail(post: Post, blurNsfw: Boolean, postActions: PostActions) {
@@ -108,27 +140,8 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
                     popupWindow.dismiss()
                 }
             }
-            popupPostActionsUpvote.root.setOnClickListener {
-                postActions.vote(post, if (post.likes == true) Vote.UNVOTE else Vote.UPVOTE)
-                binding.invalidateAll()
-                popupWindow.dismiss()
-            }
-            popupPostActionsDownvote.root.setOnClickListener {
-                postActions.vote(post, if (post.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
-                binding.invalidateAll()
-                popupWindow.dismiss()
-            }
-            popupPostActionsShare.root.setOnClickListener {
-                postActions.share(post)
-                popupWindow.dismiss()
-            }
             popupPostActionsProfile.root.setOnClickListener {
                 postActions.viewProfile(post)
-                popupWindow.dismiss()
-            }
-            popupPostActionsSave.root.setOnClickListener {
-                postActions.save(post)
-                binding.invalidateAll()
                 popupWindow.dismiss()
             }
             popupPostActionsHide.root.setOnClickListener {

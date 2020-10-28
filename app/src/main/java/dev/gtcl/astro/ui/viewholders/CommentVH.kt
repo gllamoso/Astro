@@ -32,11 +32,49 @@ class CommentVH private constructor(private val binding: ItemCommentBinding) :
             this.comment = comment
             this.isUser = isUser
             showTopDivider = (adapterPosition != 0 && comment.depth ?: 0 == 0)
-            itemCommentBackground.setOnClickListener {
-                itemClickListener.itemClicked(comment, adapterPosition)
+            itemCommentBackground.apply {
+                setOnClickListener {
+                    itemClickListener.clicked(comment, adapterPosition)
+                }
+                setOnLongClickListener {
+                    if(comment.isCollapsed){
+                        false
+                    } else {
+                        itemClickListener.longClicked(comment, adapterPosition)
+                        true
+                    }
+                }
             }
-            itemCommentMoreOptions.setOnClickListener {
-                showPopupWindow(comment, commentActions, isUser, it)
+            itemCommentBottomPanel.apply {
+                layoutCommentBottomPanelSmallUpvoteButton.setOnClickListener {
+                    commentActions.vote(
+                        comment,
+                        if (comment.likes == true) Vote.UNVOTE else Vote.UPVOTE
+                    )
+                    binding.invalidateAll()
+                }
+
+                layoutCommentBottomPanelSmallDownvoteButton.setOnClickListener {
+                    commentActions.vote(
+                        comment,
+                        if (comment.likes == false) Vote.UNVOTE else Vote.DOWNVOTE
+                    )
+                    binding.invalidateAll()
+                }
+
+                layoutCommentBottomPanelSmallSaveButton.setOnClickListener {
+                    commentActions.save(comment)
+                    binding.invalidateAll()
+                }
+
+
+                layoutCommentBottomPanelSmallReplyButton.setOnClickListener {
+                    commentActions.reply(comment, adapterPosition)
+                }
+
+                layoutCommentBottomPanelSmallMoreOptions.setOnClickListener {
+                    showPopupWindow(comment, commentActions, isUser, it)
+                }
             }
             itemCommentBodyMessageLayout.createHtmlViews(comment.parseBody(), null, linkHandler)
             executePendingBindings()
@@ -67,37 +105,12 @@ class CommentVH private constructor(private val binding: ItemCommentBinding) :
                     popupWindow.dismiss()
                 }
             }
-            popupCommentActionsUpvote.root.setOnClickListener {
-                commentActions.vote(
-                    comment,
-                    if (comment.likes == true) Vote.UNVOTE else Vote.UPVOTE
-                )
-                binding.invalidateAll()
-                popupWindow.dismiss()
-            }
-            popupCommentActionsDownvote.root.setOnClickListener {
-                commentActions.vote(
-                    comment,
-                    if (comment.likes == false) Vote.UNVOTE else Vote.DOWNVOTE
-                )
-                binding.invalidateAll()
-                popupWindow.dismiss()
-            }
-            popupCommentActionsReply.root.setOnClickListener {
-                commentActions.reply(comment, adapterPosition)
-                popupWindow.dismiss()
-            }
-            popupCommentActionsSave.root.setOnClickListener {
-                commentActions.save(comment)
-                binding.invalidateAll()
+            popupCommentActionsShare.root.setOnClickListener {
+                commentActions.share(comment)
                 popupWindow.dismiss()
             }
             popupCommentActionsProfile.root.setOnClickListener {
                 commentActions.viewProfile(comment)
-                popupWindow.dismiss()
-            }
-            popupCommentActionsShare.root.setOnClickListener {
-                commentActions.share(comment)
                 popupWindow.dismiss()
             }
             popupCommentActionsReport.root.setOnClickListener {

@@ -19,15 +19,15 @@ import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.network.Status
-import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.ListingAdapter
+import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
-import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
-import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
+import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
+import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.subreddits.SubredditInfoDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.*
 
@@ -326,7 +326,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                 )
                 dialog.show(parentFragmentManager, null)
             }
-            null -> itemClicked(post, position)
+            null -> clicked(post, position)
             else -> {
                 val mediaType = when (urlType) {
                     UrlType.IMGUR_ALBUM -> MediaType.IMGUR_ALBUM
@@ -551,7 +551,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 //     _| |_| ||  __/ | | | | | | |____| | | (__|   <  | |____| \__ \ ||  __/ | | |  __/ |
 //    |_____|\__\___|_| |_| |_|  \_____|_|_|\___|_|\_\ |______|_|___/\__\___|_| |_|\___|_|
 
-    override fun itemClicked(item: Item, position: Int) {
+    override fun clicked(item: Item, position: Int) {
         when (item) {
             is Post -> {
                 model.addReadItem(item)
@@ -585,6 +585,11 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                 }
             }
         }
+    }
+
+    override fun longClicked(item: Item, position: Int) {
+        item.isExpanded = !item.isExpanded
+        listAdapter.notifyItemChanged(position)
     }
 
     override fun handleLink(link: String) {

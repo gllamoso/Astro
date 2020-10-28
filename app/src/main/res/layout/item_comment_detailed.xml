@@ -29,25 +29,22 @@
             app:cardBackgroundColor="@color/colorItemBackground"
             app:cardCornerRadius="8dp">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
+            <LinearLayout
                 android:id="@+id/itemCommentDetailed_background"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:orientation="vertical"
                 android:background="?android:attr/selectableItemBackground">
 
                 <LinearLayout
                     android:id="@+id/itemCommentDetailed_topViewGroup"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginTop="10dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
-                    android:paddingVertical="2dp"
-                    app:layout_constraintEnd_toStartOf="@id/itemCommentDetailed_moreOptions"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent">
+                    android:paddingVertical="2dp">
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="wrap_content"
@@ -218,60 +215,43 @@
 
                 <TextView
                     android:id="@+id/itemCommentDetailed_linkTitle"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{comment.linkTitleFormatted}"
                     tools:text="Post Link Title"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="4dp"
-                    app:layout_constraintTop_toBottomOf="@id/itemCommentDetailed_topViewGroup"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/itemCommentDetailed_moreOptions"/>
+                    android:layout_marginHorizontal="12dp" />
 
                 <TextView
                     android:id="@+id/itemCommentDetailed_subreddit"
                     android:singleLine="true"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@{comment.subredditPrefixed}"
                     tools:text="r/funny"
                     android:layout_marginTop="2dp"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="4dp"
-                    app:layout_constraintTop_toBottomOf="@id/itemCommentDetailed_linkTitle"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/itemCommentDetailed_moreOptions"/>
+                    android:layout_marginHorizontal="12dp" />
 
                 <LinearLayout
                     android:id="@+id/itemCommentDetailed_bodyMessageLayout"
-                    android:layout_width="0dp"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginBottom="8dp"
-                    android:orientation="vertical"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/itemCommentDetailed_moreOptions"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/itemCommentDetailed_subreddit"
-                    tools:text="The quick brown fox jumps over the lazy dog." />
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginBottom="12dp"
+                    android:layout_marginTop="2dp"
+                    android:paddingVertical="2dp"
+                    android:orientation="vertical" />
 
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/itemCommentDetailed_moreOptions"
-                    android:layout_width="wrap_content"
+                <include
+                    layout="@layout/layout_comment_bottom_panel"
+                    android:id="@+id/itemCommentDetailed_bottomPanel"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginBottom="8dp"
-                    android:layout_marginTop="8dp"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_more_vert_24"
-                    android:visibility="@{comment.collapsed == true ? View.GONE : View.VISIBLE}"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    android:background="?android:attr/colorControlHighlight"
+                    app:itemLiked="@{comment.likes}"
+                    app:itemSaved="@{comment.saved}"
+                    app:show="@{comment.expanded}"/>
 
-            </androidx.constraintlayout.widget.ConstraintLayout>
+            </LinearLayout>
 
         </androidx.cardview.widget.CardView>
 

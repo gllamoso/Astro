@@ -119,7 +119,7 @@ class AccountAboutFragment : Fragment(), SubredditActions, MultiRedditActions,
         MultiRedditInfoDialogFragment.newInstance(multi).show(childFragmentManager, null)
     }
 
-    override fun itemClicked(item: Item, position: Int) {
+    override fun clicked(item: Item, position: Int) {
         when (item) {
             is SubredditInModeratedList -> {
                 findNavController().navigate(
@@ -137,6 +137,8 @@ class AccountAboutFragment : Fragment(), SubredditActions, MultiRedditActions,
             }
         }
     }
+
+    override fun longClicked(item: Item, position: Int) {} // Unused
 
     companion object {
         fun newInstance(user: String?): AccountAboutFragment {
