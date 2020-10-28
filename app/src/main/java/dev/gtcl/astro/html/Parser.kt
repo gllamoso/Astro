@@ -64,7 +64,8 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
                     parseLine(
                         paragraph,
                         parsedText,
-                        spanPlaceholders
+                        spanPlaceholders,
+                            false
                     )
                 }
 
@@ -176,7 +177,8 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
                 parseLine(
                     html.substring(headingStart, headingEnd),
                     parsedText,
-                    spanPlaceholders
+                    spanPlaceholders,
+                        false
                 )
                 spanPlaceholders.add(
                     placeholderIndex,
@@ -205,7 +207,7 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
     return parsedSegments
 }
 
-fun parseLine(html: String, sb: StringBuilder, spanPlaceholders: MutableList<SpanPlaceholder>) {
+fun parseLine(html: String, sb: StringBuilder, spanPlaceholders: MutableList<SpanPlaceholder>, ignoreNewLines: Boolean) {
     val htmlTrimmed = html
         .trimEnd()
 
@@ -354,7 +356,11 @@ fun parseLine(html: String, sb: StringBuilder, spanPlaceholders: MutableList<Spa
                     i++
                 }
             } else if (currentChar == '\n'){
-                sb.append(' ')
+                if(ignoreNewLines){
+                    sb.append(' ')
+                } else {
+                    sb.append(currentChar)
+                }
                 i++
             } else {
                 sb.append(currentChar)
@@ -379,7 +385,7 @@ fun parseTable(html: String): Table {
         val closingTagIndex = html.findNext("</th>".toRegex(), end + 1)
         val sb = StringBuilder()
         val spanPlaceholders = mutableListOf<SpanPlaceholder>()
-        parseLine(html.substring(end + 1, closingTagIndex).trim(), sb, spanPlaceholders)
+        parseLine(html.substring(end + 1, closingTagIndex).trim(), sb, spanPlaceholders, false)
         val parsedHtml = SimpleText(
             sb.toString(),
             spanPlaceholders
@@ -408,7 +414,7 @@ fun parseTable(html: String): Table {
         val closingTagIndex = html.findNext("</td>".toRegex(), end)
         val sb = StringBuilder()
         val spanPlaceholders = mutableListOf<SpanPlaceholder>()
-        parseLine(html.substring(end + 1, closingTagIndex).trim(), sb, spanPlaceholders)
+        parseLine(html.substring(end + 1, closingTagIndex).trim(), sb, spanPlaceholders, false)
         val parsedHtml = SimpleText(
             sb.toString(),
             spanPlaceholders
@@ -488,7 +494,7 @@ fun parseList(
                 val sbIndex = sb.length
                 val spanPlaceholderIndex = spanPlaceholders.size
                 if(itemStart < itemEnd && itemStart in html.indices && itemEnd in html.indices){
-                    parseLine(html.substring(itemStart, itemEnd), sb, spanPlaceholders)
+                    parseLine(html.substring(itemStart, itemEnd), sb, spanPlaceholders, true)
                     spanPlaceholders.add(
                             spanPlaceholderIndex,
                             SpanPlaceholder(
@@ -518,7 +524,8 @@ fun parseCodeBlock(codeBlock: String): CodeBlock {
     parseLine(
         codeBlock.substring(codeBlockStart, codeBlockEnd).trim(),
         codeSb,
-        codeSpanPlaceholders
+        codeSpanPlaceholders,
+            false
     )
     return CodeBlock(
         codeSb.toString(),
