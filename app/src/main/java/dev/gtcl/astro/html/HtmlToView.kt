@@ -283,7 +283,7 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, intercep
                                         parentView.isPressed = false
                                         state = intArrayOf()
                                         parentView.callOnClick()
-                                    }, 100)
+                                    }, 50)
                                 }
                             }
 
