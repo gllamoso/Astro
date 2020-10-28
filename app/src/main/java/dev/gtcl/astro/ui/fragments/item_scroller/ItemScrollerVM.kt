@@ -47,7 +47,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
 
     private lateinit var lastAction: () -> Unit
 
-    private var _showNsfw: Boolean = false
+    protected var _showNsfw: Boolean = false
     val showNsfw: Boolean
         get() = _showNsfw
 

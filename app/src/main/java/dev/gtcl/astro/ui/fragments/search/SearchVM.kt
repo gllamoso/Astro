@@ -31,6 +31,7 @@ class SearchVM(private val application: AstroApplication) : ItemScrollerVM(appli
 
     init {
         setListingInfo(SubredditWhere.POPULAR)
+        _showNsfw = application.sharedPref.getBoolean(NSFW_KEY, false)
     }
 
     fun showPopular(show: Boolean) {
@@ -64,7 +65,7 @@ class SearchVM(private val application: AstroApplication) : ItemScrollerVM(appli
 
     private suspend fun searchSubreddits(query: String, results: MutableList<Item>) {
         val subs = subredditRepository.searchSubreddits(
-            nsfw = true,
+            nsfw = showNsfw,
             includeProfiles = false,
             limit = 10,
             query = query
