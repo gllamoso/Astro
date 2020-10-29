@@ -413,9 +413,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                     closeDrawer(Gravity.START)
                     closeDrawer(Gravity.END)
                 }
-                binding?.root?.let {
-                    Snackbar.make(it, error, Snackbar.LENGTH_LONG).show()
-                }
+                model.errorMessageObserved()
             }
         })
 
