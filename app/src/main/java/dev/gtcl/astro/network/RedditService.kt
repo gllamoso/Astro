@@ -261,6 +261,12 @@ interface RedditApiService {
         @Query("state") state: Boolean
     ): Deferred<Response<Unit>>
 
+    @GET("/api/info")
+    fun getPost(
+        @Header("Authorization") authorization: String?,
+        @Query("id") fullname: String
+    ): Deferred<ListingResponse>
+
 //      _____       _
 //     / ____|     | |
 //    | (___  _   _| |__  ___

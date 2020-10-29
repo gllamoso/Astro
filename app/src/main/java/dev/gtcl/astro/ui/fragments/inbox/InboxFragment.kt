@@ -18,11 +18,13 @@ import dev.gtcl.astro.database.SavedAccount
 import dev.gtcl.astro.databinding.FragmentInboxBinding
 import dev.gtcl.astro.models.reddit.listing.FrontPage
 import dev.gtcl.astro.ui.LeftDrawerAdapter
+import dev.gtcl.astro.ui.LeftDrawerHeader
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
 import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerFragmentDirections
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerVM
+import dev.gtcl.astro.url.URL
 
 class InboxFragment : Fragment(), LeftDrawerActions {
 
@@ -62,7 +64,7 @@ class InboxFragment : Fragment(), LeftDrawerActions {
 
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
             val url = bundle.getString(URL_KEY) ?: return@setFragmentResultListener
-            viewPagerModel.linkClicked(url)
+            viewPagerModel.linkClicked(URL(url))
         })
 
         return binding?.root

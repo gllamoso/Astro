@@ -30,6 +30,7 @@ import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.subreddits.SubredditInfoDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.*
+import dev.gtcl.astro.url.*
 
 open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, MessageActions,
     SubredditActions, ItemClickListener, LinkHandler {
@@ -207,7 +208,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         })
 
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
-            handleLink(bundle.getString(URL_KEY) ?: "")
+            handleLink(URL(bundle.getString(URL_KEY) ?: ""))
         })
 
         childFragmentManager.setFragmentResultListener(
@@ -339,7 +340,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                     else -> null
                 }
                 if (mediaType == null) {
-                    handleLink(post.urlFormatted)
+                    handleLink(URL(post.urlFormatted, urlType))
                     return
                 }
                 val url = when (mediaType) {
@@ -592,8 +593,20 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         listAdapter.notifyItemChanged(position)
     }
 
-    override fun handleLink(link: String) {
-        activityModel.handleLink(link)
+    override fun handleLink(url: URL) {
+        when(val urlType = url.urlType ?: url.url.getUrlType()){
+            UrlType.USER -> {
+                val user = REDDIT_USER_REGEX.getFirstGroup(url.url)
+                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(user)))
+            }
+            UrlType.SUBREDDIT -> {
+                val subreddit = SUBREDDIT_REGEX.getFirstGroup(url.url) ?: return
+                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(SubredditListing(subreddit))))
+            }
+            else -> {
+                activityModel.handleLink(URL(url.url, urlType))
+            }
+        }
     }
 
 //     _   _                 _____           _

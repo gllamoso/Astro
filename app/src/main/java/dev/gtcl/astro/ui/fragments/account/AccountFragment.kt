@@ -26,6 +26,7 @@ import dev.gtcl.astro.databinding.PopupAccountActionsBinding
 import dev.gtcl.astro.models.reddit.listing.Account
 import dev.gtcl.astro.models.reddit.listing.FrontPage
 import dev.gtcl.astro.ui.LeftDrawerAdapter
+import dev.gtcl.astro.ui.LeftDrawerHeader
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.inbox.ComposeDialogFragment
 import dev.gtcl.astro.ui.fragments.inbox.Draft

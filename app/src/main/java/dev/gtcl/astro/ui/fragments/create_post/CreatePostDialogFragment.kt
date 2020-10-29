@@ -21,6 +21,7 @@ import dev.gtcl.astro.ui.fragments.create_post.resubmit.ResubmitDialogFragment
 import dev.gtcl.astro.ui.fragments.flair.FlairListDialogFragment
 import dev.gtcl.astro.ui.fragments.rules.RulesDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerVM
+import dev.gtcl.astro.url.URL
 import java.util.*
 import kotlin.NoSuchElementException
 
@@ -326,9 +327,7 @@ class CreatePostDialogFragment : DialogFragment() {
 
         model.newPostData.observe(viewLifecycleOwner, { newPostData ->
             if (newPostData != null) {
-                VALID_REDDIT_COMMENTS_URL_REGEX.find(newPostData.url)?.value?.let {
-                    viewPagerModel.newPost(it)
-                }
+                viewPagerModel.linkClicked(URL(newPostData.url))
                 model.newPostObserved()
                 dismiss()
             }

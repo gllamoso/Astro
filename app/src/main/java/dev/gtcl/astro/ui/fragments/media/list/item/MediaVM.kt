@@ -2,8 +2,10 @@ package dev.gtcl.astro.ui.fragments.media.list.item
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import dev.gtcl.astro.*
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.AstroViewModel
 import dev.gtcl.astro.models.reddit.MediaURL
+import dev.gtcl.astro.url.MediaType
 
 class MediaVM(application: AstroApplication) : AstroViewModel(application) {
 

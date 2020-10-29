@@ -9,10 +9,10 @@ import android.view.ViewGroup
 import android.webkit.URLUtil
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
-import dev.gtcl.astro.LinkPost
 import dev.gtcl.astro.R
 import dev.gtcl.astro.databinding.FragmentCreatePostLinkBinding
 import dev.gtcl.astro.ui.fragments.create_post.CreatePostVM
+import dev.gtcl.astro.ui.fragments.create_post.LinkPost
 
 class CreatePostLinkFragment : Fragment() {
 

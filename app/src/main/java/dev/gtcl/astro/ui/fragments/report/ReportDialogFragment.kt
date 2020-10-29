@@ -12,6 +12,8 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentDialogReportBinding
+import dev.gtcl.astro.models.reddit.RuleData
+import dev.gtcl.astro.models.reddit.RuleType
 import dev.gtcl.astro.models.reddit.listing.Comment
 import dev.gtcl.astro.models.reddit.listing.Item
 import dev.gtcl.astro.models.reddit.listing.Post

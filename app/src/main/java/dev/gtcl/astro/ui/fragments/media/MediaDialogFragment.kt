@@ -7,7 +7,9 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.PopupWindow
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
@@ -24,8 +26,10 @@ import dev.gtcl.astro.databinding.FragmentDialogMediaBinding
 import dev.gtcl.astro.databinding.PopupDownloadActionsBinding
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import dev.gtcl.astro.ui.fragments.view_pager.PostPage
 import dev.gtcl.astro.ui.fragments.media.list.MediaThumbnailsAdapter
+import dev.gtcl.astro.ui.fragments.view_pager.PostPage
+import dev.gtcl.astro.url.MediaType
+import dev.gtcl.astro.url.SimpleMediaType
 import timber.log.Timber
 
 class MediaDialogFragment : DialogFragment() {
@@ -62,11 +66,13 @@ class MediaDialogFragment : DialogFragment() {
         activityModel.mediaDialogOpened(true)
         if (!model.mediaInitialized && model.isLoading.value != true) {
             val url = requireArguments().get(MEDIA_KEY) as MediaURL?
-            if (url != null) {
-                model.setMedia(url)
-            } else {
-                val mediaItems = requireArguments().get(MEDIA_ITEMS_KEY) as List<MediaURL>
-                model.setItems(mediaItems)
+            val mediaItems = requireArguments().get(MEDIA_ITEMS_KEY) as List<MediaURL>?
+            val galleryId = requireArguments().getString(GALLERY_KEY)
+
+            when{
+                url != null -> model.setMedia(url)
+                mediaItems != null -> model.setItems(mediaItems)
+                else -> model.fetchGallery(galleryId ?: "")
             }
 
         }
@@ -192,6 +198,9 @@ class MediaDialogFragment : DialogFragment() {
         binding?.fragmentMediaDialogComments?.setOnClickListener {
             if (postPage != null) {
                 activityModel.newViewPagerPage(postPage)
+            } else if(model.post.value != null){
+                val post = model.post.value!!
+                activityModel.newViewPagerPage(PostPage(post, -1))
             }
             dismiss()
         }
@@ -306,6 +315,12 @@ class MediaDialogFragment : DialogFragment() {
                     POST_PAGE_KEY to postPage
                 )
             }
+        }
+
+        fun newInstance(
+                galleryId: String
+        ) = MediaDialogFragment().apply {
+            arguments = bundleOf(GALLERY_KEY to galleryId)
         }
     }
 }

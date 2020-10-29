@@ -4,7 +4,6 @@ import android.content.Context
 import android.view.ViewGroup
 import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
-import dev.gtcl.astro.LeftDrawerHeader
 import dev.gtcl.astro.R
 import dev.gtcl.astro.actions.LeftDrawerActions
 import dev.gtcl.astro.database.SavedAccount

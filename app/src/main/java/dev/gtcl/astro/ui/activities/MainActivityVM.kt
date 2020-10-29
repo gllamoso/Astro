@@ -6,9 +6,11 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.database.SavedAccount
 import dev.gtcl.astro.database.Subscription
 import dev.gtcl.astro.models.reddit.AccessToken
+import dev.gtcl.astro.models.reddit.RuleType
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerPage
+import dev.gtcl.astro.url.URL
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -33,8 +35,8 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
     val openChromeTab: LiveData<String?>
         get() = _openChromeTab
 
-    private val _handleLink = MutableLiveData<String?>()
-    val handleLink: LiveData<String?>
+    private val _handleLink = MutableLiveData<URL?>()
+    val handleLink: LiveData<URL?>
         get() = _handleLink
 
     private val _mediaDialogOpened = MutableLiveData<Boolean>().apply { value = false }
@@ -330,7 +332,7 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
         _openChromeTab.value = null
     }
 
-    fun handleLink(url: String) {
+    fun handleLink(url: URL) {
         _handleLink.value = url
     }
 

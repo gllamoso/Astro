@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="dev.gtcl.astro.MediaType"/>
+        <import type="dev.gtcl.astro.url.MediaType"/>
         <import type="android.view.View"/>
         <variable
             name="model"

@@ -199,6 +199,14 @@ class ListingRepository private constructor(private val application: AstroApplic
         }
     }
 
+    fun getPostFromId(fullname: String): Deferred<ListingResponse>{
+        return if (application.accessToken != null) {
+            RedditApi.oauth.getPost(application.accessToken!!.authorizationHeader, fullname)
+        } else {
+            RedditApi.base.getPost(null, fullname)
+        }
+    }
+
     companion object {
         private lateinit var INSTANCE: ListingRepository
         fun getInstance(application: AstroApplication): ListingRepository {

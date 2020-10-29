@@ -27,6 +27,7 @@ import dev.gtcl.astro.databinding.FragmentMediaBinding
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.media.list.MediaListFragment
+import dev.gtcl.astro.url.MediaType
 import timber.log.Timber
 
 class MediaFragment : Fragment() {

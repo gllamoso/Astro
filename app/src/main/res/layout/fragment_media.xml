@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <import type="dev.gtcl.astro.MediaType"/>
+        <import type="dev.gtcl.astro.url.MediaType"/>
         <import type="android.view.View"/>
         <variable
             name="model"

@@ -6,8 +6,8 @@
     <data>
         <variable
             name="mediaType"
-            type="dev.gtcl.astro.SimpleMediaType" />
-        <import type="dev.gtcl.astro.SimpleMediaType"/>
+            type="dev.gtcl.astro.url.SimpleMediaType" />
+        <import type="dev.gtcl.astro.url.SimpleMediaType"/>
     </data>
 
     <androidx.cardview.widget.CardView

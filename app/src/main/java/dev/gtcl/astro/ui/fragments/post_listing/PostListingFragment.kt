@@ -31,6 +31,7 @@ import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.network.Status
 import dev.gtcl.astro.ui.LeftDrawerAdapter
+import dev.gtcl.astro.ui.LeftDrawerHeader
 import dev.gtcl.astro.ui.ListingAdapter
 import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.activities.MainActivityVM
@@ -45,6 +46,7 @@ import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.subreddits.SubredditInfoDialogFragment
 import dev.gtcl.astro.ui.fragments.subscriptions.SubscriptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.*
+import dev.gtcl.astro.url.*
 
 
 class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditActions,
@@ -576,7 +578,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                     else -> null
                 }
                 if (mediaType == null) {
-                    viewPagerModel.linkClicked(post.urlFormatted ?: return)
+                    viewPagerModel.linkClicked(URL(post.urlFormatted ?: return, post.urlType))
                     return
                 }
                 val url = when (mediaType) {
@@ -1073,16 +1075,28 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         )
     }
 
+    override fun handleLink(url: URL) {
+        when(val urlType = url.urlType ?: url.url.getUrlType()){
+            UrlType.USER -> {
+                val user = REDDIT_USER_REGEX.getFirstGroup(url.url)
+                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(user)))
+            }
+            UrlType.SUBREDDIT -> {
+                val subreddit = SUBREDDIT_REGEX.getFirstGroup(url.url) ?: return
+                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(SubredditListing(subreddit))))
+            }
+            else -> {
+                viewPagerModel.linkClicked(URL(url.url, urlType))
+            }
+        }
+    }
+
     companion object {
         fun newInstance(postListing: PostListing): PostListingFragment {
             return PostListingFragment().apply {
                 arguments = bundleOf(LISTING_KEY to postListing)
             }
         }
-    }
-
-    override fun handleLink(link: String) {
-        activityModel.handleLink(link)
     }
 
 }

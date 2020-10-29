@@ -44,6 +44,7 @@ import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
 import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.*
+import dev.gtcl.astro.url.*
 
 class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler,
     DrawerLayout.DrawerListener {
@@ -217,7 +218,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             )
         } else {
             val url = requireArguments().getString(URL_KEY) ?: return
-            val fullContextLink = (VALID_REDDIT_COMMENTS_URL_REGEX.find(url) ?: return).value
+            val fullContextLink = (REDDIT_COMMENTS_REGEX.find(url) ?: return).value
             if (model.allCommentsFetched.value == true) {
                 model.fetchComments(
                     fullContextLink,
@@ -225,7 +226,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     refreshPost = refreshPost
                 )
             } else {
-                val isFullContext = url == fullContextLink
+                val isFullContext = url.endsWith(fullContextLink, true)
                 if(isFullContext){
                     model.setAllCommentsFetched(true)
                 }
@@ -328,7 +329,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     private fun initUrlPreview(url: String) {
         binding?.fragmentCommentsContent?.layoutCommentsContentUrlLayout?.layoutUrlWithThumbnailCardView?.setOnClickListener {
-            handleLink(url)
+            handleLink(URL(url))
         }
     }
 
@@ -665,8 +666,20 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         adapter.notifyItemChanged(position)
     }
 
-    override fun handleLink(link: String) {
-        viewPagerModel.linkClicked(link)
+    override fun handleLink(url: URL) {
+        when(val urlType = url.urlType ?: url.url.getUrlType()){
+            UrlType.USER -> {
+                val user = REDDIT_USER_REGEX.getFirstGroup(url.url)
+                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(user)))
+            }
+            UrlType.SUBREDDIT -> {
+                val subreddit = SUBREDDIT_REGEX.getFirstGroup(url.url) ?: return
+                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(SubredditListing(subreddit))))
+            }
+            else -> {
+                viewPagerModel.linkClicked(URL(url.url, urlType))
+            }
+        }
     }
 
 //     _____                                             _   _

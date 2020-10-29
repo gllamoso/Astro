@@ -2,8 +2,13 @@ package dev.gtcl.astro.ui.fragments.report
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import dev.gtcl.astro.*
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.AstroViewModel
+import dev.gtcl.astro.R
+import dev.gtcl.astro.getErrorMessage
+import dev.gtcl.astro.models.reddit.RuleData
 import dev.gtcl.astro.models.reddit.RuleFor
+import dev.gtcl.astro.models.reddit.RuleType
 import dev.gtcl.astro.models.reddit.listing.Comment
 import dev.gtcl.astro.models.reddit.listing.Item
 import dev.gtcl.astro.models.reddit.listing.Post

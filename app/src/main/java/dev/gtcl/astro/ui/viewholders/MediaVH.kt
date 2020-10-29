@@ -6,10 +6,10 @@ import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.request.RequestOptions
 import dev.gtcl.astro.GlideApp
-import dev.gtcl.astro.MediaType
 import dev.gtcl.astro.R
 import dev.gtcl.astro.databinding.ItemMediaSelectableBinding
 import dev.gtcl.astro.models.reddit.MediaURL
+import dev.gtcl.astro.url.MediaType
 
 
 class MediaVH private constructor(private val binding: ItemMediaSelectableBinding) :

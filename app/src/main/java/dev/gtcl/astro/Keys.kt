@@ -32,6 +32,7 @@ const val ALBUM_KEY = "album_name"
 const val COPY_KEY = "copy"
 const val ACCESS_TOKEN_KEY = "access_token"
 const val LAST_TOKEN_REFRESH_KEY = "last_token_refresh"
+const val GALLERY_KEY = "gallery_key"
 
 // Draft
 const val DRAFT_KEY = "draft"
@@ -40,7 +41,6 @@ const val SUBJECT_KEY = "subject"
 const val MESSAGE_KEY = "message"
 
 // For listing fragments
-const val PROFILE_INFO_KEY = "profile_info"
 const val POST_SORT_KEY = "post_sort"
 const val TIME_KEY = "time"
 const val MESSAGE_WHERE_KEY = "message_where"

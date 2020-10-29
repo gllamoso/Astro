@@ -20,6 +20,7 @@ import androidx.core.view.setPadding
 import dev.gtcl.astro.R
 import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.html.spans.*
+import dev.gtcl.astro.url.URL
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
 fun SimpleText.createView(context: Context, linkHandler: LinkHandler): TextView {
@@ -190,7 +191,7 @@ fun createSpannableString(
             is Hyperlink -> {
                 val clickableSpan = object : ClickableSpan() {
                     override fun onClick(p0: View) {
-                        linkHandler.handleLink(item.link)
+                        linkHandler.handleLink(URL(item.link))
                     }
                 }
                 spannableString.setSpan(clickableSpan, start, end)

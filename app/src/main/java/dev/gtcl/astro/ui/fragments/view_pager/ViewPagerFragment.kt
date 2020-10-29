@@ -11,7 +11,8 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
-import dev.gtcl.astro.*
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.ViewModelFactory
 import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.actions.NavigationActions
 import dev.gtcl.astro.databinding.FragmentViewpagerBinding
@@ -20,6 +21,8 @@ import dev.gtcl.astro.models.reddit.listing.PostListing
 import dev.gtcl.astro.models.reddit.listing.ProfileListing
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
+import dev.gtcl.astro.url.*
+import timber.log.Timber
 
 class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 
@@ -137,13 +140,6 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
             }
         })
 
-        model.newPostLink.observe(viewLifecycleOwner, {
-            if (it != null) {
-                activityModel.newViewPagerPage(CommentsPage(it, false))
-                model.newPostObserved()
-            }
-        })
-
         activityModel.handleLink.observe(viewLifecycleOwner, {
             if (it != null) {
                 handleLink(it)
@@ -204,62 +200,65 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
         binding?.fragmentViewPagerViewPager?.setCurrentItem(currentPage + 1, true)
     }
 
-    override fun handleLink(link: String) {
-        when (link.getUrlType()) {
+    override fun handleLink(url: URL) {
+        val link = url.url
+        Timber.tag("URL").d("$url")
+        when (url.urlType ?: url.url.getUrlType()) {
             UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE))
-                .show(childFragmentManager, null)
+                    .show(childFragmentManager, null)
             UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF))
-                .show(childFragmentManager, null)
+                    .show(childFragmentManager, null)
             UrlType.GIFV -> MediaDialogFragment.newInstance(
-                MediaURL(
-                    link.replaceFirst(".gifv", ".mp4"),
-                    MediaType.VIDEO
-                )
+                    MediaURL(
+                            link.replaceFirst(".gifv", ".mp4"),
+                            MediaType.VIDEO
+                    )
             ).show(childFragmentManager, null)
             UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(
-                MediaURL(
-                    link,
-                    MediaType.VIDEO
-                )
+                    MediaURL(
+                            link,
+                            MediaType.VIDEO
+                    )
             ).show(childFragmentManager, null)
             UrlType.REDDIT_VIDEO -> {
                 MediaDialogFragment.newInstance(
-                    MediaURL(
-                        "$link/HLSPlaylist.m3u8",
-                        MediaType.VIDEO
-                    )
+                        MediaURL(
+                                "$link/HLSPlaylist.m3u8",
+                                MediaType.VIDEO
+                        )
                 ).show(childFragmentManager, null)
             }
             UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT))
-                .show(childFragmentManager, null)
+                    .show(childFragmentManager, null)
             UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(
-                MediaURL(
-                    link,
-                    MediaType.IMGUR_ALBUM
-                )
+                    MediaURL(
+                            link,
+                            MediaType.IMGUR_ALBUM
+                    )
             ).show(childFragmentManager, null)
             UrlType.REDDIT_THREAD -> activityModel.newViewPagerPage(CommentsPage(link, true))
             UrlType.REDDIT_COMMENTS -> {
-                val linkWithBaseUrl = when {
-                    link.startsWith("/r/") -> "https://www.reddit.com$link"
-                    link.startsWith("r/") -> "https://www.reddit.com/$link"
-                    else -> link
-                }
-                val validUrl =
-                    (VALID_REDDIT_COMMENTS_URL_REGEX.find(linkWithBaseUrl) ?: return).value
-                activityModel.newViewPagerPage(CommentsPage(validUrl, false))
+                activityModel.newViewPagerPage(CommentsPage(link, false))
             }
-            UrlType.OTHER, UrlType.REDDIT_GALLERY -> activityModel.openChromeTab(
-                link
-            )
             UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(
-                MediaURL(
-                    link,
-                    MediaType.IMGUR_PICTURE
-                )
+                    MediaURL(
+                            link,
+                            MediaType.IMGUR_PICTURE
+                    )
             ).show(childFragmentManager, null)
             UrlType.REDGIFS -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.REDGIFS))
-                .show(childFragmentManager, null)
+                    .show(childFragmentManager, null)
+            UrlType.REDDIT_GALLERY -> {
+                val id = REDDIT_GALLERY_REGEX.getFirstGroup(link)
+                if(id != null){
+                    MediaDialogFragment.newInstance(id).show(childFragmentManager, null)
+                } else {
+                    activityModel.openChromeTab(link)
+                }
+            }
+            else -> activityModel.openChromeTab(
+                    link
+            )
         }
     }
 

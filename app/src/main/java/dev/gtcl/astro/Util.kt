@@ -3,7 +3,6 @@ package dev.gtcl.astro
 import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.net.Uri
-import android.os.Parcelable
 import android.text.Html
 import android.util.Base64
 import android.util.TypedValue
@@ -32,7 +31,6 @@ import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonDataException
 import dev.gtcl.astro.models.reddit.listing.*
-import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import java.lang.reflect.Field
@@ -213,33 +211,6 @@ enum class Visibility {
     HIDDEN
 }
 
-enum class RuleType {
-    RULE,
-    SITE_RULE,
-    OTHER
-}
-
-data class RuleData(
-    val rule: String,
-    val type: RuleType
-)
-
-enum class MediaType {
-    PICTURE,
-    IMGUR_PICTURE,
-    GIF,
-    VIDEO,
-    VIDEO_PREVIEW,
-    GFYCAT,
-    REDGIFS,
-    IMGUR_ALBUM
-}
-
-enum class SimpleMediaType {
-    PICTURE,
-    VIDEO
-}
-
 const val SECONDS_IN_YEAR = 31_536_000.toLong()
 const val SECONDS_IN_MONTH = 2_592_000.toLong()
 const val SECONDS_IN_WEEK = 604_800.toLong()
@@ -362,8 +333,6 @@ fun String.formatHtmlEntities(): String {
     return Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY).toString()
 }
 
-fun String.stripImageUrl() = IMAGE_REGEX.find(this)?.value
-
 operator fun <T> MutableLiveData<MutableList<T>>.plusAssign(values: List<T>) {
     val value = this.value ?: arrayListOf()
     value.addAll(values)
@@ -380,99 +349,6 @@ operator fun <T> MutableLiveData<MutableSet<T>>.minusAssign(item: T) {
     val value = this.value ?: hashSetOf()
     value.remove(item)
     this.value = value
-}
-
-sealed class PostContent
-class TextPost(val body: String) : PostContent()
-class ImagePost(val uri: Uri) : PostContent()
-class LinkPost(val url: String) : PostContent()
-
-val IMGUR_GALLERY_REGEX = "http[s]?://(?:m\\.)?imgur\\.com/gallery/\\w+".toRegex()
-val IMGUR_ALBUM_REGEX = "http[s]?://(?:m\\.)?imgur\\.com/a/\\w+".toRegex()
-val IMGUR_IMAGE_REGEX = "http[s]?://(?:m\\.)?imgur\\.com/\\w+".toRegex()
-val IMAGE_REGEX = "http[s]?://.+\\.(?:jpg|png|svg|jpeg|webp)".toRegex()
-val GIF_REGEX = "http[s]?://.+\\.gif".toRegex()
-val GIFV_REGEX = "http[s]?://.+\\.gifv".toRegex()
-val GFYCAT_REGEX = "http[s]?://(?:www\\.)?gfycat\\.com/(?:gifs/detail/)?\\w+".toRegex()
-val REDGIFS_REGEX = "http[s]?://(?:www\\.)?redgifs\\.com/watch/\\w+".toRegex()
-val HLS_REGEX = "http[s]?://.+/HLSPlaylist\\.m3u8.*".toRegex()
-val REDDIT_VIDEO_REGEX = "http[s]?://v\\.redd\\.it/\\w+".toRegex()
-val STANDARD_VIDEO = "http[s]?://.+\\.(mp4)".toRegex()
-val REDDIT_COMMENTS_REGEX =
-    "(?:http[s]?://(?:www|oauth)\\.reddit\\.com)?/r/[^/]+/comments/.+".toRegex()
-val REDDIT_THREAD_REGEX =
-    "(?:http[s]?://(?:www|oauth)\\.reddit\\.com)?/r/[^/]+/comments/\\w+/\\w+/\\w+[/]?.*".toRegex()
-val VALID_REDDIT_COMMENTS_URL_REGEX =
-    "http[s]?://(?:www|oauth)\\.reddit\\.com/r/[^/]+/comments/\\w+/\\w+/?".toRegex()
-val REDDIT_GALLERY_REGEX =
-    "http[s]?://www\\.reddit\\.com/gallery/\\w+".toRegex()
-
-@Parcelize
-enum class UrlType : Parcelable {
-    IMAGE,
-    GIF,
-    GIFV,
-    GFYCAT,
-    REDGIFS,
-    HLS,
-    REDDIT_VIDEO,
-    STANDARD_VIDEO,
-    IMGUR_ALBUM,
-    IMGUR_IMAGE,
-    REDDIT_COMMENTS,
-    REDDIT_THREAD,
-    REDDIT_GALLERY,
-    OTHER
-}
-
-fun String.getUrlType(): UrlType {
-    return when {
-        IMAGE_REGEX.containsMatchIn(this) -> UrlType.IMAGE
-        GIFV_REGEX.matches(this) -> UrlType.GIFV
-        GIF_REGEX.matches(this) -> UrlType.GIF
-        HLS_REGEX.matches(this) -> UrlType.HLS
-        REDDIT_VIDEO_REGEX.matches(this) -> UrlType.REDDIT_VIDEO
-        STANDARD_VIDEO.matches(this) -> UrlType.STANDARD_VIDEO
-        IMGUR_ALBUM_REGEX.containsMatchIn(this) or IMGUR_GALLERY_REGEX.containsMatchIn(this) -> UrlType.IMGUR_ALBUM
-        IMGUR_IMAGE_REGEX.containsMatchIn(this) -> UrlType.IMGUR_IMAGE
-        GFYCAT_REGEX.containsMatchIn(this) -> UrlType.GFYCAT
-        REDGIFS_REGEX.containsMatchIn(this) -> UrlType.REDGIFS
-        REDDIT_GALLERY_REGEX.matches(this) -> UrlType.REDDIT_GALLERY
-        REDDIT_THREAD_REGEX.matches(this) -> UrlType.REDDIT_THREAD
-        REDDIT_COMMENTS_REGEX.containsMatchIn(this) -> UrlType.REDDIT_COMMENTS
-        else -> UrlType.OTHER
-    }
-}
-
-fun String.getImgurHashFromUrl(): String? {
-    return when (this.getUrlType()) {
-        UrlType.IMGUR_ALBUM -> {
-            when {
-                IMGUR_GALLERY_REGEX.containsMatchIn(this) -> {
-                    IMGUR_GALLERY_REGEX.getIdFromUrl(this)
-                }
-                IMGUR_ALBUM_REGEX.containsMatchIn(this) -> {
-                    IMGUR_ALBUM_REGEX.getIdFromUrl(this)
-                }
-                else -> {
-                    null
-                }
-            }
-        }
-        UrlType.IMGUR_IMAGE -> {
-            if (IMGUR_IMAGE_REGEX.containsMatchIn(this)) {
-                IMGUR_IMAGE_REGEX.getIdFromUrl(this)
-            } else {
-                null
-            }
-        }
-        else -> null
-    }
-}
-
-fun Regex.getIdFromUrl(str: String): String? {
-    val validUrl = this.find(str)?.value
-    return validUrl?.substring(validUrl.lastIndexOf('/') + 1)
 }
 
 @ColorInt
@@ -498,13 +374,6 @@ fun Exception.getErrorMessage(context: Context): String {
         else -> R.string.something_went_wrong
     }
     return context.getString(errorId)
-}
-
-enum class LeftDrawerHeader {
-    HOME,
-    MY_ACCOUNT,
-    INBOX,
-    SETTINGS
 }
 
 fun rotateView(view: View, rotate: Boolean) {

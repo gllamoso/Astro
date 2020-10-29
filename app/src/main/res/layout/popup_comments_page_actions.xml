@@ -6,13 +6,13 @@
     <data>
         <variable
             name="currentItemMediaType"
-            type="dev.gtcl.astro.SimpleMediaType" />
+            type="dev.gtcl.astro.url.SimpleMediaType" />
         <variable
             name="model"
             type="dev.gtcl.astro.ui.fragments.comments.CommentsVM" />
         <import type="android.view.View" />
-        <import type="dev.gtcl.astro.UrlType"/>
-        <import type="dev.gtcl.astro.SimpleMediaType"/>
+        <import type="dev.gtcl.astro.url.UrlType"/>
+        <import type="dev.gtcl.astro.url.SimpleMediaType"/>
     </data>
 
     <androidx.cardview.widget.CardView

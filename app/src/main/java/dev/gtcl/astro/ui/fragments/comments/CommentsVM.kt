@@ -8,6 +8,7 @@ import dev.gtcl.astro.download.DownloadIntentService
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.MoreComments
+import dev.gtcl.astro.url.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -138,8 +139,8 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                     _post.postValue(commentPage.post)
                 }
                 if (!isFullContext) {
-                    fullContextLink = (VALID_REDDIT_COMMENTS_URL_REGEX.find(permalink)
-                        ?: return@launch).value
+                    fullContextLink = (REDDIT_COMMENTS_REGEX.getFirstGroup(permalink)
+                        ?: return@launch)
                 }
                 if(_allCommentsFetched.value != isFullContext){
                     _allCommentsFetched.postValue(isFullContext)
@@ -319,7 +320,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                         )
                     }
                     UrlType.GFYCAT -> {
-                        val id = GFYCAT_REGEX.getIdFromUrl(post.urlFormatted ?: return@launch)
+                        val id = GFYCAT_REGEX.getFirstGroup(post.urlFormatted ?: return@launch)
                             ?: return@launch
                         var videoUrl: String
                         try {
@@ -355,7 +356,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                         )
                     }
                     UrlType.REDGIFS -> {
-                        val id = REDGIFS_REGEX.getIdFromUrl(post.urlFormatted ?: return@launch)
+                        val id = REDGIFS_REGEX.getFirstGroup(post.urlFormatted ?: return@launch)
                             ?: return@launch
                         val videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(id)
                             .await()

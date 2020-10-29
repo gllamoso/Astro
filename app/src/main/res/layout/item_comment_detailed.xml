@@ -246,7 +246,6 @@
                     android:id="@+id/itemCommentDetailed_bottomPanel"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:background="?android:attr/colorControlHighlight"
                     app:itemLiked="@{comment.likes}"
                     app:itemSaved="@{comment.saved}"
                     app:show="@{comment.expanded}"/>

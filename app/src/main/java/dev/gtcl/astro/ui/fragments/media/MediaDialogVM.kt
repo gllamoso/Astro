@@ -7,6 +7,10 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.download.DownloadIntentService
 import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.Post
+import dev.gtcl.astro.url.GFYCAT_REGEX
+import dev.gtcl.astro.url.MediaType
+import dev.gtcl.astro.url.REDGIFS_REGEX
+import dev.gtcl.astro.url.getFirstGroup
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -76,7 +80,7 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                         listOf(MediaURL(imgurData.link, mediaType))
                     }
                     MediaType.GFYCAT -> {
-                        val id = GFYCAT_REGEX.getIdFromUrl(mediaURL.url) ?: return@launch
+                        val id = GFYCAT_REGEX.getFirstGroup(mediaURL.url) ?: return@launch
                         var videoUrl: String
                         try {
                             videoUrl = gfycatRepository.getGfycatInfo(id)
@@ -97,7 +101,7 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                         listOf(MediaURL(videoUrl, MediaType.VIDEO, mediaURL.backupUrl))
                     }
                     MediaType.REDGIFS -> {
-                        val id = REDGIFS_REGEX.getIdFromUrl(mediaURL.url) ?: return@launch
+                        val id = REDGIFS_REGEX.getFirstGroup(mediaURL.url) ?: return@launch
                         val videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(id)
                             .await()
                             .gfyItem
@@ -117,6 +121,28 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                 _isLoading.postValue(false)
             }
 
+        }
+    }
+
+    fun fetchGallery(galleryId: String){
+        coroutineScope.launch {
+            try{
+                _isLoading.postValue(true)
+                val fullname = if(galleryId.startsWith("t3_")){
+                    galleryId
+                } else {
+                    "t3_$galleryId"
+                }
+                val post = listingRepository.getPostFromId(fullname).await().data.children[0].data as Post
+                val mediaItems = post.galleryAsMediaItems ?: throw Exception()
+                _mediaItems.postValue(mediaItems)
+                _post.postValue(post)
+            } catch (e: Exception){
+                _mediaItems.postValue(listOf())
+                _errorMessage.postValue(e.getErrorMessage(application))
+            } finally {
+                _isLoading.postValue(false)
+            }
         }
     }
 

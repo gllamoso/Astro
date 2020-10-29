@@ -9,7 +9,7 @@
             name="model"
             type="dev.gtcl.astro.ui.fragments.comments.CommentsVM" />
         <import type="android.view.View"/>
-        <import type="dev.gtcl.astro.UrlType"/>
+        <import type="dev.gtcl.astro.url.UrlType"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
