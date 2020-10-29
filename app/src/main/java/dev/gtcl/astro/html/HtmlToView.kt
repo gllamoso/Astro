@@ -249,6 +249,7 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, intercep
         return
     }
 
+    this.visibility = View.VISIBLE
     this.removeAllViews()
     val context = this.context
     val margin = 8.toDp(context)
