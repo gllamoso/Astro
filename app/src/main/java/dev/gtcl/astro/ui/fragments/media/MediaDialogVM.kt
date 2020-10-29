@@ -81,32 +81,57 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                     }
                     MediaType.GFYCAT -> {
                         val id = GFYCAT_REGEX.getFirstGroup(mediaURL.url) ?: return@launch
-                        var videoUrl: String
+                        var videoUrl: String?
                         try {
                             videoUrl = gfycatRepository.getGfycatInfo(id)
-                                .await()
-                                .gfyItem
-                                .mobileUrl
-                        } catch (e: Exception) {
-                            if (e is HttpException) {
-                                videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(id)
                                     .await()
                                     .gfyItem
                                     .mobileUrl
-                                listOf(MediaURL(videoUrl, MediaType.VIDEO, mediaURL.backupUrl))
-                            } else {
-                                throw Exception()
+                        } catch (e: HttpException) {
+                            videoUrl = try {
+                                gfycatRepository.getGfycatInfoFromRedgifs(id)
+                                    .await()
+                                    .gfyItem
+                                    .mobileUrl
+                            } catch (e: Exception){
+                                mediaURL.backupUrl
                             }
+                        } catch (e: Exception){
+                            videoUrl = mediaURL.backupUrl
                         }
-                        listOf(MediaURL(videoUrl, MediaType.VIDEO, mediaURL.backupUrl))
+
+                        if(videoUrl != null){
+                            val backupUrl = if(videoUrl != mediaURL.backupUrl){
+                                mediaURL.backupUrl
+                            } else {
+                                null
+                            }
+                            listOf(MediaURL(videoUrl, MediaType.VIDEO, backupUrl))
+                        } else {
+                            throw Exception()
+                        }
                     }
                     MediaType.REDGIFS -> {
                         val id = REDGIFS_REGEX.getFirstGroup(mediaURL.url) ?: return@launch
-                        val videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(id)
-                            .await()
-                            .gfyItem
-                            .mobileUrl
-                        listOf(MediaURL(videoUrl, MediaType.VIDEO, mediaURL.backupUrl))
+                        val videoUrl = try {
+                            gfycatRepository.getGfycatInfoFromRedgifs(id)
+                                    .await()
+                                    .gfyItem
+                                    .mobileUrl
+                        } catch (e: Exception){
+                            mediaURL.backupUrl
+                        }
+
+                        if(videoUrl != null){
+                            val backupUrl = if(videoUrl != mediaURL.backupUrl){
+                                mediaURL.backupUrl
+                            } else {
+                                null
+                            }
+                            listOf(MediaURL(videoUrl, MediaType.VIDEO, backupUrl))
+                        } else {
+                            throw Exception()
+                        }
                     }
                     else -> {
                         listOf(mediaURL)

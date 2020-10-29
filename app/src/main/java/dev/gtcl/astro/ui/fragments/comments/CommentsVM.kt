@@ -322,54 +322,71 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                     UrlType.GFYCAT -> {
                         val id = GFYCAT_REGEX.getFirstGroup(post.urlFormatted ?: return@launch)
                             ?: return@launch
-                        var videoUrl: String
+                        var videoUrl: String?
                         try {
                             videoUrl = gfycatRepository.getGfycatInfo(id)
-                                .await()
-                                .gfyItem
-                                .mobileUrl
-                        } catch (e: Exception) {
-                            if (e is HttpException) {
-                                videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(id)
                                     .await()
                                     .gfyItem
                                     .mobileUrl
-                                listOf(
-                                    MediaURL(
-                                        videoUrl,
-                                        MediaType.VIDEO,
-                                        post.previewVideoUrl,
-                                        post.thumbnailFormatted
-                                    )
-                                )
-                            } else {
-                                throw Exception()
+                        } catch (e: HttpException) {
+                            videoUrl = try {
+                                gfycatRepository.getGfycatInfoFromRedgifs(id)
+                                        .await()
+                                        .gfyItem
+                                        .mobileUrl
+                            } catch (e: Exception){
+                                post.previewVideoUrl
                             }
+                        } catch (e: Exception){
+                            videoUrl = post.previewVideoUrl
                         }
-                        listOf(
-                            MediaURL(
-                                videoUrl,
-                                MediaType.VIDEO,
-                                post.previewVideoUrl,
-                                post.thumbnailFormatted
+                        if(videoUrl != null){
+                            val backupUrl = if(videoUrl != post.previewVideoUrl){
+                                post.previewVideoUrl
+                            } else {
+                                null
+                            }
+                            listOf(
+                                MediaURL(
+                                    videoUrl,
+                                    MediaType.VIDEO,
+                                    backupUrl,
+                                    post.thumbnailFormatted
+                                )
                             )
-                        )
+                        } else {
+                            throw Exception()
+                        }
                     }
                     UrlType.REDGIFS -> {
                         val id = REDGIFS_REGEX.getFirstGroup(post.urlFormatted ?: return@launch)
                             ?: return@launch
-                        val videoUrl = gfycatRepository.getGfycatInfoFromRedgifs(id)
-                            .await()
-                            .gfyItem
-                            .mobileUrl
-                        listOf(
-                            MediaURL(
-                                videoUrl,
-                                MediaType.VIDEO,
-                                post.previewVideoUrl,
-                                post.thumbnailFormatted
+                        val videoUrl = try {
+                            gfycatRepository.getGfycatInfoFromRedgifs(id)
+                                    .await()
+                                    .gfyItem
+                                    .mobileUrl
+                            } catch (e: Exception){
+                                post.previewVideoUrl
+                            }
+
+                        if(videoUrl != null) {
+                            val backupUrl = if(videoUrl != post.previewVideoUrl) {
+                                post.previewVideoUrl
+                            } else {
+                                null
+                            }
+                            listOf(
+                                MediaURL(
+                                    videoUrl,
+                                    MediaType.VIDEO,
+                                    backupUrl,
+                                    post.thumbnailFormatted
+                                )
                             )
-                        )
+                        } else {
+                            throw Exception()
+                        }
                     }
                     UrlType.IMGUR_ALBUM -> {
                         val album =
