@@ -336,6 +336,13 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
             }
         })
 
+        model.sidebarError.observe(viewLifecycleOwner, {
+            if(it != null){
+                binding?.fragmentListingRightDrawerLayout?.name = it
+                model.sidebarErrorObserved()
+            }
+        })
+
     }
 
     private fun loadTopBarIcon(imgUrl: String, placeholder: Drawable) {

@@ -201,7 +201,7 @@
     <string name="user_does_not_exist">User does not exist</string>
     <string name="socket_timeout_error">Unable to connect to Reddit at this time. Please retry later.</string>
     <string name="unknown_host_exception">Please reconnect to the internet.</string>
-    <string name="something_went_wrong">Something went wrong. Please retry later.</string>
+    <string name="something_went_wrong">Something went wrong.</string>
     <string name="error_in_json_parsing">Error in JSON Parsing.</string>
     <string name="cannot_reply_to_comment">Cannot reply to comment</string>
     <string name="cannot_reply_to_post">Cannot reply to post</string>
