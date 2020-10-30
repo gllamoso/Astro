@@ -1,5 +1,6 @@
 package dev.gtcl.astro.ui.fragments.comments
 
+import android.webkit.URLUtil
 import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -281,6 +282,11 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                 _mediaItemsLoading.postValue(true)
                 _mediaItemsFailed.postValue(false)
                 _loading.postValue(true)
+                val thumbnail = if(URLUtil.isValidUrl(post.thumbnailFormatted)) {
+                        post.thumbnailFormatted
+                    } else {
+                        null
+                    }
                 _mediaItems.postValue(when (post.urlType) {
                     UrlType.IMAGE -> {
                         listOf(MediaURL(post.urlFormatted ?: return@launch, MediaType.PICTURE))
@@ -295,7 +301,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                                 MediaURL(
                                     url ?: return@launch,
                                     MediaType.VIDEO,
-                                    thumbnail = post.thumbnailFormatted
+                                    thumbnail = thumbnail
                                 )
                             )
                         } else {
@@ -304,7 +310,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                                 MediaURL(
                                     url,
                                     MediaType.VIDEO,
-                                    thumbnail = post.thumbnailFormatted
+                                    thumbnail = thumbnail
                                 )
                             )
                         }
@@ -315,7 +321,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                                 (post.urlFormatted ?: return@launch).replace(".gifv", ".mp4"),
                                 MediaType.VIDEO,
                                 backupUrl = post.previewVideoUrl,
-                                thumbnail = post.thumbnailFormatted
+                                thumbnail = thumbnail
                             )
                         )
                     }
@@ -351,7 +357,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                                     videoUrl,
                                     MediaType.VIDEO,
                                     backupUrl,
-                                    post.thumbnailFormatted
+                                    thumbnail
                                 )
                             )
                         } else {
@@ -381,7 +387,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                                     videoUrl,
                                     MediaType.VIDEO,
                                     backupUrl,
-                                    post.thumbnailFormatted
+                                    thumbnail
                                 )
                             )
                         } else {
@@ -394,7 +400,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                                 (post.urlFormatted ?: return@launch).getImgurHashFromUrl()
                                     ?: return@launch
                             )
-                                .await().data.images ?: return@launch
+                            .await().data.images ?: return@launch
                         album.map {
                             val mediaType = when {
                                 it.type.startsWith("video") -> {

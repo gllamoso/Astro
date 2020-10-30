@@ -126,6 +126,7 @@ class MediaFragment : Fragment() {
 
     private fun initSubsamplingImageView(mediaURL: MediaURL) {
         val url = (mediaURL.url.formatHtmlEntities())
+        model.hasFailed(false)
         val requestOptions = RequestOptions()
             .skipMemoryCache(true)
 //            .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -143,7 +144,7 @@ class MediaFragment : Fragment() {
                         isFirstResource: Boolean
                     ): Boolean {
                         model.setLoadingState(false)
-                        model.fail()
+                        model.hasFailed(true)
                         return false
                     }
 
@@ -169,6 +170,7 @@ class MediaFragment : Fragment() {
 
     private fun initGifToImageView(mediaURL: MediaURL) {
         val url = mediaURL.url
+        model.hasFailed(false)
         val requestOptions = RequestOptions()
             .skipMemoryCache(true)
 //            .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -185,7 +187,7 @@ class MediaFragment : Fragment() {
                         isFirstResource: Boolean
                     ): Boolean {
                         model.setLoadingState(false)
-                        model.fail()
+                        model.hasFailed(true)
                         return false
                     }
 
@@ -226,6 +228,7 @@ class MediaFragment : Fragment() {
     }
 
     private fun initExoPlayer(mediaURL: MediaURL) {
+        model.hasFailed(false)
         var videoUri = Uri.parse(mediaURL.url)
         var mediaSource = buildMediaSource(context ?: return, videoUri)
         player =
@@ -243,7 +246,7 @@ class MediaFragment : Fragment() {
             prepare(mediaSource, false, false)
             addListener(object : Player.EventListener {
                 override fun onPlayerError(error: ExoPlaybackException?) {
-                    Timber.tag("Media").d("Exception $error")
+                    Timber.tag("Media").e("Exception $error")
                     if (mediaURL.backupUrl != null && videoUri.path != mediaURL.backupUrl) {
                         videoUri = Uri.parse(mediaURL.backupUrl)
                         mediaSource = buildMediaSource(
@@ -252,7 +255,7 @@ class MediaFragment : Fragment() {
                         )
                         prepare(mediaSource, false, false)
                     } else {
-                        model.fail()
+                        model.hasFailed(true)
                     }
                 }
 
@@ -267,6 +270,7 @@ class MediaFragment : Fragment() {
     }
 
     private fun initVideoPreview(mediaURL: MediaURL) {
+        model.hasFailed(false)
         val url = (mediaURL.thumbnail ?: mediaURL.url).replaceFirst("http://", "https://")
         val requestOptions = RequestOptions()
 //            .diskCacheStrategy(DiskCacheStrategy.NONE)
@@ -285,7 +289,7 @@ class MediaFragment : Fragment() {
                         isFirstResource: Boolean
                     ): Boolean {
                         model.setLoadingState(false)
-                        model.fail()
+                        model.hasFailed(true)
                         return false
                     }
 

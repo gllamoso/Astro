@@ -46,8 +46,8 @@ class MediaVM(application: AstroApplication) : AstroViewModel(application) {
         _isLoading.value = loading
     }
 
-    fun fail() {
-        _hasFailed.value = true
+    fun hasFailed(failed: Boolean) {
+        _hasFailed.value = failed
     }
 
 
