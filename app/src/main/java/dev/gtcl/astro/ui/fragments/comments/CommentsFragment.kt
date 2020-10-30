@@ -316,7 +316,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     )
                 } else {
                     when (post.urlType) {
-                        UrlType.OTHER, UrlType.REDDIT_COMMENTS, UrlType.REDDIT_THREAD -> initUrlPreview(
+                        UrlType.OTHER, UrlType.REDDIT_COMMENTS, UrlType.REDDIT_THREAD, UrlType.SUBREDDIT, UrlType.USER -> initUrlPreview(
                             post.urlFormatted ?: return@observe
                         )
                         else -> model.fetchMediaItems(post)

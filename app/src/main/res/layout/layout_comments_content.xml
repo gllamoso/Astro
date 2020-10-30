@@ -42,7 +42,7 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:visibility="@{(!model.post.self &amp;&amp; (model.post.urlType == UrlType.OTHER || model.post.urlType == UrlType.REDDIT_COMMENTS || model.post.urlType == UrlType.REDDIT_THREAD)) ? View.VISIBLE : View.GONE}"/>
+            android:visibility="@{(!model.post.self &amp;&amp; (model.post.urlType == UrlType.OTHER || model.post.urlType == UrlType.REDDIT_COMMENTS || model.post.urlType == UrlType.REDDIT_THREAD || model.post.urlType == UrlType.SUBREDDIT || model.post.urlType == UrlType.USER)) ? View.VISIBLE : View.GONE}"/>
 
         <androidx.viewpager2.widget.ViewPager2
             android:id="@+id/layoutCommentsContent_viewPager"
