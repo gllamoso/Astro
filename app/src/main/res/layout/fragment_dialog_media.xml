@@ -180,6 +180,7 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:layout_gravity="end"
             android:background="@android:color/black"
+            android:scrollbarThumbVertical="@color/colorAccent"
             android:orientation="vertical"
             android:scrollbars="vertical"
             />

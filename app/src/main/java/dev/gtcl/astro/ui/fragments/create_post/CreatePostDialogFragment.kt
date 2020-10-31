@@ -10,18 +10,18 @@ import android.widget.ArrayAdapter
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.ViewModelProviders
+import androidx.navigation.fragment.findNavController
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.astro.*
 import dev.gtcl.astro.databinding.FragmentDialogCreatePostBinding
 import dev.gtcl.astro.models.reddit.listing.Flair
 import dev.gtcl.astro.models.reddit.listing.Post
+import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.create_post.resubmit.ResubmitDialogFragment
 import dev.gtcl.astro.ui.fragments.flair.FlairListDialogFragment
 import dev.gtcl.astro.ui.fragments.rules.RulesDialogFragment
-import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerVM
-import dev.gtcl.astro.url.URL
 import java.util.*
 import kotlin.NoSuchElementException
 
@@ -34,9 +34,7 @@ class CreatePostDialogFragment : DialogFragment() {
         ViewModelProvider(this, viewModelFactory).get(CreatePostVM::class.java)
     }
 
-    private val viewPagerModel: ViewPagerVM by lazy {
-        ViewModelProviders.of(requireParentFragment()).get(ViewPagerVM::class.java)
-    }
+    private val activityModel: MainActivityVM by activityViewModels()
 
     override fun onStart() {
         super.onStart()
@@ -327,7 +325,7 @@ class CreatePostDialogFragment : DialogFragment() {
 
         model.newPostData.observe(viewLifecycleOwner, { newPostData ->
             if (newPostData != null) {
-                viewPagerModel.linkClicked(URL(newPostData.url))
+                newPostData.url.handleUrl(context, null, null, parentFragmentManager, findNavController(), activityModel)
                 model.newPostObserved()
                 dismiss()
             }

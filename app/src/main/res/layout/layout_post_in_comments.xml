@@ -61,43 +61,42 @@
                     android:layout_marginEnd="4dp"/>
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/ic_bookmark_24"
                     app:tint="@android:color/holo_orange_light"
                     android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}"
-                    android:layout_marginEnd="4dp"/>
+                    android:layout_marginStart="-3dp" />
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
                     android:src="@drawable/ic_hide_24"
-                    android:visibility="@{post.hidden == true ? View.VISIBLE : View.GONE}"
-                    android:layout_marginEnd="4dp"/>
+                    android:visibility="@{post.hidden == true ? View.VISIBLE : View.GONE}" />
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="-3dp"
                     android:src="@drawable/ic_pin_24"
                     app:tint="@android:color/holo_green_light"
                     android:visibility="@{post.pinned == true || post.stickied == true ? View.VISIBLE : View.GONE}" />
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="-3dp"
                     android:src="@drawable/ic_lock_24"
                     app:tint="@android:color/holo_red_light"
                     android:visibility="@{post.locked == true ? View.VISIBLE : View.GONE}" />
 
                 <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_marginEnd="4dp"
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_marginStart="-3dp"
                     android:src="@drawable/ic_delete_24"
                     app:tint="@android:color/darker_gray"
-                    android:visibility="@{post.deleted == true ? View.VISIBLE : View.GONE}" />
+                    android:visibility="@{post.deleted == true || post.removedBy != null ? View.VISIBLE : View.GONE}" />
 
             </LinearLayout>
 
@@ -105,12 +104,12 @@
                 android:id="@+id/layoutPostInComments_title"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:textSize="20sp"
                 android:text="@{post.titleFormatted}"
+                android:textSize="20sp"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toBottomOf="@id/layoutPostInComments_tagsGroup"
-                tools:text="Title"/>
+                tools:text="Title" />
 
             <LinearLayout
                 android:id="@+id/layoutPostInComments_postInfo1"

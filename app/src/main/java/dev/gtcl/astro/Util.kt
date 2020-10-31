@@ -1,5 +1,6 @@
 package dev.gtcl.astro
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.net.Uri
@@ -20,7 +21,9 @@ import androidx.annotation.Nullable
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.NavController
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.dash.DashMediaSource
@@ -30,9 +33,15 @@ import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
 import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonDataException
+import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
+import dev.gtcl.astro.ui.activities.MainActivityVM
+import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
+import dev.gtcl.astro.ui.fragments.view_pager.*
+import dev.gtcl.astro.url.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 import java.lang.reflect.Field
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
@@ -329,7 +338,7 @@ suspend fun setItemsReadStatus(items: List<Item>, readIds: HashSet<String>) {
     }
 }
 
-fun String.formatHtmlEntities(): String {
+fun String.removeHtmlEntities(): String {
     return Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY).toString()
 }
 
@@ -472,4 +481,105 @@ fun hideKeyboardFrom(context: Context, view: View) {
     val imm =
         context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(view.windowToken, 0)
+}
+
+@SuppressLint("ShowToast")
+fun String.handleUrl(context: Context?, postPage: PostPage?, backupVideo: String?, fragmentManager: FragmentManager, navController: NavController, activityModel: MainActivityVM){
+
+    try {
+        when (postPage?.post?.urlType ?: this.getUrlType()) {
+            UrlType.IMAGE -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(this, MediaType.PICTURE),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.GIFV -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(this.replace(".gifv", ".mp4"), MediaType.VIDEO, backupVideo),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.GIF -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(this, MediaType.GIF),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.HLS, UrlType.STANDARD_VIDEO -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(this, MediaType.VIDEO, backupVideo),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.REDDIT_VIDEO -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL("$this/HLSPlaylist.m3u8", MediaType.VIDEO, backupVideo),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.IMGUR_ALBUM -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(this, MediaType.IMGUR_ALBUM),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.IMGUR_IMAGE -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(this, MediaType.IMGUR_PICTURE),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.GFYCAT -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(this, MediaType.GFYCAT, backupVideo),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.REDGIFS -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(this, MediaType.REDGIFS, backupVideo),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.SUBREDDIT -> navController.navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(SubredditListing(
+                SUBREDDIT_REGEX.getFirstGroup(this) ?: throw IllegalStateException("Unable to find subreddit: $this")))))
+            UrlType.USER -> navController.navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(
+                REDDIT_USER_REGEX.getFirstGroup(this) ?: throw IllegalStateException("Unable to find user: $this"))))
+            UrlType.REDDIT_GALLERY -> {
+                if(postPage != null){
+                    val galleryItems = postPage.post.galleryAsMediaItems ?: throw IllegalStateException("Gallery items is null: ${postPage.post}")
+                    MediaDialogFragment.newInstance(
+                        this,
+                        galleryItems,
+                        postPage
+                    ).show(fragmentManager, null)
+                } else {
+                    val id = REDDIT_GALLERY_REGEX.getFirstGroup(this)
+                    if(id != null){
+                        MediaDialogFragment.newInstance(id).show(fragmentManager, null)
+                    } else {
+                        activityModel.openChromeTab(this)
+                    }
+                }
+
+            }
+            UrlType.REDDIT_THREAD -> {
+                activityModel.newViewPagerPage(CommentsPage(this, true))
+            }
+            UrlType.REDDIT_COMMENTS -> {
+                activityModel.newViewPagerPage(CommentsPage(this, false))
+            }
+            UrlType.OTHER -> {
+                activityModel.openChromeTab(this)
+            }
+        }
+
+    } catch (e: Exception){
+        Timber.tag("URL").e(e.toString())
+        context?.let {
+            Toast.makeText(context, context.getString(R.string.failed_to_view_post_content), Toast.LENGTH_LONG).show()
+        }
+    }
+
 }

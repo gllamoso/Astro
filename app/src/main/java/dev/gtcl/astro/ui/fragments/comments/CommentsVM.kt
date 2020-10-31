@@ -1,19 +1,14 @@
 package dev.gtcl.astro.ui.fragments.comments
 
-import android.webkit.URLUtil
-import android.widget.Toast
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.*
-import dev.gtcl.astro.download.DownloadIntentService
-import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.MoreComments
-import dev.gtcl.astro.url.*
-import kotlinx.coroutines.Dispatchers
+import dev.gtcl.astro.url.REDDIT_COMMENTS_REGEX
+import dev.gtcl.astro.url.UrlType
+import dev.gtcl.astro.url.getFirstGroup
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import retrofit2.HttpException
 import timber.log.Timber
 
 const val CHILDREN_PER_FETCH = 50
@@ -56,17 +51,17 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
     val notifyAt: LiveData<Int?>
         get() = _notifyAt
 
-    private val _mediaItems = MutableLiveData<List<MediaURL>?>().apply { value = null }
-    val mediaItems: LiveData<List<MediaURL>?>
-        get() = _mediaItems
+    private val _previewImg = MutableLiveData<String?>().apply { value = null }
+    val previewImg: LiveData<String?>
+        get() = _previewImg
 
-    private val _mediaItemsLoading = MutableLiveData<Boolean>()
-    val mediaItemsLoading: LiveData<Boolean>
-        get() = _mediaItemsLoading
+    private val _previewType = MutableLiveData<UrlType?>()
+    val previewType: LiveData<UrlType?>
+        get() = _previewType
 
-    private val _mediaItemsFailed = MutableLiveData<Boolean>().apply { value = false }
-    val mediaItemsFailed: LiveData<Boolean>
-        get() = _mediaItemsFailed
+    private val _showPreviewIcon = MutableLiveData<Boolean>().apply { value = false }
+    val showPreviewIcon: LiveData<Boolean>
+        get() = _showPreviewIcon
 
     private val pageSize = 15
 
@@ -103,6 +98,9 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
         coroutineScope.launch {
             post.parseSelfText()
             _post.postValue(post)
+            val preview = post.previewImage ?: post.getThumbnail(false) ?: ""
+            _previewImg.postValue(preview)
+            _previewType.postValue(post.urlType)
         }
     }
 
@@ -138,6 +136,9 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                 if (refreshPost) {
                     commentPage.post.parseSelfText()
                     _post.postValue(commentPage.post)
+                    val preview = commentPage.post.previewImage ?: commentPage.post.getThumbnail(false) ?: ""
+                    _previewImg.postValue(preview)
+                    _previewType.postValue(commentPage.post.urlType)
                 }
                 if (!isFullContext) {
                     fullContextLink = (REDDIT_COMMENTS_REGEX.getFirstGroup(permalink)
@@ -276,240 +277,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
         _comments.value?.set(position, comment)
     }
 
-    fun fetchMediaItems(post: Post) {
-        coroutineScope.launch {
-            try {
-                _mediaItemsLoading.postValue(true)
-                _mediaItemsFailed.postValue(false)
-                _loading.postValue(true)
-                val thumbnail = if(URLUtil.isValidUrl(post.thumbnailFormatted)) {
-                        post.thumbnailFormatted
-                    } else {
-                        null
-                    }
-                _mediaItems.postValue(when (post.urlType) {
-                    UrlType.IMAGE -> {
-                        listOf(MediaURL(post.urlFormatted ?: return@launch, MediaType.PICTURE))
-                    }
-                    UrlType.GIF -> {
-                        listOf(MediaURL(post.urlFormatted ?: return@launch, MediaType.GIF))
-                    }
-                    UrlType.HLS, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> {
-                        if (post.previewVideoUrl != null) {
-                            val url = post.previewVideoUrl
-                            listOf(
-                                MediaURL(
-                                    url ?: return@launch,
-                                    MediaType.VIDEO,
-                                    thumbnail = thumbnail
-                                )
-                            )
-                        } else {
-                            val url = post.urlFormatted ?: return@launch
-                            listOf(
-                                MediaURL(
-                                    url,
-                                    MediaType.VIDEO,
-                                    thumbnail = thumbnail
-                                )
-                            )
-                        }
-                    }
-                    UrlType.GIFV -> {
-                        listOf(
-                            MediaURL(
-                                (post.urlFormatted ?: return@launch).replace(".gifv", ".mp4"),
-                                MediaType.VIDEO,
-                                backupUrl = post.previewVideoUrl,
-                                thumbnail = thumbnail
-                            )
-                        )
-                    }
-                    UrlType.GFYCAT -> {
-                        val id = GFYCAT_REGEX.getFirstGroup(post.urlFormatted ?: return@launch)
-                            ?: return@launch
-                        var videoUrl: String?
-                        try {
-                            videoUrl = gfycatRepository.getGfycatInfo(id)
-                                    .await()
-                                    .gfyItem
-                                    .mobileUrl
-                        } catch (e: HttpException) {
-                            videoUrl = try {
-                                gfycatRepository.getGfycatInfoFromRedgifs(id)
-                                        .await()
-                                        .gfyItem
-                                        .mobileUrl
-                            } catch (e: Exception){
-                                post.previewVideoUrl
-                            }
-                        } catch (e: Exception){
-                            videoUrl = post.previewVideoUrl
-                        }
-                        if(videoUrl != null){
-                            val backupUrl = if(videoUrl != post.previewVideoUrl){
-                                post.previewVideoUrl
-                            } else {
-                                null
-                            }
-                            listOf(
-                                MediaURL(
-                                    videoUrl,
-                                    MediaType.VIDEO,
-                                    backupUrl,
-                                    thumbnail
-                                )
-                            )
-                        } else {
-                            throw Exception()
-                        }
-                    }
-                    UrlType.REDGIFS -> {
-                        val id = REDGIFS_REGEX.getFirstGroup(post.urlFormatted ?: return@launch)
-                            ?: return@launch
-                        val videoUrl = try {
-                            gfycatRepository.getGfycatInfoFromRedgifs(id)
-                                    .await()
-                                    .gfyItem
-                                    .mobileUrl
-                            } catch (e: Exception){
-                                post.previewVideoUrl
-                            }
-
-                        if(videoUrl != null) {
-                            val backupUrl = if(videoUrl != post.previewVideoUrl) {
-                                post.previewVideoUrl
-                            } else {
-                                null
-                            }
-                            listOf(
-                                MediaURL(
-                                    videoUrl,
-                                    MediaType.VIDEO,
-                                    backupUrl,
-                                    thumbnail
-                                )
-                            )
-                        } else {
-                            throw Exception()
-                        }
-                    }
-                    UrlType.IMGUR_ALBUM -> {
-                        val album =
-                            imgurRepository.getAlbumImages(
-                                (post.urlFormatted ?: return@launch).getImgurHashFromUrl()
-                                    ?: return@launch
-                            )
-                            .await().data.images ?: return@launch
-                        album.map {
-                            val mediaType = when {
-                                it.type.startsWith("video") -> {
-                                    MediaType.VIDEO
-                                }
-                                it.type.startsWith("image/gif") -> {
-                                    MediaType.GIF
-                                }
-                                else -> {
-                                    MediaType.PICTURE
-                                }
-                            }
-                            MediaURL(it.link, mediaType)
-                        }
-                    }
-                    UrlType.IMGUR_IMAGE -> {
-                        val imgurData = imgurRepository.getImage(
-                            (post.urlFormatted ?: return@launch).getImgurHashFromUrl()
-                                ?: return@launch
-                        )
-                            .await().data
-                        val mediaType = when {
-                            imgurData.type?.startsWith("video") ?: false -> {
-                                MediaType.VIDEO
-                            }
-                            imgurData.type?.startsWith("image/gif") ?: false -> {
-                                MediaType.GIF
-                            }
-                            else -> {
-                                MediaType.PICTURE
-                            }
-                        }
-                        listOf(MediaURL(imgurData.link, mediaType))
-                    }
-                    UrlType.REDDIT_GALLERY -> {
-                        if (post.galleryAsMediaItems?.size ?: 0 == 0) {
-                            _mediaItemsFailed.postValue(true)
-                            null
-                        } else {
-                            post.galleryAsMediaItems
-                        }
-                    }
-                    else -> {
-                        null
-                    }
-                }
-                )
-            } catch (e: Exception) {
-                _mediaItemsFailed.postValue(true)
-                Timber.tag(this::javaClass.name).d(e)
-            } finally {
-                _loading.postValue(false)
-                _mediaItemsLoading.postValue(false)
-            }
-        }
-    }
-
-    fun downloadAlbum() {
-        if (_mediaItems.value == null) {
-            return
-        }
-
-        DownloadIntentService.enqueueWork(
-            application.applicationContext,
-            (_mediaItems.value ?: return).map { it.url })
-    }
-
-    fun downloadItem(position: Int) {
-        if (_mediaItems.value == null) {
-            return
-        }
-
-        coroutineScope.launch {
-            withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    application,
-                    application.getText(R.string.downloading),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            val item = (_mediaItems.value ?: return@launch)[position]
-            var downloadUrl = item.url
-
-            if (item.mediaType == MediaType.GFYCAT) {
-                try {
-                    downloadUrl = gfycatRepository.getGfycatInfo(
-                        item.url.replace("http[s]?://gfycat.com/".toRegex(), "").split("-")[0]
-                    )
-                        .await()
-                        .gfyItem
-                        .mp4Url
-                } catch (e: Exception) {
-                    if (e is HttpException && e.code() == 404 && item.backupUrl != null) {
-                        downloadUrl = item.backupUrl
-                    } else {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                application,
-                                application.getText(R.string.unable_to_download_file),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
-            } else if (item.mediaType == MediaType.PICTURE) {
-                downloadUrl = item.url.formatHtmlEntities()
-            }
-
-            DownloadIntentService.enqueueWork(application.applicationContext, downloadUrl)
-        }
+    fun showPreviewIcon(show: Boolean){
+        _showPreviewIcon.value = show
     }
 }

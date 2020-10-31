@@ -10,10 +10,10 @@ import dev.gtcl.astro.Visibility
 import dev.gtcl.astro.Vote
 import dev.gtcl.astro.database.SavedAccount
 import dev.gtcl.astro.database.Subscription
-import dev.gtcl.astro.formatHtmlEntities
 import dev.gtcl.astro.html.ParsedHtmlSegment
 import dev.gtcl.astro.html.parseToHtmlSegments
 import dev.gtcl.astro.models.reddit.MediaURL
+import dev.gtcl.astro.removeHtmlEntities
 import dev.gtcl.astro.url.MediaType
 import dev.gtcl.astro.url.REDDIT_VIDEO_REGEX
 import dev.gtcl.astro.url.getUrlType
@@ -121,7 +121,7 @@ data class Comment(
     }
 
     @IgnoredOnParcel
-    val bodyFormatted = body.formatHtmlEntities()
+    val bodyFormatted = body.removeHtmlEntities()
 
     @IgnoredOnParcel
     val linkTitleFormatted: CharSequence? = if (linkTitle != null) {
@@ -131,10 +131,10 @@ data class Comment(
     }
 
     @IgnoredOnParcel
-    val permalinkFormatted = permalink?.formatHtmlEntities()
+    val permalinkFormatted = permalink?.removeHtmlEntities()
 
     @IgnoredOnParcel
-    val contextFormatted = context?.formatHtmlEntities()
+    val contextFormatted = context?.removeHtmlEntities()
 
     @IgnoredOnParcel
     val permalinkWithRedditDomain = if (permalinkFormatted != null) {
@@ -200,7 +200,7 @@ data class AuthorFlairRichtext(
     private val url: String?
 ) : Parcelable {
     @IgnoredOnParcel
-    val urlFormatted = url?.formatHtmlEntities()
+    val urlFormatted = url?.removeHtmlEntities()
 }
 
 //   _   ___                                               _
@@ -225,7 +225,7 @@ data class Account(
 ) : Item(ItemType.Account) {
 
     @IgnoredOnParcel
-    val validProfileImg = iconImg?.formatHtmlEntities()
+    val validProfileImg = iconImg?.removeHtmlEntities()
 
     @IgnoredOnParcel
     val validBannerImg = subreddit?.banner
@@ -304,7 +304,9 @@ data class Post(
     @Json(name = "stickied")
     val stickied: Boolean,
     val pinned: Boolean,
-    val locked: Boolean
+    val locked: Boolean,
+    @Json(name = "removed_by_category")
+    val removedBy: String?
 ) : Item(ItemType.Post) {
 
     @IgnoredOnParcel
@@ -319,10 +321,18 @@ data class Post(
     }
 
     @IgnoredOnParcel
-    val urlFormatted = url?.formatHtmlEntities()
+    val urlFormatted = url?.removeHtmlEntities()
+
+    fun getThumbnail(nsfw: Boolean): String?{
+        return if(nsfw){
+            preview?.images?.get(0)?.variants?.nsfw?.resolutions?.get(0)?.url?.removeHtmlEntities()
+        } else {
+            preview?.images?.get(0)?.resolutions?.get(0)?.url?.removeHtmlEntities()
+        } ?: thumbnail?.removeHtmlEntities()
+    }
 
     @IgnoredOnParcel
-    val thumbnailFormatted = thumbnail?.formatHtmlEntities()
+    val previewImage = preview?.images?.get(0)?.resolutions?.last()?.url?.removeHtmlEntities()
 
     @IgnoredOnParcel
     val subredditDisplayName = if (subreddit.startsWith("u_")) {
@@ -332,7 +342,7 @@ data class Post(
     }
 
     @IgnoredOnParcel
-    val permalinkFormatted = permalink.formatHtmlEntities()
+    val permalinkFormatted = permalink.removeHtmlEntities()
 
     @IgnoredOnParcel
     var isRead = false
@@ -365,17 +375,17 @@ data class Post(
         }
 
     @IgnoredOnParcel
-    val permalinkWithRedditDomain = "https://www.reddit.com${permalink.formatHtmlEntities()}"
+    val permalinkWithRedditDomain = "https://www.reddit.com${permalink.removeHtmlEntities()}"
 
     @IgnoredOnParcel
-    val titleFormatted = title.formatHtmlEntities()
+    val titleFormatted = title.removeHtmlEntities()
 
     @IgnoredOnParcel
     val deleted: Boolean
         get() = author == "[deleted]"
 
     @IgnoredOnParcel
-    val urlType = url?.formatHtmlEntities()?.getUrlType()
+    val urlType = url?.removeHtmlEntities()?.getUrlType()
 
     @IgnoredOnParcel
     val galleryAsMediaItems: List<MediaURL>? = when {
@@ -453,10 +463,8 @@ data class Post(
 enum class PostType {
     @SerializedName("self")
     TEXT,
-
     @SerializedName("link")
     URL,
-
     @SerializedName("crosspost")
     CROSSPOST
 }
@@ -464,8 +472,28 @@ enum class PostType {
 // Reddit API Response
 @Parcelize
 data class Preview(
+    val images: List<PreviewImages>,
     @Json(name = "reddit_video_preview")
     val redditVideo: RedditVideo?
+) : Parcelable
+
+@Parcelize
+data class PreviewImages(
+    val source: PreviewImage,
+    val resolutions: List<PreviewImage>,
+    val variants: ImageVariant?
+) : Parcelable
+
+@Parcelize
+data class ImageVariant(
+    val nsfw: PreviewImages?
+): Parcelable
+
+@Parcelize
+data class PreviewImage(
+    val url: String,
+    val width: Int,
+    val height: Int
 ) : Parcelable
 
 @Parcelize
@@ -486,7 +514,7 @@ data class RedditVideo(
     private val hlsUrl: String?
 ) : Parcelable {
     @IgnoredOnParcel
-    val hlsUrlFormatted = hlsUrl?.formatHtmlEntities()
+    val hlsUrlFormatted = hlsUrl?.removeHtmlEntities()
 }
 
 @Parcelize
@@ -560,7 +588,7 @@ data class Message(
     }
 
     @IgnoredOnParcel
-    val bodyFormatted = body.formatHtmlEntities()
+    val bodyFormatted = body.removeHtmlEntities()
 }
 
 //   _   _____             _____       _                  _     _ _ _
@@ -604,7 +632,7 @@ data class Subreddit(
     override val id = name.replaceFirst("t5_", "")
 
     @IgnoredOnParcel
-    val publicDescriptionFormatted = publicDescription.formatHtmlEntities()
+    val publicDescriptionFormatted = publicDescription.removeHtmlEntities()
 
     @IgnoredOnParcel
     @Transient
@@ -624,7 +652,7 @@ data class Subreddit(
     val isUser = displayName.startsWith("u_")
 
     @IgnoredOnParcel
-    val titleFormatted = title.formatHtmlEntities()
+    val titleFormatted = title.removeHtmlEntities()
 
     @IgnoredOnParcel
     var isFavorite = false
@@ -646,16 +674,16 @@ data class Subreddit(
 
     @IgnoredOnParcel
     val icon: String? = when {
-        !iconImg.isNullOrBlank() -> iconImg.formatHtmlEntities()
-        !communityIcon.isNullOrBlank() -> communityIcon.formatHtmlEntities()
+        !iconImg.isNullOrBlank() -> iconImg.removeHtmlEntities()
+        !communityIcon.isNullOrBlank() -> communityIcon.removeHtmlEntities()
         else -> null
     }
 
     @IgnoredOnParcel
     val banner: String? = when {
-        !mobileBannerImg.isNullOrBlank() -> mobileBannerImg.formatHtmlEntities().stripImageUrl()
-        !bannerImg.isNullOrBlank() -> bannerImg.formatHtmlEntities().stripImageUrl()
-        !bannerBackgroundImg.isNullOrBlank() -> bannerBackgroundImg.formatHtmlEntities()
+        !mobileBannerImg.isNullOrBlank() -> mobileBannerImg.removeHtmlEntities().stripImageUrl()
+        !bannerImg.isNullOrBlank() -> bannerImg.removeHtmlEntities().stripImageUrl()
+        !bannerBackgroundImg.isNullOrBlank() -> bannerBackgroundImg.removeHtmlEntities()
             .stripImageUrl()
         else -> null
     }
@@ -685,10 +713,10 @@ data class Award(
 ) : Parcelable, Item(ItemType.Award) {
 
     @IgnoredOnParcel
-    val icon70Formatted = icon70.formatHtmlEntities()
+    val icon70Formatted = icon70.removeHtmlEntities()
 
     @IgnoredOnParcel
-    val icon40Formatted = icon40.formatHtmlEntities()
+    val icon40Formatted = icon40.removeHtmlEntities()
 }
 
 //                                        __  __
@@ -791,7 +819,7 @@ data class MultiReddit(
     }
 
     @IgnoredOnParcel
-    val pathFormatted = path.formatHtmlEntities()
+    val pathFormatted = path.removeHtmlEntities()
 
     @IgnoredOnParcel
     private var isFavorite = false
@@ -858,8 +886,8 @@ data class SubredditInModeratedList(
 
     @IgnoredOnParcel
     val icon: String? = when {
-        !iconImg.isNullOrBlank() -> iconImg.formatHtmlEntities()
-        !communityIcon.isNullOrBlank() -> communityIcon.formatHtmlEntities()
+        !iconImg.isNullOrBlank() -> iconImg.removeHtmlEntities()
+        !communityIcon.isNullOrBlank() -> communityIcon.removeHtmlEntities()
         else -> null
     }
 }

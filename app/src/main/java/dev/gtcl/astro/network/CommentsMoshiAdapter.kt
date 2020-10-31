@@ -4,7 +4,6 @@ import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.ToJson
 import dev.gtcl.astro.models.reddit.listing.*
-import java.lang.RuntimeException
 import java.util.*
 import kotlin.collections.HashMap
 
@@ -106,6 +105,7 @@ class CommentsMoshiAdapter {
         var stickied: Boolean? = null
         var pinned: Boolean? = null
         var locked: Boolean? = null
+        var removedBy: String? = null
         while (jsonReader.hasNext()) {
             when (jsonReader.nextName()) {
                 "name" -> {
@@ -253,6 +253,13 @@ class CommentsMoshiAdapter {
                 "locked" -> {
                     locked = jsonReader.nextBoolean()
                 }
+                "removed_by_category" -> {
+                    if (jsonReader.peek() != JsonReader.Token.NULL) {
+                        removedBy = jsonReader.nextString()
+                    } else {
+                        jsonReader.skipValue()
+                    }
+                }
                 else -> {
                     jsonReader.skipValue()
                 }
@@ -296,7 +303,8 @@ class CommentsMoshiAdapter {
             canModPost = canModPost!!,
             stickied = stickied!!,
             pinned = pinned!!,
-            locked = locked!!
+            locked = locked!!,
+            removedBy = removedBy
         )
     }
 
@@ -350,26 +358,94 @@ class CommentsMoshiAdapter {
 
     private fun getPreview(jsonReader: JsonReader): Preview {
         var videoPreview: RedditVideo? = null
+        var images: List<PreviewImages>? = null
         jsonReader.beginObject()
         while (jsonReader.hasNext()) {
-            if (jsonReader.nextName() == "reddit_video_preview") {
-                jsonReader.beginObject()
-                while (jsonReader.hasNext()) {
-                    if (jsonReader.nextName() == "hls_url") {
-                        val hlsUrl = jsonReader.nextString()
-                        videoPreview = RedditVideo(hlsUrl)
-                    } else {
-                        jsonReader.skipValue()
+            when(jsonReader.nextName()){
+                "reddit_video_preview" -> {
+                    jsonReader.beginObject()
+                    while (jsonReader.hasNext()) {
+                        if (jsonReader.nextName() == "hls_url") {
+                            val hlsUrl = jsonReader.nextString()
+                            videoPreview = RedditVideo(hlsUrl)
+                        } else {
+                            jsonReader.skipValue()
+                        }
                     }
+                    jsonReader.endObject()
                 }
-                jsonReader.endObject()
-            } else {
-                jsonReader.skipValue()
+                "images" -> {
+                    val parsedImages = mutableListOf<PreviewImages>()
+                    jsonReader.beginArray()
+                    while(jsonReader.hasNext()){
+                        parsedImages.add(getPreviewImages(jsonReader))
+                    }
+                    jsonReader.endArray()
+                    images = parsedImages.toList()
+                }
+                else -> jsonReader.skipValue()
+            }
+        }
+        jsonReader.endObject()
+        return Preview(images!!, videoPreview)
+    }
+
+    private fun getPreviewImages(jsonReader: JsonReader): PreviewImages {
+        var source: PreviewImage? = null
+        var resolutions: List<PreviewImage>? = null
+        var variants: ImageVariant? = null
+        jsonReader.beginObject()
+        while(jsonReader.hasNext()){
+            when(jsonReader.nextName()){
+                "source" -> source = getPreviewImage(jsonReader)
+                "resolutions" -> {
+                    jsonReader.beginArray()
+                    val previewImages = mutableListOf<PreviewImage>()
+                    while(jsonReader.hasNext()){
+                        previewImages.add(getPreviewImage(jsonReader))
+                    }
+                    jsonReader.endArray()
+                    resolutions = previewImages.toList()
+                }
+                "variants" -> variants = getImageVariant(jsonReader)
+                else -> jsonReader.skipValue()
+            }
+        }
+        jsonReader.endObject()
+        return PreviewImages(source!!, resolutions!!, variants)
+    }
+
+    private fun getImageVariant(jsonReader: JsonReader): ImageVariant {
+        var nsfw: PreviewImages? = null
+        jsonReader.beginObject()
+
+        while(jsonReader.hasNext()){
+            when(jsonReader.nextName()){
+                "nsfw" -> nsfw = getPreviewImages(jsonReader)
+                else -> jsonReader.skipValue()
             }
         }
         jsonReader.endObject()
 
-        return Preview(videoPreview)
+        return ImageVariant(nsfw)
+    }
+
+    private fun getPreviewImage(jsonReader: JsonReader): PreviewImage {
+        var url: String? = null
+        var width: Int? = null
+        var height: Int? = null
+        jsonReader.beginObject()
+        while(jsonReader.hasNext()){
+            when(jsonReader.nextName()){
+                "url" -> url = jsonReader.nextString()
+                "width" -> width = jsonReader.nextInt()
+                "height" -> height = jsonReader.nextInt()
+                else -> jsonReader.skipValue()
+            }
+        }
+        jsonReader.endObject()
+
+        return PreviewImage(url!!, width!!, height!!)
     }
 
     private fun getGildings(jsonReader: JsonReader): Gildings {

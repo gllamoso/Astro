@@ -1,9 +1,7 @@
 package dev.gtcl.astro
 
-import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.Patterns
@@ -32,52 +30,35 @@ import dev.gtcl.astro.databinding.IconFlairSmallBinding
 import dev.gtcl.astro.models.reddit.RuleFor
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.fragments.multireddits.MultiRedditSubredditsAdapter
+import dev.gtcl.astro.url.UrlType
 import java.text.SimpleDateFormat
 import java.util.*
 
-
-@BindingAdapter("loadImageAndHideIfNull")
-fun loadImageAndHideIfNull(imgView: ImageView, imgUrl: String?) {
-    if (imgUrl != null && URLUtil.isValidUrl(imgUrl) && Patterns.WEB_URL.matcher(imgUrl)
-            .matches()
-    ) {
-        imgView.visibility = View.VISIBLE
-        val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
-        GlideApp.with(imgView.context)
-            .load(imgUri)
-            .skipMemoryCache(true)
-//            .diskCacheStrategy(DiskCacheStrategy.ALL)
-//            .apply(
-//                RequestOptions()
-//                    .error(R.drawable.ic_broken_image_24)
-//            )
-            .into(imgView)
-    } else {
-        imgView.visibility = View.GONE
-    }
-}
-
 @BindingAdapter("loadImage")
 fun loadImage(imgView: ImageView, imgUrl: String?) {
-    if (imgUrl.isNullOrBlank()) return
-    if (imgUrl.startsWith("http")) {
-        imgView.visibility = View.VISIBLE
-        val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
-        GlideApp.with(imgView.context)
-            .load(imgUri)
+    when{
+        imgUrl == null -> imgView.visibility = View.GONE
+        !URLUtil.isValidUrl(imgUrl) && !Patterns.WEB_URL.matcher(imgUrl).matches() -> {
+            imgView.setImageResource(R.drawable.ic_no_photo_24)
+            imgView.setBackgroundColor(Color.GRAY)
+        }
+        else -> {
+            GlideApp.with(imgView.context)
+                .load(imgUrl)
 //            .skipMemoryCache(true)
 //            .diskCacheStrategy(DiskCacheStrategy.ALL)
 //            .apply(
 //                RequestOptions()
 //                    .error(R.drawable.ic_broken_image_24)
 //            )
-            .into(imgView)
+                .into(imgView)
+        }
     }
 }
 
 @BindingAdapter("banner")
 fun loadBanner(imgView: ImageView, url: String?) {
-    if (!url.isNullOrBlank()) {
+    if (!url.isNullOrBlank() && URLUtil.isValidUrl(url) && Patterns.WEB_URL.matcher(url).matches()) {
         GlideApp.with(imgView.context)
             .load(url)
             .skipMemoryCache(true)
@@ -280,23 +261,6 @@ fun setTimestamp(textView: TextView, time: Long?) {
 fun secondsToDate(textView: TextView, time: Long) {
     val simpleDateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.US)
     textView.text = simpleDateFormat.format(1000L * time)
-}
-
-@BindingAdapter("viewSize")
-fun setViewSize(view: View, percentOfDeviceHeight: Int) {
-    val display = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-        view.context.display ?: return
-    } else {
-        val wm = view.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        wm.defaultDisplay
-    }
-    val size = Point()
-    display.getRealSize(size)
-    val height = size.y * percentOfDeviceHeight / 100
-
-    val layoutParams = view.layoutParams
-    layoutParams.height = height
-    view.layoutParams = layoutParams
 }
 
 @BindingAdapter("read")
@@ -526,4 +490,30 @@ fun setUserTextColor(textView: TextView, isUser: Boolean) {
         }
     )
     arr.recycle()
+}
+
+@BindingAdapter("urlType")
+fun setUrlTypeIcon(imgView: ImageView, urlType: UrlType?){
+    if(urlType == null) {
+        imgView.setImageDrawable(null)
+        return
+    }
+
+    val imageResource =
+        when(urlType){
+            UrlType.IMAGE -> R.drawable.ic_photo_24
+            UrlType.GIF -> R.drawable.ic_photo_24
+            UrlType.GIFV -> R.drawable.ic_videocam_24
+            UrlType.GFYCAT -> R.drawable.ic_videocam_24
+            UrlType.REDGIFS -> R.drawable.ic_videocam_24
+            UrlType.HLS -> R.drawable.ic_videocam_24
+            UrlType.REDDIT_VIDEO -> R.drawable.ic_videocam_24
+            UrlType.STANDARD_VIDEO -> R.drawable.ic_videocam_24
+            UrlType.IMGUR_ALBUM -> R.drawable.ic_photo_library_24
+            UrlType.IMGUR_IMAGE -> R.drawable.ic_photo_24
+            UrlType.REDDIT_GALLERY -> R.drawable.ic_photo_library_24
+            else -> R.drawable.ic_link_24
+        }
+
+    imgView.setImageResource(imageResource)
 }

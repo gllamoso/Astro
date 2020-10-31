@@ -113,7 +113,7 @@
     <string name="download">Download</string>
     <string name="download_all">Download all</string>
     <string name="open_link_externally">Open link externally</string>
-    <string name="media_failed">Failed to load media</string>
+    <string name="failed_to_view_post_content">Failed to view post content</string>
 
     <!--Inbox-->
     <string name="inbox">Inbox</string>

@@ -5,9 +5,6 @@
 
     <data>
         <variable
-            name="currentItemMediaType"
-            type="dev.gtcl.astro.url.SimpleMediaType" />
-        <variable
             name="model"
             type="dev.gtcl.astro.ui.fragments.comments.CommentsVM" />
         <import type="android.view.View" />
@@ -76,33 +73,6 @@
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_share_24}"
                 app:text="@{@string/share}"/>
-
-            <include
-                android:id="@+id/popupCommentsPageActions_downloadSingleItem"
-                layout="@layout/item_selectable"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:visibility="@{currentItemMediaType != null ? View.VISIBLE : View.GONE}"
-                app:iconDrawable="@{currentItemMediaType == SimpleMediaType.PICTURE ? @drawable/ic_photo_24 : @drawable/ic_videocam_24}"
-                app:text="@{@string/download}" />
-
-            <include
-                android:id="@+id/popupCommentsPageActions_downloadAll"
-                layout="@layout/item_selectable"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:visibility="@{model.mediaItems.size() > 1 ? View.VISIBLE : View.GONE}"
-                app:iconDrawable="@{@drawable/ic_photo_library_24}"
-                app:text="@{@string/download_all}" />
-
-            <include
-                android:id="@+id/popupCommentsPageActions_link"
-                layout="@layout/item_selectable"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:visibility="@{model.post.urlFormatted != null ? View.VISIBLE : View.GONE}"
-                app:iconDrawable="@{@drawable/ic_link_24}"
-                app:text="@{@string/open_link_externally}" />
 
             <include
                 android:id="@+id/popupCommentsPageActions_report"

@@ -10,12 +10,14 @@
             type="dev.gtcl.astro.ui.fragments.comments.CommentsVM" />
         <import type="android.view.View"/>
         <import type="dev.gtcl.astro.url.UrlType"/>
+        <import type="android.webkit.URLUtil"/>
+        <import type="android.util.Patterns"/>
     </data>
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:background="@{model.post.self || model.post.urlType == UrlType.OTHER ? @android:color/transparent : @android:color/black}">
+        android:layout_height="match_parent">
+<!--        android:background="@{model.post.self || model.post.urlType == UrlType.OTHER ? @android:color/transparent : @android:color/black}"-->
 
         <LinearLayout
             android:id="@+id/layoutCommentsContent_textLayout"
@@ -29,95 +31,44 @@
             app:layout_constraintBottom_toBottomOf="parent"
             android:visibility="@{model.post.self ? View.VISIBLE : View.GONE}"/>
 
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/layoutCommentsContent_previewImage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            android:visibility="@{!model.post.self ? View.VISIBLE : View.GONE}"
+            app:layout_constraintVertical_bias="0"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@id/layoutCommentsContent_urlLayout"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_margin="8dp"
+            android:background="@drawable/shape_semitransparent_circle"
+            android:padding="4dp"
+            android:tint="#FFFFFF"
+            app:urlType="@{model.previewType}"
+            android:visibility="@{!model.post.self &amp;&amp; model.showPreviewIcon ? View.VISIBLE : View.GONE}"
+            tools:src="@drawable/ic_link_24"
+            app:layout_constraintTop_toTopOf="@id/layoutCommentsContent_previewImage"
+            app:layout_constraintEnd_toEndOf="@id/layoutCommentsContent_previewImage"/>
+
         <include
             android:id="@+id/layoutCommentsContent_urlLayout"
+            layout="@layout/layout_url"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="16dp"
+            android:visibility="@{!model.post.self ? View.VISIBLE : View.GONE}"
+            android:layout_marginBottom="2dp"
             app:layout_constraintVertical_bias="0"
-            layout="@layout/layout_url_with_thumbnail"
-            app:thumbnailUrl="@{model.post.thumbnailFormatted}"
-            app:url="@{model.post.urlFormatted}"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
-            android:visibility="@{(!model.post.self &amp;&amp; (model.post.urlType == UrlType.OTHER || model.post.urlType == UrlType.REDDIT_COMMENTS || model.post.urlType == UrlType.REDDIT_THREAD || model.post.urlType == UrlType.SUBREDDIT || model.post.urlType == UrlType.USER)) ? View.VISIBLE : View.GONE}"/>
-
-        <androidx.viewpager2.widget.ViewPager2
-            android:id="@+id/layoutCommentsContent_viewPager"
-            android:layout_width="match_parent"
-            android:layout_height="525dp"
-            android:orientation="horizontal"
-            app:viewSize="@{70}"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:visibility="@{model.mediaItems != null &amp;&amp; model.mediaItems.size() > 0 ? View.VISIBLE : View.GONE}"/>
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/layoutCommentsContent_previousButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_arrow_drop_down_circle_24"
-            android:layout_gravity="center_vertical|left"
-            app:tint="@android:color/darker_gray"
-            tools:ignore="RtlHardcoded"
-            android:rotation="90"
-            android:padding="8dp"
-            android:layout_margin="16dp"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:visibility="visible"/>
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/layoutCommentsContent_nextButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:src="@drawable/ic_arrow_drop_down_circle_24"
-            android:layout_gravity="center_vertical|right"
-            app:tint="@android:color/darker_gray"
-            tools:ignore="RtlHardcoded"
-            android:rotation="-90"
-            android:layout_margin="16dp"
-            android:padding="8dp"
-            android:visibility="gone"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            tools:visibility="visible"/>
-
-        <ProgressBar
-            android:layout_width="wrap_content"
-            android:layout_height="525dp"
-            android:layout_gravity="center"
-            android:indeterminate="true"
-            android:layout_margin="16dp"
-            app:viewSize="@{70}"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:visibility="@{model.mediaItemsLoading ? View.VISIBLE : View.GONE}"/>
-
-        <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="200dp"
-            android:layout_height="0dp"
-            android:src="@drawable/ic_broken_image_24"
-            android:tint="@android:color/darker_gray"
-            android:layout_gravity="center"
-            android:layout_margin="16dp"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            android:visibility="@{model.mediaItemsFailed ? View.VISIBLE : View.GONE}"
-            app:viewSize="@{70}"
-            tools:tint="@android:color/black"
-            tools:visibility="gone"/>
+            app:layout_constraintEnd_toEndOf="@id/layoutCommentsContent_previewImage"
+            app:layout_constraintStart_toStartOf="@id/layoutCommentsContent_previewImage"
+            app:layout_constraintTop_toBottomOf="@id/layoutCommentsContent_previewImage"
+            app:url="@{model.post.urlFormatted}" />
 
         <androidx.appcompat.widget.AppCompatImageView
             android:id="@+id/layoutCommentsContent_noTextImage"

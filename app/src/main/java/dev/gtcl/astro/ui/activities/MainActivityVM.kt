@@ -10,7 +10,6 @@ import dev.gtcl.astro.models.reddit.RuleType
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerPage
-import dev.gtcl.astro.url.URL
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -34,10 +33,6 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
     private val _openChromeTab = MutableLiveData<String?>()
     val openChromeTab: LiveData<String?>
         get() = _openChromeTab
-
-    private val _handleLink = MutableLiveData<URL?>()
-    val handleLink: LiveData<URL?>
-        get() = _handleLink
 
     private val _mediaDialogOpened = MutableLiveData<Boolean>().apply { value = false }
     val mediaDialogOpened: LiveData<Boolean>
@@ -330,14 +325,6 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
 
     fun chromeTabOpened() {
         _openChromeTab.value = null
-    }
-
-    fun handleLink(url: URL) {
-        _handleLink.value = url
-    }
-
-    fun handleLinkObserved() {
-        _handleLink.value = null
     }
 
     fun removeAccount(account: SavedAccount) {

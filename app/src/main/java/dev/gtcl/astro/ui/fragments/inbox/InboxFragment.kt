@@ -24,7 +24,6 @@ import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
 import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerFragmentDirections
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerVM
-import dev.gtcl.astro.url.URL
 
 class InboxFragment : Fragment(), LeftDrawerActions {
 
@@ -64,7 +63,7 @@ class InboxFragment : Fragment(), LeftDrawerActions {
 
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
             val url = bundle.getString(URL_KEY) ?: return@setFragmentResultListener
-            viewPagerModel.linkClicked(URL(url))
+            url.handleUrl(context, null, null, childFragmentManager, findNavController(), activityModel)
         })
 
         return binding?.root

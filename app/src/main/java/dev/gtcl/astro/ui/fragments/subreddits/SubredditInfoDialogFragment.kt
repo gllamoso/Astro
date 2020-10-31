@@ -14,12 +14,7 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.databinding.FragmentDialogSubredditInfoBinding
 import dev.gtcl.astro.html.createHtmlViews
-import dev.gtcl.astro.models.reddit.listing.SubredditListing
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
-import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
-import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerFragmentDirections
-import dev.gtcl.astro.url.*
 
 class SubredditInfoDialogFragment : DialogFragment(), LinkHandler {
 
@@ -99,22 +94,8 @@ class SubredditInfoDialogFragment : DialogFragment(), LinkHandler {
         binding = null
     }
 
-    override fun handleLink(url: URL) {
-        when(val urlType = url.urlType ?: url.url.getUrlType()){
-            UrlType.USER -> {
-                val user = REDDIT_USER_REGEX.getFirstGroup(url.url)
-                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(user)))
-                dismiss()
-            }
-            UrlType.SUBREDDIT -> {
-                val subreddit = SUBREDDIT_REGEX.getFirstGroup(url.url) ?: return
-                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(SubredditListing(subreddit))))
-                dismiss()
-            }
-            else -> {
-                activityModel.handleLink(URL(url.url, urlType))
-            }
-        }
+    override fun handleLink(link: String) {
+        link.handleUrl(context, null, null, parentFragmentManager, findNavController(), activityModel)
     }
 
     companion object {

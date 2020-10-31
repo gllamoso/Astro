@@ -125,7 +125,7 @@ class MediaFragment : Fragment() {
     }
 
     private fun initSubsamplingImageView(mediaURL: MediaURL) {
-        val url = (mediaURL.url.formatHtmlEntities())
+        val url = (mediaURL.url.removeHtmlEntities())
         model.hasFailed(false)
         val requestOptions = RequestOptions()
             .skipMemoryCache(true)

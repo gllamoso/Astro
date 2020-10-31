@@ -70,7 +70,7 @@ class MediaDialogFragment : DialogFragment() {
             val galleryId = requireArguments().getString(GALLERY_KEY)
 
             when{
-                url != null -> model.setMedia(url)
+                url != null -> model.loadMedia(url)
                 mediaItems != null -> model.setItems(mediaItems)
                 else -> model.fetchGallery(galleryId ?: "")
             }

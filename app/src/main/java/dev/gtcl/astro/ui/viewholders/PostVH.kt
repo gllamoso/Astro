@@ -1,6 +1,7 @@
 package dev.gtcl.astro.ui.viewholders
 
 import android.content.Context
+import android.graphics.Color
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
@@ -8,17 +9,16 @@ import android.view.ViewGroup
 import android.webkit.URLUtil
 import android.widget.PopupWindow
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.load.engine.DiskCacheStrategy
-import com.bumptech.glide.request.RequestOptions
 import dev.gtcl.astro.GlideApp
+import dev.gtcl.astro.R
 import dev.gtcl.astro.Vote
 import dev.gtcl.astro.actions.ItemClickListener
 import dev.gtcl.astro.actions.PostActions
 import dev.gtcl.astro.databinding.ItemPostBinding
 import dev.gtcl.astro.databinding.PopupPostActionsBinding
+import dev.gtcl.astro.html.toDp
 import dev.gtcl.astro.models.reddit.listing.Post
 import dev.gtcl.astro.showAsDropdown
-import jp.wasabeef.glide.transformations.BlurTransformation
 
 class PostVH private constructor(private val binding: ItemPostBinding) :
     RecyclerView.ViewHolder(binding.root) {
@@ -36,9 +36,8 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
 
             itemPostCardView.apply {
                 setOnClickListener {
-                    post.isRead = true
-                    binding.invalidateAll()
                     itemClickListener.clicked(post, adapterPosition)
+                    binding.invalidateAll()
                 }
                 setOnLongClickListener {
                     itemClickListener.longClicked(post, adapterPosition)
@@ -84,30 +83,47 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
     }
 
     private fun setThumbnail(post: Post, blurNsfw: Boolean, postActions: PostActions) {
-        val thumbnailUrl = post.thumbnailFormatted
-        if (thumbnailUrl != null && URLUtil.isValidUrl(thumbnailUrl) && Patterns.WEB_URL.matcher(
-                thumbnailUrl
-            ).matches()
-        ) {
-            binding.itemPostThumbnailBackground.visibility = View.VISIBLE
-            binding.itemPostThumbnail.setOnClickListener {
-                post.isRead = true
-                binding.invalidateAll()
-                postActions.thumbnailClicked(post, adapterPosition)
-            }
-
-            GlideApp.with(binding.root.context)
-                .load(thumbnailUrl).apply {
-                    if ((post.nsfw && blurNsfw)) {
-                        apply(RequestOptions.bitmapTransform(BlurTransformation()))
-                    }
-                }
-                .thumbnail(0.5F)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(binding.itemPostThumbnail)
+        val thumbnailUrl = if(post.nsfw) {
+            post.getThumbnail(blurNsfw)
         } else {
-            binding.itemPostThumbnailBackground.visibility = View.GONE
+            post.getThumbnail(false)
+        }
+
+        val thumbnailIsValid = thumbnailUrl != null && Patterns.WEB_URL.matcher(thumbnailUrl).matches() && URLUtil.isValidUrl(thumbnailUrl)
+
+        when{
+            !thumbnailIsValid && post.isSelf -> binding.itemPostThumbnailBackground.visibility = View.GONE
+            thumbnailIsValid -> {
+                binding.itemPostThumbnailBackground.visibility = View.VISIBLE
+                binding.itemPostThumbnail.apply {
+                    setBackgroundColor(Color.TRANSPARENT)
+                    setOnClickListener {
+                        postActions.thumbnailClicked(post, adapterPosition)
+                        binding.invalidateAll()
+                    }
+                    setPadding(0, 0, 0, 0)
+                }
+
+                GlideApp.with(binding.root.context)
+                    .load(thumbnailUrl)
+                    .thumbnail(0.5F)
+                    .skipMemoryCache(true)
+                    .into(binding.itemPostThumbnail)
+            }
+            else -> {
+                binding.itemPostThumbnailBackground.visibility = View.VISIBLE
+                binding.itemPostThumbnail.apply {
+                    setBackgroundColor(Color.GRAY)
+                    setImageResource(R.drawable.ic_no_photo_24)
+                    setOnClickListener {
+                        postActions.thumbnailClicked(post, adapterPosition)
+                        binding.invalidateAll()
+                    }
+                    val padding = 12.toDp(context)
+                    setPadding(padding, padding, padding, padding)
+                }
+
+            }
         }
     }
 

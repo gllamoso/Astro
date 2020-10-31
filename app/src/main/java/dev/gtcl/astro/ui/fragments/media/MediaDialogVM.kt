@@ -11,9 +11,7 @@ import dev.gtcl.astro.url.GFYCAT_REGEX
 import dev.gtcl.astro.url.MediaType
 import dev.gtcl.astro.url.REDGIFS_REGEX
 import dev.gtcl.astro.url.getFirstGroup
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import retrofit2.HttpException
 
 class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(application) {
@@ -38,7 +36,7 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
     val mediaInitialized: Boolean
         get() = _mediaInitialized
 
-    fun setMedia(mediaURL: MediaURL) {
+    fun loadMedia(mediaURL: MediaURL) {
         coroutineScope.launch {
             try {
                 _isLoading.postValue(true)
@@ -136,8 +134,7 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                     else -> {
                         listOf(mediaURL)
                     }
-                }
-                )
+                })
                 _mediaInitialized = true
             } catch (e: Exception) {
                 _mediaItems.postValue(listOf())
@@ -194,44 +191,15 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
             return
         }
 
-        coroutineScope.launch {
-            withContext(Dispatchers.Main) {
-                Toast.makeText(
-                    application,
-                    application.getText(R.string.downloading),
-                    Toast.LENGTH_SHORT
-                ).show()
-            }
-            val item = (_mediaItems.value ?: return@launch)[_itemPosition.value ?: return@launch]
-            var downloadUrl = item.url
+        Toast.makeText(
+            application,
+            application.getText(R.string.downloading),
+            Toast.LENGTH_SHORT
+        ).show()
 
-            if (item.mediaType == MediaType.GFYCAT) {
-                try {
-                    downloadUrl = gfycatRepository.getGfycatInfo(
-                        item.url.replace("http[s]?://gfycat.com/".toRegex(), "")
-                    )
-                        .await()
-                        .gfyItem
-                        .mp4Url
-                } catch (e: Exception) {
-                    if (e is HttpException && e.code() == 404 && item.backupUrl != null) {
-                        downloadUrl = item.backupUrl
-                    } else {
-                        withContext(Dispatchers.Main) {
-                            Toast.makeText(
-                                application,
-                                application.getText(R.string.unable_to_download_file),
-                                Toast.LENGTH_SHORT
-                            ).show()
-                        }
-                    }
-                }
-            } else if (item.mediaType == MediaType.PICTURE) {
-                downloadUrl = item.url.formatHtmlEntities()
-            }
-
-            DownloadIntentService.enqueueWork(application.applicationContext, downloadUrl)
-        }
+        val item = (_mediaItems.value ?: return)[_itemPosition.value ?: return]
+        val downloadUrl = item.url.removeHtmlEntities()
+        DownloadIntentService.enqueueWork(application.applicationContext, downloadUrl)
     }
 
     fun setItems(list: List<MediaURL>) {

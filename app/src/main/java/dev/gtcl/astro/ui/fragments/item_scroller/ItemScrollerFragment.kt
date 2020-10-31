@@ -15,7 +15,6 @@ import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.actions.*
 import dev.gtcl.astro.databinding.FragmentItemScrollerBinding
-import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.network.Status
@@ -23,14 +22,12 @@ import dev.gtcl.astro.ui.ListingAdapter
 import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
-import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
 import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.subreddits.SubredditInfoDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.*
-import dev.gtcl.astro.url.*
 
 open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, MessageActions,
     SubredditActions, ItemClickListener, LinkHandler {
@@ -208,7 +205,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         })
 
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
-            handleLink(URL(bundle.getString(URL_KEY) ?: ""))
+            handleLink(bundle.getString(URL_KEY) ?: "")
         })
 
         childFragmentManager.setFragmentResultListener(
@@ -305,71 +302,12 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun thumbnailClicked(post: Post, position: Int) {
+        post.isRead = true
         model.addReadItem(post)
-        when (val urlType: UrlType? = post.urlFormatted?.getUrlType()) {
-            UrlType.OTHER -> activityModel.openChromeTab(post.urlFormatted)
-            UrlType.REDDIT_GALLERY -> {
-                val galleryItems = post.galleryAsMediaItems
-                if (galleryItems == null) {
-                    context?.let { thisContext ->
-                        Toast.makeText(
-                            thisContext,
-                            getString(R.string.media_failed),
-                            Toast.LENGTH_LONG
-                        )
-                            .show()
-                    }
-                }
-                val dialog = MediaDialogFragment.newInstance(
-                    post.urlFormatted,
-                    galleryItems ?: return,
-                    PostPage(post, position)
-                )
-                dialog.show(parentFragmentManager, null)
-            }
-            null -> clicked(post, position)
-            else -> {
-                val mediaType = when (urlType) {
-                    UrlType.IMGUR_ALBUM -> MediaType.IMGUR_ALBUM
-                    UrlType.IMGUR_IMAGE -> MediaType.IMGUR_PICTURE
-                    UrlType.GIF -> MediaType.GIF
-                    UrlType.GFYCAT -> MediaType.GFYCAT
-                    UrlType.REDGIFS -> MediaType.REDGIFS
-                    UrlType.IMAGE -> MediaType.PICTURE
-                    UrlType.HLS, UrlType.GIFV, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> MediaType.VIDEO
-                    else -> null
-                }
-                if (mediaType == null) {
-                    handleLink(URL(post.urlFormatted, urlType))
-                    return
-                }
-                val url = when (mediaType) {
-                    MediaType.VIDEO -> {
-                        if (urlType == UrlType.GIFV) {
-                            post.urlFormatted.replace(".gifv", ".mp4")
-                        } else {
-                            post.previewVideoUrl ?: return
-                        }
-                    }
-                    else -> post.urlFormatted.formatHtmlEntities()
-                }
-                val backupUrl = when (mediaType) {
-                    MediaType.GFYCAT, MediaType.REDGIFS -> post.previewVideoUrl
-                    MediaType.VIDEO -> {
-                        if (urlType == UrlType.GIFV) {
-                            post.previewVideoUrl
-                        } else {
-                            null
-                        }
-                    }
-                    else -> null
-                }
-                val dialog = MediaDialogFragment.newInstance(
-                    MediaURL(url, mediaType, backupUrl),
-                    PostPage(post, position)
-                )
-                dialog.show(parentFragmentManager, null)
-            }
+        if(post.isSelf){
+            activityModel.newViewPagerPage(PostPage(post, position))
+        } else {
+            post.urlFormatted?.handleUrl(context, PostPage(post, position), post.previewVideoUrl, parentFragmentManager, findNavController(), activityModel)
         }
     }
 
@@ -555,6 +493,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     override fun clicked(item: Item, position: Int) {
         when (item) {
             is Post -> {
+                item.isRead = true
                 model.addReadItem(item)
                 activityModel.newViewPagerPage(PostPage(item, position))
             }
@@ -593,20 +532,8 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         listAdapter.notifyItemChanged(position)
     }
 
-    override fun handleLink(url: URL) {
-        when(val urlType = url.urlType ?: url.url.getUrlType()){
-            UrlType.USER -> {
-                val user = REDDIT_USER_REGEX.getFirstGroup(url.url)
-                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(user)))
-            }
-            UrlType.SUBREDDIT -> {
-                val subreddit = SUBREDDIT_REGEX.getFirstGroup(url.url) ?: return
-                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(SubredditListing(subreddit))))
-            }
-            else -> {
-                activityModel.handleLink(URL(url.url, urlType))
-            }
-        }
+    override fun handleLink(link: String) {
+        link.handleUrl(context, null, null, parentFragmentManager, findNavController(), activityModel)
     }
 
 //     _   _                 _____           _

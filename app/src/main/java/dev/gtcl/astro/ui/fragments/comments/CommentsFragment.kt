@@ -1,28 +1,28 @@
 package dev.gtcl.astro.ui.fragments.comments
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
-import android.os.Build
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.URLUtil
+import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
-import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
@@ -33,18 +33,16 @@ import dev.gtcl.astro.databinding.FragmentCommentsBinding
 import dev.gtcl.astro.databinding.PopupCommentSortBinding
 import dev.gtcl.astro.databinding.PopupCommentsPageActionsBinding
 import dev.gtcl.astro.html.createHtmlViews
-import dev.gtcl.astro.models.reddit.MediaURL
+import dev.gtcl.astro.html.toDp
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
-import dev.gtcl.astro.ui.fragments.media.list.MediaListFragmentAdapter
-import dev.gtcl.astro.ui.fragments.media.list.MediaThumbnailsAdapter
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
 import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.*
-import dev.gtcl.astro.url.*
+import dev.gtcl.astro.url.REDDIT_COMMENTS_REGEX
 
 class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler,
     DrawerLayout.DrawerListener {
@@ -64,9 +62,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     private var binding: FragmentCommentsBinding? = null
 
     private lateinit var adapter: CommentsAdapter
-
-    private lateinit var requestPermissionToDownloadItem: ActivityResultLauncher<String>
-    private lateinit var requestPermissionToDownloadAlbum: ActivityResultLauncher<String>
 
     override fun onResume() {
         super.onResume()
@@ -93,8 +88,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         initPostObservers()
         initTopBar()
         initBottomBarAndBottomSheet()
-        initMedia()
         initOtherObservers()
+        initPreviewImage()
 
         binding?.executePendingBindings()
         return binding?.root
@@ -102,7 +97,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     override fun onDestroyView() {
         super.onDestroyView()
-        binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.adapter = null
         model.contentInitialized = false
         model.viewPagerInitialized = false
         binding = null
@@ -314,110 +308,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                             null,
                         this
                     )
-                } else {
-                    when (post.urlType) {
-                        UrlType.OTHER, UrlType.REDDIT_COMMENTS, UrlType.REDDIT_THREAD, UrlType.SUBREDDIT, UrlType.USER -> initUrlPreview(
-                            post.urlFormatted ?: return@observe
-                        )
-                        else -> model.fetchMediaItems(post)
-                    }
                 }
                 model.contentInitialized = true
             }
         })
-    }
-
-    private fun initUrlPreview(url: String) {
-        binding?.fragmentCommentsContent?.layoutCommentsContentUrlLayout?.layoutUrlWithThumbnailCardView?.setOnClickListener {
-            handleLink(URL(url))
-        }
-    }
-
-    private fun initMedia() {
-        binding?.fragmentCommentsDrawer?.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-
-        model.mediaItems.observe(viewLifecycleOwner, {
-            if (it?.size ?: 0 > 0 && !model.viewPagerInitialized) {
-                setMediaInViewPager(it ?: return@observe)
-                model.viewPagerInitialized = true
-            }
-        })
-    }
-
-    private fun setMediaInViewPager(mediaUrls: List<MediaURL>) {
-        val mediaAdapter = MediaListFragmentAdapter(
-            childFragmentManager,
-            viewLifecycleOwner.lifecycle,
-            mediaUrls,
-            false
-        )
-
-        val currentPosition =
-            binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem ?: 0
-        val mediaThumbnails =
-            MediaThumbnailsAdapter(currentPosition) { position ->
-                binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem =
-                    position
-                binding?.fragmentCommentsDrawer?.closeDrawer(GravityCompat.END)
-                val behavior = BottomSheetBehavior.from(
-                    ((binding ?: return@MediaThumbnailsAdapter).fragmentCommentsBottomSheet)
-                )
-                behavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
-
-        binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.apply {
-            this.adapter = mediaAdapter
-            (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
-            if (mediaUrls.size > 1) {
-                registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-
-                    override fun onPageSelected(position: Int) {
-                        super.onPageSelected(position)
-                        binding?.fragmentCommentsContent?.apply {
-                            layoutCommentsContentPreviousButton.visibility =
-                                if (position == 0) View.GONE else View.VISIBLE
-                            layoutCommentsContentNextButton.visibility =
-                                if (position == mediaUrls.size - 1) View.GONE else View.VISIBLE
-                        }
-                        if (mediaUrls.size > 1) {
-                            mediaThumbnails.setCurrentPosition(position)
-                        }
-                    }
-                })
-
-                binding?.fragmentCommentsContent?.apply {
-                    layoutCommentsContentPreviousButton.visibility =
-                        if (currentItem == 0) View.GONE else View.VISIBLE
-                    layoutCommentsContentNextButton.visibility =
-                        if (currentItem == mediaUrls.size - 1) View.GONE else View.VISIBLE
-                }
-            }
-        }
-
-        if (mediaUrls.size > 1) {
-
-            binding?.fragmentCommentsDrawer?.apply {
-                setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-                addDrawerListener(this@CommentsFragment)
-            }
-
-            mediaThumbnails.submitList(mediaUrls)
-
-            binding?.apply {
-                fragmentCommentsThumbnailsList.adapter = mediaThumbnails
-                fragmentCommentsThumbnailsIcon.setOnClickListener {
-                    fragmentCommentsDrawer.openDrawer(GravityCompat.END)
-                }
-                fragmentCommentsContent.layoutCommentsContentPreviousButton.setOnClickListener {
-                    fragmentCommentsContent.layoutCommentsContentViewPager.currentItem -= 1
-                }
-                fragmentCommentsContent.layoutCommentsContentNextButton.setOnClickListener {
-                    fragmentCommentsContent.layoutCommentsContentViewPager.currentItem += 1
-                }
-            }
-
-        }
-
     }
 
     private fun initOtherObservers() {
@@ -443,6 +337,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             if (it == false) {
                 binding?.fragmentCommentsSwipeRefresh?.isRefreshing = false
             }
+        })
+
+        model.previewImg.observe(viewLifecycleOwner, {
+            loadPreview(it)
         })
 
         childFragmentManager.setFragmentResultListener(
@@ -503,36 +401,66 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     activityModel.updatePost(post, nsfw, spoiler, getNotification, flair)
                 }
             })
+    }
 
-
-        requestPermissionToDownloadItem = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                model.downloadItem(
-                    binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem
-                        ?: 0
-                )
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.please_grant_necessary_permissions),
-                    Toast.LENGTH_LONG
-                ).show()
-            }
+    private fun initPreviewImage(){
+        binding?.fragmentCommentsContent?.layoutCommentsContentPreviewImage?.setOnClickListener {
+            val post = model.post.value ?: return@setOnClickListener
+            model.post.value?.urlFormatted?.handleUrl(context, null, post.previewVideoUrl, childFragmentManager, findNavController(), activityModel)
         }
 
-        requestPermissionToDownloadAlbum = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                model.downloadAlbum()
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.please_grant_necessary_permissions),
-                    Toast.LENGTH_LONG
-                ).show()
+        binding?.fragmentCommentsContent?.layoutCommentsContentUrlLayout?.root?.setOnClickListener {
+            val post = model.post.value ?: return@setOnClickListener
+            model.post.value?.urlFormatted?.handleUrl(context, null, post.previewVideoUrl, childFragmentManager, findNavController(), activityModel)
+        }
+    }
+
+    private fun loadPreview(imgUrl: String?) {
+        val imgView = binding?.fragmentCommentsContent?.layoutCommentsContentPreviewImage ?: return
+        model.showPreviewIcon(false)
+        when{
+            imgUrl == null -> imgView.visibility = View.GONE
+            !URLUtil.isValidUrl(imgUrl) && !Patterns.WEB_URL.matcher(imgUrl).matches() -> {
+                model.showPreviewIcon(true)
+                imgView.apply {
+                    val size = 256.toDp(context)
+                    setImageResource(R.drawable.ic_no_photo_24)
+                    scaleType = ImageView.ScaleType.FIT_CENTER
+                    setBackgroundColor(Color.GRAY)
+                    layoutParams.height = size
+                }
+            }
+            else -> {
+                imgView.apply {
+                    setBackgroundColor(Color.TRANSPARENT)
+                    scaleType = ImageView.ScaleType.FIT_XY
+                    layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                }
+                GlideApp.with(imgView.context)
+                        .load(imgUrl)
+                        .addListener(object : RequestListener<Drawable> {
+                            override fun onLoadFailed(
+                                    e: GlideException?,
+                                    mod: Any?,
+                                    target: Target<Drawable>?,
+                                    isFirstResource: Boolean
+                            ): Boolean {
+                                return false
+                            }
+
+                            override fun onResourceReady(
+                                    resource: Drawable?,
+                                    mod: Any?,
+                                    target: Target<Drawable>?,
+                                    dataSource: DataSource?,
+                                    isFirstResource: Boolean
+                            ): Boolean {
+                                model.showPreviewIcon(true)
+                                return false
+                            }
+
+                        })
+                        .into(imgView)
             }
         }
     }
@@ -666,20 +594,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         adapter.notifyItemChanged(position)
     }
 
-    override fun handleLink(url: URL) {
-        when(val urlType = url.urlType ?: url.url.getUrlType()){
-            UrlType.USER -> {
-                val user = REDDIT_USER_REGEX.getFirstGroup(url.url)
-                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(user)))
-            }
-            UrlType.SUBREDDIT -> {
-                val subreddit = SUBREDDIT_REGEX.getFirstGroup(url.url) ?: return
-                findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(SubredditListing(subreddit))))
-            }
-            else -> {
-                viewPagerModel.linkClicked(URL(url.url, urlType))
-            }
-        }
+    override fun handleLink(link: String) {
+        link.handleUrl(context, null, null, parentFragmentManager, findNavController(), activityModel)
     }
 
 //     _____                                             _   _
@@ -780,15 +696,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             val viewModel = this@CommentsFragment.model
             this.model = viewModel
             val post = viewModel.post.value ?: return@apply
-            val currentMediaUrl = viewModel.mediaItems.value?.get(
-                binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem ?: 0
-            )
-            val currentMediaType = when (currentMediaUrl?.mediaType) {
-                MediaType.GIF, MediaType.PICTURE -> SimpleMediaType.PICTURE
-                MediaType.VIDEO -> SimpleMediaType.VIDEO
-                else -> null
-            }
-            this.currentItemMediaType = currentMediaType
             if (viewModel.postCreatedFromUser) {
                 if (post.isSelf) {
                     popupCommentsPageActionsEdit.root.setOnClickListener {
@@ -841,43 +748,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             popupCommentsPageActionsShare.root.setOnClickListener {
                 SharePostOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
                 popupWindow.dismiss()
-            }
-            if (currentItemMediaType != null) {
-                popupCommentsPageActionsDownloadSingleItem.root.setOnClickListener {
-                    val permissionGranted = ContextCompat.checkSelfPermission(
-                        requireContext(),
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE
-                    ) == PackageManager.PERMISSION_GRANTED
-                    if (permissionGranted || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                        viewModel.downloadItem(
-                            binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem
-                                ?: 0
-                        )
-                    } else {
-                        requestPermissionToDownloadItem.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    }
-                    popupWindow.dismiss()
-                }
-                if (viewModel.mediaItems.value?.size ?: 0 > 1) {
-                    popupCommentsPageActionsDownloadAll.root.setOnClickListener {
-                        val permissionGranted = ContextCompat.checkSelfPermission(
-                            requireContext(),
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE
-                        ) == PackageManager.PERMISSION_GRANTED
-                        if (permissionGranted || Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                            viewModel.downloadAlbum()
-                        } else {
-                            requestPermissionToDownloadAlbum.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        }
-                        popupWindow.dismiss()
-                    }
-                }
-            }
-            if (post.urlFormatted != null) {
-                popupCommentsPageActionsLink.root.setOnClickListener {
-                    activityModel.openChromeTab(post.urlFormatted)
-                    popupWindow.dismiss()
-                }
             }
             popupCommentsPageActionsReport.root.setOnClickListener {
                 checkIfLoggedInBeforeExecuting(requireContext()) {
