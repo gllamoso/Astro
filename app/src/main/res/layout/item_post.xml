@@ -106,10 +106,18 @@
                     <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="24dp"
                         android:layout_height="24dp"
+                        android:layout_marginStart="-1dp"
+                        android:src="@drawable/ic_block_24"
+                        app:tint="@android:color/holo_red_dark"
+                        android:visibility="@{post.removedBy != null ? View.VISIBLE : View.GONE}" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:layout_marginStart="-3dp"
                         android:src="@drawable/ic_delete_24"
                         app:tint="@android:color/darker_gray"
-                        android:visibility="@{post.deleted == true || post.removedBy != null ? View.VISIBLE : View.GONE}" />
+                        android:visibility="@{post.deleted == true ? View.VISIBLE : View.GONE}" />
 
                 </LinearLayout>
 

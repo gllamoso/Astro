@@ -96,7 +96,7 @@
                     android:layout_marginStart="-3dp"
                     android:src="@drawable/ic_delete_24"
                     app:tint="@android:color/darker_gray"
-                    android:visibility="@{post.deleted == true || post.removedBy != null ? View.VISIBLE : View.GONE}" />
+                    android:visibility="@{post.deleted == true ? View.VISIBLE : View.GONE}" />
 
             </LinearLayout>
 
@@ -282,6 +282,35 @@
                     android:textColor="@android:color/darker_gray"
                     android:text="@{UtilKt.timeSince(post.created)}"
                     tools:text="3h" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal"
+                android:paddingTop="8dp"
+                android:visibility="@{post.removedBy != null ? View.VISIBLE : View.GONE}"
+                app:layout_constraintVertical_bias="0"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@id/layoutPostInComments_postInfo2">
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/ic_block_24"
+                    android:tint="@android:color/holo_red_dark" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="8dp"
+                    android:singleLine="true"
+                    app:removalReason="@{post.removedBy}"
+                    tools:text="@string/post_removed_by_admin" />
 
             </LinearLayout>
 

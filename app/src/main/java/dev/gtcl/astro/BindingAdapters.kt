@@ -517,3 +517,13 @@ fun setUrlTypeIcon(imgView: ImageView, urlType: UrlType?){
 
     imgView.setImageResource(imageResource)
 }
+
+@BindingAdapter("removalReason")
+fun setRemovalReason(textView: TextView, reason: String?){
+    when(reason){
+        "moderator" -> textView.setText(R.string.post_removed_by_moderator)
+        "admin" -> textView.setText(R.string.post_removed_by_admin)
+        null -> textView.text = ""
+        else -> textView.setText(R.string.post_removed)
+    }
+}
