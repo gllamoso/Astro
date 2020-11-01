@@ -20,6 +20,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
+            android:paddingHorizontal="2dp"
             app:flair="@{flair}"
             app:cardCornerRadius="4dp"
             app:layout_constraintHorizontal_bias="0"

@@ -26,6 +26,7 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import dev.gtcl.astro.database.Subscription
+import dev.gtcl.astro.html.toDp
 import dev.gtcl.astro.models.reddit.RuleFor
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.fragments.multireddits.MultiRedditSubredditsAdapter
@@ -382,6 +383,7 @@ fun setFlairWithItem(cardView: MaterialCardView, item: Item?) {
 @BindingAdapter("flair")
 fun setFlairLayout(cardView: MaterialCardView, flair: Flair?){
     cardView.removeAllViews()
+    val padding = 4.toDp(cardView.context)
     if(flair != null){
         cardView.setCardBackgroundColor(flair.randomColor)
         if(!flair.richtext.isNullOrEmpty()){
@@ -390,6 +392,7 @@ fun setFlairLayout(cardView: MaterialCardView, flair: Flair?){
             val textView = TextView(cardView.context).apply {
                 isSingleLine = true
                 text = flair.text
+                setPadding(padding, 0, padding, 0)
             }
             cardView.addView(textView)
         }
