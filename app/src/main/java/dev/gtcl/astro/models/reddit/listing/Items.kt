@@ -308,7 +308,9 @@ data class Post(
     @Json(name = "removed_by_category")
     val removedBy: String?,
     @Json(name = "link_flair_richtext")
-    val flairRichtext: List<FlairRichtext>?
+    val flairRichtext: List<FlairRichtext>?,
+    @Json(name = "link_flair_background_color")
+    val flairColor: String?
 ) : Item(ItemType.Post) {
 
     @IgnoredOnParcel

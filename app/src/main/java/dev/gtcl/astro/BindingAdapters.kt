@@ -6,7 +6,7 @@ import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.Patterns
 import android.util.TypedValue
-import android.view.LayoutInflater
+import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
@@ -23,10 +23,9 @@ import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import dev.gtcl.astro.database.Subscription
-import dev.gtcl.astro.databinding.IconFlairBinding
-import dev.gtcl.astro.databinding.IconFlairSmallBinding
 import dev.gtcl.astro.models.reddit.RuleFor
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.fragments.multireddits.MultiRedditSubredditsAdapter
@@ -359,77 +358,27 @@ fun applyBookmarkTint(imageView: ImageView, bookmarked: Boolean) {
 }
 
 @BindingAdapter("flairListSmall")
-fun addSmallFlairList(viewGroup: LinearLayout, list: List<FlairRichtext>?) {
-    viewGroup.removeAllViews()
+fun addSmallFlairList(cardView: MaterialCardView, list: List<FlairRichtext>?) {
+    cardView.removeAllViews()
     if (!list.isNullOrEmpty()) {
-        viewGroup.visibility = View.VISIBLE
-        val context = viewGroup.context
+        cardView.visibility = View.VISIBLE
+        val context = cardView.context
         val imgViewSize = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            14f,
-            context.resources.displayMetrics
+                TypedValue.COMPLEX_UNIT_DIP,
+                14f,
+                context.resources.displayMetrics
         ).toInt()
         val margin = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            4f,
-            context.resources.displayMetrics
+                TypedValue.COMPLEX_UNIT_DIP,
+                2f,
+                context.resources.displayMetrics
         ).toInt()
-        var start = true
-        val layoutInflater = LayoutInflater.from(context)
-        for (flair in list) {
-            if (!flair.urlFormatted.isNullOrBlank() || flair.text.toString().isNotBlank()) {
-                val view =
-                    if (!flair.urlFormatted.isNullOrBlank()) {
-                        ImageView(context).apply {
-                            layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
-                                if(!start) {
-                                    marginStart = margin
-                                }
-                            }
-                            loadImage(this, flair.urlFormatted)
-                        }
-                    } else {
-                        IconFlairSmallBinding.inflate(layoutInflater).apply {
-                            charSequence = flair.text.toString().trim()
-                            executePendingBindings()
-                        }.root.apply {
-                            val padding = margin/2
-                            setPadding(padding, padding, padding, padding)
-                            layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                                if(!start) {
-                                    marginStart = margin
-                                }
-                            }
-                        }
-                    }
-
-                viewGroup.addView(view)
-                start = false
-            }
+        val linearLayout = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(margin, margin, margin, margin)
+            gravity = Gravity.CENTER_VERTICAL
         }
-    } else {
-        viewGroup.visibility = View.GONE
-    }
-}
-
-@BindingAdapter("flairList")
-fun addFlairList(viewGroup: LinearLayout, list: List<FlairRichtext>?) {
-    viewGroup.removeAllViews()
-    if (!list.isNullOrEmpty()) {
-        viewGroup.visibility = View.VISIBLE
-        val context = viewGroup.context
-        val imgViewSize = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                18f,
-                context.resources.displayMetrics
-        ).toInt()
-        val margin = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                4f,
-                context.resources.displayMetrics
-        ).toInt()
         var start = true
-        val layoutInflater = LayoutInflater.from(context)
         for (flair in list) {
             if (!flair.urlFormatted.isNullOrBlank() || flair.text.toString().isNotBlank()) {
                 val view =
@@ -443,12 +392,10 @@ fun addFlairList(viewGroup: LinearLayout, list: List<FlairRichtext>?) {
                                 loadImage(this, flair.urlFormatted)
                             }
                         } else {
-                            IconFlairBinding.inflate(layoutInflater).apply {
-                                charSequence = flair.text.toString().trim()
-                                executePendingBindings()
-                            }.root.apply {
-                                val padding = margin/2
-                                setPadding(padding, padding, padding, padding)
+                            TextView(context).apply {
+                                text = flair.text.toString().trim()
+                                setTextColor(Color.WHITE)
+                                setTextSize(TypedValue.COMPLEX_UNIT_SP, 10F)
                                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                                     if(!start) {
                                         marginStart = margin
@@ -457,12 +404,78 @@ fun addFlairList(viewGroup: LinearLayout, list: List<FlairRichtext>?) {
                             }
                         }
 
-                viewGroup.addView(view)
+                linearLayout.addView(view)
                 start = false
             }
         }
+        cardView.addView(linearLayout)
     } else {
-        viewGroup.visibility = View.GONE
+        cardView.visibility = View.GONE
+    }
+}
+
+@BindingAdapter("flairList")
+fun addFlairList(cardView: MaterialCardView, list: List<FlairRichtext>?) {
+    cardView.removeAllViews()
+    if (!list.isNullOrEmpty()) {
+        cardView.visibility = View.VISIBLE
+        val context = cardView.context
+        val imgViewSize = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                18f,
+                context.resources.displayMetrics
+        ).toInt()
+        val margin = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                4f,
+                context.resources.displayMetrics
+        ).toInt()
+        val linearLayout = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(margin, margin, margin, margin)
+            gravity = Gravity.CENTER_VERTICAL
+        }
+        var start = true
+        for (flair in list) {
+            if (!flair.urlFormatted.isNullOrBlank() || flair.text.toString().isNotBlank()) {
+                val view =
+                        if (!flair.urlFormatted.isNullOrBlank()) {
+                            ImageView(context).apply {
+                                layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
+                                    if(!start) {
+                                        marginStart = margin
+                                    }
+                                }
+                                loadImage(this, flair.urlFormatted)
+                            }
+                        } else {
+                            TextView(context).apply {
+                                text = flair.text.toString().trim()
+                                setTextSize(TypedValue.COMPLEX_UNIT_SP, 12F)
+                                setTextColor(Color.WHITE)
+                                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                                    if(!start) {
+                                        marginStart = margin
+                                    }
+                                }
+                            }
+                        }
+
+                linearLayout.addView(view)
+                start = false
+            }
+        }
+        cardView.addView(linearLayout)
+    } else {
+        cardView.visibility = View.GONE
+    }
+}
+
+@BindingAdapter("flairBackground")
+fun setFlairBackground(cardView: MaterialCardView, color: String?){
+    when(color){
+        "", null -> cardView.setCardBackgroundColor(Color.MAGENTA)
+        else -> cardView.setCardBackgroundColor(Color.parseColor(color))
     }
 }
 

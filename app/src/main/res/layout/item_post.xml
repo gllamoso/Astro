@@ -56,13 +56,13 @@
                         android:layout_marginEnd="4dp"
                         android:visibility="@{post.spoiler == true ? View.VISIBLE : View.GONE}" />
 
-                    <LinearLayout
+                    <com.google.android.material.card.MaterialCardView
                         android:id="@+id/itemPost_flairLayout"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal"
-                        android:gravity="center_vertical"
+                        app:flairBackground="@{post.flairColor}"
                         android:layout_marginEnd="4dp"
+                        app:cardCornerRadius="4dp"
                         app:flairList="@{post.flairRichtext}"/>
 
                     <androidx.appcompat.widget.AppCompatImageView

@@ -107,6 +107,7 @@ class CommentsMoshiAdapter {
         var locked: Boolean? = null
         var removedBy: String? = null
         var flairRichtext: List<FlairRichtext>? = null
+        var flairColor: String? = null
 
         while (jsonReader.hasNext()) {
             when (jsonReader.nextName()) {
@@ -270,6 +271,13 @@ class CommentsMoshiAdapter {
                     }
                     jsonReader.endArray()
                 }
+                "link_flair_background_color" -> {
+                    if (jsonReader.peek() != JsonReader.Token.NULL) {
+                        flairColor = jsonReader.nextString()
+                    } else {
+                        jsonReader.skipValue()
+                    }
+                }
                 else -> {
                     jsonReader.skipValue()
                 }
@@ -315,7 +323,8 @@ class CommentsMoshiAdapter {
             pinned = pinned!!,
             locked = locked!!,
             removedBy = removedBy,
-            flairRichtext = flairRichtext
+            flairRichtext = flairRichtext,
+            flairColor = flairColor
         )
     }
 
