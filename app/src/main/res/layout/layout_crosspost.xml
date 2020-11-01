@@ -99,7 +99,7 @@
                     android:layout_marginEnd="4dp"
                     app:cardCornerRadius="3dp"
                     app:flairBackground="@{post.flairColor}"
-                    app:flairListSmall="@{post.flairRichtext}"/>
+                    app:itemWithSmallFlair="@{post}"/>
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="16dp"

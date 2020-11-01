@@ -310,7 +310,9 @@ data class Post(
     @Json(name = "link_flair_richtext")
     val flairRichtext: List<FlairRichtext>?,
     @Json(name = "link_flair_background_color")
-    val flairColor: String?
+    val flairColor: String?,
+    @Json(name = "link_flair_text_color")
+    val flairTextColor: String?
 ) : Item(ItemType.Post) {
 
     @IgnoredOnParcel
@@ -328,15 +330,27 @@ data class Post(
     val urlFormatted = url?.removeHtmlEntities()
 
     fun getThumbnail(nsfw: Boolean): String?{
-        return if(nsfw){
-            preview?.images?.get(0)?.variants?.nsfw?.resolutions?.get(0)?.url?.removeHtmlEntities()
+        var result: String? = null
+        if(nsfw){
+            result = preview?.images?.get(0)?.variants?.nsfw?.resolutions?.get(0)?.url?.removeHtmlEntities()
         } else {
-            preview?.images?.get(0)?.resolutions?.get(0)?.url?.removeHtmlEntities()
-        } ?: thumbnail?.removeHtmlEntities()
+            result = preview?.images?.get(0)?.resolutions?.get(0)?.url?.removeHtmlEntities()
+            if(result == null){
+                val id = galleryData?.items?.get(0)?.mediaId ?: ""
+                result = mediaMetadata?.get(id)?.previews?.first()?.url?.removeHtmlEntities() ?: thumbnail?.removeHtmlEntities()
+            }
+        }
+        return result
     }
 
-    @IgnoredOnParcel
-    val previewImage = preview?.images?.get(0)?.resolutions?.last()?.url?.removeHtmlEntities()
+    fun getPreviewImage(): String? {
+        var result = preview?.images?.get(0)?.resolutions?.last()?.url?.removeHtmlEntities()
+        if(result == null){
+            val id = galleryData?.items?.get(0)?.mediaId ?: ""
+            result = mediaMetadata?.get(id)?.previews?.last()?.url?.removeHtmlEntities()
+        }
+        return result
+    }
 
     @IgnoredOnParcel
     val subredditDisplayName = if (subreddit.startsWith("u_")) {
@@ -368,15 +382,6 @@ data class Post(
 
     @IgnoredOnParcel
     val shortLink = "https://redd.it/$id"
-
-    val flairTextFormatted: CharSequence?
-        get() {
-            return if (flairText != null) {
-                Html.fromHtml(flairText, Html.FROM_HTML_MODE_COMPACT)
-            } else {
-                null
-            }
-        }
 
     @IgnoredOnParcel
     val permalinkWithRedditDomain = "https://www.reddit.com${permalink.removeHtmlEntities()}"
@@ -547,7 +552,15 @@ data class GalleryItem(
 data class MediaMetadata(
     val id: String?,
     @Json(name = "m")
-    val mimeType: String?
+    val mimeType: String?,
+    @Json(name = "p")
+    val previews: List<GalleryPreview>?
+) : Parcelable
+
+@Parcelize
+data class GalleryPreview(
+    @Json(name = "u")
+    val url: String?
 ) : Parcelable
 
 //   _   _  _              __  __

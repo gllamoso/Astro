@@ -93,7 +93,7 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
 
         when{
             !thumbnailIsValid && post.isSelf -> binding.itemPostThumbnailBackground.visibility = View.GONE
-            thumbnailIsValid -> {
+            thumbnailIsValid && !post.spoiler -> {
                 binding.itemPostThumbnailBackground.visibility = View.VISIBLE
                 binding.itemPostThumbnail.apply {
                     setBackgroundColor(Color.TRANSPARENT)
@@ -112,9 +112,14 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
             }
             else -> {
                 binding.itemPostThumbnailBackground.visibility = View.VISIBLE
+                val resource = if(post.spoiler){
+                    R.drawable.ic_error_outline_24
+                } else {
+                    R.drawable.ic_no_photo_24
+                }
                 binding.itemPostThumbnail.apply {
                     setBackgroundColor(Color.GRAY)
-                    setImageResource(R.drawable.ic_no_photo_24)
+                    setImageResource(resource)
                     setOnClickListener {
                         postActions.thumbnailClicked(post, adapterPosition)
                         binding.invalidateAll()

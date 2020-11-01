@@ -5,7 +5,7 @@ import com.squareup.moshi.JsonReader
 import com.squareup.moshi.ToJson
 import dev.gtcl.astro.models.reddit.listing.*
 import java.util.*
-import kotlin.collections.HashMap
+import kotlin.collections.LinkedHashMap
 
 data class CommentPage(
     val post: Post,
@@ -108,6 +108,7 @@ class CommentsMoshiAdapter {
         var removedBy: String? = null
         var flairRichtext: List<FlairRichtext>? = null
         var flairColor: String? = null
+        var flairTextColor: String? = null
 
         while (jsonReader.hasNext()) {
             when (jsonReader.nextName()) {
@@ -278,6 +279,13 @@ class CommentsMoshiAdapter {
                         jsonReader.skipValue()
                     }
                 }
+                "link_flair_text_color" -> {
+                    if (jsonReader.peek() != JsonReader.Token.NULL) {
+                        flairTextColor = jsonReader.nextString()
+                    } else {
+                        jsonReader.skipValue()
+                    }
+                }
                 else -> {
                     jsonReader.skipValue()
                 }
@@ -324,7 +332,8 @@ class CommentsMoshiAdapter {
             locked = locked!!,
             removedBy = removedBy,
             flairRichtext = flairRichtext,
-            flairColor = flairColor
+            flairColor = flairColor,
+            flairTextColor = flairTextColor
         )
     }
 
@@ -493,24 +502,56 @@ class CommentsMoshiAdapter {
     }
 
     private fun getMediaMetadata(jsonReader: JsonReader): Map<String, MediaMetadata> {
-        val map = HashMap<String, MediaMetadata>()
+        val map = LinkedHashMap<String, MediaMetadata>()
         jsonReader.beginObject()
         while (jsonReader.hasNext()) {
             val id = jsonReader.nextName()
             var mimeType: String? = null
+            var previews: List<GalleryPreview>? = null
             jsonReader.beginObject()
             while (jsonReader.hasNext()) {
-                if (jsonReader.nextName() == "m") {
-                    mimeType = jsonReader.nextString()
-                } else {
-                    jsonReader.skipValue()
+                when(jsonReader.nextName()){
+                    "m" -> {
+                        mimeType = jsonReader.nextString()
+                    }
+                    "p" -> {
+                        jsonReader.beginArray()
+                        val mutablePreviews = mutableListOf<GalleryPreview>()
+                        while(jsonReader.hasNext()){
+                            mutablePreviews.add(getGalleryPreview(jsonReader))
+                        }
+                        jsonReader.endArray()
+                        previews = mutablePreviews.toList()
+                    }
+                    else -> jsonReader.skipValue()
                 }
             }
             jsonReader.endObject()
-            map[id] = MediaMetadata(id, mimeType)
+            map[id] = MediaMetadata(id, mimeType, previews)
         }
         jsonReader.endObject()
         return map
+    }
+
+    private fun getGalleryPreview(jsonReader: JsonReader): GalleryPreview {
+        var url: String? = null
+
+        jsonReader.beginObject()
+        while(jsonReader.hasNext()){
+            when(jsonReader.nextName()){
+                "u" -> {
+                    if (jsonReader.peek() != JsonReader.Token.NULL) {
+                        url = jsonReader.nextString()
+                    } else {
+                        jsonReader.skipValue()
+                    }
+                }
+                else -> jsonReader.skipValue()
+            }
+        }
+        jsonReader.endObject()
+
+        return GalleryPreview(url)
     }
 
     private fun getGalleryData(jsonReader: JsonReader): GalleryData {

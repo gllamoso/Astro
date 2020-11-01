@@ -98,7 +98,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
         coroutineScope.launch {
             post.parseSelfText()
             _post.postValue(post)
-            val preview = post.previewImage ?: post.getThumbnail(false) ?: ""
+            val preview = post.getPreviewImage() ?: post.getThumbnail(false) ?: ""
             _previewImg.postValue(preview)
             _previewType.postValue(post.urlType)
         }
@@ -136,7 +136,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                 if (refreshPost) {
                     commentPage.post.parseSelfText()
                     _post.postValue(commentPage.post)
-                    val preview = commentPage.post.previewImage ?: commentPage.post.getThumbnail(false) ?: ""
+                    val preview = commentPage.post.getPreviewImage() ?: commentPage.post.getThumbnail(false) ?: ""
                     _previewImg.postValue(preview)
                     _previewType.postValue(commentPage.post.urlType)
                 }

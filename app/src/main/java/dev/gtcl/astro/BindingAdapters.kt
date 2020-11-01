@@ -357,86 +357,47 @@ fun applyBookmarkTint(imageView: ImageView, bookmarked: Boolean) {
     }
 }
 
-@BindingAdapter("flairListSmall")
-fun addSmallFlairList(cardView: MaterialCardView, list: List<FlairRichtext>?) {
-    cardView.removeAllViews()
-    if (!list.isNullOrEmpty()) {
-        cardView.visibility = View.VISIBLE
-        val context = cardView.context
-        val imgViewSize = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                14f,
-                context.resources.displayMetrics
-        ).toInt()
-        val margin = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                2f,
-                context.resources.displayMetrics
-        ).toInt()
-        val linearLayout = LinearLayout(context).apply {
-            orientation = LinearLayout.HORIZONTAL
-            setPadding(margin, margin, margin, margin)
-            gravity = Gravity.CENTER_VERTICAL
-        }
-        var start = true
-        for (flair in list) {
-            if (!flair.urlFormatted.isNullOrBlank() || flair.text.toString().isNotBlank()) {
-                val view =
-                        if (!flair.urlFormatted.isNullOrBlank()) {
-                            ImageView(context).apply {
-                                layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
-                                    if(!start) {
-                                        marginStart = margin
-                                    }
-                                }
-                                loadImage(this, flair.urlFormatted)
-                            }
-                        } else {
-                            TextView(context).apply {
-                                text = flair.text.toString().trim()
-                                setTextColor(Color.WHITE)
-                                setTextSize(TypedValue.COMPLEX_UNIT_SP, 10F)
-                                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                                    if(!start) {
-                                        marginStart = margin
-                                    }
-                                }
-                            }
-                        }
-
-                linearLayout.addView(view)
-                start = false
-            }
-        }
-        cardView.addView(linearLayout)
-    } else {
-        cardView.visibility = View.GONE
-    }
+@BindingAdapter("itemWithSmallFlair")
+fun setSmallFlairWithItem(cardView: MaterialCardView, item: Item?) {
+    setFlair(cardView, item, true)
 }
 
-@BindingAdapter("flairList")
-fun addFlairList(cardView: MaterialCardView, list: List<FlairRichtext>?) {
+@BindingAdapter("itemWithFlair")
+fun setFlairWithItem(cardView: MaterialCardView, item: Item?) {
+    setFlair(cardView, item, false)
+}
+
+private fun setFlair(cardView: MaterialCardView, item: Item?, small: Boolean){
     cardView.removeAllViews()
-    if (!list.isNullOrEmpty()) {
+    val flairList = when(item){
+        is Post -> item.flairRichtext
+        is Comment -> item.flairRichtext
+        else -> null
+    }
+    val textColor = when(item){
+        is Post -> if(item.flairTextColor == "dark") Color.BLACK else Color.WHITE
+        else -> Color.WHITE
+    }
+    if (!flairList.isNullOrEmpty()) {
         cardView.visibility = View.VISIBLE
         val context = cardView.context
         val imgViewSize = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
-                18f,
+                if(small) 14f else 18f,
                 context.resources.displayMetrics
         ).toInt()
         val margin = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
-                4f,
+                if(small) 2f else 4f,
                 context.resources.displayMetrics
         ).toInt()
         val linearLayout = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
-            setPadding(margin, margin, margin, margin)
+            setPadding(margin, margin/2, margin, margin/2)
             gravity = Gravity.CENTER_VERTICAL
         }
         var start = true
-        for (flair in list) {
+        for (flair in flairList) {
             if (!flair.urlFormatted.isNullOrBlank() || flair.text.toString().isNotBlank()) {
                 val view =
                         if (!flair.urlFormatted.isNullOrBlank()) {
@@ -452,7 +413,7 @@ fun addFlairList(cardView: MaterialCardView, list: List<FlairRichtext>?) {
                             TextView(context).apply {
                                 text = flair.text.toString().trim()
                                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 12F)
-                                setTextColor(Color.WHITE)
+                                setTextColor(textColor)
                                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                                     if(!start) {
                                         marginStart = margin
