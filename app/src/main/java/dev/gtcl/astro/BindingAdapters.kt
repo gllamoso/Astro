@@ -359,26 +359,51 @@ fun applyBookmarkTint(imageView: ImageView, bookmarked: Boolean) {
 
 @BindingAdapter("itemWithSmallFlair")
 fun setSmallFlairWithItem(cardView: MaterialCardView, item: Item?) {
-    setFlair(cardView, item, true)
-}
-
-@BindingAdapter("itemWithFlair")
-fun setFlairWithItem(cardView: MaterialCardView, item: Item?) {
-    setFlair(cardView, item, false)
-}
-
-private fun setFlair(cardView: MaterialCardView, item: Item?, small: Boolean){
-    cardView.removeAllViews()
-    val flairList = when(item){
+    val darkTextColor = item is Post && item.flairTextColor == "dark"
+    val flairs = when(item){
         is Post -> item.flairRichtext
         is Comment -> item.flairRichtext
         else -> null
     }
-    val textColor = when(item){
-        is Post -> if(item.flairTextColor == "dark") Color.BLACK else Color.WHITE
-        else -> Color.WHITE
+    setFlair(cardView, flairs, darkTextColor, true)
+}
+
+@BindingAdapter("itemWithFlair")
+fun setFlairWithItem(cardView: MaterialCardView, item: Item?) {
+    val darkTextColor = item is Post && item.flairTextColor == "dark"
+    val flairs = when(item){
+        is Post -> item.flairRichtext
+        is Comment -> item.flairRichtext
+        else -> null
     }
-    if (!flairList.isNullOrEmpty()) {
+    setFlair(cardView, flairs, darkTextColor, false)
+}
+
+@BindingAdapter("flair")
+fun setFlairLayout(cardView: MaterialCardView, flair: Flair?){
+    cardView.removeAllViews()
+    if(flair != null){
+        cardView.setCardBackgroundColor(flair.randomColor)
+        if(!flair.richtext.isNullOrEmpty()){
+            setFlair(cardView, flair.richtext, darkTextColor = false, small = false)
+        } else {
+            val textView = TextView(cardView.context).apply {
+                isSingleLine = true
+                text = flair.text
+            }
+            cardView.addView(textView)
+        }
+    }
+}
+
+private fun setFlair(cardView: MaterialCardView, flairs: List<FlairRichtext>?, darkTextColor: Boolean, small: Boolean){
+    cardView.removeAllViews()
+    val textColor = if(darkTextColor) {
+        Color.BLACK
+    } else {
+        Color.WHITE
+    }
+    if (!flairs.isNullOrEmpty()) {
         cardView.visibility = View.VISIBLE
         val context = cardView.context
         val imgViewSize = TypedValue.applyDimension(
@@ -397,7 +422,7 @@ private fun setFlair(cardView: MaterialCardView, item: Item?, small: Boolean){
             gravity = Gravity.CENTER_VERTICAL
         }
         var start = true
-        for (flair in flairList) {
+        for (flair in flairs) {
             if (!flair.urlFormatted.isNullOrBlank() || flair.text.toString().isNotBlank()) {
                 val view =
                         if (!flair.urlFormatted.isNullOrBlank()) {
@@ -414,6 +439,7 @@ private fun setFlair(cardView: MaterialCardView, item: Item?, small: Boolean){
                                 text = flair.text.toString().trim()
                                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 12F)
                                 setTextColor(textColor)
+                                isSingleLine = true
                                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                                     if(!start) {
                                         marginStart = margin

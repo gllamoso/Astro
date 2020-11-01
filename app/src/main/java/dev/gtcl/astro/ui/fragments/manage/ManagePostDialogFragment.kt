@@ -45,7 +45,8 @@ class ManagePostDialogFragment : DialogFragment() {
         if (post.flairText != null && post.linkFlairTemplateId != null) {
             val flair = Flair(
                 post.flairText ?: return null, false,
-                post.linkFlairTemplateId ?: return null
+                post.linkFlairTemplateId ?: return null,
+                null
             )
             model.selectFlair(flair)
         }

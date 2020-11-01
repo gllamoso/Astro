@@ -3,16 +3,15 @@ package dev.gtcl.astro.ui.viewholders
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
-import dev.gtcl.astro.databinding.ItemEditableBinding
+import dev.gtcl.astro.databinding.ItemFlairBinding
 import dev.gtcl.astro.models.reddit.listing.Flair
 import dev.gtcl.astro.ui.fragments.flair.FlairListAdapter
 
-class FlairVH private constructor(private val binding: ItemEditableBinding) :
+class FlairVH private constructor(private val binding: ItemFlairBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
     fun bind(flair: Flair, flairSelectionListener: FlairListAdapter.FlairSelectionListener) {
-        binding.text = flair.text
-        binding.isEditable = flair.textEditable
+        binding.flair = flair
 
         binding.root.setOnClickListener {
             flairSelectionListener.onSelect(flair)
@@ -27,7 +26,7 @@ class FlairVH private constructor(private val binding: ItemEditableBinding) :
 
     companion object {
         fun create(parent: ViewGroup): FlairVH {
-            return FlairVH(ItemEditableBinding.inflate(LayoutInflater.from(parent.context)))
+            return FlairVH(ItemFlairBinding.inflate(LayoutInflater.from(parent.context)))
         }
     }
 
