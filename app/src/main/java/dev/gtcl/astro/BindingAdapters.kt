@@ -26,7 +26,6 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import dev.gtcl.astro.database.Subscription
-import dev.gtcl.astro.html.toDp
 import dev.gtcl.astro.models.reddit.RuleFor
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.fragments.multireddits.MultiRedditSubredditsAdapter
@@ -366,7 +365,17 @@ fun setSmallFlairWithItem(cardView: MaterialCardView, item: Item?) {
         is Comment -> item.flairRichtext
         else -> null
     }
-    setFlair(cardView, flairs, darkTextColor, true)
+    if(flairs.isNullOrEmpty()){
+        val text = when(item){
+            is Post -> item.flairText?.removeHtmlEntities()
+            is Comment -> item.authorFlairText?.removeHtmlEntities()
+            else -> null
+        }
+        setFlairText(cardView, text, darkTextColor, true)
+    } else {
+        setFlairRichText(cardView, flairs, darkTextColor, true)
+    }
+
 }
 
 @BindingAdapter("itemWithFlair")
@@ -377,29 +386,63 @@ fun setFlairWithItem(cardView: MaterialCardView, item: Item?) {
         is Comment -> item.flairRichtext
         else -> null
     }
-    setFlair(cardView, flairs, darkTextColor, false)
+
+    if(flairs.isNullOrEmpty()){
+        val text = when(item){
+            is Post -> item.flairText?.removeHtmlEntities()
+            is Comment -> item.authorFlairText?.removeHtmlEntities()
+            else -> null
+        }
+        setFlairText(cardView, text, darkTextColor, false)
+    } else {
+        setFlairRichText(cardView, flairs, darkTextColor, false)
+    }
 }
 
 @BindingAdapter("flair")
 fun setFlairLayout(cardView: MaterialCardView, flair: Flair?){
     cardView.removeAllViews()
-    val padding = 4.toDp(cardView.context)
     if(flair != null){
-        cardView.setCardBackgroundColor(flair.randomColor)
-        if(!flair.richtext.isNullOrEmpty()){
-            setFlair(cardView, flair.richtext, darkTextColor = false, small = false)
+        if(flair.richtext.isNullOrEmpty()){
+            setFlairText(cardView, flair.text.removeHtmlEntities(), darkTextColor = false, small = false)
         } else {
-            val textView = TextView(cardView.context).apply {
-                isSingleLine = true
-                text = flair.text
-                setPadding(padding, 0, padding, 0)
-            }
-            cardView.addView(textView)
+            setFlairRichText(cardView, flair.richtext, darkTextColor = false, small = false)
         }
     }
 }
 
-private fun setFlair(cardView: MaterialCardView, flairs: List<FlairRichtext>?, darkTextColor: Boolean, small: Boolean){
+private fun setFlairText(cardView: MaterialCardView, text: String?, darkTextColor: Boolean, small: Boolean){
+    val context = cardView.context
+    cardView.removeAllViews()
+    val textColor = if(darkTextColor) {
+        Color.BLACK
+    } else {
+        Color.WHITE
+    }
+    val padding = TypedValue.applyDimension(
+            TypedValue.COMPLEX_UNIT_DIP,
+            if(small) 2f else 4f,
+            context.resources.displayMetrics
+    ).toInt()
+
+    if(!text.isNullOrBlank()){
+        val textView = TextView(context).apply {
+            this.text = text.trim()
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, 12F)
+            setTextColor(textColor)
+            isSingleLine = true
+            setPadding(padding, padding/2, padding, padding/2)
+        }
+        cardView.apply {
+            visibility = View.VISIBLE
+            addView(textView)
+        }
+    } else {
+        cardView.visibility = View.GONE
+    }
+}
+
+private fun setFlairRichText(cardView: MaterialCardView, flairs: List<FlairRichtext>?, darkTextColor: Boolean, small: Boolean){
     cardView.removeAllViews()
     val textColor = if(darkTextColor) {
         Color.BLACK
@@ -407,7 +450,6 @@ private fun setFlair(cardView: MaterialCardView, flairs: List<FlairRichtext>?, d
         Color.WHITE
     }
     if (!flairs.isNullOrEmpty()) {
-        cardView.visibility = View.VISIBLE
         val context = cardView.context
         val imgViewSize = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
@@ -455,7 +497,10 @@ private fun setFlair(cardView: MaterialCardView, flairs: List<FlairRichtext>?, d
                 start = false
             }
         }
-        cardView.addView(linearLayout)
+        cardView.apply {
+            visibility = View.VISIBLE
+            addView(linearLayout)
+        }
     } else {
         cardView.visibility = View.GONE
     }
@@ -464,7 +509,7 @@ private fun setFlair(cardView: MaterialCardView, flairs: List<FlairRichtext>?, d
 @BindingAdapter("flairBackground")
 fun setFlairBackground(cardView: MaterialCardView, color: String?){
     when(color){
-        "", null -> cardView.setCardBackgroundColor(Color.MAGENTA)
+        "", null -> cardView.setCardBackgroundColor(Color.GRAY)
         else -> cardView.setCardBackgroundColor(Color.parseColor(color))
     }
 }
