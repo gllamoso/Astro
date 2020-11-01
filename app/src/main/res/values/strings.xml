@@ -199,6 +199,8 @@
     <string name="post_removed_by_moderator">Post has been removed by a moderator.</string>
     <string name="post_removed_by_admin">Post has been removed by an admin.</string>
     <string name="post_removed">Post has been removed.</string>
+    <string name="post_locked">Post has been locked.</string>
+    <string name="post_deleted">Post has been deleted.</string>
 
     <!--Errors-->
     <string name="user_does_not_exist">User does not exist</string>

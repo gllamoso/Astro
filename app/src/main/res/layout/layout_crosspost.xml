@@ -28,17 +28,27 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content">
 
+            <View
+                android:id="@+id/layoutCrosspost_topLine"
+                android:layout_width="match_parent"
+                android:layout_height="0.5dp"
+                android:background="@android:color/darker_gray"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"/>
+
             <FrameLayout
                 android:id="@+id/layoutCrosspost_thumbnailBackground"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:layout_marginVertical="8dp"
-                android:layout_marginStart="8dp"
+                android:layout_marginVertical="16dp"
+                android:layout_marginStart="16dp"
                 android:background="@android:color/black"
+                android:visibility="@{(post.getThumbnail(false) != null &amp;&amp; post.getThumbnail(false).startsWith(&quot;http&quot;)) ? View.VISIBLE : View.GONE}"
                 app:layout_constraintVertical_bias="0"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@id/layoutCrosspost_topLine">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:id="@+id/layoutCrosspost_thumbnail"
@@ -53,13 +63,13 @@
                 android:id="@+id/layoutCrosspost_tagsGroup"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="8dp"
-                android:layout_marginTop="8dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginTop="16dp"
                 android:gravity="center_vertical"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/layoutCrosspost_thumbnailBackground"
-                app:layout_constraintTop_toTopOf="parent">
+                app:layout_constraintTop_toBottomOf="@id/layoutCrosspost_topLine">
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="16dp"
@@ -139,7 +149,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:textSize="16sp"
-                android:layout_marginHorizontal="8dp"
+                android:layout_marginHorizontal="16dp"
                 android:text="@{post.titleFormatted}"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/layoutCrosspost_thumbnailBackground"
@@ -151,7 +161,7 @@
                 android:id="@+id/layoutCrosspost_postInfo1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="8dp"
+                android:layout_marginHorizontal="16dp"
                 android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/layoutCrosspost_thumbnailBackground"
@@ -208,8 +218,8 @@
                 android:id="@+id/layoutCrosspost_postInfo2"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:layout_marginHorizontal="8dp"
-                android:layout_marginBottom="8dp"
+                android:layout_marginHorizontal="16dp"
+                android:layout_marginBottom="16dp"
                 android:orientation="horizontal"
                 android:gravity="center_vertical"
                 android:paddingVertical="2dp"

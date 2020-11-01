@@ -39,10 +39,14 @@ fun loadImage(imgView: ImageView, imgUrl: String?) {
     when{
         imgUrl == null -> imgView.visibility = View.GONE
         !URLUtil.isValidUrl(imgUrl) && !Patterns.WEB_URL.matcher(imgUrl).matches() -> {
-            imgView.setImageResource(R.drawable.ic_no_photo_24)
-            imgView.setBackgroundColor(Color.GRAY)
+            imgView.apply {
+                visibility = View.VISIBLE
+                setImageResource(R.drawable.ic_no_photo_24)
+                setBackgroundColor(Color.GRAY)
+            }
         }
         else -> {
+            imgView.visibility = View.VISIBLE
             GlideApp.with(imgView.context)
                 .load(imgUrl)
 //            .skipMemoryCache(true)
