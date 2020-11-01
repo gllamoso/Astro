@@ -94,7 +94,6 @@
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:layout_marginEnd="4dp"
                     android:src="@drawable/ic_bookmark_24"
                     app:tint="@android:color/holo_orange_light"
                     android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}" />
@@ -102,14 +101,12 @@
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:layout_marginEnd="4dp"
                     android:src="@drawable/ic_hide_24"
                     android:visibility="@{post.hidden == true ? View.VISIBLE : View.GONE}" />
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:layout_marginEnd="4dp"
                     android:src="@drawable/ic_pin_24"
                     app:tint="@android:color/holo_green_light"
                     android:visibility="@{post.pinned == true || post.stickied == true ? View.VISIBLE : View.GONE}" />
@@ -117,7 +114,6 @@
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:layout_marginEnd="4dp"
                     android:src="@drawable/ic_lock_24"
                     app:tint="@android:color/holo_red_light"
                     android:visibility="@{post.locked == true ? View.VISIBLE : View.GONE}" />
@@ -125,7 +121,6 @@
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="16dp"
                     android:layout_height="16dp"
-                    android:layout_marginEnd="4dp"
                     android:src="@drawable/ic_block_24"
                     app:tint="@android:color/holo_red_dark"
                     android:visibility="@{post.removedBy != null ? View.VISIBLE : View.GONE}" />
