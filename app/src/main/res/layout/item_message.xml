@@ -7,6 +7,9 @@
         <variable
             name="message"
             type="dev.gtcl.astro.models.reddit.listing.Message" />
+        <variable
+            name="isUser"
+            type="boolean" />
     </data>
 
     <RelativeLayout
@@ -46,6 +49,7 @@
                     android:singleLine="true"
                     android:text="@{message.author}"
                     android:textStyle="bold"
+                    app:isUser="@{isUser}"
                     app:layout_constraintBottom_toBottomOf="@id/itemMessage_icon"
                     app:layout_constraintStart_toEndOf="@id/itemMessage_icon"
                     app:layout_constraintTop_toTopOf="@id/itemMessage_icon"

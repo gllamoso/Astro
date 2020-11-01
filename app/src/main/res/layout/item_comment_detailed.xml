@@ -65,16 +65,15 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toTopOf="parent" />
 
-                    <TextView
-                        android:id="@+id/itemCommentDetailed_author"
+                    <include
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:layout_marginEnd="4dp"
-                        android:singleLine="true"
+                        layout="@layout/layout_comment_author"
                         app:isUser="@{isUser}"
-                        android:text="@{comment.author}"
-                        android:textStyle="bold"
-                        tools:text="Author" />
+                        app:author="@{comment.author}"
+                        app:isOp="@{comment.isSubmitter()}"
+                        />
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="16dp"
@@ -90,7 +89,7 @@
                         android:text="@{(comment.gildings != null &amp;&amp; comment.gildings.silver != null ? comment.gildings.silver : 0).toString()}"
                         android:textColor="@android:color/darker_gray"
                         android:singleLine="true"
-                        android:layout_marginEnd="4dp"
+                        android:layout_marginEnd="2dp"
                         android:visibility="@{comment.gildings != null &amp;&amp; comment.gildings.silver != null ? View.VISIBLE : View.GONE}"
                         tools:text="99" />
 
@@ -108,7 +107,7 @@
                         android:text="@{(comment.gildings != null &amp;&amp; comment.gildings.gold != null ? comment.gildings.gold : 0).toString()}"
                         android:textColor="#ffd54f"
                         android:singleLine="true"
-                        android:layout_marginEnd="4dp"
+                        android:layout_marginEnd="2dp"
                         android:visibility="@{comment.gildings != null &amp;&amp; comment.gildings.gold != null ? View.VISIBLE : View.GONE}"
                         tools:text="99" />
 
@@ -133,21 +132,13 @@
                         android:layout_width="18dp"
                         android:layout_height="18dp"
                         android:visibility="@{comment.authorCakeday == true ? View.VISIBLE : View.GONE}"
-                        android:layout_marginEnd="4dp"
+                        android:layout_marginEnd="2dp"
                         android:src="@drawable/ic_cake_24"
                         app:tint="@android:color/holo_orange_dark" />
 
-                    <include
-                        android:id="@+id/itemCommentDetailed_submitterIcon"
-                        layout="@layout/icon_op_small"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
-                        android:visibility="@{comment.submitter == true ? View.VISIBLE : View.GONE}" />
-
                     <com.google.android.material.card.MaterialCardView
                         android:layout_width="wrap_content"
-                        android:layout_height="match_parent"
+                        android:layout_height="wrap_content"
                         android:orientation="horizontal"
                         android:layout_marginEnd="4dp"
                         app:cardCornerRadius="3dp"
@@ -158,7 +149,7 @@
                     <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="18dp"
                         android:layout_height="18dp"
-                        android:layout_marginEnd="4dp"
+                        android:layout_marginEnd="2dp"
                         android:layout_marginStart="-3dp"
                         android:src="@drawable/ic_bookmark_24"
                         app:tint="@android:color/holo_orange_light"
@@ -167,7 +158,7 @@
                     <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="18dp"
                         android:layout_height="18dp"
-                        android:layout_marginEnd="4dp"
+                        android:layout_marginEnd="2dp"
                         android:src="@drawable/ic_lock_24"
                         app:tint="@android:color/holo_red_light"
                         android:visibility="@{comment.locked == true ? View.VISIBLE : View.GONE}" />
@@ -175,7 +166,7 @@
                     <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="18dp"
                         android:layout_height="18dp"
-                        android:layout_marginEnd="4dp"
+                        android:layout_marginEnd="2dp"
                         android:layout_marginStart="-3dp"
                         android:src="@drawable/ic_pin_24"
                         app:tint="@android:color/holo_green_light"
@@ -194,7 +185,7 @@
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:singleLine="true"
-                        android:layout_marginEnd="4dp"
+                        android:layout_marginEnd="2dp"
                         android:textColor="@{comment.likes == null ? @android:color/darker_gray : comment.likes == true ? @android:color/holo_orange_dark : @android:color/holo_blue_dark}"
                         android:text="@{comment.scoreHidden == true ? &quot;?&quot; : UtilKt.numFormatted(comment.score)}"
                         tools:text="999"

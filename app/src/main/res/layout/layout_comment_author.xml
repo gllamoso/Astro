@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="isUser"
+            type="boolean" />
+        <variable
+            name="author"
+            type="String" />
+        <variable
+            name="isOp"
+            type="boolean" />
+    </data>
+
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:cardCornerRadius="4dp"
+        app:cardElevation="0dp"
+        app:isOp="@{isOp}"
+        tools:cardBackgroundColor="@color/colorPrimary">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{author}"
+            android:singleLine="true"
+            android:textStyle="bold"
+            app:isUser="@{isUser}"
+            tools:text="RedditUser"
+            tools:paddingHorizontal="4dp"/>
+
+    </com.google.android.material.card.MaterialCardView>
+
+</layout>
+

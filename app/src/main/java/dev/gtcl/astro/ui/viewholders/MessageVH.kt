@@ -25,6 +25,7 @@ class MessageVH private constructor(private val binding: ItemMessageBinding) :
         itemClickListener: ItemClickListener
     ) {
         binding.message = message
+        binding.isUser = (username != null && message.author == username)
         binding.root.setOnClickListener {
             itemClickListener.clicked(message, adapterPosition)
         }

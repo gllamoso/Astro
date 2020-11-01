@@ -26,6 +26,7 @@ import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
 import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import dev.gtcl.astro.database.Subscription
+import dev.gtcl.astro.html.toDp
 import dev.gtcl.astro.models.reddit.RuleFor
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.fragments.multireddits.MultiRedditSubredditsAdapter
@@ -583,7 +584,7 @@ fun setCommentSortText(textView: TextView, commentSort: CommentSort) {
 }
 
 @BindingAdapter("isUser")
-fun setUserTextColor(textView: TextView, isUser: Boolean) {
+fun setAuthorTextColor(textView: TextView, isUser: Boolean) {
     val context = textView.context ?: return
     val typedValue = TypedValue()
     context.theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
@@ -591,12 +592,33 @@ fun setUserTextColor(textView: TextView, isUser: Boolean) {
         context.obtainStyledAttributes(typedValue.data, intArrayOf(android.R.attr.textColorPrimary))
     textView.setTextColor(
         if (isUser) {
-            context.getColor(R.color.colorPrimary)
+            -5220187
         } else {
             arr.getColor(0, -1)
         }
     )
     arr.recycle()
+}
+
+@BindingAdapter("isOp")
+fun setAuthorCardBackground(materialCardView: MaterialCardView, isOp: Boolean){
+    val padding = if(isOp) {
+        4.toDp(materialCardView.context)
+    } else {
+        0
+    }
+
+    val backgroundColor = if (isOp) {
+        -12336129
+    } else {
+        Color.TRANSPARENT
+    }
+
+    materialCardView.setCardBackgroundColor(backgroundColor)
+    if(materialCardView.childCount > 0){
+        val child = materialCardView.getChildAt(0)
+        child.setPadding(padding, 0, padding, 0)
+    }
 }
 
 @BindingAdapter("urlType")
