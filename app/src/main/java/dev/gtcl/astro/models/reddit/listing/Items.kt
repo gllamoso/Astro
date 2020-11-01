@@ -90,7 +90,7 @@ data class Comment(
     @Json(name = "author_flair_text")
     val authorFlairText: String?,
     @Json(name = "author_flair_richtext")
-    val authorFlairRichtext: List<AuthorFlairRichtext>?,
+    val flairRichtext: List<FlairRichtext>?,
     val gildings: Gildings?,
     private val permalink: String?,
     @Json(name = "link_permalink")
@@ -189,7 +189,7 @@ data class Comment(
 }
 
 @Parcelize
-data class AuthorFlairRichtext(
+data class FlairRichtext(
     @Json(name = "a")
     val tag: String?,
     @Json(name = "e")
@@ -306,7 +306,9 @@ data class Post(
     val pinned: Boolean,
     val locked: Boolean,
     @Json(name = "removed_by_category")
-    val removedBy: String?
+    val removedBy: String?,
+    @Json(name = "link_flair_richtext")
+    val flairRichtext: List<FlairRichtext>?
 ) : Item(ItemType.Post) {
 
     @IgnoredOnParcel

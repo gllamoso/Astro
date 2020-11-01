@@ -106,6 +106,8 @@ class CommentsMoshiAdapter {
         var pinned: Boolean? = null
         var locked: Boolean? = null
         var removedBy: String? = null
+        var flairRichtext: List<FlairRichtext>? = null
+
         while (jsonReader.hasNext()) {
             when (jsonReader.nextName()) {
                 "name" -> {
@@ -260,6 +262,14 @@ class CommentsMoshiAdapter {
                         jsonReader.skipValue()
                     }
                 }
+                "link_flair_richtext" ->  {
+                    jsonReader.beginArray()
+                    flairRichtext = mutableListOf()
+                    while (jsonReader.hasNext()) {
+                        flairRichtext.add(getFlairRichtext(jsonReader))
+                    }
+                    jsonReader.endArray()
+                }
                 else -> {
                     jsonReader.skipValue()
                 }
@@ -304,7 +314,8 @@ class CommentsMoshiAdapter {
             stickied = stickied!!,
             pinned = pinned!!,
             locked = locked!!,
-            removedBy = removedBy
+            removedBy = removedBy,
+            flairRichtext = flairRichtext
         )
     }
 
@@ -610,7 +621,7 @@ class CommentsMoshiAdapter {
         var isSubmitter: Boolean? = null
         var locked: Boolean? = null
         var stickied: Boolean? = null
-        val authorFlairRichtext = mutableListOf<AuthorFlairRichtext>()
+        val authorFlairRichtext = mutableListOf<FlairRichtext>()
 
         while (jsonReader.hasNext()) {
             when (jsonReader.nextName()) {
@@ -669,7 +680,7 @@ class CommentsMoshiAdapter {
                 "author_flair_richtext" -> {
                     jsonReader.beginArray()
                     while (jsonReader.hasNext()) {
-                        authorFlairRichtext.add(getAuthorFlairRichtext(jsonReader))
+                        authorFlairRichtext.add(getFlairRichtext(jsonReader))
                     }
                     jsonReader.endArray()
                 }
@@ -740,7 +751,7 @@ class CommentsMoshiAdapter {
             saved = saved,
             likes = likes,
             authorFlairText = authorFlairText,
-            authorFlairRichtext = authorFlairRichtext,
+            flairRichtext = authorFlairRichtext,
             gildings = gildings,
             permalink = permalink ?: return,
             linkPermalink = linkPermalink,
@@ -804,7 +815,7 @@ class CommentsMoshiAdapter {
         )
     }
 
-    private fun getAuthorFlairRichtext(jsonReader: JsonReader): AuthorFlairRichtext {
+    private fun getFlairRichtext(jsonReader: JsonReader): FlairRichtext {
         jsonReader.beginObject()
         var tag: String? = null
         var type: String? = null
@@ -822,7 +833,7 @@ class CommentsMoshiAdapter {
         }
 
         jsonReader.endObject()
-        return AuthorFlairRichtext(tag, type!!, text, url)
+        return FlairRichtext(tag, type!!, text, url)
     }
 
 }

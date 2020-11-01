@@ -56,14 +56,14 @@
                         android:layout_marginEnd="4dp"
                         android:visibility="@{post.spoiler == true ? View.VISIBLE : View.GONE}" />
 
-                    <include
+                    <LinearLayout
                         android:id="@+id/itemPost_flairLayout"
-                        layout="@layout/icon_flair"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:orientation="horizontal"
+                        android:gravity="center_vertical"
                         android:layout_marginEnd="4dp"
-                        app:charSequence="@{post.flairTextFormatted}"
-                        android:visibility="@{post.flairText != null ? View.VISIBLE : View.GONE}" />
+                        app:flairList="@{post.flairRichtext}"/>
 
                     <androidx.appcompat.widget.AppCompatImageView
                         android:layout_width="24dp"

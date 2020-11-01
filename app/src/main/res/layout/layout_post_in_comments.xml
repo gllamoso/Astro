@@ -48,14 +48,14 @@
                     android:layout_width="wrap_content"
                     android:layout_marginEnd="4dp"/>
 
-                <include
+                <LinearLayout
                     android:id="@+id/layoutPostInComments_flairLayout"
-                    layout="@layout/icon_flair"
-                    android:visibility="@{post.flairText != null ? View.VISIBLE : View.GONE}"
-                    app:charSequence="@{post.flairTextFormatted}"
-                    android:layout_height="wrap_content"
                     android:layout_width="wrap_content"
-                    android:layout_marginEnd="4dp"/>
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    android:layout_marginEnd="4dp"
+                    app:flairList="@{post.flairRichtext}"/>
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="24dp"
