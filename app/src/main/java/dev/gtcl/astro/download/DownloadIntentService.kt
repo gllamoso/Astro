@@ -4,7 +4,10 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.*
+import android.content.ContentUris
+import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -22,10 +25,12 @@ import dev.gtcl.astro.ALBUM_KEY
 import dev.gtcl.astro.R
 import dev.gtcl.astro.URL_KEY
 import timber.log.Timber
-import java.io.*
+import java.io.DataInputStream
+import java.io.DataOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import java.net.URL
 import java.util.*
-import kotlin.IllegalArgumentException
 import kotlin.random.Random
 
 const val HLS_EXTENSION = "m3u8"
@@ -85,7 +90,7 @@ class DownloadIntentService : JobIntentService() {
             return
         }
 
-        val downloadUrl = (intent.extras ?: return)[URL_KEY] as String?
+        val downloadUrl = intent.extras?.getString(URL_KEY)
         if (downloadUrl != null) { // Download single item
             try {
                 val filename = getFileName(downloadUrl)
