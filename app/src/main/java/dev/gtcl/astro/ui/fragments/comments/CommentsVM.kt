@@ -224,11 +224,11 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
         _comments.value = null
     }
 
-    fun hideItems(position: Int): Int {
-        val itemInPosition = comments.value!![position]
-        val depth = when (val currItem = comments.value!![position]) {
-            is Comment -> currItem.depth ?: 0
-            is More -> currItem.depth
+    fun hideResponses(position: Int): Int {
+        val parent = comments.value!![position]
+        val depth = when (parent) {
+            is Comment -> parent.depth ?: 0
+            is More -> parent.depth
             else -> 0
         }
         var i = position
@@ -247,7 +247,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
             for (j in listToHide.indices) {
                 comments.value!!.removeAt(position + 1)
             }
-            hiddenItemsMap[itemInPosition.name] = listToHide
+            hiddenItemsMap[parent.name] = listToHide
             listToHide.size
         } else {
             0

@@ -35,10 +35,10 @@ class CommentDetailedVH private constructor(private val binding: ItemCommentDeta
 
             itemCommentDetailedBackground.apply {
                 setOnClickListener {
-                    itemClickListener.clicked(comment, adapterPosition)
+                    itemClickListener.itemClicked(comment, adapterPosition)
                 }
                 setOnLongClickListener {
-                    itemClickListener.longClicked(comment, adapterPosition)
+                    itemClickListener.itemLongClicked(comment, adapterPosition)
                     true
                 }
             }

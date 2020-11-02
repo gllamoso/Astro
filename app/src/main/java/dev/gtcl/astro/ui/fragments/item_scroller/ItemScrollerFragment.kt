@@ -490,7 +490,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 //     _| |_| ||  __/ | | | | | | |____| | | (__|   <  | |____| \__ \ ||  __/ | | |  __/ |
 //    |_____|\__\___|_| |_| |_|  \_____|_|_|\___|_|\_\ |______|_|___/\__\___|_| |_|\___|_|
 
-    override fun clicked(item: Item, position: Int) {
+    override fun itemClicked(item: Item, position: Int) {
         when (item) {
             is Post -> {
                 item.isRead = true
@@ -527,7 +527,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         }
     }
 
-    override fun longClicked(item: Item, position: Int) {
+    override fun itemLongClicked(item: Item, position: Int) {
         item.isExpanded = !item.isExpanded
         listAdapter.notifyItemChanged(position)
     }

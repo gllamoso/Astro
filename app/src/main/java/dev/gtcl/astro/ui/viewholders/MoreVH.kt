@@ -18,7 +18,7 @@ class MoreVH private constructor(private val binding: ItemMoreCommentBinding) :
                 if (!item.isContinueThreadLink) {
                     binding.itemMoreCommentProgressBar.visibility = View.VISIBLE
                 }
-                itemClickListener.clicked(item, adapterPosition)
+                itemClickListener.itemClicked(item, adapterPosition)
             }
             executePendingBindings()
         }

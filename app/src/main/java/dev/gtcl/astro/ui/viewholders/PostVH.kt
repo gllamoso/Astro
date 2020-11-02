@@ -36,11 +36,11 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
 
             itemPostCardView.apply {
                 setOnClickListener {
-                    itemClickListener.clicked(post, adapterPosition)
+                    itemClickListener.itemClicked(post, adapterPosition)
                     binding.invalidateAll()
                 }
                 setOnLongClickListener {
-                    itemClickListener.longClicked(post, adapterPosition)
+                    itemClickListener.itemLongClicked(post, adapterPosition)
                     true
                 }
             }

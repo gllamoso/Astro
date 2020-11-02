@@ -27,7 +27,7 @@ class MessageVH private constructor(private val binding: ItemMessageBinding) :
         binding.message = message
         binding.isUser = (username != null && message.author == username)
         binding.root.setOnClickListener {
-            itemClickListener.clicked(message, adapterPosition)
+            itemClickListener.itemClicked(message, adapterPosition)
         }
         binding.itemMessageBodyLayout.createHtmlViews(message.parseBody(), null, linkHandler)
 

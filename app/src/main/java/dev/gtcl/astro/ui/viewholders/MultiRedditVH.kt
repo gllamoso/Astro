@@ -27,7 +27,7 @@ class MultiRedditVH private constructor(private val binding: ItemMultiredditBind
         )
         binding.executePendingBindings()
         binding.root.setOnClickListener {
-            itemClickListener.clicked(multi, adapterPosition)
+            itemClickListener.itemClicked(multi, adapterPosition)
         }
         binding.itemMultiRedditInfoButton.setOnClickListener {
             multiRedditActions.viewMoreInfo(multi)

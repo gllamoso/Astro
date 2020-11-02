@@ -131,7 +131,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
         model.moreComments.observe(viewLifecycleOwner, {
             if (it != null) {
-                adapter.addItems(it.position - adapter.getOffset(), it.comments)
+                adapter.addItems(it.position, it.comments)
                 model.moreCommentsObserved()
             }
         })
@@ -549,7 +549,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         }
     }
 
-    override fun clicked(item: Item, position: Int) {
+    override fun itemClicked(item: Item, position: Int) {
+        val positionWithoutOffset = position - adapter.getOffset()
         when (item) {
             is More -> {
                 if (item.isContinueThreadLink) {
@@ -564,7 +565,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                         )
                     )
                 } else {
-                    model.fetchMoreComments(position - adapter.getOffset())
+                    model.fetchMoreComments(positionWithoutOffset)
                 }
             }
             is Comment -> {
@@ -575,21 +576,21 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 }
                 adapter.notifyItemChanged(position)
                 if (collapse) {
-                    val hideSize = model.hideItems(position)
+                    val hideSize = model.hideResponses(positionWithoutOffset)
                     if (hideSize != 0) {
-                        adapter.removeRange(position + 1 - adapter.getOffset(), hideSize)
+                        adapter.removeItems(positionWithoutOffset + 1, hideSize)
                     }
                 } else {
-                    val unhideItems = model.unhideItems(position - adapter.getOffset())
+                    val unhideItems = model.unhideItems(positionWithoutOffset)
                     if (unhideItems.isNotEmpty()) {
-                        adapter.addItems(position + 1, unhideItems)
+                        adapter.addItems(positionWithoutOffset + 1, unhideItems)
                     }
                 }
             }
         }
     }
 
-    override fun longClicked(item: Item, position: Int) {
+    override fun itemLongClicked(item: Item, position: Int) {
         item.isExpanded = !item.isExpanded
         adapter.notifyItemChanged(position)
     }

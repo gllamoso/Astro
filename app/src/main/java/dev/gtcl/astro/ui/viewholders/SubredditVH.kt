@@ -24,7 +24,7 @@ class SubredditVH private constructor(private val binding: ItemSubredditBinding)
             moreInfoAvailable = subredditActions != null
         }
         binding.root.setOnClickListener {
-            itemClickListener.clicked(sub, adapterPosition)
+            itemClickListener.itemClicked(sub, adapterPosition)
         }
         subredditActions?.let {
             binding.itemSubredditInfoButton.setOnClickListener {
@@ -47,7 +47,7 @@ class SubredditVH private constructor(private val binding: ItemSubredditBinding)
             moreInfoAvailable = subredditActions != null
         }
         binding.root.setOnClickListener {
-            itemClickListener.clicked(sub, adapterPosition)
+            itemClickListener.itemClicked(sub, adapterPosition)
         }
         subredditActions?.let {
             binding.itemSubredditInfoButton.setOnClickListener {

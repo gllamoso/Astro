@@ -118,7 +118,7 @@ class MultiRedditFragment : Fragment(),
         adapter.notifyItemRemoved(position)
     }
 
-    override fun clicked(item: Item, position: Int) {
+    override fun itemClicked(item: Item, position: Int) {
         if (item is Subreddit) {
             findNavController().navigate(
                 MultiRedditFragmentDirections.actionMultiRedditFragmentToViewPagerFragment(
@@ -128,7 +128,7 @@ class MultiRedditFragment : Fragment(),
         }
     }
 
-    override fun longClicked(item: Item, position: Int) {} // Unused
+    override fun itemLongClicked(item: Item, position: Int) {} // Unused
 
 
 }

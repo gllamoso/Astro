@@ -34,13 +34,13 @@ class CommentVH private constructor(private val binding: ItemCommentBinding) :
             showTopDivider = (adapterPosition != 0 && comment.depth ?: 0 == 0)
             itemCommentBackground.apply {
                 setOnClickListener {
-                    itemClickListener.clicked(comment, adapterPosition)
+                    itemClickListener.itemClicked(comment, adapterPosition)
                 }
                 setOnLongClickListener {
                     if(comment.isCollapsed){
                         false
                     } else {
-                        itemClickListener.longClicked(comment, adapterPosition)
+                        itemClickListener.itemLongClicked(comment, adapterPosition)
                         true
                     }
                 }

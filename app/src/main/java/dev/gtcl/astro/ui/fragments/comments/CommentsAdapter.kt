@@ -67,8 +67,8 @@ class CommentsAdapter(
         }
     }
 
-    fun removeRange(position: Int, size: Int) {
-        for (i in 0..size) {
+    fun removeItems(position: Int, size: Int) {
+        for (i in 1..size) {
             (comments ?: return).removeAt(position)
         }
         notifyItemRangeRemoved(position + getOffset(), size)

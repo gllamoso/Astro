@@ -688,7 +688,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
 //    |_____|\__\___|_| |_| |_|  \_____|_|_|\___|_|\_\ |______|_|___/\__\___|_| |_|\___|_|
 
     @SuppressLint("RtlHardcoded")
-    override fun clicked(item: Item, position: Int) {
+    override fun itemClicked(item: Item, position: Int) {
         when (item) {
             is Post -> {
                 item.isRead = true
@@ -737,7 +737,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         }
     }
 
-    override fun longClicked(item: Item, position: Int) {
+    override fun itemLongClicked(item: Item, position: Int) {
         item.isExpanded = !item.isExpanded
         listAdapter.notifyItemChanged(position)
     }

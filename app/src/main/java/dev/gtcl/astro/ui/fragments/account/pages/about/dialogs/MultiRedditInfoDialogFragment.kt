@@ -72,7 +72,7 @@ class MultiRedditInfoDialogFragment : DialogFragment(), ItemClickListener {
         }
     }
 
-    override fun clicked(item: Item, position: Int) {
+    override fun itemClicked(item: Item, position: Int) {
         if (item is Subreddit) {
             findNavController().navigate(
                 ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
@@ -83,5 +83,5 @@ class MultiRedditInfoDialogFragment : DialogFragment(), ItemClickListener {
         }
     }
 
-    override fun longClicked(item: Item, position: Int) {} // Unused
+    override fun itemLongClicked(item: Item, position: Int) {} // Unused
 }

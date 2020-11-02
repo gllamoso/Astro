@@ -246,7 +246,7 @@ class SearchFragment : Fragment(), ItemClickListener {
         }
     }
 
-    override fun clicked(item: Item, position: Int) {
+    override fun itemClicked(item: Item, position: Int) {
         val multiSelectMode = args.multiSelectMode
         if (multiSelectMode) {
             val name = when (item) {
@@ -274,7 +274,7 @@ class SearchFragment : Fragment(), ItemClickListener {
         }
     }
 
-    override fun longClicked(item: Item, position: Int) {} // Unused
+    override fun itemLongClicked(item: Item, position: Int) {} // Unused
 
     companion object {
         fun newInstance(): SearchFragment {
