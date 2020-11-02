@@ -469,7 +469,7 @@ private fun setFlairRichText(cardView: MaterialCardView, flairs: List<FlairRicht
         }
         var start = true
         for (flair in flairs) {
-            if (!flair.urlFormatted.isNullOrBlank() || flair.text.toString().isNotBlank()) {
+            if (!flair.urlFormatted.isNullOrBlank() || flair.textFormatted.toString().isNotBlank()) {
                 val view =
                         if (!flair.urlFormatted.isNullOrBlank()) {
                             ImageView(context).apply {
@@ -482,7 +482,7 @@ private fun setFlairRichText(cardView: MaterialCardView, flairs: List<FlairRicht
                             }
                         } else {
                             TextView(context).apply {
-                                text = flair.text.toString().trim()
+                                text = flair.textFormatted.toString().trim()
                                 setTextSize(TypedValue.COMPLEX_UNIT_SP, 12F)
                                 setTextColor(textColor)
                                 isSingleLine = true

@@ -195,12 +195,15 @@ data class FlairRichtext(
     @Json(name = "e")
     val type: String,
     @Json(name = "t")
-    val text: String?,
+    private val text: String?,
     @Json(name = "u")
     private val url: String?
 ) : Parcelable {
     @IgnoredOnParcel
     val urlFormatted = url?.removeHtmlEntities()
+
+    @IgnoredOnParcel
+    val textFormatted = text?.removeHtmlEntities()
 }
 
 //   _   ___                                               _
