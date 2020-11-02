@@ -60,7 +60,7 @@ class CommentsAdapter(
         }
     }
 
-    fun removeAt(position: Int) {
+    fun removeItemAt(position: Int) {
         comments?.let {
             it.removeAt(position)
             notifyItemRemoved(position + getOffset())
@@ -74,7 +74,7 @@ class CommentsAdapter(
         notifyItemRangeRemoved(position + getOffset(), size)
     }
 
-    fun updateAt(item: Item, position: Int) {
+    fun updateItemAt(item: Item, position: Int) {
         comments?.let {
             it[position] = item
             notifyItemChanged(position + getOffset())

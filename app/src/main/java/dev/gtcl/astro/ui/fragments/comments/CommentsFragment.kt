@@ -138,7 +138,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
         model.removeAt.observe(viewLifecycleOwner, {
             if (it != null) {
-                adapter.removeAt(it)
+                adapter.removeItemAt(it)
                 model.removeAtObserved()
             }
         })
@@ -352,7 +352,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     (model.post.value ?: return@setFragmentResultListener).hidden = true
                     binding?.fragmentCommentsPostLayout?.invalidateAll()
                 } else {
-                    adapter.removeAt(position)
+                    adapter.removeItemAt(position)
                     model.removeCommentAt(position)
                 }
             })
@@ -385,7 +385,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                             0
                         }
                         model.setCommentAt(item, position)
-                        adapter.updateAt(item, position)
+                        adapter.updateItemAt(item, position)
                     }
                 }
             })
@@ -515,7 +515,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     override fun block(comment: Comment, position: Int) {
         checkIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.block(comment)
-            adapter.removeAt(position)
+            adapter.removeItemAt(position)
             model.removeCommentAt(position)
         }
     }
@@ -545,11 +545,11 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         checkIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.delete(comment.name)
             model.removeCommentAt(position)
-            adapter.removeAt(position)
+            adapter.removeItemAt(position)
         }
     }
 
-    override fun itemClicked(item: Item, position: Int) {
+    override fun itemClicked(item: Item, position: Int) { // "position" is offset by adapter
         val positionWithoutOffset = position - adapter.getOffset()
         when (item) {
             is More -> {
