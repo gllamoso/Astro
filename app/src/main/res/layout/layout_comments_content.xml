@@ -81,7 +81,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            android:visibility="@{model.post.self &amp;&amp; model.post.selfTextHtml == null ? View.VISIBLE : View.GONE}" />
+            android:visibility="@{model.post.self &amp;&amp; model.post.selftextHtml == null ? View.VISIBLE : View.GONE}" />
 
         <TextView
             android:layout_width="match_parent"
@@ -92,7 +92,7 @@
             android:textAlignment="center"
             android:layout_margin="16dp"
             android:textSize="18sp"
-            android:visibility="@{model.post.self &amp;&amp; model.post.selfTextHtml == null ? View.VISIBLE : View.GONE}"
+            android:visibility="@{model.post.self &amp;&amp; model.post.selftextHtml == null ? View.VISIBLE : View.GONE}"
             app:layout_constraintVertical_bias="0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"

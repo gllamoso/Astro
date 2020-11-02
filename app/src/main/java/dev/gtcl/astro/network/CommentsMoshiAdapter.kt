@@ -84,6 +84,7 @@ class CommentsMoshiAdapter {
         var url: String? = null
         var likes: Boolean? = null
         var permalink: String? = null
+        var selftext: String? = null
         var selftextHtml: String? = null
         var isSelf: Boolean? = null
         var upvoteRatio: Double? = null
@@ -160,6 +161,9 @@ class CommentsMoshiAdapter {
                 }
                 "permalink" -> {
                     permalink = jsonReader.nextString()
+                }
+                "selftext" -> {
+                    selftext = jsonReader.nextString()
                 }
                 "selftext_html" -> {
                     if (jsonReader.peek() != JsonReader.Token.NULL) {
@@ -309,7 +313,8 @@ class CommentsMoshiAdapter {
             likes = likes,
             hidden = hidden!!,
             permalink = permalink!!,
-            selfTextHtml = selftextHtml,
+            selftext = selftext!!,
+            selftextHtml = selftextHtml,
             isSelf = isSelf!!,
             upvoteRatio = upvoteRatio,
             secureMedia = secureMedia,

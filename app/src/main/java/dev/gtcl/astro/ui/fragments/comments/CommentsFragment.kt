@@ -131,7 +131,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
         model.moreComments.observe(viewLifecycleOwner, {
             if (it != null) {
-                adapter.addItems(it.position, it.comments)
+                adapter.addItems(it.position - adapter.getOffset(), it.comments)
                 model.moreCommentsObserved()
             }
         })
@@ -304,7 +304,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 }
                 if (post.isSelf) {
                     binding?.fragmentCommentsContent?.layoutCommentsContentTextLayout?.createHtmlViews(
-                        post.parseSelfText(),
+                        post.parseSelftext(),
                             null,
                         this
                     )
@@ -373,10 +373,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     model.addItems(position + 1, listOf(item))
                     adapter.addItems(position + 1, listOf(item))
                 } else if (!reply) {
-                    if (item is Post) {
+                    if (item is Post) { // Edit Post's text
                         model.contentInitialized = false
                         model.setPost(item)
-                    } else if (item is Comment) {
+                    } else if (item is Comment) { // Edit comment
                         item.depth = if (position >= 0) {
                             (((model.comments.value
                                 ?: return@setFragmentResultListener)[position] as Comment).depth
@@ -499,7 +499,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     Toast.LENGTH_LONG
                 ).show()
             } else {
-                ReplyOrEditDialogFragment.newInstance(comment, position, true)
+                ReplyOrEditDialogFragment.newInstance(comment, position - adapter.getOffset(), true)
                     .show(childFragmentManager, null)
             }
         }
@@ -536,7 +536,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     override fun edit(comment: Comment, position: Int) {
         checkIfLoggedInBeforeExecuting(requireContext()) {
-            ReplyOrEditDialogFragment.newInstance(comment, position, false)
+            ReplyOrEditDialogFragment.newInstance(comment, position - adapter.getOffset(), false)
                 .show(childFragmentManager, null)
         }
     }
@@ -564,7 +564,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                         )
                     )
                 } else {
-                    model.fetchMoreComments(position)
+                    model.fetchMoreComments(position - adapter.getOffset())
                 }
             }
             is Comment -> {
@@ -577,10 +577,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 if (collapse) {
                     val hideSize = model.hideItems(position)
                     if (hideSize != 0) {
-                        adapter.removeRange(position + 1, hideSize)
+                        adapter.removeRange(position + 1 - adapter.getOffset(), hideSize)
                     }
                 } else {
-                    val unhideItems = model.unhideItems(position)
+                    val unhideItems = model.unhideItems(position - adapter.getOffset())
                     if (unhideItems.isNotEmpty()) {
                         adapter.addItems(position + 1, unhideItems)
                     }

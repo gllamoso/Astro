@@ -270,8 +270,9 @@ data class Post(
     var likes: Boolean?,
     var hidden: Boolean,
     private val permalink: String,
+    val selftext: String,
     @Json(name = "selftext_html")
-    val selfTextHtml: String?,
+    val selftextHtml: String?,
     @Json(name = "is_self")
     val isSelf: Boolean, // if true, post is a text
     @Json(name = "upvote_ratio")
@@ -317,20 +318,20 @@ data class Post(
 
     @IgnoredOnParcel
     @Transient
-    private var _parsedSelfText: List<ParsedHtmlSegment>? = null
+    private var _parsedSelftext: List<ParsedHtmlSegment>? = null
 
-    fun parseSelfText(): List<ParsedHtmlSegment> {
-        if (_parsedSelfText == null) {
-            _parsedSelfText = selfTextHtml?.parseToHtmlSegments() ?: listOf()
+    fun parseSelftext(): List<ParsedHtmlSegment> {
+        if (_parsedSelftext == null) {
+            _parsedSelftext = selftextHtml?.parseToHtmlSegments() ?: listOf()
         }
-        return _parsedSelfText!!
+        return _parsedSelftext!!
     }
 
     @IgnoredOnParcel
     val urlFormatted = url?.removeHtmlEntities()
 
     fun getThumbnail(nsfw: Boolean): String?{
-        var result: String? = null
+        var result: String?
         if(nsfw){
             result = preview?.images?.get(0)?.variants?.nsfw?.resolutions?.get(0)?.url?.removeHtmlEntities()
         } else {
@@ -912,7 +913,7 @@ data class SubredditInModeratedList(
 fun List<Item>.parseAllText() {
     for (item in this) {
         when (item) {
-            is Post -> item.parseSelfText()
+            is Post -> item.parseSelftext()
             is Comment -> item.parseBody()
             is Message -> item.parseBody()
             is MultiReddit -> item.parseDescription()

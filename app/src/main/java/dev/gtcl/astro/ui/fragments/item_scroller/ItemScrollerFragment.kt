@@ -366,7 +366,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                     Toast.LENGTH_LONG
                 ).show()
             } else {
-                ReplyOrEditDialogFragment.newInstance(comment, position, true)
+                ReplyOrEditDialogFragment.newInstance(comment, -1, true)
                     .show(childFragmentManager, null)
             }
         }
@@ -498,7 +498,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                 activityModel.newViewPagerPage(PostPage(item, position))
             }
             is Message -> {
-                ReplyOrEditDialogFragment.newInstance(item, position, true)
+                ReplyOrEditDialogFragment.newInstance(item, -1, true)
                     .show(childFragmentManager, null)
             }
             is Comment -> {

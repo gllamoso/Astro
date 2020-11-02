@@ -609,7 +609,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                     Toast.LENGTH_LONG
                 ).show()
             } else {
-                ReplyOrEditDialogFragment.newInstance(comment, position, true)
+                ReplyOrEditDialogFragment.newInstance(comment, -1, true)
                     .show(childFragmentManager, null)
             }
         }
@@ -695,8 +695,8 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                 model.addReadItem(item)
                 activityModel.newViewPagerPage(PostPage(item, position))
             }
-            is Message -> {
-                ReplyOrEditDialogFragment.newInstance(item, position, true)
+            is Message -> { // Should never happen
+                ReplyOrEditDialogFragment.newInstance(item, -1, true)
                     .show(childFragmentManager, null)
             }
             is Comment -> {

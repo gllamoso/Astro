@@ -96,7 +96,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
 
     fun setPost(post: Post) {
         coroutineScope.launch {
-            post.parseSelfText()
+            post.parseSelftext()
             _post.postValue(post)
             val preview = post.getPreviewImage() ?: post.getThumbnail(false) ?: ""
             _previewImg.postValue(preview)
@@ -134,7 +134,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                     )
                         .await()
                 if (refreshPost) {
-                    commentPage.post.parseSelfText()
+                    commentPage.post.parseSelftext()
                     _post.postValue(commentPage.post)
                     val preview = commentPage.post.getPreviewImage() ?: commentPage.post.getThumbnail(false) ?: ""
                     _previewImg.postValue(preview)
@@ -164,14 +164,13 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
 
     fun fetchMoreComments(position: Int) {
         coroutineScope.launch {
-            val positionOffset = position + if (allCommentsFetched.value == false) -1 else 0
             if (_loading.value == true || position == -1) {
                 if (position != -1) {
                     _notifyAt.value = position
                 }
                 return@launch
             }
-            val moreItem = _comments.value?.get(positionOffset)
+            val moreItem = _comments.value?.get(position)
             if (moreItem == null || moreItem !is More) {
                 throw IllegalArgumentException("Invalid more item: $moreItem")
             }
@@ -184,7 +183,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                     _commentSort.value ?: return@launch
                 ).await().json.data.things.map { it.data }.filter { !(it is More && it.depth == 0) }
                 if (moreItem.lastChildFetched) {
-                    _comments.value?.removeAt(positionOffset)
+                    _comments.value?.removeAt(position)
                     _removeAt.postValue(position)
                 }
                 _moreComments.postValue(
@@ -194,7 +193,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                     )
                 )
 
-                _comments.value?.addAll(positionOffset, comments)
+                _comments.value?.addAll(position, comments)
             } catch (e: Exception) {
                 moreItem.undoChildrenPoll()
                 _notifyAt.postValue(position)
@@ -226,14 +225,13 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
     }
 
     fun hideItems(position: Int): Int {
-        val positionOffset = position + if (allCommentsFetched.value == false) -1 else 0
-        val itemInPosition = comments.value!![positionOffset]
-        val depth = when (val currItem = comments.value!![positionOffset]) {
+        val itemInPosition = comments.value!![position]
+        val depth = when (val currItem = comments.value!![position]) {
             is Comment -> currItem.depth ?: 0
             is More -> currItem.depth
             else -> 0
         }
-        var i = positionOffset
+        var i = position
         while (i++ < comments.value!!.size - 1) {
             val currDepth = when (val currItem = comments.value!![i]) {
                 is Comment -> currItem.depth ?: 0
@@ -244,10 +242,10 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                 break
             }
         }
-        return if (i - 1 > positionOffset) {
-            val listToHide = comments.value!!.subList(positionOffset + 1, i).toList()
+        return if (i - 1 > position) {
+            val listToHide = comments.value!!.subList(position + 1, i).toList()
             for (j in listToHide.indices) {
-                comments.value!!.removeAt(positionOffset + 1)
+                comments.value!!.removeAt(position + 1)
             }
             hiddenItemsMap[itemInPosition.name] = listToHide
             listToHide.size
@@ -257,11 +255,10 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
     }
 
     fun unhideItems(position: Int): List<Item> {
-        val positionOffset = position + if (allCommentsFetched.value == false) -1 else 0
-        val itemInPosition = comments.value!![positionOffset]
+        val itemInPosition = comments.value!![position]
         val hiddenItems = hiddenItemsMap[itemInPosition.name]
         return if (hiddenItems != null) {
-            comments.value!!.addAll(positionOffset + 1, hiddenItems)
+            comments.value!!.addAll(position + 1, hiddenItems)
             hiddenItemsMap.remove(itemInPosition.name)
             hiddenItems
         } else {
