@@ -38,7 +38,7 @@ class FlairListDialogFragment : DialogFragment(), FlairListAdapter.FlairSelectio
         binding = FragmentDialogFlairListBinding.inflate(LayoutInflater.from(requireContext()))
         binding?.model = model
         binding?.lifecycleOwner = this
-        val subredditName = requireArguments().get(SUBREDDIT_KEY) as String
+        val subredditName = requireArguments().getString(SUBREDDIT_KEY, "")
         model.fetchFlairs(subredditName)
 
         initList()
