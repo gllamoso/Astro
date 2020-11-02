@@ -4,11 +4,11 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.astro.actions.ItemClickListener
-import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.actions.MultiRedditActions
 import dev.gtcl.astro.databinding.ItemMultiredditBinding
 import dev.gtcl.astro.html.createHtmlViews
 import dev.gtcl.astro.models.reddit.listing.MultiReddit
+import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
 class MultiRedditVH private constructor(private val binding: ItemMultiredditBinding) :
     RecyclerView.ViewHolder(binding.root) {
@@ -17,13 +17,13 @@ class MultiRedditVH private constructor(private val binding: ItemMultiredditBind
         multi: MultiReddit,
         itemClickListener: ItemClickListener,
         multiRedditActions: MultiRedditActions,
-        linkHandler: LinkHandler
+        movementMethod: BetterLinkMovementMethod
     ) {
         binding.multi = multi
         binding.itemMultiRedditDescriptionLayout.createHtmlViews(
             multi.parseDescription(),
-                null,
-            linkHandler
+            null,
+            movementMethod
         )
         binding.executePendingBindings()
         binding.root.setOnClickListener {

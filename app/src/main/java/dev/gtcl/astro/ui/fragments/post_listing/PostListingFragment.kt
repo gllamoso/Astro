@@ -47,7 +47,7 @@ import dev.gtcl.astro.ui.fragments.view_pager.*
 
 
 class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditActions,
-    ItemClickListener, LeftDrawerActions, LinkHandler {
+    ItemClickListener, LeftDrawerActions {
 
     private var binding: FragmentListingBinding? = null
 
@@ -68,6 +68,10 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
 
     private lateinit var scrollListener: ListingScrollListener
     private lateinit var listAdapter: ListingAdapter
+
+    private val movementMethod by lazy {
+        createBetterLinkMovementInstance(requireContext(), findNavController(), parentFragmentManager, activityModel)
+    }
 
     override fun onResume() {
         super.onResume()
@@ -143,7 +147,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         val blurNsfw = sharedPref.getBoolean("blur_nsfw_thumbnail", false)
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
         listAdapter = ListingAdapter(
-            linkHandler = this,
+            movementMethod = movementMethod,
             postActions = this,
             commentActions = this,
             expected = ItemType.Post,
@@ -268,8 +272,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                 }
                 rightDrawerLayout?.layoutRightDrawerPublicDescriptionLayout?.createHtmlViews(
                     sub.parseDescription(),
-                        binding?.fragmentListingDrawer,
-                    this
+                        binding?.fragmentListingDrawer, movementMethod
                 )
 
                 if (sub.displayName.startsWith("u_")) {
@@ -311,8 +314,8 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                     editable = multi.canEdit
                     layoutRightDrawerPublicDescriptionLayout.createHtmlViews(
                         multi.parseDescription(),
-                            binding?.fragmentListingDrawer,
-                        this@PostListingFragment
+                        binding?.fragmentListingDrawer,
+                        movementMethod
                     )
                 }
 
@@ -1022,10 +1025,6 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
             ViewGroup.LayoutParams.WRAP_CONTENT,
             popupBinding.root.measuredHeight
         )
-    }
-
-    override fun handleLink(link: String) {
-        link.handleUrl(context, null, null, parentFragmentManager, findNavController(), activityModel)
     }
 
     companion object {

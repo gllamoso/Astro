@@ -8,10 +8,11 @@ import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.network.Status
 import dev.gtcl.astro.ui.viewholders.*
+import me.saket.bettermovementmethod.BetterLinkMovementMethod
 import java.io.InvalidObjectException
 
 class ListingAdapter(
-    private val linkHandler: LinkHandler?,
+    private val movementMethod: BetterLinkMovementMethod?,
     private val postActions: PostActions? = null,
     private val subredditActions: SubredditActions? = null,
     private val messageActions: MessageActions? = null,
@@ -137,7 +138,7 @@ class ListingAdapter(
                 }
                 (holder as CommentDetailedVH).bind(
                     comment,
-                    linkHandler ?: return,
+                    movementMethod ?: return,
                     commentActions,
                     username,
                     expected == ItemType.Message,
@@ -155,7 +156,7 @@ class ListingAdapter(
                 }
                 (holder as MessageVH).bind(
                     message,
-                    linkHandler ?: return,
+                    movementMethod ?: return,
                     messageActions,
                     username,
                     itemClickListener

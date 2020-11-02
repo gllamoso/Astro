@@ -6,11 +6,13 @@ import android.content.Context.INPUT_METHOD_SERVICE
 import android.net.Uri
 import android.text.Html
 import android.util.Base64
+import android.util.Patterns
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT
+import android.webkit.URLUtil
 import android.widget.EditText
 import android.widget.PopupWindow
 import android.widget.Toast
@@ -37,10 +39,12 @@ import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
+import dev.gtcl.astro.ui.fragments.url_menu.FragmentDialogUrlMenu
 import dev.gtcl.astro.ui.fragments.view_pager.*
 import dev.gtcl.astro.url.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
+import me.saket.bettermovementmethod.BetterLinkMovementMethod
 import timber.log.Timber
 import java.lang.reflect.Field
 import java.net.SocketTimeoutException
@@ -581,5 +585,24 @@ fun String.handleUrl(context: Context?, postPage: PostPage?, backupVideo: String
             Toast.makeText(context, context.getString(R.string.failed_to_view_post_content), Toast.LENGTH_LONG).show()
         }
     }
+}
 
+fun createBetterLinkMovementInstance(context: Context, navController: NavController, fragmentManager: FragmentManager, activityModel: MainActivityVM): BetterLinkMovementMethod{
+    return BetterLinkMovementMethod.newInstance().apply {
+        setOnLinkClickListener { _, url ->
+            val consumeTouch = (PREFIXED_REDDIT_ITEM.matches(url) || ((URLUtil.isValidUrl(url) && Patterns.WEB_URL.matcher(url).matches())))
+            if(consumeTouch){
+                url.handleUrl(context, null, null, fragmentManager, navController, activityModel)
+            }
+            consumeTouch
+        }
+
+        setOnLinkLongClickListener { _, url ->
+            val consumeTouch = (PREFIXED_REDDIT_ITEM.matches(url) || ((URLUtil.isValidUrl(url) && Patterns.WEB_URL.matcher(url).matches())))
+            if(consumeTouch){
+                FragmentDialogUrlMenu.newInstance(url).show(fragmentManager, null)
+            }
+            consumeTouch
+        }
+    }
 }

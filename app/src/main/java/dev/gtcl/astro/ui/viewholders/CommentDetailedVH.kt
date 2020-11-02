@@ -9,19 +9,19 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.astro.Vote
 import dev.gtcl.astro.actions.CommentActions
 import dev.gtcl.astro.actions.ItemClickListener
-import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.databinding.ItemCommentDetailedBinding
 import dev.gtcl.astro.databinding.PopupCommentActionsBinding
 import dev.gtcl.astro.html.createHtmlViews
 import dev.gtcl.astro.models.reddit.listing.Comment
 import dev.gtcl.astro.showAsDropdown
+import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
 class CommentDetailedVH private constructor(private val binding: ItemCommentDetailedBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
     fun bind(
         comment: Comment,
-        linkHandler: LinkHandler,
+        movementMethod: BetterLinkMovementMethod,
         commentActions: CommentActions,
         username: String?,
         inInbox: Boolean,
@@ -77,7 +77,7 @@ class CommentDetailedVH private constructor(private val binding: ItemCommentDeta
             itemCommentDetailedBodyMessageLayout.createHtmlViews(
                     comment.parseBody(),
                     null,
-                    linkHandler
+                    movementMethod
             )
 
             executePendingBindings()

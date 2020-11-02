@@ -5,13 +5,13 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.astro.R
 import dev.gtcl.astro.actions.CommentActions
 import dev.gtcl.astro.actions.ItemClickListener
-import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.models.reddit.listing.Comment
 import dev.gtcl.astro.models.reddit.listing.Item
 import dev.gtcl.astro.models.reddit.listing.ItemType
 import dev.gtcl.astro.models.reddit.listing.More
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.ui.viewholders.*
+import me.saket.bettermovementmethod.BetterLinkMovementMethod
 import kotlin.math.max
 
 class CommentsAdapter(
@@ -19,7 +19,7 @@ class CommentsAdapter(
     private val itemClickListener: ItemClickListener,
     private val userId: String?,
     allCommentsFetched: Boolean,
-    private val linkHandler: LinkHandler,
+    private val movementMethod: BetterLinkMovementMethod,
     private val onViewAllClick: (() -> Unit)
 ) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
@@ -101,7 +101,7 @@ class CommentsAdapter(
             )
             R.layout.item_comment -> (holder as CommentVH).bind(
                 (comments ?: return)[position - getOffset()] as Comment,
-                linkHandler,
+                movementMethod,
                 commentActions,
                 userId,
                     (itemCount - 1) == position,

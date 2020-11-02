@@ -13,14 +13,13 @@ import androidx.navigation.fragment.findNavController
 import dev.gtcl.astro.AstroApplication
 import dev.gtcl.astro.SUBREDDIT_KEY
 import dev.gtcl.astro.ViewModelFactory
-import dev.gtcl.astro.actions.LinkHandler
+import dev.gtcl.astro.createBetterLinkMovementInstance
 import dev.gtcl.astro.databinding.FragmentDialogRulesBinding
 import dev.gtcl.astro.databinding.ItemRuleBinding
-import dev.gtcl.astro.handleUrl
 import dev.gtcl.astro.html.createHtmlViews
 import dev.gtcl.astro.ui.activities.MainActivityVM
 
-class RulesDialogFragment : DialogFragment(), LinkHandler {
+class RulesDialogFragment : DialogFragment() {
 
     private val activityModel: MainActivityVM by activityViewModels()
 
@@ -30,6 +29,10 @@ class RulesDialogFragment : DialogFragment(), LinkHandler {
     }
 
     private var binding: FragmentDialogRulesBinding? = null
+
+    private val movementMethod by lazy {
+        createBetterLinkMovementInstance(requireContext(), findNavController(), parentFragmentManager, activityModel)
+    }
 
     override fun onStart() {
         super.onStart()
@@ -63,8 +66,8 @@ class RulesDialogFragment : DialogFragment(), LinkHandler {
                         this.rule = rule
                         itemRuleDescriptionLayout.createHtmlViews(
                             rule.parseDescription(),
-                                null,
-                            this@RulesDialogFragment
+                            null,
+                            movementMethod
                         )
                         ruleBinding.invalidateAll()
                     }
@@ -85,10 +88,6 @@ class RulesDialogFragment : DialogFragment(), LinkHandler {
         }
 
         return binding?.root
-    }
-
-    override fun handleLink(link: String) {
-        link.handleUrl(context, null, null, parentFragmentManager, findNavController(), activityModel)
     }
 
     override fun onDestroyView() {

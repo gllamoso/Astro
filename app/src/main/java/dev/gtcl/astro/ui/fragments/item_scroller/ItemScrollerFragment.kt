@@ -30,7 +30,7 @@ import dev.gtcl.astro.ui.fragments.subreddits.SubredditInfoDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.*
 
 open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, MessageActions,
-    SubredditActions, ItemClickListener, LinkHandler {
+    SubredditActions, ItemClickListener {
 
     private var binding: FragmentItemScrollerBinding? = null
 
@@ -46,6 +46,10 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     private val sharedPref by lazy {
         (requireActivity().application as AstroApplication).sharedPref
+    }
+
+    private val movementMethod by lazy {
+        createBetterLinkMovementInstance(requireContext(), findNavController(), parentFragmentManager, activityModel)
     }
 
     override fun onResume() {
@@ -139,7 +143,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
         val inInbox = requireArguments().getSerializable(MESSAGE_WHERE_KEY) != null
         listAdapter = ListingAdapter(
-            linkHandler = this,
+            movementMethod = movementMethod,
             postActions = this,
             commentActions = this,
             messageActions = this,
@@ -205,7 +209,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         })
 
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
-            handleLink(bundle.getString(URL_KEY) ?: "")
+            (bundle.getString(URL_KEY) ?: "").handleUrl(context, null, null, parentFragmentManager, findNavController(), activityModel)
         })
 
         childFragmentManager.setFragmentResultListener(
@@ -530,10 +534,6 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     override fun itemLongClicked(item: Item, position: Int) {
         item.isExpanded = !item.isExpanded
         listAdapter.notifyItemChanged(position)
-    }
-
-    override fun handleLink(link: String) {
-        link.handleUrl(context, null, null, parentFragmentManager, findNavController(), activityModel)
     }
 
 //     _   _                 _____           _

@@ -18,38 +18,35 @@ import android.view.ViewGroup
 import android.widget.*
 import androidx.core.view.setPadding
 import dev.gtcl.astro.R
-import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.html.spans.*
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
-fun SimpleText.createView(context: Context, linkHandler: LinkHandler): TextView {
+fun SimpleText.createView(context: Context, movementMethod: BetterLinkMovementMethod): TextView {
     val margin = 8.toDp(context)
     val textView = TextView(context)
     val spannableString = createSpannableString(
         context,
         text,
         spanPlaceholders,
-        textView.currentTextColor,
-        linkHandler
+        textView.currentTextColor
     )
     return textView.apply {
 //        setPadding(margin)
         setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F)
         setLineSpacing(margin / 4F, 1F)
         text = spannableString
-        movementMethod = BetterLinkMovementMethod.getInstance()
+        this.movementMethod = movementMethod
     }
 }
 
-fun SimpleText.createCellView(context: Context, linkHandler: LinkHandler): TextView {
+fun SimpleText.createCellTextView(context: Context, movementMethod: BetterLinkMovementMethod): TextView {
     val margin = 8.toDp(context)
     val textView = TextView(context)
     val spannableString = createSpannableString(
         context,
         text,
         spanPlaceholders,
-        textView.currentTextColor,
-        linkHandler
+        textView.currentTextColor
     )
     return textView.apply {
         setPadding(margin)
@@ -57,22 +54,21 @@ fun SimpleText.createCellView(context: Context, linkHandler: LinkHandler): TextV
         setTextSize(TypedValue.COMPLEX_UNIT_SP, 16F)
         setLineSpacing(margin / 4F, 1F)
         setBackgroundResource(R.drawable.cell_shape)
-        movementMethod = BetterLinkMovementMethod.getInstance()
+        this.movementMethod = movementMethod
         isClickable = false
         isFocusable = false
         isLongClickable = false
     }
 }
 
-fun CodeBlock.createView(context: Context, linkHandler: LinkHandler): TextView {
+fun CodeBlock.createView(context: Context, movementMethod: BetterLinkMovementMethod): TextView {
     val margin = 8.toDp(context)
     val textView = TextView(context)
     val spannableString = createSpannableString(
         context,
         text,
         spanPlaceholders,
-        textView.currentTextColor,
-        linkHandler
+        textView.currentTextColor
     )
     return textView.apply {
         setPadding(margin)
@@ -81,11 +77,11 @@ fun CodeBlock.createView(context: Context, linkHandler: LinkHandler): TextView {
         setBackgroundResource(android.R.color.darker_gray)
         typeface = Typeface.MONOSPACE
         text = spannableString
-        movementMethod = BetterLinkMovementMethod.getInstance()
+        this.movementMethod = movementMethod
     }
 }
 
-fun Table.createView(context: Context, linkHandler: LinkHandler): TableLayout {
+fun Table.createView(context: Context, movementMethod: BetterLinkMovementMethod): TableLayout {
     val tableLayout = TableLayout(context).apply {
         setPadding(8.toDp(context))
         isClickable = false
@@ -99,8 +95,8 @@ fun Table.createView(context: Context, linkHandler: LinkHandler): TableLayout {
         isFocusable = false
     }
     for ((text, alignment) in headers) {
-        val textView = text.createCellView(
-            context, linkHandler
+        val textView = text.createCellTextView(
+            context, movementMethod
         ).apply {
             textAlignment = when (alignment) {
                 Cell.Alignment.CENTER -> View.TEXT_ALIGNMENT_CENTER
@@ -121,7 +117,7 @@ fun Table.createView(context: Context, linkHandler: LinkHandler): TableLayout {
                 isFocusable = false
             }
             for ((text, alignment) in row) {
-                val textView = text.createCellView(context, linkHandler).apply {
+                val textView = text.createCellTextView(context, movementMethod).apply {
                     textAlignment = when (alignment) {
                         Cell.Alignment.CENTER -> View.TEXT_ALIGNMENT_CENTER
                         Cell.Alignment.LEFT -> View.TEXT_ALIGNMENT_VIEW_START
@@ -142,8 +138,7 @@ fun createSpannableString(
     context: Context,
     str: String,
     spanPlaceholders: List<SpanPlaceholder>,
-    defaultTextColor: Int,
-    linkHandler: LinkHandler
+    defaultTextColor: Int
 ): SpannableString {
     val spannableString = SpannableString(str)
 
@@ -171,6 +166,7 @@ fun createSpannableString(
                         ds.isUnderlineText = false
                     }
                 }
+
                 spannableString.apply {
                     setSpan(clickableSpan, start, end)
                     setSpan(backgroundColorSpan, start, end)
@@ -188,12 +184,8 @@ fun createSpannableString(
                 }
             }
             is Hyperlink -> {
-                val clickableSpan = object : ClickableSpan() {
-                    override fun onClick(p0: View) {
-                        linkHandler.handleLink(item.link)
-                    }
-                }
-                spannableString.setSpan(clickableSpan, start, end)
+                val urlSpan = URLSpan(item.link)
+                spannableString.setSpan(urlSpan, start, end)
             }
             Superscript -> {
                 spannableString.setSpan(SuperscriptSpan(), start, end)
@@ -243,7 +235,7 @@ fun HorizontalLine.createView(context: Context): View {
 }
 
 @SuppressLint("ClickableViewAccessibility")
-fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, interceptingAncestor: ViewGroup?,  linkHandler: LinkHandler) {
+fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, interceptingAncestor: ViewGroup?,  movementMethod: BetterLinkMovementMethod) {
     if (htmlSegments.isEmpty()) {
         this.visibility = View.GONE
         return
@@ -258,11 +250,11 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, intercep
     for (i in htmlSegments.indices) {
         val segment = htmlSegments[i]
         val view = when (segment) {
-            is SimpleText -> segment.createView(context, linkHandler)
-            is CodeBlock -> segment.createView(context, linkHandler)
+            is SimpleText -> segment.createView(context, movementMethod)
+            is CodeBlock -> segment.createView(context, movementMethod)
             is HorizontalLine -> segment.createView(context)
             is Table -> {
-                val tableLayout = segment.createView(context, linkHandler)
+                val tableLayout = segment.createView(context, movementMethod)
                 val horizontalScrollView = HorizontalScrollView(context)
                 horizontalScrollView.apply {
                     overScrollMode = View.OVER_SCROLL_NEVER

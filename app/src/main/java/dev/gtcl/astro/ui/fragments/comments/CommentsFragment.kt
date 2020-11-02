@@ -28,7 +28,6 @@ import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.actions.CommentActions
 import dev.gtcl.astro.actions.ItemClickListener
-import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.databinding.FragmentCommentsBinding
 import dev.gtcl.astro.databinding.PopupCommentSortBinding
 import dev.gtcl.astro.databinding.PopupCommentsPageActionsBinding
@@ -41,10 +40,11 @@ import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
 import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
+import dev.gtcl.astro.ui.fragments.url_menu.FragmentDialogUrlMenu
 import dev.gtcl.astro.ui.fragments.view_pager.*
 import dev.gtcl.astro.url.REDDIT_COMMENTS_REGEX
 
-class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler,
+class CommentsFragment : Fragment(), CommentActions, ItemClickListener,
     DrawerLayout.DrawerListener {
 
     private val model: CommentsVM by lazy {
@@ -62,6 +62,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     private var binding: FragmentCommentsBinding? = null
 
     private lateinit var adapter: CommentsAdapter
+
+    private val movementMethod by lazy {
+        createBetterLinkMovementInstance(requireContext(), findNavController(), parentFragmentManager, activityModel)
+    }
 
     override fun onResume() {
         super.onResume()
@@ -112,7 +116,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
         val userId = (requireActivity().application as AstroApplication).currentAccount?.fullId
         adapter =
-            CommentsAdapter(this, this, userId, model.allCommentsFetched.value == true, this) {
+            CommentsAdapter(this, this, userId, model.allCommentsFetched.value == true, movementMethod) {
                 if (model.loading.value != true) {
                     model.fetchFullContext()
                 }
@@ -305,8 +309,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                 if (post.isSelf) {
                     binding?.fragmentCommentsContent?.layoutCommentsContentTextLayout?.createHtmlViews(
                         post.parseSelftext(),
-                            null,
-                        this
+                        null,
+                        movementMethod
                     )
                 }
                 model.contentInitialized = true
@@ -404,14 +408,28 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     }
 
     private fun initPreviewImage(){
-        binding?.fragmentCommentsContent?.layoutCommentsContentPreviewImage?.setOnClickListener {
-            val post = model.post.value ?: return@setOnClickListener
-            model.post.value?.urlFormatted?.handleUrl(context, null, post.previewVideoUrl, childFragmentManager, findNavController(), activityModel)
+        binding?.fragmentCommentsContent?.layoutCommentsContentPreviewImage?.apply{
+            setOnClickListener {
+                val post = model.post.value ?: return@setOnClickListener
+                post.urlFormatted?.handleUrl(context, null, post.previewVideoUrl, childFragmentManager, findNavController(), activityModel)
+            }
+            setOnLongClickListener {
+                val url = model.post.value?.urlFormatted ?: return@setOnLongClickListener true
+                FragmentDialogUrlMenu.newInstance(url).show(childFragmentManager, null)
+                true
+            }
         }
 
-        binding?.fragmentCommentsContent?.layoutCommentsContentUrlLayout?.root?.setOnClickListener {
-            val post = model.post.value ?: return@setOnClickListener
-            model.post.value?.urlFormatted?.handleUrl(context, null, post.previewVideoUrl, childFragmentManager, findNavController(), activityModel)
+        binding?.fragmentCommentsContent?.layoutCommentsContentUrlLayout?.root?.apply {
+            setOnClickListener {
+                val post = model.post.value ?: return@setOnClickListener
+                post.urlFormatted?.handleUrl(context, null, post.previewVideoUrl, childFragmentManager, findNavController(), activityModel)
+            }
+            setOnLongClickListener {
+                val url = model.post.value?.urlFormatted ?: return@setOnLongClickListener true
+                FragmentDialogUrlMenu.newInstance(url).show(childFragmentManager, null)
+                true
+            }
         }
     }
 
@@ -593,10 +611,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     override fun itemLongClicked(item: Item, position: Int) {
         item.isExpanded = !item.isExpanded
         adapter.notifyItemChanged(position)
-    }
-
-    override fun handleLink(link: String) {
-        link.handleUrl(context, null, null, parentFragmentManager, findNavController(), activityModel)
     }
 
 //     _____                                             _   _

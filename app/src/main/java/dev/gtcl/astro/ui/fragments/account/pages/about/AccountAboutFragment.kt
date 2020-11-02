@@ -14,11 +14,10 @@ import dev.gtcl.astro.AstroApplication
 import dev.gtcl.astro.USER_KEY
 import dev.gtcl.astro.ViewModelFactory
 import dev.gtcl.astro.actions.ItemClickListener
-import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.actions.MultiRedditActions
 import dev.gtcl.astro.actions.SubredditActions
+import dev.gtcl.astro.createBetterLinkMovementInstance
 import dev.gtcl.astro.databinding.FragmentAccountAboutBinding
-import dev.gtcl.astro.handleUrl
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.account.pages.about.dialogs.MultiRedditInfoDialogFragment
@@ -28,7 +27,7 @@ import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerFragmentDirections
 
 class AccountAboutFragment : Fragment(), SubredditActions, MultiRedditActions,
-    ItemClickListener, LinkHandler {
+    ItemClickListener {
 
     private var binding: FragmentAccountAboutBinding? = null
 
@@ -37,6 +36,10 @@ class AccountAboutFragment : Fragment(), SubredditActions, MultiRedditActions,
     val model: AccountAboutVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
         ViewModelProvider(this, viewModelFactory).get(AccountAboutVM::class.java)
+    }
+
+    private val movementMethod by lazy {
+        createBetterLinkMovementInstance(requireContext(), findNavController(), parentFragmentManager, activityModel)
     }
 
     override fun onCreateView(
@@ -65,7 +68,7 @@ class AccountAboutFragment : Fragment(), SubredditActions, MultiRedditActions,
             moderatedSubsAdapter.submitList(it)
         })
 
-        val multiRedditsAdapter = MultiRedditsAdapter(this, this, this)
+        val multiRedditsAdapter = MultiRedditsAdapter(this, this, movementMethod)
         model.multiReddits.observe(viewLifecycleOwner, {
             multiRedditsAdapter.submitList(it)
         })
@@ -98,10 +101,6 @@ class AccountAboutFragment : Fragment(), SubredditActions, MultiRedditActions,
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
-    }
-
-    override fun handleLink(link: String) {
-        link.handleUrl(context, null, null, parentFragmentManager, findNavController(), activityModel)
     }
 
     override fun viewMoreInfo(displayName: String) {

@@ -11,12 +11,11 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import dev.gtcl.astro.*
-import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.databinding.FragmentDialogSubredditInfoBinding
 import dev.gtcl.astro.html.createHtmlViews
 import dev.gtcl.astro.ui.activities.MainActivityVM
 
-class SubredditInfoDialogFragment : DialogFragment(), LinkHandler {
+class SubredditInfoDialogFragment : DialogFragment() {
 
     private val activityModel: MainActivityVM by activityViewModels()
 
@@ -26,6 +25,10 @@ class SubredditInfoDialogFragment : DialogFragment(), LinkHandler {
     }
 
     private var binding: FragmentDialogSubredditInfoBinding? = null
+
+    private val movementMethod by lazy {
+        createBetterLinkMovementInstance(requireContext(), findNavController(), parentFragmentManager, activityModel)
+    }
 
     override fun onStart() {
         super.onStart()
@@ -54,7 +57,7 @@ class SubredditInfoDialogFragment : DialogFragment(), LinkHandler {
                     binding?.fragmentDialogSubredditInfoTextLayout?.createHtmlViews(
                             it.parseDescription(),
                             null,
-                            this
+                            movementMethod
                     )
                 } else if(context != null){
                     val textView = TextView(context).apply {
@@ -92,10 +95,6 @@ class SubredditInfoDialogFragment : DialogFragment(), LinkHandler {
     override fun onDestroyView() {
         super.onDestroyView()
         binding = null
-    }
-
-    override fun handleLink(link: String) {
-        link.handleUrl(context, null, null, parentFragmentManager, findNavController(), activityModel)
     }
 
     companion object {
