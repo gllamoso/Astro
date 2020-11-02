@@ -61,7 +61,7 @@
             layout="@layout/layout_url"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:visibility="@{!model.post.self ? View.VISIBLE : View.GONE}"
+            android:visibility="@{model.post != null &amp;&amp; !model.post.self ? View.VISIBLE : View.GONE}"
             android:layout_marginBottom="2dp"
             app:layout_constraintVertical_bias="0"
             app:layout_constraintBottom_toBottomOf="parent"
