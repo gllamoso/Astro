@@ -3,6 +3,8 @@ package dev.gtcl.astro.models.reddit
 import com.squareup.moshi.Json
 import dev.gtcl.astro.html.ParsedHtmlSegment
 import dev.gtcl.astro.html.parseToHtmlSegments
+import dev.gtcl.astro.removeHtmlEntities
+import kotlinx.android.parcel.IgnoredOnParcel
 
 data class RulesResponse(
     val rules: List<Rule>,
@@ -18,6 +20,9 @@ data class Rule(
     @Json(name = "description_html")
     val descriptionHtml: String
 ) {
+    @IgnoredOnParcel
+    val shortNameFormatted = shortName.removeHtmlEntities()
+
     @Transient
     private var _parsedDescription: List<ParsedHtmlSegment>? = null
 
