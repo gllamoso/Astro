@@ -336,24 +336,24 @@ data class Post(
     fun getThumbnail(nsfw: Boolean): String?{
         var result: String?
         if(nsfw){
-            result = preview?.images?.get(0)?.variants?.nsfw?.resolutions?.get(0)?.url?.removeHtmlEntities()
+            result = preview?.images?.get(0)?.variants?.nsfw?.resolutions?.get(0)?.url
         } else {
-            result = preview?.images?.get(0)?.resolutions?.get(0)?.url?.removeHtmlEntities()
+            result = preview?.images?.get(0)?.resolutions?.get(0)?.url
             if(result == null){
                 val id = galleryData?.items?.get(0)?.mediaId ?: ""
-                result = mediaMetadata?.get(id)?.previews?.first()?.url?.removeHtmlEntities() ?: thumbnail?.removeHtmlEntities()
+                result = mediaMetadata?.get(id)?.previews?.first()?.url ?: thumbnail
             }
         }
-        return result
+        return result?.removeHtmlEntities()
     }
 
     fun getPreviewImage(): String? {
-        var result = preview?.images?.get(0)?.resolutions?.last()?.url?.removeHtmlEntities()
+        var result = preview?.images?.get(0)?.resolutions?.last()?.url
         if(result == null){
             val id = galleryData?.items?.get(0)?.mediaId ?: ""
-            result = mediaMetadata?.get(id)?.previews?.last()?.url?.removeHtmlEntities()
+            result = mediaMetadata?.get(id)?.previews?.last()?.url
         }
-        return result
+        return result?.removeHtmlEntities()
     }
 
     @IgnoredOnParcel
