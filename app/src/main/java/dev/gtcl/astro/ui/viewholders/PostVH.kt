@@ -97,6 +97,7 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
                 binding.itemPostThumbnailBackground.visibility = View.VISIBLE
                 binding.itemPostThumbnail.apply {
                     setBackgroundColor(Color.TRANSPARENT)
+                    setImageResource(android.R.color.transparent)
                     setOnClickListener {
                         postActions.thumbnailClicked(post, adapterPosition)
                         binding.invalidateAll()
