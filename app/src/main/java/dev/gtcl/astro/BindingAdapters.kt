@@ -656,3 +656,18 @@ fun setRemovalReason(textView: TextView, reason: String?){
         else -> textView.setText(R.string.post_removed)
     }
 }
+
+@BindingAdapter("awardsNum")
+fun setNumberOfAwardsText(textView: TextView, num: Int?){
+    when(num){
+        0, null -> {
+            textView.visibility = View.GONE
+        }
+        else -> {
+            textView.apply {
+                visibility = View.VISIBLE
+                text = String.format(textView.context.getString(R.string.num_awards), num)
+            }
+        }
+    }
+}

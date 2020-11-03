@@ -13,9 +13,9 @@ class AccountAboutVM(val application: AstroApplication) : AstroViewModel(applica
     val account: LiveData<Account?>
         get() = _account
 
-    private val _awards = MutableLiveData<List<Award>>().apply { value = listOf() }
-    val awards: LiveData<List<Award>>
-        get() = _awards
+    private val _trophies = MutableLiveData<List<Trophy>>().apply { value = listOf() }
+    val trophies: LiveData<List<Trophy>>
+        get() = _trophies
 
     private val _multiReddits = MutableLiveData<List<MultiReddit>>().apply { value = listOf() }
     val multiReddits: LiveData<List<MultiReddit>?>
@@ -48,15 +48,15 @@ class AccountAboutVM(val application: AstroApplication) : AstroViewModel(applica
         }
     }
 
-    fun fetchAwards(user: String?) {
+    fun fetchTrophies(user: String?) {
         coroutineScope.launch {
             try {
-                val trophies = miscRepository.getAwards(
+                val trophies = miscRepository.getTrophies(
                     user ?: (application.currentAccount ?: return@launch).name
                 ).await().data.trophies.map { (data) -> data }
-                _awards.postValue(trophies)
+                _trophies.postValue(trophies)
             } catch (e: Exception) {
-                _awards.postValue(listOf())
+                _trophies.postValue(listOf())
                 _errorMessage.postValue(
                     if (e is JsonDataException) {
                         application.getString(R.string.account_error)

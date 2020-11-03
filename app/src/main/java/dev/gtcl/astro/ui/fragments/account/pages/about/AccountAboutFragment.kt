@@ -53,14 +53,14 @@ class AccountAboutFragment : Fragment(), SubredditActions, MultiRedditActions,
         val user = arguments?.getString(USER_KEY)
         model.fetchAccount(user)
         if ((requireActivity().application as AstroApplication).currentAccount != null) {
-            model.fetchAwards(user)
+            model.fetchTrophies(user)
         }
         model.fetchModeratedSubs(user)
         model.fetchPublicFeeds(user)
 
-        val awardsAdapter = AwardsAdapter()
-        model.awards.observe(viewLifecycleOwner, {
-            awardsAdapter.submitList(it)
+        val trophiesAdapter = TrophyAdapter()
+        model.trophies.observe(viewLifecycleOwner, {
+            trophiesAdapter.submitList(it)
         })
 
         val moderatedSubsAdapter = ModeratedSubsAdapter(this, this)
@@ -81,7 +81,7 @@ class AccountAboutFragment : Fragment(), SubredditActions, MultiRedditActions,
         })
 
         binding?.apply {
-            fragmentAccountAboutAwardsList.adapter = awardsAdapter
+            fragmentAccountAboutTrophiesList.adapter = trophiesAdapter
             fragmentAccountAboutModeratedSubs.adapter = moderatedSubsAdapter
             fragmentAccountAboutMultis.adapter = multiRedditsAdapter
         }

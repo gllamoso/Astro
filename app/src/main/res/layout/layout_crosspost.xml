@@ -232,60 +232,6 @@
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="14dp"
                     android:layout_height="14dp"
-                    android:padding="1dp"
-                    android:layout_marginEnd="2dp"
-                    android:src="@drawable/ic_reddit_silver"
-                    android:visibility="@{post.gildings != null &amp;&amp; post.gildings.silver != null ? View.VISIBLE : View.GONE}"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:text="@{(post.gildings != null &amp;&amp; post.gildings.silver != null ? post.gildings.silver : 0).toString()}"
-                    android:textColor="#919191"
-                    android:layout_marginEnd="4dp"
-                    android:visibility="@{post.gildings != null &amp;&amp; post.gildings.silver != null ? View.VISIBLE : View.GONE}"
-                    tools:text="99" />
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:padding="1dp"
-                    android:layout_marginEnd="2dp"
-                    android:src="@drawable/ic_reddit_gold"
-                    android:visibility="@{post.gildings != null &amp;&amp; post.gildings.gold != null ? View.VISIBLE : View.GONE}"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:text="@{(post.gildings != null &amp;&amp; post.gildings.gold != null ? post.gildings.gold : 0).toString()}"
-                    android:textColor="#ffd54f"
-                    android:layout_marginEnd="4dp"
-                    android:visibility="@{post.gildings != null &amp;&amp; post.gildings.gold != null ? View.VISIBLE : View.GONE}"
-                    tools:text="99" />
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
-                    android:padding="1dp"
-                    android:layout_marginEnd="2dp"
-                    android:src="@drawable/ic_reddit_platinum"
-                    android:visibility="@{post.gildings != null &amp;&amp; post.gildings.platinum != null ? View.VISIBLE : View.GONE}"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textSize="12sp"
-                    android:text="@{(post.gildings != null &amp;&amp; post.gildings.platinum != null ? post.gildings.platinum : 0).toString()}"
-                    android:textColor="#00bfa5"
-                    android:layout_marginEnd="4dp"
-                    android:visibility="@{post.gildings != null &amp;&amp; post.gildings.platinum != null ? View.VISIBLE : View.GONE}"
-                    tools:text="99" />
-
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:layout_width="14dp"
-                    android:layout_height="14dp"
                     app:likes="@{post.likes}"
                     android:tint="@android:color/darker_gray"
                     android:src="@drawable/ic_upvote_24"
@@ -329,10 +275,35 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:singleLine="true"
+                    android:layout_marginEnd="4dp"
                     android:text="@{UtilKt.timeSince(post.created)}"
                     android:textColor="@android:color/darker_gray"
                     android:textSize="12sp"
                     tools:text="3h"/>
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginEnd="2dp"
+                    tools:src="@drawable/ic_no_photo_24"
+                    app:loadImage="@{post.awards.size() > 0 ? post.awards.get(0).icons.get(0).urlFormatted : null}"/>
+
+                <androidx.appcompat.widget.AppCompatImageView
+                    android:layout_width="14dp"
+                    android:layout_height="14dp"
+                    android:layout_marginEnd="2dp"
+                    tools:src="@drawable/ic_no_photo_24"
+                    app:loadImage="@{post.awards.size() > 1 ? post.awards.get(1).icons.get(0).urlFormatted : null}"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:singleLine="true"
+                    android:layout_marginEnd="4dp"
+                    android:textSize="12sp"
+                    android:textColor="@android:color/darker_gray"
+                    app:awardsNum="@{post.totalAwards}"
+                    tools:text="999 awards"/>
 
             </LinearLayout>
 

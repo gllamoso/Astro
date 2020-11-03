@@ -100,7 +100,8 @@ class CommentsMoshiAdapter {
         var linkFlairTemplateId: String? = null
         var crossPostParentList: MutableList<Post>? = null
         var crosspostable: Boolean? = null
-        var gildings: Gildings? = null
+        var totalAwards: Int? = null
+        var awards: List<Award>? = null
         var sendReplies: Boolean? = null
         var canModPost: Boolean? = null
         var stickied: Boolean? = null
@@ -239,12 +240,17 @@ class CommentsMoshiAdapter {
                 "is_crosspostable" -> {
                     crosspostable = jsonReader.nextBoolean()
                 }
-                "gildings" -> {
-                    if (jsonReader.peek() != JsonReader.Token.NULL) {
-                        gildings = getGildings(jsonReader)
-                    } else {
-                        jsonReader.skipValue()
+                "total_awards_received" -> {
+                    totalAwards = jsonReader.nextInt()
+                }
+                "all_awardings" -> {
+                    val mutableAwards = mutableListOf<Award>()
+                    jsonReader.beginArray()
+                    while(jsonReader.hasNext()){
+                        mutableAwards.add(getAward(jsonReader))
                     }
+                    jsonReader.endArray()
+                    awards = mutableAwards.toList()
                 }
                 "send_replies" -> {
                     sendReplies = jsonReader.nextBoolean()
@@ -329,7 +335,8 @@ class CommentsMoshiAdapter {
             linkFlairTemplateId = linkFlairTemplateId,
             crosspostParentList = crossPostParentList,
             isCrosspostable = crosspostable!!,
-            gildings = gildings,
+            totalAwards = totalAwards!!,
+            awards = awards!!,
             sendReplies = sendReplies!!,
             canModPost = canModPost!!,
             stickied = stickied!!,
@@ -482,28 +489,44 @@ class CommentsMoshiAdapter {
         return PreviewImage(url!!, width!!, height!!)
     }
 
-    private fun getGildings(jsonReader: JsonReader): Gildings {
-        var silver: Int? = null
-        var gold: Int? = null
-        var platinum: Int? = null
-
+    private fun getAward(jsonReader: JsonReader): Award {
+        var count: Int? = null
+        var icons: List<AwardIcon>? = null
         jsonReader.beginObject()
-        while (jsonReader.hasNext()) {
-            when (jsonReader.nextName()) {
-                "gid_1" -> {
-                    silver = jsonReader.nextInt()
+
+        while(jsonReader.hasNext()){
+            when(jsonReader.nextName()){
+                "count" -> count = jsonReader.nextInt()
+                "resized_static_icons" -> {
+                    val mutableIcons = mutableListOf<AwardIcon>()
+                    jsonReader.beginArray()
+                    while(jsonReader.hasNext()){
+                        mutableIcons.add(getAwardIcon(jsonReader))
+                    }
+                    jsonReader.endArray()
+                    icons = mutableIcons.toList()
                 }
-                "gid_2" -> {
-                    gold = jsonReader.nextInt()
-                }
-                "gid_3" -> {
-                    platinum = jsonReader.nextInt()
-                }
+                else -> jsonReader.skipValue()
+            }
+        }
+
+        jsonReader.endObject()
+        return Award(count!!, icons!!)
+    }
+
+    private fun getAwardIcon(jsonReader: JsonReader): AwardIcon {
+        var url: String? = null
+        jsonReader.beginObject()
+
+        while(jsonReader.hasNext()){
+            when(jsonReader.nextName()){
+                "url" -> url = jsonReader.nextString()
+                else -> jsonReader.skipValue()
             }
         }
         jsonReader.endObject()
 
-        return Gildings(silver, gold, platinum)
+        return AwardIcon(url!!)
     }
 
     private fun getMediaMetadata(jsonReader: JsonReader): Map<String, MediaMetadata> {
@@ -664,7 +687,8 @@ class CommentsMoshiAdapter {
         var likes: Boolean? = null
         var replies: List<Item>? = null
         var authorFlairText: String? = null
-        var gildings: Gildings? = null
+        var totalAwards: Int? = null
+        var awards: List<Award>? = null
         var permalink: String? = null
         var linkPermalink: String? = null
         var parentId: String? = null
@@ -739,12 +763,17 @@ class CommentsMoshiAdapter {
                     }
                     jsonReader.endArray()
                 }
-                "gildings" -> {
-                    if (jsonReader.peek() != JsonReader.Token.NULL) {
-                        gildings = getGildings(jsonReader)
-                    } else {
-                        jsonReader.skipValue()
+                "total_awards_received" -> {
+                    totalAwards = jsonReader.nextInt()
+                }
+                "all_awardings" -> {
+                    val mutableAwards = mutableListOf<Award>()
+                    jsonReader.beginArray()
+                    while(jsonReader.hasNext()){
+                        mutableAwards.add(getAward(jsonReader))
                     }
+                    jsonReader.endArray()
+                    awards = mutableAwards.toList()
                 }
                 "permalink" -> {
                     permalink = jsonReader.nextString()
@@ -807,7 +836,8 @@ class CommentsMoshiAdapter {
             likes = likes,
             authorFlairText = authorFlairText,
             flairRichtext = authorFlairRichtext,
-            gildings = gildings,
+            totalAwards = totalAwards!!,
+            awards = awards!!,
             permalink = permalink ?: return,
             linkPermalink = linkPermalink,
             context = context,

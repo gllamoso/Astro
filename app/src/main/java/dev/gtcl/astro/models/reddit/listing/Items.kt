@@ -91,7 +91,10 @@ data class Comment(
     val authorFlairText: String?,
     @Json(name = "author_flair_richtext")
     val flairRichtext: List<FlairRichtext>?,
-    val gildings: Gildings?,
+    @Json(name = "total_awards_received")
+    val totalAwards: Int,
+    @Json(name = "all_awardings")
+    val awards: List<Award>,
     private val permalink: String?,
     @Json(name = "link_permalink")
     private val linkPermalink: String?,
@@ -300,7 +303,10 @@ data class Post(
     val crosspostParentList: List<Post>?,
     @Json(name = "is_crosspostable")
     val isCrosspostable: Boolean,
-    val gildings: Gildings?,
+    @Json(name = "total_awards_received")
+    val totalAwards: Int,
+    @Json(name = "all_awardings")
+    val awards: List<Award>,
     @Json(name = "send_replies")
     var sendReplies: Boolean,
     @Json(name = "can_mod_post")
@@ -531,14 +537,19 @@ data class RedditVideo(
 }
 
 @Parcelize
-data class Gildings(
-    @Json(name = "gid_1")
-    val silver: Int?,
-    @Json(name = "gid_2")
-    val gold: Int?,
-    @Json(name = "gid_3")
-    val platinum: Int?
+data class Award(
+    val count: Int,
+    @Json(name = "resized_static_icons")
+    val icons: List<AwardIcon>
 ) : Parcelable
+
+@Parcelize
+data class AwardIcon(
+        private val url: String
+) : Parcelable {
+    @IgnoredOnParcel
+    val urlFormatted = url.removeHtmlEntities()
+}
 
 @Parcelize
 data class GalleryData(
@@ -713,18 +724,20 @@ data class Subreddit(
 
 fun List<Subreddit>.asSubscriptions(userId: String) = map { it.asSubscription(userId) }
 
-//   _     __                                          _
-//  | |   / /                /\                       | |
-//  | |_ / /_    ______     /  \__      ____ _ _ __ __| |
-//  | __| '_ \  |______|   / /\ \ \ /\ / / _` | '__/ _` |
-//  | |_| (_) |           / ____ \ V  V / (_| | | | (_| |
-//   \__|\___/           /_/    \_\_/\_/ \__,_|_|  \__,_|
+//   _  __            _______              _
+//  | |/_ |          |__   __|            | |
+//  | |_| |  ______     | |_ __ ___  _ __ | |__  _   _
+//  | __| | |______|    | | '__/ _ \| '_ \| '_ \| | | |
+//  | |_| |             | | | | (_) | |_) | | | | |_| |
+//   \__|_|             |_|_|  \___/| .__/|_| |_|\__, |
+//                                  | |           __/ |
+//                                  |_|          |___/
 
 class TrophyListingResponse(val data: TrophyListingData)
 class TrophyListingData(val trophies: List<TrophyChild>)
 
 @Parcelize
-data class Award(
+data class Trophy(
     override val name: String,
     override val id: String?,
     @Json(name = "icon_70")

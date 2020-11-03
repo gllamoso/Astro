@@ -6,7 +6,7 @@
     <data>
         <variable
             name="award"
-            type="dev.gtcl.astro.models.reddit.listing.Award" />
+            type="dev.gtcl.astro.models.reddit.listing.Trophy" />
     </data>
 
     <RelativeLayout

@@ -1,13 +1,16 @@
 package dev.gtcl.astro.repositories.reddit
 
-import dev.gtcl.astro.NotLoggedInException
 import dev.gtcl.astro.AstroApplication
 import dev.gtcl.astro.CommentSort
+import dev.gtcl.astro.NotLoggedInException
 import dev.gtcl.astro.Vote
 import dev.gtcl.astro.database.ItemRead
 import dev.gtcl.astro.database.redditDatabase
 import dev.gtcl.astro.models.reddit.MoreChildrenResponse
-import dev.gtcl.astro.models.reddit.listing.*
+import dev.gtcl.astro.models.reddit.listing.Flair
+import dev.gtcl.astro.models.reddit.listing.Item
+import dev.gtcl.astro.models.reddit.listing.Message
+import dev.gtcl.astro.models.reddit.listing.TrophyListingResponse
 import dev.gtcl.astro.network.CommentPage
 import dev.gtcl.astro.network.RedditApi
 import kotlinx.coroutines.Deferred
@@ -128,7 +131,7 @@ class MiscRepository private constructor(private val application: AstroApplicati
         return RedditApi.oauth.deleteThing(application.accessToken!!.authorizationHeader, thingId)
     }
 
-    fun getAwards(user: String): Deferred<TrophyListingResponse> {
+    fun getTrophies(user: String): Deferred<TrophyListingResponse> {
         return if (application.accessToken == null) RedditApi.base.getAwards(null, user)
         else RedditApi.oauth.getAwards(application.accessToken!!.authorizationHeader, user)
     }
