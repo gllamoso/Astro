@@ -21,7 +21,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:foreground="?android:attr/selectableItemBackground"
-        app:cardBackgroundColor="@color/colorItemBackground">
+        app:cardBackgroundColor="?android:attr/colorBackground">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:id="@+id/layoutCrosspost_background"
