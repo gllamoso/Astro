@@ -55,8 +55,15 @@ class CommentsAdapter(
 
     fun addItems(position: Int, items: List<Item>) {
         comments?.let {
+            val wasEmpty = it.isEmpty()
             it.addAll(position, items)
+            if(wasEmpty){
+                notifyItemRemoved(0)
+            }
             notifyItemRangeInserted(position + getOffset(), items.size)
+            if(position == 0 && !wasEmpty){ // Removes top divider of the previous last item since it is no longer at the top
+                notifyItemChanged(position + getOffset() + items.size)
+            }
         }
     }
 
@@ -64,6 +71,9 @@ class CommentsAdapter(
         comments?.let {
             it.removeAt(position)
             notifyItemRemoved(position + getOffset())
+            if(position == it.size){ // Adds back bottom divider to the second to the last comment
+                notifyItemChanged(it.lastIndex + getOffset())
+            }
         }
     }
 

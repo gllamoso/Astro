@@ -28,7 +28,7 @@ class CommentVH private constructor(private val binding: ItemCommentBinding) :
     ) {
         val isUser = (userId != null && comment.authorFullName == userId)
         binding.apply {
-            showBottomDivider = isLastItem
+            showBottomDivider = isLastItem && !comment.isExpanded
             this.comment = comment
             this.isUser = isUser
             showTopDivider = (adapterPosition != 0 && comment.depth ?: 0 == 0)
