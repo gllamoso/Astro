@@ -72,8 +72,8 @@
                 />
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:layout_marginStart="-3dp"
                 android:src="@drawable/ic_upvote_24"
                 android:tint="@android:color/darker_gray"
@@ -83,6 +83,7 @@
                 android:id="@+id/itemComment_pointsText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="12sp"
                 android:singleLine="true"
                 android:layout_marginEnd="4dp"
                 android:textColor="@{comment.likes == null ? @android:color/darker_gray : comment.likes == true ? @android:color/holo_orange_dark : @android:color/holo_blue_dark}"
@@ -91,8 +92,8 @@
                 tools:textColor="@android:color/darker_gray"/>
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:tint="@android:color/darker_gray"
                 android:src="@drawable/ic_timer_24"/>
 
@@ -100,6 +101,7 @@
                 android:id="@+id/itemComment_timestampText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:textSize="12sp"
                 android:singleLine="true"
                 android:layout_marginEnd="4dp"
                 android:textColor="@android:color/darker_gray"
@@ -107,15 +109,15 @@
                 tools:text="2h" />
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:layout_marginEnd="2dp"
                 tools:src="@drawable/ic_no_photo_24"
                 app:loadImage="@{(comment.awards != null &amp;&amp; comment.awards.size() > 0) ? comment.awards.get(0).icons.get(0).urlFormatted : null}"/>
 
             <androidx.appcompat.widget.AppCompatImageView
-                android:layout_width="18dp"
-                android:layout_height="18dp"
+                android:layout_width="16dp"
+                android:layout_height="16dp"
                 android:layout_marginEnd="2dp"
                 tools:src="@drawable/ic_no_photo_24"
                 app:loadImage="@{(comment.awards != null &amp;&amp; comment.awards.size() > 1) ? comment.awards.get(1).icons.get(0).urlFormatted : null}"/>
@@ -124,6 +126,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:singleLine="true"
+                android:textSize="12sp"
                 android:layout_marginEnd="4dp"
                 android:textColor="@android:color/darker_gray"
                 app:awardsNum="@{comment.totalAwards}"
@@ -140,7 +143,7 @@
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/itemComment_flairLayout"
                 android:layout_width="wrap_content"
-                android:layout_height="22dp"
+                android:layout_height="20dp"
                 android:layout_marginEnd="4dp"
                 app:cardCornerRadius="3dp"
                 app:cardBackgroundColor="@android:color/holo_purple"
