@@ -144,7 +144,6 @@
                 android:layout_marginEnd="4dp"
                 app:cardCornerRadius="3dp"
                 app:cardBackgroundColor="@android:color/holo_purple"
-                android:visibility="@{comment.flairRichtext != null &amp;&amp; !comment.flairRichtext.empty ? View.VISIBLE : View.GONE}"
                 app:itemWithSmallFlair="@{comment}" />
 
             <androidx.appcompat.widget.AppCompatImageView

@@ -427,7 +427,7 @@ private fun setFlairText(cardView: MaterialCardView, text: String?, darkTextColo
             context.resources.displayMetrics
     ).toInt()
 
-    if(!text.isNullOrBlank()){
+    if(!text.isNullOrBlank() && text.trim() != "\u200B"){
         val textView = TextView(context).apply {
             this.text = text.trim()
             setTextSize(TypedValue.COMPLEX_UNIT_SP, 12F)
@@ -469,6 +469,7 @@ private fun setFlairRichText(cardView: MaterialCardView, flairs: List<FlairRicht
             gravity = Gravity.CENTER_VERTICAL
         }
         var start = true
+        var layoutHasView = false
         for (flair in flairs) {
             if (!flair.urlFormatted.isNullOrBlank() || flair.textFormatted.toString().isNotBlank()) {
                 val view =
@@ -496,12 +497,17 @@ private fun setFlairRichText(cardView: MaterialCardView, flairs: List<FlairRicht
                         }
 
                 linearLayout.addView(view)
+                layoutHasView = true
                 start = false
             }
         }
         cardView.apply {
-            visibility = View.VISIBLE
-            addView(linearLayout)
+            visibility = if(layoutHasView){
+                addView(linearLayout)
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
         }
     } else {
         cardView.visibility = View.GONE
