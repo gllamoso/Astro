@@ -92,9 +92,9 @@ data class Comment(
     @Json(name = "author_flair_richtext")
     val flairRichtext: List<FlairRichtext>?,
     @Json(name = "total_awards_received")
-    val totalAwards: Int,
+    val totalAwards: Int?,
     @Json(name = "all_awardings")
-    val awards: List<Award>,
+    val awards: List<Award>?,
     private val permalink: String?,
     @Json(name = "link_permalink")
     private val linkPermalink: String?,
