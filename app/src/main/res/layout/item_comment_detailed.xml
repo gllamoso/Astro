@@ -68,7 +68,7 @@
 
                     <include
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="22dp"
                         android:layout_marginEnd="4dp"
                         layout="@layout/layout_comment_author"
                         app:isUser="@{isUser}"
@@ -145,7 +145,7 @@
                     <com.google.android.material.card.MaterialCardView
                         android:id="@+id/itemCommentDetailed_flairLayout"
                         android:layout_width="wrap_content"
-                        android:layout_height="18dp"
+                        android:layout_height="22dp"
                         android:layout_marginEnd="4dp"
                         app:cardCornerRadius="3dp"
                         app:cardBackgroundColor="@android:color/holo_purple"

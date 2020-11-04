@@ -464,7 +464,7 @@ private fun setFlairRichText(cardView: MaterialCardView, flairs: List<FlairRicht
         ).toInt()
         val horizontalMargin = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
-                if(small) 2f else 4f,
+                4f,
                 context.resources.displayMetrics
         ).toInt()
         val verticalMargin = TypedValue.applyDimension(
@@ -475,7 +475,9 @@ private fun setFlairRichText(cardView: MaterialCardView, flairs: List<FlairRicht
         val linearLayout = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             setPadding(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin)
-            gravity = Gravity.CENTER
+            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
+                this.gravity = Gravity.CENTER
+            }
         }
         var start = true
         var layoutHasView = false

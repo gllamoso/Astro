@@ -32,6 +32,7 @@
             android:textStyle="bold"
             android:paddingHorizontal="4dp"
             android:paddingVertical="1dp"
+            android:layout_gravity="center"
             app:isUser="@{isUser}"
             tools:text="RedditUser" />
 
