@@ -81,21 +81,21 @@
                 <include
                     layout="@layout/icon_nsfw_small"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="18dp"
                     android:layout_marginEnd="4dp"
                     android:visibility="@{post.nsfw == true ? View.VISIBLE : View.GONE}" />
 
                 <include
                     layout="@layout/icon_spoiler_small"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="18dp"
                     android:layout_marginEnd="4dp"
                     android:visibility="@{post.spoiler == true ? View.VISIBLE : View.GONE}" />
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/layoutCrosspost_flairLayout"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="18dp"
                     android:layout_marginEnd="4dp"
                     app:cardCornerRadius="3dp"
                     app:flairBackground="@{post.flairColor}"

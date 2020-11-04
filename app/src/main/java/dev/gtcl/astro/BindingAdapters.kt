@@ -12,6 +12,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.WindowManager
 import android.webkit.URLUtil
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -423,17 +424,20 @@ private fun setFlairText(cardView: MaterialCardView, text: String?, darkTextColo
     }
     val padding = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
-            if(small) 2f else 4f,
+            4f,
             context.resources.displayMetrics
     ).toInt()
 
     if(!text.isNullOrBlank() && text.trim() != "\u200B"){
         val textView = TextView(context).apply {
             this.text = text.trim()
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, 12F)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, if(small) 12f else 14f)
             setTextColor(textColor)
             isSingleLine = true
             setPadding(padding, padding/2, padding, padding/2)
+            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
+                this.gravity = Gravity.CENTER
+            }
         }
         cardView.apply {
             visibility = View.VISIBLE
@@ -458,15 +462,20 @@ private fun setFlairRichText(cardView: MaterialCardView, flairs: List<FlairRicht
                 if(small) 14f else 18f,
                 context.resources.displayMetrics
         ).toInt()
-        val margin = TypedValue.applyDimension(
+        val horizontalMargin = TypedValue.applyDimension(
                 TypedValue.COMPLEX_UNIT_DIP,
                 if(small) 2f else 4f,
                 context.resources.displayMetrics
         ).toInt()
+        val verticalMargin = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                1f,
+                context.resources.displayMetrics
+        ).toInt()
         val linearLayout = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
-            setPadding(margin, margin/2, margin, margin/2)
-            gravity = Gravity.CENTER_VERTICAL
+            setPadding(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin)
+            gravity = Gravity.CENTER
         }
         var start = true
         var layoutHasView = false
@@ -477,7 +486,7 @@ private fun setFlairRichText(cardView: MaterialCardView, flairs: List<FlairRicht
                             ImageView(context).apply {
                                 layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
                                     if(!start) {
-                                        marginStart = margin
+                                        marginStart = horizontalMargin
                                     }
                                 }
                                 loadImage(this, flair.urlFormatted)
@@ -485,12 +494,12 @@ private fun setFlairRichText(cardView: MaterialCardView, flairs: List<FlairRicht
                         } else {
                             TextView(context).apply {
                                 text = flair.textFormatted.toString().trim()
-                                setTextSize(TypedValue.COMPLEX_UNIT_SP, 12F)
+                                setTextSize(TypedValue.COMPLEX_UNIT_SP, if(small) 12f else 14f)
                                 setTextColor(textColor)
                                 isSingleLine = true
                                 layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
                                     if(!start) {
-                                        marginStart = margin
+                                        marginStart = horizontalMargin
                                     }
                                 }
                             }

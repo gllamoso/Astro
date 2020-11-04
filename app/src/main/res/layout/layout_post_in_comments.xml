@@ -36,7 +36,7 @@
 
                 <include
                     layout="@layout/icon_nsfw"
-                    android:layout_height="wrap_content"
+                    android:layout_height="22dp"
                     android:layout_width="wrap_content"
                     android:layout_marginEnd="4dp"
                     android:visibility="@{post.nsfw == true ? View.VISIBLE : View.GONE}"/>
@@ -44,14 +44,14 @@
                 <include
                     layout="@layout/icon_spoiler"
                     android:visibility="@{post.spoiler == true ? View.VISIBLE : View.GONE}"
-                    android:layout_height="wrap_content"
+                    android:layout_height="22dp"
                     android:layout_width="wrap_content"
                     android:layout_marginEnd="4dp"/>
 
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/layoutPostInComments_flairLayout"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="22dp"
                     android:layout_marginEnd="4dp"
                     app:cardCornerRadius="4dp"
                     app:flairBackground="@{post.flairColor}"

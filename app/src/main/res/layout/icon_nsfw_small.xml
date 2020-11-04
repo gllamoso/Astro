@@ -14,8 +14,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingVertical="1dp"
-            android:paddingHorizontal="3dp"
-            android:textSize="10sp"
+            android:paddingHorizontal="2dp"
+            android:layout_gravity="center"
+            android:textSize="12sp"
             android:textColor="@android:color/white"
             android:text="@string/nsfw"
             tools:ignore="SmallSp" />
