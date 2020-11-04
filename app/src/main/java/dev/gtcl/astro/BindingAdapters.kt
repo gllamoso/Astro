@@ -1,5 +1,6 @@
 package dev.gtcl.astro
 
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Color
 import android.graphics.drawable.Drawable
@@ -668,6 +669,19 @@ fun setNumberOfAwardsText(textView: TextView, num: Int?){
                 visibility = View.VISIBLE
                 text = String.format(textView.context.getString(R.string.num_awards), num)
             }
+        }
+    }
+}
+
+@SuppressLint("SetTextI18n")
+@BindingAdapter("post")
+fun setPostInfo(textView: TextView, post: Post?){
+    if(post == null){
+        textView.visibility = View.GONE
+    } else {
+        textView.apply {
+            visibility = View.VISIBLE
+            text = "${post.subredditPrefixed} • ${post.author} • ${post.domain}"
         }
     }
 }

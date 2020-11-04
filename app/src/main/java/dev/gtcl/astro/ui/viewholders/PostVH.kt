@@ -78,6 +78,8 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
             // Force TextView to redraw and remeasure to prevent unintentional bottom padding
             itemPostTitle.invalidate()
             itemPostTitle.forceLayout()
+            itemPostPostInfo1.invalidate()
+            itemPostPostInfo1.forceLayout()
         }
 
     }

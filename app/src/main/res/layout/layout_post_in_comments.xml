@@ -97,58 +97,14 @@
                 android:textSize="20sp"
                 tools:text="Title" />
 
-            <LinearLayout
+            <TextView
                 android:id="@+id/layoutPostInComments_postInfo1"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@{post.subredditPrefixed}"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray"
-                    android:singleLine="true"
-                    tools:text="r/funny" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="14sp"
-                    android:text=" • "
-                    android:singleLine="true"
-                    tools:ignore="HardcodedText" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@{post.author}"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray"
-                    android:singleLine="true"
-                    tools:text="User123" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="14sp"
-                    android:text=" • "
-                    android:singleLine="true"
-                    tools:ignore="HardcodedText" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@{post.domain}"
-                    android:textSize="14sp"
-                    android:textColor="@android:color/darker_gray"
-                    android:singleLine="true"
-                    tools:text="i.redd.it" />
-
-            </LinearLayout>
+                android:textColor="@android:color/darker_gray"
+                android:textSize="14sp"
+                tools:text="r/funny • User123 • reddit.com"
+                app:post="@{post}"/>
 
             <LinearLayout
                 android:id="@+id/layoutPostInComments_postInfo2"

@@ -157,62 +157,18 @@
                 app:read="@{post.isRead}"
                 tools:text="Title" />
 
-            <LinearLayout
+            <TextView
                 android:id="@+id/layoutCrosspost_postInfo1"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="12sp"
                 android:layout_marginHorizontal="16dp"
-                android:orientation="horizontal"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toEndOf="@id/layoutCrosspost_thumbnailBackground"
-                app:layout_constraintTop_toBottomOf="@id/layoutCrosspost_title">
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:text="@{post.subredditPrefixed}"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp"
-                    tools:text="r/funny"/>
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:text=" • "
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp"
-                    tools:ignore="HardcodedText" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:text="@{post.author}"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp"
-                    tools:text="User123" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:text=" • "
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp"
-                    tools:ignore="HardcodedText" />
-
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:singleLine="true"
-                    android:text="@{post.domain}"
-                    android:textColor="@android:color/darker_gray"
-                    android:textSize="12sp"
-                    tools:text="i.redd.it" />
-
-            </LinearLayout>
+                app:layout_constraintTop_toBottomOf="@id/layoutCrosspost_title"
+                tools:text="r/funny • User123 • reddit.com"
+                app:post="@{post}"/>
 
             <LinearLayout
                 android:id="@+id/layoutCrosspost_postInfo2"
