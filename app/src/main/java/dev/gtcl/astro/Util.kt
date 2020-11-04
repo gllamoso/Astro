@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.net.Uri
-import android.text.Html
 import android.util.Base64
 import android.util.Patterns
 import android.util.TypedValue
@@ -343,7 +342,12 @@ suspend fun setItemsReadStatus(items: List<Item>, readIds: HashSet<String>) {
 }
 
 fun String.removeHtmlEntities(): String {
-    return Html.fromHtml(this, Html.FROM_HTML_MODE_LEGACY).toString()
+    return this.replace("&lt;".toRegex(), "<")
+            .replace("&gt;".toRegex(), ">")
+            .replace("&quot;".toRegex(), "\"")
+            .replace("&#x200B;".toRegex(), "")
+            .replace("&#32;".toRegex(), " ")
+            .replace("&amp;".toRegex(), "&")
 }
 
 operator fun <T> MutableLiveData<MutableList<T>>.plusAssign(values: List<T>) {
