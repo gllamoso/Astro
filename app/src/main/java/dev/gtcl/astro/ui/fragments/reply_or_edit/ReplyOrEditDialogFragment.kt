@@ -70,9 +70,13 @@ class ReplyOrEditDialogFragment : DialogFragment() {
             is Post -> {
                 binding?.replyToUser = parent.author
                 if (reply) {
-                    binding?.replyToBody = parent.titleFormatted
+                    binding?.replyToBody = if(parent.selfTextFormatted.isBlank()){
+                        parent.titleFormatted
+                    } else {
+                        parent.selfTextFormatted
+                    }
                 } else {
-                    binding?.fragmentDialogReplyResponseText?.setText(parent.selftext)
+                    binding?.fragmentDialogReplyResponseText?.setText(parent.selfTextFormatted)
                 }
             }
             is Comment -> {

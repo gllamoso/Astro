@@ -276,9 +276,9 @@ data class Post(
     var likes: Boolean?,
     var hidden: Boolean,
     private val permalink: String,
-    val selftext: String,
+    private val selftext: String,
     @Json(name = "selftext_html")
-    val selftextHtml: String?,
+    private val selftextHtml: String?,
     @Json(name = "is_self")
     val isSelf: Boolean, // if true, post is a text
     @Json(name = "upvote_ratio")
@@ -335,6 +335,9 @@ data class Post(
         }
         return _parsedSelftext!!
     }
+
+    @IgnoredOnParcel
+    val selfTextFormatted = selftext.removeHtmlEntities()
 
     @IgnoredOnParcel
     val urlFormatted = url?.removeHtmlEntities()
