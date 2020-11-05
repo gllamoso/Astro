@@ -702,3 +702,10 @@ fun setPostInfo(textView: TextView, post: Post?){
         }
     }
 }
+
+@BindingAdapter("cardStrokeWidth")
+fun setMaterialCardStrokeWidth(materialCardView: MaterialCardView, width: Int?){
+    val context = materialCardView.context
+    val width = (width ?: 0).toDp(context)
+    materialCardView.strokeWidth = width
+}
