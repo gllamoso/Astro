@@ -84,6 +84,8 @@
                 android:layout_height="match_parent"
                 android:elevation="0dp"
                 android:scrollbars="none"
+                android:scrollIndicators="none"
+                android:scrollbarSize="0dp"
                 android:orientation="vertical"/>
 
             <ProgressBar
@@ -180,7 +182,6 @@
             app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
             android:layout_gravity="end"
             android:background="@android:color/black"
-            android:scrollbarThumbVertical="@color/colorAccent"
             android:orientation="vertical"
             android:scrollbars="vertical"
             />

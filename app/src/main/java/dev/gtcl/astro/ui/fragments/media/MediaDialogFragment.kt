@@ -146,6 +146,7 @@ class MediaDialogFragment : DialogFragment() {
                                 multiplier * offset
                         }
                     })
+                    scrollBarSize = 0
                 }
             }
             mediaListAdapter.submitList(it)
