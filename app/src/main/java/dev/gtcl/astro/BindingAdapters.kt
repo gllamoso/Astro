@@ -235,7 +235,7 @@ fun setIndentation(linearLayout: LinearLayout, indent: Int) {
         }
     for (i in 1..indent) {
         val view = View(linearLayout.context).apply {
-            setBackgroundColor(Color.GRAY)
+            setBackgroundColor(ContextCompat.getColor(context, R.color.commentDivider))
             layoutParams = params
         }
         linearLayout.addView(view)

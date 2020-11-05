@@ -2,7 +2,6 @@ package dev.gtcl.astro.html
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.graphics.Color
 import android.graphics.Typeface
 import android.os.Handler
 import android.os.Looper
@@ -16,6 +15,7 @@ import android.view.MotionEvent
 import android.view.View
 import android.view.ViewGroup
 import android.widget.*
+import androidx.core.content.ContextCompat
 import androidx.core.view.setPadding
 import dev.gtcl.astro.R
 import dev.gtcl.astro.html.spans.*
@@ -195,9 +195,8 @@ fun createSpannableString(
                 spannableString.setSpan(RelativeSizeSpan(0.5f), start, end)
             }
             Quote -> {
-                val margin = 8.toDp(context)
                 spannableString.setSpan(
-                    CustomQuoteSpan(Color.LTGRAY, margin / 4, margin),
+                    CustomQuoteSpan(ContextCompat.getColor(context, R.color.colorPrimary), stripeWidth = 3.toDp(context), gapWidth =  8.toDp(context)),
                     start,
                     end
                 )

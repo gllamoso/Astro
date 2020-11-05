@@ -5,4 +5,5 @@
     <color name="colorAccent">#F57F17</color>
     <color name="colorBackground">#000000</color>
     <color name="colorItemBackground">#1C1C1C</color>
+    <color name="commentDivider">#80808080</color>
 </resources>
