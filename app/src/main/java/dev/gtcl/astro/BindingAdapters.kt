@@ -527,10 +527,11 @@ private fun setFlairRichText(cardView: MaterialCardView, flairs: List<FlairRicht
 
 @BindingAdapter("flairBackground")
 fun setFlairBackground(cardView: MaterialCardView, color: String?){
-    when(color){
-        "", null -> cardView.setCardBackgroundColor(Color.GRAY)
-        else -> cardView.setCardBackgroundColor(Color.parseColor(color))
+    val backgroundColor = when(color){
+        "", null -> ContextCompat.getColor(cardView.context, android.R.color.darker_gray)
+        else -> Color.parseColor(color)
     }
+    cardView.setCardBackgroundColor(backgroundColor)
 }
 
 @BindingAdapter("ruleType")
