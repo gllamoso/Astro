@@ -345,22 +345,22 @@ data class Post(
     fun getThumbnail(nsfw: Boolean): String?{
         var result: String?
         if(nsfw){
-            result = preview?.images?.get(0)?.variants?.nsfw?.resolutions?.get(0)?.url
+            result = preview?.images?.firstOrNull()?.variants?.nsfw?.resolutions?.firstOrNull()?.url
         } else {
-            result = preview?.images?.get(0)?.resolutions?.get(0)?.url
+            result = preview?.images?.firstOrNull()?.resolutions?.firstOrNull()?.url
             if(result == null){
-                val id = galleryData?.items?.get(0)?.mediaId ?: ""
-                result = mediaMetadata?.get(id)?.previews?.first()?.url ?: thumbnail
+                val id = galleryData?.items?.firstOrNull()?.mediaId ?: ""
+                result = mediaMetadata?.get(id)?.previews?.firstOrNull()?.url ?: thumbnail
             }
         }
         return result?.removeHtmlEntities()
     }
 
     fun getPreviewImage(): String? {
-        var result = preview?.images?.get(0)?.resolutions?.last()?.url
+        var result = preview?.images?.firstOrNull()?.resolutions?.lastOrNull()?.url
         if(result == null){
-            val id = galleryData?.items?.get(0)?.mediaId ?: ""
-            result = mediaMetadata?.get(id)?.previews?.last()?.url
+            val id = galleryData?.items?.firstOrNull()?.mediaId ?: ""
+            result = mediaMetadata?.get(id)?.previews?.lastOrNull()?.url
         }
         return result?.removeHtmlEntities()
     }
@@ -385,7 +385,7 @@ data class Post(
                 secureMedia?.redditVideo?.hlsUrlFormatted != null -> secureMedia.redditVideo.hlsUrlFormatted
                 media?.redditVideo?.hlsUrlFormatted != null -> media.redditVideo.hlsUrlFormatted
                 preview?.redditVideo?.hlsUrlFormatted != null -> preview.redditVideo.hlsUrlFormatted
-                crosspostParentList?.get(0)?.previewVideoUrl != null -> crosspostParentList[0].previewVideoUrl
+                crosspostParentList?.firstOrNull()?.previewVideoUrl != null -> crosspostParentList[0].previewVideoUrl
                 REDDIT_VIDEO_REGEX.containsMatchIn(
                     urlFormatted ?: ""
                 ) -> "${REDDIT_VIDEO_REGEX.find(urlFormatted ?: "")!!.value}/HLSPlaylist.m3u8"
