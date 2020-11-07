@@ -89,6 +89,7 @@ fun Table.createView(context: Context, movementMethod: BetterLinkMovementMethod)
         isFocusable = false
     }
 
+    // Create header cells
     val headerRow = TableRow(context).apply {
         isClickable = false
         isLongClickable = false
@@ -109,6 +110,7 @@ fun Table.createView(context: Context, movementMethod: BetterLinkMovementMethod)
     }
     tableLayout.addView(headerRow)
 
+    // Create rest of the cells
     for (row in cellRows) {
         if (row.isNotEmpty()) {
             val tableRow = TableRow(context).apply {

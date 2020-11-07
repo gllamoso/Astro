@@ -32,7 +32,10 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
 
                 val tableStart = end + 1
                 val tableEnd = html.findNext("</table>".toRegex(), tableStart)
-                parsedSegments.add(parseTable(html.substring(tableStart, tableEnd)))
+                val table = parseTable(html.substring(tableStart, tableEnd))
+                if(table.headers.isNotEmpty() || table.cellRows.isNotEmpty()){
+                    parsedSegments.add(table)
+                }
                 start = html.findNext('<', tableEnd + 1)
             }
             "hr/" -> {
@@ -430,15 +433,17 @@ fun parseTable(html: String): Table {
     }
 
     val cols = headerCells.size
-    val rows = allCells.size / cols
     val cellRows = mutableListOf<List<Cell>>()
+    if(cols > 0){
+        val rows = allCells.size / cols
 
-    for (i in 0 until rows) {
-        val currentRow = mutableListOf<Cell>()
-        for (j in 0 until cols) {
-            currentRow.add(allCells[(i * cols) + j])
+        for (i in 0 until rows) {
+            val currentRow = mutableListOf<Cell>()
+            for (j in 0 until cols) {
+                currentRow.add(allCells[(i * cols) + j])
+            }
+            cellRows.add(currentRow)
         }
-        cellRows.add(currentRow)
     }
 
     return Table(headerCells, cellRows)
