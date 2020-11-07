@@ -9,6 +9,7 @@ import android.view.ViewGroup
 import android.webkit.URLUtil
 import android.widget.PopupWindow
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.request.RequestOptions
 import dev.gtcl.astro.GlideApp
 import dev.gtcl.astro.R
 import dev.gtcl.astro.Vote
@@ -105,13 +106,15 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
                         binding.invalidateAll()
                     }
                     setPadding(0, 0, 0, 0)
-                }
 
-                GlideApp.with(binding.root.context)
-                    .load(thumbnailUrl)
-                    .thumbnail(0.5F)
-                    .skipMemoryCache(true)
-                    .into(binding.itemPostThumbnail)
+                    val thumbnailSize = 72.toDp(context)
+                    GlideApp.with(context)
+                            .load(thumbnailUrl)
+                            .apply(RequestOptions().override(thumbnailSize, thumbnailSize))
+                            .skipMemoryCache(true)
+                            .centerCrop()
+                            .into(this)
+                }
             }
             else -> {
                 binding.itemPostThumbnailBackground.visibility = View.VISIBLE
