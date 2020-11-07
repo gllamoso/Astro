@@ -86,6 +86,7 @@
                 android:scrollbars="none"
                 android:scrollIndicators="none"
                 android:scrollbarSize="0dp"
+                android:scrollbarThumbVertical="@android:color/transparent"
                 android:orientation="vertical"/>
 
             <ProgressBar
