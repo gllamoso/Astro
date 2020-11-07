@@ -478,11 +478,15 @@ fun checkIfLoggedInBeforeExecuting(context: Context, runnable: () -> Unit) {
 }
 
 fun EditText.showKeyboard() {
-    if (requestFocus()) {
-        (context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
-            .showSoftInput(this, SHOW_IMPLICIT)
+    if(requestFocus()){
+        postDelayed({
+            (context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
+                    .showSoftInput(this, SHOW_IMPLICIT)
+        }
+                , 300)
         setSelection(text.length)
     }
+
 }
 
 fun hideKeyboardFrom(context: Context, view: View) {
