@@ -17,7 +17,7 @@ val SUBREDDIT_REGEX = "(?:(?:http[s]?://)?(?:\\w+\\.)?reddit\\.com/|/)?r/([A-Za-
 val REDDIT_USER_REGEX = "(?:(?:http[s]?://)?(?:\\w+\\.)?reddit\\.com/|/)?u/([A-Za-z0-9_.]+)/?".toRegex()
 val REDDIT_GALLERY_REGEX = "(?:http[s]?://)?\\w+\\.reddit\\.com/gallery/(\\w+)/?.*".toRegex()
 val REDDIT_THREAD_REGEX = "(?:(?:http[s]?://)?(?:\\w+\\.)?reddit\\.com/|/)?(r/[A-Za-z0-9_.]+/comments/\\w+/\\w+/\\w+/?.*)".toRegex()
-val REDDIT_COMMENTS_REGEX = "(?:(?:http[s]?://)?(?:\\w+\\.)?reddit\\.com/|/)?(r/[A-Za-z0-9_.]+/comments/\\w+(?:/\\w+)?/?)".toRegex()
+val REDDIT_COMMENTS_REGEX = "(?:(?:http[s]?://)?(?:\\w+\\.)?reddit\\.com/|/)?(r/[A-Za-z0-9_.]+/comments/\\w+(?:/\\w+)?/?).*".toRegex()
 val PREFIXED_REDDIT_ITEM = "/?[rRuU]/[^\\s]+".toRegex()
 
 @Parcelize
