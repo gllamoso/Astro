@@ -4,12 +4,14 @@ import dev.gtcl.astro.html.spans.*
 import java.util.*
 
 fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
+
     val html = this.replace("&lt;".toRegex(), "<")
         .replace("&gt;".toRegex(), ">")
         .replace("&quot;".toRegex(), "\"")
         .replace("&#x200B;".toRegex(), "")
         .replace("&#32;".toRegex(), " ")
         .replace("&amp;".toRegex(), "&")
+        .replace("&#039;".toRegex(), "'")
         .replace("<!-- SC_OFF -->".toRegex(), "")
         .replace("<!-- SC_ON -->".toRegex(), "")
         .replace("(?<!\\\\)\\\\n".toRegex(), "\n")
