@@ -51,6 +51,7 @@ fun loadImage(imgView: ImageView, imgUrl: String?) {
             imgView.visibility = View.VISIBLE
             GlideApp.with(imgView.context)
                 .load(imgUrl)
+                .error(R.drawable.ic_broken_image_24)
 //            .skipMemoryCache(true)
 //            .diskCacheStrategy(DiskCacheStrategy.ALL)
 //            .apply(
