@@ -171,21 +171,21 @@
                     android:layout_height="18dp"
                     tools:src="@drawable/ic_no_photo_24"
                     android:layout_marginEnd="1.5dp"
-                    app:loadImage="@{post.awards.size() > 0 ? post.awards.get(0).icons.get(0).urlFormatted : null}"/>
+                    app:loadImage="@{post.awards.size() > 0 ? post.awards.get(0).icons.get(1).urlFormatted : null}"/>
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     tools:src="@drawable/ic_no_photo_24"
                     android:layout_marginEnd="1.5dp"
-                    app:loadImage="@{post.awards.size() > 1 ? post.awards.get(1).icons.get(0).urlFormatted : null}"/>
+                    app:loadImage="@{post.awards.size() > 1 ? post.awards.get(1).icons.get(1).urlFormatted : null}"/>
 
                 <androidx.appcompat.widget.AppCompatImageView
                     android:layout_width="18dp"
                     android:layout_height="18dp"
                     tools:src="@drawable/ic_no_photo_24"
                     android:layout_marginEnd="1.5dp"
-                    app:loadImage="@{post.awards.size() > 2 ? post.awards.get(2).icons.get(0).urlFormatted : null}"/>
+                    app:loadImage="@{post.awards.size() > 2 ? post.awards.get(2).icons.get(1).urlFormatted : null}"/>
 
                 <TextView
                     android:layout_width="wrap_content"
