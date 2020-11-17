@@ -6,7 +6,10 @@ import android.os.Environment
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.squareup.moshi.JsonDataException
-import dev.gtcl.astro.*
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.AstroViewModel
+import dev.gtcl.astro.R
+import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.NewPostData
 import dev.gtcl.astro.models.reddit.listing.Flair
 import dev.gtcl.astro.models.reddit.listing.Post
@@ -307,8 +310,7 @@ class CreatePostVM(private val application: AstroApplication) : AstroViewModel(a
                     val buffer = ByteArray(4 * 1024)
                     while (true) {
                         val byteCount = input?.read(buffer)
-                        if (byteCount ?: -1 < 0) break
-                        output.write(buffer, 0, byteCount ?: return@use)
+                        output.write(buffer, 0, byteCount ?: break)
                     }
                     output.flush()
                 }
