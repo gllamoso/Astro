@@ -1,8 +1,6 @@
 package dev.gtcl.astro.ui.fragments.inbox
 
 import android.annotation.SuppressLint
-import android.app.AlertDialog
-import android.content.Context
 import android.os.Bundle
 import android.view.Gravity
 import android.view.LayoutInflater
@@ -13,7 +11,6 @@ import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import androidx.viewpager2.widget.ViewPager2
-import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.tabs.TabLayoutMediator
 import dev.gtcl.astro.*
 import dev.gtcl.astro.actions.LeftDrawerActions
@@ -21,6 +18,7 @@ import dev.gtcl.astro.database.SavedAccount
 import dev.gtcl.astro.databinding.FragmentInboxBinding
 import dev.gtcl.astro.models.reddit.listing.FrontPage
 import dev.gtcl.astro.ui.LeftDrawerAdapter
+import dev.gtcl.astro.ui.LeftDrawerHeader
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
 import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
@@ -58,16 +56,14 @@ class InboxFragment : Fragment(), LeftDrawerActions {
         }
 
         childFragmentManager.setFragmentResultListener(DRAFT_KEY, viewLifecycleOwner, { _, bundle ->
-            val to = bundle.getString(TO_KEY)
-            val subject = bundle.getString(SUBJECT_KEY)
-            val message = bundle.getString(MESSAGE_KEY)
-            SaveDraftDialogFragment.newInstance(to, subject, message)
+            val draft = bundle.get(DRAFT_KEY) as Draft
+            SaveDraftDialogFragment.newInstance(draft)
                 .show(childFragmentManager, null)
         })
 
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
-            val url = bundle.getString(URL_KEY)!!
-            viewPagerModel.linkClicked(url)
+            val url = bundle.getString(URL_KEY) ?: return@setFragmentResultListener
+            url.handleUrl(context, null, null, childFragmentManager, findNavController(), activityModel)
         })
 
         return binding?.root
@@ -84,8 +80,8 @@ class InboxFragment : Fragment(), LeftDrawerActions {
         binding?.fragmentInboxViewPager?.adapter = adapter
         if (binding?.fragmentInboxViewPager != null && binding?.fragmentInboxTabLayout != null) {
             TabLayoutMediator(
-                binding!!.fragmentInboxTabLayout,
-                binding!!.fragmentInboxViewPager
+                (binding ?: return).fragmentInboxTabLayout,
+                (binding ?: return).fragmentInboxViewPager
             ) { tab, position ->
                 tab.text = getText(
                     when (position) {
@@ -150,9 +146,10 @@ class InboxFragment : Fragment(), LeftDrawerActions {
     }
 
     override fun onRemoveAccountClicked(account: SavedAccount) {
-        val currentAccount = (requireActivity().application as AstroApplication).currentAccount
+        val application = (requireActivity().application as AstroApplication)
+        val currentAccount = application.currentAccount
         if (account.id == currentAccount?.id) {
-            saveAccountToPreferences(requireContext(), null)
+            application.saveAccount(null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
         activityModel.removeAccount(account)
@@ -160,9 +157,10 @@ class InboxFragment : Fragment(), LeftDrawerActions {
 
     @SuppressLint("RtlHardcoded")
     override fun onAccountClicked(account: SavedAccount) {
-        val currentAccount = (requireActivity().application as AstroApplication).currentAccount
+        val application = (requireActivity().application as AstroApplication)
+        val currentAccount = application.currentAccount
         if (account.id != currentAccount?.id) {
-            saveAccountToPreferences(requireContext(), account)
+            application.saveAccount(account)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
         binding?.fragmentInboxDrawer?.closeDrawer(Gravity.LEFT)
@@ -170,9 +168,10 @@ class InboxFragment : Fragment(), LeftDrawerActions {
 
     @SuppressLint("RtlHardcoded")
     override fun onLogoutClicked() {
-        val currentAccount = (requireActivity().application as AstroApplication).currentAccount
+        val application = (requireActivity().application as AstroApplication)
+        val currentAccount = application.currentAccount
         if (currentAccount != null) {
-            saveAccountToPreferences(requireContext(), null)
+            application.saveAccount(null)
             findNavController().navigate(ViewPagerFragmentDirections.actionViewPagerFragmentToSplashFragment())
         }
         binding?.fragmentInboxDrawer?.closeDrawer(Gravity.LEFT)
@@ -188,7 +187,7 @@ class InboxFragment : Fragment(), LeftDrawerActions {
 
     @SuppressLint("RtlHardcoded")
     override fun onMyAccountClicked() {
-        checkIfLoggedInBeforeExecuting(requireContext()){
+        checkIfLoggedInBeforeExecuting(requireContext()) {
             findNavController().navigate(
                 ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(null))
             )

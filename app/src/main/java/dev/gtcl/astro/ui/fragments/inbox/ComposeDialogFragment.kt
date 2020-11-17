@@ -182,7 +182,8 @@ class ComposeDialogFragment : DialogFragment() {
             val subject = binding?.fragmentDialogComposeMessageSubjectText?.text.toString()
             val message = binding?.fragmentDialogComposeMessageMessageText?.text.toString()
             if (to.isNotBlank() || subject.isNotBlank() || message.isNotBlank()) {
-                val bundle = bundleOf(TO_KEY to to, SUBJECT_KEY to subject, MESSAGE_KEY to message)
+                val draft = Draft(to, subject, message)
+                val bundle = bundleOf(DRAFT_KEY to draft)
                 setFragmentResult(DRAFT_KEY, bundle)
             }
         }

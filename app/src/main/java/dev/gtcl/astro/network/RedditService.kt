@@ -6,7 +6,6 @@ import com.squareup.moshi.adapters.PolymorphicJsonAdapterFactory
 import com.squareup.moshi.kotlin.reflect.KotlinJsonAdapterFactory
 import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.*
-import dev.gtcl.astro.models.reddit.AccessToken
 import dev.gtcl.astro.models.reddit.listing.*
 import kotlinx.coroutines.Deferred
 import okhttp3.HttpUrl
@@ -184,6 +183,7 @@ interface RedditApiService {
         @Path("sort") sort: PostSort,
         @Query("t") t: Time?,
         @Query("after") after: String? = null,
+        @Query("count") count: Int,
         @Query("limit") limit: Int
     ): Deferred<ListingResponse>
 
@@ -196,6 +196,7 @@ interface RedditApiService {
         @Path("user") user: String,
         @Path("where") where: ProfileInfo,
         @Query("after") after: String? = null,
+        @Query("count") count: Int,
         @Query("limit") limit: Int
     ): Deferred<ListingResponse>
 
@@ -206,6 +207,7 @@ interface RedditApiService {
         @Path("sort") sort: PostSort,
         @Query("t") t: Time?,
         @Query("after") after: String? = null,
+        @Query("count") count: Int,
         @Query("limit") limit: Int
     ): Deferred<ListingResponse>
 
@@ -216,6 +218,7 @@ interface RedditApiService {
         @Query("sort") sort: PostSort,
         @Query("t") time: Time?,
         @Query("after") after: String? = null,
+        @Query("count") count: Int,
         @Query("limit") limit: Int
     ): Deferred<ListingResponse>
 
@@ -257,6 +260,12 @@ interface RedditApiService {
         @Query("id") id: String,
         @Query("state") state: Boolean
     ): Deferred<Response<Unit>>
+
+    @GET("/api/info")
+    fun getPost(
+        @Header("Authorization") authorization: String?,
+        @Query("id") fullname: String
+    ): Deferred<ListingResponse>
 
 //      _____       _
 //     / ____|     | |
@@ -310,6 +319,15 @@ interface RedditApiService {
         @Path("displayName") displayName: String
     ): Deferred<RulesResponse>
 
+    @GET("/user/{username}/moderated_subreddits.json")
+    fun getModeratedSubs(
+        @Header("Authorization") authorization: String?,
+        @Path("username") username: String
+    ): Deferred<ModeratedList>
+
+    @GET("/api/trending_subreddits.json")
+    fun getTrendingSubredditNames(): Deferred<TrendingSubredditsResponse>
+
 //     __  __       _ _   _        _____          _     _ _ _
 //    |  \/  |     | | | (_)      |  __ \        | |   | (_) |
 //    | \  / |_   _| | |_ _ ______| |__) |___  __| | __| |_| |_ ___
@@ -324,6 +342,13 @@ interface RedditApiService {
         @Query("expand_srs") expandSubs: Boolean = true
     ): Deferred<List<MultiRedditChild>>
 
+    @GET("/api/multi/user/{username}.json")
+    fun getMultiReddits(
+        @Header("Authorization") authorization: String?,
+        @Path("username") username: String,
+        @Query("expand_srs") expandSubs: Boolean = true
+    ): Deferred<List<MultiRedditChild>>
+
     @GET("{multipath}{sort}.json")
     fun getMultiRedditListing(
         @Header("Authorization") authorization: String? = null,
@@ -331,6 +356,7 @@ interface RedditApiService {
         @Path("sort") sort: PostSort,
         @Query("t") t: Time?,
         @Query("after") after: String? = null,
+        @Query("count") count: Int,
         @Query("limit") limit: Int
     ): Deferred<ListingResponse>
 
@@ -364,8 +390,17 @@ interface RedditApiService {
 
     @POST("/api/multi/.json")
     fun createMulti(
-        @Header("Authorization") authorization: String? = null,
+        @Header("Authorization") authorization: String,
         @Query("model", encoded = true) model: MultiRedditUpdate,
+        @Query("expand_srs") expandSubs: Boolean = true
+    ): Deferred<MultiRedditChild>
+
+    @POST("/api/multi/copy.json")
+    fun copyMulti(
+        @Header("Authorization") authorization: String,
+        @Query("from") multiPath: String,
+        @Query("display_name") displayName: String,
+        @Query("description_md") descriptionMd: String?,
         @Query("expand_srs") expandSubs: Boolean = true
     ): Deferred<MultiRedditChild>
 
@@ -500,11 +535,7 @@ interface RedditApiService {
             )
 
         fun create(httpUrl: HttpUrl): RedditApiService {
-            val logger = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
-                override fun log(message: String) {
-                    Timber.tag("API").d(message)
-                }
-            })
+            val logger = HttpLoggingInterceptor { message -> Timber.tag("API").d(message) }
             logger.level = HttpLoggingInterceptor.Level.BASIC
 
             val client = OkHttpClient.Builder()

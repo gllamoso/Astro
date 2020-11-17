@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <import type="dev.gtcl.astro.MediaType"/>
+        <import type="dev.gtcl.astro.url.MediaType"/>
         <import type="android.view.View"/>
         <variable
             name="model"
@@ -66,6 +66,14 @@
             android:layout_gravity="center"
             android:visibility="@{model.isLoading ? View.VISIBLE : View.GONE}"
             android:elevation="10dp"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="200dp"
+            android:layout_height="200dp"
+            android:layout_gravity="center"
+            android:tint="@android:color/darker_gray"
+            android:src="@drawable/ic_broken_image_24"
+            android:visibility="@{model.hasFailed ? View.VISIBLE : View.GONE}"/>
 
     </FrameLayout>
 

@@ -6,6 +6,7 @@
     android:layoutDirection="ltr"
     android:orientation="horizontal"
     tools:targetApi="28"
+    android:background="#80000000"
     android:paddingTop="8dp"
     android:gravity="center">
 

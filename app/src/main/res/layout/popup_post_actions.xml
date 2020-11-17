@@ -52,34 +52,10 @@
                 app:text="@{@string/delete}"/>
 
             <include
-                android:id="@+id/popupPostActions_upvote"
-                layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_upvote_24}"
-                app:text="@{@string/upvote}"/>
-
-            <include
-                android:id="@+id/popupPostActions_downvote"
-                layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_downvote_24}"
-                app:text="@{@string/downvote}"/>
-
-            <include
-                android:id="@+id/popupPostActions_share"
-                layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_share_24}"
-                app:text="@{@string/share}"/>
-
-            <include
                 android:id="@+id/popupPostActions_profile"
                 layout="@layout/item_selectable"
                 app:iconDrawable="@{@drawable/ic_profile_24}"
                 app:text="@{post.author}"/>
-
-            <include
-                android:id="@+id/popupPostActions_save"
-                layout="@layout/item_selectable"
-                app:iconDrawable="@{post.saved ? @drawable/ic_remove_circle_outline_24 : @drawable/ic_bookmark_24}"
-                app:text="@{post.saved ? @string/unsave : @string/save}"/>
 
             <include
                 android:id="@+id/popupPostActions_hide"
@@ -90,8 +66,8 @@
             <include
                 android:id="@+id/popupPostActions_subreddit"
                 layout="@layout/item_selectable"
-                app:iconDrawable="@{@drawable/ic_reddit_circle_24}"
-                app:text="@{post.subreddit}"/>
+                app:iconDrawable="@{@drawable/ic_saturn_simple_24}"
+                app:text="@{post.subredditPrefixed}"/>
 
             <include
                 android:id="@+id/popupPostActions_report"

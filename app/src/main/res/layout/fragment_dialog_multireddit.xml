@@ -5,8 +5,9 @@
 
     <data>
         <variable
-            name="multi"
-            type="dev.gtcl.astro.models.reddit.listing.MultiReddit" />
+            name="model"
+            type="dev.gtcl.astro.ui.fragments.multireddits.MultiRedditCreationVM" />
+        <import type="android.view.View"/>
     </data>
 
     <LinearLayout
@@ -20,68 +21,90 @@
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="?android:attr/colorBackgroundFloating"
-            app:title="@{multi == null ? @string/create_custom_feed : @string/edit_custom_feed}"
+            app:title="@{model.title}"
             app:navigationIcon="@drawable/ic_x_24"
             tools:title="MultiReddit Name"/>
 
-        <com.google.android.material.textfield.TextInputLayout
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:clipToPadding="false"
-            android:hint="@string/custom_feed_name"
-            android:paddingHorizontal="24dp"
-            android:paddingVertical="4dp"
-            app:boxBackgroundColor="@android:color/transparent"
-            app:counterEnabled="true"
-            app:counterMaxLength="50"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+            android:layout_height="wrap_content">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/fragmentDialogMultiReddit_displayNameText"
+            <ProgressBar
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:imeOptions="actionDone"
-                android:maxLength="50"
-                android:maxLines="2" />
+                style="@style/Widget.AppCompat.ProgressBar.Horizontal"
+                android:indeterminate="true"
+                android:elevation="12dp"
+                android:visibility="@{model.loading ? View.VISIBLE : View.GONE}"/>
 
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:background="@android:color/transparent"
-            android:clipToPadding="false"
-            android:paddingHorizontal="24dp"
-            android:paddingVertical="2dp"
-            app:boxBackgroundColor="@android:color/transparent"
-            app:counterEnabled="true"
-            app:counterMaxLength="500"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
-
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/fragmentDialogMultiReddit_descriptionText"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/description_optional"
-                android:imeOptions="actionDone"
-                android:maxLength="500"
-                android:maxLines="10" />
+                android:orientation="vertical">
 
-        </com.google.android.material.textfield.TextInputLayout>
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:clipToPadding="false"
+                    android:hint="@string/custom_feed_name"
+                    android:paddingHorizontal="24dp"
+                    android:paddingVertical="4dp"
+                    app:boxBackgroundColor="@android:color/transparent"
+                    app:counterEnabled="true"
+                    app:counterMaxLength="50"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
 
-        <Spinner
-            android:id="@+id/fragmentDialogMultiReddit_visibilitySpinner"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="16dp"
-            android:popupBackground="?android:attr/colorBackgroundFloating"/>
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/fragmentDialogMultiReddit_displayNameText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:imeOptions="actionDone"
+                        android:maxLength="50"
+                        android:maxLines="2" />
 
-        <include
-            android:id="@+id/fragmentDialogMultiReddit_dialogButtons"
-            layout="@layout/layout_dialog_buttons"
-            app:positiveText="@{@string/done}"
-            app:negativeText="@{@string/cancel}"/>
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@android:color/transparent"
+                    android:clipToPadding="false"
+                    android:paddingHorizontal="24dp"
+                    android:paddingVertical="2dp"
+                    app:boxBackgroundColor="@android:color/transparent"
+                    app:counterEnabled="true"
+                    app:counterMaxLength="500"
+                    style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.Dense">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/fragmentDialogMultiReddit_descriptionText"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/description_optional"
+                        android:imeOptions="actionDone"
+                        android:maxLength="500"
+                        android:maxLines="10" />
+
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <Spinner
+                    android:id="@+id/fragmentDialogMultiReddit_visibilitySpinner"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:visibility="@{!model.isCopying() ? View.VISIBLE : View.GONE}"
+                    android:layout_margin="16dp"
+                    android:popupBackground="?android:attr/colorBackgroundFloating"/>
+
+                <include
+                    android:id="@+id/fragmentDialogMultiReddit_dialogButtons"
+                    layout="@layout/layout_dialog_buttons"
+                    app:positiveText="@{model.isCopying() ? @string/copy_multi : @string/done}"
+                    app:negativeText="@{@string/cancel}"/>
+
+            </LinearLayout>
+
+        </FrameLayout>
 
     </LinearLayout>
 

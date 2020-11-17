@@ -11,18 +11,15 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.RecyclerView
-import dev.gtcl.astro.*
-import dev.gtcl.astro.actions.LinkHandler
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.ViewModelFactory
 import dev.gtcl.astro.actions.NavigationActions
 import dev.gtcl.astro.databinding.FragmentViewpagerBinding
-import dev.gtcl.astro.models.reddit.MediaURL
-import dev.gtcl.astro.models.reddit.listing.Listing
-import dev.gtcl.astro.models.reddit.listing.SubscriptionListing
+import dev.gtcl.astro.models.reddit.listing.PostListing
+import dev.gtcl.astro.models.reddit.listing.ProfileListing
 import dev.gtcl.astro.ui.activities.MainActivityVM
-import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
-import timber.log.Timber
 
-class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
+class ViewPagerFragment : Fragment(), NavigationActions {
 
     private var binding: FragmentViewpagerBinding? = null
 
@@ -85,7 +82,7 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
         binding?.fragmentViewPagerViewPager?.apply {
             adapter = pageAdapter
             isUserInputEnabled = model.isViewPagerSwipeEnabled
-            offscreenPageLimit = 3
+            offscreenPageLimit = 4
             setPageTransformer(SlidePageTransformer())
             (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
         }
@@ -130,20 +127,6 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
                 model.navigateToPreviousPageObserved()
             }
         })
-
-        model.linkClicked.observe(viewLifecycleOwner, {
-            if (it != null) {
-                handleLink(it)
-                model.linkObserved()
-            }
-        })
-
-        model.newPostLink.observe(viewLifecycleOwner, {
-            if (it != null) {
-                activityModel.newViewPagerPage(CommentsPage(it, false))
-                model.newPostObserved()
-            }
-        })
     }
 
 //     _   _             _             _   _                            _   _
@@ -155,13 +138,13 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
 //                          __/ |
 //                         |___/
 
-    override fun listingSelected(listing: Listing) {
-        if (listing is SubscriptionListing && listing.subscription.type == SubscriptionType.USER) {
-            accountSelected(listing.subscription.displayName)
+    override fun listingSelected(postListing: PostListing) {
+        if (postListing is ProfileListing) {
+            accountSelected(postListing.user)
         } else {
             findNavController().navigate(
                 ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
-                    ListingPage(listing)
+                    ListingPage(postListing)
                 )
             )
         }
@@ -196,52 +179,6 @@ class ViewPagerFragment : Fragment(), NavigationActions, LinkHandler {
         model.pages.add(page)
         val currentPage = binding?.fragmentViewPagerViewPager?.currentItem ?: 0
         binding?.fragmentViewPagerViewPager?.setCurrentItem(currentPage + 1, true)
-    }
-
-    override fun handleLink(link: String) {
-        when (link.getUrlType()) {
-            UrlType.IMAGE -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.PICTURE))
-                .show(childFragmentManager, null)
-            UrlType.GIF -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GIF))
-                .show(childFragmentManager, null)
-            UrlType.GIFV -> MediaDialogFragment.newInstance(
-                MediaURL(
-                    link.replaceFirst(".gifv", ".mp4"),
-                    MediaType.VIDEO
-                )
-            ).show(childFragmentManager, null)
-            UrlType.HLS, UrlType.STANDARD_VIDEO -> MediaDialogFragment.newInstance(
-                MediaURL(
-                    link,
-                    MediaType.VIDEO
-                )
-            ).show(childFragmentManager, null)
-            UrlType.GFYCAT -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.GFYCAT))
-                .show(childFragmentManager, null)
-            UrlType.IMGUR_ALBUM -> MediaDialogFragment.newInstance(
-                MediaURL(
-                    link,
-                    MediaType.IMGUR_ALBUM
-                )
-            ).show(childFragmentManager, null)
-            UrlType.REDDIT_THREAD -> activityModel.newViewPagerPage(CommentsPage(link, true))
-            UrlType.REDDIT_COMMENTS -> {
-                val validUrl = (VALID_REDDIT_COMMENTS_URL_REGEX.find(link) ?: return).value
-                activityModel.newViewPagerPage(CommentsPage(validUrl, false))
-            }
-            UrlType.OTHER, UrlType.REDDIT_VIDEO, UrlType.REDDIT_GALLERY -> activityModel.openChromeTab(
-                link
-            )
-            UrlType.IMGUR_IMAGE -> MediaDialogFragment.newInstance(
-                MediaURL(
-                    link,
-                    MediaType.IMGUR_PICTURE
-                )
-            ).show(childFragmentManager, null)
-            UrlType.REDGIFS -> MediaDialogFragment.newInstance(MediaURL(link, MediaType.REDGIFS))
-                .show(childFragmentManager, null)
-            null -> throw IllegalArgumentException("Unable to determine link type: $link")
-        }
     }
 
 }

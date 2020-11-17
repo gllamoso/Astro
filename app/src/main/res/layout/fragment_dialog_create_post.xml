@@ -42,6 +42,7 @@
                 android:id="@+id/fragmentDialogCreatePost_scrollView"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:scrollIndicators="top|bottom"
                 app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
                 <LinearLayout
@@ -177,7 +178,6 @@
                         layout="@layout/layout_crosspost"
                         android:layout_height="wrap_content"
                         android:layout_width="match_parent"
-                        android:layout_margin="8dp"
                         app:post="@{crossPost}"
                         app:moreOptions="@{false}"
                         android:visibility="@{crossPost != null ? View.VISIBLE : View.GONE}"/>

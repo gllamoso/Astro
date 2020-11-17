@@ -1,7 +1,7 @@
 package dev.gtcl.astro.ui.fragments.view_pager
 
 import android.os.Parcelable
-import dev.gtcl.astro.models.reddit.listing.Listing
+import dev.gtcl.astro.models.reddit.listing.PostListing
 import dev.gtcl.astro.models.reddit.listing.Post
 import kotlinx.android.parcel.Parcelize
 
@@ -9,7 +9,7 @@ sealed class ViewPagerPage : Parcelable
 
 @Parcelize
 class ListingPage(
-    val listing: Listing
+    val postListing: PostListing
 ) : ViewPagerPage()
 
 @Parcelize

@@ -1,7 +1,5 @@
 package dev.gtcl.astro.ui.viewholders
 
-import dev.gtcl.astro.databinding.ItemCommentDetailedBinding
-
 import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
@@ -11,38 +9,80 @@ import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.astro.Vote
 import dev.gtcl.astro.actions.CommentActions
 import dev.gtcl.astro.actions.ItemClickListener
+import dev.gtcl.astro.databinding.ItemCommentDetailedBinding
 import dev.gtcl.astro.databinding.PopupCommentActionsBinding
+import dev.gtcl.astro.html.createHtmlViews
 import dev.gtcl.astro.models.reddit.listing.Comment
 import dev.gtcl.astro.showAsDropdown
-import io.noties.markwon.Markwon
+import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
 class CommentDetailedVH private constructor(private val binding: ItemCommentDetailedBinding) :
     RecyclerView.ViewHolder(binding.root) {
 
     fun bind(
         comment: Comment,
-        markwon: Markwon?,
+        movementMethod: BetterLinkMovementMethod,
         commentActions: CommentActions,
         username: String?,
         inInbox: Boolean,
         itemClickListener: ItemClickListener
     ) {
         val isUser = (username != null && comment.author == username)
-        binding.comment = comment
-        binding.isUser = isUser
-        binding.inInbox = inInbox
-        binding.itemCommentDetailedBackground.setOnClickListener {
-            itemClickListener.itemClicked(comment, adapterPosition)
+        binding.apply {
+            this.comment = comment
+            this.isUser = isUser
+            this.inInbox = inInbox
+
+            itemCommentDetailedBackground.apply {
+                setOnClickListener {
+                    itemClickListener.itemClicked(comment, adapterPosition)
+                }
+                setOnLongClickListener {
+                    itemClickListener.itemLongClicked(comment, adapterPosition)
+                    true
+                }
+            }
+
+            itemCommentDetailedBottomPanel.apply {
+                layoutItemBottomPanelUpvoteButton.setOnClickListener {
+                    commentActions.vote(
+                            comment,
+                            if (comment.likes == true) Vote.UNVOTE else Vote.UPVOTE
+                    )
+                    binding.invalidateAll()
+                }
+
+                layoutItemBottomPanelDownvoteButton.setOnClickListener {
+                    commentActions.vote(
+                            comment,
+                            if (comment.likes == false) Vote.UNVOTE else Vote.DOWNVOTE
+                    )
+                    binding.invalidateAll()
+                }
+
+                layoutItemBottomPanelSaveButton.setOnClickListener {
+                    commentActions.save(comment)
+                    binding.invalidateAll()
+                }
+
+                layoutItemBottomPanelReplyButton.setOnClickListener {
+                    commentActions.reply(comment, adapterPosition)
+                }
+
+                layoutItemBottomPanelMoreOptions.setOnClickListener {
+                    showPopupWindow(comment, commentActions, isUser, inInbox, it)
+                }
+            }
+
+            itemCommentDetailedBodyMessageLayout.createHtmlViews(
+                    comment.parseBody(),
+                    null,
+                    movementMethod
+            )
+
+            executePendingBindings()
         }
-        binding.itemCommentDetailedMoreOptions.setOnClickListener {
-            showPopupWindow(comment, commentActions, isUser, inInbox, it)
-        }
-        if (markwon != null) {
-            markwon.setMarkdown(binding.itemCommentDetailedBodyMessage, comment.body)
-        } else {
-            binding.itemCommentDetailedBodyMessage.text = comment.bodyFormatted
-        }
-        binding.executePendingBindings()
+
     }
 
     private fun showPopupWindow(
@@ -70,29 +110,8 @@ class CommentDetailedVH private constructor(private val binding: ItemCommentDeta
                     popupWindow.dismiss()
                 }
             }
-            popupCommentActionsUpvote.root.setOnClickListener {
-                commentActions.vote(
-                    comment,
-                    if (comment.likes == true) Vote.UNVOTE else Vote.UPVOTE
-                )
-                binding.invalidateAll()
-                popupWindow.dismiss()
-            }
-            popupCommentActionsDownvote.root.setOnClickListener {
-                commentActions.vote(
-                    comment,
-                    if (comment.likes == false) Vote.UNVOTE else Vote.DOWNVOTE
-                )
-                binding.invalidateAll()
-                popupWindow.dismiss()
-            }
-            popupCommentActionsReply.root.setOnClickListener {
-                commentActions.reply(comment, adapterPosition)
-                popupWindow.dismiss()
-            }
-            popupCommentActionsSave.root.setOnClickListener {
-                commentActions.save(comment)
-                binding.invalidateAll()
+            popupCommentActionsShare.root.setOnClickListener {
+                commentActions.share(comment)
                 popupWindow.dismiss()
             }
             if (inInbox) {
@@ -110,10 +129,6 @@ class CommentDetailedVH private constructor(private val binding: ItemCommentDeta
             }
             popupCommentActionsProfile.root.setOnClickListener {
                 commentActions.viewProfile(comment)
-                popupWindow.dismiss()
-            }
-            popupCommentActionsShare.root.setOnClickListener {
-                commentActions.share(comment)
                 popupWindow.dismiss()
             }
             popupCommentActionsReport.root.setOnClickListener {

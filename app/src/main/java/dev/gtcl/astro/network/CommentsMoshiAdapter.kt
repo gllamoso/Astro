@@ -4,9 +4,8 @@ import com.squareup.moshi.FromJson
 import com.squareup.moshi.JsonReader
 import com.squareup.moshi.ToJson
 import dev.gtcl.astro.models.reddit.listing.*
-import java.lang.RuntimeException
 import java.util.*
-import kotlin.collections.HashMap
+import kotlin.collections.LinkedHashMap
 
 data class CommentPage(
     val post: Post,
@@ -86,6 +85,7 @@ class CommentsMoshiAdapter {
         var likes: Boolean? = null
         var permalink: String? = null
         var selftext: String? = null
+        var selftextHtml: String? = null
         var isSelf: Boolean? = null
         var upvoteRatio: Double? = null
         var secureMedia: SecureMedia? = null
@@ -100,12 +100,18 @@ class CommentsMoshiAdapter {
         var linkFlairTemplateId: String? = null
         var crossPostParentList: MutableList<Post>? = null
         var crosspostable: Boolean? = null
-        var gildings: Gildings? = null
+        var totalAwards: Int? = null
+        var awards: List<Award>? = null
         var sendReplies: Boolean? = null
         var canModPost: Boolean? = null
         var stickied: Boolean? = null
         var pinned: Boolean? = null
         var locked: Boolean? = null
+        var removedBy: String? = null
+        var flairRichtext: List<FlairRichtext>? = null
+        var flairColor: String? = null
+        var flairTextColor: String? = null
+
         while (jsonReader.hasNext()) {
             when (jsonReader.nextName()) {
                 "name" -> {
@@ -160,6 +166,13 @@ class CommentsMoshiAdapter {
                 "selftext" -> {
                     selftext = jsonReader.nextString()
                 }
+                "selftext_html" -> {
+                    if (jsonReader.peek() != JsonReader.Token.NULL) {
+                        selftextHtml = jsonReader.nextString()
+                    } else {
+                        jsonReader.skipValue()
+                    }
+                }
                 "is_self" -> {
                     isSelf = jsonReader.nextBoolean()
                 }
@@ -181,10 +194,18 @@ class CommentsMoshiAdapter {
                     }
                 }
                 "media_metadata" -> {
-                    mediaMetaData = getMediaMetadata(jsonReader)
+                    if (jsonReader.peek() != JsonReader.Token.NULL) {
+                        mediaMetaData = getMediaMetadata(jsonReader)
+                    } else {
+                        jsonReader.skipValue()
+                    }
                 }
                 "gallery_data" -> {
-                    galleryData = getGalleryData(jsonReader)
+                    if (jsonReader.peek() != JsonReader.Token.NULL) {
+                        galleryData = getGalleryData(jsonReader)
+                    } else {
+                        jsonReader.skipValue()
+                    }
                 }
                 "preview" -> {
                     preview = getPreview(jsonReader)
@@ -219,12 +240,17 @@ class CommentsMoshiAdapter {
                 "is_crosspostable" -> {
                     crosspostable = jsonReader.nextBoolean()
                 }
-                "gildings" -> {
-                    if (jsonReader.peek() != JsonReader.Token.NULL) {
-                        gildings = getGildings(jsonReader)
-                    } else {
-                        jsonReader.skipValue()
+                "total_awards_received" -> {
+                    totalAwards = jsonReader.nextInt()
+                }
+                "all_awardings" -> {
+                    val mutableAwards = mutableListOf<Award>()
+                    jsonReader.beginArray()
+                    while(jsonReader.hasNext()){
+                        mutableAwards.add(getAward(jsonReader))
                     }
+                    jsonReader.endArray()
+                    awards = mutableAwards.toList()
                 }
                 "send_replies" -> {
                     sendReplies = jsonReader.nextBoolean()
@@ -240,6 +266,35 @@ class CommentsMoshiAdapter {
                 }
                 "locked" -> {
                     locked = jsonReader.nextBoolean()
+                }
+                "removed_by_category" -> {
+                    if (jsonReader.peek() != JsonReader.Token.NULL) {
+                        removedBy = jsonReader.nextString()
+                    } else {
+                        jsonReader.skipValue()
+                    }
+                }
+                "link_flair_richtext" ->  {
+                    jsonReader.beginArray()
+                    flairRichtext = mutableListOf()
+                    while (jsonReader.hasNext()) {
+                        flairRichtext.add(getFlairRichtext(jsonReader))
+                    }
+                    jsonReader.endArray()
+                }
+                "link_flair_background_color" -> {
+                    if (jsonReader.peek() != JsonReader.Token.NULL) {
+                        flairColor = jsonReader.nextString()
+                    } else {
+                        jsonReader.skipValue()
+                    }
+                }
+                "link_flair_text_color" -> {
+                    if (jsonReader.peek() != JsonReader.Token.NULL) {
+                        flairTextColor = jsonReader.nextString()
+                    } else {
+                        jsonReader.skipValue()
+                    }
                 }
                 else -> {
                     jsonReader.skipValue()
@@ -265,6 +320,7 @@ class CommentsMoshiAdapter {
             hidden = hidden!!,
             permalink = permalink!!,
             selftext = selftext!!,
+            selftextHtml = selftextHtml,
             isSelf = isSelf!!,
             upvoteRatio = upvoteRatio,
             secureMedia = secureMedia,
@@ -279,12 +335,17 @@ class CommentsMoshiAdapter {
             linkFlairTemplateId = linkFlairTemplateId,
             crosspostParentList = crossPostParentList,
             isCrosspostable = crosspostable!!,
-            gildings = gildings,
+            totalAwards = totalAwards!!,
+            awards = awards!!,
             sendReplies = sendReplies!!,
             canModPost = canModPost!!,
             stickied = stickied!!,
             pinned = pinned!!,
-            locked = locked!!
+            locked = locked!!,
+            removedBy = removedBy,
+            flairRichtext = flairRichtext,
+            flairColor = flairColor,
+            flairTextColor = flairTextColor
         )
     }
 
@@ -338,71 +399,187 @@ class CommentsMoshiAdapter {
 
     private fun getPreview(jsonReader: JsonReader): Preview {
         var videoPreview: RedditVideo? = null
+        var images: List<PreviewImages>? = null
         jsonReader.beginObject()
         while (jsonReader.hasNext()) {
-            if (jsonReader.nextName() == "reddit_video_preview") {
-                jsonReader.beginObject()
-                while (jsonReader.hasNext()) {
-                    if (jsonReader.nextName() == "hls_url") {
-                        val hlsUrl = jsonReader.nextString()
-                        videoPreview = RedditVideo(hlsUrl)
-                    } else {
-                        jsonReader.skipValue()
+            when(jsonReader.nextName()){
+                "reddit_video_preview" -> {
+                    jsonReader.beginObject()
+                    while (jsonReader.hasNext()) {
+                        if (jsonReader.nextName() == "hls_url") {
+                            val hlsUrl = jsonReader.nextString()
+                            videoPreview = RedditVideo(hlsUrl)
+                        } else {
+                            jsonReader.skipValue()
+                        }
                     }
+                    jsonReader.endObject()
                 }
-                jsonReader.endObject()
-            } else {
-                jsonReader.skipValue()
+                "images" -> {
+                    val parsedImages = mutableListOf<PreviewImages>()
+                    jsonReader.beginArray()
+                    while(jsonReader.hasNext()){
+                        parsedImages.add(getPreviewImages(jsonReader))
+                    }
+                    jsonReader.endArray()
+                    images = parsedImages.toList()
+                }
+                else -> jsonReader.skipValue()
             }
         }
         jsonReader.endObject()
-
-        return Preview(videoPreview)
+        return Preview(images!!, videoPreview)
     }
 
-    private fun getGildings(jsonReader: JsonReader): Gildings {
-        var silver: Int? = null
-        var gold: Int? = null
-        var platinum: Int? = null
-
+    private fun getPreviewImages(jsonReader: JsonReader): PreviewImages {
+        var source: PreviewImage? = null
+        var resolutions: List<PreviewImage>? = null
+        var variants: ImageVariant? = null
         jsonReader.beginObject()
-        while (jsonReader.hasNext()) {
-            when (jsonReader.nextName()) {
-                "gid_1" -> {
-                    silver = jsonReader.nextInt()
+        while(jsonReader.hasNext()){
+            when(jsonReader.nextName()){
+                "source" -> source = getPreviewImage(jsonReader)
+                "resolutions" -> {
+                    jsonReader.beginArray()
+                    val previewImages = mutableListOf<PreviewImage>()
+                    while(jsonReader.hasNext()){
+                        previewImages.add(getPreviewImage(jsonReader))
+                    }
+                    jsonReader.endArray()
+                    resolutions = previewImages.toList()
                 }
-                "gid_2" -> {
-                    gold = jsonReader.nextInt()
-                }
-                "gid_3" -> {
-                    platinum = jsonReader.nextInt()
-                }
+                "variants" -> variants = getImageVariant(jsonReader)
+                else -> jsonReader.skipValue()
+            }
+        }
+        jsonReader.endObject()
+        return PreviewImages(source!!, resolutions!!, variants)
+    }
+
+    private fun getImageVariant(jsonReader: JsonReader): ImageVariant {
+        var nsfw: PreviewImages? = null
+        jsonReader.beginObject()
+
+        while(jsonReader.hasNext()){
+            when(jsonReader.nextName()){
+                "nsfw" -> nsfw = getPreviewImages(jsonReader)
+                else -> jsonReader.skipValue()
             }
         }
         jsonReader.endObject()
 
-        return Gildings(silver, gold, platinum)
+        return ImageVariant(nsfw)
+    }
+
+    private fun getPreviewImage(jsonReader: JsonReader): PreviewImage {
+        var url: String? = null
+        var width: Int? = null
+        var height: Int? = null
+        jsonReader.beginObject()
+        while(jsonReader.hasNext()){
+            when(jsonReader.nextName()){
+                "url" -> url = jsonReader.nextString()
+                "width" -> width = jsonReader.nextInt()
+                "height" -> height = jsonReader.nextInt()
+                else -> jsonReader.skipValue()
+            }
+        }
+        jsonReader.endObject()
+
+        return PreviewImage(url!!, width!!, height!!)
+    }
+
+    private fun getAward(jsonReader: JsonReader): Award {
+        var count: Int? = null
+        var icons: List<AwardIcon>? = null
+        jsonReader.beginObject()
+
+        while(jsonReader.hasNext()){
+            when(jsonReader.nextName()){
+                "count" -> count = jsonReader.nextInt()
+                "resized_static_icons" -> {
+                    val mutableIcons = mutableListOf<AwardIcon>()
+                    jsonReader.beginArray()
+                    while(jsonReader.hasNext()){
+                        mutableIcons.add(getAwardIcon(jsonReader))
+                    }
+                    jsonReader.endArray()
+                    icons = mutableIcons.toList()
+                }
+                else -> jsonReader.skipValue()
+            }
+        }
+
+        jsonReader.endObject()
+        return Award(count!!, icons!!)
+    }
+
+    private fun getAwardIcon(jsonReader: JsonReader): AwardIcon {
+        var url: String? = null
+        jsonReader.beginObject()
+
+        while(jsonReader.hasNext()){
+            when(jsonReader.nextName()){
+                "url" -> url = jsonReader.nextString()
+                else -> jsonReader.skipValue()
+            }
+        }
+        jsonReader.endObject()
+
+        return AwardIcon(url!!)
     }
 
     private fun getMediaMetadata(jsonReader: JsonReader): Map<String, MediaMetadata> {
-        val map = HashMap<String, MediaMetadata>()
+        val map = LinkedHashMap<String, MediaMetadata>()
         jsonReader.beginObject()
         while (jsonReader.hasNext()) {
             val id = jsonReader.nextName()
             var mimeType: String? = null
+            var previews: List<GalleryPreview>? = null
             jsonReader.beginObject()
             while (jsonReader.hasNext()) {
-                if (jsonReader.nextName() == "m") {
-                    mimeType = jsonReader.nextString()
-                } else {
-                    jsonReader.skipValue()
+                when(jsonReader.nextName()){
+                    "m" -> {
+                        mimeType = jsonReader.nextString()
+                    }
+                    "p" -> {
+                        jsonReader.beginArray()
+                        val mutablePreviews = mutableListOf<GalleryPreview>()
+                        while(jsonReader.hasNext()){
+                            mutablePreviews.add(getGalleryPreview(jsonReader))
+                        }
+                        jsonReader.endArray()
+                        previews = mutablePreviews.toList()
+                    }
+                    else -> jsonReader.skipValue()
                 }
             }
             jsonReader.endObject()
-            map[id] = MediaMetadata(id, mimeType)
+            map[id] = MediaMetadata(id, mimeType, previews)
         }
         jsonReader.endObject()
         return map
+    }
+
+    private fun getGalleryPreview(jsonReader: JsonReader): GalleryPreview {
+        var url: String? = null
+
+        jsonReader.beginObject()
+        while(jsonReader.hasNext()){
+            when(jsonReader.nextName()){
+                "u" -> {
+                    if (jsonReader.peek() != JsonReader.Token.NULL) {
+                        url = jsonReader.nextString()
+                    } else {
+                        jsonReader.skipValue()
+                    }
+                }
+                else -> jsonReader.skipValue()
+            }
+        }
+        jsonReader.endObject()
+
+        return GalleryPreview(url)
     }
 
     private fun getGalleryData(jsonReader: JsonReader): GalleryData {
@@ -510,7 +687,8 @@ class CommentsMoshiAdapter {
         var likes: Boolean? = null
         var replies: List<Item>? = null
         var authorFlairText: String? = null
-        var gildings: Gildings? = null
+        var totalAwards: Int? = null
+        var awards: List<Award>? = null
         var permalink: String? = null
         var linkPermalink: String? = null
         var parentId: String? = null
@@ -522,7 +700,7 @@ class CommentsMoshiAdapter {
         var isSubmitter: Boolean? = null
         var locked: Boolean? = null
         var stickied: Boolean? = null
-        val authorFlairRichtext = mutableListOf<AuthorFlairRichtext>()
+        val authorFlairRichtext = mutableListOf<FlairRichtext>()
 
         while (jsonReader.hasNext()) {
             when (jsonReader.nextName()) {
@@ -581,16 +759,21 @@ class CommentsMoshiAdapter {
                 "author_flair_richtext" -> {
                     jsonReader.beginArray()
                     while (jsonReader.hasNext()) {
-                        authorFlairRichtext.add(getAuthorFlairRichtext(jsonReader))
+                        authorFlairRichtext.add(getFlairRichtext(jsonReader))
                     }
                     jsonReader.endArray()
                 }
-                "gildings" -> {
-                    if (jsonReader.peek() != JsonReader.Token.NULL) {
-                        gildings = getGildings(jsonReader)
-                    } else {
-                        jsonReader.skipValue()
+                "total_awards_received" -> {
+                    totalAwards = jsonReader.nextInt()
+                }
+                "all_awardings" -> {
+                    val mutableAwards = mutableListOf<Award>()
+                    jsonReader.beginArray()
+                    while(jsonReader.hasNext()){
+                        mutableAwards.add(getAward(jsonReader))
                     }
+                    jsonReader.endArray()
+                    awards = mutableAwards.toList()
                 }
                 "permalink" -> {
                     permalink = jsonReader.nextString()
@@ -637,29 +820,30 @@ class CommentsMoshiAdapter {
         jsonReader.endObject()
 
         val comment = Comment(
-            name = name!!,
+            name = name ?: return,
             id = id ?: name.replace("t1_", ""),
             depth = depth,
-            author = author!!,
+            author = author ?: return,
             authorFullName = authorFullName,
             authorCakeday = authorCakeday,
-            body = body!!,
-            bodyHtml = bodyHtml!!,
-            score = score!!,
+            body = body ?: return,
+            bodyHtml = bodyHtml ?: return,
+            score = score ?: return,
             scoreHidden = scoreHidden,
-            created = created!!,
+            created = created ?: return,
             new = new,
             saved = saved,
             likes = likes,
             authorFlairText = authorFlairText,
-            authorFlairRichtext = authorFlairRichtext,
-            gildings = gildings,
-            permalink = permalink!!,
+            flairRichtext = authorFlairRichtext,
+            totalAwards = totalAwards,
+            awards = awards,
+            permalink = permalink ?: return,
             linkPermalink = linkPermalink,
             context = context,
             parentId = parentId,
-            subreddit = subreddit!!,
-            subredditPrefixed = subredditPrefixed!!,
+            subreddit = subreddit ?: return,
+            subredditPrefixed = subredditPrefixed ?: return,
             linkTitle = linkTitle,
             isSubmitter = isSubmitter,
             locked = locked,
@@ -716,7 +900,7 @@ class CommentsMoshiAdapter {
         )
     }
 
-    private fun getAuthorFlairRichtext(jsonReader: JsonReader): AuthorFlairRichtext {
+    private fun getFlairRichtext(jsonReader: JsonReader): FlairRichtext {
         jsonReader.beginObject()
         var tag: String? = null
         var type: String? = null
@@ -734,7 +918,7 @@ class CommentsMoshiAdapter {
         }
 
         jsonReader.endObject()
-        return AuthorFlairRichtext(tag, type!!, text, url)
+        return FlairRichtext(tag, type!!, text, url)
     }
 
 }

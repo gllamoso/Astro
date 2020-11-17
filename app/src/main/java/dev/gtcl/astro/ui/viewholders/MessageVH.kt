@@ -10,28 +10,26 @@ import dev.gtcl.astro.actions.ItemClickListener
 import dev.gtcl.astro.actions.MessageActions
 import dev.gtcl.astro.databinding.ItemMessageBinding
 import dev.gtcl.astro.databinding.PopupMessageActionsBinding
+import dev.gtcl.astro.html.createHtmlViews
 import dev.gtcl.astro.models.reddit.listing.Message
 import dev.gtcl.astro.showAsDropdown
-import io.noties.markwon.Markwon
+import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
 class MessageVH private constructor(private val binding: ItemMessageBinding) :
     RecyclerView.ViewHolder(binding.root) {
     fun bind(
         message: Message,
-        markwon: Markwon?,
+        movementMethod: BetterLinkMovementMethod,
         messageActions: MessageActions,
         username: String?,
         itemClickListener: ItemClickListener
     ) {
         binding.message = message
+        binding.isUser = (username != null && message.author == username)
         binding.root.setOnClickListener {
             itemClickListener.itemClicked(message, adapterPosition)
         }
-        if (markwon != null) {
-            markwon.setMarkdown(binding.itemMessageBody, message.body)
-        } else {
-            binding.itemMessageBody.text = message.bodyFormatted
-        }
+        binding.itemMessageBodyLayout.createHtmlViews(message.parseBody(), null, movementMethod)
 
         binding.itemMessageMoreOptions.setOnClickListener {
             showPopupWindow(message, messageActions, username == message.author, it)

@@ -1,6 +1,5 @@
 package dev.gtcl.astro.ui.fragments.splash
 
-import android.content.Context
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -9,9 +8,8 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import com.google.gson.Gson
-import dev.gtcl.astro.*
-import dev.gtcl.astro.database.SavedAccount
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.ViewModelFactory
 import dev.gtcl.astro.databinding.FragmentSplashBinding
 import dev.gtcl.astro.models.reddit.listing.FrontPage
 import dev.gtcl.astro.ui.activities.MainActivityVM
@@ -27,6 +25,10 @@ class SplashFragment : Fragment() {
     }
 
     private val activityModel: MainActivityVM by activityViewModels()
+
+    private val application by lazy {
+        requireActivity().application as AstroApplication
+    }
 
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -45,7 +47,7 @@ class SplashFragment : Fragment() {
                         ListingPage(FrontPage)
                     )
                 )
-                model.readyComplete()
+                model.readyObserved()
                 activityModel.syncSubscriptionsWithReddit()
             }
         })
@@ -64,10 +66,7 @@ class SplashFragment : Fragment() {
     }
 
     private fun setUserFromSharedPreferences() {
-        val sharedPref =
-            requireActivity().getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
-        val userString = sharedPref.getString(CURRENT_USER_KEY, null)
-        val account = Gson().fromJson(userString, SavedAccount::class.java)
-        model.setCurrentUser(account, false)
+        val account = application.getSavedAccount()
+        model.setCurrentUser(account)
     }
 }

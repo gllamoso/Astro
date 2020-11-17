@@ -7,17 +7,21 @@ import android.view.ViewGroup
 import android.widget.Toast
 import androidx.core.os.bundleOf
 import androidx.fragment.app.DialogFragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
-import dev.gtcl.astro.*
+import androidx.navigation.fragment.findNavController
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.SUBREDDIT_KEY
+import dev.gtcl.astro.ViewModelFactory
+import dev.gtcl.astro.createBetterLinkMovementInstance
 import dev.gtcl.astro.databinding.FragmentDialogRulesBinding
 import dev.gtcl.astro.databinding.ItemRuleBinding
-import io.noties.markwon.Markwon
+import dev.gtcl.astro.html.createHtmlViews
+import dev.gtcl.astro.ui.activities.MainActivityVM
 
 class RulesDialogFragment : DialogFragment() {
 
-    private val markwon: Markwon by lazy {
-        createMarkwonInstance(requireContext()) {}
-    }
+    private val activityModel: MainActivityVM by activityViewModels()
 
     private val model: RulesVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
@@ -25,6 +29,10 @@ class RulesDialogFragment : DialogFragment() {
     }
 
     private var binding: FragmentDialogRulesBinding? = null
+
+    private val movementMethod by lazy {
+        createBetterLinkMovementInstance(requireContext(), findNavController(), parentFragmentManager, activityModel)
+    }
 
     override fun onStart() {
         super.onStart()
@@ -45,7 +53,7 @@ class RulesDialogFragment : DialogFragment() {
         binding?.lifecycleOwner = this
 
         if (model.rules.value == null) {
-            val displayName = requireArguments().getString(SUBREDDIT_KEY)!!
+            val displayName = requireArguments().getString(SUBREDDIT_KEY) ?: return null
             model.fetchRules(displayName)
         }
 
@@ -56,7 +64,11 @@ class RulesDialogFragment : DialogFragment() {
                     val ruleBinding = ItemRuleBinding.inflate(LayoutInflater.from(requireContext()))
                     ruleBinding.apply {
                         this.rule = rule
-                        itemRuleDescription.text = markwon.toMarkdown(rule.description)
+                        itemRuleDescriptionLayout.createHtmlViews(
+                            rule.parseDescription(),
+                            null,
+                            movementMethod
+                        )
                         ruleBinding.invalidateAll()
                     }
                     binding?.fragmentDialogRulesLinearLayout?.addView(ruleBinding.root)

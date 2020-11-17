@@ -2,12 +2,8 @@ package dev.gtcl.astro.ui.fragments.item_scroller
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.preference.PreferenceManager
 import dev.gtcl.astro.*
-import dev.gtcl.astro.models.reddit.listing.Item
-import dev.gtcl.astro.models.reddit.listing.Listing
-import dev.gtcl.astro.models.reddit.listing.Post
-import dev.gtcl.astro.models.reddit.listing.SearchListing
+import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -16,7 +12,7 @@ import timber.log.Timber
 
 open class ItemScrollerVM(private val application: AstroApplication) : AstroViewModel(application) {
 
-    private val pageSize = 15
+    private val pageSize = 25
 
     private val _networkState = MutableLiveData<NetworkState>()
     val networkState: LiveData<NetworkState>
@@ -32,10 +28,6 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
 
     private val readItemIds = HashSet<String>()
     private var after: String? = null
-
-    private var _user: String? = null
-    val user: String?
-        get() = _user
 
     private val _postSort = MutableLiveData<PostSort>()
     val postSort: LiveData<PostSort>
@@ -55,18 +47,20 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
 
     private lateinit var lastAction: () -> Unit
 
-    private var _showNsfw: Boolean = false
+    protected var _showNsfw: Boolean = false
     val showNsfw: Boolean
         get() = _showNsfw
 
     private val currentItemIds = HashSet<String>()
 
-    var listing: Listing? = null
+    var postListing: PostListing? = null
     private var subredditWhere: SubredditWhere? = null
     private var messageWhere: MessageWhere? = null
 
-    init {
-        val sharedPref = PreferenceManager.getDefaultSharedPreferences(application)
+    private var count = 0
+
+    private fun loadDefaultSorting(listing: PostListing) {
+        val sharedPref = application.sharedPref
         _showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
         val defaultSort =
             sharedPref.getString(DEFAULT_POST_SORT_KEY, application.getString(R.string.order_hot))
@@ -151,10 +145,11 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
         lastAction()
     }
 
-    open fun setListingInfo(
-        listing: Listing
-    ) {
-        this.listing = listing
+    open fun setListingInfo(postListing: PostListing, loadDefaultSorting: Boolean) {
+        this.postListing = postListing
+        if (loadDefaultSorting) {
+            loadDefaultSorting(postListing)
+        }
     }
 
     fun setListingSort(
@@ -177,15 +172,11 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
         _showNsfw = showNsfw
     }
 
-    fun setUser(user: String?){
-        _user = user
-    }
-
     fun addReadItem(item: Item) {
         readItemIds.add(item.name)
         coroutineScope.launch {
             try {
-                listingRepository.addReadItem(item)
+                miscRepository.addReadItem(item)
             } catch (e: Exception) {
                 Timber.tag(this@ItemScrollerVM.javaClass.simpleName).e(e.toString())
                 _errorMessage.postValue(e.toString())
@@ -202,22 +193,24 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                     _lastItemReached.postValue(false)
                     _networkState.postValue(NetworkState.LOADING)
                     after = null
+                    count = 0
 
                     val firstPageItems = mutableListOf<Item>()
-                    var emptyItemsCount = 0
-                    while (firstPageItems.size < firstPageSize && emptyItemsCount < 3) {
+                    var attempts = 0
+                    val maxAttempts = 3
+                    while (firstPageItems.size < firstPageSize && attempts < maxAttempts) {
                         val retrieveSize =
                             if (firstPageItems.size > (firstPageSize * 2 / 3)) pageSize else firstPageSize
                         val response = when {
-                            listing != null -> listingRepository.getListing(
-                                listing ?: return@withContext,
+                            postListing != null -> listingRepository.getPostListing(
+                                postListing ?: return@withContext,
                                 postSort.value ?: return@withContext,
                                 time.value,
                                 after,
                                 retrieveSize,
-                                user
+                                count
                             ).await()
-                            subredditWhere != null -> subredditRepository.getSubredditsListing(
+                            subredditWhere != null -> listingRepository.getSubredditsListing(
                                 subredditWhere ?: return@withContext,
                                 after,
                                 retrieveSize
@@ -230,6 +223,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                             else -> throw IllegalStateException("Not enough info to load listing")
                         }
                         after = response.data.after
+                        count += response.data.children.size
 
                         if (response.data.children.isNullOrEmpty()) {
                             _lastItemReached.postValue(true)
@@ -238,7 +232,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                             val items = response.data.children.map { it.data }
                                 .filterNot { !(showNsfw) && it is Post && it.nsfw }.toMutableList()
                             if (items.isNullOrEmpty()) {
-                                emptyItemsCount++
+                                attempts++
                             } else {
                                 firstPageItems.addAll(items)
                             }
@@ -250,12 +244,14 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                         }
                     }
 
-                    if (emptyItemsCount >= 3) { // Show no items if there are 3 results of empty items
+                    if (attempts >= maxAttempts && firstPageItems.isEmpty()) { // Show no items if there are 3 results of empty items
                         _lastItemReached.postValue(true)
-                        _items.postValue(mutableListOf())
+                        firstPageItems.parseAllText()
+                        _items.postValue(firstPageItems)
                     } else {
-                        listingRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
+                        miscRepository.getReadPosts().map { it.name }.toCollection(readItemIds)
                         setItemsReadStatus(firstPageItems, readItemIds)
+                        firstPageItems.parseAllText()
                         _items.postValue(firstPageItems)
                     }
 
@@ -265,8 +261,10 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                     _initialPageLoaded = true
                 }
             } catch (e: Exception) {
+                Timber.tag(this@ItemScrollerVM.javaClass.simpleName).e(e)
                 lastAction = ::fetchFirstPage
                 after = null
+                count = 0
                 _networkState.postValue(NetworkState.error(e.getErrorMessage(application)))
             }
         }
@@ -278,22 +276,24 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
         }
         coroutineScope.launch {
             val previousAfter = after
+            val previousCount = count
             try {
                 withContext(Dispatchers.IO) {
                     _networkState.postValue(NetworkState.LOADING)
                     val moreItems = mutableListOf<Item>()
-                    var emptyItemsCount = 0
-                    while (moreItems.size < this@ItemScrollerVM.pageSize && emptyItemsCount < 3) {
+                    var attempts = 0
+                    val maxAttempts = 3
+                    while (moreItems.size < this@ItemScrollerVM.pageSize && attempts < maxAttempts) {
                         val response = when {
-                            listing != null -> listingRepository.getListing(
-                                listing ?: return@withContext,
+                            postListing != null -> listingRepository.getPostListing(
+                                postListing ?: return@withContext,
                                 postSort.value ?: return@withContext,
                                 time.value,
                                 after,
                                 this@ItemScrollerVM.pageSize,
-                                user
+                                count
                             ).await()
-                            subredditWhere != null -> subredditRepository.getSubredditsListing(
+                            subredditWhere != null -> listingRepository.getSubredditsListing(
                                 subredditWhere ?: return@withContext,
                                 after,
                                 this@ItemScrollerVM.pageSize
@@ -307,6 +307,7 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                         }
 
                         after = response.data.after
+                        count += response.data.children.size
 
                         if (response.data.children.isNullOrEmpty()) {
                             _lastItemReached.postValue(true)
@@ -316,31 +317,38 @@ open class ItemScrollerVM(private val application: AstroApplication) : AstroView
                                 .filterNot { currentItemIds.contains(it.name) || !(showNsfw) && it is Post && it.nsfw }
                                 .toMutableList()
                             if (items.isNullOrEmpty()) {
-                                emptyItemsCount++
+                                attempts++
                             } else {
                                 moreItems.addAll(items)
+                                currentItemIds.addAll(items.map { it.name })
                             }
 
                             if (after == null) {
-                                _lastItemReached.postValue(true)
-                                break
+                                if (items.isEmpty()) {
+                                    _lastItemReached.postValue(true)
+                                    break
+                                } else {
+                                    val lastIndex = response.data.children.lastIndex
+                                    after = response.data.children[lastIndex].data.name
+                                }
                             }
                         }
                     }
 
-                    if (emptyItemsCount >= 3) {
+                    if (attempts >= maxAttempts && moreItems.isEmpty()) {
                         _lastItemReached.postValue(true)
                     }
 
                     setItemsReadStatus(moreItems, readItemIds)
+                    moreItems.parseAllText()
                     _moreItems.postValue(moreItems)
                     _items.value?.addAll(moreItems)
-                    currentItemIds.addAll(moreItems.map { it.name })
                     _networkState.postValue(NetworkState.LOADED)
                 }
             } catch (e: Exception) {
-                Timber.tag(this@ItemScrollerVM.javaClass.simpleName).e(e.toString())
+                Timber.tag(this@ItemScrollerVM.javaClass.simpleName).e(e)
                 after = previousAfter
+                count = previousCount
                 lastAction = ::loadMore
                 _networkState.postValue(NetworkState.error(e.getErrorMessage(application)))
             }

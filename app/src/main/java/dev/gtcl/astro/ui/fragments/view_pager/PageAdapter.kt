@@ -2,18 +2,14 @@ package dev.gtcl.astro.ui.fragments.view_pager
 
 import android.os.Handler
 import android.os.Looper
-import android.os.Parcelable
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.Lifecycle
 import androidx.viewpager2.adapter.FragmentStateAdapter
-import dev.gtcl.astro.models.reddit.listing.Listing
-import dev.gtcl.astro.models.reddit.listing.Post
 import dev.gtcl.astro.ui.fragments.account.AccountFragment
 import dev.gtcl.astro.ui.fragments.comments.CommentsFragment
 import dev.gtcl.astro.ui.fragments.inbox.InboxFragment
-import dev.gtcl.astro.ui.fragments.listing.ListingFragment
-import kotlinx.android.parcel.Parcelize
+import dev.gtcl.astro.ui.fragments.post_listing.PostListingFragment
 
 class PageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
     FragmentStateAdapter(fragmentManager, lifecycle) {
@@ -25,7 +21,7 @@ class PageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
 
     fun addPage(page: ViewPagerPage) {
         val fragment = when (page) {
-            is ListingPage -> ListingFragment.newInstance(page.listing)
+            is ListingPage -> PostListingFragment.newInstance(page.postListing)
             is AccountPage -> AccountFragment.newInstance(page.user)
             is PostPage -> CommentsFragment.newInstance(page)
             is CommentsPage -> CommentsFragment.newInstance(
@@ -52,7 +48,7 @@ class PageAdapter(fragmentManager: FragmentManager, lifecycle: Lifecycle) :
     fun addPages(pages: List<ViewPagerPage>) {
         pageStack.addAll(pages.map {
             when (it) {
-                is ListingPage -> ListingFragment.newInstance(it.listing)
+                is ListingPage -> PostListingFragment.newInstance(it.postListing)
                 is AccountPage -> AccountFragment.newInstance(it.user)
                 is PostPage -> CommentsFragment.newInstance(it)
                 is CommentsPage -> CommentsFragment.newInstance(

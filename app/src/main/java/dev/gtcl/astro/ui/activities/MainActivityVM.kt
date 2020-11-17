@@ -6,10 +6,13 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.database.SavedAccount
 import dev.gtcl.astro.database.Subscription
 import dev.gtcl.astro.models.reddit.AccessToken
+import dev.gtcl.astro.models.reddit.RuleType
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerPage
-import kotlinx.coroutines.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class MainActivityVM(val application: AstroApplication) : AstroViewModel(application) {
 
@@ -35,11 +38,19 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
     val mediaDialogOpened: LiveData<Boolean>
         get() = _mediaDialogOpened
 
+    private val _newMulti = MutableLiveData<MultiReddit?>()
+    val newMulti: LiveData<MultiReddit?>
+        get() = _newMulti
+
+    private val _subredditSelected = MutableLiveData<Subreddit?>()
+    val subredditSelected: LiveData<Subreddit?>
+        get() = _subredditSelected
+
     fun refreshObserved() {
         _refreshState.value = null
     }
 
-    fun mediaDialogOpened(opened: Boolean){
+    fun mediaDialogOpened(opened: Boolean) {
         _mediaDialogOpened.value = opened
     }
 
@@ -54,8 +65,12 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
     fun refreshAccessToken() {
         coroutineScope.launch {
             try {
-                val refreshToken = application.accessToken!!.refreshToken!!
-                application.accessToken = fetchAccessToken(refreshToken)
+                val refreshToken =
+                    (application.accessToken ?: return@launch).refreshToken ?: return@launch
+                val accessToken = fetchAccessToken(refreshToken)
+                withContext(Dispatchers.Main) {
+                    application.setAccessToken(accessToken)
+                }
             } catch (e: Exception) {
                 _errorMessage.postValue(e.getErrorMessage(application))
             }
@@ -318,6 +333,22 @@ class MainActivityVM(val application: AstroApplication) : AstroViewModel(applica
                 userRepository.deleteUserInDatabase(account.name)
             }
         }
+    }
+
+    fun newMultiReddit(multi: MultiReddit) {
+        _newMulti.value = multi
+    }
+
+    fun newMultiObserved() {
+        _newMulti.value = null
+    }
+
+    fun subredditSelected(sub: Subreddit) {
+        _subredditSelected.value = sub
+    }
+
+    fun subredditObserved() {
+        _subredditSelected.value = null
     }
 
     private suspend fun fetchAccessToken(refreshToken: String): AccessToken {

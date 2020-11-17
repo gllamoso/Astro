@@ -5,7 +5,6 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import com.google.android.material.snackbar.Snackbar
@@ -16,9 +15,9 @@ import dev.gtcl.astro.databinding.FragmentItemScrollerBinding
 import dev.gtcl.astro.models.reddit.User
 import dev.gtcl.astro.models.reddit.UserType
 import dev.gtcl.astro.network.NetworkState
-import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
 import dev.gtcl.astro.ui.fragments.account.pages.UserListAdapter
 import dev.gtcl.astro.ui.fragments.inbox.ComposeDialogFragment
+import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerFragmentDirections
 
 class FriendsFragment : Fragment(), UserActions {

@@ -25,13 +25,14 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:background="?android:attr/selectableItemBackground"
-        android:padding="8dp">
+        android:paddingHorizontal="8dp"
+        android:paddingVertical="16dp">
 
         <androidx.appcompat.widget.AppCompatImageView
             android:layout_width="24dp"
             android:layout_height="24dp"
             android:src="@{leftIcon}"
-            tools:src="@drawable/ic_reddit_circle_24"/>
+            tools:src="@drawable/ic_saturn_24"/>
 
         <TextView
             android:id="@+id/itemLeftDrawer_text"
@@ -42,6 +43,7 @@
             android:layout_marginHorizontal="32dp"
             android:text="@{name}"
             android:singleLine="true"
+            android:textSize="18sp"
             tools:text="User 1234567890123456789012345678901234567890" />
 
 <!--        android:textColor="@{isSelected? @color/colorAccent : android.R.attr.textColorPrimary}"-->

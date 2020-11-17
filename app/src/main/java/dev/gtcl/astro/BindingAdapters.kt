@@ -1,15 +1,18 @@
 package dev.gtcl.astro
 
-import android.content.Context
+import android.annotation.SuppressLint
 import android.graphics.Bitmap
 import android.graphics.Color
-import android.graphics.Point
 import android.graphics.drawable.Drawable
 import android.net.Uri
 import android.util.Patterns
 import android.util.TypedValue
-import android.view.*
+import android.view.Gravity
+import android.view.View
+import android.view.ViewGroup
+import android.view.WindowManager
 import android.webkit.URLUtil
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
@@ -17,71 +20,57 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomViewTarget
 import com.bumptech.glide.request.transition.Transition
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
+import com.google.android.material.card.MaterialCardView
 import com.google.android.material.chip.Chip
 import dev.gtcl.astro.database.Subscription
-import dev.gtcl.astro.databinding.IconFlairBinding
-import dev.gtcl.astro.databinding.IconFlairSmallBinding
+import dev.gtcl.astro.html.toDp
 import dev.gtcl.astro.models.reddit.RuleFor
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.fragments.multireddits.MultiRedditSubredditsAdapter
+import dev.gtcl.astro.url.UrlType
 import java.text.SimpleDateFormat
 import java.util.*
 
-
-@BindingAdapter("loadImageAndHideIfNull")
-fun loadImageAndHideIfNull(imgView: ImageView, imgUrl: String?) {
-    if (imgUrl != null && URLUtil.isValidUrl(imgUrl) && Patterns.WEB_URL.matcher(imgUrl)
-            .matches()
-    ) {
-        imgView.visibility = View.VISIBLE
-        val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
-        Glide.with(imgView.context)
-            .load(imgUri)
-//            .skipMemoryCache(true)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
-//            .apply(
-//                RequestOptions()
-//                    .placeholder(R.drawable.))
-//                    .placeholder(R.color.background))
-//                    .error(R.drawable.ic_broken_image_24))
-            .into(imgView)
-    } else {
-        imgView.visibility = View.GONE
-    }
-}
-
 @BindingAdapter("loadImage")
 fun loadImage(imgView: ImageView, imgUrl: String?) {
-    if (imgUrl.isNullOrBlank()) return
-    if (imgUrl.startsWith("http")) {
-        imgView.visibility = View.VISIBLE
-        val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
-        Glide.with(imgView.context)
-            .load(imgUri)
+    when{
+        imgUrl == null -> imgView.visibility = View.GONE
+        !URLUtil.isValidUrl(imgUrl) && !Patterns.WEB_URL.matcher(imgUrl).matches() -> {
+            imgView.apply {
+                visibility = View.VISIBLE
+                setImageResource(R.drawable.ic_no_photo_24)
+                setBackgroundColor(Color.GRAY)
+            }
+        }
+        else -> {
+            imgView.visibility = View.VISIBLE
+            GlideApp.with(imgView.context)
+                .load(imgUrl)
+                .error(R.drawable.ic_broken_image_24)
 //            .skipMemoryCache(true)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
-//                .apply(
-//                    RequestOptions()
-//                        .placeholder(R.drawable.anim_loading)
-//                        .error(R.drawable.ic_broken_image_24))
-            .into(imgView)
+//            .diskCacheStrategy(DiskCacheStrategy.ALL)
+//            .apply(
+//                RequestOptions()
+//                    .error(R.drawable.ic_broken_image_24)
+//            )
+                .into(imgView)
+        }
     }
 }
 
 @BindingAdapter("banner")
 fun loadBanner(imgView: ImageView, url: String?) {
-    if (!url.isNullOrBlank()) {
-        Glide.with(imgView.context)
+    if (!url.isNullOrBlank() && URLUtil.isValidUrl(url) && Patterns.WEB_URL.matcher(url).matches()) {
+        GlideApp.with(imgView.context)
             .load(url)
             .skipMemoryCache(true)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
+//            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .fitCenter()
             .into(imgView)
     }
 }
@@ -94,10 +83,10 @@ fun bindUriToImage(imgView: ImageView, uri: Uri?) {
     }
 
     imgView.visibility = View.VISIBLE
-    Glide.with(imgView.context)
+    GlideApp.with(imgView.context)
         .load(uri)
         .skipMemoryCache(true)
-        .diskCacheStrategy(DiskCacheStrategy.ALL)
+//        .diskCacheStrategy(DiskCacheStrategy.NONE)
         .into(imgView)
 }
 
@@ -113,28 +102,30 @@ class SubsamplingScaleImageViewTarget(view: SubsamplingScaleImageView) :
 }
 
 @BindingAdapter("listingType")
-fun loadMultiIcon(imgView: ImageView, listing: Listing) {
-    when (listing) {
+fun loadMultiIcon(imgView: ImageView, postListing: PostListing) {
+    when (postListing) {
         FrontPage -> imgView.setImageResource(R.drawable.ic_front_page_24)
         All -> imgView.setImageResource(R.drawable.ic_all_24)
         Popular -> imgView.setImageResource(R.drawable.ic_trending_up_24)
+        Friends -> imgView.setImageResource(R.drawable.ic_people_24)
+        is ProfileListing -> imgView.setImageResource(R.drawable.ic_bookmark_24)
         is MultiRedditListing -> imgView.setImageResource(R.drawable.ic_collection_24)
-        else -> imgView.setImageResource(R.drawable.ic_reddit_circle_24)
+        else -> imgView.setImageResource(R.drawable.ic_saturn_24)
     }
 }
 
 @BindingAdapter("subredditIcon")
 fun loadSubIcon(imgView: ImageView, imgUrl: String?) {
     if (imgUrl == null || !imgUrl.startsWith("http")) {
-        imgView.setImageResource(R.drawable.ic_reddit_circle_24)
+        imgView.setImageResource(R.drawable.ic_saturn_colored_24)
     } else {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
-        Glide.with(imgView.context)
+        GlideApp.with(imgView.context)
             .load(imgUri)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
+//            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .apply(
                 RequestOptions()
-                    .placeholder(R.drawable.ic_reddit_circle_24)
+                    .placeholder(R.drawable.ic_saturn_colored_24)
                     .circleCrop()
             )
             .into(imgView)
@@ -147,12 +138,32 @@ fun loadAccountIcon(imgView: ImageView, imgUrl: String?) {
         imgView.setImageResource(R.drawable.ic_profile_24)
     } else {
         val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
-        Glide.with(imgView.context)
+        GlideApp.with(imgView.context)
             .load(imgUri)
-            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .skipMemoryCache(true)
+//            .diskCacheStrategy(DiskCacheStrategy.ALL)
             .apply(
                 RequestOptions()
                     .placeholder(R.drawable.ic_profile_24)
+                    .circleCrop()
+            )
+            .into(imgView)
+    }
+}
+
+@BindingAdapter("multiIcon")
+fun loadMultiRedditIcon(imgView: ImageView, imgUrl: String?) {
+    if (imgUrl == null || !imgUrl.startsWith("http")) {
+        imgView.setImageResource(R.drawable.ic_collection_24)
+    } else {
+        val imgUri = imgUrl.toUri().buildUpon().scheme("https").build()
+        GlideApp.with(imgView.context)
+            .load(imgUri)
+            .skipMemoryCache(true)
+//            .diskCacheStrategy(DiskCacheStrategy.ALL)
+            .apply(
+                RequestOptions()
+                    .placeholder(R.drawable.ic_collection_24)
                     .circleCrop()
             )
             .into(imgView)
@@ -164,7 +175,7 @@ fun loadSubscriptionIcon(imgView: ImageView, subscription: Subscription) {
     val placeHolder = when (subscription.type) {
         SubscriptionType.MULTIREDDIT -> R.drawable.ic_collection_24
         SubscriptionType.USER -> R.drawable.ic_profile_24
-        SubscriptionType.SUBREDDIT -> R.drawable.ic_reddit_circle_24
+        SubscriptionType.SUBREDDIT -> R.drawable.ic_saturn_24
     }
 
     if (subscription.icon == null || !subscription.icon.startsWith("https", true)) {
@@ -172,9 +183,9 @@ fun loadSubscriptionIcon(imgView: ImageView, subscription: Subscription) {
         return
     }
 
-    Glide.with(imgView.context)
+    GlideApp.with(imgView.context)
         .load(subscription.icon)
-        .diskCacheStrategy(DiskCacheStrategy.ALL)
+//        .diskCacheStrategy(DiskCacheStrategy.ALL)
         .apply(
             RequestOptions()
                 .placeholder(placeHolder)
@@ -194,49 +205,16 @@ fun loadFavoriteIcon(imgView: ImageView, isFavorite: Boolean) {
     imgView.setImageResource(if (isFavorite) R.drawable.ic_favorite_filled_24 else R.drawable.ic_favorite_unfilled_24)
 }
 
-@BindingAdapter("added")
-fun loadAddedIcon(imgView: ImageView, added: Boolean) {
-    imgView.setImageResource(
-        if (added) {
-            R.drawable.ic_remove_circle_outline_24
-        } else {
-            R.drawable.ic_add_circle_24
-        }
-    )
+@BindingAdapter("listingType")
+fun loadListingText(txtView: TextView, postListing: PostListing?) {
+    val text = getListingTitle(txtView.context, postListing)
+    txtView.text = text
 }
 
 @BindingAdapter("listingType")
-fun loadListingText(txtView: TextView, listing: Listing?) {
-    val context = txtView.context
-    listing?.let {
-        txtView.text = when (it) {
-            FrontPage -> context.getText(R.string.frontpage)
-            All -> context.getText(R.string.all)
-            Popular -> context.getText(R.string.popular_tab_label)
-            is SearchListing -> String.format(context.getString(R.string.search_title), it.query)
-            is MultiRedditListing -> it.multiReddit.name
-            is SubredditListing -> it.displayName
-            is ProfileListing -> context.getText(
-                when (it.info) {
-                    ProfileInfo.OVERVIEW -> R.string.overview
-                    ProfileInfo.SUBMITTED -> R.string.submitted
-                    ProfileInfo.COMMENTS -> R.string.comments
-                    ProfileInfo.UPVOTED -> R.string.upvoted
-                    ProfileInfo.DOWNVOTED -> R.string.downvoted
-                    ProfileInfo.HIDDEN -> R.string.hidden
-                    ProfileInfo.SAVED -> R.string.saved
-                    ProfileInfo.GILDED -> R.string.gilded
-                }
-            )
-            is SubscriptionListing -> it.subscription.name
-        }
-    }
-}
-
-@BindingAdapter("listingType")
-fun setVisibility(viewGroup: ViewGroup, listing: Listing?) {
-    if (listing == null) return
-    viewGroup.visibility = if (listing is SubredditListing) View.VISIBLE else View.GONE
+fun setVisibility(viewGroup: ViewGroup, postListing: PostListing?) {
+    if (postListing == null) return
+    viewGroup.visibility = if (postListing is SubredditListing) View.VISIBLE else View.GONE
 }
 
 @BindingAdapter("indent")
@@ -249,7 +227,7 @@ fun setIndentation(linearLayout: LinearLayout, indent: Int) {
     ).toInt()
     val indentationSize = TypedValue.applyDimension(
         TypedValue.COMPLEX_UNIT_DIP,
-        8F,
+        12F,
         linearLayout.context.resources.displayMetrics
     ).toInt()
     val params =
@@ -258,7 +236,7 @@ fun setIndentation(linearLayout: LinearLayout, indent: Int) {
         }
     for (i in 1..indent) {
         val view = View(linearLayout.context).apply {
-            setBackgroundColor(Color.GRAY)
+            setBackgroundColor(ContextCompat.getColor(context, R.color.commentDivider))
             layoutParams = params
         }
         linearLayout.addView(view)
@@ -288,25 +266,8 @@ fun setTimestamp(textView: TextView, time: Long?) {
 
 @BindingAdapter("secondsToDate")
 fun secondsToDate(textView: TextView, time: Long) {
-    val simpleDateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.ROOT)
+    val simpleDateFormat = SimpleDateFormat("MMM dd, yyyy", Locale.US)
     textView.text = simpleDateFormat.format(1000L * time)
-}
-
-@BindingAdapter("viewSize")
-fun setViewSize(view: View, percentOfDeviceHeight: Int) {
-    val display = if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.R) {
-        view.context.display!!
-    } else {
-        val wm = view.context.getSystemService(Context.WINDOW_SERVICE) as WindowManager
-        wm.defaultDisplay
-    }
-    val size = Point()
-    display.getRealSize(size)
-    val height = size.y * percentOfDeviceHeight / 100
-
-    val layoutParams = view.layoutParams
-    layoutParams.height = height
-    view.layoutParams = layoutParams
 }
 
 @BindingAdapter("read")
@@ -338,6 +299,27 @@ fun bindRecyclerViewForMultiReddit(recyclerView: RecyclerView, data: MutableList
     adapter.submitList(data)
 }
 
+@BindingAdapter("likes")
+fun applyLikeTint(imageView: ImageView, likes: Boolean?) {
+    when (likes) {
+        true -> imageView.setColorFilter(
+            ContextCompat.getColor(
+                imageView.context,
+                android.R.color.holo_orange_dark
+            )
+        )
+        false -> {
+            imageView.setColorFilter(
+                ContextCompat.getColor(
+                    imageView.context,
+                    android.R.color.holo_blue_dark
+                )
+            )
+        }
+        null -> imageView.clearColorFilter()
+    }
+}
+
 @BindingAdapter("upvoteTint")
 fun applyUpvoteTint(imageView: ImageView, likes: Boolean?) {
     when (likes) {
@@ -354,12 +336,14 @@ fun applyUpvoteTint(imageView: ImageView, likes: Boolean?) {
 @BindingAdapter("downvoteTint")
 fun applyDownvoteTint(imageView: ImageView, likes: Boolean?) {
     when (likes) {
-        false -> imageView.setColorFilter(
-            ContextCompat.getColor(
-                imageView.context,
-                android.R.color.holo_blue_dark
+        false -> {
+            imageView.setColorFilter(
+                ContextCompat.getColor(
+                    imageView.context,
+                    android.R.color.holo_blue_dark
+                )
             )
-        )
+        }
         else -> imageView.clearColorFilter()
     }
 }
@@ -377,83 +361,183 @@ fun applyBookmarkTint(imageView: ImageView, bookmarked: Boolean) {
     }
 }
 
-@BindingAdapter("flairListSmall")
-fun addSmallFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?) {
-    viewGroup.removeAllViews()
-    if (!list.isNullOrEmpty()) {
-        val context = viewGroup.context
-        val imgViewSize = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            18f,
-            context.resources.displayMetrics
-        ).toInt()
-        val margin = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            4f,
-            context.resources.displayMetrics
-        ).toInt()
-        val layoutInflater = LayoutInflater.from(context)
-        for (flair in list) {
-            val view =
-                if (!flair.url.isNullOrBlank()) {
-                    ImageView(context).apply {
-                        layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
-                            marginEnd = margin
-                        }
-                        loadImage(this, flair.url)
-                    }
-                } else {
-                    IconFlairSmallBinding.inflate(layoutInflater).apply {
-                        charSequence = flair.text.toString()
-                        executePendingBindings()
-                    }.root
-                }
+@BindingAdapter("itemWithSmallFlair")
+fun setSmallFlairWithItem(cardView: MaterialCardView, item: Item?) {
+    val darkTextColor = item is Post && item.flairTextColor == "dark"
+    val flairs = when(item){
+        is Post -> item.flairRichtext
+        is Comment -> item.flairRichtext
+        else -> null
+    }
+    if(flairs.isNullOrEmpty()){
+        val text = when(item){
+            is Post -> item.flairText?.removeHtmlEntities()
+            is Comment -> item.authorFlairText?.removeHtmlEntities()
+            else -> null
+        }
+        setFlairText(cardView, text, darkTextColor, true)
+    } else {
+        setFlairRichText(cardView, flairs, darkTextColor, true)
+    }
 
-            viewGroup.addView(view)
+}
+
+@BindingAdapter("itemWithFlair")
+fun setFlairWithItem(cardView: MaterialCardView, item: Item?) {
+    val darkTextColor = item is Post && item.flairTextColor == "dark"
+    val flairs = when(item){
+        is Post -> item.flairRichtext
+        is Comment -> item.flairRichtext
+        else -> null
+    }
+
+    if(flairs.isNullOrEmpty()){
+        val text = when(item){
+            is Post -> item.flairText?.removeHtmlEntities()
+            is Comment -> item.authorFlairText?.removeHtmlEntities()
+            else -> null
+        }
+        setFlairText(cardView, text, darkTextColor, false)
+    } else {
+        setFlairRichText(cardView, flairs, darkTextColor, false)
+    }
+}
+
+@BindingAdapter("flair")
+fun setFlairLayout(cardView: MaterialCardView, flair: Flair?){
+    cardView.removeAllViews()
+    if(flair != null){
+        if(flair.richtext.isNullOrEmpty()){
+            setFlairText(cardView, flair.text.removeHtmlEntities(), darkTextColor = false, small = false)
+        } else {
+            setFlairRichText(cardView, flair.richtext, darkTextColor = false, small = false)
         }
     }
 }
 
-@BindingAdapter("flairList")
-fun addFlairList(viewGroup: LinearLayout, list: List<AuthorFlairRichtext>?) {
-    viewGroup.removeAllViews()
-    if (!list.isNullOrEmpty()) {
-        val context = viewGroup.context
-        val imgViewSize = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            24f,
-            context.resources.displayMetrics
-        ).toInt()
-        val margin = TypedValue.applyDimension(
+private fun setFlairText(cardView: MaterialCardView, text: String?, darkTextColor: Boolean, small: Boolean){
+    val context = cardView.context
+    cardView.removeAllViews()
+    val textColor = if(darkTextColor) {
+        Color.BLACK
+    } else {
+        Color.WHITE
+    }
+    val padding = TypedValue.applyDimension(
             TypedValue.COMPLEX_UNIT_DIP,
             4f,
             context.resources.displayMetrics
-        ).toInt()
-        val layoutInflater = LayoutInflater.from(context)
-        for (flair in list) {
-            val view =
-                if (!flair.url.isNullOrBlank()) {
-                    ImageView(context).apply {
-                        layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
-                            marginEnd = margin
-                        }
-                        loadImage(this, flair.url)
-                    }
-                } else {
-                    IconFlairBinding.inflate(layoutInflater).apply {
-                        charSequence = flair.text.toString()
-                        executePendingBindings()
-                    }.root
-                }
+    ).toInt()
 
-            viewGroup.addView(view)
+    if(!text.isNullOrBlank() && text.trim() != "\u200B"){
+        val textView = TextView(context).apply {
+            this.text = text.trim()
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, if(small) 12f else 14f)
+            setTextColor(textColor)
+            isSingleLine = true
+            setPadding(padding, padding/2, padding, padding/2)
+            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
+                this.gravity = Gravity.CENTER
+            }
         }
+        cardView.apply {
+            visibility = View.VISIBLE
+            addView(textView)
+        }
+    } else {
+        cardView.visibility = View.GONE
     }
+}
+
+private fun setFlairRichText(cardView: MaterialCardView, flairs: List<FlairRichtext>?, darkTextColor: Boolean, small: Boolean){
+    cardView.removeAllViews()
+    val textColor = if(darkTextColor) {
+        Color.BLACK
+    } else {
+        Color.WHITE
+    }
+    if (!flairs.isNullOrEmpty()) {
+        val context = cardView.context
+        val imgViewSize = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                if(small) 14f else 18f,
+                context.resources.displayMetrics
+        ).toInt()
+        val horizontalMargin = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                4f,
+                context.resources.displayMetrics
+        ).toInt()
+        val verticalMargin = TypedValue.applyDimension(
+                TypedValue.COMPLEX_UNIT_DIP,
+                1f,
+                context.resources.displayMetrics
+        ).toInt()
+        val linearLayout = LinearLayout(context).apply {
+            orientation = LinearLayout.HORIZONTAL
+            setPadding(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin)
+            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
+                this.gravity = Gravity.CENTER
+            }
+        }
+        var start = true
+        var layoutHasView = false
+        for (flair in flairs) {
+            if (!flair.urlFormatted.isNullOrBlank() || flair.textFormatted.toString().isNotBlank()) {
+                val view =
+                        if (!flair.urlFormatted.isNullOrBlank()) {
+                            ImageView(context).apply {
+                                layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
+                                    if(!start) {
+                                        marginStart = horizontalMargin
+                                    }
+                                }
+                                loadImage(this, flair.urlFormatted)
+                            }
+                        } else {
+                            TextView(context).apply {
+                                text = flair.textFormatted.toString().trim()
+                                setTextSize(TypedValue.COMPLEX_UNIT_SP, if(small) 12f else 14f)
+                                setTextColor(textColor)
+                                isSingleLine = true
+                                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
+                                    if(!start) {
+                                        marginStart = horizontalMargin
+                                    }
+                                }
+                            }
+                        }
+
+                linearLayout.addView(view)
+                layoutHasView = true
+                start = false
+            }
+        }
+        cardView.apply {
+            visibility = if(layoutHasView){
+                addView(linearLayout)
+                View.VISIBLE
+            } else {
+                View.GONE
+            }
+        }
+    } else {
+        cardView.visibility = View.GONE
+    }
+}
+
+@BindingAdapter("flairBackground")
+fun setFlairBackground(cardView: MaterialCardView, color: String?){
+    val backgroundColor = when(color){
+        "", null -> ContextCompat.getColor(cardView.context, android.R.color.darker_gray)
+        else -> Color.parseColor(color)
+    }
+    cardView.setCardBackgroundColor(backgroundColor)
 }
 
 @BindingAdapter("ruleType")
 fun setRuleTypeText(textView: TextView, ruleFor: RuleFor) {
-    val context = textView.context!!
+    val context = textView.context ?: return
     textView.text = when (ruleFor) {
         RuleFor.POST -> context.getText(R.string.posts)
         RuleFor.COMMENT -> context.getText(R.string.comments)
@@ -520,18 +604,110 @@ fun setCommentSortText(textView: TextView, commentSort: CommentSort) {
 }
 
 @BindingAdapter("isUser")
-fun setUserTextColor(textView: TextView, isUser: Boolean) {
-    val context = textView.context!!
+fun setAuthorTextColor(textView: TextView, isUser: Boolean) {
+    val context = textView.context ?: return
     val typedValue = TypedValue()
     context.theme.resolveAttribute(android.R.attr.textColorPrimary, typedValue, true)
     val arr =
         context.obtainStyledAttributes(typedValue.data, intArrayOf(android.R.attr.textColorPrimary))
     textView.setTextColor(
         if (isUser) {
-            context.getColor(R.color.colorPrimary)
+            -5220187
         } else {
             arr.getColor(0, -1)
         }
     )
     arr.recycle()
+}
+
+@BindingAdapter("isOp")
+fun setAuthorCardBackground(materialCardView: MaterialCardView, isOp: Boolean){
+    val padding = if(isOp) {
+        4.toDp(materialCardView.context)
+    } else {
+        0
+    }
+
+    val backgroundColor = if (isOp) {
+        -12336129
+    } else {
+        Color.TRANSPARENT
+    }
+
+    materialCardView.setCardBackgroundColor(backgroundColor)
+    if(materialCardView.childCount > 0){
+        val child = materialCardView.getChildAt(0)
+        child.setPadding(padding, 0, padding, 0)
+    }
+}
+
+@BindingAdapter("urlType")
+fun setUrlTypeIcon(imgView: ImageView, urlType: UrlType?){
+    if(urlType == null) {
+        imgView.setImageDrawable(null)
+        return
+    }
+
+    val imageResource =
+        when(urlType){
+            UrlType.IMAGE -> R.drawable.ic_photo_24
+            UrlType.GIF -> R.drawable.ic_photo_24
+            UrlType.GIFV -> R.drawable.ic_videocam_24
+            UrlType.GFYCAT -> R.drawable.ic_videocam_24
+            UrlType.REDGIFS -> R.drawable.ic_videocam_24
+            UrlType.HLS -> R.drawable.ic_videocam_24
+            UrlType.REDDIT_VIDEO -> R.drawable.ic_videocam_24
+            UrlType.STANDARD_VIDEO -> R.drawable.ic_videocam_24
+            UrlType.IMGUR_ALBUM -> R.drawable.ic_photo_library_24
+            UrlType.IMGUR_IMAGE -> R.drawable.ic_photo_24
+            UrlType.REDDIT_GALLERY -> R.drawable.ic_photo_library_24
+            else -> R.drawable.ic_link_24
+        }
+
+    imgView.setImageResource(imageResource)
+}
+
+@BindingAdapter("removalReason")
+fun setRemovalReason(textView: TextView, reason: String?){
+    when(reason){
+        "moderator" -> textView.setText(R.string.post_removed_by_moderator)
+        "admin" -> textView.setText(R.string.post_removed_by_admin)
+        null -> textView.text = ""
+        else -> textView.setText(R.string.post_removed)
+    }
+}
+
+@BindingAdapter("awardsNum")
+fun setNumberOfAwardsText(textView: TextView, num: Int?){
+    when(num){
+        0, null -> {
+            textView.visibility = View.GONE
+        }
+        else -> {
+            textView.apply {
+                visibility = View.VISIBLE
+                text = String.format(textView.context.getString(R.string.num_awards), num)
+            }
+        }
+    }
+}
+
+@SuppressLint("SetTextI18n")
+@BindingAdapter("post")
+fun setPostInfo(textView: TextView, post: Post?){
+    if(post == null){
+        textView.visibility = View.GONE
+    } else {
+        textView.apply {
+            visibility = View.VISIBLE
+            text = "${post.subredditPrefixed} • ${post.author} • ${post.domain}"
+        }
+    }
+}
+
+@BindingAdapter("cardStrokeWidth")
+fun setMaterialCardStrokeWidth(materialCardView: MaterialCardView, width: Int?){
+    val context = materialCardView.context
+    val width = (width ?: 0).toDp(context)
+    materialCardView.strokeWidth = width
 }

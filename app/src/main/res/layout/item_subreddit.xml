@@ -5,12 +5,22 @@
 
     <data>
         <variable
-            name="sub"
-            type="dev.gtcl.astro.models.reddit.listing.Subreddit" />
-
+            name="displayName"
+            type="String" />
         <variable
-            name="iconTint"
-            type="int" />
+            name="icon"
+            type="String" />
+        <variable
+            name="title"
+            type="String" />
+        <variable
+            name="subscribers"
+            type="Integer" />
+        <variable
+            name="moreInfoAvailable"
+            type="Boolean" />
+        <import type="dev.gtcl.astro.UtilKt" />
+        <import type="android.view.View"/>
     </data>
 
     <LinearLayout
@@ -22,34 +32,54 @@
         android:padding="8dp">
 
         <androidx.appcompat.widget.AppCompatImageView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
             android:layout_margin="8dp"
-            app:subredditIcon="@{sub.icon}"
-            app:colorTint="@{iconTint}"
-            app:tint="@color/colorAccent"
-            tools:src="@drawable/ic_reddit_circle_24" />
+            app:subredditIcon="@{icon}"
+            tools:src="@drawable/ic_saturn_24" />
 
-        <TextView
+        <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_margin="8dp"
-            android:layout_weight="1"
-            android:singleLine="true"
-            android:text="@{sub.displayName}"
-            tools:text="Subreddit Name" />
+            android:orientation="vertical"
+            android:padding="8dp"
+            android:layout_weight="1">
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:textSize="18sp"
+                android:text="@{displayName}"
+                tools:text="Subreddit Name" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:text="@{title}"
+                tools:text="Subreddit Title"/>
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textSize="12sp"
+                android:singleLine="true"
+                android:visibility="@{subscribers != null ? View.VISIBLE : View.GONE}"
+                android:text="@{String.format(@string/num_subscribers, UtilKt.numFormatted(subscribers))}"
+                tools:text="123 subscribers"/>
+
+        </LinearLayout>
 
         <androidx.appcompat.widget.AppCompatImageView
-            android:id="@+id/itemSubreddit_addButton"
+            android:id="@+id/itemSubreddit_infoButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginEnd="8dp"
-            android:background="?attr/selectableItemBackgroundBorderless"
             android:padding="8dp"
-            android:src="@drawable/ic_add_circle_24"
-            app:added="@{sub.userSubscribed}" />
+            android:visibility="@{moreInfoAvailable ? View.VISIBLE : View.GONE}"
+            android:background="?attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_info_24" />
 
     </LinearLayout>
-
 
 </layout>

@@ -19,7 +19,7 @@
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@{rule.shortName}"
+            android:text="@{rule.shortNameFormatted}"
             android:textAppearance="@android:style/TextAppearance.DeviceDefault.Widget.ActionMode.Title"
             tools:text="Rule 1: No photos"/>
         
@@ -31,10 +31,11 @@
             android:textSize="12sp"
             tools:text="Posts and comments"/>
         
-        <TextView
-            android:id="@+id/itemRule_description"
+        <LinearLayout
+            android:id="@+id/itemRule_descriptionLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:orientation="vertical"
             tools:text="Rule description"/>
 
     </LinearLayout>

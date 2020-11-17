@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+        <variable
+            name="title"
+            type="String" />
+    </data>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/fragmentDialogMultiRedditInfo_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            app:title="@{title}"
+            tools:title="Subreddit"
+            app:menu="@menu/copy"
+            />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/fragmentDialogMultiRedditInfo_subredditList"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:scrollIndicators="top|bottom"
+            app:layoutManager="androidx.recyclerview.widget.GridLayoutManager"
+            app:spanCount="1"
+            tools:itemCount="3"
+            tools:listitem="@layout/item_subreddit_in_multireddit"/>
+
+        <include
+            android:id="@+id/fragmentDialogMultiRedditInfo_dialogButtons"
+            android:layout_height="wrap_content"
+            android:layout_width="match_parent"
+            layout="@layout/layout_dialog_buttons"
+            app:positiveText="@{@string/done}"/>
+
+    </LinearLayout>
+
+</layout>

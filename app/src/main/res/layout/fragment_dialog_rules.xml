@@ -25,7 +25,7 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1"
-            android:minHeight="100dp">
+            android:scrollIndicators="top|bottom">
 
             <LinearLayout
                 android:id="@+id/fragmentDialogRules_linearLayout"
@@ -35,11 +35,11 @@
 
                 <TextView
                     android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:layout_margin="32dp"
-                    android:gravity="center"
+                    android:layout_height="wrap_content"
+                    android:layout_marginHorizontal="16dp"
+                    android:layout_marginVertical="8dp"
                     android:text="@string/no_rules_found"
-                    android:visibility="@{!model.loading &amp;&amp; (model.rules == null || model.rules.empty) ? View.VISIBLE : View.GONE}"/>
+                    android:visibility="@{!model.loading &amp;&amp; (model.rules == null || model.rules.empty) ? View.VISIBLE : View.GONE}" />
 
                 <ProgressBar
                     style="?android:attr/progressBarStyle"

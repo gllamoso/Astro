@@ -4,15 +4,15 @@ import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import dev.gtcl.astro.databinding.ItemListingBinding
-import dev.gtcl.astro.models.reddit.listing.Listing
+import dev.gtcl.astro.models.reddit.listing.PostListing
 import dev.gtcl.astro.actions.ListingTypeClickListener
 
 class ListingVH private constructor(private val binding: ItemListingBinding) :
     RecyclerView.ViewHolder(binding.root) {
-    fun bind(listing: Listing, listingTypeClickListener: ListingTypeClickListener) {
-        binding.listing = listing
+    fun bind(postListing: PostListing, listingTypeClickListener: ListingTypeClickListener) {
+        binding.listing = postListing
         binding.root.setOnClickListener {
-            listingTypeClickListener.listingTypeClicked(listing)
+            listingTypeClickListener.listingTypeClicked(postListing)
         }
         binding.executePendingBindings()
     }

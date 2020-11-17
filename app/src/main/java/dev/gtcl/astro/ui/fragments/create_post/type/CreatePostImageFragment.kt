@@ -15,14 +15,13 @@ import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
-import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
-import dev.gtcl.astro.ImagePost
-import dev.gtcl.astro.R
 import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.R
 import dev.gtcl.astro.ViewModelFactory
 import dev.gtcl.astro.databinding.FragmentCreatePostImageBinding
 import dev.gtcl.astro.ui.fragments.create_post.CreatePostVM
+import dev.gtcl.astro.ui.fragments.create_post.ImagePost
 
 class CreatePostImageFragment : Fragment() {
 
@@ -85,7 +84,6 @@ class CreatePostImageFragment : Fragment() {
         if (!requireActivity().isChangingConfigurations) {
             requireContext().contentResolver.delete(photoUri, null, null)
         }
-        Glide.get(requireContext()).clearMemory()
         binding = null
     }
 
@@ -152,7 +150,7 @@ class CreatePostImageFragment : Fragment() {
             if (fetchInput == true) {
                 if (model.uri.value != null) {
                     parentModel.setPostContent(
-                        ImagePost(model.uri.value!!)
+                        ImagePost(model.uri.value ?: return@observe)
                     )
                 } else {
                     binding?.root?.let {

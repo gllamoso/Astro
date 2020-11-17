@@ -6,7 +6,7 @@ import dev.gtcl.astro.*
 import dev.gtcl.astro.models.reddit.listing.Item
 import dev.gtcl.astro.models.reddit.listing.SubredditChild
 import dev.gtcl.astro.ui.fragments.item_scroller.ItemScrollerVM
-import kotlinx.coroutines.*
+import kotlinx.coroutines.launch
 import java.util.*
 
 class SearchVM(private val application: AstroApplication) : ItemScrollerVM(application) {
@@ -31,6 +31,7 @@ class SearchVM(private val application: AstroApplication) : ItemScrollerVM(appli
 
     init {
         setListingInfo(SubredditWhere.POPULAR)
+        _showNsfw = application.sharedPref.getBoolean(NSFW_KEY, false)
     }
 
     fun showPopular(show: Boolean) {
@@ -64,11 +65,12 @@ class SearchVM(private val application: AstroApplication) : ItemScrollerVM(appli
 
     private suspend fun searchSubreddits(query: String, results: MutableList<Item>) {
         val subs = subredditRepository.searchSubreddits(
-            nsfw = true,
+            nsfw = showNsfw,
             includeProfiles = false,
             limit = 10,
             query = query
         ).await().data.children.map { (it as SubredditChild).data }
+            .filter { it.subredditType == "public" }
         results.addAll(subs)
     }
 

@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <data>
-        <import type="dev.gtcl.astro.MediaType"/>
+        <import type="dev.gtcl.astro.url.MediaType"/>
         <import type="android.view.View"/>
         <variable
             name="model"
@@ -84,6 +84,9 @@
                 android:layout_height="match_parent"
                 android:elevation="0dp"
                 android:scrollbars="none"
+                android:scrollIndicators="none"
+                android:scrollbarSize="0dp"
+                android:scrollbarThumbVertical="@android:color/transparent"
                 android:orientation="vertical"/>
 
             <ProgressBar
@@ -114,11 +117,10 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_comments_24"
                     app:tint="@android:color/white"
-                    android:layout_margin="8dp"
                     android:elevation="10dp"
                     android:visibility="@{model.post != null ? View.VISIBLE : View.GONE}"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="2dp"/>
+                    android:padding="8dp"/>
 
                 <View
                     android:layout_width="0dp"
@@ -132,9 +134,8 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_share_24"
                     app:tint="@android:color/white"
-                    android:layout_margin="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="2dp"/>
+                    android:padding="8dp"/>
 
                 <View
                     android:layout_width="0dp"
@@ -147,9 +148,8 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_download_24"
                     app:tint="@android:color/white"
-                    android:layout_margin="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="2dp"
+                    android:padding="8dp"
                     />
 
                 <View
@@ -163,9 +163,8 @@
                     android:layout_height="wrap_content"
                     android:src="@drawable/ic_link_24"
                     app:tint="@android:color/white"
-                    android:layout_margin="8dp"
                     android:background="?attr/selectableItemBackgroundBorderless"
-                    android:padding="2dp"
+                    android:padding="8dp"
                     />
 
                 <View

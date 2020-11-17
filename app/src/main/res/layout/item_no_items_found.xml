@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<layout
-    xmlns:android="http://schemas.android.com/apk/res/android">
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <data>
         <variable
@@ -8,19 +8,30 @@
             type="String" />
     </data>
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-         android:layout_width="match_parent"
-        android:layout_height="match_parent">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="16dp">
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:tint="@android:color/darker_gray"
+            android:src="@drawable/ic_ufo_24"
+            android:layout_gravity="center_horizontal"/>
 
         <TextView
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:text="@{text}"
+            android:textColor="@android:color/darker_gray"
             android:singleLine="true"
+            android:layout_marginTop="8dp"
+            android:textSize="18sp"
             android:gravity="top|center_horizontal"
-            android:paddingTop="64dp"
-            android:paddingBottom="64dp"/>
+            tools:text="No items found"/>
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 
 </layout>

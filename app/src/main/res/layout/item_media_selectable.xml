@@ -19,7 +19,7 @@
             android:layout_height="wrap_content"
             app:cardCornerRadius="8dp"
             app:strokeColor="@color/colorPrimary"
-            app:strokeWidth="@{isSelected ? 8 : 0}"
+            app:cardStrokeWidth="@{isSelected ? 2 : 0}"
             android:padding="8dp">
 
             <androidx.appcompat.widget.AppCompatImageView

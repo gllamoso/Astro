@@ -24,11 +24,7 @@ interface GfycatService {
     companion object {
         private const val URL = "https://api.gfycat.com/"
         fun create(): GfycatService {
-            val logger = HttpLoggingInterceptor(object : HttpLoggingInterceptor.Logger {
-                override fun log(message: String) {
-                    Timber.tag("API").d(message)
-                }
-            })
+            val logger = HttpLoggingInterceptor { message -> Timber.tag("API").d(message) }
             logger.level = HttpLoggingInterceptor.Level.BASIC
 
             val client = OkHttpClient.Builder()

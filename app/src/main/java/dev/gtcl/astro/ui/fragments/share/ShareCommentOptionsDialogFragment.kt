@@ -31,7 +31,7 @@ class ShareCommentOptionsDialogFragment : DialogFragment() {
         savedInstanceState: Bundle?
     ): View? {
         binding = FragmentDialogShareCommentOptionsBinding.inflate(inflater)
-        val comment = requireArguments().getParcelable<Comment>(COMMENT_KEY)!!
+        val comment = requireArguments().getParcelable<Comment>(COMMENT_KEY) ?: return null
         initClickListeners(comment)
         return binding?.root
     }

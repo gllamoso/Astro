@@ -8,6 +8,7 @@ import dev.gtcl.astro.models.reddit.AccessToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import timber.log.Timber
 
 class SplashVM(val application: AstroApplication) : AstroViewModel(application) {
 
@@ -15,28 +16,33 @@ class SplashVM(val application: AstroApplication) : AstroViewModel(application) 
     val ready: LiveData<Boolean?>
         get() = _ready
 
-    fun readyComplete() {
+    fun readyObserved() {
         _ready.value = null
     }
 
-    fun setCurrentUser(account: SavedAccount?, saveToPreferences: Boolean) {
+    fun setCurrentUser(account: SavedAccount?) {
         coroutineScope.launch {
             withContext(Dispatchers.IO) {
                 try {
-                    if (account == null) {
-                        application.accessToken = null
-                        application.currentAccount = null
-                    } else {
-                        val accessToken = fetchAccessToken(account.refreshToken!!)
-                        application.accessToken = accessToken
-                        application.currentAccount = userRepository.getAccount(accessToken).await()
-                    }
-
-                    if (saveToPreferences) {
-                        saveAccountToPreferences(application, account)
+                    withContext(Dispatchers.Main) {
+                        if (account == null) {
+                            application.apply {
+                                setAccessToken(null)
+                                setCurrentAccount(null)
+                            }
+                        } else {
+                            val accessToken = fetchAccessToken(account.refreshToken!!)
+                            application.apply {
+                                setAccessToken(accessToken)
+                                setCurrentAccount(
+                                    userRepository.getAccount(accessToken).await()
+                                )
+                            }
+                        }
                     }
                     _ready.postValue(true)
                 } catch (e: Exception) {
+                    Timber.tag(this::class.simpleName).d(e.toString())
                     _errorMessage.postValue(e.getErrorMessage(application))
                 }
             }

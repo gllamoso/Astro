@@ -7,7 +7,7 @@
     <data>
         <variable
             name="listing"
-            type="dev.gtcl.astro.models.reddit.listing.Listing" />
+            type="dev.gtcl.astro.models.reddit.listing.PostListing" />
     </data>
 
     <LinearLayout
@@ -22,7 +22,7 @@
             android:layout_width="wrap_content"
             android:layout_height="match_parent"
             app:listingType="@{listing}"
-            tools:srcCompat="@drawable/ic_reddit_circle_24"/>
+            tools:srcCompat="@drawable/ic_saturn_24"/>
 
         <TextView
             android:layout_width="0dp"

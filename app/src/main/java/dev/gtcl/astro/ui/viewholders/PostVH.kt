@@ -1,6 +1,7 @@
 package dev.gtcl.astro.ui.viewholders
 
 import android.content.Context
+import android.graphics.Color
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
@@ -8,17 +9,17 @@ import android.view.ViewGroup
 import android.webkit.URLUtil
 import android.widget.PopupWindow
 import androidx.recyclerview.widget.RecyclerView
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.engine.DiskCacheStrategy
 import com.bumptech.glide.request.RequestOptions
+import dev.gtcl.astro.GlideApp
+import dev.gtcl.astro.R
 import dev.gtcl.astro.Vote
 import dev.gtcl.astro.actions.ItemClickListener
 import dev.gtcl.astro.actions.PostActions
 import dev.gtcl.astro.databinding.ItemPostBinding
 import dev.gtcl.astro.databinding.PopupPostActionsBinding
+import dev.gtcl.astro.html.toDp
 import dev.gtcl.astro.models.reddit.listing.Post
 import dev.gtcl.astro.showAsDropdown
-import jp.wasabeef.glide.transformations.BlurTransformation
 
 class PostVH private constructor(private val binding: ItemPostBinding) :
     RecyclerView.ViewHolder(binding.root) {
@@ -30,48 +31,110 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
         username: String?,
         itemClickListener: ItemClickListener
     ) {
-        binding.post = post
 
-        binding.itemPostCardView.setOnClickListener {
-            post.isRead = true
-            binding.invalidateAll()
-            itemClickListener.itemClicked(post, adapterPosition)
+        binding.apply {
+            this.post = post
+
+            itemPostCardView.apply {
+                setOnClickListener {
+                    itemClickListener.itemClicked(post, adapterPosition)
+                    binding.invalidateAll()
+                }
+                setOnLongClickListener {
+                    itemClickListener.itemLongClicked(post, adapterPosition)
+                    true
+                }
+            }
+
+            setThumbnail(post, blurNsfw, postActions)
+
+            itemPostBottomPanel.apply {
+                layoutPostBottomPanelUpvoteButton.setOnClickListener {
+                    postActions.vote(post, if (post.likes == true) Vote.UNVOTE else Vote.UPVOTE)
+                    binding.invalidateAll()
+                }
+
+                layoutPostBottomPanelDownvoteButton.setOnClickListener {
+                    postActions.vote(post, if (post.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
+                    binding.invalidateAll()
+                }
+
+                layoutPostBottomPanelSaveButton.setOnClickListener {
+                    postActions.save(post)
+                    binding.invalidateAll()
+                }
+
+                layoutPostBottomPanelShareButton.setOnClickListener {
+                    postActions.share(post)
+                }
+
+                layoutPostBottomPanelMoreOptions.setOnClickListener {
+                    showPopupWindow(post, postActions, (post.author == username), it)
+                }
+            }
+
+            executePendingBindings()
+            binding.itemPostBottomPanel.invalidateAll()
+
+            // Force TextView to redraw and remeasure to prevent unintentional bottom padding
+            itemPostTitle.invalidate()
+            itemPostTitle.forceLayout()
+            itemPostPostInfo1.invalidate()
+            itemPostPostInfo1.forceLayout()
         }
 
-        setThumbnail(post, blurNsfw, postActions)
-
-        binding.itemPostMoreOptions.setOnClickListener {
-            showPopupWindow(post, postActions, (post.author == username), it)
-        }
-
-        binding.executePendingBindings()
     }
 
     private fun setThumbnail(post: Post, blurNsfw: Boolean, postActions: PostActions) {
-        val thumbnailUrl = post.thumbnail
-        if (thumbnailUrl != null && URLUtil.isValidUrl(thumbnailUrl) && Patterns.WEB_URL.matcher(
-                thumbnailUrl
-            ).matches()
-        ) {
-            binding.itemPostThumbnailBackground.visibility = View.VISIBLE
-            binding.itemPostThumbnail.setOnClickListener {
-                post.isRead = true
-                binding.invalidateAll()
-                postActions.thumbnailClicked(post, adapterPosition)
-            }
-
-            Glide.with(binding.root.context)
-                .load(thumbnailUrl).apply {
-                    if ((post.nsfw && blurNsfw)) {
-                        apply(RequestOptions.bitmapTransform(BlurTransformation()))
-                    }
-                }
-                .thumbnail(0.5F)
-                .skipMemoryCache(true)
-                .diskCacheStrategy(DiskCacheStrategy.ALL)
-                .into(binding.itemPostThumbnail)
+        val thumbnailUrl = if(post.nsfw) {
+            post.getThumbnail(blurNsfw)
         } else {
-            binding.itemPostThumbnailBackground.visibility = View.GONE
+            post.getThumbnail(false)
+        }
+
+        val thumbnailIsValid = thumbnailUrl != null && Patterns.WEB_URL.matcher(thumbnailUrl).matches() && URLUtil.isValidUrl(thumbnailUrl)
+
+        when{
+            !thumbnailIsValid && post.isSelf -> binding.itemPostThumbnailBackground.visibility = View.GONE
+            thumbnailIsValid && !post.spoiler -> {
+                binding.itemPostThumbnailBackground.visibility = View.VISIBLE
+                binding.itemPostThumbnail.apply {
+                    setBackgroundColor(Color.TRANSPARENT)
+                    setImageResource(android.R.color.transparent)
+                    setOnClickListener {
+                        postActions.thumbnailClicked(post, adapterPosition)
+                        binding.invalidateAll()
+                    }
+                    setPadding(0, 0, 0, 0)
+
+                    val thumbnailSize = 72.toDp(context)
+                    GlideApp.with(context)
+                            .load(thumbnailUrl)
+                            .apply(RequestOptions().override(thumbnailSize, thumbnailSize))
+                            .skipMemoryCache(true)
+                            .centerCrop()
+                            .into(this)
+                }
+            }
+            else -> {
+                binding.itemPostThumbnailBackground.visibility = View.VISIBLE
+                val resource = if(post.spoiler){
+                    R.drawable.ic_error_outline_24
+                } else {
+                    R.drawable.ic_no_photo_24
+                }
+                binding.itemPostThumbnail.apply {
+                    setBackgroundColor(Color.GRAY)
+                    setImageResource(resource)
+                    setOnClickListener {
+                        postActions.thumbnailClicked(post, adapterPosition)
+                        binding.invalidateAll()
+                    }
+                    val padding = 12.toDp(context)
+                    setPadding(padding, padding, padding, padding)
+                }
+
+            }
         }
     }
 
@@ -104,27 +167,8 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
                     popupWindow.dismiss()
                 }
             }
-            popupPostActionsUpvote.root.setOnClickListener {
-                postActions.vote(post, if (post.likes == true) Vote.UNVOTE else Vote.UPVOTE)
-                binding.invalidateAll()
-                popupWindow.dismiss()
-            }
-            popupPostActionsDownvote.root.setOnClickListener {
-                postActions.vote(post, if (post.likes == false) Vote.UNVOTE else Vote.DOWNVOTE)
-                binding.invalidateAll()
-                popupWindow.dismiss()
-            }
-            popupPostActionsShare.root.setOnClickListener {
-                postActions.share(post)
-                popupWindow.dismiss()
-            }
             popupPostActionsProfile.root.setOnClickListener {
                 postActions.viewProfile(post)
-                popupWindow.dismiss()
-            }
-            popupPostActionsSave.root.setOnClickListener {
-                postActions.save(post)
-                binding.invalidateAll()
                 popupWindow.dismiss()
             }
             popupPostActionsHide.root.setOnClickListener {

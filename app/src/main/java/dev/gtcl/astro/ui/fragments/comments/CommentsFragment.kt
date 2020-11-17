@@ -1,52 +1,49 @@
 package dev.gtcl.astro.ui.fragments.comments
 
-import android.Manifest
 import android.content.Context
-import android.content.pm.PackageManager
+import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.os.Bundle
+import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.webkit.URLUtil
+import android.widget.ImageView
 import android.widget.PopupWindow
 import android.widget.Toast
-import androidx.activity.result.ActivityResultLauncher
-import androidx.activity.result.contract.ActivityResultContracts
-import androidx.core.content.ContextCompat
 import androidx.core.os.bundleOf
-import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
-import androidx.recyclerview.widget.RecyclerView
-import androidx.viewpager2.widget.ViewPager2
-import com.bumptech.glide.Glide
+import com.bumptech.glide.load.DataSource
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.request.RequestListener
+import com.bumptech.glide.request.target.Target
 import com.google.android.material.bottomsheet.BottomSheetBehavior
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.actions.CommentActions
 import dev.gtcl.astro.actions.ItemClickListener
-import dev.gtcl.astro.actions.LinkHandler
 import dev.gtcl.astro.databinding.FragmentCommentsBinding
 import dev.gtcl.astro.databinding.PopupCommentSortBinding
 import dev.gtcl.astro.databinding.PopupCommentsPageActionsBinding
-import dev.gtcl.astro.models.reddit.MediaURL
+import dev.gtcl.astro.html.createHtmlViews
+import dev.gtcl.astro.html.toDp
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
-import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
-import dev.gtcl.astro.ui.fragments.media.list.MediaThumbnailsAdapter
-import dev.gtcl.astro.ui.fragments.media.list.MediaListFragmentAdapter
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
 import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
+import dev.gtcl.astro.ui.fragments.url_menu.FragmentDialogUrlMenu
 import dev.gtcl.astro.ui.fragments.view_pager.*
-import io.noties.markwon.Markwon
 
-class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHandler,
+class CommentsFragment : Fragment(), CommentActions, ItemClickListener,
     DrawerLayout.DrawerListener {
 
     private val model: CommentsVM by lazy {
@@ -65,12 +62,9 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     private lateinit var adapter: CommentsAdapter
 
-    private val markwon: Markwon by lazy {
-        createMarkwonInstance(requireContext(), ::handleLink)
+    private val movementMethod by lazy {
+        createBetterLinkMovementInstance(requireContext(), findNavController(), parentFragmentManager, activityModel)
     }
-
-    private lateinit var requestPermissionToDownloadItem: ActivityResultLauncher<String>
-    private lateinit var requestPermissionToDownloadAlbum: ActivityResultLauncher<String>
 
     override fun onResume() {
         super.onResume()
@@ -97,8 +91,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         initPostObservers()
         initTopBar()
         initBottomBarAndBottomSheet()
-        initMedia()
         initOtherObservers()
+        initPreviewImage()
 
         binding?.executePendingBindings()
         return binding?.root
@@ -106,8 +100,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Glide.get(requireContext()).clearMemory()
-        binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.adapter = null
         model.contentInitialized = false
         model.viewPagerInitialized = false
         binding = null
@@ -123,7 +115,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
         val userId = (requireActivity().application as AstroApplication).currentAccount?.fullId
         adapter =
-            CommentsAdapter(markwon, this, this, userId, model.allCommentsFetched.value == true) {
+            CommentsAdapter(this, this, userId, model.allCommentsFetched.value == true, movementMethod) {
                 if (model.loading.value != true) {
                     model.fetchFullContext()
                 }
@@ -135,7 +127,9 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         })
 
         model.comments.observe(viewLifecycleOwner, {
-            adapter.submitList(it)
+            if (it != null) {
+                adapter.submitList(it)
+            }
         })
 
         model.moreComments.observe(viewLifecycleOwner, {
@@ -147,7 +141,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
         model.removeAt.observe(viewLifecycleOwner, {
             if (it != null) {
-                adapter.removeAt(it)
+                adapter.removeItemAt(it)
                 model.removeAtObserved()
             }
         })
@@ -187,7 +181,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         }
 
         binding?.fragmentCommentsReply?.setOnClickListener {
-            checkIfLoggedInBeforeExecuting(requireContext()){
+            checkIfLoggedInBeforeExecuting(requireContext()) {
                 val post = model.post.value ?: return@checkIfLoggedInBeforeExecuting
                 if (post.locked || post.deleted) {
                     Snackbar.make(it, R.string.cannot_reply_to_post, Snackbar.LENGTH_LONG).show()
@@ -213,14 +207,16 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         model.contentInitialized = false
         val postPage = requireArguments().get(POST_PAGE_KEY) as PostPage?
         if (postPage != null) {
+            model.setAllCommentsFetched(true)
             model.fetchComments(
-                postPage.post.permalink,
+                postPage.post.permalinkFormatted,
                 isFullContext = true,
                 refreshPost = refreshPost
             )
         } else {
             val url = requireArguments().getString(URL_KEY) ?: return
-            val fullContextLink = (VALID_REDDIT_COMMENTS_URL_REGEX.find(url) ?: return).value
+            val fullcontextRegex = "(?:(?:http[s]?://)?(?:\\w+\\.)?reddit\\.com/|/)?(r/[A-Za-z0-9_.]+/comments/\\w+(?:/\\w+)?/?)".toRegex()
+            val fullContextLink = (fullcontextRegex.find(url) ?: return).value
             if (model.allCommentsFetched.value == true) {
                 model.fetchComments(
                     fullContextLink,
@@ -228,7 +224,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     refreshPost = refreshPost
                 )
             } else {
-                val isFullContext = url == fullContextLink
+                val isFullContext = url.endsWith(fullContextLink, true)
+                if(isFullContext){
+                    model.setAllCommentsFetched(true)
+                }
                 model.fetchComments(url, isFullContext = isFullContext, refreshPost = refreshPost)
             }
         }
@@ -242,7 +241,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
 
             layoutCommentsBottomBarUpvoteButton.setOnClickListener {
-                checkIfLoggedInBeforeExecuting(requireContext()){
+                checkIfLoggedInBeforeExecuting(requireContext()) {
                     if (model.loading.value == true) {
                         return@checkIfLoggedInBeforeExecuting
                     }
@@ -254,13 +253,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                         }
                         it.updateScore(vote)
                         activityModel.vote(it.name, vote)
-                        binding?.invalidateAll()
+                        binding?.fragmentCommentsPostLayout?.invalidateAll()
+                        binding?.fragmentCommentsBottomBarLayout?.invalidateAll()
                     }
                 }
             }
 
             layoutCommentsBottomBarDownvoteButton.setOnClickListener {
-                checkIfLoggedInBeforeExecuting(requireContext()){
+                checkIfLoggedInBeforeExecuting(requireContext()) {
                     if (model.loading.value == true) {
                         return@checkIfLoggedInBeforeExecuting
                     }
@@ -272,13 +272,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                         }
                         it.updateScore(vote)
                         activityModel.vote(it.name, vote)
-                        binding?.invalidateAll()
+                        binding?.fragmentCommentsPostLayout?.invalidateAll()
+                        binding?.fragmentCommentsBottomBarLayout?.invalidateAll()
                     }
                 }
             }
 
             layoutCommentsBottomBarSaveButton.setOnClickListener {
-                checkIfLoggedInBeforeExecuting(requireContext()){
+                checkIfLoggedInBeforeExecuting(requireContext()) {
                     if (model.loading.value == true) {
                         return@checkIfLoggedInBeforeExecuting
                     }
@@ -306,120 +307,22 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     }
                 }
                 if (post.isSelf) {
-                    binding?.fragmentCommentsContent?.layoutCommentsContentText?.let {
-                        markwon.setMarkdown(it, post.selftext)
-                    }
-                } else {
-                    when (post.urlType) {
-                        UrlType.OTHER, UrlType.REDDIT_COMMENTS, UrlType.REDDIT_THREAD -> initUrlPreview(
-                            post.url ?: return@observe
-                        )
-                        else -> model.fetchMediaItems(post)
-                    }
+                    binding?.fragmentCommentsContent?.layoutCommentsContentTextLayout?.createHtmlViews(
+                        post.parseSelftext(),
+                        null,
+                        movementMethod
+                    )
                 }
                 model.contentInitialized = true
             }
         })
     }
 
-    private fun initUrlPreview(url: String) {
-        binding?.fragmentCommentsContent?.layoutCommentsContentUrlLayout?.layoutUrlWithThumbnailCardView?.setOnClickListener {
-            handleLink(url)
-        }
-    }
-
-    private fun initMedia() {
-        binding?.fragmentCommentsDrawer?.setDrawerLockMode(DrawerLayout.LOCK_MODE_LOCKED_CLOSED)
-
-        model.mediaItems.observe(viewLifecycleOwner, {
-            if (it?.size ?: 0 > 0 && !model.viewPagerInitialized) {
-                setMediaInViewPager(it ?: return@observe)
-                model.viewPagerInitialized = true
-            }
-        })
-    }
-
-    private fun setMediaInViewPager(mediaUrls: List<MediaURL>) {
-        val mediaAdapter = MediaListFragmentAdapter(
-            childFragmentManager,
-            viewLifecycleOwner.lifecycle,
-            mediaUrls,
-            false
-        )
-
-        val currentPosition =
-            binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem ?: 0
-        val mediaThumbnails =
-            MediaThumbnailsAdapter(currentPosition) { position ->
-                binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem =
-                    position
-                binding?.fragmentCommentsDrawer?.closeDrawer(GravityCompat.END)
-                val behavior = BottomSheetBehavior.from(
-                    ((binding ?: return@MediaThumbnailsAdapter).fragmentCommentsBottomSheet)
-                )
-                behavior.state = BottomSheetBehavior.STATE_COLLAPSED
-            }
-
-        binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.apply {
-            this.adapter = mediaAdapter
-            (getChildAt(0) as RecyclerView).overScrollMode = RecyclerView.OVER_SCROLL_NEVER
-            if (mediaUrls.size > 1) {
-                registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
-
-                    override fun onPageSelected(position: Int) {
-                        super.onPageSelected(position)
-                        binding?.fragmentCommentsContent?.apply {
-                            layoutCommentsContentPreviousButton.visibility =
-                                if (position == 0) View.GONE else View.VISIBLE
-                            layoutCommentsContentNextButton.visibility =
-                                if (position == mediaUrls.size - 1) View.GONE else View.VISIBLE
-                        }
-                        if (mediaUrls.size > 1) {
-                            mediaThumbnails.setCurrentPosition(position)
-                        }
-                    }
-                })
-
-                binding?.fragmentCommentsContent?.apply {
-                    layoutCommentsContentPreviousButton.visibility =
-                        if (currentItem == 0) View.GONE else View.VISIBLE
-                    layoutCommentsContentNextButton.visibility =
-                        if (currentItem == mediaUrls.size - 1) View.GONE else View.VISIBLE
-                }
-            }
-        }
-
-        if (mediaUrls.size > 1) {
-
-            binding?.fragmentCommentsDrawer?.apply {
-                setDrawerLockMode(DrawerLayout.LOCK_MODE_UNLOCKED)
-                addDrawerListener(this@CommentsFragment)
-            }
-
-            mediaThumbnails.submitList(mediaUrls)
-
-            binding?.apply {
-                fragmentCommentsThumbnailsList.adapter = mediaThumbnails
-                fragmentCommentsThumbnailsIcon.setOnClickListener {
-                    fragmentCommentsDrawer.openDrawer(GravityCompat.END)
-                }
-                fragmentCommentsContent.layoutCommentsContentPreviousButton.setOnClickListener {
-                    fragmentCommentsContent.layoutCommentsContentViewPager.currentItem -= 1
-                }
-                fragmentCommentsContent.layoutCommentsContentNextButton.setOnClickListener {
-                    fragmentCommentsContent.layoutCommentsContentViewPager.currentItem += 1
-                }
-            }
-
-        }
-
-    }
-
     private fun initOtherObservers() {
         model.errorMessage.observe(viewLifecycleOwner, { errorMessage ->
             if (errorMessage != null) {
-                binding?.fragmentCommentsBottomBar?.let {
-                    Snackbar.make(it, errorMessage, Snackbar.LENGTH_LONG).show()
+                context?.let {
+                    Toast.makeText(context, errorMessage, Toast.LENGTH_LONG).show()
                 }
                 model.errorMessageObserved()
             }
@@ -440,6 +343,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             }
         })
 
+        model.previewImg.observe(viewLifecycleOwner, {
+            loadPreview(it)
+        })
+
         childFragmentManager.setFragmentResultListener(
             REPORT_KEY,
             viewLifecycleOwner,
@@ -449,7 +356,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     (model.post.value ?: return@setFragmentResultListener).hidden = true
                     binding?.fragmentCommentsPostLayout?.invalidateAll()
                 } else {
-                    adapter.removeAt(position)
+                    adapter.removeItemAt(position)
                     model.removeCommentAt(position)
                 }
             })
@@ -470,10 +377,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     model.addItems(position + 1, listOf(item))
                     adapter.addItems(position + 1, listOf(item))
                 } else if (!reply) {
-                    if (item is Post) {
+                    if (item is Post) { // Edit Post's text
                         model.contentInitialized = false
                         model.setPost(item)
-                    } else if (item is Comment) {
+                    } else if (item is Comment) { // Edit comment
                         item.depth = if (position >= 0) {
                             (((model.comments.value
                                 ?: return@setFragmentResultListener)[position] as Comment).depth
@@ -482,7 +389,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                             0
                         }
                         model.setCommentAt(item, position)
-                        adapter.updateAt(item, position)
+                        adapter.updateItemAt(item, position)
                     }
                 }
             })
@@ -498,36 +405,80 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     activityModel.updatePost(post, nsfw, spoiler, getNotification, flair)
                 }
             })
+    }
 
-
-        requestPermissionToDownloadItem = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                model.downloadItem(
-                    binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem
-                        ?: 0
-                )
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.please_grant_necessary_permissions),
-                    Toast.LENGTH_LONG
-                ).show()
+    private fun initPreviewImage(){
+        binding?.fragmentCommentsContent?.layoutCommentsContentPreviewImage?.apply{
+            setOnClickListener {
+                val post = model.post.value ?: return@setOnClickListener
+                post.urlFormatted?.handleUrl(context, null, post.previewVideoUrl, childFragmentManager, findNavController(), activityModel)
+            }
+            setOnLongClickListener {
+                val url = model.post.value?.urlFormatted ?: return@setOnLongClickListener true
+                FragmentDialogUrlMenu.newInstance(url).show(childFragmentManager, null)
+                true
             }
         }
 
-        requestPermissionToDownloadAlbum = registerForActivityResult(
-            ActivityResultContracts.RequestPermission()
-        ) { isGranted: Boolean ->
-            if (isGranted) {
-                model.downloadAlbum()
-            } else {
-                Toast.makeText(
-                    requireContext(),
-                    getString(R.string.please_grant_necessary_permissions),
-                    Toast.LENGTH_LONG
-                ).show()
+        binding?.fragmentCommentsContent?.layoutCommentsContentUrlLayout?.root?.apply {
+            setOnClickListener {
+                val post = model.post.value ?: return@setOnClickListener
+                post.urlFormatted?.handleUrl(context, null, post.previewVideoUrl, childFragmentManager, findNavController(), activityModel)
+            }
+            setOnLongClickListener {
+                val url = model.post.value?.urlFormatted ?: return@setOnLongClickListener true
+                FragmentDialogUrlMenu.newInstance(url).show(childFragmentManager, null)
+                true
+            }
+        }
+    }
+
+    private fun loadPreview(imgUrl: String?) {
+        val imgView = binding?.fragmentCommentsContent?.layoutCommentsContentPreviewImage ?: return
+        model.showPreviewIcon(false)
+        when{
+            imgUrl == null -> imgView.visibility = View.GONE
+            !URLUtil.isValidUrl(imgUrl) && !Patterns.WEB_URL.matcher(imgUrl).matches() -> {
+                model.showPreviewIcon(true)
+                imgView.apply {
+                    val size = 256.toDp(context)
+                    setImageResource(R.drawable.ic_no_photo_24)
+                    scaleType = ImageView.ScaleType.FIT_CENTER
+                    setBackgroundColor(Color.GRAY)
+                    layoutParams.height = size
+                }
+            }
+            else -> {
+                imgView.apply {
+                    setBackgroundColor(Color.TRANSPARENT)
+                    scaleType = ImageView.ScaleType.FIT_XY
+                    layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
+                }
+                GlideApp.with(imgView.context)
+                        .load(imgUrl)
+                        .addListener(object : RequestListener<Drawable> {
+                            override fun onLoadFailed(
+                                    e: GlideException?,
+                                    mod: Any?,
+                                    target: Target<Drawable>?,
+                                    isFirstResource: Boolean
+                            ): Boolean {
+                                return false
+                            }
+
+                            override fun onResourceReady(
+                                    resource: Drawable?,
+                                    mod: Any?,
+                                    target: Target<Drawable>?,
+                                    dataSource: DataSource?,
+                                    isFirstResource: Boolean
+                            ): Boolean {
+                                model.showPreviewIcon(true)
+                                return false
+                            }
+
+                        })
+                        .into(imgView)
             }
         }
     }
@@ -566,7 +517,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                     Toast.LENGTH_LONG
                 ).show()
             } else {
-                ReplyOrEditDialogFragment.newInstance(comment, position, true)
+                ReplyOrEditDialogFragment.newInstance(comment, position - adapter.getOffset(), true)
                     .show(childFragmentManager, null)
             }
         }
@@ -582,7 +533,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
     override fun block(comment: Comment, position: Int) {
         checkIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.block(comment)
-            adapter.removeAt(position)
+            adapter.removeItemAt(position)
             model.removeCommentAt(position)
         }
     }
@@ -603,7 +554,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
 
     override fun edit(comment: Comment, position: Int) {
         checkIfLoggedInBeforeExecuting(requireContext()) {
-            ReplyOrEditDialogFragment.newInstance(comment, position, false)
+            ReplyOrEditDialogFragment.newInstance(comment, position - adapter.getOffset(), false)
                 .show(childFragmentManager, null)
         }
     }
@@ -612,17 +563,18 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         checkIfLoggedInBeforeExecuting(requireContext()) {
             activityModel.delete(comment.name)
             model.removeCommentAt(position)
-            adapter.removeAt(position)
+            adapter.removeItemAt(position)
         }
     }
 
-    override fun itemClicked(item: Item, position: Int) {
+    override fun itemClicked(item: Item, position: Int) { // "position" is offset by adapter
+        val positionWithoutOffset = position - adapter.getOffset()
         when (item) {
             is More -> {
                 if (item.isContinueThreadLink) {
                     activityModel.newViewPagerPage(
                         CommentsPage(
-                            "https://www.reddit.com${(model.post.value ?: return).permalink}${
+                            "${(model.post.value ?: return).permalinkWithRedditDomain}${
                                 item.parentId.replace(
                                     "t1_",
                                     ""
@@ -631,30 +583,34 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
                         )
                     )
                 } else {
-                    model.fetchMoreComments(position)
+                    model.fetchMoreComments(positionWithoutOffset)
                 }
             }
             is Comment -> {
                 val collapse = !item.isCollapsed
                 item.isCollapsed = collapse
+                if(collapse) {
+                    item.isExpanded = false
+                }
                 adapter.notifyItemChanged(position)
                 if (collapse) {
-                    val hideSize = model.hideItems(position)
+                    val hideSize = model.hideResponses(positionWithoutOffset)
                     if (hideSize != 0) {
-                        adapter.removeRange(position + 1, hideSize)
+                        adapter.removeItems(positionWithoutOffset + 1, hideSize)
                     }
                 } else {
-                    val unhideItems = model.unhideItems(position)
+                    val unhideItems = model.unhideItems(positionWithoutOffset)
                     if (unhideItems.isNotEmpty()) {
-                        adapter.addItems(position + 1, unhideItems)
+                        adapter.addItems(positionWithoutOffset + 1, unhideItems)
                     }
                 }
             }
         }
     }
 
-    override fun handleLink(link: String) {
-        viewPagerModel.linkClicked(link)
+    override fun itemLongClicked(item: Item, position: Int) {
+        item.isExpanded = !item.isExpanded
+        adapter.notifyItemChanged(position)
     }
 
 //     _____                                             _   _
@@ -752,22 +708,10 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
         val popupBinding = PopupCommentsPageActionsBinding.inflate(inflater)
         val popupWindow = PopupWindow()
         popupBinding.apply {
-            val post = model.post.value ?: return@apply
-            val currentAccount =
-                (this@CommentsFragment.requireActivity().application as AstroApplication).currentAccount
-            val currentMediaUrl = model.mediaItems.value?.get(
-                binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem ?: 0
-            )
-            val currentMediaType = when (currentMediaUrl?.mediaType) {
-                MediaType.GIF, MediaType.PICTURE -> SimpleMediaType.PICTURE
-                MediaType.VIDEO -> SimpleMediaType.VIDEO
-                else -> null
-            }
-            this.post = post
-            this.createdFromUser =
-                currentAccount != null && currentAccount.fullId == post.authorFullName
-            this.currentItemMediaType = currentMediaType
-            if (createdFromUser == true) {
+            val viewModel = this@CommentsFragment.model
+            this.model = viewModel
+            val post = viewModel.post.value ?: return@apply
+            if (viewModel.postCreatedFromUser) {
                 if (post.isSelf) {
                     popupCommentsPageActionsEdit.root.setOnClickListener {
                         checkIfLoggedInBeforeExecuting(requireContext()) {
@@ -819,51 +763,6 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener, LinkHand
             popupCommentsPageActionsShare.root.setOnClickListener {
                 SharePostOptionsDialogFragment.newInstance(post).show(parentFragmentManager, null)
                 popupWindow.dismiss()
-            }
-            if (currentItemMediaType != null) {
-                popupCommentsPageActionsFullScreen.root.setOnClickListener {
-                    MediaDialogFragment.newInstance(
-                        post.url ?: return@setOnClickListener,
-                        model.mediaItems.value ?: return@setOnClickListener
-                    )
-                        .show(childFragmentManager, null)
-                    popupWindow.dismiss()
-                }
-                popupCommentsPageActionsDownloadSingleItem.root.setOnClickListener {
-                    if (ContextCompat.checkSelfPermission(
-                            requireContext(),
-                            Manifest.permission.WRITE_EXTERNAL_STORAGE
-                        ) == PackageManager.PERMISSION_GRANTED
-                    ) {
-                        model.downloadItem(
-                            binding?.fragmentCommentsContent?.layoutCommentsContentViewPager?.currentItem
-                                ?: 0
-                        )
-                    } else {
-                        requestPermissionToDownloadItem.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                    }
-                    popupWindow.dismiss()
-                }
-                if (post.urlType == UrlType.IMGUR_ALBUM || post.urlType == UrlType.REDDIT_GALLERY) {
-                    popupCommentsPageActionsDownloadAll.root.setOnClickListener {
-                        if (ContextCompat.checkSelfPermission(
-                                requireContext(),
-                                Manifest.permission.WRITE_EXTERNAL_STORAGE
-                            ) == PackageManager.PERMISSION_GRANTED
-                        ) {
-                            model.downloadAlbum()
-                        } else {
-                            requestPermissionToDownloadAlbum.launch(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                        }
-                        popupWindow.dismiss()
-                    }
-                }
-            }
-            if (post.url != null) {
-                popupCommentsPageActionsLink.root.setOnClickListener {
-                    activityModel.openChromeTab(post.url)
-                    popupWindow.dismiss()
-                }
             }
             popupCommentsPageActionsReport.root.setOnClickListener {
                 checkIfLoggedInBeforeExecuting(requireContext()) {

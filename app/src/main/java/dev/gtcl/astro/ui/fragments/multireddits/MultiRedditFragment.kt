@@ -1,25 +1,38 @@
 package dev.gtcl.astro.ui.fragments.multireddits
 
 import android.os.Bundle
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.NavController
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
-import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
-import dev.gtcl.astro.*
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.R
+import dev.gtcl.astro.SELECTED_SUBREDDITS_KEY
+import dev.gtcl.astro.ViewModelFactory
+import dev.gtcl.astro.actions.ItemClickListener
 import dev.gtcl.astro.databinding.FragmentMultiredditSubredditsBinding
-import dev.gtcl.astro.models.reddit.listing.MultiRedditUpdate
+import dev.gtcl.astro.models.reddit.listing.Item
 import dev.gtcl.astro.models.reddit.listing.Subreddit
+import dev.gtcl.astro.models.reddit.listing.SubredditListing
+import dev.gtcl.astro.ui.activities.MainActivityVM
+import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
+import dev.gtcl.astro.ui.viewholders.OnSubredditRemovedListener
 
 class MultiRedditFragment : Fragment(),
-    MultiRedditSubredditsAdapter.OnSubredditRemovedListener {
+    ItemClickListener,
+    OnSubredditRemovedListener {
 
     private var binding: FragmentMultiredditSubredditsBinding? = null
     private lateinit var navController: NavController
     private lateinit var adapter: MultiRedditSubredditsAdapter
+
+    private val activityModel: MainActivityVM by activityViewModels()
 
     private val model: MultiRedditVM by lazy {
         val viewModelFactory = ViewModelFactory(requireActivity().application as AstroApplication)
@@ -42,18 +55,16 @@ class MultiRedditFragment : Fragment(),
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Glide.get(requireContext()).clearMemory()
         binding = null
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
 
         if (!model.initialized) {
-            val multiReddit = args.multiReddit
-            model.fetchMultiReddit(multiReddit)
+            model.fetchMultiReddit(args.path)
         }
 
-        adapter = MultiRedditSubredditsAdapter(this)
+        adapter = MultiRedditSubredditsAdapter(this, this)
         binding?.fragmentMultiRedditSubredditsList?.adapter = adapter
 
         binding?.fragmentMultiRedditSubredditsToolbar?.setNavigationOnClickListener {
@@ -70,7 +81,7 @@ class MultiRedditFragment : Fragment(),
             SELECTED_SUBREDDITS_KEY
         )?.observe(
             viewLifecycleOwner, {
-                model.addSubredditsToMultiReddit(it)
+                model.addSubredditsToMultiReddit(args.path, it)
             }
         )
 
@@ -87,21 +98,37 @@ class MultiRedditFragment : Fragment(),
         binding?.fragmentMultiRedditSubredditsToolbar?.setOnMenuItemClickListener {
             if (it.itemId == R.id.edit) {
                 if (model.multi.value != null) {
-                    MultiRedditDetailsDialogFragment.newInstance(model.multi.value!!)
+                    MultiRedditCreationDialogFragment.newInstance(model.multi.value!!, false)
                         .show(childFragmentManager, null)
                 }
             }
             true
         }
 
-        childFragmentManager.setFragmentResultListener(MULTI_KEY, viewLifecycleOwner, { _, bundle ->
-            val multiUpdate = bundle.get(MULTI_KEY) as MultiRedditUpdate
-            model.updateMultiReddit(multiUpdate)
+        activityModel.newMulti.observe(viewLifecycleOwner, {
+            if (it != null) {
+                model.updateMulti(it)
+                activityModel.newMultiObserved()
+            }
         })
     }
 
     override fun onRemove(subreddit: Subreddit, position: Int) {
-        model.remove(subreddit, position)
+        model.remove(args.path, subreddit, position)
         adapter.notifyItemRemoved(position)
     }
+
+    override fun itemClicked(item: Item, position: Int) {
+        if (item is Subreddit) {
+            findNavController().navigate(
+                MultiRedditFragmentDirections.actionMultiRedditFragmentToViewPagerFragment(
+                    ListingPage(SubredditListing(item.displayName))
+                )
+            )
+        }
+    }
+
+    override fun itemLongClicked(item: Item, position: Int) {} // Unused
+
+
 }

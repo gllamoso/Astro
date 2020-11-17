@@ -1,6 +1,5 @@
 package dev.gtcl.astro.repositories
 
-import androidx.annotation.MainThread
 import dev.gtcl.astro.models.imgur.ImgurResponse
 import dev.gtcl.astro.network.ImgurApi
 import kotlinx.coroutines.Deferred
@@ -11,18 +10,15 @@ import java.io.File
 
 class ImgurRepository private constructor() {
 
-    @MainThread
     fun uploadImage(image: File): Deferred<ImgurResponse> {
         val requestFile = image.asRequestBody("multipart/form-data".toMediaTypeOrNull())
         val body = MultipartBody.Part.createFormData("image", image.name, requestFile)
         return ImgurApi.retrofit.uploadImage(body = body)
     }
 
-    @MainThread
     fun getAlbumImages(albumHash: String): Deferred<ImgurResponse> =
         ImgurApi.retrofit.getAlbumImages(albumHash = albumHash)
 
-    @MainThread
     fun getImage(imageHash: String): Deferred<ImgurResponse> =
         ImgurApi.retrofit.getImage(imageHash = imageHash)
 

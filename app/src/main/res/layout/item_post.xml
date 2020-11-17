@@ -34,8 +34,8 @@
                     android:id="@+id/itemPost_tagsGroup"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="8dp"
-                    android:layout_marginTop="8dp"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginTop="12dp"
                     android:gravity="center_vertical"
                     android:orientation="horizontal"
                     app:layout_constraintEnd_toStartOf="@+id/itemPost_thumbnailBackground"
@@ -45,69 +45,76 @@
                     <include
                         layout="@layout/icon_nsfw"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="22dp"
                         android:layout_marginEnd="4dp"
                         android:visibility="@{post.nsfw == true ? View.VISIBLE : View.GONE}" />
 
                     <include
                         layout="@layout/icon_spoiler"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="22dp"
                         android:layout_marginEnd="4dp"
                         android:visibility="@{post.spoiler == true ? View.VISIBLE : View.GONE}" />
 
-                    <include
+                    <com.google.android.material.card.MaterialCardView
                         android:id="@+id/itemPost_flairLayout"
-                        layout="@layout/icon_flair"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="22dp"
+                        app:flairBackground="@{post.flairColor}"
                         android:layout_marginEnd="4dp"
-                        app:charSequence="@{post.flairTextFormatted}"
-                        android:visibility="@{post.flairText != null ? View.VISIBLE : View.GONE}" />
+                        app:cardCornerRadius="4dp"
+                        app:itemWithFlair="@{post}"/>
 
                     <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginStart="-3dp"
                         android:src="@drawable/ic_bookmark_24"
-                        app:tint="@android:color/holo_orange_light"
-                        android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}" />
+                        android:visibility="@{post.saved == true ? View.VISIBLE : View.GONE}"
+                        app:tint="@android:color/holo_orange_light" />
 
                     <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginStart="-3dp"
                         android:src="@drawable/ic_crosspost_24"
                         app:tint="@android:color/holo_blue_bright"
                         android:visibility="@{post.crosspostParentList != null &amp;&amp; post.crosspostParentList.size() > 0 ? View.VISIBLE : View.GONE}" />
 
                     <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:layout_marginEnd="4dp"
                         android:src="@drawable/ic_hide_24"
                         android:visibility="@{post.hidden == true ? View.VISIBLE : View.GONE}" />
 
                     <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:src="@drawable/ic_pin_24"
+                        android:layout_marginStart="-2dp"
                         app:tint="@android:color/holo_green_light"
                         android:visibility="@{post.pinned == true || post.stickied == true ? View.VISIBLE : View.GONE}" />
 
                     <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
                         android:src="@drawable/ic_lock_24"
                         app:tint="@android:color/holo_red_light"
                         android:visibility="@{post.locked == true ? View.VISIBLE : View.GONE}" />
 
                     <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:layout_marginEnd="4dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginStart="-1dp"
+                        android:src="@drawable/ic_block_24"
+                        app:tint="@android:color/holo_red_dark"
+                        android:visibility="@{post.removedBy != null ? View.VISIBLE : View.GONE}" />
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:layout_marginStart="-3dp"
                         android:src="@drawable/ic_delete_24"
                         app:tint="@android:color/darker_gray"
                         android:visibility="@{post.deleted == true ? View.VISIBLE : View.GONE}" />
@@ -118,7 +125,7 @@
                     android:id="@+id/itemPost_title"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="8dp"
+                    android:layout_marginHorizontal="12dp"
                     android:textSize="16sp"
                     android:text="@{post.titleFormatted}"
                     app:layout_constraintEnd_toStartOf="@id/itemPost_thumbnailBackground"
@@ -127,102 +134,73 @@
                     app:read="@{post.isRead}"
                     tools:text="Title" />
 
-                <LinearLayout
+                <TextView
                     android:id="@+id/itemPost_postInfo1"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="8dp"
-                    android:orientation="horizontal"
+                    android:layout_marginHorizontal="12dp"
+                    android:textColor="@android:color/darker_gray"
                     app:layout_constraintEnd_toStartOf="@id/itemPost_thumbnailBackground"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/itemPost_title">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:text="@{post.subredditPrefixed}"
-                        android:textColor="@android:color/darker_gray"
-                        tools:text="r/funny" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:text=" • "
-                        android:textColor="@android:color/darker_gray"
-                        tools:ignore="HardcodedText" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:text="@{post.author}"
-                        android:textColor="@android:color/darker_gray"
-                        tools:text="User123" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:text=" • "
-                        android:textColor="@android:color/darker_gray"
-                        android:textSize="12sp"
-                        tools:ignore="HardcodedText" />
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:text="@{post.domain}"
-                        android:textColor="@android:color/darker_gray"
-                        tools:text="i.redd.it" />
-
-                </LinearLayout>
+                    app:layout_constraintTop_toBottomOf="@id/itemPost_title"
+                    tools:text="r/funny • User123 • reddit.com"
+                    app:post="@{post}"/>
 
                 <LinearLayout
                     android:id="@+id/itemPost_postInfo2"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:layout_marginHorizontal="8dp"
+                    android:layout_marginHorizontal="12dp"
+                    android:layout_marginBottom="10dp"
+                    android:paddingVertical="2dp"
                     android:orientation="horizontal"
+                    android:gravity="center_vertical"
+                    app:layout_constraintVertical_bias="0"
                     app:layout_constraintEnd_toStartOf="@id/itemPost_thumbnailBackground"
                     app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toBottomOf="@id/itemPost_postInfo1">
+                    app:layout_constraintTop_toBottomOf="@id/itemPost_postInfo1"
+                    app:layout_constraintBottom_toTopOf="@id/itemPost_bottomPanel">
+
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:layout_marginStart="-3dp"
+                        android:src="@drawable/ic_upvote_24"
+                        android:tint="@android:color/darker_gray"
+                        app:likes="@{post.likes}"
+                        tools:tint="@android:color/holo_orange_dark"/>
 
                     <TextView
                         android:id="@+id/itemPost_scoreInfo"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:singleLine="true"
+                        android:layout_marginEnd="4dp"
                         android:text="@{UtilKt.numFormatted(post.score)}"
                         android:textColor="@{post.likes == null ? @android:color/darker_gray : post.likes == true ? @android:color/holo_orange_dark : @android:color/holo_blue_dark}"
                         tools:text="9k"
                         tools:textColor="@android:color/holo_orange_dark" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:text=" • "
-                        android:textColor="@android:color/darker_gray"
-                        tools:ignore="HardcodedText" />
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:tint="@android:color/darker_gray"
+                        android:src="@drawable/ic_comment_24"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:singleLine="true"
-                        android:text="@{String.format(@string/num_comments, UtilKt.numFormatted(post.numComments))}"
+                        android:text="@{UtilKt.numFormatted(post.numComments)}"
+                        android:layout_marginEnd="4dp"
                         android:textColor="@android:color/darker_gray"
-                        tools:text="9k comments" />
+                        tools:text="9k" />
 
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:singleLine="true"
-                        android:text=" • "
-                        android:textColor="@android:color/darker_gray"
-                        tools:ignore="HardcodedText" />
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        android:tint="@android:color/darker_gray"
+                        android:src="@drawable/ic_timer_24"/>
 
                     <TextView
                         android:layout_width="wrap_content"
@@ -230,70 +208,31 @@
                         android:singleLine="true"
                         android:text="@{UtilKt.timeSince(post.created)}"
                         android:textColor="@android:color/darker_gray"
+                        android:layout_marginEnd="4dp"
                         tools:text="3h" />
 
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginHorizontal="8dp"
-                    android:gravity="center_vertical"
-                    android:layout_marginBottom="8dp"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/itemPost_thumbnailBackground"
-                    app:layout_constraintTop_toBottomOf="@id/itemPost_postInfo2"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintVertical_bias="0">
+                    <androidx.appcompat.widget.AppCompatImageView
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        tools:src="@drawable/ic_no_photo_24"
+                        android:layout_marginEnd="2dp"
+                        app:loadImage="@{post.awards.size() > 0 ? post.awards.get(0).icons.get(1).urlFormatted : null}"/>
 
                     <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
+                        android:layout_width="18dp"
+                        android:layout_height="18dp"
+                        tools:src="@drawable/ic_no_photo_24"
                         android:layout_marginEnd="2dp"
-                        android:src="@drawable/ic_reddit_silver"
-                        android:visibility="@{post.gildings != null &amp;&amp; post.gildings.silver != null ? View.VISIBLE : View.GONE}"/>
+                        app:loadImage="@{post.awards.size() > 1 ? post.awards.get(1).icons.get(1).urlFormatted : null}"/>
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="@{(post.gildings != null &amp;&amp; post.gildings.silver != null ? post.gildings.silver : 0).toString()}"
-                        android:textColor="#919191"
+                        android:singleLine="true"
                         android:layout_marginEnd="4dp"
-                        android:visibility="@{post.gildings != null &amp;&amp; post.gildings.silver != null ? View.VISIBLE : View.GONE}"
-                        tools:text="99"/>
-
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:layout_marginEnd="2dp"
-                        android:src="@drawable/ic_reddit_gold"
-                        android:visibility="@{post.gildings != null &amp;&amp; post.gildings.gold != null ? View.VISIBLE : View.GONE}"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@{(post.gildings != null &amp;&amp; post.gildings.gold != null ? post.gildings.gold : 0).toString()}"
-                        android:textColor="#ffd54f"
-                        android:layout_marginEnd="4dp"
-                        android:visibility="@{post.gildings != null &amp;&amp; post.gildings.gold != null ? View.VISIBLE : View.GONE}"
-                        tools:text="99"/>
-
-                    <androidx.appcompat.widget.AppCompatImageView
-                        android:layout_width="16dp"
-                        android:layout_height="16dp"
-                        android:layout_marginEnd="2dp"
-                        android:src="@drawable/ic_reddit_platinum"
-                        android:visibility="@{post.gildings != null &amp;&amp; post.gildings.platinum != null ? View.VISIBLE : View.GONE}"/>
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="@{(post.gildings != null &amp;&amp; post.gildings.platinum != null ? post.gildings.platinum : 0).toString()}"
-                        android:textColor="#00bfa5"
-                        android:layout_marginEnd="4dp"
-                        android:visibility="@{post.gildings != null &amp;&amp; post.gildings.platinum != null ? View.VISIBLE : View.GONE}"
-                        tools:text="99"/>
+                        android:textColor="@android:color/darker_gray"
+                        app:awardsNum="@{post.totalAwards}"
+                        tools:text="999 awards"/>
 
                 </LinearLayout>
 
@@ -301,11 +240,12 @@
                     android:id="@+id/itemPost_thumbnailBackground"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginVertical="8dp"
-                    android:layout_marginEnd="8dp"
+                    android:layout_marginVertical="12dp"
+                    android:layout_marginEnd="12dp"
                     android:background="@android:color/black"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    app:layout_constraintEnd_toStartOf="@id/itemPost_moreOptions"
+                    app:layout_constraintVertical_bias="0"
+                    app:layout_constraintBottom_toTopOf="@id/itemPost_bottomPanel"
+                    app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent">
 
                     <androidx.appcompat.widget.AppCompatImageView
@@ -317,18 +257,17 @@
 
                 </FrameLayout>
 
-                <androidx.appcompat.widget.AppCompatImageView
-                    android:id="@+id/itemPost_moreOptions"
-                    android:layout_width="wrap_content"
+                <include
+                    layout="@layout/layout_post_bottom_panel"
+                    android:id="@+id/itemPost_bottomPanel"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginVertical="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:padding="2dp"
-                    android:background="?android:attr/selectableItemBackgroundBorderless"
-                    android:src="@drawable/ic_more_vert_24"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:itemLiked="@{post.likes}"
+                    app:itemSaved="@{post.saved}"
+                    app:show="@{post.expanded}"
+                    app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent" />
+                    app:layout_constraintBottom_toBottomOf="parent"/>
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 

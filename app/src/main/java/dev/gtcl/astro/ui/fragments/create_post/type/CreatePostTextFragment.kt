@@ -8,9 +8,9 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.ViewModelProviders
-import dev.gtcl.astro.TextPost
 import dev.gtcl.astro.databinding.FragmentCreatePostTextBinding
 import dev.gtcl.astro.ui.fragments.create_post.CreatePostVM
+import dev.gtcl.astro.ui.fragments.create_post.TextPost
 
 class CreatePostTextFragment : Fragment() {
 

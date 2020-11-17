@@ -1,9 +1,9 @@
 package dev.gtcl.astro.actions
 
-import dev.gtcl.astro.models.reddit.listing.Listing
+import dev.gtcl.astro.models.reddit.listing.PostListing
 
 interface NavigationActions {
-    fun listingSelected(listing: Listing)
+    fun listingSelected(postListing: PostListing)
     fun accountSelected(user: String?)
     fun messagesSelected()
     fun signInNewAccount()

@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="itemLiked"
+            type="Boolean" />
+        <variable
+            name="itemSaved"
+            type="Boolean" />
+        <variable
+            name="show"
+            type="Boolean" />
+        <import type="android.view.View"/>
+    </data>
+
+    <LinearLayout
+        android:id="@+id/layoutPostBottomPanel_bottomPanel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:background="?android:attr/colorControlHighlight"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent">
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/layoutPostBottomPanel_upvoteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_upvote_24"
+            app:upvoteTint="@{itemLiked ?? null}"
+            android:padding="2dp"
+            android:layout_marginVertical="16dp"
+            android:visibility="@{show ? View.VISIBLE : View.GONE}"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="2"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/layoutPostBottomPanel_downvoteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_downvote_24"
+            app:downvoteTint="@{itemLiked ?? null}"
+            android:padding="2dp"
+            android:layout_marginVertical="16dp"
+            android:visibility="@{show ? View.VISIBLE : View.GONE}"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="2"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/layoutPostBottomPanel_saveButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:bookmarkTint="@{itemSaved ?? false}"
+            android:src="@drawable/ic_bookmark_24"
+            android:padding="2dp"
+            android:layout_marginVertical="16dp"
+            android:visibility="@{show ? View.VISIBLE : View.GONE}"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="2"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/layoutPostBottomPanel_shareButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/ic_share_24"
+            android:padding="2dp"
+            android:layout_marginVertical="16dp"
+            android:visibility="@{show ? View.VISIBLE : View.GONE}"
+            android:background="?android:attr/selectableItemBackgroundBorderless" />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="2"/>
+
+        <androidx.appcompat.widget.AppCompatImageView
+            android:id="@+id/layoutPostBottomPanel_moreOptions"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:padding="2dp"
+            android:layout_marginVertical="16dp"
+            android:visibility="@{show ? View.VISIBLE : View.GONE}"
+            android:background="?android:attr/selectableItemBackgroundBorderless"
+            android:src="@drawable/ic_more_vert_24"/>
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:layout_weight="1"/>
+
+    </LinearLayout>
+
+</layout>

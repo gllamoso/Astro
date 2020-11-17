@@ -3,13 +3,16 @@ package dev.gtcl.astro.ui.viewholders
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import dev.gtcl.astro.ProfileInfo
 import dev.gtcl.astro.SubscriptionType
 import dev.gtcl.astro.actions.ListingTypeClickListener
 import dev.gtcl.astro.actions.SubscriptionActions
 import dev.gtcl.astro.actions.SubscriptionAdapterActions
 import dev.gtcl.astro.database.Subscription
 import dev.gtcl.astro.databinding.ItemSubscriptionBinding
-import dev.gtcl.astro.models.reddit.listing.SubscriptionListing
+import dev.gtcl.astro.models.reddit.listing.MultiRedditListing
+import dev.gtcl.astro.models.reddit.listing.ProfileListing
+import dev.gtcl.astro.models.reddit.listing.SubredditListing
 
 class SubscriptionVH private constructor(private val binding: ItemSubscriptionBinding) :
     RecyclerView.ViewHolder(binding.root) {
@@ -25,7 +28,11 @@ class SubscriptionVH private constructor(private val binding: ItemSubscriptionBi
         binding.sub = sub
         binding.root.setOnClickListener {
             listingTypeClickListener.listingTypeClicked(
-                SubscriptionListing(sub)
+                when (sub.type) {
+                    SubscriptionType.MULTIREDDIT -> MultiRedditListing(sub.displayName, sub.url)
+                    SubscriptionType.SUBREDDIT -> SubredditListing(sub.displayName)
+                    SubscriptionType.USER -> ProfileListing(sub.displayName, ProfileInfo.OVERVIEW)
+                }
             )
         }
 

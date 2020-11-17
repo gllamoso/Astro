@@ -74,7 +74,7 @@ class BlockedFragment : Fragment(), UserActions {
 
         model.errorMessage.observe(viewLifecycleOwner, { errorMessage ->
             if (errorMessage != null) {
-                binding?.root?.let{
+                binding?.root?.let {
                     Snackbar.make(it, errorMessage, Snackbar.LENGTH_LONG).show()
                 }
                 model.errorMessageObserved()

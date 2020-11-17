@@ -99,9 +99,9 @@
                                 android:layout_height="wrap_content"
                                 android:gravity="center_vertical"
                                 android:singleLine="true"
-                                android:text="@{model.account.subreddit.title}"
+                                android:text="@{model.account.subreddit.titleFormatted}"
                                 android:textColor="@android:color/white"
-                                android:visibility="@{model.account.subreddit.title.empty ? View.GONE : View.VISIBLE}"
+                                android:visibility="@{model.account.subreddit.titleFormatted.empty ? View.GONE : View.VISIBLE}"
                                 tools:text="Display Name" />
 
 
@@ -179,7 +179,7 @@
 
         <include
             android:id="@+id/fragmentAccount_leftDrawerLayout"
-            android:layout_width="240dp"
+            android:layout_width="300dp"
             android:layout_height="match_parent"
             android:layout_gravity="start"
             layout="@layout/layout_left_drawer"/>

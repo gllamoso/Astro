@@ -10,31 +10,27 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.actions.*
 import dev.gtcl.astro.databinding.FragmentItemScrollerBinding
-import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
 import dev.gtcl.astro.network.NetworkState
 import dev.gtcl.astro.network.Status
-import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.ListingAdapter
+import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.manage.ManagePostDialogFragment
-import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
-import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
-import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditDialogFragment
 import dev.gtcl.astro.ui.fragments.report.ReportDialogFragment
+import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
+import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
+import dev.gtcl.astro.ui.fragments.subreddits.SubredditInfoDialogFragment
 import dev.gtcl.astro.ui.fragments.view_pager.*
-import io.noties.markwon.Markwon
 
 open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, MessageActions,
-    SubredditActions, ItemClickListener, LinkHandler {
+    SubredditActions, ItemClickListener {
 
     private var binding: FragmentItemScrollerBinding? = null
 
@@ -46,11 +42,15 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         ViewModelProvider(this, viewModelFactory).get(ItemScrollerVM::class.java)
     }
 
-    private val markwon: Markwon by lazy {
-        createMarkwonInstance(requireContext(), ::handleLink)
+    private val activityModel: MainActivityVM by activityViewModels()
+
+    private val sharedPref by lazy {
+        (requireActivity().application as AstroApplication).sharedPref
     }
 
-    private val activityModel: MainActivityVM by activityViewModels()
+    private val movementMethod by lazy {
+        createBetterLinkMovementInstance(requireContext(), findNavController(), parentFragmentManager, activityModel)
+    }
 
     override fun onResume() {
         super.onResume()
@@ -59,8 +59,6 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         if (scrollPosition == 0) { // Fix for recyclerview items not being updated
             binding?.fragmentItemScrollerList?.scrollToPosition(0)
         }
-        val sharedPref =
-            PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
         val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
         val blurNsfwThumbnail = sharedPref.getBoolean(NSFW_THUMBNAIL_KEY, false)
         if (showNsfw != model.showNsfw) {
@@ -92,9 +90,15 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         return binding?.root
     }
 
+    private fun resetOnScrollListener() {
+        binding?.fragmentItemScrollerList?.apply {
+            clearOnScrollListeners()
+            addOnScrollListener(scrollListener)
+        }
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
-        Glide.get(requireContext()).clearMemory()
         binding = null
     }
 
@@ -104,34 +108,15 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     private fun initListingInfo() {
-        val sharedPref =
-            PreferenceManager.getDefaultSharedPreferences(requireActivity().application as AstroApplication)
         val showNsfw = sharedPref.getBoolean(NSFW_KEY, false)
         model.setNsfw(showNsfw)
         val args = requireArguments()
         when {
-            args.getSerializable(PROFILE_INFO_KEY) != null -> {
-                val profileInfo = args.getSerializable(PROFILE_INFO_KEY) as ProfileInfo
+            args.getSerializable(LISTING_KEY) != null -> {
+                val listing = args.getSerializable(LISTING_KEY) as PostListing
                 val postSort = args.getSerializable(POST_SORT_KEY) as PostSort
                 val time = args.getSerializable(TIME_KEY) as Time?
-                val user = args.getString(USER_KEY)
-                model.setListingInfo(
-                    ProfileListing(
-                        profileInfo
-                    )
-                )
-                model.setListingSort(postSort, time)
-                model.setUser(user)
-            }
-            args.getSerializable(SUBREDDIT_KEY) != null -> {
-                val subreddit = args.getString(SUBREDDIT_KEY) ?: return
-                val postSort = args.getSerializable(POST_SORT_KEY) as PostSort
-                val time = args.getSerializable(TIME_KEY) as Time?
-                model.setListingInfo(
-                    SubredditListing(
-                        subreddit
-                    )
-                )
+                model.setListingInfo(listing, true)
                 model.setListingSort(postSort, time)
             }
             args.getSerializable(MESSAGE_WHERE_KEY) != null -> {
@@ -154,12 +139,11 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             recyclerView?.layoutManager as GridLayoutManager,
             model::loadMore
         )
-        val preferences = PreferenceManager.getDefaultSharedPreferences(requireContext())
-        val blurNsfw = preferences.getBoolean(NSFW_THUMBNAIL_KEY, false)
+        val blurNsfw = sharedPref.getBoolean(NSFW_THUMBNAIL_KEY, false)
         val currentAccount = (requireActivity().application as AstroApplication).currentAccount
         val inInbox = requireArguments().getSerializable(MESSAGE_WHERE_KEY) != null
         listAdapter = ListingAdapter(
-            markwon,
+            movementMethod = movementMethod,
             postActions = this,
             commentActions = this,
             messageActions = this,
@@ -168,11 +152,8 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
             itemClickListener = this,
             username = currentAccount?.name
         ) {
-            recyclerView.apply {
-                removeOnScrollListener(scrollListener)
-                addOnScrollListener(scrollListener)
-                model.retry()
-            }
+            resetOnScrollListener()
+            model.retry()
         }
         recyclerView.apply {
             this.adapter = listAdapter
@@ -202,7 +183,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
         model.lastItemReached.observe(viewLifecycleOwner, {
             if (it == true) {
-                recyclerView.removeOnScrollListener(scrollListener)
+                recyclerView.clearOnScrollListeners()
             }
         })
 
@@ -212,10 +193,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                 return@setOnRefreshListener
             }
 
-            recyclerView.apply {
-                removeOnScrollListener(scrollListener)
-                addOnScrollListener(scrollListener)
-            }
+            resetOnScrollListener()
             initData()
         }
     }
@@ -231,7 +209,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         })
 
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
-            handleLink(bundle.getString(URL_KEY) ?: "")
+            (bundle.getString(URL_KEY) ?: "").handleUrl(context, null, null, parentFragmentManager, findNavController(), activityModel)
         })
 
         childFragmentManager.setFragmentResultListener(
@@ -328,47 +306,12 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     override fun thumbnailClicked(post: Post, position: Int) {
+        post.isRead = true
         model.addReadItem(post)
-        when (val urlType: UrlType? = post.url?.getUrlType()) {
-            UrlType.OTHER -> activityModel.openChromeTab(post.url)
-            UrlType.REDDIT_GALLERY -> {
-                val dialog = MediaDialogFragment.newInstance(
-                    post.url,
-                    post.galleryAsMediaItems ?: return,
-                    PostPage(post, position)
-                )
-                dialog.show(parentFragmentManager, null)
-            }
-            null -> itemClicked(post, position)
-            else -> {
-                val mediaType = when (urlType) {
-                    UrlType.IMGUR_ALBUM -> MediaType.IMGUR_ALBUM
-                    UrlType.IMGUR_IMAGE -> MediaType.IMGUR_PICTURE
-                    UrlType.GIF -> MediaType.GIF
-                    UrlType.GFYCAT -> MediaType.GFYCAT
-                    UrlType.REDGIFS -> MediaType.REDGIFS
-                    UrlType.IMAGE -> MediaType.PICTURE
-                    UrlType.HLS, UrlType.GIFV, UrlType.STANDARD_VIDEO, UrlType.REDDIT_VIDEO -> MediaType.VIDEO
-                    else -> null
-                }
-                if (mediaType == null) {
-                    handleLink(post.url)
-                    return
-                }
-                val url = when (mediaType) {
-                    MediaType.VIDEO -> post.previewVideoUrl ?: return
-                    else -> post.url
-                }
-                val backupUrl = when (mediaType) {
-                    MediaType.GFYCAT, MediaType.REDGIFS -> post.previewVideoUrl
-                    else -> null
-                }
-                val dialog = MediaDialogFragment.newInstance(
-                    MediaURL(url, mediaType, backupUrl),
-                    PostPage(post, position)
-                )
-                dialog.show(parentFragmentManager, null)
-            }
+        if(post.isSelf){
+            activityModel.newViewPagerPage(PostPage(post, position))
+        } else {
+            post.urlFormatted?.handleUrl(context, PostPage(post, position), post.previewVideoUrl, parentFragmentManager, findNavController(), activityModel)
         }
     }
 
@@ -427,7 +370,7 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
                     Toast.LENGTH_LONG
                 ).show()
             } else {
-                ReplyOrEditDialogFragment.newInstance(comment, position, true)
+                ReplyOrEditDialogFragment.newInstance(comment, -1, true)
                     .show(childFragmentManager, null)
             }
         }
@@ -532,10 +475,15 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 //    |_____/ \__,_|_.__/|_|  \___|\__,_|\__,_|_|\__| /_/    \_\___|\__|_|\___/|_| |_|___/
 //
 
-    override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-        checkIfLoggedInBeforeExecuting(requireContext()) {
-            subreddit.userSubscribed = subscribe
-            activityModel.subscribe(subreddit, subscribe)
+    override fun viewMoreInfo(displayName: String) {
+        if (displayName.startsWith("u_")) {
+            findNavController().navigate(
+                ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                    AccountPage(displayName.removePrefix("u_"))
+                )
+            )
+        } else {
+            SubredditInfoDialogFragment.newInstance(displayName).show(childFragmentManager, null)
         }
     }
 
@@ -549,20 +497,20 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     override fun itemClicked(item: Item, position: Int) {
         when (item) {
             is Post -> {
+                item.isRead = true
                 model.addReadItem(item)
                 activityModel.newViewPagerPage(PostPage(item, position))
-
             }
             is Message -> {
-                ReplyOrEditDialogFragment.newInstance(item, position, true)
+                ReplyOrEditDialogFragment.newInstance(item, -1, true)
                     .show(childFragmentManager, null)
             }
             is Comment -> {
-                if (item.permalink != null) {
-                    val permalink = "https://www.reddit.com${item.permalink}"
+                if (item.permalinkFormatted != null) {
+                    val permalink = "https://www.reddit.com${item.permalinkFormatted}"
                     activityModel.newViewPagerPage(CommentsPage(permalink, true))
                 } else {
-                    val context = item.context
+                    val context = item.contextFormatted
                     if (context.isNullOrBlank()) {
                         throw Exception("Comment has no permalink or context: $item")
                     }
@@ -583,8 +531,9 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         }
     }
 
-    override fun handleLink(link: String) {
-        parentFragmentManager.setFragmentResult(URL_KEY, bundleOf(URL_KEY to link))
+    override fun itemLongClicked(item: Item, position: Int) {
+        item.isExpanded = !item.isExpanded
+        listAdapter.notifyItemChanged(position)
     }
 
 //     _   _                 _____           _
@@ -597,37 +546,17 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
 
     companion object {
         fun newInstance(
-            profileInfo: ProfileInfo,
-            postSort: PostSort,
-            time: Time?,
-            user: String? = null
-        ): ItemScrollerFragment {
-            val fragment =
-                ItemScrollerFragment()
-            val args = bundleOf(
-                PROFILE_INFO_KEY to profileInfo,
-                POST_SORT_KEY to postSort,
-                TIME_KEY to time,
-                USER_KEY to user
-            )
-            fragment.arguments = args
-            return fragment
-        }
-
-        fun newInstance(
-            subreddit: String,
+            postListing: PostListing,
             postSort: PostSort,
             time: Time?
         ): ItemScrollerFragment {
-            val fragment =
-                ItemScrollerFragment()
-            val args = bundleOf(
-                SUBREDDIT_KEY to subreddit,
-                POST_SORT_KEY to postSort,
-                TIME_KEY to time
-            )
-            fragment.arguments = args
-            return fragment
+            return ItemScrollerFragment().apply {
+                arguments = bundleOf(
+                    LISTING_KEY to postListing,
+                    POST_SORT_KEY to postSort,
+                    TIME_KEY to time
+                )
+            }
         }
 
         fun newInstance(messageWhere: MessageWhere): ItemScrollerFragment {

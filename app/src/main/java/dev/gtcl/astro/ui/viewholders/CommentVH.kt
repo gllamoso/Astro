@@ -11,31 +11,74 @@ import dev.gtcl.astro.actions.CommentActions
 import dev.gtcl.astro.actions.ItemClickListener
 import dev.gtcl.astro.databinding.ItemCommentBinding
 import dev.gtcl.astro.databinding.PopupCommentActionsBinding
+import dev.gtcl.astro.html.createHtmlViews
 import dev.gtcl.astro.models.reddit.listing.Comment
 import dev.gtcl.astro.showAsDropdown
-import io.noties.markwon.Markwon
+import me.saket.bettermovementmethod.BetterLinkMovementMethod
 
 class CommentVH private constructor(private val binding: ItemCommentBinding) :
     RecyclerView.ViewHolder(binding.root) {
     fun bind(
         comment: Comment,
-        markwon: Markwon,
+        movementMethod: BetterLinkMovementMethod,
         commentActions: CommentActions,
         userId: String?,
+        isLastItem: Boolean,
         itemClickListener: ItemClickListener
     ) {
         val isUser = (userId != null && comment.authorFullName == userId)
-        binding.comment = comment
-        binding.isUser = isUser
-        binding.showTopDivider = (adapterPosition != 0 && comment.depth ?: 0 == 0)
-        binding.itemCommentBackground.setOnClickListener {
-            itemClickListener.itemClicked(comment, adapterPosition)
+        binding.apply {
+            showBottomDivider = isLastItem && !comment.isExpanded
+            this.comment = comment
+            this.isUser = isUser
+            showTopDivider = (adapterPosition != 0 && comment.depth ?: 0 == 0)
+            itemCommentBackground.apply {
+                setOnClickListener {
+                    itemClickListener.itemClicked(comment, adapterPosition)
+                }
+                setOnLongClickListener {
+                    if(comment.isCollapsed){
+                        false
+                    } else {
+                        itemClickListener.itemLongClicked(comment, adapterPosition)
+                        true
+                    }
+                }
+            }
+            itemCommentBottomPanel.apply {
+                layoutCommentBottomPanelSmallUpvoteButton.setOnClickListener {
+                    commentActions.vote(
+                        comment,
+                        if (comment.likes == true) Vote.UNVOTE else Vote.UPVOTE
+                    )
+                    binding.invalidateAll()
+                }
+
+                layoutCommentBottomPanelSmallDownvoteButton.setOnClickListener {
+                    commentActions.vote(
+                        comment,
+                        if (comment.likes == false) Vote.UNVOTE else Vote.DOWNVOTE
+                    )
+                    binding.invalidateAll()
+                }
+
+                layoutCommentBottomPanelSmallSaveButton.setOnClickListener {
+                    commentActions.save(comment)
+                    binding.invalidateAll()
+                }
+
+
+                layoutCommentBottomPanelSmallReplyButton.setOnClickListener {
+                    commentActions.reply(comment, adapterPosition)
+                }
+
+                layoutCommentBottomPanelSmallMoreOptions.setOnClickListener {
+                    showPopupWindow(comment, commentActions, isUser, it)
+                }
+            }
+            itemCommentBodyMessageLayout.createHtmlViews(comment.parseBody(), null, movementMethod)
+            executePendingBindings()
         }
-        binding.itemCommentMoreOptions.setOnClickListener {
-            showPopupWindow(comment, commentActions, isUser, it)
-        }
-        markwon.setMarkdown(binding.itemCommentBodyMessage, comment.body)
-        binding.executePendingBindings()
     }
 
     private fun showPopupWindow(
@@ -62,37 +105,12 @@ class CommentVH private constructor(private val binding: ItemCommentBinding) :
                     popupWindow.dismiss()
                 }
             }
-            popupCommentActionsUpvote.root.setOnClickListener {
-                commentActions.vote(
-                    comment,
-                    if (comment.likes == true) Vote.UNVOTE else Vote.UPVOTE
-                )
-                binding.invalidateAll()
-                popupWindow.dismiss()
-            }
-            popupCommentActionsDownvote.root.setOnClickListener {
-                commentActions.vote(
-                    comment,
-                    if (comment.likes == false) Vote.UNVOTE else Vote.DOWNVOTE
-                )
-                binding.invalidateAll()
-                popupWindow.dismiss()
-            }
-            popupCommentActionsReply.root.setOnClickListener {
-                commentActions.reply(comment, adapterPosition)
-                popupWindow.dismiss()
-            }
-            popupCommentActionsSave.root.setOnClickListener {
-                commentActions.save(comment)
-                binding.invalidateAll()
+            popupCommentActionsShare.root.setOnClickListener {
+                commentActions.share(comment)
                 popupWindow.dismiss()
             }
             popupCommentActionsProfile.root.setOnClickListener {
                 commentActions.viewProfile(comment)
-                popupWindow.dismiss()
-            }
-            popupCommentActionsShare.root.setOnClickListener {
-                commentActions.share(comment)
                 popupWindow.dismiss()
             }
             popupCommentActionsReport.root.setOnClickListener {

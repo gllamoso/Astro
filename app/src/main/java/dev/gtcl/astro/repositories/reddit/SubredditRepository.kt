@@ -1,6 +1,5 @@
 package dev.gtcl.astro.repositories.reddit
 
-import androidx.annotation.MainThread
 import dev.gtcl.astro.*
 import dev.gtcl.astro.database.Subscription
 import dev.gtcl.astro.database.redditDatabase
@@ -17,25 +16,6 @@ import retrofit2.Response
 class SubredditRepository private constructor(private val application: AstroApplication) {
     private val database = redditDatabase(application)
 
-    @MainThread
-    fun getSubredditsListing(
-        where: SubredditWhere,
-        after: String? = null,
-        limit: Int = 100
-    ): Deferred<ListingResponse> {
-        return if (application.accessToken != null) {
-            RedditApi.oauth.getSubreddits(
-                application.accessToken!!.authorizationHeader,
-                where,
-                after,
-                limit
-            )
-        } else {
-            RedditApi.base.getSubreddits(null, where, after, limit)
-        }
-    }
-
-    @MainThread
     fun getMySubreddits(limit: Int = 100, after: String? = null): Deferred<ListingResponse> {
         return if (application.accessToken != null) {
             RedditApi.oauth.getSubredditsOfMine(
@@ -49,11 +29,9 @@ class SubredditRepository private constructor(private val application: AstroAppl
         }
     }
 
-    @MainThread
     fun subscribe(subreddit: Subreddit, subscribe: Boolean): Deferred<Response<Unit>> =
         subscribe(subreddit.displayName, subscribe)
 
-    @MainThread
     fun searchSubreddits(
         nsfw: Boolean,
         includeProfiles: Boolean,
@@ -73,7 +51,6 @@ class SubredditRepository private constructor(private val application: AstroAppl
         }
     }
 
-    @MainThread
     fun getSubreddit(displayName: String): Deferred<SubredditChild> {
         return if (application.accessToken == null) {
             RedditApi.base.getSubredditInfo(null, displayName)
@@ -85,7 +62,6 @@ class SubredditRepository private constructor(private val application: AstroAppl
         }
     }
 
-    @MainThread
     fun getRules(displayName: String): Deferred<RulesResponse> {
         return if (application.accessToken == null) {
             RedditApi.base.getSubredditRules(null, displayName)
@@ -97,6 +73,22 @@ class SubredditRepository private constructor(private val application: AstroAppl
         }
     }
 
+    fun getModeratedSubs(username: String): Deferred<ModeratedList> {
+        return if (application.accessToken == null) {
+            RedditApi.base.getModeratedSubs(
+                null,
+                username
+            )
+        } else {
+            RedditApi.oauth.getModeratedSubs(
+                application.accessToken!!.authorizationHeader,
+                username
+            )
+        }
+    }
+
+    fun getTrendingSubreddits() = RedditApi.base.getTrendingSubredditNames()
+
     //                                       _
 //        /\                            | |
 //       /  \   ___ ___ ___  _   _ _ __ | |_ ___
@@ -104,7 +96,6 @@ class SubredditRepository private constructor(private val application: AstroAppl
 //     / ____ \ (_| (_| (_) | |_| | | | | |_\__ \
 //    /_/    \_\___\___\___/ \__,_|_| |_|\__|___/
 //
-    @MainThread
     fun subscribe(account: Account, subscribe: Boolean): Deferred<Response<Unit>> =
         subscribe("u_${account.name}", subscribe)
 
@@ -116,7 +107,6 @@ class SubredditRepository private constructor(private val application: AstroAppl
 //    |_|  |_|\__,_|_|\__|_|      |_|  \_\___|\__,_|\__,_|_|\__|___/
 //
 
-    @MainThread
     fun getMyMultiReddits(): Deferred<List<MultiRedditChild>> {
         if (application.accessToken == null) {
             throw NotLoggedInException()
@@ -124,7 +114,14 @@ class SubredditRepository private constructor(private val application: AstroAppl
         return RedditApi.oauth.getMyMultiReddits(application.accessToken!!.authorizationHeader)
     }
 
-    @MainThread
+    fun getMultiReddits(username: String): Deferred<List<MultiRedditChild>> {
+        return if (application.accessToken == null) {
+            RedditApi.base.getMultiReddits(null, username)
+        } else {
+            RedditApi.oauth.getMultiReddits(application.accessToken!!.authorizationHeader, username)
+        }
+    }
+
     fun getMultiReddit(multipath: String): Deferred<MultiRedditChild> {
         return if (application.accessToken == null) {
             RedditApi.base.getMultiReddit(null, multipath)
@@ -133,7 +130,6 @@ class SubredditRepository private constructor(private val application: AstroAppl
         }
     }
 
-    @MainThread
     fun deleteMultiReddit(multipath: String): Deferred<Response<Unit>> {
         if (application.accessToken == null) {
             throw NotLoggedInException()
@@ -144,7 +140,6 @@ class SubredditRepository private constructor(private val application: AstroAppl
         )
     }
 
-    @MainThread
     fun deleteSubredditFromMultiReddit(
         multipath: String,
         subreddit: Subreddit
@@ -159,7 +154,6 @@ class SubredditRepository private constructor(private val application: AstroAppl
         )
     }
 
-    @MainThread
     fun updateMulti(multipath: String, model: MultiRedditUpdate): Deferred<MultiRedditChild> {
         if (application.accessToken == null) {
             throw NotLoggedInException()
@@ -171,12 +165,27 @@ class SubredditRepository private constructor(private val application: AstroAppl
         )
     }
 
-    @MainThread
     fun createMulti(model: MultiRedditUpdate): Deferred<MultiRedditChild> {
         if (application.accessToken == null) {
             throw NotLoggedInException()
         }
         return RedditApi.oauth.createMulti(application.accessToken!!.authorizationHeader, model)
+    }
+
+    fun copyMulti(
+        multiPath: String,
+        displayName: String,
+        descriptionMd: String?
+    ): Deferred<MultiRedditChild> {
+        if (application.accessToken == null) {
+            throw NotLoggedInException()
+        }
+        return RedditApi.oauth.copyMulti(
+            application.accessToken!!.authorizationHeader,
+            multiPath,
+            displayName,
+            descriptionMd
+        )
     }
 
 //      _____       _                   _       _   _
@@ -189,7 +198,6 @@ class SubredditRepository private constructor(private val application: AstroAppl
 //                                       |_|
 
     // INSERT
-    @MainThread
     suspend fun insertSubreddits(subs: List<Subreddit>) {
         withContext(Dispatchers.IO) {
             database.subscriptionDao.insert(
@@ -200,7 +208,6 @@ class SubredditRepository private constructor(private val application: AstroAppl
         }
     }
 
-    @MainThread
     suspend fun insertSubreddit(sub: Subreddit) {
         withContext(Dispatchers.IO) {
             database.subscriptionDao.insert(
@@ -211,14 +218,12 @@ class SubredditRepository private constructor(private val application: AstroAppl
         }
     }
 
-    @MainThread
     suspend fun insertMultiReddits(multis: List<MultiReddit>) {
         withContext(Dispatchers.IO) {
             database.subscriptionDao.insert(multis.asSubscriptions())
         }
     }
 
-    @MainThread
     suspend fun insertMultiReddit(multi: MultiReddit) {
         withContext(Dispatchers.IO) {
             database.subscriptionDao.insert(multi.asSubscription())
@@ -232,12 +237,10 @@ class SubredditRepository private constructor(private val application: AstroAppl
         }
     }
 
-    @MainThread
     fun subscribe(subscription: Subscription, subscribe: Boolean) =
         subscribe(subscription.name, subscribe)
 
     // DELETE
-    @MainThread
     suspend fun deleteAllMySubscriptions() {
         withContext(Dispatchers.IO) {
             database.subscriptionDao.deleteAllSubscriptions(
@@ -246,14 +249,12 @@ class SubredditRepository private constructor(private val application: AstroAppl
         }
     }
 
-    @MainThread
     suspend fun deleteSubscription(subscription: Subscription) {
         withContext(Dispatchers.IO) {
             database.subscriptionDao.deleteSubscription(subscription.id)
         }
     }
 
-    @MainThread
     suspend fun deleteSubscription(subreddit: Subreddit) {
         deleteSubscription(subreddit.asSubscription(application.currentAccount?.id ?: GUEST_ID))
     }
@@ -291,7 +292,6 @@ class SubredditRepository private constructor(private val application: AstroAppl
 //    | |  | | \__ \ (__
 //    |_|  |_|_|___/\___|
 
-    @MainThread
     fun subscribe(name: String, subscribe: Boolean): Deferred<Response<Unit>> {
         if (application.accessToken == null) {
             throw NotLoggedInException()
@@ -310,7 +310,6 @@ class SubredditRepository private constructor(private val application: AstroAppl
         )
     }
 
-    @MainThread
     fun getFlairs(srName: String): Deferred<List<Flair>> {
         if (application.accessToken == null) {
             throw NotLoggedInException()
@@ -319,7 +318,6 @@ class SubredditRepository private constructor(private val application: AstroAppl
         return RedditApi.oauth.getFlairs(application.accessToken!!.authorizationHeader, srName)
     }
 
-    @MainThread
     fun submitTextPost(
         subreddit: String,
         title: String,
@@ -346,7 +344,6 @@ class SubredditRepository private constructor(private val application: AstroAppl
         )
     }
 
-    @MainThread
     fun submitUrlPost(
         subreddit: String,
         title: String,
@@ -374,7 +371,6 @@ class SubredditRepository private constructor(private val application: AstroAppl
         )
     }
 
-    @MainThread
     fun submitCrosspost(
         subreddit: String,
         title: String,
@@ -402,7 +398,6 @@ class SubredditRepository private constructor(private val application: AstroAppl
         )
     }
 
-    @MainThread
     fun submitUrlPostForErrors(
         subreddit: String,
         title: String,

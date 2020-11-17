@@ -1,51 +1,48 @@
 package dev.gtcl.astro.repositories.reddit
 
-import androidx.annotation.MainThread
 import dev.gtcl.astro.*
-import dev.gtcl.astro.database.ItemRead
-import dev.gtcl.astro.database.redditDatabase
-import dev.gtcl.astro.models.reddit.*
 import dev.gtcl.astro.models.reddit.listing.*
-import dev.gtcl.astro.network.CommentPage
 import dev.gtcl.astro.network.RedditApi
 import kotlinx.coroutines.Deferred
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 const val GUEST_ID = "guest"
 
 class ListingRepository private constructor(private val application: AstroApplication) {
 
-    private val database = redditDatabase(application)
-
     // --- NETWORK
-    @MainThread
-    fun getListing(
-        listing: Listing,
+    fun getPostListing(
+        postListing: PostListing,
         postSort: PostSort,
         t: Time? = null,
         after: String?,
         pageSize: Int,
-        user: String? = null
+        count: Int
     ): Deferred<ListingResponse> {
         val accessToken = application.accessToken
-        val userName = user ?: application.currentAccount?.name
-        return when (listing) {
+        return when (postListing) {
             FrontPage -> if (accessToken != null) {
                 RedditApi.oauth.getPostFromFrontPage(
                     accessToken.authorizationHeader,
-                    postSort, t, after, pageSize
+                    postSort, t, after, count, pageSize
                 )
             } else {
-                RedditApi.base.getPostFromFrontPage(null, postSort, t, after, pageSize)
+                RedditApi.base.getPostFromFrontPage(null, postSort, t, after, count, pageSize)
             }
             All -> if (accessToken != null) {
                 RedditApi.oauth.getPostsFromSubreddit(
                     accessToken.authorizationHeader, "all",
-                    postSort, t, after, pageSize
+                    postSort, t, after, count, pageSize
                 )
             } else {
-                RedditApi.base.getPostsFromSubreddit(null, "all", postSort, t, after, pageSize)
+                RedditApi.base.getPostsFromSubreddit(
+                    null,
+                    "all",
+                    postSort,
+                    t,
+                    after,
+                    count,
+                    pageSize
+                )
             }
             Popular -> if (accessToken != null) {
                 RedditApi.oauth.getPostsFromSubreddit(
@@ -54,117 +51,121 @@ class ListingRepository private constructor(private val application: AstroApplic
                     postSort,
                     t,
                     after,
+                    count,
                     pageSize
                 )
             } else {
-                RedditApi.base.getPostsFromSubreddit(null, "popular", postSort, t, after, pageSize)
+                RedditApi.base.getPostsFromSubreddit(
+                    null,
+                    "popular",
+                    postSort,
+                    t,
+                    after,
+                    count,
+                    pageSize
+                )
+            }
+            Friends -> {
+                if (accessToken == null) {
+                    throw NotLoggedInException()
+                } else {
+                    RedditApi.oauth.getPostsFromSubreddit(
+                        accessToken.authorizationHeader,
+                        "friends",
+                        postSort,
+                        t,
+                        after,
+                        count,
+                        pageSize
+                    )
+                }
             }
             is SearchListing -> if (accessToken != null) {
                 RedditApi.oauth.searchPosts(
                     accessToken.authorizationHeader,
-                    listing.query,
+                    postListing.query,
                     postSort,
                     t,
                     after,
+                    count,
                     pageSize
                 )
             } else {
-                RedditApi.base.searchPosts(null, listing.query, postSort, t, after, pageSize)
+                RedditApi.base.searchPosts(
+                    null,
+                    postListing.query,
+                    postSort,
+                    t,
+                    after,
+                    count,
+                    pageSize
+                )
             }
             is MultiRedditListing -> if (accessToken != null) {
                 RedditApi.oauth.getMultiRedditListing(
                     accessToken.authorizationHeader,
-                    listing.multiReddit.path.removePrefix("/"),
+                    postListing.path.removePrefix("/"),
                     postSort,
                     t,
                     after,
+                    count,
                     pageSize
                 )
             } else {
                 RedditApi.base.getMultiRedditListing(
                     null,
-                    listing.multiReddit.path.removePrefix("/"),
+                    postListing.path.removePrefix("/"),
                     postSort,
                     t,
                     after,
+                    count,
                     pageSize
                 )
             }
             is SubredditListing -> if (accessToken != null) {
                 RedditApi.oauth.getPostsFromSubreddit(
                     accessToken.authorizationHeader,
-                    listing.displayName,
+                    postListing.displayName,
                     postSort,
                     t,
                     after,
+                    count,
                     pageSize
                 )
             } else {
                 RedditApi.base.getPostsFromSubreddit(
                     null,
-                    listing.displayName,
+                    postListing.displayName,
                     postSort,
                     t,
                     after,
+                    count,
                     pageSize
                 )
             }
             is ProfileListing -> if (accessToken != null) {
                 RedditApi.oauth.getPostsFromUser(
                     accessToken.authorizationHeader,
-                    userName!!,
-                    listing.info,
+                    postListing.user ?: application.currentAccount?.name
+                    ?: throw Exception("No user found"),
+                    postListing.info,
                     after,
+                    count,
                     pageSize
                 )
             } else {
-                RedditApi.base.getPostsFromUser(null, userName!!, listing.info, after, pageSize)
-            }
-            is SubscriptionListing -> {
-                if (accessToken != null) {
-                    when (listing.subscription.type) {
-                        SubscriptionType.SUBREDDIT, SubscriptionType.USER -> RedditApi.oauth.getPostsFromSubreddit(
-                            accessToken.authorizationHeader,
-                            listing.subscription.name,
-                            postSort,
-                            t,
-                            after,
-                            pageSize
-                        )
-                        SubscriptionType.MULTIREDDIT -> RedditApi.oauth.getMultiRedditListing(
-                            accessToken.authorizationHeader,
-                            listing.subscription.url.removePrefix("/"),
-                            postSort,
-                            t,
-                            after,
-                            pageSize
-                        )
-                    }
-                } else {
-                    when (listing.subscription.type) {
-                        SubscriptionType.SUBREDDIT, SubscriptionType.USER -> RedditApi.base.getPostsFromSubreddit(
-                            null,
-                            listing.subscription.name,
-                            postSort,
-                            t,
-                            after,
-                            pageSize
-                        )
-                        SubscriptionType.MULTIREDDIT -> RedditApi.base.getMultiRedditListing(
-                            null,
-                            listing.subscription.url.removePrefix("/"),
-                            postSort,
-                            t,
-                            after,
-                            pageSize
-                        )
-                    }
-                }
+                RedditApi.base.getPostsFromUser(
+                    null,
+                    postListing.user ?: throw Exception("No user found"),
+                    postListing.info,
+                    after,
+                    count,
+                    pageSize
+                )
             }
         }
     }
 
-    @MainThread
     fun getMessages(
         where: MessageWhere,
         after: String? = null,
@@ -181,52 +182,28 @@ class ListingRepository private constructor(private val application: AstroApplic
         )
     }
 
-    // --- DATABASE
-
-    @MainThread
-    suspend fun getReadPosts() = database.readItemDao.getAll()
-
-    @MainThread
-    suspend fun addReadItem(item: Item) {
-        withContext(Dispatchers.IO) {
-            database.readItemDao.insert(ItemRead(item.name))
-        }
-    }
-
-    // --- COMMENTS
-    fun getPostAndComments(
-        permalink: String,
-        sort: CommentSort = CommentSort.BEST,
-        limit: Int = 15
-    ): Deferred<CommentPage> {
-        val linkWithoutDomain = permalink.replace("http[s]?://www\\.reddit\\.com/".toRegex(), "")
-        return if (application.accessToken == null) {
-            RedditApi.base.getPostAndComments(null, "$linkWithoutDomain.json", sort, limit)
-        } else {
-            RedditApi.oauth.getPostAndComments(
+    fun getSubredditsListing(
+        where: SubredditWhere,
+        after: String? = null,
+        limit: Int = 100
+    ): Deferred<ListingResponse> {
+        return if (application.accessToken != null) {
+            RedditApi.oauth.getSubreddits(
                 application.accessToken!!.authorizationHeader,
-                "$linkWithoutDomain.json",
-                sort,
+                where,
+                after,
                 limit
             )
+        } else {
+            RedditApi.base.getSubreddits(null, where, after, limit)
         }
     }
 
-    @MainThread
-    fun getMoreComments(
-        children: String,
-        linkId: String,
-        sort: CommentSort = CommentSort.BEST
-    ): Deferred<MoreChildrenResponse> {
-        return if (application.accessToken == null) {
-            RedditApi.base.getMoreComments(null, children, linkId, sort = sort)
+    fun getPostFromId(fullname: String): Deferred<ListingResponse>{
+        return if (application.accessToken != null) {
+            RedditApi.oauth.getPost(application.accessToken!!.authorizationHeader, fullname)
         } else {
-            RedditApi.oauth.getMoreComments(
-                application.accessToken!!.authorizationHeader,
-                children,
-                linkId,
-                sort = sort
-            )
+            RedditApi.base.getPost(null, fullname)
         }
     }
 

@@ -1,16 +1,17 @@
 package dev.gtcl.astro
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Context.INPUT_METHOD_SERVICE
 import android.net.Uri
-import android.os.Parcelable
-import android.text.util.Linkify
 import android.util.Base64
+import android.util.Patterns
 import android.util.TypedValue
 import android.view.View
 import android.view.ViewGroup
 import android.view.inputmethod.InputMethodManager
 import android.view.inputmethod.InputMethodManager.SHOW_IMPLICIT
+import android.webkit.URLUtil
 import android.widget.EditText
 import android.widget.PopupWindow
 import android.widget.Toast
@@ -21,34 +22,33 @@ import androidx.annotation.Nullable
 import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import androidx.core.view.children
+import androidx.fragment.app.FragmentManager
 import androidx.lifecycle.MutableLiveData
+import androidx.navigation.NavController
 import com.google.android.exoplayer2.source.MediaSource
 import com.google.android.exoplayer2.source.ProgressiveMediaSource
 import com.google.android.exoplayer2.source.dash.DashMediaSource
 import com.google.android.exoplayer2.source.dash.DefaultDashChunkSource
 import com.google.android.exoplayer2.source.hls.HlsMediaSource
 import com.google.android.exoplayer2.upstream.DefaultDataSourceFactory
-import com.google.gson.Gson
 import com.google.gson.annotations.SerializedName
 import com.squareup.moshi.Json
 import com.squareup.moshi.JsonDataException
-import dev.gtcl.astro.database.SavedAccount
-import dev.gtcl.astro.markdown.CustomMarkwonPlugin
+import dev.gtcl.astro.models.reddit.MediaURL
 import dev.gtcl.astro.models.reddit.listing.*
-import io.noties.markwon.Markwon
-import io.noties.markwon.ext.strikethrough.StrikethroughPlugin
-import io.noties.markwon.ext.tables.TablePlugin
-import io.noties.markwon.linkify.LinkifyPlugin
-import io.noties.markwon.movement.MovementMethodPlugin
-import kotlinx.android.parcel.Parcelize
+import dev.gtcl.astro.ui.activities.MainActivityVM
+import dev.gtcl.astro.ui.fragments.media.MediaDialogFragment
+import dev.gtcl.astro.ui.fragments.url_menu.FragmentDialogUrlMenu
+import dev.gtcl.astro.ui.fragments.view_pager.*
+import dev.gtcl.astro.url.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import me.saket.bettermovementmethod.BetterLinkMovementMethod
+import timber.log.Timber
 import java.lang.reflect.Field
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
 import java.util.*
-import kotlin.Exception
 
 const val REDDIT_CLIENT_ID = "NjgsWrF6i2B0Jw"
 const val REDDIT_REDIRECT_URL = "http://reddit.gtcl.com/redirect"
@@ -223,33 +223,6 @@ enum class Visibility {
     HIDDEN
 }
 
-enum class RuleType {
-    RULE,
-    SITE_RULE,
-    OTHER
-}
-
-data class RuleData(
-    val rule: String,
-    val type: RuleType
-)
-
-enum class MediaType {
-    PICTURE,
-    IMGUR_PICTURE,
-    GIF,
-    VIDEO,
-    VIDEO_PREVIEW,
-    GFYCAT,
-    REDGIFS,
-    IMGUR_ALBUM
-}
-
-enum class SimpleMediaType {
-    PICTURE,
-    VIDEO
-}
-
 const val SECONDS_IN_YEAR = 31_536_000.toLong()
 const val SECONDS_IN_MONTH = 2_592_000.toLong()
 const val SECONDS_IN_WEEK = 604_800.toLong()
@@ -296,7 +269,11 @@ fun timeSince(seconds: Long): String {
     return sb.toString()
 }
 
-fun numFormatted(num: Int): String {
+fun numFormatted(num: Int?): String {
+    if (num == null) {
+        return ""
+    }
+
     val sb = StringBuilder()
     when {
         num >= 1_000_000 -> {
@@ -364,7 +341,14 @@ suspend fun setItemsReadStatus(items: List<Item>, readIds: HashSet<String>) {
     }
 }
 
-fun String.toValidImgUrl(): String? = IMAGE_REGEX.find(this)?.value
+fun String.removeHtmlEntities(): String {
+    return this.replace("&lt;".toRegex(), "<")
+            .replace("&gt;".toRegex(), ">")
+            .replace("&quot;".toRegex(), "\"")
+            .replace("&#x200B;".toRegex(), "")
+            .replace("&#32;".toRegex(), " ")
+            .replace("&amp;".toRegex(), "&")
+}
 
 operator fun <T> MutableLiveData<MutableList<T>>.plusAssign(values: List<T>) {
     val value = this.value ?: arrayListOf()
@@ -382,97 +366,6 @@ operator fun <T> MutableLiveData<MutableSet<T>>.minusAssign(item: T) {
     val value = this.value ?: hashSetOf()
     value.remove(item)
     this.value = value
-}
-
-sealed class PostContent
-class TextPost(val body: String) : PostContent()
-class ImagePost(val uri: Uri) : PostContent()
-class LinkPost(val url: String) : PostContent()
-
-val IMGUR_GALLERY_REGEX = "http[s]?://(m\\.)?imgur\\.com/gallery/\\w+".toRegex()
-val IMGUR_ALBUM_REGEX = "http[s]?://(m\\.)?imgur\\.com/a/\\w+".toRegex()
-val IMGUR_IMAGE_REGEX = "http[s]?://(m\\.)?imgur\\.com/\\w+".toRegex()
-val IMAGE_REGEX = "http[s]?://.+\\.(jpg|png|svg|jpeg)".toRegex()
-val GIF_REGEX = "http[s]?://.+\\.gif".toRegex()
-val GIFV_REGEX = "http[s]?://.+\\.gifv".toRegex()
-val GFYCAT_REGEX = "http[s]?://(www\\.)?gfycat\\.com/\\w+".toRegex()
-val REDGIFS_REGEX = "http[s]?://(www\\.)?redgifs\\.com/watch/\\w+".toRegex()
-val HLS_REGEX = "http[s]?://.+/HLSPlaylist\\.m3u8.*".toRegex()
-val REDDIT_VIDEO_REGEX = "http[s]?://v\\.redd\\.it/\\w+".toRegex()
-val STANDARD_VIDEO = "http[s]?://.+\\.(mp4)".toRegex()
-val REDDIT_COMMENTS_REGEX = "http[s]?://(www|oauth)\\.reddit\\.com/r/\\w+/comments/.+".toRegex()
-val REDDIT_THREAD_REGEX =
-    "http[s]?://(www|oauth)\\.reddit\\.com/r/\\w+/comments/\\w+/\\w+/\\w+[/]?".toRegex()
-val VALID_REDDIT_COMMENTS_URL_REGEX =
-    "http[s]?://(www|oauth)\\.reddit\\.com/r/\\w+/comments/\\w+".toRegex()
-val REDDIT_GALLERY_REGEX = "http[s]?://www\\.reddit\\.com/gallery/\\w+".toRegex()
-
-@Parcelize
-enum class UrlType : Parcelable {
-    IMAGE,
-    GIF,
-    GIFV,
-    GFYCAT,
-    REDGIFS,
-    HLS,
-    REDDIT_VIDEO,
-    STANDARD_VIDEO,
-    IMGUR_ALBUM,
-    IMGUR_IMAGE,
-    REDDIT_COMMENTS,
-    REDDIT_THREAD,
-    REDDIT_GALLERY,
-    OTHER
-}
-
-fun String.getUrlType(): UrlType? {
-    return when {
-        IMAGE_REGEX.containsMatchIn(this) -> UrlType.IMAGE
-        GIFV_REGEX.matches(this) -> UrlType.GIFV
-        GIF_REGEX.matches(this) -> UrlType.GIF
-        HLS_REGEX.matches(this) -> UrlType.HLS
-        REDDIT_VIDEO_REGEX.matches(this) -> UrlType.REDDIT_VIDEO
-        STANDARD_VIDEO.matches(this) -> UrlType.STANDARD_VIDEO
-        IMGUR_ALBUM_REGEX.containsMatchIn(this) or IMGUR_GALLERY_REGEX.containsMatchIn(this) -> UrlType.IMGUR_ALBUM
-        IMGUR_IMAGE_REGEX.containsMatchIn(this) -> UrlType.IMGUR_IMAGE
-        GFYCAT_REGEX.containsMatchIn(this) -> UrlType.GFYCAT
-        REDGIFS_REGEX.containsMatchIn(this) -> UrlType.REDGIFS
-        REDDIT_GALLERY_REGEX.matches(this) -> UrlType.REDDIT_GALLERY
-        REDDIT_THREAD_REGEX.matches(this) -> UrlType.REDDIT_THREAD
-        REDDIT_COMMENTS_REGEX.containsMatchIn(this) -> UrlType.REDDIT_COMMENTS
-        else -> UrlType.OTHER
-    }
-}
-
-fun String.getImgurHashFromUrl(): String? {
-    return when (this.getUrlType()) {
-        UrlType.IMGUR_ALBUM -> {
-            when {
-                IMGUR_GALLERY_REGEX.containsMatchIn(this) -> {
-                    IMGUR_GALLERY_REGEX.getIdFromUrl(this)
-                }
-                IMGUR_ALBUM_REGEX.containsMatchIn(this) -> {
-                    IMGUR_ALBUM_REGEX.getIdFromUrl(this)
-                }
-                else -> {
-                    null
-                }
-            }
-        }
-        UrlType.IMGUR_IMAGE -> {
-            if (IMGUR_IMAGE_REGEX.containsMatchIn(this)) {
-                IMGUR_IMAGE_REGEX.getIdFromUrl(this)
-            } else {
-                null
-            }
-        }
-        else -> null
-    }
-}
-
-fun Regex.getIdFromUrl(str: String): String? {
-    val validUrl = this.find(str)?.value
-    return validUrl?.substring(validUrl.lastIndexOf('/') + 1)
 }
 
 @ColorInt
@@ -500,22 +393,6 @@ fun Exception.getErrorMessage(context: Context): String {
     return context.getString(errorId)
 }
 
-enum class LeftDrawerHeader {
-    HOME,
-    MY_ACCOUNT,
-    INBOX,
-    SETTINGS
-}
-
-fun saveAccountToPreferences(context: Context, account: SavedAccount?) {
-    val sharedPrefs = context.getSharedPreferences(PREFERENCES_KEY, Context.MODE_PRIVATE)
-    with(sharedPrefs.edit()) {
-        val json = Gson().toJson(account)
-        putString(CURRENT_USER_KEY, json)
-        commit()
-    }
-}
-
 fun rotateView(view: View, rotate: Boolean) {
     view.animate().rotation(
         if (rotate) {
@@ -526,29 +403,27 @@ fun rotateView(view: View, rotate: Boolean) {
     )
 }
 
-
-fun createMarkwonInstance(context: Context, handleLink: (String) -> Unit): Markwon {
-    return Markwon.builder(context)
-        .usePlugin(StrikethroughPlugin.create())
-        .usePlugin(TablePlugin.create(context))
-        .usePlugin(CustomMarkwonPlugin(handleLink))
-        .usePlugin(LinkifyPlugin.create(Linkify.WEB_URLS))
-        .usePlugin(MovementMethodPlugin.create(BetterLinkMovementMethod.getInstance()))
-        .build()
-}
-
-fun getListingTitle(context: Context, listing: Listing): String {
-    return when (listing) {
+fun getListingTitle(context: Context, postListing: PostListing?): String {
+    return when (postListing) {
         is FrontPage -> context.getString(R.string.frontpage)
         is All -> context.getString(R.string.all)
         is Popular -> context.getString(R.string.popular_tab_label)
-        is SearchListing -> String.format(context.getString(R.string.search_title), listing.query)
-        is MultiRedditListing -> listing.multiReddit.displayName
-        is SubredditListing -> listing.displayName
-        is SubscriptionListing -> listing.subscription.displayName
+        is Friends -> context.getString(R.string.friends)
+        is SearchListing -> String.format(
+            context.getString(R.string.search_title),
+            postListing.query
+        )
+        is MultiRedditListing -> postListing.name
+        is SubredditListing -> {
+            if (postListing.displayName.startsWith("u_")) {
+                postListing.displayName.replaceFirst("u_", "u/")
+            } else {
+                postListing.displayName
+            }
+        }
         is ProfileListing -> {
             context.getString(
-                when (listing.info) {
+                when (postListing.info) {
                     ProfileInfo.OVERVIEW -> R.string.overview
                     ProfileInfo.SUBMITTED -> R.string.submitted
                     ProfileInfo.COMMENTS -> R.string.comments
@@ -560,6 +435,7 @@ fun getListingTitle(context: Context, listing: Listing): String {
                 }
             )
         }
+        null -> ""
     }
 }
 
@@ -602,15 +478,139 @@ fun checkIfLoggedInBeforeExecuting(context: Context, runnable: () -> Unit) {
 }
 
 fun EditText.showKeyboard() {
-    if (requestFocus()) {
-        (context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
-            .showSoftInput(this, SHOW_IMPLICIT)
+    if(requestFocus()){
+        postDelayed({
+            (context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
+                    .showSoftInput(this, SHOW_IMPLICIT)
+        }
+                , 300)
         setSelection(text.length)
     }
+
 }
 
 fun hideKeyboardFrom(context: Context, view: View) {
     val imm =
         context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager
     imm.hideSoftInputFromWindow(view.windowToken, 0)
+}
+
+@SuppressLint("ShowToast")
+fun String.handleUrl(context: Context?, postPage: PostPage?, backupVideo: String?, fragmentManager: FragmentManager, navController: NavController, activityModel: MainActivityVM){
+
+    try {
+        when (postPage?.post?.urlType ?: this.getUrlType()) {
+            UrlType.IMAGE -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(this, MediaType.PICTURE),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.GIFV -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(this.replace(".gifv", ".mp4"), MediaType.VIDEO, backupVideo),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.GIF -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(this, MediaType.GIF),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.HLS, UrlType.STANDARD_VIDEO -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(this, MediaType.VIDEO, backupVideo),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.REDDIT_VIDEO -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL("$this/HLSPlaylist.m3u8", MediaType.VIDEO, backupVideo),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.IMGUR_ALBUM -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(this, MediaType.IMGUR_ALBUM),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.IMGUR_IMAGE -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(this, MediaType.IMGUR_PICTURE),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.GFYCAT -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(this, MediaType.GFYCAT, backupVideo),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.REDGIFS -> {
+                MediaDialogFragment.newInstance(
+                    MediaURL(this, MediaType.REDGIFS, backupVideo),
+                    postPage
+                ).show(fragmentManager, null)
+            }
+            UrlType.SUBREDDIT -> navController.navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(SubredditListing(
+                SUBREDDIT_REGEX.getFirstGroup(this) ?: throw IllegalStateException("Unable to find subreddit: $this")))))
+            UrlType.USER -> navController.navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(
+                REDDIT_USER_REGEX.getFirstGroup(this) ?: throw IllegalStateException("Unable to find user: $this"))))
+            UrlType.REDDIT_GALLERY -> {
+                if(postPage != null){
+                    val galleryItems = postPage.post.galleryAsMediaItems ?: throw IllegalStateException("Gallery items is null: ${postPage.post}")
+                    MediaDialogFragment.newInstance(
+                        this,
+                        galleryItems,
+                        postPage
+                    ).show(fragmentManager, null)
+                } else {
+                    val id = REDDIT_GALLERY_REGEX.getFirstGroup(this)
+                    if(id != null){
+                        MediaDialogFragment.newInstance(id).show(fragmentManager, null)
+                    } else {
+                        activityModel.openChromeTab(this)
+                    }
+                }
+
+            }
+            UrlType.REDDIT_THREAD -> {
+                activityModel.newViewPagerPage(CommentsPage(this, true))
+            }
+            UrlType.REDDIT_COMMENTS -> {
+                activityModel.newViewPagerPage(CommentsPage(this, false))
+            }
+            UrlType.OTHER -> {
+                activityModel.openChromeTab(this)
+            }
+        }
+
+    } catch (e: Exception){
+        Timber.tag("URL").e(e.toString())
+        context?.let {
+            Toast.makeText(context, context.getString(R.string.failed_to_view_post_content), Toast.LENGTH_LONG).show()
+        }
+    }
+}
+
+fun createBetterLinkMovementInstance(context: Context, navController: NavController, fragmentManager: FragmentManager, activityModel: MainActivityVM): BetterLinkMovementMethod{
+    return BetterLinkMovementMethod.newInstance().apply {
+        setOnLinkClickListener { _, url ->
+            val consumeTouch = (PREFIXED_REDDIT_ITEM.matches(url) || ((URLUtil.isValidUrl(url) && Patterns.WEB_URL.matcher(url).matches())))
+            if(consumeTouch){
+                url.handleUrl(context, null, null, fragmentManager, navController, activityModel)
+            }
+            consumeTouch
+        }
+
+        setOnLinkLongClickListener { _, url ->
+            val consumeTouch = (PREFIXED_REDDIT_ITEM.matches(url) || ((URLUtil.isValidUrl(url) && Patterns.WEB_URL.matcher(url).matches())))
+            if(consumeTouch){
+                FragmentDialogUrlMenu.newInstance(url).show(fragmentManager, null)
+            }
+            consumeTouch
+        }
+    }
 }

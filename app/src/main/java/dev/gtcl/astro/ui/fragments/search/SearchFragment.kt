@@ -6,7 +6,9 @@ import android.os.Handler
 import android.os.Looper
 import android.text.Editable
 import android.text.TextWatcher
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
@@ -14,21 +16,19 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.navigation.fragment.findNavController
 import androidx.navigation.fragment.navArgs
 import androidx.recyclerview.widget.GridLayoutManager
-import com.bumptech.glide.Glide
 import com.google.android.material.snackbar.Snackbar
 import dev.gtcl.astro.*
 import dev.gtcl.astro.actions.ItemClickListener
-import dev.gtcl.astro.actions.SubredditActions
 import dev.gtcl.astro.databinding.FragmentSearchBinding
 import dev.gtcl.astro.models.reddit.listing.*
-import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.ListingAdapter
+import dev.gtcl.astro.ui.ListingScrollListener
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
 import dev.gtcl.astro.ui.fragments.view_pager.ListingPage
 
 
-class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
+class SearchFragment : Fragment(), ItemClickListener {
     private var binding: FragmentSearchBinding? = null
 
     private val model: SearchVM by lazy {
@@ -73,6 +73,17 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             }
         })
 
+        activityModel.subredditSelected.observe(viewLifecycleOwner, {
+            if (it != null) {
+                findNavController().navigate(
+                    SearchFragmentDirections.actionSearchFragmentToViewPagerFragment(
+                        ListingPage(SubredditListing(it.displayName))
+                    )
+                )
+                activityModel.subredditObserved()
+            }
+        })
+
         return binding?.root
     }
 
@@ -93,7 +104,6 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
 
     override fun onDestroyView() {
         super.onDestroyView()
-        Glide.get(requireContext()).clearMemory()
         binding = null
     }
 
@@ -130,14 +140,14 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
             model::loadMore
         )
         val listAdapter = ListingAdapter(
-            markwon = null,
-            subredditActions = this,
+            movementMethod = null,
+            subredditActions = null,
             expected = ItemType.Subreddit,
             itemClickListener = this,
             username = null
         ) {
             recycler?.apply {
-                removeOnScrollListener(scrollListener)
+                clearOnScrollListeners()
                 addOnScrollListener(scrollListener)
                 model.retry()
             }
@@ -166,13 +176,13 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
 
         model.lastItemReached.observe(viewLifecycleOwner, {
             if (it == true) {
-                recycler?.removeOnScrollListener(scrollListener)
+                recycler?.clearOnScrollListeners()
             }
         })
     }
 
     private fun initSearchRecyclerViewAdapter() {
-        val adapter = SearchAdapter(this, this)
+        val adapter = SimpleItemAdapter(null, this)
         val searchList = binding?.fragmentSearchSearchList
         searchList?.adapter = adapter
 
@@ -241,7 +251,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         if (multiSelectMode) {
             val name = when (item) {
                 is Subreddit -> item.displayName
-                is Account -> item.subreddit.displayName
+                is Account -> item.subreddit?.displayName ?: ""
                 else -> throw IllegalStateException("Invalid account: $item")
             }
             model.addSelectedItem(name)
@@ -264,12 +274,7 @@ class SearchFragment : Fragment(), ItemClickListener, SubredditActions {
         }
     }
 
-    override fun subscribe(subreddit: Subreddit, subscribe: Boolean) {
-        checkIfLoggedInBeforeExecuting(requireContext()) {
-            subreddit.userSubscribed = subscribe
-            activityModel.subscribe(subreddit, subscribe)
-        }
-    }
+    override fun itemLongClicked(item: Item, position: Int) {} // Unused
 
     companion object {
         fun newInstance(): SearchFragment {

@@ -62,6 +62,7 @@
     <string name="add_response">Add response…</string>
     <string name="view_all_comments">View all comments</string>
     <string name="you_are_viewing_a_single_thread">You are viewing a single thread</string>
+    <string name="post_has_no_text">Post has no text.</string>
 
     <!--Account-->
     <string name="overview">Overview</string>
@@ -83,6 +84,10 @@
     <string name="block">Block</string>
     <string name="unfriend">Unfriend</string>
     <string name="unblock">Unblock</string>
+    <string name="public_feeds">Public Feeds</string>
+    <string name="moderated_subs">Moderated Subreddits</string>
+    <string name="awards">Awards</string>
+    <string name="unable_to_subscribe">Unable to subscribe to %s</string>
 
     <!--Share-->
     <string name="share_link">Share link</string>
@@ -92,6 +97,12 @@
     <string name="share_shortlink">Share shortlink</string>
     <string name="share_text">Share Text</string>
     <string name="post_to_subreddit">Post to Subreddit</string>
+
+    <!--Link Context Menu-->
+    <string name="open_link">Open link</string>
+    <string name="open_in_browser">Open in browser</string>
+    <string name="copy_link">Copy link</string>
+    <string name="link_copied">Link copied</string>
 
     <!--Report-->
     <string name="report_dialog_title">Which rule does this break?</string>
@@ -108,7 +119,7 @@
     <string name="download">Download</string>
     <string name="download_all">Download all</string>
     <string name="open_link_externally">Open link externally</string>
-    <string name="view_fullscreen">View fullscreen</string>
+    <string name="failed_to_view_post_content">Failed to view post content</string>
 
     <!--Inbox-->
     <string name="inbox">Inbox</string>
@@ -124,13 +135,13 @@
     <string name="mark_unread">Mark unread</string>
 
     <!--Multi-Reddit-->
-    <string name="edit_custom_feed">Edit Custom Feed</string>
     <string name="create_custom_feed">Create Custom Feed</string>
     <string name="custom_feed_name">Custom Feed Name</string>
     <string name="description_optional">Description (Optional)</string>
     <string name="private_label">Private</string>
     <string name="public_label">Public</string>
     <string name="conflict_error">Custom feed conflicts with another</string>
+    <string name="copy_multi">Copy</string>
 
     <!--Create Post-->
     <string name="create_post">Create Post</string>
@@ -186,13 +197,22 @@
     <string name="clear">Clear</string>
     <string name="cancel">Cancel</string>
     <string name="delete">Delete</string>
-    <string name="num_comments">%s comments</string>
+    <string name="num_subscribers">%s subscribers</string>
+    <string name="total_karma">Total Karma: %s</string>
+    <string name="trending_subreddits">Trending Subreddits</string>
+    <string name="view">View</string>
+    <string name="no_description">No description.</string>
+    <string name="post_removed_by_moderator">Post has been removed by a moderator.</string>
+    <string name="post_removed_by_admin">Post has been removed by an admin.</string>
+    <string name="post_removed">Post has been removed.</string>
+    <string name="post_locked">Post locked.</string>
+    <string name="num_awards">%d awards</string>
 
     <!--Errors-->
     <string name="user_does_not_exist">User does not exist</string>
     <string name="socket_timeout_error">Unable to connect to Reddit at this time. Please retry later.</string>
     <string name="unknown_host_exception">Please reconnect to the internet.</string>
-    <string name="something_went_wrong">Something went wrong. Please retry later.</string>
+    <string name="something_went_wrong">Something went wrong.</string>
     <string name="error_in_json_parsing">Error in JSON Parsing.</string>
     <string name="cannot_reply_to_comment">Cannot reply to comment</string>
     <string name="cannot_reply_to_post">Cannot reply to post</string>

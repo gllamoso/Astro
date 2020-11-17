@@ -4,7 +4,10 @@ import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
-import android.content.*
+import android.content.ContentUris
+import android.content.ContentValues
+import android.content.Context
+import android.content.Intent
 import android.net.Uri
 import android.os.Build
 import android.os.Environment
@@ -22,10 +25,12 @@ import dev.gtcl.astro.ALBUM_KEY
 import dev.gtcl.astro.R
 import dev.gtcl.astro.URL_KEY
 import timber.log.Timber
-import java.io.*
+import java.io.DataInputStream
+import java.io.DataOutputStream
+import java.io.File
+import java.io.FileOutputStream
 import java.net.URL
 import java.util.*
-import kotlin.IllegalArgumentException
 import kotlin.random.Random
 
 const val HLS_EXTENSION = "m3u8"
@@ -85,7 +90,7 @@ class DownloadIntentService : JobIntentService() {
             return
         }
 
-        val downloadUrl = (intent.extras ?: return)[URL_KEY] as String?
+        val downloadUrl = intent.extras?.getString(URL_KEY)
         if (downloadUrl != null) { // Download single item
             try {
                 val filename = getFileName(downloadUrl)
@@ -258,28 +263,39 @@ class DownloadIntentService : JobIntentService() {
             return existingFile
         }
 
-        if (fileExtension.toLowerCase(Locale.getDefault()) == HLS_EXTENSION) { // For downloading HLS videos
-            if (FFmpeg.execute("-i $url -acodec copy -bsf:a aac_adtstoasc -vcodec copy ${file.path}") != Config.RETURN_CODE_SUCCESS) {
-                Timber.tag(TAG).e("ffmpeg execution failed")
-                stopForeground(true)
-                val notification = NotificationCompat.Builder(this, JOB_ID.toString())
-                    .setContentTitle(getString(R.string.unable_to_download_file))
-                    .setContentText(filename)
-                    .setSmallIcon(R.drawable.ic_error_outline_24)
-                    .build()
-                val notificationManager =
-                    getSystemService(NOTIFICATION_SERVICE) as NotificationManager
-                notificationManager.notify(FAILURE_ID, notification)
-                return null
+        val maxAttempts = 5
+        var attempts = 0
+        while (attempts < maxAttempts) {
+            try {
+                if (fileExtension.toLowerCase(Locale.getDefault()) == HLS_EXTENSION) { // For downloading HLS videos
+                    val failure =
+                        FFmpeg.execute("-i $url -acodec copy -bsf:a aac_adtstoasc -vcodec copy ${file.path}") != Config.RETURN_CODE_SUCCESS
+                    if (failure) {
+                        Timber.tag(TAG).e("ffmpeg execution failed")
+                        stopForeground(true)
+                        val notification = NotificationCompat.Builder(this, JOB_ID.toString())
+                            .setContentTitle(getString(R.string.unable_to_download_file))
+                            .setContentText(filename)
+                            .setSmallIcon(R.drawable.ic_error_outline_24)
+                            .build()
+                        val notificationManager =
+                            getSystemService(NOTIFICATION_SERVICE) as NotificationManager
+                        notificationManager.notify(FAILURE_ID, notification)
+                        return null
+                    }
+                } else {
+                    downloadToFile(url, file)
+                }
+                val uri = moveFileToMediaStore(file)
+                file.delete()
+                return uri
+            } catch (e: Exception) {
+                file.delete()
+                attempts++
             }
-        } else {
-            downloadToFile(url, file)
         }
 
-        val uri = moveFileToMediaStore(file)
-        file.delete()
-
-        return uri
+        return null
     }
 
     private fun getExtension(filename: String) =
@@ -371,7 +387,6 @@ class DownloadIntentService : JobIntentService() {
                         "$folder/${getString(R.string.app_name)}"
                     )
                 }
-
             }
             val externalUri = if (isVideo) {
                 MediaStore.Video.Media.EXTERNAL_CONTENT_URI

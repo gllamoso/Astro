@@ -7,6 +7,8 @@ import kotlinx.android.parcel.Parcelize
 @Parcelize
 data class Flair(
     var text: String,
-    @Json(name = "text_editable") val textEditable: Boolean,
-    val id: String
+    @Json(name = "text_editable")
+    val textEditable: Boolean,
+    val id: String,
+    val richtext: List<FlairRichtext>?
 ) : Parcelable
