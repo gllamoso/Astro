@@ -144,10 +144,6 @@ class MediaDialogFragment : DialogFragment() {
                             binding?.fragmentMediaDialogToolbar?.translationY = -multiplier * offset
                             binding?.fragmentMediaDialogBottomBar?.translationY =
                                 multiplier * offset
-
-                            if(binding?.fragmentMediaDialogViewpager?.scrollBarSize != 0){ // To remove scrollbar that appears unexpectedly
-                                binding?.fragmentMediaDialogViewpager?.scrollBarSize = 0
-                            }
                         }
                     })
                 }
