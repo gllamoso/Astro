@@ -42,7 +42,6 @@ import dev.gtcl.astro.ui.fragments.share.ShareCommentOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.share.SharePostOptionsDialogFragment
 import dev.gtcl.astro.ui.fragments.url_menu.FragmentDialogUrlMenu
 import dev.gtcl.astro.ui.fragments.view_pager.*
-import dev.gtcl.astro.url.REDDIT_COMMENTS_REGEX
 
 class CommentsFragment : Fragment(), CommentActions, ItemClickListener,
     DrawerLayout.DrawerListener {
@@ -216,7 +215,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener,
             )
         } else {
             val url = requireArguments().getString(URL_KEY) ?: return
-            val fullContextLink = (REDDIT_COMMENTS_REGEX.find(url) ?: return).value
+            val fullcontextRegex = "(?:(?:http[s]?://)?(?:\\w+\\.)?reddit\\.com/|/)?(r/[A-Za-z0-9_.]+/comments/\\w+(?:/\\w+)?/?)".toRegex()
+            val fullContextLink = (fullcontextRegex.find(url) ?: return).value
             if (model.allCommentsFetched.value == true) {
                 model.fetchComments(
                     fullContextLink,
