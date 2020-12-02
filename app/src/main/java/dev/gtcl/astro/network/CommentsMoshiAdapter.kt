@@ -492,6 +492,7 @@ class CommentsMoshiAdapter {
     private fun getAward(jsonReader: JsonReader): Award {
         var count: Int? = null
         var icons: List<AwardIcon>? = null
+        var iconUrl: String? = null
         jsonReader.beginObject()
 
         while(jsonReader.hasNext()){
@@ -506,12 +507,13 @@ class CommentsMoshiAdapter {
                     jsonReader.endArray()
                     icons = mutableIcons.toList()
                 }
+                "icon_url" -> iconUrl = jsonReader.nextString()
                 else -> jsonReader.skipValue()
             }
         }
 
         jsonReader.endObject()
-        return Award(count!!, icons!!)
+        return Award(count!!, icons!!, iconUrl!!)
     }
 
     private fun getAwardIcon(jsonReader: JsonReader): AwardIcon {

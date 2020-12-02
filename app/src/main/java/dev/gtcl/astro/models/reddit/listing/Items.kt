@@ -543,8 +543,12 @@ data class RedditVideo(
 data class Award(
     val count: Int,
     @Json(name = "resized_static_icons")
-    val icons: List<AwardIcon>
-) : Parcelable
+    val icons: List<AwardIcon>,
+    @Json(name = "icon_url")
+    private val iconUrl: String
+) : Parcelable {
+    val iconUrlFormatted = iconUrl.removeHtmlEntities()
+}
 
 @Parcelize
 data class AwardIcon(
