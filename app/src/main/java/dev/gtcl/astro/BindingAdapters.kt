@@ -20,8 +20,12 @@ import androidx.core.content.ContextCompat
 import androidx.core.net.toUri
 import androidx.databinding.BindingAdapter
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.resource.gif.GifDrawable
+import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
 import com.bumptech.glide.request.target.CustomViewTarget
+import com.bumptech.glide.request.target.Target
 import com.bumptech.glide.request.transition.Transition
 import com.davemorrissey.labs.subscaleview.ImageSource
 import com.davemorrissey.labs.subscaleview.SubsamplingScaleImageView
@@ -52,6 +56,19 @@ fun loadImage(imgView: ImageView, imgUrl: String?) {
             GlideApp.with(imgView.context)
                 .load(imgUrl)
                 .error(R.drawable.ic_broken_image_24)
+                .addListener(object: RequestListener<Drawable> {
+                    override fun onResourceReady(resource: Drawable?, model: Any?, target: com.bumptech.glide.request.target.Target<Drawable>?, dataSource: com.bumptech.glide.load.DataSource?, isFirstResource: Boolean): Boolean {
+                        if(resource is GifDrawable){
+                            imgView.setImageBitmap(resource.firstFrame)
+                            return true
+                        }
+                        return false
+                    }
+
+                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                        return false
+                    }
+                })
 //            .skipMemoryCache(true)
 //            .diskCacheStrategy(DiskCacheStrategy.ALL)
 //            .apply(

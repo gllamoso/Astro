@@ -2,6 +2,7 @@ package dev.gtcl.astro.ui.viewholders
 
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.Drawable
 import android.util.Patterns
 import android.view.LayoutInflater
 import android.view.View
@@ -9,7 +10,11 @@ import android.view.ViewGroup
 import android.webkit.URLUtil
 import android.widget.PopupWindow
 import androidx.recyclerview.widget.RecyclerView
+import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.resource.gif.GifDrawable
+import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.RequestOptions
+import com.bumptech.glide.request.target.Target
 import dev.gtcl.astro.GlideApp
 import dev.gtcl.astro.R
 import dev.gtcl.astro.Vote
@@ -113,6 +118,19 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
                             .apply(RequestOptions().override(thumbnailSize, thumbnailSize))
                             .skipMemoryCache(true)
                             .centerCrop()
+                            .addListener(object: RequestListener<Drawable> {
+                                override fun onResourceReady(resource: Drawable?, model: Any?, target: com.bumptech.glide.request.target.Target<Drawable>?, dataSource: com.bumptech.glide.load.DataSource?, isFirstResource: Boolean): Boolean {
+                                    if(resource is GifDrawable){
+                                        setImageBitmap(resource.firstFrame)
+                                        return true
+                                    }
+                                    return false
+                                }
+
+                                override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                                    return false
+                                }
+                             })
                             .into(this)
                 }
             }

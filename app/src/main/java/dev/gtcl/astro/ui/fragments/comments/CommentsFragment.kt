@@ -21,6 +21,7 @@ import androidx.lifecycle.ViewModelProviders
 import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.load.DataSource
 import com.bumptech.glide.load.engine.GlideException
+import com.bumptech.glide.load.resource.gif.GifDrawable
 import com.bumptech.glide.request.RequestListener
 import com.bumptech.glide.request.target.Target
 import com.google.android.material.bottomsheet.BottomSheetBehavior
@@ -456,27 +457,19 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener,
                 }
                 GlideApp.with(imgView.context)
                         .load(imgUrl)
-                        .addListener(object : RequestListener<Drawable> {
-                            override fun onLoadFailed(
-                                    e: GlideException?,
-                                    mod: Any?,
-                                    target: Target<Drawable>?,
-                                    isFirstResource: Boolean
-                            ): Boolean {
-                                return false
-                            }
-
-                            override fun onResourceReady(
-                                    resource: Drawable?,
-                                    mod: Any?,
-                                    target: Target<Drawable>?,
-                                    dataSource: DataSource?,
-                                    isFirstResource: Boolean
-                            ): Boolean {
+                        .addListener(object: RequestListener<Drawable> {
+                            override fun onResourceReady(resource: Drawable?, mod: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
                                 model.showPreviewIcon(true)
+                                if(resource is GifDrawable){
+                                    imgView.setImageBitmap(resource.firstFrame)
+                                    return true
+                                }
                                 return false
                             }
 
+                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                                return false
+                            }
                         })
                         .into(imgView)
             }
