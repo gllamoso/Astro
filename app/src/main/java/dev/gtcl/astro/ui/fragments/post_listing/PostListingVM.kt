@@ -65,8 +65,28 @@ class PostListingVM(val application: AstroApplication) : ItemScrollerVM(applicat
                 val trendingSubredditNames =
                     subredditRepository.getTrendingSubreddits().await().subredditNames
                 val subsListMutable = mutableListOf<Subreddit>()
+                val reddit = "reddit"
                 for (subName in trendingSubredditNames) {
-                    subsListMutable.add(subredditRepository.getSubreddit(subName).await().data)
+                    if(subName.equals(reddit, ignoreCase = true)){
+                        subsListMutable.add(Subreddit(
+                            reddit,
+                            reddit,
+                            "r/$reddit",
+                            null,
+                            reddit,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            null,
+                            "",
+                            "/r/$reddit",
+                            null,
+                            "public"))
+                    } else {
+                        subsListMutable.add(subredditRepository.getSubreddit(subName).await().data)
+                    }
                 }
                 _trendingSubreddits.postValue(subsListMutable.toList())
             } catch (e: Exception) {
