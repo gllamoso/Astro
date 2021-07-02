@@ -1,7 +1,7 @@
 package dev.gtcl.astro.html
 
 data class Cell(
-    val text: SimpleText,
+    val simpleText: SimpleText,
     val alignment: Alignment
 ) {
     enum class Alignment {
@@ -12,6 +12,6 @@ data class Cell(
 }
 
 data class HeaderCell(
-    val text: SimpleText,
+    val simpleText: SimpleText,
     val alignment: Cell.Alignment
 )
