@@ -569,7 +569,7 @@ fun String.handleUrl(context: Context?, postPage: PostPage?, backupVideo: String
                 } else {
                     val id = REDDIT_GALLERY_REGEX.getFirstGroup(this)
                     if(id != null){
-                        MediaDialogFragment.newInstance(id).show(fragmentManager, null)
+                        MediaDialogFragment.newInstance(this, id).show(fragmentManager, null)
                     } else {
                         activityModel.openChromeTab(this)
                     }

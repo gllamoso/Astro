@@ -70,11 +70,10 @@ class MediaDialogFragment : DialogFragment() {
             val galleryId = requireArguments().getString(GALLERY_KEY)
 
             when{
-                url != null -> model.loadMedia(url)
                 mediaItems != null -> model.setItems(mediaItems)
-                else -> model.fetchGallery(galleryId ?: "")
+                galleryId != null -> model.fetchGallery(galleryId)
+                else -> model.loadMedia(url ?: throw RuntimeException("URL is null"))
             }
-
         }
 
         initAdapters()
@@ -318,9 +317,13 @@ class MediaDialogFragment : DialogFragment() {
         }
 
         fun newInstance(
+                albumUrl: String,
                 galleryId: String
         ) = MediaDialogFragment().apply {
-            arguments = bundleOf(GALLERY_KEY to galleryId)
+            arguments = bundleOf(
+                URL_KEY to albumUrl,
+                GALLERY_KEY to galleryId
+            )
         }
     }
 }
