@@ -5,7 +5,7 @@ import kotlinx.android.parcel.Parcelize
 
 val GFYCAT_REGEX = "(?:(?:http[s]?://)?(?:\\w+\\.)?gfycat\\.com)/(?:gifs/detail/)?(\\w+).*".toRegex()
 val REDGIFS_REGEX = "(?:(?:http[s]?://)?(?:\\w+\\.)?redgifs\\.com)/watch/(\\w+).*".toRegex()
-val IMAGE_REGEX = "http[s]?://.+\\.(?:jpg|png|svg|jpeg|webp)".toRegex()
+val IMAGE_REGEX = "http[s]?://.+\\.(?:jpg|png|jpeg|webp)".toRegex()
 val GIFV_REGEX = "http[s]?://.+\\.gifv(?:/.+|/)?".toRegex()
 val GIF_REGEX = "http[s]?://.+\\.gif(?:/.+|/)?".toRegex()
 val HLS_REGEX = "http[s]?://.+/HLSPlaylist\\.m3u8.*".toRegex()
@@ -14,7 +14,7 @@ val STANDARD_VIDEO_REGEX = "http[s]?://.+\\.(?:mp4).*".toRegex()
 val IMGUR_ALBUM_REGEX = "(?:(?:http[s]?://)?(?:\\w+\\.)?imgur\\.com)/(?:a|gallery)/(\\w+)/?".toRegex()
 val IMGUR_IMAGE_REGEX = "(?:(?:http[s]?://)?(?:\\w+\\.)?imgur\\.com)/(\\w+)/?".toRegex()
 val SUBREDDIT_REGEX = "(?:(?:http[s]?://)?(?:\\w+\\.)?reddit\\.com/|/)?r/([A-Za-z0-9_.]+)/?".toRegex()
-val REDDIT_USER_REGEX = "(?:(?:http[s]?://)?(?:\\w+\\.)?reddit\\.com/|/)?u/([A-Za-z0-9_.]+)/?".toRegex()
+val REDDIT_USER_REGEX = "(?:(?:http[s]?://)?(?:\\w+\\.)?reddit\\.com/|/)?(u|user)/([A-Za-z0-9_.]+)/?".toRegex()
 val REDDIT_GALLERY_REGEX = "(?:http[s]?://)?\\w+\\.reddit\\.com/gallery/(\\w+)/?.*".toRegex()
 val REDDIT_THREAD_REGEX = "(?:(?:http[s]?://)?(?:\\w+\\.)?reddit\\.com/|/)?(r/[A-Za-z0-9_.]+/comments/\\w+/\\w+/\\w+/?.*)".toRegex()
 val REDDIT_COMMENTS_REGEX = "(?:(?:http[s]?://)?(?:\\w+\\.)?reddit\\.com/|/)?(r/[A-Za-z0-9_.]+/comments/\\w+(?:/\\w+)?/?).*".toRegex()
@@ -42,9 +42,6 @@ enum class UrlType : Parcelable {
 
 fun String.getUrlType(): UrlType {
     return when {
-        GFYCAT_REGEX.matches(this) -> UrlType.GFYCAT
-        REDGIFS_REGEX.matches(this) -> UrlType.REDGIFS
-        IMAGE_REGEX.containsMatchIn(this) -> UrlType.IMAGE
         GIFV_REGEX.matches(this) -> UrlType.GIFV
         GIF_REGEX.matches(this) -> UrlType.GIF
         HLS_REGEX.matches(this) -> UrlType.HLS
@@ -57,6 +54,9 @@ fun String.getUrlType(): UrlType {
         REDDIT_GALLERY_REGEX.matches(this) -> UrlType.REDDIT_GALLERY
         REDDIT_THREAD_REGEX.matches(this) -> UrlType.REDDIT_THREAD
         REDDIT_COMMENTS_REGEX.matches(this) -> UrlType.REDDIT_COMMENTS
+        GFYCAT_REGEX.matches(this) -> UrlType.GFYCAT
+        REDGIFS_REGEX.matches(this) -> UrlType.REDGIFS
+        IMAGE_REGEX.containsMatchIn(this) -> UrlType.IMAGE
         else -> UrlType.OTHER
     }
 }
