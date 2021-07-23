@@ -1,6 +1,8 @@
 package dev.gtcl.astro
 
+import dev.gtcl.astro.url.REDDIT_USER_REGEX
 import dev.gtcl.astro.url.UrlType
+import dev.gtcl.astro.url.getFirstGroup
 import dev.gtcl.astro.url.getUrlType
 import org.junit.Assert.assertEquals
 import org.junit.Test
@@ -81,14 +83,18 @@ class UrlParsingTest {
 
     @Test
     fun user1(){
-        val url = "https://www.reddit.com/user/Animesh77666"
+        val user = "Animesh77666"
+        val url = "https://www.reddit.com/user/$user"
         assertEquals(url.getUrlType(), UrlType.USER)
+        assertEquals(REDDIT_USER_REGEX.getFirstGroup(url), user)
     }
 
     @Test
     fun user2(){
-        val url = "https://www.reddit.com/u/Animesh77666"
+        val user = "Animesh77666"
+        val url = "https://www.reddit.com/u/$user"
         assertEquals(url.getUrlType(), UrlType.USER)
+        assertEquals(REDDIT_USER_REGEX.getFirstGroup(url), user)
     }
 
     @Test
