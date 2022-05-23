@@ -105,7 +105,7 @@ class UrlParsingTest {
 
     @Test
     fun redditThread(){
-        val url = "https://www.reddit.com/r/WatchItForThePlot/comments/ikj1wz/keira_knightley_little_puffy_plots_a_dangerous/g3mjo5l/"
+        val url = "https://www.reddit.com/r/thelastofus/comments/uvtfjv/to_people_who_complain_that_joel_and_tommy_told/i9p9fox/"
         assertEquals(url.getUrlType(), UrlType.REDDIT_THREAD)
     }
 
