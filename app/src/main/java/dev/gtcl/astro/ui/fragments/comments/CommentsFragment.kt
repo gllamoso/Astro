@@ -64,7 +64,12 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener,
     private lateinit var adapter: CommentsAdapter
 
     private val movementMethod by lazy {
-        createBetterLinkMovementInstance(requireContext(), findNavController(), parentFragmentManager, activityModel)
+        createBetterLinkMovementInstance(
+            requireContext(),
+            findNavController(),
+            parentFragmentManager,
+            activityModel
+        )
     }
 
     override fun onResume() {
@@ -116,7 +121,13 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener,
 
         val userId = (requireActivity().application as AstroApplication).currentAccount?.fullId
         adapter =
-            CommentsAdapter(this, this, userId, model.allCommentsFetched.value == true, movementMethod) {
+            CommentsAdapter(
+                this,
+                this,
+                userId,
+                model.allCommentsFetched.value == true,
+                movementMethod
+            ) {
                 if (model.loading.value != true) {
                     model.fetchFullContext()
                 }
@@ -216,7 +227,8 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener,
             )
         } else {
             val url = requireArguments().getString(URL_KEY) ?: return
-            val fullcontextRegex = "(?:(?:http[s]?://)?(?:\\w+\\.)?reddit\\.com/|/)?(r/[A-Za-z0-9_.]+/comments/\\w+(?:/\\w+)?/?)".toRegex()
+            val fullcontextRegex =
+                "(?:(?:http[s]?://)?(?:\\w+\\.)?reddit\\.com/|/)?(r/[A-Za-z0-9_.]+/comments/\\w+(?:/\\w+)?/?)".toRegex()
             val fullContextLink = (fullcontextRegex.find(url) ?: return).value
             if (model.allCommentsFetched.value == true) {
                 model.fetchComments(
@@ -226,7 +238,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener,
                 )
             } else {
                 val isFullContext = url.endsWith(fullContextLink, true)
-                if(isFullContext){
+                if (isFullContext) {
                     model.setAllCommentsFetched(true)
                 }
                 model.fetchComments(url, isFullContext = isFullContext, refreshPost = refreshPost)
@@ -408,11 +420,18 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener,
             })
     }
 
-    private fun initPreviewImage(){
-        binding?.fragmentCommentsContent?.layoutCommentsContentPreviewImage?.apply{
+    private fun initPreviewImage() {
+        binding?.fragmentCommentsContent?.layoutCommentsContentPreviewImage?.apply {
             setOnClickListener {
                 val post = model.post.value ?: return@setOnClickListener
-                post.urlFormatted?.handleUrl(context, null, post.previewVideoUrl, childFragmentManager, findNavController(), activityModel)
+                post.urlFormatted?.handleUrl(
+                    context,
+                    null,
+                    post.previewVideoUrl,
+                    childFragmentManager,
+                    findNavController(),
+                    activityModel
+                )
             }
             setOnLongClickListener {
                 val url = model.post.value?.urlFormatted ?: return@setOnLongClickListener true
@@ -424,7 +443,14 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener,
         binding?.fragmentCommentsContent?.layoutCommentsContentUrlLayout?.root?.apply {
             setOnClickListener {
                 val post = model.post.value ?: return@setOnClickListener
-                post.urlFormatted?.handleUrl(context, null, post.previewVideoUrl, childFragmentManager, findNavController(), activityModel)
+                post.urlFormatted?.handleUrl(
+                    context,
+                    null,
+                    post.previewVideoUrl,
+                    childFragmentManager,
+                    findNavController(),
+                    activityModel
+                )
             }
             setOnLongClickListener {
                 val url = model.post.value?.urlFormatted ?: return@setOnLongClickListener true
@@ -437,7 +463,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener,
     private fun loadPreview(imgUrl: String?) {
         val imgView = binding?.fragmentCommentsContent?.layoutCommentsContentPreviewImage ?: return
         model.showPreviewIcon(false)
-        when{
+        when {
             imgUrl == null -> imgView.visibility = View.GONE
             !URLUtil.isValidUrl(imgUrl) && !Patterns.WEB_URL.matcher(imgUrl).matches() -> {
                 model.showPreviewIcon(true)
@@ -456,22 +482,33 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener,
                     layoutParams.height = ViewGroup.LayoutParams.WRAP_CONTENT
                 }
                 GlideApp.with(imgView.context)
-                        .load(imgUrl)
-                        .addListener(object: RequestListener<Drawable> {
-                            override fun onResourceReady(resource: Drawable?, mod: Any?, target: Target<Drawable>?, dataSource: DataSource?, isFirstResource: Boolean): Boolean {
-                                model.showPreviewIcon(true)
-                                if(resource is GifDrawable){
-                                    imgView.setImageBitmap(resource.firstFrame)
-                                    return true
-                                }
-                                return false
+                    .load(imgUrl)
+                    .addListener(object : RequestListener<Drawable> {
+                        override fun onResourceReady(
+                            resource: Drawable?,
+                            mod: Any?,
+                            target: Target<Drawable>?,
+                            dataSource: DataSource?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            model.showPreviewIcon(true)
+                            if (resource is GifDrawable) {
+                                imgView.setImageBitmap(resource.firstFrame)
+                                return true
                             }
+                            return false
+                        }
 
-                            override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
-                                return false
-                            }
-                        })
-                        .into(imgView)
+                        override fun onLoadFailed(
+                            e: GlideException?,
+                            model: Any?,
+                            target: Target<Drawable>?,
+                            isFirstResource: Boolean
+                        ): Boolean {
+                            return false
+                        }
+                    })
+                    .into(imgView)
             }
         }
     }
@@ -582,7 +619,7 @@ class CommentsFragment : Fragment(), CommentActions, ItemClickListener,
             is Comment -> {
                 val collapse = !item.isCollapsed
                 item.isCollapsed = collapse
-                if(collapse) {
+                if (collapse) {
                     item.isExpanded = false
                 }
                 adapter.notifyItemChanged(position)

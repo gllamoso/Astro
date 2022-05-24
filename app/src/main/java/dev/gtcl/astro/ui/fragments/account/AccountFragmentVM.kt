@@ -3,9 +3,9 @@ package dev.gtcl.astro.ui.fragments.account
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.squareup.moshi.JsonDataException
-import dev.gtcl.astro.R
 import dev.gtcl.astro.AstroApplication
 import dev.gtcl.astro.AstroViewModel
+import dev.gtcl.astro.R
 import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.listing.Account
 import kotlinx.coroutines.launch

@@ -1,7 +1,8 @@
 package dev.gtcl.astro.network
 
 import com.google.gson.annotations.SerializedName
-import retrofit2.*
+import retrofit2.Converter
+import retrofit2.Retrofit
 import java.lang.reflect.Type
 
 object EnumConverterFactory : Converter.Factory() {

@@ -112,7 +112,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
         fetchComments(fullContextLink ?: return, isFullContext = true, refreshPost = false)
     }
 
-    fun setAllCommentsFetched(fetched: Boolean){
+    fun setAllCommentsFetched(fetched: Boolean) {
         _allCommentsFetched.value = fetched
     }
 
@@ -136,7 +136,9 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                 if (refreshPost) {
                     commentPage.post.parseSelftext()
                     _post.postValue(commentPage.post)
-                    val preview = commentPage.post.getPreviewImage() ?: commentPage.post.getThumbnail(false) ?: ""
+                    val preview =
+                        commentPage.post.getPreviewImage() ?: commentPage.post.getThumbnail(false)
+                        ?: ""
                     _previewImg.postValue(preview)
                     _previewType.postValue(commentPage.post.urlType)
                 }
@@ -144,13 +146,13 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
                     fullContextLink = (REDDIT_COMMENTS_REGEX.getFirstGroup(permalink)
                         ?: return@launch)
                 }
-                if(_allCommentsFetched.value != isFullContext){
+                if (_allCommentsFetched.value != isFullContext) {
                     _allCommentsFetched.postValue(isFullContext)
                 }
                 commentPage.comments.parseAllText()
                 _comments.postValue(commentPage.comments.toMutableList())
             } catch (e: Exception) {
-                if(_comments.value == null){
+                if (_comments.value == null) {
                     _comments.postValue(mutableListOf())
                 }
                 _allCommentsFetched.postValue(previousValueOfAllCommentsFetched)
@@ -274,7 +276,7 @@ class CommentsVM(val application: AstroApplication) : AstroViewModel(application
         _comments.value?.set(position, comment)
     }
 
-    fun showPreviewIcon(show: Boolean){
+    fun showPreviewIcon(show: Boolean) {
         _showPreviewIcon.value = show
     }
 }

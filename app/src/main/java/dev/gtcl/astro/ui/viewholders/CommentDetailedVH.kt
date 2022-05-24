@@ -46,16 +46,16 @@ class CommentDetailedVH private constructor(private val binding: ItemCommentDeta
             itemCommentDetailedBottomPanel.apply {
                 layoutItemBottomPanelUpvoteButton.setOnClickListener {
                     commentActions.vote(
-                            comment,
-                            if (comment.likes == true) Vote.UNVOTE else Vote.UPVOTE
+                        comment,
+                        if (comment.likes == true) Vote.UNVOTE else Vote.UPVOTE
                     )
                     binding.invalidateAll()
                 }
 
                 layoutItemBottomPanelDownvoteButton.setOnClickListener {
                     commentActions.vote(
-                            comment,
-                            if (comment.likes == false) Vote.UNVOTE else Vote.DOWNVOTE
+                        comment,
+                        if (comment.likes == false) Vote.UNVOTE else Vote.DOWNVOTE
                     )
                     binding.invalidateAll()
                 }
@@ -75,9 +75,9 @@ class CommentDetailedVH private constructor(private val binding: ItemCommentDeta
             }
 
             itemCommentDetailedBodyMessageLayout.createHtmlViews(
-                    comment.parseBody(),
-                    null,
-                    movementMethod
+                comment.parseBody(),
+                null,
+                movementMethod
             )
 
             executePendingBindings()

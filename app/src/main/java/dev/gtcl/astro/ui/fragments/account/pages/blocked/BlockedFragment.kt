@@ -15,8 +15,8 @@ import dev.gtcl.astro.databinding.FragmentItemScrollerBinding
 import dev.gtcl.astro.models.reddit.User
 import dev.gtcl.astro.models.reddit.UserType
 import dev.gtcl.astro.network.NetworkState
-import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
 import dev.gtcl.astro.ui.fragments.account.pages.UserListAdapter
+import dev.gtcl.astro.ui.fragments.view_pager.AccountPage
 import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerFragmentDirections
 
 class BlockedFragment : Fragment(), UserActions {

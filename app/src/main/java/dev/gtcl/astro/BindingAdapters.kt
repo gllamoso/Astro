@@ -42,7 +42,7 @@ import java.util.*
 
 @BindingAdapter("loadImage")
 fun loadImage(imgView: ImageView, imgUrl: String?) {
-    when{
+    when {
         imgUrl == null -> imgView.visibility = View.GONE
         !URLUtil.isValidUrl(imgUrl) && !Patterns.WEB_URL.matcher(imgUrl).matches() -> {
             imgView.apply {
@@ -56,16 +56,27 @@ fun loadImage(imgView: ImageView, imgUrl: String?) {
             GlideApp.with(imgView.context)
                 .load(imgUrl)
                 .error(R.drawable.ic_broken_image_24)
-                .addListener(object: RequestListener<Drawable> {
-                    override fun onResourceReady(resource: Drawable?, model: Any?, target: com.bumptech.glide.request.target.Target<Drawable>?, dataSource: com.bumptech.glide.load.DataSource?, isFirstResource: Boolean): Boolean {
-                        if(resource is GifDrawable){
+                .addListener(object : RequestListener<Drawable> {
+                    override fun onResourceReady(
+                        resource: Drawable?,
+                        model: Any?,
+                        target: com.bumptech.glide.request.target.Target<Drawable>?,
+                        dataSource: com.bumptech.glide.load.DataSource?,
+                        isFirstResource: Boolean
+                    ): Boolean {
+                        if (resource is GifDrawable) {
                             imgView.setImageBitmap(resource.firstFrame)
                             return true
                         }
                         return false
                     }
 
-                    override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
+                    override fun onLoadFailed(
+                        e: GlideException?,
+                        model: Any?,
+                        target: Target<Drawable>?,
+                        isFirstResource: Boolean
+                    ): Boolean {
                         return false
                     }
                 })
@@ -82,7 +93,9 @@ fun loadImage(imgView: ImageView, imgUrl: String?) {
 
 @BindingAdapter("banner")
 fun loadBanner(imgView: ImageView, url: String?) {
-    if (!url.isNullOrBlank() && URLUtil.isValidUrl(url) && Patterns.WEB_URL.matcher(url).matches()) {
+    if (!url.isNullOrBlank() && URLUtil.isValidUrl(url) && Patterns.WEB_URL.matcher(url)
+            .matches()
+    ) {
         GlideApp.with(imgView.context)
             .load(url)
             .skipMemoryCache(true)
@@ -381,13 +394,13 @@ fun applyBookmarkTint(imageView: ImageView, bookmarked: Boolean) {
 @BindingAdapter("itemWithSmallFlair")
 fun setSmallFlairWithItem(cardView: MaterialCardView, item: Item?) {
     val darkTextColor = item is Post && item.flairTextColor == "dark"
-    val flairs = when(item){
+    val flairs = when (item) {
         is Post -> item.flairRichtext
         is Comment -> item.flairRichtext
         else -> null
     }
-    if(flairs.isNullOrEmpty()){
-        val text = when(item){
+    if (flairs.isNullOrEmpty()) {
+        val text = when (item) {
             is Post -> item.flairText?.removeHtmlEntities()
             is Comment -> item.authorFlairText?.removeHtmlEntities()
             else -> null
@@ -402,14 +415,14 @@ fun setSmallFlairWithItem(cardView: MaterialCardView, item: Item?) {
 @BindingAdapter("itemWithFlair")
 fun setFlairWithItem(cardView: MaterialCardView, item: Item?) {
     val darkTextColor = item is Post && item.flairTextColor == "dark"
-    val flairs = when(item){
+    val flairs = when (item) {
         is Post -> item.flairRichtext
         is Comment -> item.flairRichtext
         else -> null
     }
 
-    if(flairs.isNullOrEmpty()){
-        val text = when(item){
+    if (flairs.isNullOrEmpty()) {
+        val text = when (item) {
             is Post -> item.flairText?.removeHtmlEntities()
             is Comment -> item.authorFlairText?.removeHtmlEntities()
             else -> null
@@ -421,39 +434,52 @@ fun setFlairWithItem(cardView: MaterialCardView, item: Item?) {
 }
 
 @BindingAdapter("flair")
-fun setFlairLayout(cardView: MaterialCardView, flair: Flair?){
+fun setFlairLayout(cardView: MaterialCardView, flair: Flair?) {
     cardView.removeAllViews()
-    if(flair != null){
-        if(flair.richtext.isNullOrEmpty()){
-            setFlairText(cardView, flair.text.removeHtmlEntities(), darkTextColor = false, small = false)
+    if (flair != null) {
+        if (flair.richtext.isNullOrEmpty()) {
+            setFlairText(
+                cardView,
+                flair.text.removeHtmlEntities(),
+                darkTextColor = false,
+                small = false
+            )
         } else {
             setFlairRichText(cardView, flair.richtext, darkTextColor = false, small = false)
         }
     }
 }
 
-private fun setFlairText(cardView: MaterialCardView, text: String?, darkTextColor: Boolean, small: Boolean){
+private fun setFlairText(
+    cardView: MaterialCardView,
+    text: String?,
+    darkTextColor: Boolean,
+    small: Boolean
+) {
     val context = cardView.context
     cardView.removeAllViews()
-    val textColor = if(darkTextColor) {
+    val textColor = if (darkTextColor) {
         Color.BLACK
     } else {
         Color.WHITE
     }
     val padding = TypedValue.applyDimension(
-            TypedValue.COMPLEX_UNIT_DIP,
-            4f,
-            context.resources.displayMetrics
+        TypedValue.COMPLEX_UNIT_DIP,
+        4f,
+        context.resources.displayMetrics
     ).toInt()
 
-    if(!text.isNullOrBlank() && text.trim() != "\u200B"){
+    if (!text.isNullOrBlank() && text.trim() != "\u200B") {
         val textView = TextView(context).apply {
             this.text = text.trim()
-            setTextSize(TypedValue.COMPLEX_UNIT_SP, if(small) 12f else 14f)
+            setTextSize(TypedValue.COMPLEX_UNIT_SP, if (small) 12f else 14f)
             setTextColor(textColor)
             isSingleLine = true
-            setPadding(padding, padding/2, padding, padding/2)
-            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
+            setPadding(padding, padding / 2, padding, padding / 2)
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
                 this.gravity = Gravity.CENTER
             }
         }
@@ -466,9 +492,14 @@ private fun setFlairText(cardView: MaterialCardView, text: String?, darkTextColo
     }
 }
 
-private fun setFlairRichText(cardView: MaterialCardView, flairs: List<FlairRichtext>?, darkTextColor: Boolean, small: Boolean){
+private fun setFlairRichText(
+    cardView: MaterialCardView,
+    flairs: List<FlairRichtext>?,
+    darkTextColor: Boolean,
+    small: Boolean
+) {
     cardView.removeAllViews()
-    val textColor = if(darkTextColor) {
+    val textColor = if (darkTextColor) {
         Color.BLACK
     } else {
         Color.WHITE
@@ -476,54 +507,63 @@ private fun setFlairRichText(cardView: MaterialCardView, flairs: List<FlairRicht
     if (!flairs.isNullOrEmpty()) {
         val context = cardView.context
         val imgViewSize = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                if(small) 14f else 18f,
-                context.resources.displayMetrics
+            TypedValue.COMPLEX_UNIT_DIP,
+            if (small) 14f else 18f,
+            context.resources.displayMetrics
         ).toInt()
         val horizontalMargin = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                4f,
-                context.resources.displayMetrics
+            TypedValue.COMPLEX_UNIT_DIP,
+            4f,
+            context.resources.displayMetrics
         ).toInt()
         val verticalMargin = TypedValue.applyDimension(
-                TypedValue.COMPLEX_UNIT_DIP,
-                1f,
-                context.resources.displayMetrics
+            TypedValue.COMPLEX_UNIT_DIP,
+            1f,
+            context.resources.displayMetrics
         ).toInt()
         val linearLayout = LinearLayout(context).apply {
             orientation = LinearLayout.HORIZONTAL
             setPadding(horizontalMargin, verticalMargin, horizontalMargin, verticalMargin)
-            layoutParams = FrameLayout.LayoutParams(FrameLayout.LayoutParams.WRAP_CONTENT, FrameLayout.LayoutParams.WRAP_CONTENT).apply {
+            layoutParams = FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                FrameLayout.LayoutParams.WRAP_CONTENT
+            ).apply {
                 this.gravity = Gravity.CENTER
             }
         }
         var start = true
         var layoutHasView = false
         for (flair in flairs) {
-            if (!flair.urlFormatted.isNullOrBlank() || flair.textFormatted.toString().isNotBlank()) {
+            if (!flair.urlFormatted.isNullOrBlank() || flair.textFormatted.toString()
+                    .isNotBlank()
+            ) {
                 val view =
-                        if (!flair.urlFormatted.isNullOrBlank()) {
-                            ImageView(context).apply {
-                                layoutParams = LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
-                                    if(!start) {
+                    if (!flair.urlFormatted.isNullOrBlank()) {
+                        ImageView(context).apply {
+                            layoutParams =
+                                LinearLayout.LayoutParams(imgViewSize, imgViewSize).apply {
+                                    if (!start) {
                                         marginStart = horizontalMargin
                                     }
                                 }
-                                loadImage(this, flair.urlFormatted)
-                            }
-                        } else {
-                            TextView(context).apply {
-                                text = flair.textFormatted.toString().trim()
-                                setTextSize(TypedValue.COMPLEX_UNIT_SP, if(small) 12f else 14f)
-                                setTextColor(textColor)
-                                isSingleLine = true
-                                layoutParams = LinearLayout.LayoutParams(LinearLayout.LayoutParams.WRAP_CONTENT, LinearLayout.LayoutParams.WRAP_CONTENT).apply {
-                                    if(!start) {
-                                        marginStart = horizontalMargin
-                                    }
+                            loadImage(this, flair.urlFormatted)
+                        }
+                    } else {
+                        TextView(context).apply {
+                            text = flair.textFormatted.toString().trim()
+                            setTextSize(TypedValue.COMPLEX_UNIT_SP, if (small) 12f else 14f)
+                            setTextColor(textColor)
+                            isSingleLine = true
+                            layoutParams = LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.WRAP_CONTENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                            ).apply {
+                                if (!start) {
+                                    marginStart = horizontalMargin
                                 }
                             }
                         }
+                    }
 
                 linearLayout.addView(view)
                 layoutHasView = true
@@ -531,7 +571,7 @@ private fun setFlairRichText(cardView: MaterialCardView, flairs: List<FlairRicht
             }
         }
         cardView.apply {
-            visibility = if(layoutHasView){
+            visibility = if (layoutHasView) {
                 addView(linearLayout)
                 View.VISIBLE
             } else {
@@ -544,8 +584,8 @@ private fun setFlairRichText(cardView: MaterialCardView, flairs: List<FlairRicht
 }
 
 @BindingAdapter("flairBackground")
-fun setFlairBackground(cardView: MaterialCardView, color: String?){
-    val backgroundColor = when(color){
+fun setFlairBackground(cardView: MaterialCardView, color: String?) {
+    val backgroundColor = when (color) {
         "", null -> ContextCompat.getColor(cardView.context, android.R.color.darker_gray)
         else -> Color.parseColor(color)
     }
@@ -638,8 +678,8 @@ fun setAuthorTextColor(textView: TextView, isUser: Boolean) {
 }
 
 @BindingAdapter("isOp")
-fun setAuthorCardBackground(materialCardView: MaterialCardView, isOp: Boolean){
-    val padding = if(isOp) {
+fun setAuthorCardBackground(materialCardView: MaterialCardView, isOp: Boolean) {
+    val padding = if (isOp) {
         4.toDp(materialCardView.context)
     } else {
         0
@@ -652,21 +692,21 @@ fun setAuthorCardBackground(materialCardView: MaterialCardView, isOp: Boolean){
     }
 
     materialCardView.setCardBackgroundColor(backgroundColor)
-    if(materialCardView.childCount > 0){
+    if (materialCardView.childCount > 0) {
         val child = materialCardView.getChildAt(0)
         child.setPadding(padding, 0, padding, 0)
     }
 }
 
 @BindingAdapter("urlType")
-fun setUrlTypeIcon(imgView: ImageView, urlType: UrlType?){
-    if(urlType == null) {
+fun setUrlTypeIcon(imgView: ImageView, urlType: UrlType?) {
+    if (urlType == null) {
         imgView.setImageDrawable(null)
         return
     }
 
     val imageResource =
-        when(urlType){
+        when (urlType) {
             UrlType.IMAGE -> R.drawable.ic_photo_24
             UrlType.GIF -> R.drawable.ic_photo_24
             UrlType.GIFV -> R.drawable.ic_videocam_24
@@ -685,8 +725,8 @@ fun setUrlTypeIcon(imgView: ImageView, urlType: UrlType?){
 }
 
 @BindingAdapter("removalReason")
-fun setRemovalReason(textView: TextView, reason: String?){
-    when(reason){
+fun setRemovalReason(textView: TextView, reason: String?) {
+    when (reason) {
         "moderator" -> textView.setText(R.string.post_removed_by_moderator)
         "admin" -> textView.setText(R.string.post_removed_by_admin)
         null -> textView.text = ""
@@ -695,8 +735,8 @@ fun setRemovalReason(textView: TextView, reason: String?){
 }
 
 @BindingAdapter("awardsNum")
-fun setNumberOfAwardsText(textView: TextView, num: Int?){
-    when(num){
+fun setNumberOfAwardsText(textView: TextView, num: Int?) {
+    when (num) {
         0, null -> {
             textView.visibility = View.GONE
         }
@@ -711,8 +751,8 @@ fun setNumberOfAwardsText(textView: TextView, num: Int?){
 
 @SuppressLint("SetTextI18n")
 @BindingAdapter("post")
-fun setPostInfo(textView: TextView, post: Post?){
-    if(post == null){
+fun setPostInfo(textView: TextView, post: Post?) {
+    if (post == null) {
         textView.visibility = View.GONE
     } else {
         textView.apply {
@@ -723,7 +763,7 @@ fun setPostInfo(textView: TextView, post: Post?){
 }
 
 @BindingAdapter("cardStrokeWidth")
-fun setMaterialCardStrokeWidth(materialCardView: MaterialCardView, strokeWidth: Int?){
+fun setMaterialCardStrokeWidth(materialCardView: MaterialCardView, strokeWidth: Int?) {
     val context = materialCardView.context
     val width = (strokeWidth ?: 0).toDp(context)
     materialCardView.strokeWidth = width

@@ -5,7 +5,6 @@ import com.squareup.moshi.JsonReader
 import com.squareup.moshi.ToJson
 import dev.gtcl.astro.models.reddit.listing.*
 import java.util.*
-import kotlin.collections.LinkedHashMap
 
 data class CommentPage(
     val post: Post,
@@ -246,7 +245,7 @@ class CommentsMoshiAdapter {
                 "all_awardings" -> {
                     val mutableAwards = mutableListOf<Award>()
                     jsonReader.beginArray()
-                    while(jsonReader.hasNext()){
+                    while (jsonReader.hasNext()) {
                         mutableAwards.add(getAward(jsonReader))
                     }
                     jsonReader.endArray()
@@ -274,7 +273,7 @@ class CommentsMoshiAdapter {
                         jsonReader.skipValue()
                     }
                 }
-                "link_flair_richtext" ->  {
+                "link_flair_richtext" -> {
                     jsonReader.beginArray()
                     flairRichtext = mutableListOf()
                     while (jsonReader.hasNext()) {
@@ -402,7 +401,7 @@ class CommentsMoshiAdapter {
         var images: List<PreviewImages>? = null
         jsonReader.beginObject()
         while (jsonReader.hasNext()) {
-            when(jsonReader.nextName()){
+            when (jsonReader.nextName()) {
                 "reddit_video_preview" -> {
                     jsonReader.beginObject()
                     while (jsonReader.hasNext()) {
@@ -418,7 +417,7 @@ class CommentsMoshiAdapter {
                 "images" -> {
                     val parsedImages = mutableListOf<PreviewImages>()
                     jsonReader.beginArray()
-                    while(jsonReader.hasNext()){
+                    while (jsonReader.hasNext()) {
                         parsedImages.add(getPreviewImages(jsonReader))
                     }
                     jsonReader.endArray()
@@ -436,13 +435,13 @@ class CommentsMoshiAdapter {
         var resolutions: List<PreviewImage>? = null
         var variants: ImageVariant? = null
         jsonReader.beginObject()
-        while(jsonReader.hasNext()){
-            when(jsonReader.nextName()){
+        while (jsonReader.hasNext()) {
+            when (jsonReader.nextName()) {
                 "source" -> source = getPreviewImage(jsonReader)
                 "resolutions" -> {
                     jsonReader.beginArray()
                     val previewImages = mutableListOf<PreviewImage>()
-                    while(jsonReader.hasNext()){
+                    while (jsonReader.hasNext()) {
                         previewImages.add(getPreviewImage(jsonReader))
                     }
                     jsonReader.endArray()
@@ -460,8 +459,8 @@ class CommentsMoshiAdapter {
         var nsfw: PreviewImages? = null
         jsonReader.beginObject()
 
-        while(jsonReader.hasNext()){
-            when(jsonReader.nextName()){
+        while (jsonReader.hasNext()) {
+            when (jsonReader.nextName()) {
                 "nsfw" -> nsfw = getPreviewImages(jsonReader)
                 else -> jsonReader.skipValue()
             }
@@ -476,8 +475,8 @@ class CommentsMoshiAdapter {
         var width: Int? = null
         var height: Int? = null
         jsonReader.beginObject()
-        while(jsonReader.hasNext()){
-            when(jsonReader.nextName()){
+        while (jsonReader.hasNext()) {
+            when (jsonReader.nextName()) {
                 "url" -> url = jsonReader.nextString()
                 "width" -> width = jsonReader.nextInt()
                 "height" -> height = jsonReader.nextInt()
@@ -495,13 +494,13 @@ class CommentsMoshiAdapter {
         var iconUrl: String? = null
         jsonReader.beginObject()
 
-        while(jsonReader.hasNext()){
-            when(jsonReader.nextName()){
+        while (jsonReader.hasNext()) {
+            when (jsonReader.nextName()) {
                 "count" -> count = jsonReader.nextInt()
                 "resized_static_icons" -> {
                     val mutableIcons = mutableListOf<AwardIcon>()
                     jsonReader.beginArray()
-                    while(jsonReader.hasNext()){
+                    while (jsonReader.hasNext()) {
                         mutableIcons.add(getAwardIcon(jsonReader))
                     }
                     jsonReader.endArray()
@@ -520,8 +519,8 @@ class CommentsMoshiAdapter {
         var url: String? = null
         jsonReader.beginObject()
 
-        while(jsonReader.hasNext()){
-            when(jsonReader.nextName()){
+        while (jsonReader.hasNext()) {
+            when (jsonReader.nextName()) {
                 "url" -> url = jsonReader.nextString()
                 else -> jsonReader.skipValue()
             }
@@ -540,14 +539,14 @@ class CommentsMoshiAdapter {
             var previews: List<GalleryPreview>? = null
             jsonReader.beginObject()
             while (jsonReader.hasNext()) {
-                when(jsonReader.nextName()){
+                when (jsonReader.nextName()) {
                     "m" -> {
                         mimeType = jsonReader.nextString()
                     }
                     "p" -> {
                         jsonReader.beginArray()
                         val mutablePreviews = mutableListOf<GalleryPreview>()
-                        while(jsonReader.hasNext()){
+                        while (jsonReader.hasNext()) {
                             mutablePreviews.add(getGalleryPreview(jsonReader))
                         }
                         jsonReader.endArray()
@@ -567,8 +566,8 @@ class CommentsMoshiAdapter {
         var url: String? = null
 
         jsonReader.beginObject()
-        while(jsonReader.hasNext()){
-            when(jsonReader.nextName()){
+        while (jsonReader.hasNext()) {
+            when (jsonReader.nextName()) {
                 "u" -> {
                     if (jsonReader.peek() != JsonReader.Token.NULL) {
                         url = jsonReader.nextString()
@@ -771,7 +770,7 @@ class CommentsMoshiAdapter {
                 "all_awardings" -> {
                     val mutableAwards = mutableListOf<Award>()
                     jsonReader.beginArray()
-                    while(jsonReader.hasNext()){
+                    while (jsonReader.hasNext()) {
                         mutableAwards.add(getAward(jsonReader))
                     }
                     jsonReader.endArray()

@@ -37,7 +37,7 @@ class CommentVH private constructor(private val binding: ItemCommentBinding) :
                     itemClickListener.itemClicked(comment, adapterPosition)
                 }
                 setOnLongClickListener {
-                    if(comment.isCollapsed){
+                    if (comment.isCollapsed) {
                         false
                     } else {
                         itemClickListener.itemLongClicked(comment, adapterPosition)

@@ -36,7 +36,7 @@ class CommentsAdapter(
             }
         }
 
-    fun getOffset(): Int = if(allCommentsFetched) 0 else 1
+    fun getOffset(): Int = if (allCommentsFetched) 0 else 1
 
     private var comments: MutableList<Item>? = null
 
@@ -57,11 +57,11 @@ class CommentsAdapter(
         comments?.let {
             val wasEmpty = it.isEmpty()
             it.addAll(position, items)
-            if(wasEmpty){
+            if (wasEmpty) {
                 notifyItemRemoved(0)
             }
             notifyItemRangeInserted(position + getOffset(), items.size)
-            if(position == 0 && !wasEmpty){ // Removes top divider of the previous last item since it is no longer at the top
+            if (position == 0 && !wasEmpty) { // Removes top divider of the previous last item since it is no longer at the top
                 notifyItemChanged(position + getOffset() + items.size)
             }
         }
@@ -71,7 +71,7 @@ class CommentsAdapter(
         comments?.let {
             it.removeAt(position)
             notifyItemRemoved(position + getOffset())
-            if(position == it.size){ // Adds back bottom divider to the second to the last comment
+            if (position == it.size) { // Adds back bottom divider to the second to the last comment
                 notifyItemChanged(it.lastIndex + getOffset())
             }
         }
@@ -114,7 +114,7 @@ class CommentsAdapter(
                 movementMethod,
                 commentActions,
                 userId,
-                    (itemCount - 1) == position,
+                (itemCount - 1) == position,
                 itemClickListener
             )
             R.layout.item_network_state -> (holder as NetworkStateItemVH).bind(NetworkState.LOADING) {}

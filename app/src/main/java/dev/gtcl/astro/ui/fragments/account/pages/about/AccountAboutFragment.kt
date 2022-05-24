@@ -39,7 +39,12 @@ class AccountAboutFragment : Fragment(), SubredditActions, MultiRedditActions,
     }
 
     private val movementMethod by lazy {
-        createBetterLinkMovementInstance(requireContext(), findNavController(), parentFragmentManager, activityModel)
+        createBetterLinkMovementInstance(
+            requireContext(),
+            findNavController(),
+            parentFragmentManager,
+            activityModel
+        )
     }
 
     override fun onCreateView(
