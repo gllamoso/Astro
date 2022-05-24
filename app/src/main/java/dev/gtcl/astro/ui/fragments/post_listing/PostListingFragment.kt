@@ -70,7 +70,12 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
     private lateinit var listAdapter: ListingAdapter
 
     private val movementMethod by lazy {
-        createBetterLinkMovementInstance(requireContext(), findNavController(), parentFragmentManager, activityModel)
+        createBetterLinkMovementInstance(
+            requireContext(),
+            findNavController(),
+            parentFragmentManager,
+            activityModel
+        )
     }
 
     override fun onResume() {
@@ -272,7 +277,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
                 }
                 rightDrawerLayout?.layoutRightDrawerPublicDescriptionLayout?.createHtmlViews(
                     sub.parseDescription(),
-                        binding?.fragmentListingDrawer, movementMethod
+                    binding?.fragmentListingDrawer, movementMethod
                 )
 
                 if (sub.displayName.startsWith("u_")) {
@@ -337,7 +342,7 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
         })
 
         model.sidebarError.observe(viewLifecycleOwner, {
-            if(it != null){
+            if (it != null) {
                 binding?.fragmentListingRightDrawerLayout?.name = it
                 model.sidebarErrorObserved()
             }
@@ -549,10 +554,17 @@ class PostListingFragment : Fragment(), PostActions, CommentActions, SubredditAc
     override fun thumbnailClicked(post: Post, position: Int) {
         post.isRead = true
         model.addReadItem(post)
-        if(post.isSelf){
+        if (post.isSelf) {
             activityModel.newViewPagerPage(PostPage(post, position))
         } else {
-            post.urlFormatted?.handleUrl(context, PostPage(post, position), post.previewVideoUrl, parentFragmentManager, findNavController(), activityModel)
+            post.urlFormatted?.handleUrl(
+                context,
+                PostPage(post, position),
+                post.previewVideoUrl,
+                parentFragmentManager,
+                findNavController(),
+                activityModel
+            )
         }
     }
 

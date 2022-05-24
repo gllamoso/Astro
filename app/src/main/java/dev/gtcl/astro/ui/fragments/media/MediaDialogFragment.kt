@@ -69,7 +69,7 @@ class MediaDialogFragment : DialogFragment() {
             val mediaItems = requireArguments().get(MEDIA_ITEMS_KEY) as List<MediaURL>?
             val galleryId = requireArguments().getString(GALLERY_KEY)
 
-            when{
+            when {
                 mediaItems != null -> model.setItems(mediaItems)
                 galleryId != null -> model.fetchGallery(galleryId)
                 else -> model.loadMedia(url ?: throw RuntimeException("URL is null"))
@@ -197,7 +197,7 @@ class MediaDialogFragment : DialogFragment() {
         binding?.fragmentMediaDialogComments?.setOnClickListener {
             if (postPage != null) {
                 activityModel.newViewPagerPage(postPage)
-            } else if(model.post.value != null){
+            } else if (model.post.value != null) {
                 val post = model.post.value!!
                 activityModel.newViewPagerPage(PostPage(post, -1))
             }
@@ -317,8 +317,8 @@ class MediaDialogFragment : DialogFragment() {
         }
 
         fun newInstance(
-                albumUrl: String,
-                galleryId: String
+            albumUrl: String,
+            galleryId: String
         ) = MediaDialogFragment().apply {
             arguments = bundleOf(
                 URL_KEY to albumUrl,

@@ -82,24 +82,24 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                         var videoUrl: String?
                         try {
                             videoUrl = gfycatRepository.getGfycatInfo(id)
-                                    .await()
-                                    .gfyItem
-                                    .mobileUrl
+                                .await()
+                                .gfyItem
+                                .mobileUrl
                         } catch (e: HttpException) {
                             videoUrl = try {
                                 gfycatRepository.getGfycatInfoFromRedgifs(id)
                                     .await()
                                     .gfyItem
                                     .mobileUrl
-                            } catch (e: Exception){
+                            } catch (e: Exception) {
                                 mediaURL.backupUrl
                             }
-                        } catch (e: Exception){
+                        } catch (e: Exception) {
                             videoUrl = mediaURL.backupUrl
                         }
 
-                        if(videoUrl != null){
-                            val backupUrl = if(videoUrl != mediaURL.backupUrl){
+                        if (videoUrl != null) {
+                            val backupUrl = if (videoUrl != mediaURL.backupUrl) {
                                 mediaURL.backupUrl
                             } else {
                                 null
@@ -113,15 +113,15 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
                         val id = REDGIFS_REGEX.getFirstGroup(mediaURL.url) ?: return@launch
                         val videoUrl = try {
                             gfycatRepository.getGfycatInfoFromRedgifs(id)
-                                    .await()
-                                    .gfyItem
-                                    .mobileUrl
-                        } catch (e: Exception){
+                                .await()
+                                .gfyItem
+                                .mobileUrl
+                        } catch (e: Exception) {
                             mediaURL.backupUrl
                         }
 
-                        if(videoUrl != null){
-                            val backupUrl = if(videoUrl != mediaURL.backupUrl){
+                        if (videoUrl != null) {
+                            val backupUrl = if (videoUrl != mediaURL.backupUrl) {
                                 mediaURL.backupUrl
                             } else {
                                 null
@@ -146,20 +146,21 @@ class MediaDialogVM(private val application: AstroApplication) : AstroViewModel(
         }
     }
 
-    fun fetchGallery(galleryId: String){
+    fun fetchGallery(galleryId: String) {
         coroutineScope.launch {
-            try{
+            try {
                 _isLoading.postValue(true)
-                val fullname = if(galleryId.startsWith("t3_")){
+                val fullname = if (galleryId.startsWith("t3_")) {
                     galleryId
                 } else {
                     "t3_$galleryId"
                 }
-                val post = listingRepository.getPostFromId(fullname).await().data.children[0].data as Post
+                val post =
+                    listingRepository.getPostFromId(fullname).await().data.children[0].data as Post
                 val mediaItems = post.galleryAsMediaItems ?: throw Exception()
                 _mediaItems.postValue(mediaItems)
                 _post.postValue(post)
-            } catch (e: Exception){
+            } catch (e: Exception) {
                 _mediaItems.postValue(listOf())
                 _errorMessage.postValue(e.getErrorMessage(application))
             } finally {

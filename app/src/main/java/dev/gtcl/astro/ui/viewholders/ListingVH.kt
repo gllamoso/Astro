@@ -3,9 +3,9 @@ package dev.gtcl.astro.ui.viewholders
 import android.view.LayoutInflater
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import dev.gtcl.astro.actions.ListingTypeClickListener
 import dev.gtcl.astro.databinding.ItemListingBinding
 import dev.gtcl.astro.models.reddit.listing.PostListing
-import dev.gtcl.astro.actions.ListingTypeClickListener
 
 class ListingVH private constructor(private val binding: ItemListingBinding) :
     RecyclerView.ViewHolder(binding.root) {

@@ -20,7 +20,6 @@ import dev.gtcl.astro.url.getUrlType
 import dev.gtcl.astro.url.stripImageUrl
 import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
-import java.util.*
 
 sealed class Item(val kind: ItemType) : Parcelable {
     abstract val id: String?
@@ -342,13 +341,13 @@ data class Post(
     @IgnoredOnParcel
     val urlFormatted = url?.removeHtmlEntities()
 
-    fun getThumbnail(nsfw: Boolean): String?{
+    fun getThumbnail(nsfw: Boolean): String? {
         var result: String?
-        if(nsfw){
+        if (nsfw) {
             result = preview?.images?.firstOrNull()?.variants?.nsfw?.resolutions?.firstOrNull()?.url
         } else {
             result = preview?.images?.firstOrNull()?.resolutions?.firstOrNull()?.url
-            if(result == null){
+            if (result == null) {
                 val id = galleryData?.items?.firstOrNull()?.mediaId ?: ""
                 result = mediaMetadata?.get(id)?.previews?.firstOrNull()?.url ?: thumbnail
             }
@@ -358,7 +357,7 @@ data class Post(
 
     fun getPreviewImage(): String? {
         var result = preview?.images?.firstOrNull()?.resolutions?.lastOrNull()?.url
-        if(result == null){
+        if (result == null) {
             val id = galleryData?.items?.firstOrNull()?.mediaId ?: ""
             result = mediaMetadata?.get(id)?.previews?.lastOrNull()?.url
         }
@@ -485,8 +484,10 @@ data class Post(
 enum class PostType {
     @SerializedName("self")
     TEXT,
+
     @SerializedName("link")
     URL,
+
     @SerializedName("crosspost")
     CROSSPOST
 }
@@ -509,7 +510,7 @@ data class PreviewImages(
 @Parcelize
 data class ImageVariant(
     val nsfw: PreviewImages?
-): Parcelable
+) : Parcelable
 
 @Parcelize
 data class PreviewImage(
@@ -552,7 +553,7 @@ data class Award(
 
 @Parcelize
 data class AwardIcon(
-        private val url: String
+    private val url: String
 ) : Parcelable {
     @IgnoredOnParcel
     val urlFormatted = url.removeHtmlEntities()

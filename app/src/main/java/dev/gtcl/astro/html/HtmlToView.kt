@@ -39,7 +39,10 @@ fun SimpleText.createView(context: Context, movementMethod: BetterLinkMovementMe
     }
 }
 
-fun SimpleText.createCellTextView(context: Context, movementMethod: BetterLinkMovementMethod): TextView {
+fun SimpleText.createCellTextView(
+    context: Context,
+    movementMethod: BetterLinkMovementMethod
+): TextView {
     val margin = 8.toDp(context)
     val textView = TextView(context)
     val spannableString = createSpannableString(
@@ -198,7 +201,11 @@ fun createSpannableString(
             }
             Quote -> {
                 spannableString.setSpan(
-                    CustomQuoteSpan(ContextCompat.getColor(context, R.color.colorPrimary), stripeWidth = 3.toDp(context), gapWidth =  8.toDp(context)),
+                    CustomQuoteSpan(
+                        ContextCompat.getColor(context, R.color.colorPrimary),
+                        stripeWidth = 3.toDp(context),
+                        gapWidth = 8.toDp(context)
+                    ),
                     start,
                     end
                 )
@@ -236,7 +243,11 @@ fun HorizontalLine.createView(context: Context): View {
 }
 
 @SuppressLint("ClickableViewAccessibility")
-fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, interceptingAncestor: ViewGroup?,  movementMethod: BetterLinkMovementMethod) {
+fun LinearLayout.createHtmlViews(
+    htmlSegments: List<ParsedHtmlSegment>,
+    interceptingAncestor: ViewGroup?,
+    movementMethod: BetterLinkMovementMethod
+) {
     if (htmlSegments.isEmpty()) {
         this.visibility = View.GONE
         return
@@ -261,33 +272,51 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, intercep
                     overScrollMode = View.OVER_SCROLL_NEVER
                     addView(tableLayout)
                     var isScrolling: Boolean? = null
-                    val detector = GestureDetector(context, object : GestureDetector.OnGestureListener {
-                        override fun onDown(ev: MotionEvent?) = false
-                        override fun onShowPress(p0: MotionEvent?) {}
-                        override fun onFling(p0: MotionEvent?, p1: MotionEvent?, p2: Float, p3: Float) = false
-                        override fun onLongPress(p0: MotionEvent?) {}
-                        override fun onScroll(e1: MotionEvent?, e2: MotionEvent?, distanceX: Float, distanceY: Float) = false
+                    val detector =
+                        GestureDetector(context, object : GestureDetector.OnGestureListener {
+                            override fun onDown(ev: MotionEvent?) = false
+                            override fun onShowPress(p0: MotionEvent?) {}
+                            override fun onFling(
+                                p0: MotionEvent?,
+                                p1: MotionEvent?,
+                                p2: Float,
+                                p3: Float
+                            ) = false
 
-                        override fun onSingleTapUp(ev: MotionEvent?): Boolean {
-                            if(ev != null){
-                                parentView.background?.apply {
-                                    setHotspot(horizontalScrollView.x + ev.x, horizontalScrollView.y + ev.y)
-                                    state = intArrayOf(android.R.attr.state_pressed, android.R.attr.state_enabled)
-                                    Handler(Looper.getMainLooper()).postDelayed({
-                                        parentView.isPressed = false
-                                        state = intArrayOf()
-                                        parentView.callOnClick()
-                                    }, 50)
+                            override fun onLongPress(p0: MotionEvent?) {}
+                            override fun onScroll(
+                                e1: MotionEvent?,
+                                e2: MotionEvent?,
+                                distanceX: Float,
+                                distanceY: Float
+                            ) = false
+
+                            override fun onSingleTapUp(ev: MotionEvent?): Boolean {
+                                if (ev != null) {
+                                    parentView.background?.apply {
+                                        setHotspot(
+                                            horizontalScrollView.x + ev.x,
+                                            horizontalScrollView.y + ev.y
+                                        )
+                                        state = intArrayOf(
+                                            android.R.attr.state_pressed,
+                                            android.R.attr.state_enabled
+                                        )
+                                        Handler(Looper.getMainLooper()).postDelayed({
+                                            parentView.isPressed = false
+                                            state = intArrayOf()
+                                            parentView.callOnClick()
+                                        }, 50)
+                                    }
                                 }
+
+                                return false
                             }
 
-                            return false
-                        }
-
-                    })
+                        })
                     var xWhenFirstTouched = 0F
                     setOnTouchListener { _, event ->
-                        when(event.actionMasked){
+                        when (event.actionMasked) {
                             MotionEvent.ACTION_DOWN -> {
                                 xWhenFirstTouched = event.x
                             }
@@ -296,18 +325,24 @@ fun LinearLayout.createHtmlViews(htmlSegments: List<ParsedHtmlSegment>, intercep
                                 interceptingAncestor?.requestDisallowInterceptTouchEvent(false)
                             }
                             else -> {
-                                if(isScrolling == null){
-                                    if(event.x - xWhenFirstTouched > 0){
-                                        val canScrollToLeft = horizontalScrollView.canScrollHorizontally(-1)
+                                if (isScrolling == null) {
+                                    if (event.x - xWhenFirstTouched > 0) {
+                                        val canScrollToLeft =
+                                            horizontalScrollView.canScrollHorizontally(-1)
                                         isScrolling = canScrollToLeft
-                                        if(isScrolling == true){
-                                            interceptingAncestor?.requestDisallowInterceptTouchEvent(true)
+                                        if (isScrolling == true) {
+                                            interceptingAncestor?.requestDisallowInterceptTouchEvent(
+                                                true
+                                            )
                                         }
-                                    } else if(event.x - xWhenFirstTouched < 0){
-                                        val canScrollToRight = horizontalScrollView.canScrollHorizontally(1)
+                                    } else if (event.x - xWhenFirstTouched < 0) {
+                                        val canScrollToRight =
+                                            horizontalScrollView.canScrollHorizontally(1)
                                         isScrolling = canScrollToRight
-                                        if(isScrolling == true){
-                                            interceptingAncestor?.requestDisallowInterceptTouchEvent(true)
+                                        if (isScrolling == true) {
+                                            interceptingAncestor?.requestDisallowInterceptTouchEvent(
+                                                true
+                                            )
                                         }
                                     }
                                 }

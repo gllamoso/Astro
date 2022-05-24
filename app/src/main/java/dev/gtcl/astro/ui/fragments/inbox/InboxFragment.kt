@@ -63,7 +63,14 @@ class InboxFragment : Fragment(), LeftDrawerActions {
 
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
             val url = bundle.getString(URL_KEY) ?: return@setFragmentResultListener
-            url.handleUrl(context, null, null, childFragmentManager, findNavController(), activityModel)
+            url.handleUrl(
+                context,
+                null,
+                null,
+                childFragmentManager,
+                findNavController(),
+                activityModel
+            )
         })
 
         return binding?.root

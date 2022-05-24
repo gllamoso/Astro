@@ -18,7 +18,7 @@ import dev.gtcl.astro.databinding.FragmentDialogUrlBinding
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.url.PREFIXED_REDDIT_ITEM
 
-class FragmentDialogUrlMenu: DialogFragment() {
+class FragmentDialogUrlMenu : DialogFragment() {
 
     private var binding: FragmentDialogUrlBinding? = null
 
@@ -27,13 +27,17 @@ class FragmentDialogUrlMenu: DialogFragment() {
     override fun onStart() {
         super.onStart()
         dialog?.window?.setLayout(
-                ViewGroup.LayoutParams.MATCH_PARENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT
+            ViewGroup.LayoutParams.MATCH_PARENT,
+            ViewGroup.LayoutParams.WRAP_CONTENT
         )
 //        dialog?.window?.setBackgroundDrawableResource(android.R.color.black) // This makes the dialog full screen
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
         binding = FragmentDialogUrlBinding.inflate(LayoutInflater.from(requireContext()))
         val url = requireArguments().getString(URL_KEY, "")
 
@@ -55,9 +59,11 @@ class FragmentDialogUrlMenu: DialogFragment() {
             fragmentDialogUrlCopyLink.root.setOnClickListener {
                 val context = requireContext()
                 val clip = ClipData.newPlainText(null, url)
-                val clipboard = context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                val clipboard =
+                    context.getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
                 clipboard.setPrimaryClip(clip)
-                Toast.makeText(context, context.getString(R.string.link_copied), Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, context.getString(R.string.link_copied), Toast.LENGTH_SHORT)
+                    .show()
                 dismiss()
             }
             executePendingBindings()
@@ -66,12 +72,12 @@ class FragmentDialogUrlMenu: DialogFragment() {
         return binding!!.root
     }
 
-    companion object{
+    companion object {
         fun newInstance(url: String) = FragmentDialogUrlMenu().apply {
             val isRedditPrefixedItem = PREFIXED_REDDIT_ITEM.matches(url)
-            val fullUrl = if(isRedditPrefixedItem){
+            val fullUrl = if (isRedditPrefixedItem) {
                 val sb = StringBuilder("https://www.reddit.com")
-                if(!url.startsWith("/")){
+                if (!url.startsWith("/")) {
                     sb.append("/")
                 }
                 sb.append(url)

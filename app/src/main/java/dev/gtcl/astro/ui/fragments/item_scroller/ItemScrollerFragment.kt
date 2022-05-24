@@ -49,7 +49,12 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     }
 
     private val movementMethod by lazy {
-        createBetterLinkMovementInstance(requireContext(), findNavController(), parentFragmentManager, activityModel)
+        createBetterLinkMovementInstance(
+            requireContext(),
+            findNavController(),
+            parentFragmentManager,
+            activityModel
+        )
     }
 
     override fun onResume() {
@@ -209,7 +214,14 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
         })
 
         childFragmentManager.setFragmentResultListener(URL_KEY, viewLifecycleOwner, { _, bundle ->
-            (bundle.getString(URL_KEY) ?: "").handleUrl(context, null, null, parentFragmentManager, findNavController(), activityModel)
+            (bundle.getString(URL_KEY) ?: "").handleUrl(
+                context,
+                null,
+                null,
+                parentFragmentManager,
+                findNavController(),
+                activityModel
+            )
         })
 
         childFragmentManager.setFragmentResultListener(
@@ -308,10 +320,17 @@ open class ItemScrollerFragment : Fragment(), PostActions, CommentActions, Messa
     override fun thumbnailClicked(post: Post, position: Int) {
         post.isRead = true
         model.addReadItem(post)
-        if(post.isSelf){
+        if (post.isSelf) {
             activityModel.newViewPagerPage(PostPage(post, position))
         } else {
-            post.urlFormatted?.handleUrl(context, PostPage(post, position), post.previewVideoUrl, parentFragmentManager, findNavController(), activityModel)
+            post.urlFormatted?.handleUrl(
+                context,
+                PostPage(post, position),
+                post.previewVideoUrl,
+                parentFragmentManager,
+                findNavController(),
+                activityModel
+            )
         }
     }
 

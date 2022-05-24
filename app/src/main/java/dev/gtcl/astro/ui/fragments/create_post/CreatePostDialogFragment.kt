@@ -23,7 +23,6 @@ import dev.gtcl.astro.ui.fragments.create_post.resubmit.ResubmitDialogFragment
 import dev.gtcl.astro.ui.fragments.flair.FlairListDialogFragment
 import dev.gtcl.astro.ui.fragments.rules.RulesDialogFragment
 import java.util.*
-import kotlin.NoSuchElementException
 
 class CreatePostDialogFragment : DialogFragment() {
 
@@ -325,7 +324,14 @@ class CreatePostDialogFragment : DialogFragment() {
 
         model.newPostData.observe(viewLifecycleOwner, { newPostData ->
             if (newPostData != null) {
-                newPostData.url.handleUrl(context, null, null, parentFragmentManager, findNavController(), activityModel)
+                newPostData.url.handleUrl(
+                    context,
+                    null,
+                    null,
+                    parentFragmentManager,
+                    findNavController(),
+                    activityModel
+                )
                 model.newPostObserved()
                 dismiss()
             }

@@ -199,7 +199,7 @@ class ListingRepository private constructor(private val application: AstroApplic
         }
     }
 
-    fun getPostFromId(fullname: String): Deferred<ListingResponse>{
+    fun getPostFromId(fullname: String): Deferred<ListingResponse> {
         return if (application.accessToken != null) {
             RedditApi.oauth.getPost(application.accessToken!!.authorizationHeader, fullname)
         } else {

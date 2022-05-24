@@ -91,16 +91,18 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
     }
 
     private fun setThumbnail(post: Post, blurNsfw: Boolean, postActions: PostActions) {
-        val thumbnailUrl = if(post.nsfw) {
+        val thumbnailUrl = if (post.nsfw) {
             post.getThumbnail(blurNsfw)
         } else {
             post.getThumbnail(false)
         }
 
-        val thumbnailIsValid = thumbnailUrl != null && Patterns.WEB_URL.matcher(thumbnailUrl).matches() && URLUtil.isValidUrl(thumbnailUrl)
+        val thumbnailIsValid = thumbnailUrl != null && Patterns.WEB_URL.matcher(thumbnailUrl)
+            .matches() && URLUtil.isValidUrl(thumbnailUrl)
 
-        when{
-            !thumbnailIsValid && post.isSelf -> binding.itemPostThumbnailBackground.visibility = View.GONE
+        when {
+            !thumbnailIsValid && post.isSelf -> binding.itemPostThumbnailBackground.visibility =
+                View.GONE
             thumbnailIsValid && !post.spoiler -> {
                 binding.itemPostThumbnailBackground.visibility = View.VISIBLE
                 binding.itemPostThumbnail.apply {
@@ -114,29 +116,40 @@ class PostVH private constructor(private val binding: ItemPostBinding) :
 
                     val thumbnailSize = 72.toDp(context)
                     GlideApp.with(context)
-                            .load(thumbnailUrl)
-                            .apply(RequestOptions().override(thumbnailSize, thumbnailSize))
-                            .skipMemoryCache(true)
-                            .centerCrop()
-                            .addListener(object: RequestListener<Drawable> {
-                                override fun onResourceReady(resource: Drawable?, model: Any?, target: com.bumptech.glide.request.target.Target<Drawable>?, dataSource: com.bumptech.glide.load.DataSource?, isFirstResource: Boolean): Boolean {
-                                    if(resource is GifDrawable){
-                                        setImageBitmap(resource.firstFrame)
-                                        return true
-                                    }
-                                    return false
+                        .load(thumbnailUrl)
+                        .apply(RequestOptions().override(thumbnailSize, thumbnailSize))
+                        .skipMemoryCache(true)
+                        .centerCrop()
+                        .addListener(object : RequestListener<Drawable> {
+                            override fun onResourceReady(
+                                resource: Drawable?,
+                                model: Any?,
+                                target: com.bumptech.glide.request.target.Target<Drawable>?,
+                                dataSource: com.bumptech.glide.load.DataSource?,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                if (resource is GifDrawable) {
+                                    setImageBitmap(resource.firstFrame)
+                                    return true
                                 }
+                                return false
+                            }
 
-                                override fun onLoadFailed(e: GlideException?, model: Any?, target: Target<Drawable>?, isFirstResource: Boolean): Boolean {
-                                    return false
-                                }
-                             })
-                            .into(this)
+                            override fun onLoadFailed(
+                                e: GlideException?,
+                                model: Any?,
+                                target: Target<Drawable>?,
+                                isFirstResource: Boolean
+                            ): Boolean {
+                                return false
+                            }
+                        })
+                        .into(this)
                 }
             }
             else -> {
                 binding.itemPostThumbnailBackground.visibility = View.VISIBLE
-                val resource = if(post.spoiler){
+                val resource = if (post.spoiler) {
                     R.drawable.ic_error_outline_24
                 } else {
                     R.drawable.ic_no_photo_24

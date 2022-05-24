@@ -35,7 +35,7 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
                 val tableStart = end + 1
                 val tableEnd = html.findNext("</table>".toRegex(), tableStart)
                 val table = parseTable(html.substring(tableStart, tableEnd))
-                if(table.headers.isNotEmpty() || table.cellRows.isNotEmpty()){
+                if (table.headers.isNotEmpty() || table.cellRows.isNotEmpty()) {
                     parsedSegments.add(table)
                 }
                 start = html.findNext('<', tableEnd + 1)
@@ -51,7 +51,13 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
             "p" -> {
                 if (parsedText.isNotEmpty()) { // Add spacing
                     parsedText.append("\n\n")
-                    spanPlaceholders.add(SpanPlaceholder(parsedText.length - 1, parsedText.length, Spacing))
+                    spanPlaceholders.add(
+                        SpanPlaceholder(
+                            parsedText.length - 1,
+                            parsedText.length,
+                            Spacing
+                        )
+                    )
                 }
 
                 val paragraphStart = end + 1
@@ -70,7 +76,7 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
                         paragraph,
                         parsedText,
                         spanPlaceholders,
-                            false
+                        false
                     )
                 }
 
@@ -79,7 +85,13 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
             "ol" -> {
                 if (parsedText.isNotEmpty()) { // Add spacing
                     parsedText.append("\n\n")
-                    spanPlaceholders.add(SpanPlaceholder(parsedText.length - 1, parsedText.length, Spacing))
+                    spanPlaceholders.add(
+                        SpanPlaceholder(
+                            parsedText.length - 1,
+                            parsedText.length,
+                            Spacing
+                        )
+                    )
                 }
 
                 var olUnclosed = 1
@@ -107,7 +119,13 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
             "ul" -> {
                 if (parsedText.isNotEmpty()) { // Add spacing
                     parsedText.append("\n\n")
-                    spanPlaceholders.add(SpanPlaceholder(parsedText.length - 1, parsedText.length, Spacing))
+                    spanPlaceholders.add(
+                        SpanPlaceholder(
+                            parsedText.length - 1,
+                            parsedText.length,
+                            Spacing
+                        )
+                    )
                 }
 
                 var ulUnclosed = 1
@@ -139,14 +157,14 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
             }
             "/blockquote" -> {
                 val quoteStart = quoteStack.pop()
-                if(parsedText.isNotEmpty()){
+                if (parsedText.isNotEmpty()) {
                     spanPlaceholders.add(
-                            quoteStart.placeholderPosition,
-                            SpanPlaceholder(
-                                    quoteStart.start,
-                                    parsedText.length,
-                                    Quote
-                            )
+                        quoteStart.placeholderPosition,
+                        SpanPlaceholder(
+                            quoteStart.start,
+                            parsedText.length,
+                            Quote
+                        )
                     )
                 }
                 start = html.findNext('<', end + 1)
@@ -169,7 +187,13 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
             "h1", "h2", "h3", "h4", "h5", "h6" -> {
                 if (parsedText.isNotEmpty()) { // Add spacing
                     parsedText.append("\n\n")
-                    spanPlaceholders.add(SpanPlaceholder(parsedText.length - 1, parsedText.length, Spacing))
+                    spanPlaceholders.add(
+                        SpanPlaceholder(
+                            parsedText.length - 1,
+                            parsedText.length,
+                            Spacing
+                        )
+                    )
                 }
 
                 val size = 7 - Integer.parseInt(html.substring(start + 2, end))
@@ -183,7 +207,7 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
                     html.substring(headingStart, headingEnd),
                     parsedText,
                     spanPlaceholders,
-                        false
+                    false
                 )
                 spanPlaceholders.add(
                     placeholderIndex,
@@ -212,7 +236,12 @@ fun String.parseToHtmlSegments(): List<ParsedHtmlSegment> {
     return parsedSegments
 }
 
-fun parseLine(html: String, sb: StringBuilder, spanPlaceholders: MutableList<SpanPlaceholder>, ignoreNewLines: Boolean) {
+fun parseLine(
+    html: String,
+    sb: StringBuilder,
+    spanPlaceholders: MutableList<SpanPlaceholder>,
+    ignoreNewLines: Boolean
+) {
     val htmlTrimmed = html
         .trimEnd()
 
@@ -360,8 +389,8 @@ fun parseLine(html: String, sb: StringBuilder, spanPlaceholders: MutableList<Spa
                     sb.append(currentChar)
                     i++
                 }
-            } else if (currentChar == '\n'){
-                if(ignoreNewLines){
+            } else if (currentChar == '\n') {
+                if (ignoreNewLines) {
                     sb.append(' ')
                 } else {
                     sb.append(currentChar)
@@ -436,7 +465,7 @@ fun parseTable(html: String): Table {
 
     val cols = headerCells.size
     val cellRows = mutableListOf<List<Cell>>()
-    if(cols > 0){
+    if (cols > 0) {
         val rows = allCells.size / cols
 
         for (i in 0 until rows) {
@@ -467,13 +496,13 @@ fun parseList(
         when (html.substring(bracketStart + 1, bracketEnd)) {
             "ol" -> {
                 depth++
-                while(depth > depthOrdered.lastIndex){
+                while (depth > depthOrdered.lastIndex) {
                     depthOrdered.add(true)
                 }
             }
             "ul" -> {
                 depth++
-                while(depth > depthOrdered.lastIndex){
+                while (depth > depthOrdered.lastIndex) {
                     depthOrdered.add(false)
                 }
             }
@@ -482,7 +511,7 @@ fun parseList(
                 for (i in depth + 1 until itemsInEachDepth.size) {
                     itemsInEachDepth.removeAt(i)
                 }
-                for (i in depth + 1 until depthOrdered.size){
+                for (i in depth + 1 until depthOrdered.size) {
                     depthOrdered.removeAt(i)
                 }
             }
@@ -500,19 +529,19 @@ fun parseList(
                 }
                 val sbIndex = sb.length
                 val spanPlaceholderIndex = spanPlaceholders.size
-                if(itemStart < itemEnd && itemStart in html.indices && itemEnd in html.indices){
+                if (itemStart < itemEnd && itemStart in html.indices && itemEnd in html.indices) {
                     parseLine(html.substring(itemStart, itemEnd), sb, spanPlaceholders, true)
                     spanPlaceholders.add(
-                            spanPlaceholderIndex,
-                            SpanPlaceholder(
-                                    sbIndex,
-                                    sb.length,
-                                    if (depthOrdered[depth]) {
-                                        OrderedListItem(depth, itemsInEachDepth[depth])
-                                    } else {
-                                        UnorderedListItem(depth)
-                                    }
-                            )
+                        spanPlaceholderIndex,
+                        SpanPlaceholder(
+                            sbIndex,
+                            sb.length,
+                            if (depthOrdered[depth]) {
+                                OrderedListItem(depth, itemsInEachDepth[depth])
+                            } else {
+                                UnorderedListItem(depth)
+                            }
+                        )
                     )
                 }
             }
@@ -532,7 +561,7 @@ fun parseCodeBlock(codeBlock: String): CodeBlock {
         codeBlock.substring(codeBlockStart, codeBlockEnd).trim(),
         codeSb,
         codeSpanPlaceholders,
-            false
+        false
     )
     return CodeBlock(
         codeSb.toString(),
