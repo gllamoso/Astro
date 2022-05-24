@@ -4,31 +4,30 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import dev.gtcl.astro.ui.activities.MainActivityVM
 import dev.gtcl.astro.ui.fragments.account.AccountFragmentVM
-import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerVM
-import dev.gtcl.astro.ui.fragments.comments.CommentsVM
-import dev.gtcl.astro.ui.fragments.post_listing.PostListingVM
-import dev.gtcl.astro.ui.fragments.item_scroller.ItemScrollerVM
 import dev.gtcl.astro.ui.fragments.account.pages.about.AccountAboutVM
-import dev.gtcl.astro.ui.fragments.subreddits.SubredditInfoVM
 import dev.gtcl.astro.ui.fragments.account.pages.blocked.BlockedVM
 import dev.gtcl.astro.ui.fragments.account.pages.friends.FriendsVM
+import dev.gtcl.astro.ui.fragments.comments.CommentsVM
 import dev.gtcl.astro.ui.fragments.create_post.CreatePostVM
 import dev.gtcl.astro.ui.fragments.create_post.type.UploadImageVM
 import dev.gtcl.astro.ui.fragments.flair.FlairListVM
 import dev.gtcl.astro.ui.fragments.inbox.ComposeVM
+import dev.gtcl.astro.ui.fragments.item_scroller.ItemScrollerVM
 import dev.gtcl.astro.ui.fragments.manage.ManagePostVM
 import dev.gtcl.astro.ui.fragments.media.MediaDialogVM
 import dev.gtcl.astro.ui.fragments.media.list.item.MediaVM
 import dev.gtcl.astro.ui.fragments.multireddits.MultiRedditCreationVM
-import dev.gtcl.astro.ui.fragments.signin.SignInVM
-import dev.gtcl.astro.ui.fragments.splash.SplashVM
-import dev.gtcl.astro.ui.fragments.subscriptions.SubscriptionsVM
 import dev.gtcl.astro.ui.fragments.multireddits.MultiRedditVM
+import dev.gtcl.astro.ui.fragments.post_listing.PostListingVM
 import dev.gtcl.astro.ui.fragments.reply_or_edit.ReplyOrEditVM
 import dev.gtcl.astro.ui.fragments.report.ReportVM
 import dev.gtcl.astro.ui.fragments.rules.RulesVM
 import dev.gtcl.astro.ui.fragments.search.SearchVM
-import java.lang.IllegalArgumentException
+import dev.gtcl.astro.ui.fragments.signin.SignInVM
+import dev.gtcl.astro.ui.fragments.splash.SplashVM
+import dev.gtcl.astro.ui.fragments.subreddits.SubredditInfoVM
+import dev.gtcl.astro.ui.fragments.subscriptions.SubscriptionsVM
+import dev.gtcl.astro.ui.fragments.view_pager.ViewPagerVM
 
 @Suppress("UNCHECKED_CAST")
 class ViewModelFactory(private val application: AstroApplication) : ViewModelProvider.Factory {

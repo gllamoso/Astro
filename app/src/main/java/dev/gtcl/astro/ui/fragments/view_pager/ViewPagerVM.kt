@@ -1,6 +1,7 @@
 package dev.gtcl.astro.ui.fragments.view_pager
 
-import androidx.lifecycle.*
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import dev.gtcl.astro.AstroApplication
 import dev.gtcl.astro.AstroViewModel
 

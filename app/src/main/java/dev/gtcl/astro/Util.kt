@@ -48,7 +48,6 @@ import timber.log.Timber
 import java.lang.reflect.Field
 import java.net.SocketTimeoutException
 import java.net.UnknownHostException
-import java.util.*
 
 const val REDDIT_CLIENT_ID = "NjgsWrF6i2B0Jw"
 const val REDDIT_REDIRECT_URL = "http://reddit.gtcl.com/redirect"
@@ -343,11 +342,11 @@ suspend fun setItemsReadStatus(items: List<Item>, readIds: HashSet<String>) {
 
 fun String.removeHtmlEntities(): String {
     return this.replace("&lt;".toRegex(), "<")
-            .replace("&gt;".toRegex(), ">")
-            .replace("&quot;".toRegex(), "\"")
-            .replace("&#x200B;".toRegex(), "")
-            .replace("&#32;".toRegex(), " ")
-            .replace("&amp;".toRegex(), "&")
+        .replace("&gt;".toRegex(), ">")
+        .replace("&quot;".toRegex(), "\"")
+        .replace("&#x200B;".toRegex(), "")
+        .replace("&#32;".toRegex(), " ")
+        .replace("&amp;".toRegex(), "&")
 }
 
 operator fun <T> MutableLiveData<MutableList<T>>.plusAssign(values: List<T>) {
@@ -478,12 +477,11 @@ fun checkIfLoggedInBeforeExecuting(context: Context, runnable: () -> Unit) {
 }
 
 fun EditText.showKeyboard() {
-    if(requestFocus()){
+    if (requestFocus()) {
         postDelayed({
             (context.getSystemService(INPUT_METHOD_SERVICE) as InputMethodManager)
-                    .showSoftInput(this, SHOW_IMPLICIT)
-        }
-                , 300)
+                .showSoftInput(this, SHOW_IMPLICIT)
+        }, 300)
         setSelection(text.length)
     }
 
@@ -496,7 +494,14 @@ fun hideKeyboardFrom(context: Context, view: View) {
 }
 
 @SuppressLint("ShowToast")
-fun String.handleUrl(context: Context?, postPage: PostPage?, backupVideo: String?, fragmentManager: FragmentManager, navController: NavController, activityModel: MainActivityVM){
+fun String.handleUrl(
+    context: Context?,
+    postPage: PostPage?,
+    backupVideo: String?,
+    fragmentManager: FragmentManager,
+    navController: NavController,
+    activityModel: MainActivityVM
+) {
 
     try {
         when (postPage?.post?.urlType ?: this.getUrlType()) {
@@ -554,13 +559,28 @@ fun String.handleUrl(context: Context?, postPage: PostPage?, backupVideo: String
                     postPage
                 ).show(fragmentManager, null)
             }
-            UrlType.SUBREDDIT -> navController.navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(ListingPage(SubredditListing(
-                SUBREDDIT_REGEX.getFirstGroup(this) ?: throw IllegalStateException("Unable to find subreddit: $this")))))
-            UrlType.USER -> navController.navigate(ViewPagerFragmentDirections.actionViewPagerFragmentSelf(AccountPage(
-                REDDIT_USER_REGEX.getFirstGroup(this) ?: throw IllegalStateException("Unable to find user: $this"))))
+            UrlType.SUBREDDIT -> navController.navigate(
+                ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                    ListingPage(
+                        SubredditListing(
+                            SUBREDDIT_REGEX.getFirstGroup(this)
+                                ?: throw IllegalStateException("Unable to find subreddit: $this")
+                        )
+                    )
+                )
+            )
+            UrlType.USER -> navController.navigate(
+                ViewPagerFragmentDirections.actionViewPagerFragmentSelf(
+                    AccountPage(
+                        REDDIT_USER_REGEX.getFirstGroup(this)
+                            ?: throw IllegalStateException("Unable to find user: $this")
+                    )
+                )
+            )
             UrlType.REDDIT_GALLERY -> {
-                if(postPage != null){
-                    val galleryItems = postPage.post.galleryAsMediaItems ?: throw IllegalStateException("Gallery items is null: ${postPage.post}")
+                if (postPage != null) {
+                    val galleryItems = postPage.post.galleryAsMediaItems
+                        ?: throw IllegalStateException("Gallery items is null: ${postPage.post}")
                     MediaDialogFragment.newInstance(
                         this,
                         galleryItems,
@@ -568,7 +588,7 @@ fun String.handleUrl(context: Context?, postPage: PostPage?, backupVideo: String
                     ).show(fragmentManager, null)
                 } else {
                     val id = REDDIT_GALLERY_REGEX.getFirstGroup(this)
-                    if(id != null){
+                    if (id != null) {
                         MediaDialogFragment.newInstance(this, id).show(fragmentManager, null)
                     } else {
                         activityModel.openChromeTab(this)
@@ -587,27 +607,42 @@ fun String.handleUrl(context: Context?, postPage: PostPage?, backupVideo: String
             }
         }
 
-    } catch (e: Exception){
+    } catch (e: Exception) {
         Timber.tag("URL").e(e.toString())
         context?.let {
-            Toast.makeText(context, context.getString(R.string.failed_to_view_post_content), Toast.LENGTH_LONG).show()
+            Toast.makeText(
+                context,
+                context.getString(R.string.failed_to_view_post_content),
+                Toast.LENGTH_LONG
+            ).show()
         }
     }
 }
 
-fun createBetterLinkMovementInstance(context: Context, navController: NavController, fragmentManager: FragmentManager, activityModel: MainActivityVM): BetterLinkMovementMethod{
+fun createBetterLinkMovementInstance(
+    context: Context,
+    navController: NavController,
+    fragmentManager: FragmentManager,
+    activityModel: MainActivityVM
+): BetterLinkMovementMethod {
     return BetterLinkMovementMethod.newInstance().apply {
         setOnLinkClickListener { _, url ->
-            val consumeTouch = (PREFIXED_REDDIT_ITEM.matches(url) || ((URLUtil.isValidUrl(url) && Patterns.WEB_URL.matcher(url).matches())))
-            if(consumeTouch){
+            val consumeTouch =
+                (PREFIXED_REDDIT_ITEM.matches(url) || ((URLUtil.isValidUrl(url) && Patterns.WEB_URL.matcher(
+                    url
+                ).matches())))
+            if (consumeTouch) {
                 url.handleUrl(context, null, null, fragmentManager, navController, activityModel)
             }
             consumeTouch
         }
 
         setOnLinkLongClickListener { _, url ->
-            val consumeTouch = (PREFIXED_REDDIT_ITEM.matches(url) || ((URLUtil.isValidUrl(url) && Patterns.WEB_URL.matcher(url).matches())))
-            if(consumeTouch){
+            val consumeTouch =
+                (PREFIXED_REDDIT_ITEM.matches(url) || ((URLUtil.isValidUrl(url) && Patterns.WEB_URL.matcher(
+                    url
+                ).matches())))
+            if (consumeTouch) {
                 FragmentDialogUrlMenu.newInstance(url).show(fragmentManager, null)
             }
             consumeTouch

@@ -1,8 +1,7 @@
 package dev.gtcl.astro.repositories.reddit
 
-import dev.gtcl.astro.NotLoggedInException
 import dev.gtcl.astro.AstroApplication
-import dev.gtcl.astro.network.RedditApi
+import dev.gtcl.astro.NotLoggedInException
 import dev.gtcl.astro.database.redditDatabase
 import dev.gtcl.astro.models.reddit.AccessToken
 import dev.gtcl.astro.models.reddit.FriendRequest
@@ -10,6 +9,7 @@ import dev.gtcl.astro.models.reddit.User
 import dev.gtcl.astro.models.reddit.UserList
 import dev.gtcl.astro.models.reddit.listing.Account
 import dev.gtcl.astro.models.reddit.listing.AccountChild
+import dev.gtcl.astro.network.RedditApi
 import kotlinx.coroutines.Deferred
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext

@@ -10,8 +10,9 @@ object InlineCode : TextModifier()
 data class Hyperlink(
     val link: String
 ) : TextModifier()
+
 object Superscript : TextModifier()
-object Spacing: TextModifier()
+object Spacing : TextModifier()
 
 object Quote : TextModifier()
 data class Heading(val size: Int) : TextModifier()

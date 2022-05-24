@@ -1,8 +1,8 @@
 package dev.gtcl.astro.ui.fragments.view_pager
 
 import android.os.Parcelable
-import dev.gtcl.astro.models.reddit.listing.PostListing
 import dev.gtcl.astro.models.reddit.listing.Post
+import dev.gtcl.astro.models.reddit.listing.PostListing
 import kotlinx.android.parcel.Parcelize
 
 sealed class ViewPagerPage : Parcelable

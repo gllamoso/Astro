@@ -2,8 +2,11 @@ package dev.gtcl.astro.ui.fragments.splash
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import dev.gtcl.astro.*
+import dev.gtcl.astro.AstroApplication
+import dev.gtcl.astro.AstroViewModel
 import dev.gtcl.astro.database.SavedAccount
+import dev.gtcl.astro.getEncodedAuthString
+import dev.gtcl.astro.getErrorMessage
 import dev.gtcl.astro.models.reddit.AccessToken
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

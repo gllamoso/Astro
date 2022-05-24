@@ -31,7 +31,12 @@ class RulesDialogFragment : DialogFragment() {
     private var binding: FragmentDialogRulesBinding? = null
 
     private val movementMethod by lazy {
-        createBetterLinkMovementInstance(requireContext(), findNavController(), parentFragmentManager, activityModel)
+        createBetterLinkMovementInstance(
+            requireContext(),
+            findNavController(),
+            parentFragmentManager,
+            activityModel
+        )
     }
 
     override fun onStart() {

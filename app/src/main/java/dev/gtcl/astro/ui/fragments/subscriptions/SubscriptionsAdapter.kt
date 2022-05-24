@@ -11,9 +11,9 @@ import dev.gtcl.astro.actions.SubscriptionActions
 import dev.gtcl.astro.actions.SubscriptionAdapterActions
 import dev.gtcl.astro.database.Subscription
 import dev.gtcl.astro.models.reddit.listing.*
-import dev.gtcl.astro.ui.viewholders.ListingVH
-import dev.gtcl.astro.ui.viewholders.ExpandableItem
 import dev.gtcl.astro.ui.viewholders.ExpandableHeaderVH
+import dev.gtcl.astro.ui.viewholders.ExpandableItem
+import dev.gtcl.astro.ui.viewholders.ListingVH
 import dev.gtcl.astro.ui.viewholders.SubscriptionVH
 
 class SubscriptionsAdapter(

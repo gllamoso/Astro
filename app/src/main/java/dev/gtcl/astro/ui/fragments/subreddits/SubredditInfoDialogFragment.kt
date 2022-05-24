@@ -27,7 +27,12 @@ class SubredditInfoDialogFragment : DialogFragment() {
     private var binding: FragmentDialogSubredditInfoBinding? = null
 
     private val movementMethod by lazy {
-        createBetterLinkMovementInstance(requireContext(), findNavController(), parentFragmentManager, activityModel)
+        createBetterLinkMovementInstance(
+            requireContext(),
+            findNavController(),
+            parentFragmentManager,
+            activityModel
+        )
     }
 
     override fun onStart() {
@@ -53,13 +58,13 @@ class SubredditInfoDialogFragment : DialogFragment() {
 
         model.subreddit.observe(viewLifecycleOwner, {
             if (it != null) {
-                if(it.descriptionHtml != null && it.descriptionHtml.isNotEmpty()){
+                if (it.descriptionHtml != null && it.descriptionHtml.isNotEmpty()) {
                     binding?.fragmentDialogSubredditInfoTextLayout?.createHtmlViews(
-                            it.parseDescription(),
-                            null,
-                            movementMethod
+                        it.parseDescription(),
+                        null,
+                        movementMethod
                     )
-                } else if(context != null){
+                } else if (context != null) {
                     val textView = TextView(context).apply {
                         text = getString(R.string.no_description)
                     }

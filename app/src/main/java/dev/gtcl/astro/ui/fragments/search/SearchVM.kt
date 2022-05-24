@@ -7,7 +7,6 @@ import dev.gtcl.astro.models.reddit.listing.Item
 import dev.gtcl.astro.models.reddit.listing.SubredditChild
 import dev.gtcl.astro.ui.fragments.item_scroller.ItemScrollerVM
 import kotlinx.coroutines.launch
-import java.util.*
 
 class SearchVM(private val application: AstroApplication) : ItemScrollerVM(application) {
 
